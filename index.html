@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>조준모 화학 · 단원평가 정밀 진단 리포트</title>
+<meta name="description" content="조준모 화학 단원평가 정밀 진단 리포트. 영역별 성취, 난이도 사분면, 개념 진단, 누적 추이를 문항 단위로 분석합니다.">
+<!-- OpenGraph / KakaoTalk 미리보기 (og.png 같은 폴더) -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="조준모 화학 · 단원평가 정밀 진단 리포트">
+<meta property="og:description" content="영역별 성취 · 난이도 사분면 · 개념 진단 · 누적 추이. 문항 단위로 읽는 정밀 분석.">
+<meta property="og:image" content="og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="조준모 화학 · 단원평가 정밀 진단 리포트">
+<meta name="twitter:image" content="og.png">
+<!-- PWA (manifest.json · sw.js · icon-*.png 를 같은 폴더에 함께 올리면 홈 화면 설치/오프라인 동작. 없어도 앱은 정상 작동) -->
+<meta name="theme-color" content="#0E5A4C">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script>
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBFAF6; --surface:#FFFFFF; --surface-2:#F6F3EC; --surface-3:#FAF8F2;
+  --ink:#16181D; --ink-2:#454A57; --ink-3:#868B98; --ink-4:#A9AEBA;
+  --line:#E7E2D7; --line-2:#F0ECE2; --line-3:#EDE9DF;
+  /* 시그니처: 딥 틸 + 단일 황동 악센트 (레인보우 배제) */
+  --teal:#0E5A4C; --teal-d:#0A463B; --teal-t:#E7F0EC; --teal-t2:#D6E7E0;
+  --brass:#A6863F; --brass-d:#8A6E2E; --brass-t:#F4ECDA;
+  /* 의미색 (저채도 에디토리얼) */
+  --st:#90712C;  --st-bg:#F3EBD6;   /* 심화강점 */
+  --ms:#A23B2C;  --ms-bg:#F6E7E3;   /* 치명적실수(우선) */
+  --bs:#0E5A4C;  --bs-bg:#E7F0EC;   /* 기본안정 */
+  --tk:#586073;  --tk-bg:#ECEEF2;   /* 심화과제 */
+  --good:#0E5A4C; --bad:#A23B2C;
+  --serif:"Noto Serif KR",Georgia,"Times New Roman",serif;
+  --sans:"Noto Sans KR","Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --mono:"SF Mono","JetBrains Mono",ui-monospace,"D2Coding",Menlo,Consolas,monospace;
+  --shadow:0 1px 2px rgba(22,24,29,.04),0 10px 30px rgba(22,24,29,.06);
+  --shadow-s:0 1px 2px rgba(22,24,29,.05);
+  --maxw:1040px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--sans);color:var(--ink);background:var(--paper);line-height:1.62;letter-spacing:-.011em;-webkit-font-smoothing:antialiased;font-feature-settings:"tnum"}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:0}
+.serif{font-family:var(--serif)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+a{color:var(--teal)}
+
+/* ===== 마스트헤드 ===== */
+.top{background:var(--surface);border-bottom:1px solid var(--line)}
+.top__in{display:flex;align-items:center;justify-content:space-between;max-width:var(--maxw);margin:0 auto;padding:15px 22px}
+.bw{display:flex;align-items:center;gap:12px}
+.bw__mark{width:38px;height:38px;border-radius:10px;background:var(--teal);position:relative;flex:0 0 auto;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.bw__mark::after{content:"";position:absolute;left:9px;top:9px;right:9px;bottom:9px;border:1.5px solid var(--brass);border-radius:4px;opacity:.85}
+.bw__mark span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--serif);font-weight:700;font-size:15px}
+.bw__name{font-family:var(--serif);font-weight:700;font-size:16px;letter-spacing:-.01em;line-height:1.1}
+.bw__sub{font-size:10.5px;color:var(--ink-3);font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+.teal-rule{height:2px;background:linear-gradient(90deg,var(--teal) 0%,var(--teal-d) 70%,var(--brass) 100%)}
+.btn{font-family:var(--sans);font-size:13px;font-weight:500;padding:8px 15px;border-radius:9px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);transition:.15s}
+.btn:hover{border-color:var(--ink-3);color:var(--ink)}
+.btn--p{background:var(--teal);color:#fff;border-color:var(--teal)}
+.btn--p:hover{background:var(--teal-d);color:#fff}
+.btn--g{background:none}
+.btn-row{display:flex;gap:9px;flex-wrap:wrap}
+
+/* ===== 뷰 ===== */
+.view{display:none;padding:36px 0 96px}
+.view.on{display:block;animation:fade .4s ease}
+@keyframes fade{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+
+/* ===== 시험 선택 ===== */
+.hero{max-width:720px;margin-bottom:34px}
+.hero__ey{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass-d);margin-bottom:14px}
+.hero h1{font-family:var(--serif);font-size:33px;font-weight:700;line-height:1.24;letter-spacing:-.02em;margin-bottom:14px}
+.hero p{color:var(--ink-2);font-size:15px;max-width:600px}
+.exam-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:8px}
+.ec{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;cursor:pointer;transition:.18s;position:relative;overflow:hidden}
+.ec:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--teal-t2)}
+.ec::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--teal);opacity:0;transition:.18s}
+.ec:hover::before{opacity:1}
+.ec.dis{opacity:.5;cursor:not-allowed}
+.ec.dis:hover{transform:none;box-shadow:none;border-color:var(--line)}
+.ec__t{font-family:var(--serif);font-size:18px;font-weight:700;margin-bottom:6px;letter-spacing:-.01em}
+.ec__r{font-size:13px;color:var(--ink-2);margin-bottom:14px}
+.ec__m{display:flex;gap:16px;font-family:var(--mono);font-size:11.5px;color:var(--ink-3);border-top:1px solid var(--line-2);padding-top:12px}
+.ec__m b{color:var(--teal);font-weight:700}
+.tag{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.06em;padding:3px 8px;border-radius:5px;background:var(--surface-2);color:var(--ink-3);text-transform:uppercase}
+
+/* ===== OMR 입력 ===== */
+.omr-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:8px}
+.omr-head h2{font-family:var(--serif);font-size:23px;font-weight:700}
+.omr-head .sub{color:var(--ink-2);font-size:13.5px;margin-top:4px}
+.idform{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:18px;margin:18px 0 22px}
+.idform label{display:block;font-size:11px;font-weight:700;color:var(--ink-3);letter-spacing:.03em;margin-bottom:5px}
+.idform input{width:100%;font-family:var(--sans);font-size:14px;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--surface-3);color:var(--ink)}
+.idform input:focus{outline:none;border-color:var(--teal);background:#fff}
+.prog{position:sticky;top:0;z-index:5;background:var(--paper);padding:13px 0;border-bottom:1px solid var(--line);margin-bottom:18px}
+.prog__bar{height:6px;background:var(--surface-2);border-radius:4px;overflow:hidden}
+.prog__fill{height:100%;background:var(--teal);width:0;transition:width .3s}
+.prog__meta{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--ink-2);margin-bottom:9px}
+.prog__meta .warn{color:var(--ms)}
+.omr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
+.qrow{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.qrow__n{font-family:var(--mono);font-size:12.5px;color:var(--ink-3);width:24px;text-align:right;flex:0 0 auto}
+.qrow__ch{display:flex;gap:5px}
+.ansin{width:46px;height:38px;text-align:center;font-family:var(--serif);font-size:18px;font-weight:700;color:var(--ink);border:1px solid var(--line);border-radius:8px;background:var(--surface-3);transition:.12s;appearance:none;-moz-appearance:textfield}
+.ansin:focus{outline:none;border-color:var(--teal);background:#fff;box-shadow:0 0 0 3px var(--teal-t)}
+.ansin.filled{border-color:var(--teal);color:var(--teal);background:var(--teal-t)}
+.ansin::placeholder{color:var(--ink-4);font-weight:400}
+.omr-hint{font-size:12.5px;color:var(--ink-2);background:var(--teal-t);border:1px solid var(--teal-t2);border-radius:10px;padding:11px 15px;margin-bottom:16px;line-height:1.6}
+.omr-hint b{color:var(--teal-d)}
+.rosterBar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:10px 15px;margin-bottom:14px}
+.rosterBar b{color:var(--ink);font-weight:700}
+.rosterBar .rb-r{display:flex;align-items:center;gap:6px;color:var(--ink-3)}
+.rosterBar .rb-live{color:var(--teal-d);font-weight:700}
+.rosterBar .muted{color:var(--ink-4)}
+.lnk{background:none;border:none;color:var(--bad);font-family:var(--sans);font-size:12px;cursor:pointer;padding:0;text-decoration:underline}
+.lnk2{background:none;border:none;color:var(--teal-d);font-family:var(--sans);font-size:12px;cursor:pointer;padding:0;text-decoration:underline}
+
+/* ===== 리포트 공통 ===== */
+.rep{max-width:var(--maxw);margin:0 auto}
+.sec{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:26px 28px;margin-bottom:18px;box-shadow:var(--shadow-s)}
+.sec__h{display:flex;align-items:baseline;gap:12px;margin-bottom:4px}
+.sec__no{font-family:var(--mono);font-size:12px;color:var(--brass-d);letter-spacing:.06em;flex:0 0 auto}
+.sec__t{font-family:var(--serif);font-size:20px;font-weight:700;letter-spacing:-.012em}
+.sec__d{font-size:13px;color:var(--ink-3);margin:6px 0 20px;line-height:1.6}
+.eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+
+/* 리포트 머리글 */
+.rhead{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:0;margin-bottom:18px;overflow:hidden;box-shadow:var(--shadow-s)}
+.rhead__top{padding:24px 28px 22px;border-bottom:1px solid var(--line-2);display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.rhead__ey{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--brass-d);margin-bottom:9px}
+.rhead__t{font-family:var(--serif);font-size:27px;font-weight:700;line-height:1.2;letter-spacing:-.02em}
+.rhead__r{font-size:13.5px;color:var(--ink-2);margin-top:7px}
+.idcard{display:flex;gap:0;flex-wrap:wrap}
+.idcard__i{padding:7px 18px;border-left:1px solid var(--line-2)}
+.idcard__i:first-child{border-left:none;padding-left:0}
+.idcard__k{font-size:10px;color:var(--ink-4);letter-spacing:.05em;text-transform:uppercase;font-family:var(--mono)}
+.idcard__v{font-size:15px;font-weight:700;font-family:var(--serif);margin-top:1px}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:0;padding:22px 28px}
+.kpi{padding:0 22px;border-left:1px solid var(--line-2)}
+.kpi:first-child{border-left:none;padding-left:0}
+.kpi__k{font-family:var(--mono);font-size:11px;color:var(--ink-3);letter-spacing:.04em;text-transform:uppercase;margin-bottom:8px}
+.kpi__v{font-family:var(--serif);font-size:32px;font-weight:700;line-height:1;letter-spacing:-.02em}
+.kpi__v small{font-size:16px;color:var(--ink-3);font-weight:500}
+.kpi__s{font-size:12px;color:var(--ink-2);margin-top:8px}
+.kpi__s .up{color:var(--good);font-weight:700}
+.kpi__s .dn{color:var(--bad);font-weight:700}
+.kpi__spark{margin-top:8px}
+
+/* 요약 풀쿼트 */
+/* 다크 히어로 (핵심 진단 · 킥) */
+.hero-diag{background:linear-gradient(135deg,var(--teal-d) 0%,#0c3a32 55%,#0f221e 100%);border-radius:16px;padding:30px 32px;margin-bottom:18px;color:#F4F1E8;box-shadow:var(--shadow)}
+.hero-diag__ey{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#D8B978;margin-bottom:14px}
+.hero-diag__head{font-family:var(--serif);font-size:25px;font-weight:600;line-height:1.42;letter-spacing:-.012em;color:#FBFAF6}
+.hero-diag__head b{color:#EAC983;font-weight:700}
+.hero-diag__stats{display:flex;gap:0;margin-top:24px;border-top:1px solid rgba(255,255,255,.13);padding-top:18px;flex-wrap:wrap}
+.hds{padding:4px 26px;border-left:1px solid rgba(255,255,255,.13)}
+.hds:first-child{border-left:none;padding-left:0}
+.hds__v{font-family:var(--serif);font-size:23px;font-weight:700;color:#EAC983;line-height:1.1;letter-spacing:-.01em}
+.hds__k{font-size:11px;color:#A6BAB2;margin-top:7px;font-family:var(--mono);letter-spacing:.02em}
+/* 상세 진단 */
+.detail{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px 28px;margin-bottom:18px;box-shadow:var(--shadow-s)}
+.detail__q{font-family:var(--serif);font-size:16px;line-height:1.72;font-weight:500;color:var(--ink);margin-top:10px;letter-spacing:-.006em}
+.detail__q b{color:var(--teal-d);font-weight:700}
+.detail__q p{margin-bottom:9px}
+.detail__q p:last-child{margin-bottom:0}
+
+/* 사분면 */
+.quad-wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:26px;align-items:start}
+.quad-legend{display:flex;flex-direction:column;gap:10px}
+.ql{display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:11px;border:1px solid var(--line-2)}
+.ql__dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto;margin-top:5px}
+.ql__t{font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px}
+.ql__n{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.ql__d{font-size:12px;color:var(--ink-2);margin-top:2px;line-height:1.5}
+.ql.pri{border-color:var(--ms);background:var(--ms-bg)}
+.ql.pri .ql__t{color:var(--ms)}
+.chip-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.qchip{font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:5px;background:#fff;border:1px solid var(--line);color:var(--ink-2)}
+
+/* 영역별 다이버징 */
+.areatab{width:100%;border-collapse:collapse;font-size:13px;margin-top:18px}
+.areatab th{font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);font-weight:500;text-align:right;padding:0 9px 9px;border-bottom:1px solid var(--line)}
+.areatab th:first-child{text-align:left}
+.areatab td{padding:8px 9px;border-bottom:1px solid var(--line-2);text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.areatab td:first-child{text-align:left;font-family:var(--sans);font-weight:500}
+.areatab tr:hover td{background:var(--surface-3)}
+.grp-row td{background:var(--surface-2)!important;font-family:var(--serif)!important;font-weight:700;color:var(--teal-d);font-size:12.5px;letter-spacing:.02em}
+.dbar{position:relative;height:20px;display:flex;align-items:center}
+.dbar__center{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line)}
+.dbar__fill{position:absolute;height:10px;border-radius:3px;top:5px}
+.dval{font-weight:700}
+.dval.pos{color:var(--good)}.dval.neg{color:var(--bad)}
+
+/* 유형 숙련도 */
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px 26px;margin-top:18px}
+.cgroup__h{font-family:var(--serif);font-weight:700;font-size:13px;color:var(--teal-d);padding-bottom:7px;border-bottom:1px solid var(--line-2);margin-bottom:9px;letter-spacing:.01em}
+.crow{display:flex;align-items:center;gap:9px;padding:3px 0}
+.crow__t{font-size:12.5px;color:var(--ink-2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crow__bar{width:46px;height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden;flex:0 0 auto}
+.crow__bar i{display:block;height:100%;border-radius:3px}
+.crow__n{font-family:var(--mono);font-size:11px;color:var(--ink-3);width:30px;text-align:right;flex:0 0 auto}
+
+/* 오개념 */
+.misc{display:flex;flex-direction:column;gap:12px;margin-top:18px}
+.mcard{display:flex;gap:14px;border:1px solid var(--line);border-left:3px solid var(--ms);border-radius:11px;padding:15px 17px;background:var(--surface-3)}
+.mcard__n{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--ms);flex:0 0 auto;background:var(--ms-bg);width:42px;height:42px;border-radius:9px;display:flex;align-items:center;justify-content:center}
+.mcard__b{flex:1}
+.mcard__hd{font-weight:700;font-size:13.5px;margin-bottom:3px}
+.mcard__hd small{font-family:var(--mono);font-weight:400;color:var(--ink-3);margin-left:7px}
+.mcard__tx{font-size:13px;color:var(--ink-2);line-height:1.55}
+.misc-link{font-size:12.5px;color:var(--ink-2);margin-top:14px;padding-top:14px;border-top:1px solid var(--line-2)}
+
+/* 처방 */
+.rx{counter-reset:rx;display:flex;flex-direction:column;gap:0;margin-top:14px}
+.rxi{display:flex;gap:16px;padding:15px 0;border-bottom:1px solid var(--line-2)}
+.rxi:last-child{border-bottom:none}
+.rxi__no{counter-increment:rx;font-family:var(--serif);font-weight:700;font-size:18px;color:var(--brass-d);flex:0 0 auto;width:30px}
+.rxi__no::before{content:counter(rx)}
+.rxi__b strong{font-size:14px;font-weight:700;display:block;margin-bottom:3px}
+.rxi__b p{font-size:13px;color:var(--ink-2);line-height:1.55}
+.rxi__tag{display:inline-block;font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:5px;margin-right:6px;letter-spacing:.03em}
+.tag-pri{background:var(--ms-bg);color:var(--ms)}
+.tag-area{background:var(--teal-t);color:var(--teal-d)}
+.tag-misc{background:var(--brass-t);color:var(--brass-d)}
+
+/* 정오표 */
+.gt-legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--ink-2);margin-top:14px;margin-bottom:6px}
+.gt-note{font-size:11.5px;color:var(--ink-3);background:var(--surface-2);border-radius:7px;padding:7px 10px;margin-bottom:10px;line-height:1.5}
+.refmark{color:var(--brass-d);font-weight:700;cursor:help;margin-left:1px}
+.ql__mk{flex:0 0 auto;margin-top:1px}
+.gloss:focus{outline:2px solid var(--teal);outline-offset:2px;border-radius:3px}
+@media (max-width:560px){ .gt-sec{display:none} }
+@media (prefers-reduced-motion: reduce){ .loadov__spin{animation:none} *{transition:none!important} }
+.printbar{position:sticky;top:0;background:var(--paper);padding:12px 0;margin-bottom:8px;z-index:6;border-bottom:1px solid var(--line)}
+.delta-wrap{display:flex;flex-wrap:wrap;gap:8px}
+.delta-chip{font-size:12px;font-weight:600;border-radius:8px;padding:5px 12px;border:1px solid}
+.delta-chip--up{color:var(--teal-d);background:var(--teal-t);border-color:var(--teal-t2)}
+.delta-chip--dn{color:var(--ms);background:var(--ms-bg);border-color:transparent}
+/* ===== 일러스트/아이콘 배치 ===== */
+.sec__h{align-items:center}
+.sec__ico{display:inline-flex;align-items:center;justify-content:center;color:var(--brass-d);flex:0 0 auto}
+.sec__ico .ico{width:19px;height:19px}
+.sec__t{flex:1}
+.a-ico{display:inline-flex;vertical-align:-3px;margin-right:8px;color:var(--ink-3)}
+.a-ico .aico{width:16px;height:16px}
+.cg-ico{display:inline-flex;vertical-align:-3px;margin-right:6px;color:var(--teal-d)}
+.cg-ico .aico{width:15px;height:15px}
+.badge{display:inline-flex;align-items:center}
+.badge .bico{width:13px;height:13px;margin-right:5px;color:var(--teal-d)}
+.cover__art{display:none}
+.rhead{position:relative;overflow:hidden}
+.rhead__motif{position:absolute;right:0;bottom:0;opacity:.16;pointer-events:none}
+.rhead__motif .mast-motif{display:block}
+.hero-diag{position:relative;overflow:hidden}
+.hero-atom{position:absolute;right:-10px;top:-6px;opacity:.12;pointer-events:none;line-height:0}
+.hero-diag__ey,.hero-diag__head,.hero-diag__row,.badges{position:relative;z-index:1}
+.empty--art{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding:34px 16px}
+.empty--art svg{opacity:.9}
+.hero--art{position:relative;overflow:hidden}
+.hero__atom{position:absolute;right:6px;top:50%;transform:translateY(-50%);opacity:.13;pointer-events:none;line-height:0}
+.hero--art>*:not(.hero__atom){position:relative;z-index:1}
+.in-head{display:flex;align-items:center;gap:11px}
+.in-ico{display:inline-flex;flex:0 0 auto}
+@media print{ .cover__art{display:block} .rhead__motif{opacity:.12} .hero-atom{opacity:.1} }
+/* 학부모 FAQ */
+.faq{margin-top:4px}
+.faq__item{border-bottom:1px solid var(--line-2)}
+.faq__item:first-child{border-top:1px solid var(--line-2)}
+.faq__q{cursor:pointer;list-style:none;padding:15px 38px 15px 6px;font-family:var(--serif);font-weight:600;font-size:14.5px;color:var(--ink);position:relative;line-height:1.5;transition:color .15s}
+.faq__q::-webkit-details-marker{display:none}
+.faq__q::after{content:'+';position:absolute;right:10px;top:13px;font-family:var(--mono);font-size:18px;color:var(--brass-d);font-weight:400}
+.faq__item[open] .faq__q{color:var(--teal-d)}
+.faq__item[open] .faq__q::after{content:'\2212'}
+.faq__q:hover{color:var(--teal-d)}
+.faq__q:focus-visible{outline:2px solid var(--teal);outline-offset:-2px;border-radius:6px}
+.faq__a{padding:2px 6px 17px;font-size:13.5px;line-height:1.78;color:var(--ink-2)}
+.faq__a b{color:var(--teal-d);font-weight:700}
+.contact{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.contact__btn{display:inline-block;font-size:13px;font-weight:600;color:var(--teal-d);background:var(--teal-t);border:1px solid var(--teal-t2);border-radius:9px;padding:9px 16px;text-decoration:none}
+.contact__btn:hover{background:var(--teal-t2)}
+.contact__btn--k{color:#3a2a00;background:#FEE500;border-color:#F2D900}
+.contact__btn--k:hover{background:#F2D900}
+.gt-legend span{display:inline-flex;align-items:center;gap:5px}
+.bchip{font-family:var(--mono);font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px}
+.b-A{background:var(--ms-bg);color:var(--ms)}.b-B{background:#F0E4DE;color:#9A4A33}
+.b-C{background:var(--brass-t);color:var(--brass-d)}.b-D{background:var(--teal-t);color:var(--teal-d)}
+.b-E{background:var(--surface-2);color:var(--ink-3)}
+.gtab{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px}
+.gtab th{font-family:var(--mono);font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);font-weight:500;text-align:left;padding:0 8px 8px;border-bottom:1px solid var(--line)}
+.gtab td{padding:6px 8px;border-bottom:1px solid var(--line-2)}
+.gtab tr:hover td{background:var(--surface-3)}
+.ox{font-family:var(--serif);font-weight:700;font-size:14px}
+.ox.o{color:var(--teal)}.ox.x{color:var(--ms)}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:0 26px}
+
+/* 담임 코멘트 */
+.note{background:var(--surface-3);border:1px solid var(--line);border-radius:14px;padding:24px 28px;margin-bottom:18px}
+.note__h{font-family:var(--serif);font-weight:700;font-size:15px;color:var(--teal-d);margin-bottom:12px;display:flex;align-items:center;gap:9px}
+.note__h::before{content:"";width:18px;height:2px;background:var(--brass)}
+.note p{font-size:14px;color:var(--ink-2);line-height:1.82;margin-bottom:11px}
+.note p b{color:var(--ink);font-weight:700}
+.note__sign{text-align:right;font-family:var(--serif);font-size:14px;color:var(--ink-2);margin-top:14px}
+.note__sign b{color:var(--ink);font-weight:700}
+
+.foot{font-size:11.5px;color:var(--ink-3);line-height:1.72;padding:20px 4px 0}
+.foot b{color:var(--ink-2);font-weight:700}
+.foot b{color:var(--ink-2)}
+.est{color:var(--brass-d);font-weight:700}
+
+svg{display:block}
+.muted2{color:var(--ink-4);font-size:12px}
+.omr-group{margin-bottom:16px}
+.omr-group__h{font-family:var(--mono);font-size:11px;color:var(--ink-3);letter-spacing:.06em;margin:0 0 7px 2px}
+.rs-search{width:100%;max-width:340px;font-family:var(--sans);font-size:14px;padding:10px 13px;border:1px solid var(--line);border-radius:9px;background:var(--surface);margin:14px 0 16px}
+.rs-search:focus{outline:none;border-color:var(--teal)}
+.rs-row{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:8px;font-size:13.5px}
+.rs-no{width:40px;color:var(--ink-3);text-align:right;flex:0 0 auto}
+.rs-name{flex:1;font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rs-date{color:var(--ink-3);font-size:12px}
+.rs-score{width:56px;text-align:right;font-weight:700;color:var(--teal-d);flex:0 0 auto}
+.rs-act{display:flex;gap:12px;flex:0 0 auto}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(12px);background:var(--ink);color:#F4F1E8;font-size:13px;font-weight:500;padding:11px 20px;border-radius:10px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.25s;z-index:50}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.empty{font-size:13px;color:var(--ink-3);padding:14px;text-align:center;background:var(--surface-3);border-radius:10px}
+
+/* 반응형 */
+@media(max-width:860px){
+  .kpis{grid-template-columns:repeat(2,1fr);gap:20px 0}
+  .kpi{padding:0 16px}.kpi:nth-child(3){border-left:none;padding-left:16px}
+  .kpi:nth-child(odd){border-left:none;padding-left:0}
+  .quad-wrap,.trend-wrap{grid-template-columns:1fr}
+  .twocol{grid-template-columns:1fr}
+  .areatab{font-size:12px}
+}
+@media(max-width:560px){
+  .hero h1{font-size:26px}.rhead__t{font-size:22px}.sec{padding:20px 18px}
+  .hero-diag{padding:22px 20px}.hero-diag__head{font-size:20px}.hds{padding:4px 16px}
+  .areatab .hide-sm{display:none}.kpi__v{font-size:26px}
+}
+
+/* 인쇄 */
+@media print{
+  body{background:#fff}
+  .top,.no-print,.prog{display:none!important}
+  .view{padding:0}
+  .sec,.rhead,.summary,.note,.hero-diag,.detail{box-shadow:none;border-color:#ddd;break-inside:avoid;page-break-inside:avoid}
+  .summary{background:#fff}
+  .hero-diag{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .sec--long{break-inside:auto;page-break-inside:auto}
+  .gtab tr{break-inside:avoid}
+  .gtab{font-size:10.5px}
+  @page{margin:14mm}
+}
+/* ===== 추가 기능 컴포넌트 ===== */
+.rb-live{font-family:var(--mono);font-size:10px;color:var(--teal-d);background:var(--teal-t);border-radius:5px;padding:2px 7px;letter-spacing:.03em}
+.rb-sep{color:var(--ink-4);margin:0 8px}
+.rs-att{font-family:var(--mono);font-size:10px;color:var(--teal-d);background:var(--teal-t);border-radius:5px;padding:1px 6px;margin-left:7px}
+.hero-diag__row{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap}
+.hero-diag__spark{flex:0 0 auto}
+.hero-diag__sparklab{font-size:10px;color:rgba(244,241,232,.55);font-family:var(--mono);letter-spacing:.04em;margin-bottom:4px;text-align:center}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin:-4px 0 16px}
+.badge{font-size:11.5px;font-weight:600;color:var(--teal-d);background:var(--teal-t);border:1px solid var(--teal-t2);border-radius:999px;padding:5px 13px}
+.mcard__dist{margin-top:8px;font-size:11.5px;color:var(--ink-3);background:var(--surface-2);border-radius:7px;padding:6px 10px}
+.mcard__dist b{color:var(--ink-2);font-weight:700}
+.disc-lo{color:var(--ms)!important}
+.pglink{color:var(--teal-d);text-decoration:underline}
+/* 대시보드 / 프로파일 */
+.dash-kpis{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.dash-kpi{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:12px 18px;display:flex;flex-direction:column;gap:2px;min-width:118px}
+.dash-kpi b{font-family:var(--serif);font-size:23px;color:var(--teal-d);line-height:1.1}
+.dash-kpi small{font-size:11px;color:var(--ink-3)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin-bottom:14px}
+.card__h{font-family:var(--serif);font-weight:700;font-size:14px;color:var(--ink);margin-bottom:12px}
+.dash-2col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.dash-q{display:flex;align-items:center;gap:10px;font-size:12.5px;padding:5px 0}
+.dash-q__n{flex:0 0 44px;color:var(--ink-3)}
+.dash-q__t{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dash-q__bar{flex:0 0 120px;height:7px;background:var(--line-2);border-radius:4px;overflow:hidden}
+.dash-q__bar i{display:block;height:100%;background:var(--ms);border-radius:4px}
+@media(max-width:640px){.dash-2col{grid-template-columns:1fr}}
+/* 용어 팝오버 */
+.gloss{border-bottom:1px dotted var(--ink-3);cursor:help}
+.glosspop{position:fixed;max-width:264px;background:var(--ink);color:#F4F1E8;font-size:12px;line-height:1.55;padding:9px 12px;border-radius:8px;box-shadow:var(--shadow);z-index:70;opacity:0;pointer-events:none;transition:opacity .15s}
+.glosspop.on{opacity:1}
+/* 로딩 */
+.loadov{position:fixed;inset:0;background:rgba(251,250,246,.74);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;z-index:60}
+.loadov.on{opacity:1}
+.loadov__spin{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--teal);border-radius:50%;margin:0 auto 12px;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loadov__t{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.1em;text-align:center}
+/* 토스트 실행취소 */
+.toast--u{display:flex;align-items:center;gap:16px}
+.toast__undo{background:none;border:none;color:#EAC983;font-weight:700;font-size:13px;cursor:pointer;font-family:var(--sans)}
+/* 낙관 */
+.note__signrow{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:14px}
+.note__signrow .note__sign{margin-top:0}
+.seal{opacity:.92}
+/* 데모 워터마크 */
+.rep{position:relative}
+.samplemark{position:absolute;top:20px;right:-50px;transform:rotate(45deg);background:var(--brass);color:#fff;font-family:var(--mono);font-size:11px;letter-spacing:.12em;padding:5px 56px;box-shadow:var(--shadow);z-index:5;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+/* 인쇄 표지 */
+.cover{display:none}
+.print-page{break-after:page;page-break-after:always}
+@media print{ .faq__item{break-inside:avoid;page-break-inside:avoid} .faq__q::after{display:none} .faq__a{display:block!important} }
+@media print{
+ .cover{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:90vh;text-align:center;page-break-after:always}
+ .cover__brand{font-family:var(--mono);letter-spacing:.22em;color:var(--teal-d);font-size:12px;margin-bottom:26px}
+ .cover__title{font-family:var(--serif);font-size:32px;font-weight:700;color:var(--ink);line-height:1.3}
+ .cover__sub{color:var(--ink-3);margin-top:10px;font-size:13.5px}
+ .cover__meta{margin-top:34px;font-size:15px;color:var(--ink-2)}
+ .cover__by{margin-top:52px;font-family:var(--serif);color:var(--ink);font-weight:600;font-size:14px}
+}
+</style>
+</head>
+<body>
+
+<header class="top no-print">
+  <div class="top__in">
+    <div class="bw">
+      <div class="bw__mark"><span>C</span></div>
+      <div>
+        <div class="bw__name">Chemistreal</div>
+        <div class="bw__sub">조준모 · 화학 성적 분석</div>
+      </div>
+    </div>
+    <div class="btn-row" id="navBtns"></div>
+  </div>
+</header>
+<div class="teal-rule"></div>
+
+<!-- ===== 시험 선택 ===== -->
+<section id="vSelect" class="view on">
+  <div class="wrap">
+    <div class="hero hero--art">
+      <div class="hero__atom"><svg width="170" height="170" viewBox="0 0 120 120" fill="none" stroke="var(--brass)" stroke-width="1.3" aria-hidden="true"><circle cx="60" cy="60" r="5" fill="var(--brass)"/><ellipse cx="60" cy="60" rx="50" ry="20"/><ellipse cx="60" cy="60" rx="50" ry="20" transform="rotate(60 60 60)"/><ellipse cx="60" cy="60" rx="50" ry="20" transform="rotate(120 60 60)"/><circle cx="110" cy="60" r="3.4" fill="var(--brass)"/><circle cx="35" cy="103" r="3.4" fill="var(--brass)"/><circle cx="35" cy="17" r="3.4" fill="var(--brass)"/></svg></div>
+      <div class="hero__ey">Premium Diagnostic Report</div>
+      <h1>단원평가 정밀 진단 리포트</h1>
+      <p>영역별 성취, 난이도 사분면, 개념 진단, 누적 추이를 한 장에 담습니다. 답안을 입력하면 학생별 리포트가 생성됩니다.</p>
+    </div>
+    <div class="exam-grid" id="examGrid"></div>
+  </div>
+</section>
+
+<!-- ===== 답 입력 ===== -->
+<section id="vInput" class="view">
+  <div class="wrap">
+    <div class="omr-head">
+      <div class="in-head">
+        <span class="in-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--teal-d)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.2 3.5h5.6M10 3.5v5.6l-4.4 8a1.9 1.9 0 0 0 1.7 2.9h9.4a1.9 1.9 0 0 0 1.7-2.9L14 9.1V3.5"/><path d="M7.6 14.6h8.8"/></svg></span>
+        <div><h2 id="inExam"></h2><div class="sub" id="inRange"></div></div>
+      </div>
+      <div class="btn-row no-print">
+        <button class="btn btn--g" onclick="App.toSelect()">← 시험 목록</button>
+        <button class="btn btn--g" onclick="App.clearAnswers()">답안 지우기</button>
+        <button class="btn" onclick="App.loadSample()">시연 답안 불러오기</button>
+      </div>
+    </div>
+    <div class="rosterBar" id="rosterBar"></div>
+    <div class="idform" id="idForm"></div>
+    <div class="omr-hint">답안은 <b>키보드 숫자 1-4</b>로 입력합니다. 한 칸을 채우면 자동으로 다음 칸으로 넘어가고, 첫 칸에 <b>전체 답안을 붙여넣으면</b> 한 번에 채워집니다.</div>
+    <div class="prog">
+      <div class="prog__meta"><span id="progTxt">0 / 60 입력</span><span id="progWarn"></span></div>
+      <div class="prog__bar"><div class="prog__fill" id="progFill"></div></div>
+    </div>
+    <div id="omrGrid"></div>
+    <div class="btn-row no-print" style="margin-top:26px;justify-content:flex-end">
+      <button class="btn btn--p" style="padding:11px 26px" onclick="App.grade()">분석 리포트 생성 →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 학생 목록 ===== -->
+<section id="vRoster" class="view">
+  <div class="wrap">
+    <div class="omr-head">
+      <div><h2>학생 목록</h2><div class="sub" id="rsSub"></div></div>
+      <div class="btn-row no-print"><button class="btn btn--g" onclick="App.toInput()">← 답안 입력</button><button class="btn" onclick="App.copyAllLinks()">링크 전체 복사</button><button class="btn" onclick="App.printAll()">전체 인쇄</button></div>
+    </div>
+    <input class="rs-search" id="rsSearch" placeholder="이름 검색" oninput="App.renderRoster(this.value)">
+    <div id="rsList"></div>
+  </div>
+</section>
+
+<!-- ===== 반 대시보드 ===== -->
+<section id="vDash" class="view">
+  <div class="wrap">
+    <div class="omr-head">
+      <div><h2>반 대시보드</h2><div class="sub" id="dashSub"></div></div>
+      <div class="btn-row no-print"><button class="btn btn--g" onclick="App.toInput()">← 답안 입력</button><button class="btn" onclick="App.showRoster()">학생 목록</button></div>
+    </div>
+    <div id="dashBody"></div>
+  </div>
+</section>
+
+<!-- ===== 학생 프로파일 ===== -->
+<section id="vProfile" class="view">
+  <div class="wrap">
+    <div class="omr-head">
+      <div><h2>학생 프로파일</h2><div class="sub" id="profSub"></div></div>
+      <div class="btn-row no-print"><button class="btn btn--g" onclick="App.showRoster()">← 학생 목록</button></div>
+    </div>
+    <div id="profBody"></div>
+  </div>
+</section>
+
+<!-- ===== 리포트 ===== -->
+<section id="vReport" class="view">
+  <div class="wrap"><div class="rep" id="report"></div></div>
+</section>
+
+<script>
+/* ====================== 엔진 ====================== */
+const Q_KCH1=[
+ [1,2,86,"화학의 기초","원자의구성입자",21],
+ [2,2,90,"화학의 기초","중성자수",21],
+ [3,4,88,"기타","화학반응과핵반응",21],
+ [4,2,93,"화학의 기초","물질의분류",21],
+ [5,2,85,"화학식량","동위원소",22],
+ [6,3,79,"몰","몰과양적관계",22],
+ [7,2,71,"몰","최외각전자의몰수",22],
+ [8,2,77,"몰","아보가드로수",22],
+ [9,4,85,"기체","기체부피와압력",22],
+ [10,2,76,"기체","기체밀도(PV=nRT)",23],
+ [11,4,72,"기체","물질의상태",23],
+ [12,3,74,"양적관계","연소분석실험식",23],
+ [13,3,67,"양적관계","질량비실험식",24],
+ [14,3,71,"양적관계","계수맞추기",24],
+ [15,1,87,"양적관계","계수맞추기(미정계수)",24],
+ [16,2,90,"양적관계","계수맞추기(계수합)",24],
+ [17,3,78,"양적관계","몰과양적관계",25],
+ [18,2,76,"양적관계","몰과양적관계",25],
+ [19,4,74,"양적관계","부분압력",25],
+ [20,2,85,"원소의 기원","빅뱅과원소생성",26],
+ [21,4,75,"원소의 기원","우주의원소분포",26],
+ [22,4,63,"원소의 기원","질량비를개수비로",26],
+ [23,3,70,"원소의 기원","방사성붕괴",26],
+ [24,1,50,"원소의 기원","핵반응과원자량",27],
+ [25,4,76,"원자모형","돌턴의원자설",27],
+ [26,2,72,"원자모형","전자기파(가시광선)",28],
+ [27,2,61,"원자모형","수소스펙트럼계열",28],
+ [28,3,51,"원자모형","수소원자스펙트럼",28],
+ [29,4,61,"원자모형","흡수·방출과파장",28],
+ [30,3,56,"원자모형","전자스핀",29],
+ [31,1,59,"원자모형","양자수",29],
+ [32,4,74,"전자배치","오비탈표기",30],
+ [33,3,22,"전자배치","들뜬상태배치",30],
+ [34,3,81,"전자배치","바닥상태배치",30],
+ [35,2,81,"전자배치","바닥·들뜬비교",31],
+ [36,2,77,"주기율","원자반지름",31],
+ [37,3,78,"주기율","이온반지름",31],
+ [38,3,86,"주기율","등전자이온",31],
+ [39,4,69,"주기율","이온화에너지",32],
+ [40,4,76,"주기율","순차적이온화에너지",32],
+ [41,4,81,"주기율","전자배치와원소성질",32],
+ [42,2,67,"주기율","주기적성질",33],
+ [43,3,77,"주기율","주기적성질(그래프)",33],
+ [44,3,80,"주기율","이온화에너지(준위도)",33],
+ [45,1,79,"주기율","본하버순환",34],
+ [46,1,80,"분자의 구조","옥텟규칙(BH3)",34],
+ [47,3,60,"분자의 모양","분자의모양(VSEPR)",34],
+ [48,1,76,"분자의 모양","결합각비교",34],
+ [49,1,81,"분자의 구조","옥텟규칙(확장)",34],
+ [50,1,60,"분자의 모양","분자의모양(삼각뿔)",35],
+ [51,1,51,"분자의 모양","분자의모양(시소형)",35],
+ [52,4,65,"분자의 극성","혼성오비탈",35],
+ [53,4,63,"분자의 극성","쌍극자모멘트",36],
+ [54,2,81,"분자의 극성","분자의극성",36],
+ [55,4,66,"분자의 극성","결합의극성",36],
+ [56,2,64,"분자의 극성","분자의극성(분자간힘)",37],
+ [57,4,21,"분자의 극성","극성화학종개수",37],
+ [58,3,80,"분자의 극성","분자의극성판별",37],
+ [59,2,46,"분자의 극성","결합에너지",38],
+ [60,3,76,"기타","수소결합",38]
+];
+// 전체 문항 오답 오개념. 객체면 보기별, 문자열이면 문항 공통. '*'는 매핑 안 된 오답 보충.
+const OM={
+ 1:{1:"양성자수(원자번호)를 중성자수로 혼동",3:"질량수를 중성자수로 혼동",4:"양성자수와 질량수를 잘못 합산","*":"양성자수·중성자수·질량수의 관계(질량수=양성자수+중성자수)를 혼동"},
+ 2:"질량수에서 원자번호를 빼는 과정을 놓침. 중성자수 = 질량수 − 양성자수.",
+ 3:"화학 반응(전자만 관여, 원소 불변)과 핵반응(양성자·중성자 변화, 원소 바뀜)을 구분하지 못함.",
+ 4:"순물질과 혼합물, 화합물과 원소의 경계를 혼동. 균일 혼합물을 화합물로 오인하기 쉬움.",
+ 5:{3:"질량수가 같으면 동위원소로 오인(동위원소는 양성자수 같고 중성자수가 다름)",4:"양성자수·중성자수가 모두 다른 쌍을 동위원소로 오인","*":"동위원소의 정의(양성자수 동일, 중성자수 상이)를 정확히 적용하지 못함"},
+ 6:"몰·질량·입자수 사이의 환산(몰=질량/몰질량=입자수/아보가드로수)을 한 단계에서 잘못 적용.",
+ 7:"원자 1몰당 최외각 전자 수를 곱하는 과정을 빠뜨려 전자 몰수를 잘못 계산.",
+ 8:"밀도·부피로 질량을, 몰질량으로 몰수를, 아보가드로수로 입자수를 구하는 연쇄 환산을 중간에서 끊음.",
+ 9:"일정 온도에서 기체 부피가 외부 압력에 반비례한다는 보일 법칙을 적용하지 못함.",
+ 10:"기체 밀도 d=PM/RT에서 몰질량과 압력·온도 의존성을 혼동.",
+ 11:"상태변화 시 분자 자체는 변하지 않고 분자 사이 거리·배열만 달라진다는 점을 놓침.",
+ 12:"연소 생성물 CO₂·H₂O의 질량에서 C·H의 몰수로 거꾸로 환산하는 과정에서 몰비를 잘못 잡음.",
+ 13:"각 원소의 질량을 몰질량으로 나눠 가장 간단한 정수비(실험식)로 만드는 단계를 생략.",
+ 14:"원자 보존(좌우 원자수 일치)을 일부 원소에서만 맞추고 전체 균형을 확인하지 않음.",
+ 15:"미정계수법에서 방정식을 하나 빠뜨려 계수를 잘못 결정.",
+ 16:"균형을 맞춘 뒤 가장 간단한 정수비로 약분하지 않아 계수의 합을 잘못 셈.",
+ 17:"반응식 계수비가 곧 몰비임을 적용하지 못하고 질량비로 직접 비례시킴.",
+ 18:"한계 반응물을 판단하지 않고 한쪽 반응물 기준으로만 생성물의 양을 계산.",
+ 19:"혼합 기체에서 각 성분의 부분압력 = 전체압력 × 몰분율 관계를 적용하지 못함.",
+ 20:"빅뱅 직후의 수소·헬륨 생성과 별 내부 핵융합에 의한 무거운 원소 생성 단계를 혼동.",
+ 21:"우주에 수소·헬륨이 가장 많고 무거운 원소일수록 적다는 분포 경향을 잘못 앎.",
+ 22:{1:"질량비를 개수비로 그대로 쓰고 방향까지 혼동",2:"질량비를 개수비로 그대로 사용",3:"몰질량(He=4)으로 나누지 않음","*":"질량비를 몰질량으로 나눠 개수비로 환산하는 과정을 빠뜨림"},
+ 23:"알파·베타 붕괴에서 질량수·원자번호 변화 규칙(알파: 질량수 −4, 원자번호 −2 등)을 혼동.",
+ 24:"핵반응 전후 질량수·전하 보존을 적용하지 못해 생성 핵종의 원자량을 잘못 구함.",
+ 25:"돌턴 원자설 중 현대에 수정된 부분(동위원소 존재 등)을 구분하지 못함.",
+ 26:"진동수와 파장의 반비례, 에너지와 진동수의 비례 관계를 혼동.",
+ 27:"라이먼·발머·파셴 계열이 각각 어느 전자 전이(도착 껍질)에 대응하는지 혼동.",
+ 28:{1:"흡수 전이를 방출로 혼동",2:"큰 에너지 전이를 긴 파장으로 오인(에너지·파장은 반비례)",4:"흡수와 방출의 방향을 혼동","*":"전자 전이의 에너지 크기와 빛의 파장(반비례) 관계를 혼동"},
+ 29:"전자가 에너지를 흡수(높은 준위로)하는지 방출(낮은 준위로)하는지와 파장의 관계를 혼동.",
+ 30:"한 오비탈에 전자 2개가 반대 스핀으로 채워진다는 파울리 배타원리를 적용하지 못함.",
+ 31:"주양자수·부양자수·자기양자수의 허용 범위(0 ≤ l ≤ n−1 등)를 잘못 적용.",
+ 32:"전자배치 표기에서 s·p·d 오비탈의 최대 수용 전자수(2·6·10)를 혼동.",
+ 33:{1:"바닥상태를 들뜬상태로 혼동('들뜬' 조건 무시)",2:"더 높이 올라간 들뜬상태를 가장 안정한 것으로 오인",4:"쌓음원리를 위배한 배치를 허용된 것으로 오인","*":"바닥상태·들뜬상태 구분과 쌓음원리·훈트규칙 적용을 혼동"},
+ 34:"쌓음원리·훈트규칙을 어겨 바닥상태 전자배치를 잘못 작성.",
+ 35:"바닥상태와 들뜬상태의 구분 기준(에너지 최소 여부)을 혼동.",
+ 36:"같은 주기에서 원자번호가 커질수록 반지름이 감소(유효핵전하 증가)하는 경향을 반대로 앎.",
+ 37:"등전자 이온에서 양성자수가 많을수록 반지름이 작아진다는 점을 적용하지 못함.",
+ 38:{1:"양성자 수가 같다고 오인(등전자종 개념 미숙)",2:"중성자 수가 같다고 오인",4:"산화수가 같다고 오인","*":"등전자종(전자 수가 같은 화학종)의 정의를 정확히 적용하지 못함"},
+ 39:"주기·족에 따른 이온화에너지 경향과 예외(2족>13족, 15족>16족)를 혼동.",
+ 40:"순차 이온화에너지의 급증 지점으로 원자가전자 수(족)를 판단하는 논리를 적용하지 못함.",
+ 41:"전자배치로부터 족·주기·화학적 성질을 연결하지 못함.",
+ 42:"원자반지름·이온화에너지·전기음성도의 주기적 경향을 서로 혼동.",
+ 43:"주기율표 위치와 물리량 그래프의 봉우리·골을 잘못 대응.",
+ 44:"에너지 준위도에서 순차 이온화에너지의 간격으로 원자가전자 수를 읽어내지 못함.",
+ 45:"본-하버 순환에서 각 단계 에너지의 부호(흡수·방출)와 합을 잘못 계산.",
+ 46:"B처럼 옥텟을 만족하지 않는 예외(전자 부족 분자)를 인식하지 못함.",
+ 47:"중심원자의 결합쌍·비공유 전자쌍 수로 분자 모양을 정하는 VSEPR을 적용하지 못함.",
+ 48:"비공유 전자쌍의 반발이 결합각을 줄인다는 점을 고려하지 않음(CH₄>NH₃>H₂O).",
+ 49:"3주기 이상 중심원자의 확장 옥텟(전자 8개 초과)을 인식하지 못함.",
+ 50:"비공유 전자쌍을 포함한 입체 구조(삼각뿔형)를 평면으로 오인.",
+ 51:"전자쌍 5개 중 비공유쌍의 위치에 따른 시소형 구조를 혼동.",
+ 52:"중심원자 주위 전자쌍 수와 혼성 오비탈(sp·sp²·sp³)의 대응을 혼동.",
+ 53:"결합 쌍극자의 벡터 합이 0이면 무극성 분자라는 점을 적용하지 못함.",
+ 54:"분자의 대칭성에 따라 결합의 극성이 상쇄되는지를 판단하지 못함.",
+ 55:"극성 결합을 가져도 대칭이면 무극성 분자가 된다는 점을 혼동(예: CO₂).",
+ 56:"분자의 극성과 분자간 힘(쌍극자·분산력)의 세기를 연결하지 못함.",
+ 57:"여러 화학종의 극성 여부를 대칭성으로 일관되게 판별하지 못함.",
+ 58:"중심원자의 비공유 전자쌍 유무로 극성을 가르는 기준을 놓침.",
+ 59:"결합의 세기·길이·에너지의 상관(짧을수록 강하고 에너지가 큼)을 혼동.",
+ 60:"F·O·N에 결합한 H에서만 나타나는 수소결합의 조건을 일반 분자간 힘과 혼동."
+};
+const AREA_ORDER=["화학의 기초","화학식량","몰","기체","양적관계","원소의 기원","원자모형","전자배치","주기율","분자의 구조","분자의 모양","분자의 극성","기타"];
+const AREA_GROUP={"화학의 기초":"I. 화학의 첫걸음","화학식량":"I. 화학의 첫걸음","몰":"I. 화학의 첫걸음","기체":"I. 화학의 첫걸음","양적관계":"I. 화학의 첫걸음","원소의 기원":"II. 원자의 세계","원자모형":"II. 원자의 세계","전자배치":"II. 원자의 세계","주기율":"II. 원자의 세계","분자의 구조":"III. 화학 결합과 분자","분자의 모양":"III. 화학 결합과 분자","분자의 극성":"III. 화학 결합과 분자","기타":"기타"};
+const PT=3, CHO=["①","②","③","④"];
+// 구글 스프레드시트 자동 저장: Apps Script 웹앱 배포 URL(.../exec)을 아래에 붙여넣으세요. 비워두면 저장하지 않습니다.
+const SHEET_ENDPOINT="";
+const ROSTER_PREFIX="chemistreal:roster:";
+const MIN_STAT=12; // 추가 입력이 이 수 이상이면 실측 정답률·변별도·신뢰도를 노출
+const HAESEOL_BASE=""; // 해설 PDF 공개 URL을 넣으면 정오표에서 페이지로 바로가기 (예: https://.../해설.pdf)
+const BUILD="2026.06";
+const CONTACT={tel:"",kakao:""}; // 전화번호(예: "010-1234-5678")와 카카오 채널 URL을 넣으면 총평 아래 상담 버튼이 표시됩니다(인쇄 시 숨김)
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+const GLOSS={"백점환산":"득점을 배점으로 나눠 100점 만점으로 바꾼 점수입니다.","백분위":"나보다 점수가 낮은 학생의 비율입니다. 백분위 90이면 전체의 90%보다 높습니다.","변별도":"상위 27%와 하위 27% 집단의 정답률 차이입니다. 클수록 실력을 잘 가르는 문항입니다.","KR-20":"시험 전체가 얼마나 일관되게 실력을 재는지를 나타내는 신뢰도 지표(0~1)입니다.","측정표준오차":"점수에 내재된 오차 범위입니다. 같은 학생이 다시 봐도 이 정도는 흔들릴 수 있습니다.","실측 정답률":"우리 반 누적 응시자들이 이 문항을 맞힌 비율입니다. 출제 시 고정된 출제 정답률과 달리 입력이 쌓일수록 갱신됩니다."};
+function gl(t){return `<span class="gloss" tabindex="0" role="button" aria-label="${t} 용어 설명" data-tip="${esc(GLOSS[t]||'')}">${t}</span>`;}
+
+/* ====================== 일러스트레이션 (인라인 SVG · 라인아트) ====================== */
+const ART_RAW={
+ atom:'<circle cx="12" cy="12" r="2"/><ellipse cx="12" cy="12" rx="10" ry="4.4"/><ellipse cx="12" cy="12" rx="10" ry="4.4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4.4" transform="rotate(120 12 12)"/>',
+ dist:'<path d="M3 21h18"/><rect x="4.2" y="13" width="2.8" height="8"/><rect x="8.8" y="8.5" width="2.8" height="12.5"/><rect x="13.4" y="5" width="2.8" height="16"/><rect x="18" y="11" width="2.8" height="10"/>',
+ quad:'<rect x="3.5" y="3.5" width="17" height="17" rx="1.5"/><path d="M12 3.5v17M3.5 12h17"/><circle cx="7.6" cy="16.4" r="1.7" fill="currentColor" stroke="none"/>',
+ areas:'<path d="M12 3.5v17"/><rect x="12" y="5" width="7" height="2.5"/><rect x="6" y="9.4" width="6" height="2.5"/><rect x="12" y="13.8" width="5" height="2.5"/><rect x="8.5" y="18.2" width="3.5" height="2.5"/>',
+ concept:'<circle cx="5.2" cy="6.2" r="2"/><circle cx="18.4" cy="7.4" r="2"/><circle cx="12" cy="17.4" r="2"/><path d="M6.9 7.4l4 8.4M16.7 8.8l-3.4 7M7.1 6.6h9.2"/>',
+ mistake:'<circle cx="10" cy="10" r="6.4"/><path d="M15 15l5.2 5.2"/><path d="M8 8l4 4M12 8l-4 4"/>',
+ rx:'<rect x="5" y="4" width="14" height="17" rx="2.2"/><path d="M9 4h6v3H9z"/><path d="M8.4 13.2l2.3 2.3L16 10"/>',
+ table:'<rect x="3.5" y="4.5" width="17" height="15" rx="1.5"/><path d="M3.5 9.4h17M3.5 14.6h17M9 4.5v15M15 4.5v15"/>',
+ trend:'<path d="M3 21h18"/><path d="M4.5 16l4.8-5 4 3 6.7-7.6"/><path d="M17 6.4h3.2v3.2"/>',
+ faq:'<path d="M4 5.5h16v10.5H10.5L6 20.5V16H4z"/><path d="M9.6 9.6a2.4 2.4 0 1 1 2.9 2.4v1.1"/><circle cx="12.1" cy="14.9" r=".7" fill="currentColor" stroke="none"/>',
+ flask:'<path d="M9.2 3.5h5.6M10 3.5v5.6l-4.4 8a1.9 1.9 0 0 0 1.7 2.9h9.4a1.9 1.9 0 0 0 1.7-2.9L14 9.1V3.5"/><path d="M7.6 14.6h8.8"/>',
+ balance:'<path d="M12 4.2v15.6M7.5 19.8h9M5 8.4h14"/><path d="M5 8.4l-2.2 4.2a2.1 2.1 0 0 0 4.4 0zM19 8.4l-2.2 4.2a2.1 2.1 0 0 0 4.4 0z"/><circle cx="12" cy="4.2" r="1.1" fill="currentColor" stroke="none"/>',
+ gas:'<circle cx="7" cy="9" r="1.5"/><circle cx="14" cy="6.8" r="1.5"/><circle cx="17.2" cy="13" r="1.5"/><circle cx="9.2" cy="15.4" r="1.5"/><circle cx="13.4" cy="16.6" r="1.5"/>',
+ ratio:'<path d="M3.5 8.5h11.4l-2.6-2.6M14.9 8.5l-2.6 2.6"/><path d="M20.5 15.6H9.1l2.6-2.6M9.1 15.6l2.6 2.6"/>',
+ star:'<path d="M12 3.2l2.3 5.7 6.1.5-4.7 4 1.5 6-5.2-3.3-5.2 3.3 1.5-6-4.7-4 6.1-.5z"/>',
+ atom1:'<circle cx="12" cy="12" r="2.2"/><ellipse cx="12" cy="12" rx="9" ry="4"/><circle cx="21" cy="12" r="1.2" fill="currentColor" stroke="none"/>',
+ orbital:'<rect x="3" y="9.6" width="5" height="5"/><rect x="9.5" y="9.6" width="5" height="5"/><rect x="16" y="9.6" width="5" height="5"/><path d="M5.5 10.8v2.6M12 10.8v2.6M14 13.4v-2.6"/>',
+ periodic:'<rect x="5.5" y="5" width="13" height="14" rx="1.4"/><path d="M8.4 9h3.4"/><text x="12" y="16" font-size="7.5" text-anchor="middle" fill="currentColor" stroke="none" font-family="serif" font-weight="700">A</text>',
+ linmol:'<circle cx="5.2" cy="12" r="2.4"/><circle cx="12" cy="12" r="2.7"/><circle cx="18.8" cy="12" r="2.4"/><path d="M7.6 12h1.8M14.7 12h1.8"/>',
+ bentmol:'<circle cx="12" cy="6.8" r="2.7"/><circle cx="5.8" cy="16.6" r="2.4"/><circle cx="18.2" cy="16.6" r="2.4"/><path d="M10.6 8.9l-3.1 5.3M13.4 8.9l3.1 5.3"/>',
+ dipole:'<circle cx="7" cy="12" r="2.7"/><circle cx="17" cy="12" r="2.7"/><path d="M9.7 12h4.6"/><path d="M3.6 8.6h2.2M4.7 7.5v2.2"/><path d="M18.4 8.6h2.2"/>',
+ check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+ shield:'<path d="M12 3.5l7 2.4v5.1c0 4.4-3 7.5-7 9-4-1.5-7-4.6-7-9V5.9z"/><path d="M8.6 12l2.3 2.3L15.6 9.6"/>',
+ starb:'<path d="M12 3.2l2.3 5.7 6.1.5-4.7 4 1.5 6-5.2-3.3-5.2 3.3 1.5-6-4.7-4 6.1-.5z"/>',
+ up:'<path d="M12 20V5M5.5 11.5L12 5l6.5 6.5"/>',
+ trophy:'<path d="M7 4h10v4a5 5 0 0 1-10 0z"/><path d="M7 5.5H4.5V8a2.5 2.5 0 0 0 2.5 2.5M17 5.5h2.5V8a2.5 2.5 0 0 1-2.5 2.5M12 13v3M9 20h6M10 16h4l.6 4H9.4z"/>'
+};
+function svgIco(name,cls){ const r=ART_RAW[name]; if(!r)return''; return `<svg class="${cls||'ico'}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${r}</svg>`; }
+function secIco(t){
+ const map=[['분포','dist'],['사분면','quad'],['영역별','areas'],['개념','concept'],['오답','mistake'],['처방','rx'],['정오표','table'],['추이','trend'],['자주 묻는','faq']];
+ let key='atom'; for(const m of map){ if(t.includes(m[0])){key=m[1];break;} }
+ return `<span class="sec__ico">${svgIco(key,'ico')}</span>`;
+}
+const AREA_ICO={'화학의 기초':'flask','화학식량':'balance','몰':'balance','기체':'gas','양적관계':'ratio','원소의 기원':'star','원자모형':'atom1','전자배치':'orbital','주기율':'periodic','분자의 구조':'linmol','분자의 모양':'bentmol','분자의 극성':'dipole','기타':'flask'};
+function aIco(name){ return `<span class="a-ico">${svgIco(AREA_ICO[name]||'flask','aico')}</span>`; }
+function badgeIco(text){
+ const map=[['전 문항','check'],['상위','starb'],['실수 0','shield'],['만점','trophy'],['상승','up']];
+ let key='starb'; for(const m of map){ if(text.includes(m[0])){key=m[1];break;} }
+ return svgIco(key,'bico');
+}
+function artAtom(size,stroke){ const s=size||120,c=stroke||'var(--brass)'; return `<svg width="${s}" height="${s}" viewBox="0 0 120 120" fill="none" stroke="${c}" stroke-width="1.4" aria-hidden="true"><circle cx="60" cy="60" r="5" fill="${c}"/><ellipse cx="60" cy="60" rx="50" ry="20"/><ellipse cx="60" cy="60" rx="50" ry="20" transform="rotate(60 60 60)"/><ellipse cx="60" cy="60" rx="50" ry="20" transform="rotate(120 60 60)"/><circle cx="110" cy="60" r="3.4" fill="${c}"/><circle cx="35" cy="103" r="3.4" fill="${c}"/><circle cx="35" cy="17" r="3.4" fill="${c}"/></svg>`; }
+function artChain(){ return `<svg class="mast-motif" width="158" height="44" viewBox="0 0 158 44" fill="none" stroke="var(--brass)" stroke-width="1.3" aria-hidden="true"><circle cx="13" cy="22" r="4.2"/><circle cx="52" cy="13" r="4.2"/><circle cx="91" cy="28" r="4.2"/><circle cx="130" cy="14" r="4.2"/><circle cx="151" cy="30" r="3"/><path d="M17.2 21l31-6.6M56 14l31 13M95 27l31-11M134 15l14 12.5"/></svg>`; }
+function artFlask(size){ const s=size||92; return `<svg width="${s}" height="${s}" viewBox="0 0 96 96" fill="none" stroke="var(--ink-4)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M38 14h20M42 14v22L24 70a6 6 0 0 0 5 9h38a6 6 0 0 0 5-9L54 36V14"/><path d="M31 60h34"/><circle cx="44" cy="68" r="2.6" fill="var(--ink-4)" stroke="none"/><circle cx="54" cy="72" r="1.9" fill="var(--ink-4)" stroke="none"/><circle cx="48" cy="64" r="1.5" fill="var(--ink-4)" stroke="none"/></svg>`; }
+const SEED_KCH1=[[9,3,3,3,12,3,6,6,21,0,3,21,6],[3,3,3,3,9,0,9,12,6,0,0,9,6],[9,3,9,6,15,12,18,6,30,3,0,3,3],[9,3,0,6,21,6,15,0,6,3,3,12,3],[6,3,0,0,12,3,6,6,9,6,6,12,3],[9,3,6,6,15,3,9,6,15,3,3,15,6],[9,3,9,3,6,6,15,6,24,6,6,9,3],[9,3,0,6,15,0,6,0,18,6,3,6,3],[9,3,3,6,15,12,15,9,21,0,6,9,3],[6,3,0,6,12,6,18,3,15,3,6,3,0],[9,3,6,6,21,9,9,12,27,3,3,9,0],[9,3,0,3,18,9,12,12,27,3,12,9,3],[9,3,6,3,12,12,9,3,18,0,9,3,3],[6,3,0,3,6,3,9,6,12,3,0,3,0],[9,3,3,3,12,0,3,0,0,6,9,0,0],[9,3,0,3,6,3,6,0,3,0,0,0,0],[6,3,0,0,3,3,12,3,6,6,12,0,3],[3,3,0,9,6,6,9,3,6,3,0,6,3],[6,3,6,9,3,9,6,6,12,6,9,3,3],[9,3,0,6,6,9,6,0,6,6,0,0,3],[9,3,6,9,9,3,12,6,27,6,9,6,3],[9,3,6,3,12,6,6,9,3,0,0,0,3],[6,3,0,6,9,3,9,0,3,3,3,3,3],[9,0,3,3,9,9,6,3,6,3,3,6,0],[9,3,6,6,21,12,6,9,15,6,6,9,3],[9,3,0,6,21,9,6,6,9,0,3,3,0],[9,3,3,3,12,6,9,9,12,3,6,0,3],[9,3,3,0,18,6,6,3,6,0,6,3,0],[9,3,6,6,18,3,15,6,24,6,0,9,0],[9,0,0,6,15,6,9,6,12,3,0,3,3],[6,3,3,0,6,0,9,3,6,0,0,0,0],[9,3,3,9,18,6,12,9,21,6,3,9,3],[9,3,6,9,9,3,15,12,27,3,3,6,3],[9,3,0,6,15,9,18,12,24,6,9,6,0],[9,3,9,0,15,12,15,9,12,3,9,9,3],[9,3,6,3,18,6,3,9,9,3,3,3,3],[9,3,6,6,6,6,9,3,6,3,3,3,3],[9,3,6,3,18,6,15,6,18,0,3,12,6],[9,3,3,3,18,12,9,3,12,3,0,6,3],[9,3,6,3,15,6,18,9,18,0,0,0,6],[9,3,3,6,12,12,18,3,21,3,6,6,0],[9,3,6,6,18,3,6,3,15,6,3,12,3],[9,3,6,9,15,6,18,3,21,6,9,12,6],[9,3,6,0,21,12,15,3,24,0,3,6,0],[9,3,3,3,18,3,3,3,9,0,3,0,6],[6,3,0,6,15,0,3,6,12,3,0,0,3],[6,3,0,3,15,3,0,0,6,3,0,3,0],[3,0,3,3,6,3,6,0,3,3,0,12,3],[0,3,3,3,12,3,9,0,3,0,0,9,0],[6,3,0,6,6,9,6,0,3,0,0,9,3],[3,3,3,3,12,0,6,6,9,3,0,3,0],[9,3,0,0,12,6,12,9,15,0,0,3,3],[6,3,0,3,6,3,9,3,3,3,0,0,0],[9,3,6,0,18,12,15,3,24,0,3,6,0],[9,3,9,6,18,3,12,9,18,0,0,3,6],[6,3,3,6,12,9,18,3,12,3,6,15,3],[3,0,3,0,15,0,12,0,12,3,0,6,0],[9,3,6,0,18,3,18,6,15,6,0,9,6],[3,3,3,0,6,6,6,6,12,3,3,6,3],[6,3,6,3,18,9,12,3,9,0,12,3,3],[3,3,3,9,6,3,12,0,3,0,0,9,6],[3,3,0,0,3,6,3,12,12,6,0,12,3],[9,3,6,6,15,3,12,9,9,3,3,9,0],[6,3,3,3,21,9,12,3,12,0,3,6,3],[6,3,3,6,6,3,6,3,6,3,3,3,3],[9,3,9,3,18,9,9,9,21,6,9,18,3],[6,3,3,0,15,0,6,0,6,3,0,3,6],[9,3,3,9,12,9,6,12,3,0,3,12,0],[9,3,0,3,12,6,6,6,0,0,0,12,0],[9,3,9,9,21,12,21,12,30,6,12,21,6],[9,3,9,9,24,15,18,9,27,6,12,12,6],[9,3,6,9,24,12,21,12,30,6,0,15,3],[9,3,3,3,12,6,12,3,21,3,6,18,6],[6,3,9,6,18,6,15,6,18,6,6,0,3],[9,3,3,3,9,3,0,0,0,0,0,0,0],[9,3,0,0,9,3,6,0,0,0,0,0,0],[9,3,3,0,18,12,12,6,6,0,0,0,0],[9,3,3,6,18,12,3,3,6,3,0,0,0],[9,3,3,6,12,9,18,12,15,3,3,12,6],[9,3,9,3,15,12,15,6,9,3,3,6,3],[9,3,3,3,21,6,6,0,3,0,0,3,3],[9,3,0,9,18,9,12,9,6,3,0,12,3],[9,3,6,6,9,6,9,9,3,3,6,3,0],[9,3,3,6,12,6,6,6,18,0,3,6,3],[9,3,0,3,12,6,6,3,18,0,0,3,3],[9,3,3,9,24,12,6,9,24,6,3,9,3],[6,3,0,3,24,9,15,3,18,3,6,3,3],[9,3,3,3,15,3,12,3,9,3,3,6,0],[9,3,6,3,18,6,9,12,18,6,3,12,3],[6,3,0,0,15,6,6,6,6,0,6,9,0],[9,0,0,3,6,6,3,3,6,0,0,15,3],[9,3,0,0,21,6,3,0,12,3,3,9,0],[9,3,0,0,21,6,3,3,12,0,3,9,0],[9,3,3,3,12,9,9,6,15,3,3,3,6],[9,3,3,3,6,3,3,0,0,3,0,0,0],[9,3,3,3,15,6,9,9,12,0,3,3,0],[9,0,3,6,6,6,3,6,12,3,0,0,0],[6,3,9,9,21,15,12,12,30,6,9,18,3],[6,3,9,9,24,12,12,12,30,6,9,24,3],[9,3,6,3,9,15,18,3,24,6,0,3,3],[9,3,6,3,9,3,3,6,12,0,6,9,3],[9,3,0,6,18,3,9,6,12,0,6,12,0],[9,3,9,9,24,6,18,9,15,6,6,15,6],[9,3,9,9,18,9,15,12,24,6,12,24,6],[9,3,0,0,15,6,6,6,9,0,0,0,0],[9,3,3,0,12,3,9,6,3,0,3,3,3],[9,3,9,6,12,3,15,6,18,6,3,12,3],[9,3,3,6,21,3,3,6,24,6,9,9,3],[6,3,3,6,9,6,15,6,12,3,3,12,0],[6,0,9,3,12,3,12,6,6,0,3,6,6],[6,3,6,3,12,6,9,3,3,3,6,9,3],[6,3,6,6,15,3,9,3,9,0,3,9,0],[9,3,3,3,15,9,9,0,18,6,0,6,0],[0,0,6,3,9,6,15,6,9,0,9,6,3],[9,3,3,6,24,12,12,3,15,6,0,3,3],[9,3,3,6,18,9,3,6,24,0,0,18,3],[9,3,3,3,15,9,12,6,12,6,0,0,6],[6,3,0,0,12,3,6,9,9,3,0,6,3],[9,3,9,6,21,15,21,9,30,6,9,24,6],[9,3,9,9,24,15,18,12,24,6,12,24,6],[9,3,9,9,24,15,15,9,27,6,6,15,3],[6,3,9,6,15,15,12,12,18,6,6,15,0],[9,3,6,6,21,9,12,6,9,6,3,15,0],[9,3,9,9,24,12,21,12,24,6,9,18,6],[6,3,9,3,18,6,12,12,30,6,6,24,3],[6,3,6,9,18,9,15,6,24,6,3,9,6],[9,3,6,6,15,15,21,6,27,6,6,15,6],[9,3,6,3,12,6,18,9,21,3,3,3,3],[9,3,0,9,9,6,9,6,15,3,6,9,0],[6,3,3,3,12,3,15,6,21,6,0,6,3],[6,3,9,6,24,12,21,6,30,3,12,21,6],[9,3,3,3,21,6,12,6,15,6,3,3,3],[9,3,6,9,15,15,18,12,27,6,9,21,3],[9,3,3,6,21,9,9,3,18,6,3,12,6],[6,3,6,3,15,6,12,3,12,3,0,12,0],[9,3,9,3,18,9,12,6,18,6,6,18,6],[3,0,6,0,0,9,3,3,6,0,0,6,0],[3,0,3,6,12,6,9,6,9,3,3,3,0],[6,3,3,0,15,9,15,3,15,3,9,12,0],[9,3,3,9,24,9,21,12,9,6,9,24,0],[9,3,9,3,21,9,12,6,9,3,6,9,3],[9,3,3,3,24,15,21,9,30,6,6,18,6],[6,3,0,3,9,0,6,3,12,0,0,3,0],[9,0,0,6,3,3,0,6,3,0,0,9,6],[9,3,0,6,9,6,6,6,6,0,0,3,3],[9,3,0,3,9,3,9,9,3,0,3,3,0],[9,3,9,9,24,15,21,9,21,6,9,12,3],[6,3,0,6,18,9,9,0,12,6,0,6,0],[9,3,9,9,21,6,15,9,30,3,0,9,3],[9,3,0,0,9,3,9,3,3,0,0,0,3],[9,3,3,6,15,12,6,6,21,3,6,12,6],[9,3,6,0,12,6,6,3,3,0,3,0,3],[9,3,6,3,24,12,18,12,27,6,12,21,3],[3,3,3,3,9,3,9,6,9,0,0,6,3],[9,3,6,3,12,9,9,3,15,6,9,18,3],[9,3,3,3,18,15,18,6,24,6,9,9,3],[6,3,0,0,9,3,6,6,0,0,0,0,0],[9,3,6,3,24,12,18,12,27,6,9,12,0],[6,3,9,6,18,9,15,12,24,6,9,18,3],[9,3,6,3,9,9,6,6,12,3,3,12,3],[9,3,9,9,18,12,21,12,30,6,12,21,6],[9,3,3,6,21,12,15,6,9,6,9,15,0],[6,3,6,6,12,3,3,6,6,0,3,0,3],[6,0,6,0,6,0,0,0,3,0,0,3,3],[9,3,6,0,18,3,21,9,15,3,3,12,0],[9,0,9,6,24,12,18,9,30,6,9,21,6],[6,3,0,6,3,3,3,0,6,0,0,0,0],[9,3,0,3,12,6,12,3,12,6,0,0,3],[9,3,6,6,18,12,15,12,18,3,9,21,6],[9,3,3,0,12,3,9,0,6,0,3,0,3],[9,3,6,3,15,0,18,9,24,6,0,6,6],[6,3,3,0,6,0,3,0,9,0,3,12,6],[9,3,9,6,15,15,21,9,27,3,9,21,3],[3,0,0,0,9,3,0,6,3,0,3,9,3],[6,3,9,9,24,15,18,9,27,6,6,12,3],[9,3,3,6,21,3,15,0,24,3,3,9,3],[6,3,6,6,18,9,9,6,9,6,6,6,0],[9,3,6,3,21,12,12,3,15,3,3,3,6],[9,3,6,6,18,6,9,3,15,6,9,21,0],[9,3,9,6,24,15,15,9,18,6,6,9,3],[9,3,9,6,18,12,18,9,24,6,9,18,6],[9,3,3,9,18,3,15,9,18,3,3,6,6],[9,3,9,9,18,9,21,6,24,6,12,18,3],[9,3,9,6,18,12,12,6,18,6,9,12,6],[9,3,6,9,15,6,21,9,18,6,9,12,3],[9,3,9,9,21,12,21,9,30,6,12,24,6],[9,3,9,9,24,12,18,6,27,6,9,21,3],[9,3,6,9,24,9,9,9,24,6,12,18,6],[9,3,9,9,24,9,12,9,24,6,9,12,3],[9,3,9,9,24,12,15,9,18,3,9,18,6],[9,3,9,6,21,12,12,9,15,6,9,12,0],[9,3,9,9,21,6,6,9,27,6,12,15,3],[9,3,9,9,24,15,15,12,30,6,12,15,6],[6,3,6,6,6,6,9,3,6,0,0,9,0],[9,3,0,6,18,3,0,0,9,3,3,9,3],[9,3,3,0,12,3,0,0,6,0,3,3,3],[9,0,6,3,15,3,9,3,9,0,3,3,3],[9,3,9,9,24,15,18,9,24,6,12,12,6],[9,3,6,0,21,6,3,3,18,3,12,18,0],[9,0,6,3,6,0,6,3,6,0,3,3,0],[9,3,6,9,21,6,9,6,21,6,3,21,6],[9,3,6,3,12,6,6,0,6,3,3,6,3],[9,3,3,0,18,3,6,0,15,6,3,9,0],[3,0,6,6,12,6,6,3,12,0,0,3,0],[9,3,9,6,24,12,21,12,30,6,12,24,0],[9,3,6,3,15,6,6,0,6,3,0,3,3],[9,3,6,0,9,3,9,3,24,3,3,9,3],[9,3,6,6,12,12,18,9,18,6,6,12,6],[9,3,6,6,21,6,15,6,21,6,3,21,3],[9,3,3,6,18,3,9,9,12,3,12,9,6],[9,0,3,6,18,12,12,6,12,3,9,9,0],[9,3,3,0,3,12,12,9,9,6,6,6,0],[9,3,6,3,15,3,9,6,21,3,6,9,0],[6,0,3,0,12,3,12,3,9,0,3,3,3],[9,0,3,6,18,12,12,6,12,3,0,0,0],[9,3,3,3,12,9,9,3,12,3,6,3,0],[9,3,9,6,24,15,21,12,12,6,6,21,3],[9,3,6,6,18,12,18,9,21,6,6,21,6],[9,3,9,9,24,12,18,9,24,3,9,21,6],[9,3,9,9,24,9,21,12,27,6,6,15,3],[9,3,3,6,12,9,12,6,18,6,9,12,0],[9,3,9,3,21,9,21,6,18,6,12,0,0],[9,3,9,3,18,15,21,12,30,6,12,15,6],[9,3,9,9,24,15,21,9,27,6,12,18,6],[6,3,9,3,12,12,9,12,27,6,12,18,3],[6,3,3,3,12,12,6,6,12,3,6,15,3],[9,3,6,3,12,9,3,0,18,0,3,9,0],[6,3,0,3,15,3,3,0,3,0,3,9,0],[9,3,6,9,18,12,18,12,24,6,6,15,3],[9,3,3,0,9,9,9,3,18,3,9,12,3],[6,3,9,3,21,12,6,3,18,3,9,15,3],[3,3,9,0,15,9,6,9,21,6,6,15,3],[9,3,6,9,24,12,21,12,30,3,9,24,3],[9,3,6,6,15,9,9,6,18,0,6,12,0],[6,3,3,9,18,6,15,0,0,3,0,18,3],[9,3,9,9,24,15,21,12,27,6,12,21,0],[9,3,9,6,24,12,21,12,27,6,9,15,0],[9,3,6,6,12,6,9,9,15,3,3,15,3],[9,3,6,6,18,12,12,6,24,0,6,15,3],[9,3,9,9,24,15,18,12,30,6,12,21,0],[9,3,9,6,15,9,12,12,12,3,12,12,3],[6,3,9,6,24,12,18,12,30,6,12,18,0],[9,3,9,9,24,15,21,12,30,6,12,21,0],[9,3,6,9,18,9,15,6,24,6,12,21,0],[9,3,6,3,18,9,18,6,24,3,6,21,6],[6,3,9,0,15,9,18,9,30,3,12,18,6],[9,3,9,6,18,15,21,9,27,3,9,15,3],[9,3,9,3,21,12,6,3,24,3,12,15,3],[6,3,6,9,18,9,21,6,12,3,6,24,6],[6,3,6,3,18,15,15,6,18,3,0,3,3],[9,3,0,6,18,9,21,9,24,3,6,12,3],[9,3,3,6,18,3,21,6,24,6,12,18,6],[6,3,9,6,21,3,15,6,6,3,0,9,6],[9,3,3,6,15,3,15,9,18,6,9,18,3],[9,3,9,6,18,15,18,9,21,6,6,9,0],[9,3,9,6,24,15,21,12,30,6,9,18,3],[9,0,9,6,18,0,21,6,24,3,0,9,6],[9,3,6,6,24,9,21,9,24,6,9,3,0],[9,3,9,9,15,15,18,9,27,0,6,24,6],[9,3,9,9,24,15,21,12,30,6,6,24,6],[6,3,0,6,15,3,6,6,15,0,0,0,6],[9,3,9,6,24,12,18,9,21,3,6,12,3],[6,0,0,6,15,0,6,9,15,3,3,3,3],[9,0,6,3,12,6,9,0,6,0,0,3,0],[6,3,3,3,12,6,9,6,12,3,3,6,3],[9,3,9,9,12,9,3,6,24,6,6,3,3],[9,3,9,6,24,9,12,6,12,6,6,9,3],[9,3,3,3,18,6,12,3,15,3,3,12,0],[9,3,9,9,24,9,21,12,30,6,6,21,6],[6,3,3,3,18,6,3,3,12,0,3,3,3],[9,3,9,6,9,6,15,6,21,3,3,3,3],[9,3,3,6,15,6,9,3,9,0,3,9,0],[6,3,3,3,18,9,6,3,9,6,3,0,3],[6,3,3,6,12,6,15,6,21,6,12,9,0],[9,0,0,6,15,6,12,6,18,0,3,0,0],[9,3,9,3,12,12,18,12,24,6,3,12,6],[9,3,6,3,21,9,21,6,21,6,6,12,6],[9,3,9,6,24,12,21,9,30,6,12,18,6],[6,3,9,6,24,15,21,12,30,6,12,12,0],[9,3,0,3,18,6,9,0,21,3,0,3,0],[9,3,6,6,18,0,9,12,30,6,6,3,0],[9,3,9,3,21,12,15,9,21,6,6,12,0],[6,3,3,6,12,9,9,9,15,6,3,3,0],[9,3,9,9,21,9,18,9,12,6,6,9,3],[9,3,9,6,24,9,18,6,21,6,6,15,0],[9,0,9,6,21,12,18,12,27,6,9,21,6],[9,3,3,3,21,9,18,9,21,3,6,3,3],[9,3,6,6,18,15,15,6,21,6,3,15,0],[9,3,6,6,24,6,12,3,21,6,6,9,3],[6,3,9,9,15,15,15,6,30,6,6,15,3],[6,3,3,9,9,9,15,9,9,6,0,12,3],[9,3,9,6,12,12,18,6,9,3,6,6,3],[6,3,6,9,24,15,18,6,21,6,12,24,3],[6,3,3,3,12,12,12,6,15,0,3,0,0],[9,0,3,3,12,9,12,6,18,6,6,9,0],[9,3,3,3,21,6,9,9,12,3,6,0,0],[9,3,9,3,15,9,12,12,15,0,3,21,0],[9,3,3,6,15,0,6,6,24,3,9,15,6],[9,3,9,9,21,15,21,12,27,6,9,21,6],[6,3,6,6,18,9,15,9,21,6,0,12,0],[9,3,3,3,18,9,9,9,18,6,6,15,3],[3,3,3,3,15,9,12,3,15,3,3,12,3],[9,3,9,9,21,15,21,12,30,6,12,21,3],[6,3,6,6,18,9,12,9,18,6,3,12,0],[6,3,9,6,24,9,21,12,18,6,12,15,0],[3,0,6,3,6,12,12,0,12,3,3,3,3],[9,3,9,9,24,15,21,9,30,6,12,24,6],[9,3,9,9,21,12,21,9,30,6,12,24,3],[6,3,6,3,12,3,6,6,12,6,6,3,3],[9,3,6,3,9,12,3,0,9,0,6,0,0],[6,3,3,9,9,3,6,6,9,3,0,3,3],[6,3,6,6,12,15,9,0,21,0,3,3,0],[6,0,0,0,12,3,9,6,3,0,0,0,0],[9,3,9,9,24,15,18,9,30,6,12,24,3],[6,3,9,9,24,12,18,9,30,6,12,21,6],[9,0,3,9,18,6,3,3,15,6,3,3,0],[9,3,9,6,21,9,21,12,30,6,12,21,3],[3,0,0,0,15,3,0,0,6,0,3,15,0],[3,3,6,9,18,9,3,9,18,6,3,6,3],[9,3,9,9,24,9,21,9,12,6,12,6,6],[9,3,9,9,15,3,3,9,15,6,9,18,3],[9,3,9,6,18,15,21,9,24,6,9,18,3],[9,3,9,9,24,15,21,12,30,6,9,21,6],[6,3,3,9,18,12,21,6,15,6,0,18,0],[9,3,9,6,24,6,12,6,15,6,6,9,6],[9,3,9,3,12,9,21,9,12,3,6,18,6],[6,3,9,6,18,12,12,6,18,6,9,6,6],[9,3,3,3,12,9,9,0,0,0,0,3,0],[6,3,9,9,21,15,18,12,27,6,12,12,6],[9,3,3,9,3,9,9,3,9,3,6,12,0],[6,3,6,3,21,9,3,3,27,6,6,18,3],[9,3,9,3,15,12,21,6,21,3,3,9,3],[6,3,9,6,15,6,6,3,6,6,0,6,0],[9,3,9,6,24,12,15,12,27,6,3,9,6],[6,3,3,6,12,3,15,12,6,0,3,3,3],[9,3,6,3,21,12,6,3,6,0,3,6,6],[6,3,0,6,15,6,3,6,21,6,3,0,6],[6,3,3,6,12,3,0,9,15,0,3,3,3],[6,3,6,9,12,9,3,3,12,0,6,0,3],[9,3,9,9,18,6,12,0,21,6,6,6,3],[6,3,9,3,18,15,12,12,24,3,0,9,3],[9,3,6,9,21,12,18,9,18,0,9,9,3],[6,3,9,9,24,15,15,12,30,3,12,15,0],[9,3,0,9,3,0,15,9,18,6,0,6,0],[9,3,6,9,15,12,6,9,9,3,0,9,3],[6,3,6,6,21,6,9,6,12,0,0,12,3],[6,3,9,9,24,15,18,12,30,6,12,18,0],[6,3,9,9,18,0,9,9,30,3,6,21,3],[6,3,6,6,21,9,15,9,21,6,3,21,3],[9,3,6,9,24,15,18,6,30,6,9,24,6],[9,3,9,9,15,6,9,6,18,6,6,6,3],[6,3,9,9,24,9,9,9,30,3,3,3,3],[9,3,9,6,24,6,15,9,18,3,9,3,3],[9,3,9,9,24,12,18,12,27,6,6,15,3],[9,3,6,3,21,3,9,6,12,0,0,6,3],[9,3,9,9,24,15,21,9,24,6,9,15,3],[9,3,6,6,12,12,12,6,24,6,3,18,6],[9,3,6,9,18,3,12,0,15,0,3,6,3],[9,3,9,9,21,6,12,3,21,6,6,18,0],[9,3,9,9,21,9,21,9,24,3,6,12,3],[9,3,3,6,12,6,3,3,9,3,6,3,6],[9,3,9,6,21,12,15,9,15,3,3,15,0],[9,3,6,9,18,15,12,0,15,3,3,12,0],[6,3,6,9,15,12,18,9,18,3,3,9,3],[6,0,3,3,12,12,0,6,18,3,0,3,3],[9,3,9,6,24,9,15,12,27,6,6,15,3],[6,3,6,6,15,6,12,3,24,6,3,6,3],[9,3,3,6,15,6,9,6,9,0,3,9,3],[9,3,9,6,18,15,12,9,24,6,12,18,3],[9,3,0,9,6,6,6,3,3,0,3,9,0],[9,0,6,6,21,6,12,6,12,6,0,6,0],[6,3,9,6,21,9,12,9,24,6,9,9,6],[9,3,3,9,15,3,3,3,15,3,9,6,0],[6,3,3,3,15,0,18,6,21,3,3,12,3],[9,3,9,6,24,9,12,9,24,6,12,21,3],[9,3,3,6,18,9,6,6,15,0,6,6,0],[9,3,9,3,9,0,6,3,9,3,9,6,3],[9,3,6,9,21,6,12,12,12,3,9,6,3],[6,3,9,6,12,6,18,3,21,3,0,6,0],[6,3,9,3,12,12,9,6,24,6,6,15,0],[6,3,6,9,24,6,15,6,15,3,6,18,3],[6,3,6,9,21,9,12,9,24,6,12,18,3],[6,3,9,6,18,12,21,12,21,6,6,21,3],[9,3,0,6,6,9,9,6,18,3,6,12,0],[9,3,9,6,18,9,18,9,27,6,9,12,6],[9,3,6,3,21,6,12,6,24,3,9,6,0],[6,3,6,0,9,0,12,3,18,0,3,9,6],[9,3,9,6,24,15,18,9,27,6,3,15,3],[6,3,9,6,15,12,18,6,21,0,0,6,3],[9,3,9,6,21,6,15,6,21,3,3,9,6],[9,3,9,9,24,12,21,12,24,3,3,9,6],[6,3,6,6,12,9,21,9,24,3,0,6,3],[9,3,6,3,18,9,12,3,18,3,3,0,0],[6,3,9,6,21,12,15,12,18,6,3,12,3],[9,3,9,6,15,3,9,9,21,3,3,0,3],[6,3,6,6,21,6,18,9,18,0,0,6,3],[9,3,9,9,18,15,21,9,24,6,6,6,6],[9,3,9,9,24,6,21,12,18,6,3,12,3],[9,3,9,9,21,6,18,12,27,6,3,15,3],[9,3,9,6,21,9,6,9,12,0,3,6,3],[6,3,9,6,24,12,15,9,27,0,3,9,3],[9,3,6,3,24,12,12,3,21,6,3,6,3],[6,3,3,3,12,3,9,9,24,0,0,0,3],[9,3,9,9,24,9,18,12,21,6,3,21,6],[6,3,3,6,9,6,18,12,21,6,3,18,3],[9,3,6,3,15,3,9,6,9,3,0,6,6],[9,3,6,6,12,3,12,0,15,0,3,6,3],[9,3,6,3,15,6,15,9,18,3,0,12,3],[6,3,6,6,24,15,21,9,18,3,0,6,3],[6,3,9,3,24,15,21,9,21,3,12,21,6],[6,3,3,3,24,9,9,3,24,6,0,12,0],[6,3,6,0,18,15,18,12,21,0,3,9,3],[9,3,9,6,21,12,12,12,21,3,0,9,6],[6,3,3,6,24,15,21,12,24,0,9,21,6],[9,3,9,3,18,15,15,6,30,3,12,21,6],[9,3,9,3,18,15,9,3,24,0,6,18,6],[9,3,6,9,24,15,15,12,24,6,12,21,6],[9,3,9,6,18,9,18,9,15,6,6,9,3],[9,3,9,3,21,9,15,12,21,6,6,6,3],[6,3,9,3,15,12,15,9,18,6,3,24,3],[9,3,6,3,12,15,9,0,6,0,0,0,0],[6,3,3,3,24,9,9,3,24,6,0,12,0]];
+const SEEDS={kch1to3:SEED_KCH1};
+
+
+function mkExam(meta,rows){return Object.assign({},meta,{questions:rows.map(r=>({n:r[0],ans:r[1],p:r[2],area:r[3],type:r[4],page:r[5],misc:(typeof OM!=='undefined'?OM[r[0]]:null)||null}))});}
+const EXAMS=[
+ mkExam({id:"kch1to3",title:"화학1 1-3단원 모의고사",range:"화학의 기초 ~ 분자의 극성 · 중등 화올",source:"한국중학생화학대회 기출 재구성",N:422},Q_KCH1),
+ {id:"semi4",title:"세미파이널 4회",range:"화학2 전범위 · 준비 중",source:"",N:0,questions:[],disabled:true},
+ {id:"chem2-1",title:"화학2 1단원 모의고사",range:"기체·액체·고체 · 준비 중",source:"",N:0,questions:[],disabled:true}
+];
+
+function band(p){return p<20?"A":p<40?"B":p<60?"C":p<80?"D":"E";}
+const BAND_LABEL={A:"최고난도",B:"고난도",C:"중상",D:"중하",E:"평이"};
+function erf(x){const s=x<0?-1:1;x=Math.abs(x);const t=1/(1+0.3275911*x);const y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);return s*y;}
+function Phi(z){return 0.5*(1+erf(z/Math.SQRT2));}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+function rankPct(value,arr){const n=arr.length;let below=0,equal=0;for(const v of arr){if(v<value)below++;else if(v===value)equal++;}const greater=n-below-equal;return{rank:greater+1,ties:equal,pct:n?((below+(equal?0.5*equal:0))/n)*100:0,n};}
+function to100(pts,maxPts){return maxPts?pts/maxPts*100:0;}
+
+function analyze(exam,answers,cohort){
+ const qs=exam.questions,maxTotal=qs.length*PT;
+ const graded=qs.map(q=>{const a=answers[q.n];return{...q,choice:a,correct:a===q.ans,band:band(q.p)};});
+ const rawCorrect=graded.filter(g=>g.correct).length,total=rawCorrect*PT;
+ const areas={};
+ for(const g of graded){
+  if(!areas[g.area])areas[g.area]={name:g.area,group:AREA_GROUP[g.area]||"기타",nQ:0,maxPts:0,correct:0,pts:0,sumP:0};
+  const A=areas[g.area];A.nQ++;A.maxPts+=PT;A.sumP+=g.p;if(g.correct){A.correct++;A.pts+=PT;}
+ }
+ const totalArr=cohort?cohort.map(s=>s.total):null;
+ const totalStat=totalArr?rankPct(total,totalArr):null;
+ const cohortTotalMean=totalArr?totalArr.reduce((s,v)=>s+v,0)/totalArr.length:null;
+ const areaList=AREA_ORDER.filter(a=>areas[a]).map(a=>{
+  const A=areas[a];A.myAcc=A.nQ?A.correct/A.nQ*100:0;A.my100=to100(A.pts,A.maxPts);A.popAcc=A.nQ?A.sumP/A.nQ:0;
+  if(cohort){const arr=cohort.map(s=>s.areaPts[a]||0);const mean=arr.reduce((s,v)=>s+v,0)/arr.length;const st=rankPct(A.pts,arr);A.cohMeanPts=mean;A.cohMean100=to100(mean,A.maxPts);A.rank=st.rank;A.pct=st.pct;A.n=st.n;}
+  A.diff100=A.my100-(A.cohMean100!=null?A.cohMean100:A.popAcc);
+  return A;
+ });
+ const groups={};
+ for(const A of areaList){const g=A.group;if(!groups[g])groups[g]={name:g,nQ:0,maxPts:0,correct:0,pts:0};groups[g].nQ+=A.nQ;groups[g].maxPts+=A.maxPts;groups[g].correct+=A.correct;groups[g].pts+=A.pts;}
+ const groupList=Object.values(groups).map(G=>({...G,acc:G.nQ?G.correct/G.nQ*100:0,p100:to100(G.pts,G.maxPts)}));
+ const TH=70,quad={strength:[],miss:[],base:[],task:[]};
+ for(const g of graded){const hard=g.p<TH;if(g.correct&&hard)quad.strength.push(g);else if(!g.correct&&!hard)quad.miss.push(g);else if(g.correct&&!hard)quad.base.push(g);else quad.task.push(g);}
+ const concepts={};
+ for(const g of graded){const k=g.area+"||"+g.type;if(!concepts[k])concepts[k]={area:g.area,type:g.type,nQ:0,correct:0,qs:[]};concepts[k].nQ++;if(g.correct)concepts[k].correct++;concepts[k].qs.push(g.n);}
+ const conceptList=Object.values(concepts);
+ const misc=[];
+ for(const g of graded){
+  if(g.correct||!g.choice||!g.misc) continue;
+  const m=g.misc, text=(typeof m==='string')?m:(m[g.choice]||m['*']||null);
+  if(text) misc.push({n:g.n,area:g.area,type:g.type,choice:g.choice,ans:g.ans,text});
+ }
+ let estPct=null;
+ if(!cohort){const mu=qs.reduce((s,q)=>s+q.p/100*PT,0);const varr=qs.reduce((s,q)=>{const p=q.p/100;return s+p*(1-p)*PT*PT;},0);const sd=Math.sqrt(varr);estPct=Phi((total-mu)/sd)*100;}
+ return{exam,total,maxTotal,rawCorrect,my100:to100(total,maxTotal),totalStat,cohortTotalMean,estPct,areaList,groupList,quad,conceptList,misc,graded,TH};
+}
+
+/* ====================== 차트 (SVG, 단색+악센트) ====================== */
+function distSVG(r){
+ // 코호트 총점 히스토그램 + 본인 위치
+ const arr=App.cohort.map(s=>s.total),min=Math.min(...arr),max=Math.max(...arr);
+ const W=420,H=170,pad={l:8,r:8,t:14,b:26};
+ const bins=24,lo=Math.floor(min/PT)*PT,hi=Math.ceil(max/PT)*PT,bw=(hi-lo)/bins;
+ const counts=new Array(bins).fill(0);
+ arr.forEach(v=>{let b=Math.floor((v-lo)/bw);if(b>=bins)b=bins-1;if(b<0)b=0;counts[b]++;});
+ const cmax=Math.max(...counts),iw=W-pad.l-pad.r,ih=H-pad.t-pad.b;
+ const x=v=>pad.l+(v-lo)/(hi-lo)*iw;
+ const myX=x(r.total);
+ const sortedC=arr.slice().sort((a,b)=>a-b);
+ const pctScore=pp=>{ if(!sortedC.length)return lo; let idx=Math.floor(pp/100*sortedC.length); if(idx>=sortedC.length)idx=sortedC.length-1; if(idx<0)idx=0; return sortedC[idx]; };
+ const refs=[{p:90,l:'상위10%'},{p:75,l:'상위25%'},{p:50,l:'중앙'}].map(o=>{const v=pctScore(o.p),rx=x(v);return `<line x1="${rx}" y1="${pad.t+1}" x2="${rx}" y2="${pad.t+ih}" stroke="var(--ink-4)" stroke-dasharray="2 3" stroke-width="1" opacity=".5"/><text x="${rx}" y="${pad.t+8}" font-size="7.5" fill="var(--ink-4)" text-anchor="middle" font-family="var(--mono)">${o.l}</text>`;}).join("");
+ let bars="";
+ for(let i=0;i<bins;i++){
+  const bx=pad.l+i/bins*iw,bh=cmax?counts[i]/cmax*ih:0,inMy=(lo+i*bw)<=r.total&&r.total<(lo+(i+1)*bw);
+  bars+=`<rect x="${bx+0.5}" y="${pad.t+ih-bh}" width="${iw/bins-1}" height="${bh}" rx="1.5" fill="${inMy?'var(--teal)':'var(--line)'}"/>`;
+ }
+ const ticks=[lo,Math.round((lo+hi)/2/PT)*PT,hi].map(v=>`<text x="${x(v)}" y="${H-9}" font-size="9.5" fill="var(--ink-3)" text-anchor="middle" font-family="var(--mono)">${v}</text>`).join("");
+ return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="점수 분포">
+  ${bars}
+  ${refs}
+  <line x1="${myX}" y1="${pad.t-4}" x2="${myX}" y2="${pad.t+ih}" stroke="var(--brass)" stroke-width="2"/>
+  <circle cx="${myX}" cy="${pad.t-4}" r="3.5" fill="var(--brass)"/>
+  <text x="${myX}" y="${pad.t-9}" font-size="10" font-weight="700" fill="var(--brass-d)" text-anchor="middle" font-family="var(--mono)">본인 ${r.total}</text>
+  <line x1="${pad.l}" y1="${pad.t+ih}" x2="${W-pad.r}" y2="${pad.t+ih}" stroke="var(--line)" stroke-width="1"/>
+  ${ticks}
+ </svg>`;
+}
+
+function qmark(kind,cx,cy,color,rr){
+ const r=rr||4.2;
+ if(kind==='miss') return `<path d="M${cx} ${cy-r-0.6} L${cx+r+0.6} ${cy} L${cx} ${cy+r+0.6} L${cx-r-0.6} ${cy} Z" fill="${color}"/>`;
+ if(kind==='task') return `<path d="M${cx} ${cy-r-0.6} L${cx+r+0.4} ${cy+r} L${cx-r-0.4} ${cy+r} Z" fill="${color}"/>`;
+ if(kind==='base') return `<rect x="${cx-r+0.3}" y="${cy-r+0.3}" width="${2*r-0.6}" height="${2*r-0.6}" rx="0.8" fill="${color}"/>`;
+ return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${color}"/>`;
+}
+function scatterSVG(r){
+ const W=380,H=300,pad={l:42,r:14,t:14,b:34};
+ const iw=W-pad.l-pad.r,ih=H-pad.t-pad.b;
+ const cx=pad.l+iw*((100-r.TH)/100); // 임계 정답률 세로선 (난이도축: 왼=어려움)
+ const my=pad.t+ih/2;
+ const cols={strength:'var(--st)',miss:'var(--ms)',base:'var(--bs)',task:'var(--tk)'};
+ const bg=`
+  <rect x="${pad.l}" y="${pad.t}" width="${cx-pad.l}" height="${my-pad.t}" fill="var(--st-bg)" opacity=".6"/>
+  <rect x="${cx}" y="${pad.t}" width="${pad.l+iw-cx}" height="${my-pad.t}" fill="var(--bs-bg)" opacity=".6"/>
+  <rect x="${pad.l}" y="${my}" width="${cx-pad.l}" height="${pad.t+ih-my}" fill="var(--tk-bg)" opacity=".6"/>
+  <rect x="${cx}" y="${my}" width="${pad.l+iw-cx}" height="${pad.t+ih-my}" fill="var(--ms-bg)" opacity=".7"/>`;
+ const X=p=>pad.l+iw*((100-p)/100);
+ const rnd=mulberry32(99);
+ let pts="";
+ r.graded.forEach(g=>{
+  const px=X(g.p),jy=(rnd()-0.5)*(ih/2-22),py=(g.correct?pad.t+ih/4:pad.t+3*ih/4)+jy;
+  const kind=g.correct?(g.p<r.TH?'strength':'base'):(g.p<r.TH?'task':'miss');
+  const c=cols[kind];
+  pts+=`<g opacity=".92">${qmark(kind,px,py,c)}<title>${g.n}번 · 정답률 ${g.p}% · ${g.correct?'정답':'오답'}</title></g>`;
+ });
+ return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="난이도 정오 사분면">
+  ${bg}
+  <line x1="${cx}" y1="${pad.t}" x2="${cx}" y2="${pad.t+ih}" stroke="var(--ink-3)" stroke-dasharray="3 3" stroke-width="1"/>
+  <line x1="${pad.l}" y1="${my}" x2="${pad.l+iw}" y2="${my}" stroke="var(--ink-3)" stroke-dasharray="3 3" stroke-width="1"/>
+  ${pts}
+  <text x="${pad.l-6}" y="${pad.t+ih/4+4}" font-size="10" fill="var(--ink-3)" text-anchor="end" font-family="var(--mono)">정답</text>
+  <text x="${pad.l-6}" y="${pad.t+3*ih/4+4}" font-size="10" fill="var(--ink-3)" text-anchor="end" font-family="var(--mono)">오답</text>
+  <text x="${pad.l}" y="${H-10}" font-size="10" fill="var(--ink-3)" text-anchor="start" font-family="var(--mono)">← 어려움</text>
+  <text x="${pad.l+iw}" y="${H-10}" font-size="10" fill="var(--ink-3)" text-anchor="end" font-family="var(--mono)">쉬움 →</text>
+  <text x="${cx}" y="${H-10}" font-size="9" fill="var(--ink-4)" text-anchor="middle" font-family="var(--mono)">정답률 ${r.TH}%</text>
+ </svg>`;
+}
+
+/* ====================== 서술 생성 ====================== */
+function buildNarrative(r){
+ const out=[];const pct=r.totalStat?r.totalStat.pct:r.estPct;
+ const tier=pct>=85?"최상위권":pct>=70?"상위권":pct>=50?"중상위권":pct>=30?"중위권":"기초 보강 단계";
+ out.push(`이번 시험에서 <b>${r.total}점 / ${r.maxTotal}점</b>(백점환산 ${r.my100.toFixed(0)}점)을 받아 ${r.totalStat?`전체 ${r.totalStat.n}명 중 <b>${r.totalStat.rank}등</b>, 백분위 <b>${pct.toFixed(0)}</b>의 ${tier}`:`백분위 약 <b>${pct.toFixed(0)}</b>의 ${tier}`} 위치입니다.`);
+ const ms=r.quad.miss.length,hs=r.quad.strength.length;
+ if(ms>0) out.push(`정답률이 높아 충분히 맞힐 수 있던 문항 <b>${ms}개</b>를 놓쳤습니다. 이 ${ms*PT}점은 실력이 아니라 습관에서 새는 점수이므로, 가장 먼저 메워야 할 최우선 과제입니다.`);
+ else out.push(`쉬운 문항에서의 실점이 없어 기본기가 안정적으로 자리 잡았습니다.`);
+ if(hs>0) out.push(`반대로 정답률이 낮은 고난도 문항을 <b>${hs}개</b> 맞혀, 단순 암기를 넘어 개념을 응용하는 힘을 보였습니다.`);
+ const sorted=[...r.areaList].filter(a=>a.nQ>=2).sort((a,b)=>a.diff100-b.diff100);
+ if(sorted.length){const w=sorted[0],s=sorted[sorted.length-1];
+  out.push(`영역별로는 <b>${s.name}</b>가 평균 대비 가장 앞서고, <b>${w.name}</b>가 가장 뒤처집니다. 다음 학습은 ${w.name} 보강을 최우선으로 잡으세요.`);}
+ if(r.misc.length) out.push(`오답 <b>${r.misc.length}문항</b> 각각에 대해 어떤 개념이 흔들렸는지 아래 카드에 정리했습니다.`);
+ return out;
+}
+function buildKick(r){
+ const pct=r.totalStat?r.totalStat.pct:r.estPct;
+ const top=100-pct;
+ const tier=pct>=85?'최상위권':pct>=70?'상위권':pct>=50?'중상위권':pct>=30?'중위권':'기초 보강 단계';
+ const miss=r.quad.miss.length;
+ const areas=[...r.areaList].filter(a=>a.nQ>=2);
+ const weak=areas.slice().sort((a,b)=>a.diff100-b.diff100)[0];
+ const strong=areas.slice().sort((a,b)=>b.diff100-a.diff100)[0];
+ let head;
+ if(pct<40) head=`기본기를 다지는 단계입니다. 맞힌 <b>${r.rawCorrect}문항</b>을 발판으로 한 영역씩 쌓아 올리면 됩니다.`;
+ else if(miss>0) head=`${tier}, 그러나 충분히 맞힐 <b>${miss*PT}점</b>이 새고 있습니다.`;
+ else if(weak&&weak.diff100<0) head=`${tier}. 이제 <b>${weak.name}</b> 한 영역이 분기점입니다.`;
+ else head=`약점 없이 균형 잡힌 <b>${tier}</b> 성취입니다.`;
+ const chips=[];
+ chips.push({v:r.totalStat?`상위 ${top<1?'1':top.toFixed(0)}%`:`백분위 ${pct.toFixed(0)}`,k:r.totalStat?`${r.totalStat.rank}등 / ${r.totalStat.n}명`:'추정 백분위'});
+ chips.push(miss>0?{v:`${miss*PT}점`,k:`치명적 실수 ${miss}문항`}:{v:'0',k:'기본 문항 실수'});
+ if(strong) chips.push({v:strong.name,k:strong.diff100>0?`최강 영역 · 평균 +${strong.diff100.toFixed(0)}`:`가장 잘한 영역 · ${strong.myAcc.toFixed(0)}%`});
+ return {head,chips};
+}
+function buildRx(r){
+ const rx=[];
+ if(r.quad.miss.length){const ns=r.quad.miss.map(g=>g.n).sort((a,b)=>a-b).join(", ");rx.push({tag:'<span class="rxi__tag tag-pri">최우선</span>',title:`치명적 실수 ${r.quad.miss.length}문항부터 복구`,body:`${ns}번. 정답률이 높았던 문항입니다. 풀이를 다시 보며 '왜 틀렸는지'를 한 줄로 적어 오답노트에 남기세요. 여기서 ${r.quad.miss.length*PT}점을 즉시 회복할 수 있습니다.`});}
+ const weak=[...r.areaList].filter(a=>a.nQ>=2&&a.diff100<0).map(a=>({a,roi:(1-a.myAcc/100)*a.maxPts})).sort((x,y)=>y.roi-x.roi).slice(0,2).map(o=>o.a);
+ weak.forEach(w=>{if(w.diff100<0)rx.push({tag:'<span class="rxi__tag tag-area">영역 보강</span>',title:`${w.name} 집중 보강`,body:`평균 대비 ${Math.abs(w.diff100).toFixed(0)}점 낮습니다(정답률 ${w.myAcc.toFixed(0)}%). 해당 영역 유형 문제를 한 세트 더 풀어 격차를 좁히세요.`});});
+ if(r.misc.length){r.misc.slice(0,2).forEach(m=>rx.push({tag:'<span class="rxi__tag tag-misc">개념 교정</span>',title:`${m.type} 오개념 교정`,body:`${m.n}번에서 "${m.text}"가 드러났습니다. 해당 개념을 다시 정리하고 같은 유형을 한 번 더 점검하세요.`}));}
+ if(r.quad.task.length){const ns=r.quad.task.map(g=>g.n).sort((a,b)=>a-b).join(", ");rx.push({tag:'<span class="rxi__tag tag-area">심화 도전</span>',title:`고난도 미해결 문항 재도전`,body:`${ns}번. 정답률이 낮은 변별 문항입니다. 지금 당장은 아니어도, 위 과제를 끝낸 뒤 도전하면 상위권 굳히기로 이어집니다.`});}
+ return rx;
+}
+
+/* ====================== 보조 비주얼 ====================== */
+function heroSpark(r){
+ const arr=App.cohort.map(s=>s.total); if(!arr.length)return '';
+ const W=156,H=46,bins=22,min=Math.min(...arr),max=Math.max(...arr);
+ const lo=Math.floor(min/PT)*PT,hi=Math.ceil(max/PT)*PT,bw=(hi-lo)/bins||1;
+ const counts=new Array(bins).fill(0); arr.forEach(v=>{let b=Math.floor((v-lo)/bw);if(b>=bins)b=bins-1;if(b<0)b=0;counts[b]++;});
+ const cmax=Math.max(...counts)||1,x=v=>(v-lo)/((hi-lo)||1)*W,myX=x(r.total);
+ let bars=''; for(let i=0;i<bins;i++){const bh=counts[i]/cmax*(H-12);bars+=`<rect x="${i/bins*W}" y="${H-bh}" width="${W/bins-0.8}" height="${bh}" rx="1" fill="rgba(255,255,255,.20)"/>`;}
+ return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" aria-hidden="true">${bars}<line x1="${myX}" y1="0" x2="${myX}" y2="${H}" stroke="#EAC983" stroke-width="2"/><circle cx="${myX}" cy="3" r="2.6" fill="#EAC983"/></svg>`;
+}
+function badgesHTML(r){
+ const b=[],pct=r.totalStat?r.totalStat.pct:r.estPct;
+ if(r.rawCorrect===r.exam.questions.length) b.push('전 문항 정답');
+ if(pct>=90) b.push('상위 10% 이내');
+ if(r.quad.miss.length===0) b.push('치명적 실수 0');
+ const full=r.areaList.filter(a=>a.nQ>=2&&a.my100>=99.9).sort((x,y)=>y.maxPts-x.maxPts);
+ if(full.length) b.push(`${full[0].name} 만점`);
+ if(App.curTrend&&App.curTrend.length>=2){ const t=App.curTrend, last=t[t.length-1].total, prev=t[t.length-2].total; if(last>prev) b.push('직전 회차 대비 상승'); }
+ return b.length?`<div class="badges">${b.map(x=>`<span class="badge">${badgeIco(x)}${x}</span>`).join('')}</div>`:'';
+}
+function trendSVG(arr){
+ const W=480,H=156,pad={l:34,r:16,t:18,b:30},iw=W-pad.l-pad.r,ih=H-pad.t-pad.b,n=arr.length,max=180;
+ const x=i=>pad.l+(n===1?iw/2:i/(n-1)*iw),y=v=>pad.t+ih-v/max*ih;
+ let path='',dots=''; arr.forEach((pp,i)=>{const px=x(i),py=y(pp.total);path+=(i?'L':'M')+px+' '+py+' ';dots+=`<circle cx="${px}" cy="${py}" r="3.6" fill="var(--teal-d)"/><text x="${px}" y="${py-9}" font-size="10.5" font-weight="700" fill="var(--teal-d)" text-anchor="middle" font-family="var(--mono)">${pp.total}</text><text x="${px}" y="${H-9}" font-size="9" fill="var(--ink-3)" text-anchor="middle" font-family="var(--mono)">${(pp.date||'').slice(5)||(i+1)+'회'}</text>`;});
+ const grid=[0,45,90,135,180].map(v=>`<line x1="${pad.l}" y1="${y(v)}" x2="${W-pad.r}" y2="${y(v)}" stroke="var(--line-2)"/><text x="${pad.l-6}" y="${y(v)+3}" font-size="9" fill="var(--ink-4)" text-anchor="end" font-family="var(--mono)">${v}</text>`).join('');
+ return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="회차별 추이">${grid}<path d="${path}" fill="none" stroke="var(--teal)" stroke-width="2"/>${dots}</svg>`;
+}
+
+/* ====================== 학부모 FAQ (데이터 기반) ====================== */
+function buildFAQ(r){
+ const nm=esc(App.idData.name)||'학생';
+ const pct=r.totalStat?r.totalStat.pct:r.estPct, top=(100-pct)<1?'1':(100-pct).toFixed(0);
+ const tier=pct>=85?'최상위권':pct>=70?'상위권':pct>=50?'중상위권':pct>=30?'중위권':'기초 보강 단계';
+ const my100=r.my100.toFixed(0);
+ const miss=r.quad.miss, missN=miss.length, missPts=missN*PT, task=r.quad.task, hard=r.quad.strength.length;
+ const areas=r.areaList.filter(a=>a.nQ>=2);
+ const wsort=areas.slice().sort((a,b)=>a.diff100-b.diff100), weak=wsort[0], weak2=wsort.slice(0,2).filter(a=>a.diff100<0);
+ const strong=areas.slice().sort((a,b)=>b.diff100-a.diff100)[0];
+ const trend=App.curTrend, F=[];
+
+ F.push({q:'이 점수, 어느 정도인가요?', a:
+  `원점수 <b>${r.total}점</b> / ${r.maxTotal}점(백점환산 <b>${my100}점</b>)입니다. `+
+  (r.totalStat?`같은 시험을 본 <b>${r.totalStat.n}명</b> 중 <b>${r.totalStat.rank}등</b>, 백분위 <b>${pct.toFixed(0)}</b>(상위 <b>${top}%</b>)로 <b>${tier}</b>에 해당합니다. `:`현재 추정 백분위는 약 <b>${pct.toFixed(0)}</b>로 <b>${tier}</b> 수준입니다. `)+
+  `점수 자체보다, 아래에서 짚어 드리는 "어디가 약하고 무엇을 보충하면 되는지"가 더 중요합니다.`});
+
+ if(missN) F.push({q:'몰라서 틀린 건가요, 실수로 틀린 건가요?', a:
+  `정답률이 높아 충분히 맞힐 수 있던 문항을 <b>${missN}개(${missPts}점)</b> 놓쳤습니다(리포트의 '치명적 실수'). 이건 실력이 부족해서가 아니라 읽기·계산·검토 같은 <b>습관에서 새는 점수</b>여서, 가장 빠르게 회복할 수 있는 부분입니다. `+
+  (task.length?`반대로 정답률이 낮은 변별 문항 <b>${task.length}개</b>는 아직 배우는 중인 심화 영역이라 지금 못 풀어도 괜찮습니다.`:`정답률이 낮은 고난도 외에는 대부분 안정적으로 맞혔습니다.`)});
+ else F.push({q:'실수로 틀린 문제가 있나요?', a:
+  `쉬운 문항(정답률이 높은 문항)에서의 실수가 <b>없습니다</b>. 기본기가 안정적으로 자리 잡았다는 뜻이라, 남은 과제는 정답률이 낮은 ${task.length?`<b>심화 문항 ${task.length}개</b>`:'고난도 문항'}에 도전하는 것입니다.`});
+
+ if(weak&&weak.diff100<0) F.push({q:'어느 단원이 약한가요? 무엇부터 보충해야 하나요?', a:
+  `평균 대비 가장 약한 영역은 <b>${weak.name}</b>입니다(정답률 ${weak.myAcc.toFixed(0)}%). `+
+  (weak2.length>1?`그다음은 <b>${weak2[1].name}</b>입니다. `:'')+
+  `이 영역의 유형 문제를 한 세트 더 풀어 보는 것이 점수를 올리는 가장 효율적인 길입니다. 구체적인 실행은 리포트의 '다음 학습 처방'에 순서대로 정리해 두었습니다.`});
+ else F.push({q:'특별히 약한 단원이 있나요?', a:
+  `영역별로 큰 구멍 없이 고르게 맞혔습니다. ${strong?`그중 <b>${strong.name}</b>이 가장 안정적입니다. `:''}지금은 약점 보강보다, 정답률이 낮은 심화 문항에 도전하며 폭을 넓히기 좋은 단계입니다.`});
+
+ F.push({q:`${nm} 학생이 진도를 잘 따라가고 있나요?`, a:
+  (pct>=85?`네. 개념을 단순히 외우는 단계를 넘어 <b>응용하는 최상위 단계</b>까지 올라와 있습니다. 현재 페이스를 유지하면 충분합니다.`
+  :pct>=70?`네. 핵심 개념을 <b>응용하는 단계</b>까지 잘 따라오고 있습니다. 실수만 줄이면 한 단계 더 올라갑니다.`
+  :pct>=50?`핵심 개념을 <b>안정적으로 다지는 중</b>입니다. 약점 영역만 꾸준히 보강하면 무리 없이 따라갈 수 있습니다.`
+  :`지금은 <b>기본 개념을 차근차근 쌓는 단계</b>입니다. 자주 나오는 기본 유형부터 확실히 잡으면 점수가 빠르게 따라옵니다. 조급해하지 않으셔도 됩니다.`)});
+
+ if(trend&&trend.length>=2){ const d=trend[trend.length-1].total-trend[trend.length-2].total;
+  F.push({q:'지난 회차보다 점수가 어떻게 변했나요?', a:
+   (d>0?`직전 회차보다 <b>${d}점 올랐습니다</b>. 좋은 흐름이니, 하던 방식을 유지하며 약점 영역만 추가로 챙기면 됩니다.`
+    :d<0?`직전 회차보다 <b>${Math.abs(d)}점 내렸습니다</b>. 다만 시험마다 난이도와 범위가 달라 한 번의 변동은 흔한 일입니다. 한두 번의 점수보다 <b>여러 회차의 추세</b>를 함께 보는 것이 정확합니다.`
+    :`직전 회차와 <b>같은 점수</b>입니다. 약점 영역을 메우면 다음 단계로 올라설 수 있습니다.`)+
+   ` 회차별 추이는 리포트의 그래프에서 확인하실 수 있습니다.`}); }
+
+ if(r.totalStat) F.push({q:'백분위와 석차는 어떻게 해석하나요?', a:
+  `백분위 <b>${pct.toFixed(0)}</b>은 함께 시험 본 학생 중 <b>${pct.toFixed(0)}%</b>보다 점수가 높다는 뜻입니다. 석차는 <b>${r.totalStat.rank}등</b>입니다. 인원수에 따라 등수의 의미가 달라지기 때문에, 집단이 바뀌어도 비교가 되는 <b>백분위</b>를 함께 보시면 위치를 더 정확히 가늠하실 수 있습니다.`});
+
+ F.push({q:'정답률이 낮은데 맞고, 높은데 틀린 건 무슨 의미인가요?', a:
+  `리포트의 '신호등 사분면'은 모든 문항을 <b>난이도(정답률)</b>와 <b>정오</b>의 두 축으로 나눈 것입니다. 정답률이 높은데 틀린 칸이 <b>'치명적 실수'</b>로 가장 먼저 메워야 할 곳이고, 정답률이 낮은데 맞힌 칸은 <b>'심화 강점'</b>으로 응용력이 발휘된 지점입니다.`});
+
+ F.push({q:'집에서 무엇을 도와주면 좋을까요?', a:
+  `세 가지면 충분합니다. ① 틀린 문항을 <b>다시 풀고 "왜 틀렸는지" 한 줄</b> 적게 해 주세요. ② 점수 결과보다 <b>다시 풀어오는 과정</b>을 칭찬해 주세요. ③ 모르는 개념은 다음 수업에서 질문하도록 격려해 주세요. 점수로 다그치기보다 <b>꾸준함</b>을 응원해 주시는 것이 이 시기에는 가장 효과적입니다.`});
+
+ F.push({q:'다음 시험까지 어떻게 준비하면 되나요?', a:
+  `① ${weak&&weak.diff100<0?`<b>${weak.name}</b> 등 약점 영역`:'정답률이 낮았던 영역'}의 유형을 한 세트 더 풀고, ② ${missN?`이번에 놓친 <b>${missN}개 실수 문항</b>의`:'틀린 문항의'} 오답노트를 완성한 뒤, ③ 다음 진도를 가볍게 예습하는 순서를 권합니다. 무리한 분량보다 <b>약점 한 영역을 확실히</b> 끝내는 편이 점수로 이어집니다.`});
+
+ if(r.misc.length||missN) F.push({q:'오답노트는 어떻게 쓰면 되나요?', a:
+  `문항마다 ① <b>내가 고른 답과 정답</b>, ② <b>왜 틀렸는지 한 줄</b>, ③ <b>관련 개념 한 줄</b>이면 충분합니다. 리포트의 '오답 문항 개념 분석'에 문항별로 흔들린 개념을 적어 두었으니, 그대로 옮겨 적게 하시면 가장 빠릅니다.`});
+
+ if(hard>=2&&pct>=70) F.push({q:'화학에 소질이 있나요? 올림피아드를 준비해도 될까요?', a:
+  `정답률이 낮은 고난도 문항을 <b>${hard}개</b> 맞혀 <b>응용력</b>을 보였습니다. 본인이 화학에 흥미가 있다면 심화에 도전해 볼 만합니다. 다만 무리한 선행보다 <b>현재 단원을 깊이 있게 숙달</b>하는 것이 먼저이고, 올림피아드는 그 토대가 충분히 쌓인 뒤에 권해 드립니다.`});
+ else if(pct<50) F.push({q:'화학에 소질이 있을까요?', a:
+  `소질은 타고나는 것이라기보다 <b>기본기가 쌓이면서 드러나는</b> 경우가 많습니다. 지금은 자주 나오는 기본 개념을 확실히 잡는 단계가 가장 효과적입니다. 이 토대가 갖춰지면 어려운 문제도 자연스럽게 풀리기 시작합니다.`});
+
+ F.push({q:'이 점수로 내신이나 입시는 괜찮을까요?', a:
+  `이 리포트는 <b>특정 단원의 현재 이해도</b>를 진단하는 도구이지, 내신 등급이나 입시 결과를 예측하지는 않습니다. 지금 드러난 약점을 하나씩 메워 가는 것이 결국 학교 시험과 그 이후의 가장 든든한 토대가 됩니다. 한 번의 점수에 일희일비하기보다 <b>방향</b>을 잡는 자료로 활용해 주세요.`});
+
+ return F;
+}
+
+/* ====================== 렌더 ====================== */
+function renderReport(r,id){
+ const pct=r.totalStat?r.totalStat.pct:r.estPct;
+ const meanPts=r.cohortTotalMean;
+ const kick=buildKick(r);
+ const statChips=kick.chips.map(c=>`<div class="hds"><div class="hds__v">${c.v}</div><div class="hds__k">${c.k}</div></div>`).join("");
+ let _sn=0; const SN=()=>String(++_sn).padStart(2,'0');
+ const kScore=`<div class="kpi"><div class="kpi__k">원점수</div><div class="kpi__v">${r.total}<small>/${r.maxTotal}</small></div><div class="kpi__s">백점환산 <b>${r.my100.toFixed(0)}</b> · 맞은 개수 ${r.rawCorrect}/${r.exam.questions.length}</div></div>`;
+ const kMean=`<div class="kpi"><div class="kpi__k">전체 평균</div><div class="kpi__v">${meanPts!=null?meanPts.toFixed(0):'-'}<small>/${r.maxTotal}</small></div><div class="kpi__s">${meanPts!=null?(r.total>=meanPts?`평균 대비 <span class="up">+${(r.total-meanPts).toFixed(0)}점</span>`:`평균 대비 <span class="dn">${(r.total-meanPts).toFixed(0)}점</span>`):''}</div></div>`;
+ const kPct=`<div class="kpi"><div class="kpi__k">백분위</div><div class="kpi__v">${pct.toFixed(0)}</div><div class="kpi__s kpi__spark">${App.cohort.length?distSVG(r):'추정값'}</div></div>`;
+ const kRank=`<div class="kpi"><div class="kpi__k">전체 석차</div><div class="kpi__v">${r.totalStat?r.totalStat.rank:'-'}<small>${r.totalStat?'/'+r.totalStat.n:''}</small></div><div class="kpi__s">${r.totalStat?`상위 ${(100-r.totalStat.pct)<1?'1':(100-r.totalStat.pct).toFixed(0)}%${r.totalStat.ties>1?` · 동점 ${r.totalStat.ties}명`:''}`:'추정'}</div></div>`;
+
+ // 요약
+ const narr=buildNarrative(r).map(s=>`<p style="margin-bottom:8px">${s}</p>`).join("");
+
+ // 사분면
+ const QD=[
+  {k:'miss',c:'var(--ms)',t:'치명적 실수',d:'정답률이 높은데 틀린 문항. 실력이 아닌 습관의 구멍. 최우선 교정 대상.',pri:true},
+  {k:'strength',c:'var(--st)',t:'심화 강점',d:'정답률이 낮은데 맞힌 문항. 개념 응용력이 발휘된 지점.'},
+  {k:'base',c:'var(--bs)',t:'기본 안정',d:'쉬운 문항을 정확히 맞힘. 안정적으로 확보한 점수.'},
+  {k:'task',c:'var(--tk)',t:'심화 과제',d:'정답률이 낮고 틀린 문항. 다음 단계 도전 영역.'}
+ ];
+ const quadLegend=QD.map(q=>{
+  const list=r.quad[q.k];
+  const km={miss:'miss',strength:'strength',base:'base',task:'task'}[q.k];
+  return `<div class="ql${q.pri?' pri':''}"><svg class="ql__mk" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">${qmark(km,8,8,q.c,5)}</svg><div style="flex:1">
+   <div class="ql__t">${q.t} <span class="ql__n">${list.length}문항 · ${list.length*PT}점</span></div>
+   <div class="ql__d">${q.d}</div>
+   ${list.length?`<div class="chip-row">${list.map(g=>`<span class="qchip">${g.n}</span>`).join("")}</div>`:''}
+  </div></div>`;
+ }).join("");
+
+ // 영역별 테이블 + 다이버징 바
+ const maxAbs=Math.max(30,...r.areaList.map(a=>Math.abs(a.diff100)));
+ let lastGrp="";let areaRows="";
+ r.areaList.forEach(A=>{
+  if(A.group!==lastGrp){areaRows+=`<tr class="grp-row"><td colspan="7">${A.group}</td></tr>`;lastGrp=A.group;}
+  const half=70,w=Math.min(50,Math.abs(A.diff100)/maxAbs*50);
+  const bar=A.diff100>=0
+    ?`<div class="dbar__fill" style="left:50%;width:${w}%;background:var(--good);opacity:.8"></div>`
+    :`<div class="dbar__fill" style="right:50%;width:${w}%;background:var(--bad);opacity:.8"></div>`;
+  areaRows+=`<tr>
+   <td>${aIco(A.name)}${A.name}</td>
+   <td class="hide-sm">${A.pts}/${A.maxPts}</td>
+   <td>${A.myAcc.toFixed(0)}%</td>
+   <td class="hide-sm">${A.cohMean100!=null?A.cohMean100.toFixed(0):A.popAcc.toFixed(0)}</td>
+   <td class="hide-sm">${A.rank!=null?A.rank+'/'+A.n:'-'}</td>
+   <td><div class="dbar"><div class="dbar__center"></div>${bar}</div></td>
+   <td class="dval ${A.diff100>=0?'pos':'neg'}">${A.diff100>=0?'+':''}${A.diff100.toFixed(0)}</td>
+  </tr>`;
+ });
+
+ // 유형 숙련도
+ const byGroup={};
+ r.conceptList.forEach(c=>{const g=AREA_GROUP[c.area]||"기타";(byGroup[g]=byGroup[g]||[]).push(c);});
+ let conceptHTML="";
+ Object.keys(AREA_GROUP).map(a=>AREA_GROUP[a]).filter((v,i,s)=>s.indexOf(v)===i).forEach(g=>{
+  if(!byGroup[g])return;
+  const items=byGroup[g].sort((a,b)=>(a.correct/a.nQ)-(b.correct/b.nQ)).map(c=>{
+   const r2=c.correct/c.nQ,col=r2>=0.999?'var(--bs)':r2>0?'var(--brass)':'var(--ms)';
+   return `<div class="crow"><span class="crow__t" title="${c.type}">${c.type}</span><span class="crow__bar"><i style="width:${r2*100}%;background:${col}"></i></span><span class="crow__n">${c.correct}/${c.nQ}</span></div>`;
+  }).join("");
+  conceptHTML+=`<div class="cgroup"><div class="cgroup__h"><span class="cg-ico">${svgIco('concept','aico')}</span>${g}</div>${items}</div>`;
+ });
+
+ // 오개념
+ const _st=App.curStats;
+ const miscHTML=r.misc.length
+  ? `<div class="misc">${r.misc.map(m=>{let dist='';if(_st&&_st.enough&&_st.byQ[m.n]){const o=_st.byQ[m.n].optPct;dist=`<div class="mcard__dist">같은 <b>${CHO[m.choice-1]}</b> 선택 ${o[m.choice-1].toFixed(0)}% · 정답 <b>${CHO[m.ans-1]}</b> 선택 ${o[m.ans-1].toFixed(0)}% <span class="muted2">· 추가 입력 ${_st.N}명</span></div>`;}return `<div class="mcard"><div class="mcard__n">${m.n}</div><div class="mcard__b"><div class="mcard__hd">${m.type}<small>${CHO[m.choice-1]} 선택 · 정답 ${CHO[m.ans-1]}</small></div><div class="mcard__tx">${m.text}</div>${dist}</div></div>`;}).join("")}</div>`
+  : `<div class="empty empty--art">${artFlask(80)}<div>오답 보기에서 사전 정의된 오개념 패턴이 매칭되지 않았습니다.</div></div>`;
+
+ // 처방
+ const rxHTML=buildRx(r).map(x=>`<div class="rxi"><div class="rxi__no"></div><div class="rxi__b"><strong>${x.tag}${x.title}</strong><p>${x.body}</p></div></div>`).join("");
+ const faqHTML=buildFAQ(r).map((f,i)=>`<details class="faq__item"${i<2?' open':''}><summary class="faq__q">${f.q}</summary><div class="faq__a">${f.a}</div></details>`).join("");
+
+ // 정오표 (2열)
+ const half=Math.ceil(r.graded.length/2);
+ const showStat=_st&&_st.enough; const lowN=showStat&&_st.N<30;
+ const pgCell=g=>HAESEOL_BASE?`<a href="${HAESEOL_BASE}#page=${g.page}" target="_blank" rel="noopener" class="pglink">p${g.page}</a>`:`p${g.page}`;
+ const gtRow=g=>{const ps=showStat&&_st.byQ[g.n]?_st.byQ[g.n]:null;return `<tr><td class="mono">${g.n}</td><td><span class="ox ${g.correct?'o':'x'}">${g.correct?'○':'✕'}</span></td><td class="mono">${g.p}%</td>${showStat?`<td class="mono gt-sec" style="color:var(--teal-d)">${ps?ps.p.toFixed(0)+'%':'-'}</td><td class="mono gt-sec ${ps&&ps.disc<0.1?'disc-lo':''}">${ps?(ps.disc>=0?'+':'')+ps.disc.toFixed(2)+(lowN?'<span class="refmark" title="표본이 작아 참고치입니다">*</span>':''):'-'}</td>`:''}<td><span class="bchip b-${g.band}">${g.band}</span></td><td class="gt-sec" style="font-size:11.5px">${g.area}</td><td style="font-size:11.5px;color:var(--ink-2)">${g.type}</td><td class="mono gt-sec" style="color:var(--ink-3)">${pgCell(g)}</td></tr>`;};
+ const gtHead=`<tr><th>번호</th><th>정오</th><th>출제<br>정답률</th>${showStat?'<th class="gt-sec">실측<br>정답률</th><th class="gt-sec">변별도</th>':''}<th>난이도</th><th class="gt-sec">영역</th><th>유형</th><th class="gt-sec">해설</th></tr>`;
+ const col1=r.graded.slice(0,half).map(gtRow).join(""),col2=r.graded.slice(half).map(gtRow).join("");
+
+ // 머리글 식별 정보
+ const idc=App.idData;
+ const idcards=[['이름',idc.name||'-'],['수험번호',idc.examno||'-'],['학교',idc.school||'-'],['학년',idc.grade||'-'],['응시일',idc.date||'-']]
+  .map(([k,v])=>`<div class="idcard__i"><div class="idcard__k">${k}</div><div class="idcard__v">${esc(v)}</div></div>`).join("");
+
+ document.getElementById('report').innerHTML=`
+ <div class="cover">
+   <div class="cover__art">${artAtom(132,'var(--brass)')}</div>
+   <div class="cover__brand">CHEMISTREAL</div>
+   <div class="cover__title">${r.exam.title}</div>
+   <div class="cover__sub">${r.exam.range}</div>
+   <div class="cover__meta">${esc(idc.name)||'학생'} · 수험번호 ${idc.examno||'-'} · ${idc.date||''}</div>
+   <div class="cover__by">조준모 화학 · Chemistreal</div>
+ </div>
+ ${App.demo?'<div class="samplemark">SAMPLE · 예시</div>':''}
+ <div class="rhead">
+   <div class="rhead__top">
+     <div>
+       <div class="rhead__ey">Chemistreal Diagnostic Report</div>
+       <div class="rhead__t">${r.exam.title}</div>
+       <div class="rhead__r">${r.exam.range}</div>
+     </div>
+     <div class="rhead__motif">${artChain()}</div>
+     <div class="btn-row no-print">
+       <button class="btn btn--g" onclick="App.toInput()">← 답안 수정</button>
+       <button class="btn" onclick="window.print()">PDF 저장 · 인쇄</button>
+       <button class="btn" onclick="App.share(this)">링크 복사</button>
+       <button class="btn" onclick="App.kakaoCard()">카톡 카드</button>
+     </div>
+   </div>
+   <div class="idcard" style="padding:14px 28px;border-bottom:1px solid var(--line-2)">${idcards}</div>
+   <div class="kpis">${kScore}${kMean}${kPct}${kRank}</div>
+ </div>
+
+ <div class="hero-diag">
+   <div class="hero-atom">${artAtom(150,'#EAC983')}</div>
+   <div class="hero-diag__ey">핵심 진단</div>
+   <div class="hero-diag__head">${kick.head}</div>
+   <div class="hero-diag__row">
+     <div class="hero-diag__stats">${statChips}</div>
+     ${App.cohort.length?`<div class="hero-diag__spark"><div class="hero-diag__sparklab">전체 분포 속 내 위치</div>${heroSpark(r)}</div>`:''}
+   </div>
+ </div>
+ ${badgesHTML(r)}
+
+ <div class="detail">
+   <div class="eyebrow" style="color:var(--ink-3)">상세 진단</div>
+   <div class="detail__q">${narr}</div>
+ </div>
+
+ <div class="sec">
+   <div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('신호등 사분면 · 난이도 × 정오')}<span class="sec__t">신호등 사분면 · 난이도 × 정오</span></div>
+   <div class="sec__d">모든 문항을 '난이도(정답률)'와 '정오'의 두 축으로 분류합니다. 네 칸이 각각 다른 처방을 가리킵니다.</div>
+   <div class="quad-wrap">
+     <div>${scatterSVG(r)}</div>
+     <div class="quad-legend">${quadLegend}</div>
+   </div>
+ </div>
+
+ ${App.cohort.length?`<div class="sec">
+   <div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('점수 분포 속 나의 위치')}<span class="sec__t">점수 분포 속 나의 위치</span></div>
+   <div class="sec__d">지금까지 누적된 전체 <b>${r.totalStat.n}명</b>의 총점 분포입니다. 황동 표식이 본인, 백분위 ${pct.toFixed(0)}. <span class="muted2">백분위 90은 전체의 90%보다 높은 점수라는 뜻입니다.</span></div>
+   <div style="max-width:520px;margin:0 auto">${distSVG(r)}</div>
+ </div>`:''}
+
+ ${(App.curTrend&&App.curTrend.length>=2)?`<div class="sec">
+   <div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('회차별 점수 추이')}<span class="sec__t">회차별 점수 추이</span></div>
+   <div class="sec__d">이 학생의 응시 회차별 총점입니다. 총 ${App.curTrend.length}회 누적되었습니다.</div>
+   <div style="max-width:540px;margin:0 auto">${trendSVG(App.curTrend)}</div>
+ </div>`:''}
+
+ <div class="sec">
+   <div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('영역별 성취 · 평균과의 비교')}<span class="sec__t">영역별 성취 · 평균과의 비교</span></div>
+   <div class="sec__d">막대는 전체 평균(가운데 선) 대비 본인의 백점환산 차이입니다. 오른쪽(틸)이 우위, 왼쪽(적)이 열위.</div>
+   <table class="areatab">
+     <thead><tr><th>영역</th><th class="hide-sm">득점</th><th>정답률</th><th class="hide-sm">평균환산</th><th class="hide-sm">석차</th><th>평균 대비</th><th>차이</th></tr></thead>
+     <tbody>${areaRows}</tbody>
+   </table>
+ </div>
+
+ <div class="sec">
+   <div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('개념(유형) 숙련도 지도')}<span class="sec__t">개념(유형) 숙련도 지도</span></div>
+   <div class="sec__d">출제된 모든 유형의 정답 현황입니다. 빈 칸이 보강 지점입니다.</div>
+   <div class="cgrid">${conceptHTML}</div>
+ </div>
+
+ <div class="sec">
+   <div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('오답 문항 개념 분석')}<span class="sec__t">오답 문항 개념 분석</span></div>
+   <div class="sec__d">틀린 문항마다 고른 보기를 근거로, 어떤 개념이 흔들렸는지 짚어냅니다.</div>
+   ${miscHTML}
+ </div>
+
+ <div class="sec">
+   <div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('다음 학습 처방')}<span class="sec__t">다음 학습 처방</span></div>
+   <div class="sec__d">위 분석을 우선순위 순으로 정리한 실행 목록입니다.</div>
+   <div class="rx">${rxHTML}</div>
+ </div>
+
+ <div class="sec sec--long">
+   <div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('문항별 정오표')}<span class="sec__t">문항별 정오표</span></div>
+   <div class="gt-legend">
+     <span><span class="ox o">○</span> 정답 (3점)</span><span><span class="ox x">✕</span> 오답·무응답 (0점)</span>
+     ${showStat?`<span>${gl('실측 정답률')} 추가 입력 ${_st.N}명 기준${lowN?' · <b class="disc-lo">* 표본 30명 미만, 참고치</b>':''}</span>`:''}
+     <span style="margin-left:auto">난이도: <span class="bchip b-A">A</span>~<span class="bchip b-E">E</span> (정답률 20%p 구간)</span>
+   </div>
+   ${showStat?`<div class="gt-note">출제 정답률은 시험 설계 시 고정된 기준값, 실측 정답률은 우리 반 누적 응시 결과입니다. 두 값의 차이가 클수록 우리 반에 특별히 쉽거나 어려운 문항입니다.</div>`:''}
+   <div class="twocol">
+     <table class="gtab"><thead>${gtHead}</thead><tbody>${col1}</tbody></table>
+     <table class="gtab"><thead>${gtHead}</thead><tbody>${col2}</tbody></table>
+   </div>
+ </div>
+
+ <div class="sec sec--long">
+   <div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('학부모 상담 안내 · 자주 묻는 질문')}<span class="sec__t">학부모 상담 안내 · 자주 묻는 질문</span></div>
+   <div class="sec__d">성적표를 보며 학부모님께서 궁금해하실 만한 점을, 이 학생의 문항 결과에 맞춰 정리했습니다. 궁금한 항목을 눌러 펼쳐 보세요. (인쇄하면 모두 펼쳐집니다.)</div>
+   <div class="faq">${faqHTML}</div>
+ </div>
+
+ <div class="note">
+   <div class="note__h">총평</div>
+   <p>이번 주 다룬 범위는 <b>${r.exam.range.split(' · ')[0]}</b>입니다. ${esc(idc.name)||'학생'} 학생은 ${pct>=85?'개념을 응용하는 최상위 단계까지 올라와 있습니다':pct>=70?'개념을 응용하는 단계까지 잘 따라오고 있습니다':pct>=50?'핵심 개념을 안정적으로 다지고 있습니다':'기본 개념을 차분히 쌓아가는 단계에 있습니다'}.</p>
+   <p>${(()=>{const a=[...r.areaList].filter(x=>x.nQ>=2);const st=a.slice().sort((x,y)=>y.diff100-x.diff100)[0];const miss=r.quad.miss.map(g=>g.n).sort((x,y)=>x-y);let s='';if(st&&st.diff100>0)s+=`특히 <b>${st.name}</b> 영역에서 전체 평균을 크게 앞섰습니다. `;if(miss.length)s+=`다만 정답률이 높았던 <b>${miss.join(', ')}번</b>에서 ${miss.length*PT}점을 놓쳤는데, 이는 실력보다 실수에 가깝습니다. 풀이를 한 번만 다시 보면 충분히 메울 수 있습니다.`;else if(pct>=50)s+='기본 문항에서의 실수도 거의 없어 안정적입니다.';else s+='우선 자주 나오는 기본 유형부터 확실히 잡아가면 점수가 빠르게 따라옵니다.';return s;})()}</p>
+   <p>다음 목표는 ${[...r.areaList].filter(a=>a.nQ>=2).sort((a,b)=>a.diff100-b.diff100)[0]?`<b>${[...r.areaList].filter(a=>a.nQ>=2).sort((a,b)=>a.diff100-b.diff100)[0].name}</b> 영역 보강`:'약점 영역 보강'}입니다. 틀린 문항을 다시 풀고 오답 정리를 꼼꼼히 완성해 오면, 한 단계 더 끌어올려 보겠습니다. 가정에서는 결과보다 다시 풀어보는 과정을 격려해 주시면 큰 힘이 됩니다.</p>
+   <p>문의는 언제든 카톡이나 전화로 연락 주세요. 감사합니다.</p>
+   ${(CONTACT.tel||CONTACT.kakao)?`<div class="contact no-print">${CONTACT.tel?`<a class="contact__btn" href="tel:${esc(CONTACT.tel)}">전화 상담 ${esc(CONTACT.tel)}</a>`:''}${CONTACT.kakao?`<a class="contact__btn contact__btn--k" href="${esc(CONTACT.kakao)}" target="_blank" rel="noopener">카카오톡 상담</a>`:''}</div>`:''}
+   <div class="note__signrow"><svg class="seal" width="46" height="46" viewBox="0 0 46 46" aria-hidden="true"><rect x="2" y="2" width="42" height="42" rx="7" fill="none" stroke="var(--brass)" stroke-width="2"/><text x="23" y="20" font-size="13" font-weight="700" fill="var(--brass-d)" text-anchor="middle" font-family="var(--serif)">曺</text><text x="23" y="35" font-size="9" fill="var(--brass-d)" text-anchor="middle" font-family="var(--serif)">化學</text></svg><div class="note__sign">화학 <b>조준모</b> 올림</div></div>
+ </div>
+
+ <div class="foot">
+   <b>분석 방법.</b> 정답률은 응시 집단의 실제 기록입니다. 난이도 밴드 A~E는 정답률 20%p 구간으로 나눕니다. ${gl('백분위')}·석차·분포는 지금까지 누적된 전체 <b>${r.totalStat?r.totalStat.n:0}명</b>의 실측 점수에서 직접 산출했으며, 학생을 추가할수록 갱신됩니다. 무응답과 오답은 모두 0점으로 처리합니다(단일 정답 기준).${(App.curStats&&App.curStats.enough&&App.curStats.kr20!=null)?` 추가 입력 ${App.curStats.N}명 기준 시험 신뢰도(KR-20)는 ${App.curStats.kr20.toFixed(2)}, 측정표준오차는 약 ±${App.curStats.semPts.toFixed(0)}점입니다.`:''} ${gl('변별도')}는 상위 27%와 하위 27% 집단의 정답률 차이입니다. 영역별 '평균 대비 차이'는 본인과 평균의 백점환산 점수 차이입니다.<br>
+   <span style="color:var(--ink-4)">Chemistreal · 조준모 화학 · 생성 시각 ${new Date().toLocaleString('ko-KR')}</span>
+ </div>`;
+ window.scrollTo(0,0);
+}
+
+/* ====================== 앱 컨트롤 ====================== */
+const App={
+ exam:null, answers:{}, cohort:[], idData:{}, demo:false, shared:false, cohortN:0, curStats:null, curTrend:null, _undo:null,
+ views:{select:'vSelect',input:'vInput',roster:'vRoster',dash:'vDash',profile:'vProfile',report:'vReport'},
+ show(v){Object.values(this.views).forEach(id=>document.getElementById(id).classList.remove('on'));document.getElementById(this.views[v]).classList.add('on');this.renderNav(v);window.scrollTo(0,0);},
+ renderNav(v){
+  const b=document.getElementById('navBtns');
+  if(v==='select'){b.innerHTML='';}
+  else if(v==='input'){b.innerHTML='<button class="btn btn--g" onclick="App.toSelect()">시험 목록</button>';}
+  else if(v==='roster'||v==='dash'||v==='profile'){b.innerHTML='<button class="btn btn--g" onclick="App.toSelect()">시험 목록</button><button class="btn" onclick="App.toInput()">답안 입력</button>';}
+  else{b.innerHTML='<button class="btn btn--g" onclick="App.toSelect()">시험 목록</button><button class="btn" onclick="App.toInput()">답안 수정</button><button class="btn btn--p" onclick="App.newStudent()">새 학생 입력</button>';}
+ },
+ toSelect(){this.show('select');location.hash='';},
+ toInput(){this.show('input');},
+ loadExternalExams(){
+  // 같은 폴더에 exams.json([{id,title,range,source,N,questions:[[n,ans,p,area,type,page],...]}, ...])이 있으면
+  // 코드 수정 없이 시험을 추가한다. 없거나 형식이 다르면 조용히 무시(단일 파일 운영에 영향 없음).
+  if(!/^https?:$/.test(location.protocol))return; // file://에서는 형제 파일 fetch 불가 → 조용히 건너뜀
+  try{
+   fetch('exams.json',{cache:'no-store'}).then(r=>r&&r.ok?r.json():null).then(list=>{
+    if(!Array.isArray(list))return; let added=0;
+    list.forEach(ex=>{
+     if(!ex||!ex.id||EXAMS.find(e=>e.id===ex.id)||!Array.isArray(ex.questions)||!ex.questions.length)return;
+     const qs=ex.questions.map(row=>Array.isArray(row)?{n:row[0],ans:row[1],p:row[2],area:row[3],type:row[4],page:row[5]}:row);
+     EXAMS.push({id:ex.id,title:ex.title||ex.id,range:ex.range||'',source:ex.source||'',N:ex.N||0,questions:qs}); added++;
+    });
+    if(added)this.renderExamList();
+   }).catch(()=>{});
+  }catch(e){}
+ },
+ renderExamList(){
+  document.getElementById('examGrid').innerHTML=EXAMS.map(ex=>{
+   if(ex.disabled) return `<div class="ec dis"><div class="ec__t">${ex.title}</div><div class="ec__r">${ex.range}</div><div class="ec__m"><span class="tag">준비 중</span></div></div>`;
+   return `<div class="ec" onclick="App.openExam('${ex.id}')">
+     <div class="ec__t">${ex.title}</div>
+     <div class="ec__r">${ex.range}</div>
+     <div class="ec__m"><span>문항 <b>${ex.questions.length}</b></span><span>배점 <b>${ex.questions.length*PT}</b></span><span>응시 <b>${ex.N}</b></span></div>
+   </div>`;
+  }).join("");
+ },
+ openExam(id){
+  this.exam=EXAMS.find(e=>e.id===id);this.answers={};this.idData={date:new Date().toISOString().slice(0,10)};this.demo=false;this.shared=false;
+  this.cohort=[];this.curStats=null;this.curTrend=null;
+  this.restoreDraft(id);
+  document.getElementById('inExam').textContent=this.exam.title;
+  document.getElementById('inRange').textContent=this.exam.range;
+  this.renderIdForm();this.renderOMR();this.updateProg();this.updateRosterUI();this.show('input');
+ },
+ /* ===== 시드(기존 엑셀 전체) + 추가 입력 누적 ===== */
+ seedCount(id){ return ((typeof SEEDS!=='undefined'&&SEEDS[id])||[]).length; },
+ getSeedCohort(id){
+  const seed=(typeof SEEDS!=='undefined'&&SEEDS[id])||null; if(!seed) return [];
+  return seed.map(row=>{ const areaPts={}; let total=0; AREA_ORDER.forEach((a,i)=>{ areaPts[a]=row[i]||0; total+=row[i]||0; }); return {total,areaPts}; });
+ },
+ /* ===== 제출 기록(회차 누적) ===== */
+ subs(id){ try{ return JSON.parse(localStorage.getItem(ROSTER_PREFIX+id))||[]; }catch(e){ return []; } },
+ saveSubs(id,arr){ try{ localStorage.setItem(ROSTER_PREFIX+id, JSON.stringify(arr)); this.storageGuard(); }catch(e){ this.toast('브라우저 저장 실패: 시크릿 모드이거나 저장 공간 부족'); } },
+ getRoster(id){ return this.subs(id); }, // 호환
+ saveRoster(id,arr){ this.saveSubs(id,arr); },
+ normName(s){ return String(s==null?'':s).normalize('NFC').replace(/\s+/g,'').trim(); },
+ sig(rec){ return this.normName(rec.name)+'|'+(rec.date||'')+'|'+(rec.answers||''); },
+ delKey(id){ return 'chemistreal:deleted:'+id; },
+ deletedSet(id){ try{ return new Set(JSON.parse(localStorage.getItem(this.delKey(id)))||[]); }catch(e){ return new Set(); } },
+ saveDeleted(id,set){ try{ localStorage.setItem(this.delKey(id), JSON.stringify([...set].slice(-2000))); }catch(e){} },
+ markDeleted(id,recs){ const set=this.deletedSet(id); recs.forEach(r=>set.add(this.sig(r))); this.saveDeleted(id,set); },
+ unmarkDeleted(id,recs){ const set=this.deletedSet(id); recs.forEach(r=>set.delete(this.sig(r))); this.saveDeleted(id,set); },
+ syncKey(){ try{ return localStorage.getItem('chemistreal:synckey')||''; }catch(e){ return ''; } },
+ setSyncKey(){ const cur=this.syncKey(); const v=prompt('동기화 키를 입력하세요.\nApps Script의 SECRET 값과 똑같이 맞춰야 합니다. (소스에 저장되지 않고 이 브라우저에만 보관)', cur); if(v===null)return; try{ localStorage.setItem('chemistreal:synckey', v.trim()); }catch(e){} this.toast(v.trim()?'동기화 키를 저장했습니다':'동기화 키를 비웠습니다'); },
+ idOf(s){ const nm=this.normName(s.name); return nm?('n:'+nm):('e:'+(s.examno||'?')); },
+ latestSubs(id){
+  const m=new Map();
+  for(const s of this.subs(id)){ const key=this.idOf(s); const cur=m.get(key); if(!cur||(s.ts||0)>=(cur.ts||0)) m.set(key,s); }
+  return [...m.values()];
+ },
+ studentSubs(id,examno){ const key=String(examno); return this.subs(id).filter(s=>String(s.examno)===key).slice().sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))||((a.ts||0)-(b.ts||0))); },
+ subTotal(s){ const qs=this.exam.questions,a=s.answers||''; let t=0; qs.forEach((q,i)=>{ if(+a[i]===q.ans)t+=PT; }); return t; },
+ addSub(id,rec){ const arr=this.subs(id); arr.push(rec); this.saveSubs(id,arr); return arr; },
+ assignExamNo(id,name){
+  const arr=this.subs(id), key=this.normName(name);
+  if(key){ const ex=arr.find(x=>this.normName(x.name)===key&&x.examno); if(ex) return ex.examno; }
+  return arr.reduce((m,x)=>Math.max(m,x.examno||0), this.seedCount(id))+1;
+ },
+ /* 다기기 병합 시 같은 이름은 하나의 수험번호로, 충돌 번호는 재배정해 정합화 */
+ reconcile(id){
+  const arr=this.subs(id); if(!arr.length)return arr;
+  let maxNo=this.seedCount(id); arr.forEach(x=>{ if((x.examno||0)>maxNo)maxNo=x.examno; });
+  const nameToNo={}, usedNo=new Set();
+  const order=arr.slice().sort((a,b)=>(a.ts||0)-(b.ts||0));
+  order.forEach(x=>{ const nm=this.normName(x.name); if(!nm)return; if(nameToNo[nm]==null){ let no=x.examno; if(!no||usedNo.has(no)) no=++maxNo; nameToNo[nm]=no; usedNo.add(no); } });
+  arr.forEach(x=>{ const nm=this.normName(x.name); if(nm&&nameToNo[nm]) x.examno=nameToNo[nm]; else if(!x.examno){ x.examno=++maxNo; } });
+  this.saveSubs(id,arr); return arr;
+ },
+ getSeedCohort(id){
+  const seed=(typeof SEEDS!=='undefined'&&SEEDS[id])||null; if(!seed) return [];
+  return seed.map(row=>{ const areaPts={}; let total=0; AREA_ORDER.forEach((a,i)=>{ areaPts[a]=row[i]||0; total+=row[i]||0; }); return {total,areaPts}; });
+ },
+ seedCount(id){ return ((typeof SEEDS!=='undefined'&&SEEDS[id])||[]).length; },
+ subToCohort(arr){
+  const qs=this.exam.questions;
+  return arr.map(rec=>{ const s=rec.answers||''; let total=0; const areaPts={}; qs.forEach((q,i)=>{ areaPts[q.area]=areaPts[q.area]||0; if(+s[i]===q.ans){ total+=PT; areaPts[q.area]+=PT; } }); return {total,areaPts}; });
+ },
+ cohortFor(id){ return this.getSeedCohort(id).concat(this.subToCohort(this.latestSubs(id))); },
+ /* ===== 교육측정 통계(추가 입력분 실측) ===== */
+ examStats(id){
+  const subs=this.latestSubs(id), qs=this.exam.questions, N=subs.length;
+  if(N<MIN_STAT) return {N,enough:false};
+  const ans=subs.map(s=>s.answers||'');
+  const tot=ans.map(a=>{let t=0;qs.forEach((q,i)=>{if(+a[i]===q.ans)t++;});return t;});
+  const order=tot.map((t,idx)=>({t,idx})).sort((x,y)=>y.t-x.t);
+  const k=Math.max(1,Math.floor(N*0.27)), up=order.slice(0,k), lo=order.slice(-k);
+  const perQ=qs.map((q,i)=>{
+   let correct=0; const opt=[0,0,0,0];
+   ans.forEach(a=>{ const c=+a[i]; if(c>=1&&c<=4)opt[c-1]++; if(c===q.ans)correct++; });
+   const uc=up.filter(o=>+ans[o.idx][i]===q.ans).length/k, lc=lo.filter(o=>+ans[o.idx][i]===q.ans).length/k;
+   return {n:q.n,i,p:correct/N*100,opt,optPct:opt.map(c=>c/N*100),disc:uc-lc};
+  });
+  const meanT=tot.reduce((a,b)=>a+b,0)/N, varT=tot.reduce((a,b)=>a+(b-meanT)**2,0)/N;
+  const sumPQ=perQ.reduce((a,pq)=>{const p=pq.p/100;return a+p*(1-p);},0);
+  const K=qs.length, kr20=(K>1&&varT>0)?(K/(K-1))*(1-sumPQ/varT):null;
+  const semPts=kr20!=null?Math.sqrt(varT)*Math.sqrt(Math.max(0,1-kr20))*PT:null;
+  const byQ={}; perQ.forEach(pq=>byQ[pq.n]=pq);
+  return {N,enough:true,perQ,byQ,kr20,semPts};
+ },
+ storageGuard(){
+  try{ let b=0; for(const k in localStorage){ if(localStorage.hasOwnProperty(k)) b+=(localStorage[k].length+k.length); }
+   if(b>4200000) this.toast('저장 공간이 거의 찼습니다. 내보내기로 백업을 권장합니다'); }catch(e){}
+ },
+ updateRosterUI(){
+  const el=document.getElementById('rosterBar'); if(!el)return;
+  const latest=this.latestSubs(this.exam.id), added=latest.length, seed=this.seedCount(this.exam.id), tot=seed+added, subN=this.subs(this.exam.id).length;
+  const stat=added>=MIN_STAT?`<span class="rb-live">실측 통계 적용 중</span>`:`<span class="muted">${MIN_STAT}명부터 실측 정답률·변별도</span>`;
+  el.innerHTML=`<span>전체 누적 <b>${tot}명</b> <span class="muted">(기존 ${seed} + 추가 ${added}${subN>added?` · 응시 ${subN}회`:''})</span> &nbsp;${stat}</span>
+   <span class="rb-r">${added?`<button class="lnk2" onclick="App.showDash()">반 대시보드</button><span class="rb-sep">·</span><button class="lnk2" onclick="App.showRoster()">학생 목록</button><span class="rb-sep">·</span>`:''}<button class="lnk2" onclick="App.exportRoster()">내보내기</button><label class="lnk2" style="cursor:pointer;margin-left:9px">불러오기<input type="file" accept="application/json" style="display:none" onchange="App.importRoster(event)"></label>${SHEET_ENDPOINT?`<button class="lnk2" style="margin-left:9px" onclick="App.loadFromSheet()">시트 동기화</button><button class="lnk2" style="margin-left:9px" onclick="App.setSyncKey()">동기화 키</button>`:''}${added?`<button class="lnk" style="margin-left:9px" onclick="App.confirmClear()">추가분 초기화</button>`:''}</span>`;
+ },
+ newStudent(){ this.openExam(this.exam.id); },
+ distMini(totals){
+  const W=440,H=120,pad={l:8,r:8,t:12,b:24},bins=22,N=totals.length;
+  const min=Math.min(...totals),max=Math.max(...totals),lo=Math.floor(min/PT)*PT,hi=Math.ceil(max/PT)*PT,bw=(hi-lo)/bins||1;
+  const counts=new Array(bins).fill(0); totals.forEach(v=>{let b=Math.floor((v-lo)/bw);if(b>=bins)b=bins-1;if(b<0)b=0;counts[b]++;});
+  const cmax=Math.max(...counts)||1,iw=W-pad.l-pad.r,ih=H-pad.t-pad.b;
+  let bars=''; for(let i=0;i<bins;i++){const bh=counts[i]/cmax*ih;bars+=`<rect x="${pad.l+i/bins*iw+0.5}" y="${pad.t+ih-bh}" width="${iw/bins-1}" height="${bh}" rx="1.5" fill="var(--teal)" opacity=".75"/>`;}
+  const ticks=[lo,Math.round((lo+hi)/2),hi].map(v=>`<text x="${pad.l+(v-lo)/((hi-lo)||1)*iw}" y="${H-8}" font-size="9" fill="var(--ink-3)" text-anchor="middle" font-family="var(--mono)">${v}</text>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%">${bars}<line x1="${pad.l}" y1="${pad.t+ih}" x2="${W-pad.r}" y2="${pad.t+ih}" stroke="var(--line)"/>${ticks}</svg>`;
+ },
+ showDash(){ this.renderDash(); this.show('dash'); },
+ renderDash(){
+  const id=this.exam.id, latest=this.latestSubs(id), qs=this.exam.questions, N=latest.length;
+  document.getElementById('dashSub').textContent=this.exam.title+' · 추가 입력 '+N+'명';
+  if(!N){ document.getElementById('dashBody').innerHTML='<div class="empty empty--art">'+artFlask(88)+'<div>추가 입력된 학생이 없습니다.</div></div>'; return; }
+  const totals=latest.map(s=>this.subTotal(s)), mean=totals.reduce((a,b)=>a+b,0)/N, mx=Math.max(...totals), mn=Math.min(...totals);
+  const coh=this.subToCohort(latest), areaMean=[];
+  AREA_ORDER.forEach(a=>{ const max=qs.filter(q=>q.area===a).length*PT; if(!max)return; const m=coh.reduce((s,c)=>s+(c.areaPts[a]||0),0)/N; areaMean.push({a,max,pct:m/max*100,mean:m}); });
+  const weak=areaMean.slice().sort((x,y)=>x.pct-y.pct).slice(0,3);
+  const stat=this.examStats(id);
+  let hardHTML;
+  if(stat.enough){ const hard=stat.perQ.slice().sort((x,y)=>x.p-y.p).slice(0,5); hardHTML=hard.map(pq=>{const q=qs.find(qq=>qq.n===pq.n);return `<div class="dash-q"><span class="mono dash-q__n">${pq.n}번</span><span class="dash-q__t">${q.type}</span><span class="dash-q__bar"><i style="width:${pq.p}%"></i></span><span class="mono">${pq.p.toFixed(0)}%</span></div>`;}).join(''); }
+  else hardHTML=`<div class="muted" style="padding:6px 2px">${MIN_STAT}명 이상 입력되면 실측 최다 오답 문항이 표시됩니다. (현재 ${N}명)</div>`;
+  const kr=stat.enough&&stat.kr20!=null?`<span class="dash-kpi"><b>${stat.kr20.toFixed(2)}</b><small>신뢰도 KR-20</small></span><span class="dash-kpi"><b>±${stat.semPts.toFixed(0)}</b><small>측정표준오차(점)</small></span>`:'';
+  document.getElementById('dashBody').innerHTML=`
+   <div class="dash-kpis"><span class="dash-kpi"><b>${N}</b><small>추가 입력 학생</small></span><span class="dash-kpi"><b>${mean.toFixed(0)}</b><small>평균(${mn}~${mx})</small></span>${kr}</div>
+   <div class="card"><div class="card__h">추가 입력 학생 점수 분포</div>${this.distMini(totals)}</div>
+   <div class="dash-2col">
+     <div class="card"><div class="card__h">최다 오답 문항 Top 5</div>${hardHTML}</div>
+     <div class="card"><div class="card__h">공통 취약 영역</div>${weak.map(w=>`<div class="dash-q"><span class="dash-q__t" style="flex:0 0 120px">${w.a}</span><span class="dash-q__bar"><i style="width:${w.pct}%;background:${w.pct<50?'var(--ms)':'var(--brass)'}"></i></span><span class="mono">${w.pct.toFixed(0)}%</span></div>`).join('')}</div>
+   </div>`;
+ },
+ showProfile(no){ this.renderProfile(no); this.show('profile'); },
+ renderProfile(no){
+  const id=this.exam.id, subs=this.studentSubs(id,no); if(!subs.length){ this.show('roster'); return; }
+  const name=subs[subs.length-1].name||'(이름 없음)';
+  document.getElementById('profSub').textContent=name+' · 수험번호 '+no+' · '+subs.length+'회 응시';
+  const trend=subs.map(s=>({date:s.date||'',total:this.subTotal(s)}));
+  const best=Math.max(...trend.map(t=>t.total)), delta=trend.length>=2?(trend[trend.length-1].total-trend[0].total):null;
+  const rows=subs.map((s,i)=>`<div class="rs-row"><span class="rs-no mono">${i+1}회</span><span class="rs-name">${esc(s.date||'')}</span><span class="rs-score mono">${this.subTotal(s)}점</span><span class="rs-act"><button class="lnk2" onclick="App.openAttempt(${no},${i})">이 회차 리포트</button></span></div>`).join('');
+  let deltaCard='';
+  if(subs.length>=2){
+   const f=this.subToCohort([subs[0]])[0].areaPts, l=this.subToCohort([subs[subs.length-1]])[0].areaPts;
+   const qs=this.exam.questions;
+   const deltas=AREA_ORDER.filter(a=>qs.some(q=>q.area===a)).map(a=>({a,d:(l[a]||0)-(f[a]||0)})).filter(x=>x.d!==0).sort((x,y)=>y.d-x.d);
+   if(deltas.length){
+    const up=deltas.filter(x=>x.d>0).slice(0,3), dn=deltas.filter(x=>x.d<0).slice(-3).reverse();
+    const chip=(x,kind)=>`<span class="delta-chip delta-chip--${kind}">${x.a} ${x.d>0?'+':''}${x.d}점</span>`;
+    deltaCard=`<div class="card"><div class="card__h">영역별 변화 · 첫 회차 → 최근</div><div class="delta-wrap">${up.map(x=>chip(x,'up')).join('')}${dn.map(x=>chip(x,'dn')).join('')}</div></div>`;
+   }
+  }
+  document.getElementById('profBody').innerHTML=`
+   <div class="dash-kpis"><span class="dash-kpi"><b>${best}</b><small>최고 점수</small></span><span class="dash-kpi"><b>${trend.length}</b><small>응시 횟수</small></span>${delta!=null?`<span class="dash-kpi"><b>${delta>=0?'+':''}${delta}</b><small>첫 회차 대비</small></span>`:''}</div>
+   ${trend.length>=2?`<div class="card"><div class="card__h">회차별 점수 추이</div>${trendSVG(trend)}</div>`:''}
+   ${deltaCard}
+   <div class="card"><div class="card__h">응시 회차</div>${rows}</div>`;
+ },
+ openAttempt(no,i){
+  const id=this.exam.id, subs=this.studentSubs(id,no), rec=subs[i]; if(!rec)return;
+  this.loadSubAns(rec); this.renderIdForm(); this.renderOMR(); this.updateProg();
+  this.curTrend=subs.map(s=>({date:s.date||'',total:this.subTotal(s)})); this.curStats=this.examStats(id);
+  const cohort=this.cohortFor(id); this.cohort=cohort; this.cohortN=cohort.length;
+  const r=analyze(this.exam,this.answers,cohort.length?cohort:null); this.lastR=r;
+  renderReport(r,id); this.encodeHash(); this.show('report');
+ },
+ hashFor(s){ const qs=this.exam.questions; let num=0n; for(let i=qs.length-1;i>=0;i--){const v=+((s.answers||'')[i]||0);num=num*5n+BigInt(v>=1&&v<=4?v:0);} const nm=encodeURIComponent((s.name||'').trim()),no=s.examno||''; return 'r='+this.exam.id+'.'+num.toString(36)+((nm||no)?('.'+no+'.'+nm):''); },
+ copyText(t,msg){ if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(()=>this.toast(msg)).catch(()=>this.fallbackCopy(t,msg));} else this.fallbackCopy(t,msg); },
+ fallbackCopy(t,msg){ try{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();this.toast(msg);}catch(e){this.toast('복사 실패: 직접 복사해 주세요');} },
+ copyAllLinks(){
+  const id=this.exam.id, latest=this.latestSubs(id); if(!latest.length){this.toast('학생이 없습니다');return;}
+  const base=location.href.split('#')[0];
+  const lines=latest.map(s=>(s.name||'학생')+'\t'+base+'#'+this.hashFor(s)).join('\n');
+  this.copyText(lines, latest.length+'명 링크를 복사했습니다');
+ },
+ printAll(){
+  const id=this.exam.id, latest=this.latestSubs(id); if(!latest.length){this.toast('학생이 없습니다');return;}
+  if(!confirm(latest.length+'명의 리포트를 모두 인쇄(PDF)할까요? 잠시 걸릴 수 있습니다.'))return;
+  const host=document.getElementById('report'); let combined='';
+  latest.forEach(s=>{ this.loadSubAns(s); this.curTrend=this.studentSubs(id,s.examno).map(x=>({date:x.date||'',total:this.subTotal(x)})); this.curStats=this.examStats(id); const cohort=this.cohortFor(id); this.cohort=cohort; this.cohortN=cohort.length; const r=analyze(this.exam,this.answers,cohort.length?cohort:null); this.lastR=r; renderReport(r,id); combined+=`<div class="print-page">${host.innerHTML}</div>`; });
+  host.innerHTML='<div class="no-print printbar"><button class="btn btn--g" onclick="App.showRoster()">← 학생 목록으로</button><span class="muted" style="margin-left:10px">'+latest.length+'명 합본 · 인쇄 후 이 버튼으로 돌아가세요</span></div>'+combined; this.show('report');
+  const back=()=>{ this.showRoster(); window.removeEventListener('afterprint',back); };
+  window.addEventListener('afterprint',back);
+  setTimeout(()=>window.print(),350);
+ },
+ async kakaoCard(){
+  const r=this.lastR; if(!r){this.toast('리포트를 먼저 생성하세요');return;}
+  const SERIF='"Noto Serif KR", serif', SANS='"Noto Sans KR", sans-serif';
+  try{
+   if(document.fonts&&document.fonts.load){ try{ await Promise.race([Promise.all([document.fonts.load('800 150px "Noto Serif KR"'),document.fonts.load('700 56px "Noto Serif KR"'),document.fonts.load('700 52px "Noto Sans KR"'),document.fonts.load('500 32px "Noto Sans KR"')]), new Promise(res=>setTimeout(res,1200))]); }catch(e){} }
+   const c=document.createElement('canvas'); c.width=1200; c.height=630; const x=c.getContext('2d');
+   const g=x.createLinearGradient(0,0,1200,630); g.addColorStop(0,'#0E5A4C'); g.addColorStop(.55,'#0c3a32'); g.addColorStop(1,'#0f221e'); x.fillStyle=g; x.fillRect(0,0,1200,630);
+   x.fillStyle='#EAC983'; x.font='600 30px '+SANS; x.fillText('Chemistreal · 조준모 화학',72,92);
+   x.fillStyle='#FBFAF6'; x.font='700 56px '+SERIF; x.fillText((this.idData.name||'학생')+' 학생 성적 리포트',72,184);
+   const pct=r.totalStat?r.totalStat.pct:r.estPct, top=(100-pct)<1?'1':(100-pct).toFixed(0);
+   x.font='800 150px '+SERIF; x.fillStyle='#FBFAF6'; x.fillText(String(r.total),72,372);
+   const w=x.measureText(String(r.total)).width;
+   x.font='400 46px '+SANS; x.fillStyle='rgba(244,241,232,.65)'; x.fillText(' / '+r.maxTotal+'점',72+w+14,372);
+   x.fillStyle='#EAC983'; x.font='700 52px '+SANS; x.fillText('상위 '+top+'%',72,452);
+   if(r.totalStat){ x.fillStyle='rgba(244,241,232,.82)'; x.font='400 34px '+SANS; x.fillText('전체 '+r.totalStat.n+'명 중 '+r.totalStat.rank+'등',360,450); }
+   const head=buildKick(r).head.replace(/<[^>]+>/g,'');
+   x.fillStyle='rgba(244,241,232,.92)'; x.font='500 32px '+SANS;
+   const words=head.split(' '); let line='',yy=542; words.forEach(wd=>{const t=line?line+' '+wd:wd; if(x.measureText(t).width>1056&&line){x.fillText(line,72,yy);yy+=44;line=wd;}else line=t;}); if(line)x.fillText(line,72,yy);
+   const a=document.createElement('a'); a.href=c.toDataURL('image/png'); a.download='chemistreal_'+(this.idData.name||'card')+'.png'; document.body.appendChild(a); a.click(); a.remove();
+   this.toast('카톡 공유 카드를 저장했습니다');
+  }catch(e){ this.toast('카드 생성 실패'); }
+ },
+ glossPop(e){
+  const el=e.target.closest('.gloss'); let pop=document.getElementById('glosspop');
+  if(!el){ if(pop)pop.classList.remove('on'); return; }
+  const tip=el.getAttribute('data-tip')||''; if(!tip)return;
+  if(!pop){ pop=document.createElement('div'); pop.id='glosspop'; pop.className='glosspop'; document.body.appendChild(pop); }
+  pop.textContent=tip; pop.classList.add('on');
+  const rct=el.getBoundingClientRect(); let lx=rct.left, ty=rct.bottom+8;
+  pop.style.left=Math.min(lx,window.innerWidth-280)+'px'; pop.style.top=ty+'px';
+  e.stopPropagation();
+ },
+ showRoster(){ const s=document.getElementById('rsSearch'); if(s)s.value=''; this.renderRoster(''); this.show('roster'); },
+ renderRoster(q){
+  q=(q||'').trim();
+  const id=this.exam.id, latest=this.latestSubs(id).slice().sort((a,b)=>(a.examno||0)-(b.examno||0));
+  document.getElementById('rsSub').textContent=this.exam.title+' · 추가 입력 '+latest.length+'명';
+  const rows=latest.filter(x=>!q||((x.name||'').includes(q))).map(x=>{
+   const total=this.subTotal(x), att=this.studentSubs(id,x.examno).length;
+   return `<div class="rs-row"><span class="rs-no mono">${x.examno||'-'}</span><span class="rs-name">${esc(x.name)||'(이름 없음)'}${att>1?`<span class="rs-att">${att}회</span>`:''}</span><span class="rs-date mono">${esc(x.date||'')}</span><span class="rs-score mono">${total}점</span><span class="rs-act"><button class="lnk2" onclick="App.openStudent(${x.examno||0})">리포트</button><button class="lnk2" onclick="App.showProfile(${x.examno||0})">프로파일</button><button class="lnk" onclick="App.deleteStudent(${x.examno||0})">삭제</button></span></div>`;
+  }).join('');
+  document.getElementById('rsList').innerHTML=rows||'<div class="empty empty--art">'+artFlask(88)+'<div>'+(q?'검색 결과가 없습니다.':'아직 추가 입력된 학생이 없습니다.')+'</div></div>';
+ },
+ latestByNo(no){ return this.latestSubs(this.exam.id).find(x=>x.examno===no); },
+ loadSubAns(rec){
+  this.demo=false; this.answers={};
+  this.exam.questions.forEach((q,i)=>{ const v=+((rec.answers||'')[i]||0); if(v>=1&&v<=4)this.answers[q.n]=v; });
+  this.idData={name:rec.name||'',date:rec.date||'',examno:rec.examno};
+ },
+ openStudent(no){ const rec=this.latestByNo(no); if(!rec)return; this.loadSubAns(rec); this.renderIdForm(); this.renderOMR(); this.updateProg(); this.grade(false); },
+ deleteStudent(no){
+  const rec=this.latestByNo(no); if(!rec)return;
+  const att=this.studentSubs(this.exam.id,no).length;
+  if(!confirm(`'${rec.name||'(이름 없음)'}' 학생의 기록${att>1?` ${att}회분 전체`:''}을 삭제할까요?`))return;
+  const removed=this.subs(this.exam.id).filter(x=>x.examno===no);
+  const arr=this.subs(this.exam.id).filter(x=>x.examno!==no);
+  this.saveSubs(this.exam.id,arr); this.markDeleted(this.exam.id,removed); this._undo={id:this.exam.id,recs:removed}; this.updateRosterUI();
+  this.renderRoster((document.getElementById('rsSearch')||{}).value||'');
+  this.toastUndo(`'${rec.name||'학생'}' 삭제됨`);
+ },
+ toastUndo(msg){
+  let t=document.getElementById('toastU');
+  if(!t){t=document.createElement('div');t.id='toastU';t.className='toast toast--u';document.body.appendChild(t);}
+  t.innerHTML=`<span>${esc(msg)}</span><button class="toast__undo" onclick="App.undoDelete()">실행 취소</button>`;
+  t.classList.add('on'); clearTimeout(this._ut); this._ut=setTimeout(()=>t.classList.remove('on'),5200);
+ },
+ undoDelete(){ if(!this._undo)return; const arr=this.subs(this._undo.id).concat(this._undo.recs); this.saveSubs(this._undo.id,arr); this.unmarkDeleted(this._undo.id,this._undo.recs); this._undo=null; const t=document.getElementById('toastU'); if(t)t.classList.remove('on'); this.updateRosterUI(); this.renderRoster((document.getElementById('rsSearch')||{}).value||''); this.toast('삭제를 취소했습니다'); },
+ confirmClear(){
+  if(confirm(`'${this.exam.title}'에 추가 입력한 학생 기록을 삭제할까요? (기존 ${this.seedCount(this.exam.id)}명 데이터는 그대로 유지됩니다.)`)){
+   const removed=this.subs(this.exam.id);
+   try{ localStorage.removeItem(ROSTER_PREFIX+this.exam.id); }catch(e){}
+   this.markDeleted(this.exam.id,removed); this._undo={id:this.exam.id,recs:removed}; this.updateRosterUI(); this.toastUndo('추가분 전체 삭제됨');
+  }
+ },
+ exportRoster(){
+  const id=this.exam.id, data=this.subs(id);
+  if(!data.length){ this.toast('내보낼 추가 입력 데이터가 없습니다'); return; }
+  const blob=new Blob([JSON.stringify({exam:id,version:2,students:data})],{type:'application/json'});
+  const url=URL.createObjectURL(blob), a=document.createElement('a');
+  a.href=url; a.download=`chemistreal_${id}_${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  this.toast('추가 입력 데이터를 내보냈습니다');
+ },
+ importRoster(e){
+  const f=e.target.files&&e.target.files[0]; if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+   try{
+    const j=JSON.parse(rd.result), incoming=Array.isArray(j)?j:(j.students||[]);
+    const id=this.exam.id; let arr=this.subs(id); const tomb=this.deletedSet(id);
+    const seen=new Set(arr.map(x=>this.sig(x)));
+    let n=0;
+    incoming.forEach(rec=>{ if(!rec||!rec.answers)return; rec.answers=String(rec.answers).replace(/[^0-4]/g,''); const sg=this.sig(rec); if(seen.has(sg)||tomb.has(sg))return; seen.add(sg); if(!rec.ts)rec.ts=Date.now()+n; arr.push(rec); n++; });
+    this.saveSubs(id,arr); this.reconcile(id); this.updateRosterUI();
+    this.toast(`${n}건을 불러왔습니다`);
+   }catch(err){ this.toast('불러오기 실패: 파일 형식을 확인하세요'); }
+   e.target.value='';
+  };
+  rd.readAsText(f);
+ },
+ renderIdForm(){
+  const f=[['name','이름'],['school','학교'],['grade','학년'],['date','응시일']];
+  document.getElementById('idForm').innerHTML=f.map(([k,l])=>`<div><label>${l}</label><input id="id_${k}" value="${esc(this.idData[k]||'')}" oninput="App.idData['${k}']=this.value" placeholder="${l}"></div>`).join("");
+ },
+ renderOMR(){
+  const qs=this.exam.questions, G=10; let html='';
+  for(let g=0;g<qs.length;g+=G){
+   const part=qs.slice(g,g+G);
+   html+=`<div class="omr-group"><div class="omr-group__h">${part[0].n} – ${part[part.length-1].n}</div><div class="omr-grid">`
+    +part.map(q=>`<div class="qrow"><span class="qrow__n">${q.n}</span><input class="ansin" id="ai_${q.n}" inputmode="numeric" maxlength="1" autocomplete="off" placeholder="·" value="${this.answers[q.n]||''}" oninput="App.typeAns(${q.n},this)" onkeydown="App.keyNav(event,${q.n})" onpaste="App.pasteAns(event,${q.n})" onfocus="this.select()"></div>`).join("")
+    +`</div></div>`;
+  }
+  document.getElementById('omrGrid').innerHTML=html;
+  qs.forEach(q=>{const el=document.getElementById('ai_'+q.n);if(el&&this.answers[q.n])el.classList.add('filled');});
+ },
+ setAns(n,c){ if(!(c>=1&&c<=4))return; this.answers[n]=c; const el=document.getElementById('ai_'+n); if(el){el.value=c;el.classList.add('filled');} },
+ clearOne(n){ delete this.answers[n]; const el=document.getElementById('ai_'+n); if(el){el.value='';el.classList.remove('filled');} },
+ clearAnswers(){ if(!Object.keys(this.answers).length||confirm('입력한 답안을 모두 지울까요?')){ this.answers={}; this.exam.questions.forEach(q=>this.clearOne(q.n)); this.updateProg(); } },
+ adjInput(n,dir){ const qs=this.exam.questions,i=qs.findIndex(q=>q.n===n),t=qs[i+dir]; return t?document.getElementById('ai_'+t.n):null; },
+ typeAns(n,el){
+  this.demo=false;
+  let v=el.value.replace(/[^1-4]/g,''); v=v?v.slice(-1):'';
+  el.value=v;
+  if(v){ this.answers[n]=+v; el.classList.add('filled'); const nx=this.adjInput(n,1); if(nx)nx.focus(); }
+  else { delete this.answers[n]; el.classList.remove('filled'); }
+  this.updateProg(); this.saveDraft();
+ },
+ keyNav(e,n){
+  const el=document.getElementById('ai_'+n);
+  if(e.key==='Backspace'&&!el.value){ const p=this.adjInput(n,-1); if(p)p.focus(); e.preventDefault(); }
+  else if(e.key==='ArrowRight'){ const x=this.adjInput(n,1); if(x){x.focus();e.preventDefault();} }
+  else if(e.key==='ArrowLeft'){ const x=this.adjInput(n,-1); if(x){x.focus();e.preventDefault();} }
+  else if(e.key==='Enter'){ e.preventDefault(); this.grade(); }
+ },
+ pasteAns(e,n){
+  e.preventDefault(); this.demo=false;
+  const raw=((e.clipboardData||window.clipboardData).getData('text')||'').replace(/[^0-4]/g,'');
+  if(!raw)return;
+  const qs=this.exam.questions; let i=qs.findIndex(q=>q.n===n);
+  for(const ch of raw){ if(i>=qs.length)break; const v=+ch; if(v>=1&&v<=4)this.setAns(qs[i].n,v); else this.clearOne(qs[i].n); i++; }
+  this.updateProg();
+  const last=qs[Math.min(i,qs.length-1)],le=document.getElementById('ai_'+last.n); if(le)le.focus();
+ },
+ updateProg(){
+  const done=Object.keys(this.answers).length,total=this.exam.questions.length;
+  document.getElementById('progTxt').textContent=`${done} / ${total} 입력`;
+  document.getElementById('progFill').style.width=(done/total*100)+'%';
+  const miss=total-done;
+  document.getElementById('progWarn').innerHTML=miss>0?`<span class="warn">미입력 ${miss}문항 (0점 처리)</span>`:`<span style="color:var(--good)">입력 완료</span>`;
+ },
+ loadSample(){
+  const a={};this.exam.questions.forEach(q=>a[q.n]=q.ans);
+  const wrong={1:3,4:1,9:2,38:1,33:1,57:1,59:1,24:2};
+  Object.entries(wrong).forEach(([n,c])=>a[n]=c);
+  this.answers=a; this.demo=true;
+  this.idData=Object.assign(this.idData,{name:'홍길동',school:'대치중',grade:'2',date:new Date().toISOString().slice(0,10)});
+  this.renderIdForm();
+  this.exam.questions.forEach(q=>{const el=document.getElementById('ai_'+q.n);if(el){el.value=a[q.n];el.classList.add('filled');}});
+  this.updateProg();
+ },
+ grade(persist){
+  if(persist===undefined) persist=true;
+  const id=this.exam.id, qs=this.exam.questions;
+  if(persist && !this.demo){
+   const missN=qs.length-Object.keys(this.answers).length;
+   if(missN>0 && !confirm(`미입력 ${missN}문항은 0점(무응답)으로 처리됩니다. 계속할까요?`)) return;
+   let run=1,mx=1,prev=null; for(const q of qs){const v=this.answers[q.n]||0; if(v&&v===prev){run++;mx=Math.max(mx,run);}else run=1; prev=v;}
+   if(mx>=15 && !confirm(`같은 답이 ${mx}개 연속입니다. OMR 줄 밀림일 수 있어요. 그대로 진행할까요?`)) return;
+  }
+  const name=(this.idData.name||'').trim(); this.idData.name=name;
+  let oneOff=false;
+  if(persist && !this.demo && !name){
+   if(confirm('이름이 비어 있어 기록에 누적되지 않습니다. 일회성 리포트로만 생성할까요?')) oneOff=true;
+   else { const el=document.getElementById('id_name'); if(el)el.focus(); return; }
+  }
+  const answers=qs.map(q=>this.answers[q.n]||0).join('');
+  if(persist && !this.demo && !oneOff){
+   const examno=this.assignExamNo(id,name);
+   this.idData.examno=examno;
+   this.addSub(id,{name,date:this.idData.date||'',answers,examno,ts:Date.now()});
+   this.clearDraft(id);
+   const subN=this.subs(id).length; if(subN>0 && subN%20===0) this.toast('백업 권장: 내보내기로 데이터를 저장해 두세요');
+  } else if(this.demo){ this.idData.examno=this.idData.examno||''; }
+  const cohort=this.cohortFor(id);
+  this.cohort=cohort; this.cohortN=cohort.length;
+  this.curStats=(this.demo||this.shared)?{N:0,enough:false}:this.examStats(id);
+  this.curTrend=(this.idData.examno&&!this.demo&&!this.shared)?this.studentSubs(id,this.idData.examno).map(s=>({date:s.date||'',total:this.subTotal(s)})):null;
+  const r=analyze(this.exam,this.answers, cohort.length?cohort:null);
+  this.lastR=r;
+  const go=()=>{ renderReport(r,id); this.encodeHash(); if(persist && !this.demo && !oneOff) this.saveToSheet(r); this.updateRosterUI(); this.show('report'); if(!this.demo&&!this.shared)this.maybeHintGloss(); };
+  if(persist) this.withLoading(go); else go();
+ },
+ maybeHintGloss(){
+  try{ if(localStorage.getItem('chemistreal:hint:gloss'))return; }catch(e){ return; }
+  if(!document.querySelector('#report .gloss'))return;
+  try{ localStorage.setItem('chemistreal:hint:gloss','1'); }catch(e){}
+  setTimeout(()=>this.toast('점선 친 용어(백분위·변별도 등)를 누르면 설명이 나옵니다'),900);
+ },
+ withLoading(fn){
+  let o=document.getElementById('loadOv');
+  if(!o){o=document.createElement('div');o.id='loadOv';o.className='loadov';o.innerHTML='<div class="loadov__in"><div class="loadov__spin"></div><div class="loadov__t">분석 중</div></div>';document.body.appendChild(o);}
+  o.classList.add('on'); setTimeout(()=>{ try{fn();}finally{ o.classList.remove('on'); } },480);
+ },
+ /* 답안 임시저장(새로고침 복원) */
+ draftKey(id){ return 'chemistreal:draft:'+id; },
+ saveDraft(){ if(this.demo||!this.exam)return; try{ sessionStorage.setItem(this.draftKey(this.exam.id), JSON.stringify({answers:this.answers,idData:this.idData})); }catch(e){} },
+ clearDraft(id){ try{ sessionStorage.removeItem(this.draftKey(id)); }catch(e){} },
+ restoreDraft(id){
+  try{ const j=JSON.parse(sessionStorage.getItem(this.draftKey(id))); if(j&&j.answers&&Object.keys(j.answers).length){ this.answers=j.answers; this.idData=Object.assign(this.idData,j.idData||{}); this.toast('작성 중이던 답안을 복원했습니다'); return true; } }catch(e){}
+  return false;
+ },
+ /* 구글 시트에서 명단 동기화(JSONP) */
+ loadFromSheet(){
+  if(!SHEET_ENDPOINT){ this.toast('시트 URL이 설정되지 않았습니다'); return; }
+  const id=this.exam.id, cb='__sheetCb'+Date.now();
+  const sc=document.createElement('script'); let done=false;
+  window[cb]=(res)=>{ done=true; try{
+    if(res&&res.ok===false){ this.toast('동기화 거부됨: 키 불일치 또는 권한 문제'); cleanup(); return; }
+    const rows=(res&&res.students)||[]; let arr=this.subs(id); const tomb=this.deletedSet(id);
+    const seen=new Set(arr.map(x=>this.sig(x)));
+    let n=0; rows.forEach(rec=>{ if(!rec||!rec.answers)return; const a=String(rec.answers).replace(/[^0-4]/g,''); if(a.length<qsLen)return; rec.answers=a; const sg=this.sig(rec); if(seen.has(sg)||tomb.has(sg))return; seen.add(sg); rec.ts=rec.ts||Date.now()+n; arr.push(rec); n++; });
+    this.saveSubs(id,arr); this.reconcile(id); this.updateRosterUI(); this.toast(n?`시트에서 ${n}건 동기화`:'시트와 이미 동일합니다');
+   }catch(e){ this.toast('동기화 처리 오류'); } cleanup(); };
+  const qsLen=this.exam.questions.length;
+  const cleanup=()=>{ try{delete window[cb];}catch(e){window[cb]=undefined;} if(sc.parentNode)sc.parentNode.removeChild(sc); };
+  sc.onerror=()=>{ if(!done){ this.toast('시트 연결 실패: 배포·권한을 확인하세요'); cleanup(); } };
+  sc.src=SHEET_ENDPOINT+(SHEET_ENDPOINT.includes('?')?'&':'?')+'action=list&exam='+encodeURIComponent(id)+'&key='+encodeURIComponent(this.syncKey())+'&callback='+cb;
+  document.body.appendChild(sc);
+  setTimeout(()=>{ if(!done){ this.toast('시트 응답이 없습니다(타임아웃)'); cleanup(); } },8000);
+ },
+ saveToSheet(r){
+  if(this.demo || this.shared || !SHEET_ENDPOINT) return;
+  const qs=this.exam.questions;
+  const payload={
+   key:this.syncKey(),
+   name:this.idData.name||'', examno:this.idData.examno||'', school:this.idData.school||'', grade:this.idData.grade||'',
+   date:this.idData.date||'', exam:this.exam.title,
+   total:r.total, max:r.maxTotal, pct100:+r.my100.toFixed(1),
+   percentile:r.totalStat?+r.totalStat.pct.toFixed(1):(r.estPct!=null?+r.estPct.toFixed(1):''),
+   rank:r.totalStat?r.totalStat.rank:'', n:r.totalStat?r.totalStat.n:'',
+   correct:r.rawCorrect,
+   areas:r.areaList.map(a=>`${a.name} ${a.pts}/${a.maxPts}`).join(', '),
+   answers:qs.map(q=>this.answers[q.n]||0).join('')
+  };
+  try{
+   fetch(SHEET_ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
+    .then(()=>this.toast('구글 시트로 전송했습니다'))
+    .catch(()=>{});
+  }catch(e){}
+ },
+ toast(msg){
+  let t=document.getElementById('toast');
+  if(!t){t=document.createElement('div');t.id='toast';t.className='toast';document.body.appendChild(t);}
+  t.textContent=msg; t.classList.add('on');
+  clearTimeout(this._tt); this._tt=setTimeout(()=>t.classList.remove('on'),2200);
+ },
+ encodeHash(){
+  const qs=this.exam.questions; let num=0n;
+  for(let i=qs.length-1;i>=0;i--){ num=num*5n+BigInt(this.answers[qs[i].n]||0); }
+  const nm=encodeURIComponent((this.idData.name||'').trim()), no=this.idData.examno||'';
+  location.hash='r='+this.exam.id+'.'+num.toString(36)+((nm||no)?('.'+no+'.'+nm):'');
+ },
+ share(btn){
+  const done=()=>{const o=btn.textContent;btn.textContent='복사됨 ✓';setTimeout(()=>btn.textContent=o,1500);};
+  if(navigator.clipboard){navigator.clipboard.writeText(location.href).then(done).catch(done);}
+  else{const t=document.createElement('textarea');t.value=location.href;document.body.appendChild(t);t.select();try{document.execCommand('copy');}catch(e){}t.remove();done();}
+ },
+boot_hooks(){
+  document.addEventListener('click',(e)=>this.glossPop(e));
+  document.addEventListener('keydown',(e)=>{
+   if(e.key==='Escape'){ const p=document.getElementById('glosspop'); if(p)p.classList.remove('on'); return; }
+   if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('gloss')){ e.preventDefault(); this.glossPop({target:e.target,stopPropagation(){}}); }
+  });
+  window.addEventListener('beforeprint',()=>{ document.querySelectorAll('details:not([open])').forEach(d=>{ d.dataset.wasClosed='1'; d.open=true; }); });
+  window.addEventListener('afterprint',()=>{ document.querySelectorAll('details[data-was-closed]').forEach(d=>{ d.open=false; delete d.dataset.wasClosed; }); });
+ },
+ boot(){
+  this.boot_hooks();
+  this.renderExamList();this.renderNav('select');
+  this.loadExternalExams();
+  const m=location.hash.match(/r=([^.]+)\.([0-9a-z]+)(?:\.([^.]*)\.(.*))?$/);
+  if(m){const ex=EXAMS.find(e=>e.id===m[1]);if(ex&&!ex.disabled){this.openExam(ex.id);this.demo=false;this.shared=true;let n=0n;for(const c of m[2])n=n*36n+BigInt(parseInt(c,36));ex.questions.forEach(q=>{const v=Number(n%5n);n=n/5n;if(v)this.setAns(q.n,v);});if(m[3])this.idData.examno=m[3];if(m[4])this.idData.name=decodeURIComponent(m[4]);this.renderIdForm();this.updateProg();this.grade(false);return;}}
+  this.show('select');
+ }
+};
+window.App=App;
+App.boot();
+</script>
+</body>
+</html>
