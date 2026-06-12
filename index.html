@@ -781,12 +781,18 @@ const OM={
 };
 const AREA_ORDER=["화학의 기초","화학식량","몰","기체","양적관계","원소의 기원","원자모형","전자배치","주기율","분자의 구조","분자의 모양","분자의 극성","기타"];
 const AREA_GROUP={"화학의 기초":"I. 화학의 첫걸음","화학식량":"I. 화학의 첫걸음","몰":"I. 화학의 첫걸음","기체":"I. 화학의 첫걸음","양적관계":"I. 화학의 첫걸음","원소의 기원":"II. 원자의 세계","원자모형":"II. 원자의 세계","전자배치":"II. 원자의 세계","주기율":"II. 원자의 세계","분자의 구조":"III. 화학 결합과 분자","분자의 모양":"III. 화학 결합과 분자","분자의 극성":"III. 화학 결합과 분자","기타":"기타"};
+/* ===== 시험별 영역 체계 (exam.areaOrder / exam.areaGroup 있으면 사용, 없으면 전역 폴백) ===== */
+function examById(id){ return (typeof EXAMS!=='undefined')?EXAMS.find(e=>e.id===id):null; }
+function areaOrderFor(exam){ return (exam&&exam.areaOrder)||AREA_ORDER; }
+function areaGroupFor(exam){ return (exam&&exam.areaGroup)||AREA_GROUP; }
+function orderedAreasOf(exam){ const o=areaOrderFor(exam),pr=[...new Set(((exam&&exam.questions)||[]).map(q=>q.area))]; return o.filter(a=>pr.indexOf(a)>=0).concat(pr.filter(a=>o.indexOf(a)<0)); }
+function groupOrderFor(exam){ const g=areaGroupFor(exam),s=[]; areaOrderFor(exam).forEach(a=>{const gr=g[a]||"기타"; if(s.indexOf(gr)<0)s.push(gr);}); return s; }
 const PT=3, CHO=["①","②","③","④"];
 // 구글 스프레드시트 자동 저장: Apps Script 웹앱 배포 URL(.../exec)을 아래에 붙여넣으세요. 비워두면 저장하지 않습니다.
 const SHEET_ENDPOINT="https://script.google.com/macros/s/AKfycbxGmSCkip0cQCyOH_JA2SiAMSxri00XObLmHyXlyXwxhG7u7w-x0FH02VN4DQySiUsv9Q/exec";
 const ROSTER_PREFIX="chemistreal:roster:";
 const MIN_STAT=12; // 추가 입력이 이 수 이상이면 실측 정답률·변별도·신뢰도를 노출
-const HAESEOL_BASE=""; // 해설 PDF 공개 URL을 넣으면 정오표에서 페이지로 바로가기 (예: https://.../해설.pdf)
+const HAESEOL=true; // true면 같은 폴더의 해설-{시험id}.html로 문항별 바로가기. 시험별 exam.haeseol로 파일명 지정 가능.
 const BUILD="2026.06";
 const CONTACT={tel:"",kakao:""}; // 전화번호(예: "010-1234-5678")와 카카오 채널 URL을 넣으면 총평 아래 상담 버튼이 표시됩니다(인쇄 시 숨김)
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
@@ -842,10 +848,207 @@ const SEED_KCH1=[[9,3,3,3,12,3,6,6,21,0,3,21,6],[3,3,3,3,9,0,9,12,6,0,0,9,6],[9,
 const SEEDS={kch1to3:SEED_KCH1};
 
 
+const Q_KCH1TO2=[
+ [1,2,90,"화학의 기초","중성자수"],
+ [2,1,27,"화학의 기초","단위환산"],
+ [3,3,72,"화학의 기초","열량(Q=cmΔt)"],
+ [4,1,62,"화학식량","평균원자량"],
+ [5,3,55,"화학식량","질량스펙트럼(동위원소)"],
+ [6,3,35,"몰","분자수(밀도)"],
+ [7,1,67,"몰","몰과입자수"],
+ [8,3,48,"몰","아보가드로수"],
+ [9,4,62,"기체","기체법칙(PV=nRT)"],
+ [10,1,59,"기체","샤를법칙"],
+ [11,3,19,"양적관계","화학반응식"],
+ [12,3,42,"기체","기체양적관계"],
+ [13,2,76,"기체","기체밀도(분자량비)"],
+ [14,4,72,"기체","몰부피(표준상태)"],
+ [15,1,20,"양적관계","연소생성물흡수"],
+ [16,1,53,"양적관계","질량비"],
+ [17,3,74,"양적관계","실험식(연소분석)"],
+ [18,3,71,"양적관계","화학반응식"],
+ [19,3,78,"양적관계","반응질량비"],
+ [20,3,74,"양적관계","연소반응(미정계수)"],
+ [21,2,75,"원소의 기원","원소생성(빅뱅·핵융합)"],
+ [22,4,72,"원소의 기원","원소생성"],
+ [23,4,49,"원소의 기원","원소분포(인체·우주)"],
+ [24,4,63,"원소의 기원","질량비→개수비"],
+ [25,2,48,"화학식량","원자량·동위원소"],
+ [26,3,51,"원소의 기원","핵안정성(Fe)"],
+ [27,3,65,"원소의 기원","방사성붕괴(반감기)"],
+ [28,1,50,"원소의 기원","핵반응(전자포획)"],
+ [29,3,42,"원소의 기원","핵반응식"],
+ [30,1,30,"원소의 기원","방사성붕괴(감마)"],
+ [31,4,76,"원자모형","돌턴원자설"],
+ [32,1,64,"원자모형","톰슨(음극선)"],
+ [33,2,51,"원자모형","러더퍼드(알파산란)"],
+ [34,3,52,"원자모형","전자기파(이온화)"],
+ [35,2,72,"원자모형","전자기파(파장·진동수)"],
+ [36,3,50,"원자모형","수소스펙트럼(전이에너지)"],
+ [37,2,61,"원자모형","수소스펙트럼계열"],
+ [38,4,61,"원자모형","에너지준위(방출·흡수)"],
+ [39,2,33,"원자모형","수소스펙트럼(발머)"],
+ [40,4,37,"원자모형","수소스펙트럼(전이)"],
+ [41,2,24,"원자모형","양자화(플랑크)"],
+ [42,1,49,"원자모형","광전효과·물질파"],
+ [43,2,45,"원자모형","광전효과"],
+ [44,1,29,"원자모형","물질파(드브로이)"],
+ [45,2,20,"원자모형","광자에너지(E=hν)"],
+ [46,1,59,"전자배치","양자수"],
+ [47,2,47,"전자배치","오비탈에너지준위"],
+ [48,3,40,"전자배치","홀전자"],
+ [49,3,64,"전자배치","홀전자수"],
+ [50,3,22,"전자배치","바닥·들뜬상태"],
+ [51,2,77,"주기율","원자반지름"],
+ [52,4,71,"주기율","등전자이온반지름"],
+ [53,4,42,"주기율","이온화에너지(정의)"],
+ [54,3,17,"주기율","이온화에너지(경향)"],
+ [55,2,68,"주기율","순차이온화에너지"],
+ [56,4,76,"주기율","순차이온화에너지(원소추론)"],
+ [57,1,84,"주기율","반지름비교"],
+ [58,2,61,"주기율","이온반지름"],
+ [59,3,68,"주기율","전기음성도"],
+ [60,2,67,"주기율","전기음성도(경향)"]
+];
+const Q_KCH1U1=[
+ [1,4,68,"화학의 기초","동위원소"],
+ [2,2,68,"화학의 기초","중성자수"],
+ [3,4,68,"화학의 기초","원자구성입자"],
+ [4,2,68,"화학의 기초","중성자수(합)"],
+ [5,2,68,"화학의 기초","단위환산(길이)"],
+ [6,1,68,"화학의 기초","단위환산(반지름)"],
+ [7,2,68,"화학의 기초","원자구조(비율)"],
+ [8,3,68,"화학의 기초","단위환산(속도)"],
+ [9,3,68,"화학의 기초","열량(비열)"],
+ [10,4,68,"화학의 기초","가열곡선(상태변화)"],
+ [11,2,68,"화학의 기초","단위환산(온도)"],
+ [12,4,68,"화학의 기초","원자표기"],
+ [13,2,68,"화학의 기초","물질의분류"],
+ [14,1,68,"화학의 기초","원자구성입자"],
+ [15,2,58,"화학식량","동위원소"],
+ [16,1,58,"화학식량","평균원자량"],
+ [17,3,58,"화학식량","동위원소(성질)"],
+ [18,3,58,"화학식량","질량비(화학식량)"],
+ [19,1,58,"화학식량","평균원자량(동위원소)"],
+ [20,4,58,"화학식량","평균원자량"],
+ [21,3,58,"화학식량","질량스펙트럼"],
+ [22,4,58,"화학식량","질량스펙트럼(분자)"],
+ [23,3,58,"화학식량","동위원소(화합물)"],
+ [24,4,52,"몰","아보가드로수"],
+ [25,4,52,"몰","아보가드로수"],
+ [26,3,52,"몰","아보가드로수"],
+ [27,3,52,"몰","분자수"],
+ [28,2,52,"몰","최외각전자"],
+ [29,1,52,"몰","몰과입자수"],
+ [30,1,52,"몰","몰과질량"],
+ [31,2,52,"몰","몰과양적관계"],
+ [32,3,52,"몰","분자수(밀도)"],
+ [33,2,52,"몰","아보가드로수(밀도)"],
+ [34,1,52,"몰","몰농도(개수)"],
+ [35,3,52,"몰","분자수(부피)"],
+ [36,3,52,"몰","아보가드로수(개수)"],
+ [37,4,56,"기체","기체법칙(PV=nRT)"],
+ [38,3,56,"기체","기체상수R"],
+ [39,4,56,"기체","기체부피와압력"],
+ [40,4,56,"기체","기체법칙(PVT)"],
+ [41,4,56,"기체","기체법칙(분자수)"],
+ [42,1,56,"기체","보일법칙"],
+ [43,1,56,"기체","기체양적관계"],
+ [44,3,56,"기체","기체반응(부피비)"],
+ [45,3,56,"기체","기체법칙(증기압)"],
+ [46,2,56,"기체","기체밀도(분자량)"],
+ [47,4,56,"기체","기체성질(밀도)"],
+ [48,2,56,"기체","기체포집(수상치환)"],
+ [49,3,56,"기체","기체운동론"],
+ [50,3,56,"기체","기체흡착"],
+ [51,2,56,"기체","기체압력(분자운동)"],
+ [52,1,46,"양적관계","연소분석"],
+ [53,3,46,"양적관계","질량비(실험식)"],
+ [54,1,46,"양적관계","실험식(조성)"],
+ [55,3,46,"양적관계","연소분석(실험식)"],
+ [56,3,46,"양적관계","화학반응식(계수)"],
+ [57,2,46,"양적관계","화학반응식"],
+ [58,1,46,"양적관계","양적관계(연소)"],
+ [59,3,46,"양적관계","양적관계(한계반응물)"],
+ [60,2,46,"양적관계","기체양적관계"]
+];
+const Q_KCH2F=[
+ [1,4,58,"산화환원과 전기화학","갈바니전지"],
+ [2,1,58,"산화환원과 전기화학","전기분해"],
+ [3,4,55,"반응속도","반응속도식"],
+ [4,2,55,"반응속도","반감기(1차반응)"],
+ [5,4,55,"반응속도","촉매·활성화에너지"],
+ [6,2,50,"액체와 고체","끓는점(분자간력)"],
+ [7,3,52,"기체","평균분자속도"],
+ [8,3,52,"기체","속도분포(맥스웰)"],
+ [9,1,52,"기체","반데르발스식"],
+ [10,4,52,"기체","이상기체조건"],
+ [11,3,52,"기체","압축률(PV/RT)"],
+ [12,3,52,"기체","기체압력(수은기둥)"],
+ [13,2,52,"용액","증기압내림"],
+ [14,3,50,"액체와 고체","분자간력"],
+ [15,3,50,"액체와 고체","고체비열(몰열용량)"],
+ [16,2,50,"액체와 고체","단위세포(합금)"],
+ [17,3,50,"액체와 고체","단위세포(실험식)"],
+ [18,4,50,"액체와 고체","결정구조(공간점유율)"],
+ [19,4,50,"액체와 고체","체심입방(단위세포)"],
+ [20,4,50,"액체와 고체","단위세포"],
+ [21,1,50,"액체와 고체","이온결정(단위세포)"],
+ [22,2,52,"용액","농도(몰분율)"],
+ [23,3,52,"용액","몰농도·밀도"],
+ [24,4,52,"용액","농도(온도의존)"],
+ [25,1,52,"용액","총괄성(증기압)"],
+ [26,3,52,"용액","총괄성(어는점내림)"],
+ [27,4,52,"용액","총괄성(삼투)"],
+ [28,2,52,"용액","총괄성"],
+ [29,1,52,"용액","삼투압(분자량)"],
+ [30,4,52,"용액","삼투(반투막)"],
+ [31,3,52,"용액","총괄성(삼투)"],
+ [32,4,50,"반응엔탈피","흡열·발열"],
+ [33,2,50,"반응엔탈피","제련엔탈피"],
+ [34,3,50,"반응엔탈피","상태변화엔탈피"],
+ [35,2,50,"반응엔탈피","헤스법칙"],
+ [36,3,50,"반응엔탈피","표준생성엔탈피"],
+ [37,1,50,"반응엔탈피","결합에너지·생성엔탈피"],
+ [38,1,50,"반응엔탈피","반응엔탈피=생성엔탈피"],
+ [39,1,50,"반응엔탈피","결합에너지"],
+ [40,2,50,"반응엔탈피","열역학함수"],
+ [41,3,50,"반응엔탈피","엔트로피비교"],
+ [42,4,50,"반응엔탈피","엔트로피(감소)"],
+ [43,3,50,"반응엔탈피","엔트로피(증가)"],
+ [44,4,50,"반응엔탈피","엔트로피변화"],
+ [45,3,50,"반응엔탈피","기화(자유에너지)"],
+ [46,2,48,"화학평형","평형상수"],
+ [47,4,48,"화학평형","평형분압"],
+ [48,4,48,"화학평형","평형분압(CO)"],
+ [49,2,48,"화학평형","반응지수Q·K"],
+ [50,4,48,"화학평형","N2O4-NO2평형"],
+ [51,4,50,"액체와 고체","상평형도"],
+ [52,2,50,"산과 염기","용해도(공통이온)"],
+ [53,3,50,"산과 염기","용해도곱(Ksp)"],
+ [54,3,50,"산과 염기","약산해리도"],
+ [55,2,50,"산과 염기","해리백분율"],
+ [56,4,50,"산과 염기","지시약(pKa)"],
+ [57,2,50,"산과 염기","중화적정(지시약)"],
+ [58,3,50,"산과 염기","염의액성"],
+ [59,4,50,"산과 염기","완충용액"],
+ [60,3,50,"산과 염기","양쪽성(아미노산)"]
+];
 function mkExam(meta,rows){return Object.assign({},meta,{questions:rows.map(r=>({n:r[0],ans:r[1],p:r[2],area:r[3],type:r[4],page:r[5],misc:(typeof OM!=='undefined'?OM[r[0]]:null)||null}))});}
 const EXAMS=[
- mkExam({id:"kch1to3",title:"화학1 1-3단원 모의고사",range:"화학의 기초 ~ 분자의 극성 · 중등 화올",source:"한국중학생화학대회 기출 재구성",N:422},Q_KCH1),
- {id:"semi4",title:"세미파이널 4회",range:"화학2 전범위 · 준비 중",source:"",N:0,questions:[],disabled:true},
+ mkExam({id:"kch1to3",title:"화학1 1-3단원 모의고사",range:"화학의 기초 ~ 분자의 극성 · 중등 화올",source:"한국중학생화학대회 기출 재구성",N:422,haeseol:"해설.html"},Q_KCH1),
+ {id:"kch1to2",title:"화학1 1-2단원 모의고사",range:"화학의 기초 ~ 주기율 · 원자의 세계",source:"조준모의고사",N:0,haeseol:"해설-kch1to2.html",
+  areaOrder:["화학의 기초","화학식량","몰","기체","양적관계","원소의 기원","원자모형","전자배치","주기율","기타"],
+  areaGroup:{"화학의 기초":"I. 화학의 첫걸음","화학식량":"I. 화학의 첫걸음","몰":"I. 화학의 첫걸음","기체":"I. 화학의 첫걸음","양적관계":"I. 화학의 첫걸음","원소의 기원":"II. 원자의 세계","원자모형":"II. 원자의 세계","전자배치":"II. 원자의 세계","주기율":"II. 원자의 세계","기타":"기타"},
+  questions:Q_KCH1TO2.map(r=>({n:r[0],ans:r[1],p:r[2],area:r[3],type:r[4],page:0,misc:null}))},
+  {id:"kch1u1",title:"화학1 1단원 모의고사",range:"화학의 기초 ~ 양적관계 · 화학의 첫걸음",source:"조준모의고사 · 화올 기출",N:0,estP:true,haeseol:"해설-kch1u1.html",
+  areaOrder:["화학의 기초","화학식량","몰","기체","양적관계","기타"],
+  areaGroup:{"화학의 기초":"I. 화학의 첫걸음","화학식량":"I. 화학의 첫걸음","몰":"I. 화학의 첫걸음","기체":"I. 화학의 첫걸음","양적관계":"I. 화학의 첫걸음","기타":"기타"},
+  questions:Q_KCH1U1.map(r=>({n:r[0],ans:r[1],p:r[2],area:r[3],type:r[4],page:0,misc:null}))},
+  {id:"kch2final",title:"화학2 총괄평가",range:"화학2 전범위 · 물질의 상태~산화환원",source:"조준모의고사 · 화올 기출",N:0,estP:true,haeseol:"해설-kch2final.html",
+  areaOrder:["기체","액체와 고체","용액","반응엔탈피","화학평형","반응속도","산과 염기","산화환원과 전기화학","기타"],
+  areaGroup:{"기체":"I. 물질의 상태와 용액","액체와 고체":"I. 물질의 상태와 용액","용액":"I. 물질의 상태와 용액","반응엔탈피":"II. 반응엔탈피와 평형","화학평형":"II. 반응엔탈피와 평형","반응속도":"III. 반응속도","산과 염기":"IV. 산·염기와 산화환원","산화환원과 전기화학":"IV. 산·염기와 산화환원","기타":"기타"},
+  questions:Q_KCH2F.map(r=>({n:r[0],ans:r[1],p:r[2],area:r[3],type:r[4],page:0,misc:null}))},
  {id:"chem2-1",title:"화학2 1단원 모의고사",range:"기체·액체·고체 · 준비 중",source:"",N:0,questions:[],disabled:true}
 ];
 
@@ -860,17 +1063,19 @@ function to100(pts,maxPts){return maxPts?pts/maxPts*100:0;}
 
 function analyze(exam,answers,cohort){
  const qs=exam.questions,maxTotal=qs.length*PT;
+ const GRP=areaGroupFor(exam);
  const graded=qs.map(q=>{const a=answers[q.n];return{...q,choice:a,correct:a===q.ans,band:band(q.p)};});
  const rawCorrect=graded.filter(g=>g.correct).length,total=rawCorrect*PT;
  const areas={};
  for(const g of graded){
-  if(!areas[g.area])areas[g.area]={name:g.area,group:AREA_GROUP[g.area]||"기타",nQ:0,maxPts:0,correct:0,pts:0,sumP:0};
+  if(!areas[g.area])areas[g.area]={name:g.area,group:GRP[g.area]||"기타",nQ:0,maxPts:0,correct:0,pts:0,sumP:0};
   const A=areas[g.area];A.nQ++;A.maxPts+=PT;A.sumP+=g.p;if(g.correct){A.correct++;A.pts+=PT;}
  }
  const totalArr=cohort?cohort.map(s=>s.total):null;
  const totalStat=totalArr?rankPct(total,totalArr):null;
  const cohortTotalMean=totalArr?totalArr.reduce((s,v)=>s+v,0)/totalArr.length:null;
- const areaList=AREA_ORDER.filter(a=>areas[a]).map(a=>{
+ const _ord0=areaOrderFor(exam),_pr0=Object.keys(areas);const _ord=_ord0.filter(a=>areas[a]).concat(_pr0.filter(a=>_ord0.indexOf(a)<0));
+ const areaList=_ord.map(a=>{
   const A=areas[a];A.myAcc=A.nQ?A.correct/A.nQ*100:0;A.my100=to100(A.pts,A.maxPts);A.popAcc=A.nQ?A.sumP/A.nQ:0;
   if(cohort){const arr=cohort.map(s=>s.areaPts[a]||0);const mean=arr.reduce((s,v)=>s+v,0)/arr.length;const st=rankPct(A.pts,arr);A.cohMeanPts=mean;A.cohMean100=to100(mean,A.maxPts);A.rank=st.rank;A.pct=st.pct;A.n=st.n;}
   A.diff100=A.my100-(A.cohMean100!=null?A.cohMean100:A.popAcc);
@@ -1280,9 +1485,11 @@ function renderReport(r,id){
 
  // 유형 숙련도
  const byGroup={};
- r.conceptList.forEach(c=>{const g=AREA_GROUP[c.area]||"기타";(byGroup[g]=byGroup[g]||[]).push(c);});
+ const _GRP=areaGroupFor(App.exam);
+ r.conceptList.forEach(c=>{const g=_GRP[c.area]||"기타";(byGroup[g]=byGroup[g]||[]).push(c);});
  let conceptHTML="";
- Object.keys(AREA_GROUP).map(a=>AREA_GROUP[a]).filter((v,i,s)=>s.indexOf(v)===i).forEach(g=>{
+ const _go=groupOrderFor(App.exam);
+ _go.filter(g=>byGroup[g]).concat(Object.keys(byGroup).filter(g=>_go.indexOf(g)<0)).forEach(g=>{
   if(!byGroup[g])return;
   const items=byGroup[g].sort((a,b)=>(a.correct/a.nQ)-(b.correct/b.nQ)).map(c=>{
    const r2=c.correct/c.nQ,col=r2>=0.999?'var(--bs)':r2>0?'var(--brass)':'var(--ms)';
@@ -1304,9 +1511,10 @@ function renderReport(r,id){
  // 정오표 (2열)
  const half=Math.ceil(r.graded.length/2);
  const showStat=_st&&_st.enough; const lowN=showStat&&_st.N<30;
- const pgCell=g=>HAESEOL_BASE?`<a href="${HAESEOL_BASE}#page=${g.page}" target="_blank" rel="noopener" class="pglink">p${g.page}</a>`:`p${g.page}`;
+ const _hb=(HAESEOL?((App.exam&&App.exam.haeseol)||("해설-"+(App.exam?App.exam.id:"")+".html")):"");
+ const pgCell=g=>_hb?`<a href="${_hb}#q${g.n}" target="_blank" rel="noopener" class="pglink">해설 →</a>`:`-`;
  const gtRow=g=>{const ps=showStat&&_st.byQ[g.n]?_st.byQ[g.n]:null;return `<tr><td class="mono">${g.n}</td><td><span class="ox ${g.correct?'o':'x'}">${g.correct?'○':'✕'}</span></td><td class="mono">${g.p}%</td>${showStat?`<td class="mono gt-sec" style="color:var(--teal-d)">${ps?ps.p.toFixed(0)+'%':'-'}</td><td class="mono gt-sec ${ps&&ps.disc<0.1?'disc-lo':''}">${ps?(ps.disc>=0?'+':'')+ps.disc.toFixed(2)+(lowN?'<span class="refmark" title="표본이 작아 참고치입니다">*</span>':''):'-'}</td>`:''}<td><span class="bchip b-${g.band}">${g.band}</span></td><td class="gt-sec" style="font-size:11.5px">${g.area}</td><td style="font-size:11.5px;color:var(--ink-2)">${g.type}</td><td class="mono gt-sec" style="color:var(--ink-3)">${pgCell(g)}</td></tr>`;};
- const gtHead=`<tr><th>번호</th><th>정오</th><th>출제<br>정답률</th>${showStat?'<th class="gt-sec">실측<br>정답률</th><th class="gt-sec">변별도</th>':''}<th>난이도</th><th class="gt-sec">영역</th><th>유형</th><th class="gt-sec">해설</th></tr>`;
+ const gtHead=`<tr><th>번호</th><th>정오</th><th>출제<br>정답률${App.exam&&App.exam.estP?'<sup>*</sup>':''}</th>${showStat?'<th class="gt-sec">실측<br>정답률</th><th class="gt-sec">변별도</th>':''}<th>난이도</th><th class="gt-sec">영역</th><th>유형</th><th class="gt-sec">해설</th></tr>`;
  const col1=r.graded.slice(0,half).map(gtRow).join(""),col2=r.graded.slice(half).map(gtRow).join("");
 
  // 머리글 식별 정보
@@ -1420,6 +1628,7 @@ function renderReport(r,id){
      <span style="margin-left:auto">난이도: <span class="bchip b-A">A</span>~<span class="bchip b-E">E</span> (정답률 20%p 구간)</span>
    </div>
    ${showStat?`<div class="gt-note">출제 정답률은 시험 설계 시 고정된 기준값, 실측 정답률은 우리 반 누적 응시 결과입니다. 두 값의 차이가 클수록 우리 반에 특별히 쉽거나 어려운 문항입니다.</div>`:''}
+   ${App.exam&&App.exam.estP?`<div class="gt-note">* 이 시험은 출제지에 정답률이 표기되지 않아, 출제 정답률을 영역별 난이도로 추정한 값입니다. 채점 데이터가 쌓이면 실측 정답률을 기준으로 보세요.</div>`:''}
    <div class="twocol">
      <table class="gtab"><thead>${gtHead}</thead><tbody>${col1}</tbody></table>
      <table class="gtab"><thead>${gtHead}</thead><tbody>${col2}</tbody></table>
@@ -1469,9 +1678,17 @@ const App={
    fetch('exams.json',{cache:'no-store'}).then(r=>r&&r.ok?r.json():null).then(list=>{
     if(!Array.isArray(list))return; let added=0;
     list.forEach(ex=>{
-     if(!ex||!ex.id||EXAMS.find(e=>e.id===ex.id)||!Array.isArray(ex.questions)||!ex.questions.length)return;
-     const qs=ex.questions.map(row=>Array.isArray(row)?{n:row[0],ans:row[1],p:row[2],area:row[3],type:row[4],page:row[5]}:row);
-     EXAMS.push({id:ex.id,title:ex.title||ex.id,range:ex.range||'',source:ex.source||'',N:ex.N||0,questions:qs}); added++;
+     if(!ex||!ex.id||EXAMS.find(e=>e.id===ex.id))return;
+     if(ex.disabled){ EXAMS.push({id:ex.id,title:ex.title||ex.id,range:ex.range||'',disabled:true}); added++; return; }
+     if(!Array.isArray(ex.questions)||!ex.questions.length)return;
+     const qs=ex.questions.map(row=>Array.isArray(row)?{n:row[0],ans:row[1],p:row[2],area:row[3],type:row[4],page:row[5]||0,misc:(row[6]||null)}:Object.assign({misc:null},row));
+     const e={id:ex.id,title:ex.title||ex.id,range:ex.range||'',source:ex.source||'',N:ex.N||0,questions:qs};
+     if(ex.haeseol)e.haeseol=ex.haeseol;
+     if(ex.areaOrder)e.areaOrder=ex.areaOrder;
+     if(ex.areaGroup)e.areaGroup=ex.areaGroup;
+     if(ex.estP)e.estP=true;
+     if(Array.isArray(ex.seed)&&ex.seed.length){e.seed=ex.seed; if(!e.N)e.N=ex.seed.length;}
+     EXAMS.push(e); added++;
     });
     if(added)this.renderExamList();
    }).catch(()=>{});
@@ -1496,10 +1713,10 @@ const App={
   this.renderIdForm();this.renderOMR();this.updateProg();this.updateRosterUI();this.show('input');
  },
  /* ===== 시드(기존 엑셀 전체) + 추가 입력 누적 ===== */
- seedCount(id){ return ((typeof SEEDS!=='undefined'&&SEEDS[id])||[]).length; },
+ seedCount(id){ const _e=examById(id); return ((typeof SEEDS!=='undefined'&&SEEDS[id])||(_e&&_e.seed)||[]).length; },
  getSeedCohort(id){
-  const seed=(typeof SEEDS!=='undefined'&&SEEDS[id])||null; if(!seed) return [];
-  return seed.map(row=>{ const areaPts={}; let total=0; AREA_ORDER.forEach((a,i)=>{ areaPts[a]=row[i]||0; total+=row[i]||0; }); return {total,areaPts}; });
+  const _e=examById(id); const seed=(typeof SEEDS!=='undefined'&&SEEDS[id])||(_e&&_e.seed)||null; if(!seed) return [];
+  const _O=areaOrderFor(examById(id)); return seed.map(row=>{ const areaPts={}; let total=0; _O.forEach((a,i)=>{ areaPts[a]=row[i]||0; total+=row[i]||0; }); return {total,areaPts}; });
  },
  /* ===== 제출 기록(회차 누적) ===== */
  subs(id){ try{ return JSON.parse(localStorage.getItem(ROSTER_PREFIX+id))||[]; }catch(e){ return []; } },
@@ -1540,10 +1757,10 @@ const App={
   this.saveSubs(id,arr); return arr;
  },
  getSeedCohort(id){
-  const seed=(typeof SEEDS!=='undefined'&&SEEDS[id])||null; if(!seed) return [];
-  return seed.map(row=>{ const areaPts={}; let total=0; AREA_ORDER.forEach((a,i)=>{ areaPts[a]=row[i]||0; total+=row[i]||0; }); return {total,areaPts}; });
+  const _e=examById(id); const seed=(typeof SEEDS!=='undefined'&&SEEDS[id])||(_e&&_e.seed)||null; if(!seed) return [];
+  const _O=areaOrderFor(examById(id)); return seed.map(row=>{ const areaPts={}; let total=0; _O.forEach((a,i)=>{ areaPts[a]=row[i]||0; total+=row[i]||0; }); return {total,areaPts}; });
  },
- seedCount(id){ return ((typeof SEEDS!=='undefined'&&SEEDS[id])||[]).length; },
+ seedCount(id){ const _e=examById(id); return ((typeof SEEDS!=='undefined'&&SEEDS[id])||(_e&&_e.seed)||[]).length; },
  subToCohort(arr){
   const qs=this.exam.questions;
   return arr.map(rec=>{ const s=rec.answers||''; let total=0; const areaPts={}; qs.forEach((q,i)=>{ areaPts[q.area]=areaPts[q.area]||0; if(+s[i]===q.ans){ total+=PT; areaPts[q.area]+=PT; } }); return {total,areaPts}; });
@@ -1598,7 +1815,7 @@ const App={
   if(!N){ document.getElementById('dashBody').innerHTML='<div class="empty empty--art">'+artFlask(88)+'<div>추가 입력된 학생이 없습니다.</div></div>'; return; }
   const totals=latest.map(s=>this.subTotal(s)), mean=totals.reduce((a,b)=>a+b,0)/N, mx=Math.max(...totals), mn=Math.min(...totals);
   const coh=this.subToCohort(latest), areaMean=[];
-  AREA_ORDER.forEach(a=>{ const max=qs.filter(q=>q.area===a).length*PT; if(!max)return; const m=coh.reduce((s,c)=>s+(c.areaPts[a]||0),0)/N; areaMean.push({a,max,pct:m/max*100,mean:m}); });
+  orderedAreasOf(this.exam).forEach(a=>{ const max=qs.filter(q=>q.area===a).length*PT; if(!max)return; const m=coh.reduce((s,c)=>s+(c.areaPts[a]||0),0)/N; areaMean.push({a,max,pct:m/max*100,mean:m}); });
   const weak=areaMean.slice().sort((x,y)=>x.pct-y.pct).slice(0,3);
   const stat=this.examStats(id);
   let hardHTML;
@@ -1625,7 +1842,7 @@ const App={
   if(subs.length>=2){
    const f=this.subToCohort([subs[0]])[0].areaPts, l=this.subToCohort([subs[subs.length-1]])[0].areaPts;
    const qs=this.exam.questions;
-   const deltas=AREA_ORDER.filter(a=>qs.some(q=>q.area===a)).map(a=>({a,d:(l[a]||0)-(f[a]||0)})).filter(x=>x.d!==0).sort((x,y)=>y.d-x.d);
+   const deltas=orderedAreasOf(this.exam).map(a=>({a,d:(l[a]||0)-(f[a]||0)})).filter(x=>x.d!==0).sort((x,y)=>y.d-x.d);
    if(deltas.length){
     const up=deltas.filter(x=>x.d>0).slice(0,3), dn=deltas.filter(x=>x.d<0).slice(-3).reverse();
     const chip=(x,kind)=>`<span class="delta-chip delta-chip--${kind}">${x.a} ${x.d>0?'+':''}${x.d}점</span>`;

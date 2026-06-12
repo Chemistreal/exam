@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{TITLE}}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@300;400;500;600;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F4EFE6;--paper-soft:#FBFAF6;--surface:#FBF8F1;--surface-2:#F6F1E7;--ink:#1C1812;--ink-2:#40392F;--ink-3:#857B6B;--ink-4:#A79D8B;--line:#E6DECF;--line-2:#EFE7D6;--line-3:#D6CAB3;--teal:#0E7A6E;--teal-d:#0A5C53;--teal-t:#E2EFEC;--brass:#A07E2B;--brass-d:#7A5E1C;--gold-2:#C9A24B;--cobalt:#2A5470;--amber:#BD7A12;--rose:#B23A6B;--emerald:#2E7D5B;--foil-line:linear-gradient(90deg,rgba(122,94,28,0),#C9A24B 40%,#7A5E1C 60%,rgba(122,94,28,0));--serif:"Hahmlet","Noto Serif KR",Georgia,serif;--sans:"IBM Plex Sans KR","Noto Sans KR",-apple-system,system-ui,sans-serif;--mono:"IBM Plex Mono","SF Mono",ui-monospace,Menlo,Consolas,monospace;--shadow-s:inset 0 1px 0 rgba(255,255,255,.6),0 1px 2px rgba(28,24,18,.05),0 16px 38px -28px rgba(28,24,18,.42);}
+*{box-sizing:border-box}
+html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;scroll-behavior:smooth}
+body{margin:0;font-family:var(--sans);color:var(--ink);background:radial-gradient(130% 90% at 50% -12%,#FCFAF4 0%,var(--paper-soft) 34%,var(--paper) 100%) fixed;line-height:1.55;font-size:14px}
+::selection{background:rgba(201,162,75,.26)}
+::-webkit-scrollbar{width:12px;height:12px}::-webkit-scrollbar-thumb{background:var(--line-3);border-radius:7px;border:3px solid var(--paper)}
+.wrap{max-width:920px;margin:0 auto;padding:0 20px 90px}
+.top{background:rgba(251,248,241,.86);backdrop-filter:saturate(1.15) blur(8px);border-bottom:2px solid var(--ink);position:sticky;top:0;z-index:30}
+.top::after{content:"";position:absolute;left:20px;bottom:-2px;width:72px;height:2px;background:linear-gradient(90deg,var(--brass-d),var(--gold-2))}
+.top__in{max-width:920px;margin:0 auto;padding:14px 20px 13px}
+.kick{font-family:var(--mono);font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--brass-d);font-weight:600}
+.h1{font-family:var(--serif);font-size:24px;font-weight:600;letter-spacing:-.015em;margin:3px 0 0;background:linear-gradient(92deg,var(--ink),var(--brass-d) 150%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sub{font-size:12px;color:var(--ink-3);margin-top:4px}
+.teal-rule{height:2px;background:linear-gradient(90deg,var(--teal-d) 0%,var(--teal) 32%,var(--gold-2) 68%,var(--brass-d) 100%)}
+.sec{background:linear-gradient(180deg,var(--surface),#F7F2E9);border:1px solid var(--line);border-radius:16px;padding:20px 22px 22px;margin-top:18px;box-shadow:var(--shadow-s)}
+.sec__h{display:flex;align-items:center;gap:11px;margin-bottom:13px}
+.sec__no{font-family:var(--mono);font-size:12px;color:var(--gold-2);font-weight:600}
+.sec__t{font-family:var(--serif);font-size:18px;font-weight:600}
+.sec__h::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line-2),transparent);margin-left:4px}
+/* 네비 */
+.nav{display:flex;flex-wrap:wrap;gap:5px}
+.navb{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:30px;padding:0 4px;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink-2);background:var(--surface);border:1px solid var(--line-2);border-radius:7px;text-decoration:none;transition:.13s}
+.navb:hover{border-color:var(--gold-2);color:var(--ink);background:#fff}
+/* 요약표 */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:500;text-align:left;padding:10px;border-bottom:1px solid var(--line);background:var(--surface-2);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--line-2);font-family:var(--mono);font-variant-numeric:tabular-nums}
+td:nth-child(4),td:nth-child(5){font-family:var(--sans)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface-3,#FAF6EC)}
+.qjump{color:var(--ink);font-weight:700;text-decoration:none}.qjump:hover{color:var(--teal-d);text-decoration:underline}
+.ans{color:var(--emerald);font-weight:700;font-size:15px}
+.area-pill{font-size:12px;font-weight:600}
+.typ{color:var(--ink-2);font-size:12.5px}
+.search{width:100%;font-family:var(--sans);font-size:13px;padding:9px 13px;border:1px solid var(--line-3);border-radius:9px;background:var(--surface);margin-bottom:12px}
+/* 페이지 이미지 */
+.pg{position:relative;margin-top:20px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:8px;box-shadow:var(--shadow-s)}
+.pg__lab{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-weight:600;font-size:15px;color:var(--ink);padding:8px 10px 10px}
+.pg__no{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--brass-d);background:var(--surface-2);padding:3px 9px;border-radius:6px;font-weight:600}
+.pg__img{display:block;width:100%;height:auto;border-radius:9px;border:1px solid var(--line-2)}
+.qa{position:absolute;top:-86px}
+.foil{height:1px;background:var(--foil-line);margin:14px 0 0}
+.foot{margin-top:30px;font-size:11.5px;color:var(--ink-4);text-align:center;line-height:1.8}
+.backtop{position:fixed;right:18px;bottom:18px;width:44px;height:44px;border-radius:50%;background:var(--ink);color:#fff;border:none;font-size:18px;cursor:pointer;opacity:0;transition:.25s;z-index:40;box-shadow:0 8px 20px -8px rgba(0,0,0,.5)}
+.backtop.on{opacity:.92}
+@media(max-width:560px){.h1{font-size:20px}.sec{padding:16px 14px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="top__in">
+  <div class="kick">CHEMISTREAL · 해설</div>
+  <div class="h1">{{TITLE}}</div>
+  <div class="sub">{{SUB}}</div>
+</div></header>
+<div class="teal-rule"></div>
+
+<div class="wrap">
+  <div class="sec">
+    <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">문항 바로가기</span></div>
+    <div class="nav">{{NAV}}</div>
+  </div>
+
+  <div class="sec">
+    <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">정답 · 정답률 · 개념</span></div>
+    <input class="search" id="search" placeholder="영역·개념 검색 (예: 주기율, 몰, 극성)…">
+    <div class="tbl-wrap"><table id="ovTbl"><thead><tr><th>문항</th><th>정답</th><th>출제 정답률</th><th>영역</th><th>개념 (유형)</th></tr></thead><tbody>{{ROWS}}</tbody></table></div>
+  </div>
+
+  <div class="sec" style="background:none;border:none;box-shadow:none;padding:0;margin-top:24px">
+    <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">문항별 풀이 (해설지 원본)</span></div>
+    <div class="sub" style="margin:-6px 0 4px">정답·정답률은 위 표에서, 식과 그림이 포함된 자세한 풀이는 아래 원본 해설지에서 확인하세요.</div>
+  </div>
+  {{PAGES}}
+
+
+  <div class="foil"></div>
+  <div class="foot">Chemistreal · 조준모 화학 · {{TITLE}}<br>본 해설은 수강생 학습용입니다. 무단 배포를 금합니다.</div>
+</div>
+<button class="backtop" id="backtop" aria-label="맨 위로">↑</button>
+<script>
+(function(){
+  var s=document.getElementById('search'), tb=document.getElementById('ovTbl');
+  s.addEventListener('input',function(){
+    var q=s.value.trim();
+    tb.querySelectorAll('tbody tr').forEach(function(tr){
+      tr.style.display = !q || tr.textContent.indexOf(q)>=0 ? '' : 'none';
+    });
+  });
+  var bt=document.getElementById('backtop');
+  addEventListener('scroll',function(){ bt.classList.toggle('on', scrollY>600); });
+  bt.addEventListener('click',function(){ scrollTo({top:0,behavior:'smooth'}); });
+})();
+</script>
+</body>
+</html>
