@@ -155,7 +155,7 @@ a{color:var(--teal)}
 .kpi__v small{font-size:16px;color:var(--ink-3);font-weight:500}
 .kpi__s{font-size:12px;color:var(--ink-2);margin-top:8px}
 .kpi__s .up{color:var(--good);font-weight:700}
-.kpi__s .dn{color:var(--bad);font-weight:700}
+.kpi__s .dn{color:var(--bad);font-weight:700}.kpi--up{background:linear-gradient(180deg,var(--brass-t),rgba(0,0,0,0));border-radius:10px;border-left-color:transparent!important}.kpi--up .kpi__v{color:var(--brass-d)}.kpi--up .kpi__s b{color:var(--brass-d)}.method{border:1px solid var(--line-2);border-left:3px solid var(--brass-d);border-radius:12px;background:var(--surface);padding:15px 20px;margin-bottom:22px}.method__lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass-d);margin-bottom:8px}.method__tx{font-size:13px;line-height:1.72;color:var(--ink-2)}.method__tx b{color:var(--ink);font-weight:700}.note__meta{font-family:var(--mono);font-size:10px;letter-spacing:.05em;color:var(--ink-4);text-align:right;margin-top:12px}@media print{.method{break-inside:avoid}}
 .kpi__spark{margin-top:8px}
 
 /* 요약 풀쿼트 */
@@ -207,6 +207,7 @@ a{color:var(--teal)}
 
 /* 유형 숙련도 */
 .cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px 26px;margin-top:18px}
+.rdr-wrap{max-width:420px;margin:8px auto 0}.rdr-leg{display:flex;gap:18px;justify-content:center;font-size:11.5px;color:var(--ink-3);margin-top:2px}.rdr-leg i,.bdk-legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}.bdk-top{display:flex;justify-content:flex-end;margin-top:10px}.btn--haeseol{font-family:var(--sans);font-size:12.5px;font-weight:600;padding:7px 14px;border-radius:9px;border:1px solid var(--brass);background:var(--brass-t);color:var(--brass-d);text-decoration:none;cursor:pointer}.btn--haeseol:hover{background:var(--brass);color:#fff}.bdk{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:7px;margin-top:14px}.bdk-cell{position:relative;aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;border:1.6px solid;background:var(--surface)}.bdk-cell.no{border-style:dashed}.bdk-cell .bn{font-family:var(--mono);font-size:13px;font-weight:700;line-height:1}.bdk-cell .mk{position:absolute;top:3px;right:5px;font-size:8.5px;font-weight:700;opacity:.92}.bdk-cell .mk2{position:absolute;bottom:2px;left:4px;font-size:7px;font-weight:700;opacity:.85}.bdk-legend{display:flex;flex-wrap:wrap;gap:9px 16px;margin-top:14px;font-size:11.5px;color:var(--ink-3);align-items:center}.bdk-legend .bn-k{font-size:13px;font-weight:700}.ok-k{color:var(--teal-d)}.no-k{color:var(--ink-3)}@media print{.btn--haeseol{display:none}.bdk-cell{break-inside:avoid}}
 .cgroup__h{font-family:var(--serif);font-weight:700;font-size:13px;color:var(--teal-d);padding-bottom:7px;border-bottom:1px solid var(--line-2);margin-bottom:9px;letter-spacing:.01em}
 .crow{display:flex;align-items:center;gap:9px;padding:3px 0}
 .crow__t{font-size:12.5px;color:var(--ink-2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -779,6 +780,93 @@ const OM={
  59:"결합의 세기·길이·에너지의 상관(짧을수록 강하고 에너지가 큼)을 혼동.",
  60:"F·O·N에 결합한 H에서만 나타나는 수소결합의 조건을 일반 분자간 힘과 혼동."
 };
+/* ===== 개념→오개념 라이브러리 (시드/해설 없는 시험의 오개념 카드용 · 출제자 검수 대상) ===== */
+const OMLIB=[
+ ["중성자","질량수에서 양성자수(원자번호)를 빼는 과정을 놓침. 중성자수 = 질량수 − 양성자수."],
+ ["동위원소","동위원소의 정의(양성자수 동일, 중성자수 상이)를 정확히 적용하지 못함."],
+ ["원자구성입자","양성자·중성자·전자 수와 질량수·전하의 관계를 혼동."],
+ ["원자의구성","양성자·중성자·전자 수와 질량수·전하의 관계를 혼동."],
+ ["물질의분류","순물질과 혼합물, 화합물과 원소의 경계를 혼동."],
+ ["핵반응","화학 반응(전자만 관여)과 핵반응(양성자·중성자 변화)을 구분하지 못함."],
+ ["방사성","알파·베타 붕괴에서 질량수·원자번호 변화 규칙을 혼동."],
+ ["아보가드로","몰·입자수 환산(입자수=몰×아보가드로수)을 한 단계에서 잘못 적용."],
+ ["최외각","원자 1몰당 최외각 전자 수를 곱하는 과정을 빠뜨려 전자 몰수를 잘못 계산."],
+ ["기체밀도","기체 밀도 d=PM/RT에서 몰질량과 압력·온도 의존성을 혼동."],
+ ["기체부피","일정 온도에서 기체 부피가 외부 압력에 반비례한다는 보일 법칙을 적용하지 못함."],
+ ["물질의상태","상태변화 시 분자 자체는 변하지 않고 분자 사이 거리·배열만 달라진다는 점을 놓침."],
+ ["연소분석","연소 생성물 CO₂·H₂O의 질량에서 C·H의 몰수로 거꾸로 환산하는 몰비를 잘못 잡음."],
+ ["질량비실험식","각 원소의 질량을 몰질량으로 나눠 가장 간단한 정수비(실험식)로 만드는 단계를 생략."],
+ ["실험식","각 원소의 질량을 몰질량으로 나눠 가장 간단한 정수비(실험식)로 만드는 단계를 생략."],
+ ["미정계수","미정계수법에서 방정식을 하나 빠뜨려 계수를 잘못 결정."],
+ ["계수합","균형을 맞춘 뒤 가장 간단한 정수비로 약분하지 않아 계수의 합을 잘못 셈."],
+ ["계수맞추기","원자 보존(좌우 원자수 일치)을 일부 원소에서만 맞추고 전체 균형을 확인하지 않음."],
+ ["부분압","혼합 기체에서 각 성분의 부분압력 = 전체압력 × 몰분율 관계를 적용하지 못함."],
+ ["양적관계","반응식 계수비가 곧 몰비임을 적용하지 못하고 질량비로 직접 비례시킴."],
+ ["몰과양적관계","반응식 계수비가 곧 몰비임을 적용하지 못하고 질량비로 직접 비례시킴."],
+ ["빅뱅","빅뱅 직후의 수소·헬륨 생성과 별 내부 핵융합에 의한 무거운 원소 생성을 혼동."],
+ ["원소생성","빅뱅 직후의 수소·헬륨 생성과 별 내부 핵융합에 의한 무거운 원소 생성을 혼동."],
+ ["우주의원소","우주에 수소·헬륨이 가장 많고 무거운 원소일수록 적다는 분포 경향을 잘못 앎."],
+ ["돌턴","돌턴 원자설 중 현대에 수정된 부분(동위원소 존재 등)을 구분하지 못함."],
+ ["전자기파","진동수와 파장의 반비례, 에너지와 진동수의 비례 관계를 혼동."],
+ ["스펙트럼","라이먼·발머·파셴 계열이 각각 어느 전자 전이에 대응하는지 혼동."],
+ ["파장","전자 전이의 에너지 크기와 빛의 파장(반비례) 관계를 혼동."],
+ ["전자스핀","한 오비탈에 전자 2개가 반대 스핀으로 채워진다는 파울리 배타원리를 적용하지 못함."],
+ ["양자수","주양자수·부양자수·자기양자수의 허용 범위(0 ≤ l ≤ n−1 등)를 잘못 적용."],
+ ["오비탈표기","전자배치 표기에서 s·p·d 오비탈의 최대 수용 전자수(2·6·10)를 혼동."],
+ ["들뜬","바닥상태·들뜬상태 구분과 쌓음원리·훈트규칙 적용을 혼동."],
+ ["바닥","쌓음원리·훈트규칙을 어겨 바닥상태 전자배치를 잘못 작성."],
+ ["원자반지름","같은 주기에서 원자번호가 커질수록 반지름이 감소(유효핵전하 증가)하는 경향을 반대로 앎."],
+ ["이온반지름","등전자 이온에서 양성자수가 많을수록 반지름이 작아진다는 점을 적용하지 못함."],
+ ["등전자","등전자종(전자 수가 같은 화학종)의 정의를 정확히 적용하지 못함."],
+ ["순차적이온화","순차 이온화에너지의 급증 지점으로 원자가전자 수(족)를 판단하는 논리를 적용하지 못함."],
+ ["이온화에너지","주기·족에 따른 이온화에너지 경향과 예외(2족>13족, 15족>16족)를 혼동."],
+ ["주기적성질","원자반지름·이온화에너지·전기음성도의 주기적 경향을 서로 혼동."],
+ ["전기음성도","주기·족에 따른 전기음성도 경향(F이 최대)을 정확히 적용하지 못함."],
+ ["본하버","본-하버 순환에서 각 단계 에너지의 부호(흡수·방출)와 합을 잘못 계산."],
+ ["옥텟","옥텟을 만족하지 않는 예외(전자 부족·확장 옥텟)를 인식하지 못함."],
+ ["VSEPR","중심원자의 결합쌍·비공유 전자쌍 수로 분자 모양을 정하는 VSEPR을 적용하지 못함."],
+ ["분자의모양","중심원자의 결합쌍·비공유 전자쌍 수로 분자 모양을 정하는 VSEPR을 적용하지 못함."],
+ ["결합각","비공유 전자쌍의 반발이 결합각을 줄인다는 점을 고려하지 않음(CH₄>NH₃>H₂O)."],
+ ["혼성","중심원자 주위 전자쌍 수와 혼성 오비탈(sp·sp²·sp³)의 대응을 혼동."],
+ ["쌍극자모멘트","결합 쌍극자의 벡터 합이 0이면 무극성 분자라는 점을 적용하지 못함."],
+ ["분자의극성","분자의 대칭성에 따라 결합의 극성이 상쇄되는지를 판단하지 못함."],
+ ["결합의극성","극성 결합을 가져도 대칭이면 무극성 분자가 된다는 점을 혼동(예: CO₂)."],
+ ["극성화학종","여러 화학종의 극성 여부를 대칭성으로 일관되게 판별하지 못함."],
+ ["결합에너지","결합의 세기·길이·에너지의 상관(짧을수록 강하고 에너지가 큼)을 혼동."],
+ ["수소결합","F·O·N에 결합한 H에서만 나타나는 수소결합의 조건을 일반 분자간 힘과 혼동."],
+ ["갈바니","산화 전극(−)·환원 전극(+)과 전자·전류 방향, 염다리 역할을 혼동."],
+ ["전기분해","전기분해에서 (−)극 환원·(+)극 산화와 패러데이 법칙(전하량∝몰수)을 혼동."],
+ ["산화환원","산화수 변화로 산화·환원을 판단하고 전자수를 맞추는 과정을 놓침."],
+ ["전기화학","표준환원전위 부호로 자발성·전극을 판단하는 논리를 적용하지 못함."],
+ ["반응속도식","반응속도식의 차수는 실험으로 결정되며 계수와 일치하지 않을 수 있음을 혼동."],
+ ["반응속도","농도·온도·촉매가 반응속도에 미치는 영향을 정량적으로 연결하지 못함."],
+ ["활성화에너지","촉매가 활성화에너지를 낮춰 속도를 높이되 ΔH는 바꾸지 않는다는 점을 혼동."],
+ ["화학평형","평형상수 K의 의미와 르샤틀리에 원리(농도·압력·온도 변화 대응)를 혼동."],
+ ["평형상수","K 식 구성(생성물/반응물, 계수=지수)과 고체·액체 제외를 혼동."],
+ ["르샤틀리에","조건 변화에 평형이 어느 쪽으로 이동하는지 르샤틀리에 원리로 판단하지 못함."],
+ ["반응엔탈피","엔탈피의 상태함수 성질과 헤스 법칙(경로 무관, 합산)을 적용하지 못함."],
+ ["헤스","헤스 법칙에서 반응식을 더하고 뒤집을 때 ΔH 부호·배수를 잘못 처리."],
+ ["총괄성","총괄성(증기압 내림·끓는점 오름·어는점 내림·삼투압)은 입자 수에 비례함을 혼동."],
+ ["어는점","어는점 내림 ΔTf=Kf·m·i에서 반트호프 인자 i(이온 수)를 빠뜨림."],
+ ["끓는점","끓는점 오름 ΔTb=Kb·m·i에서 몰랄농도와 i를 정확히 적용하지 못함."],
+ ["증기압","용질이 녹으면 증기압이 낮아진다는 라울 법칙을 적용하지 못함."],
+ ["몰농도","몰농도(mol/L)와 몰랄농도(mol/kg)·질량%·ppm 사이 환산을 혼동."],
+ ["몰랄","몰랄농도(용질 몰수/용매 kg)를 몰농도와 혼동."],
+ ["단위세포","단위세포 내 위치별 입자 분율(꼭짓점 1/8·면심 1/2·모서리 1/4)을 잘못 적용."],
+ ["면심입방","면심입방은 단위세포당 4개, 면대각선 4r=√2a 관계를 혼동."],
+ ["체심입방","체심입방은 단위세포당 2개, 체대각선 4r=√3a 관계를 혼동."],
+ ["결정","결정 구조의 단위세포 입자수·배위수·밀도 계산을 연결하지 못함."],
+ ["분자간력","인력 세기(이온결합>이온-쌍극자>수소결합>쌍극자>분산력)를 혼동."],
+ ["분산력","분산력은 분자량이 클수록 커진다는 점을 끓는점·증기압과 연결하지 못함."],
+ ["이상기체","이상기체에 가까운 조건(낮은 압력·높은 온도)을 실제기체 거동과 혼동."],
+ ["반데르발스","반데르발스 식의 인력 보정(a/V²)·부피 보정(b)의 의미를 혼동."],
+ ["그레이엄","그레이엄 법칙(확산·분출 속도∝1/√M)을 거꾸로 적용."],
+ ["평균속력","평균분자속력이 √(분자량)에 반비례한다는 점을 적용하지 못함."],
+ ["충돌","충돌빈도(온도·압력↑면 증가)와 평균자유행로(압력↑면 감소, 온도 무관)를 혼동."],
+ ["표면장력","표면장력·모세관 현상에서 응집력·부착력·중력의 평형을 혼동."],
+ ["비열","가열곡선에서 기울기가 작을수록 비열이 크고, 수평 구간이 잠열임을 혼동."]
+];
+function omFor(type){ if(!type) return null; for(const e of OMLIB){ if(type.indexOf(e[0])>=0) return e[1]; } return null; }
 const AREA_ORDER=["화학의 기초","화학식량","몰","기체","양적관계","원소의 기원","원자모형","전자배치","주기율","분자의 구조","분자의 모양","분자의 극성","기타"];
 const AREA_GROUP={"화학의 기초":"I. 화학의 첫걸음","화학식량":"I. 화학의 첫걸음","몰":"I. 화학의 첫걸음","기체":"I. 화학의 첫걸음","양적관계":"I. 화학의 첫걸음","원소의 기원":"II. 원자의 세계","원자모형":"II. 원자의 세계","전자배치":"II. 원자의 세계","주기율":"II. 원자의 세계","분자의 구조":"III. 화학 결합과 분자","분자의 모양":"III. 화학 결합과 분자","분자의 극성":"III. 화학 결합과 분자","기타":"기타"};
 /* ===== 시험별 영역 체계 (exam.areaOrder / exam.areaGroup 있으면 사용, 없으면 전역 폴백) ===== */
@@ -788,6 +876,9 @@ function areaGroupFor(exam){ return (exam&&exam.areaGroup)||AREA_GROUP; }
 function orderedAreasOf(exam){ const o=areaOrderFor(exam),pr=[...new Set(((exam&&exam.questions)||[]).map(q=>q.area))]; return o.filter(a=>pr.indexOf(a)>=0).concat(pr.filter(a=>o.indexOf(a)<0)); }
 function groupOrderFor(exam){ const g=areaGroupFor(exam),s=[]; areaOrderFor(exam).forEach(a=>{const gr=g[a]||"기타"; if(s.indexOf(gr)<0)s.push(gr);}); return s; }
 const PT=3, CHO=["①","②","③","④"];
+function accAns(q){ return (q&&Array.isArray(q.accept)&&q.accept.length)?q.accept:[q.ans]; }
+function isHit(c,q){ c=+c; return c>=1&&c<=4&&accAns(q).indexOf(c)>=0; }
+function ansLabel(q){ return accAns(q).map(a=>CHO[a-1]).join(""); }
 // 구글 스프레드시트 자동 저장: Apps Script 웹앱 배포 URL(.../exec)을 아래에 붙여넣으세요. 비워두면 저장하지 않습니다.
 const SHEET_ENDPOINT="https://script.google.com/macros/s/AKfycbxGmSCkip0cQCyOH_JA2SiAMSxri00XObLmHyXlyXwxhG7u7w-x0FH02VN4DQySiUsv9Q/exec";
 const ROSTER_PREFIX="chemistreal:roster:";
@@ -1034,22 +1125,282 @@ const Q_KCH2F=[
  [59,4,50,"산과 염기","완충용액"],
  [60,3,50,"산과 염기","양쪽성(아미노산)"]
 ];
+/* ===== 화학2 1단원(chem2-1) 정본 데이터 ===== */
+const Q_CHEM21=[
+ [1,1,58,"분자간력·끓는점","점도·분자간력"],
+ [2,2,58,"분자간력·끓는점","분자간력 세기"],
+ [3,2,58,"분자간력·끓는점","끓는점·분자간력"],
+ [4,3,58,"분자간력·끓는점","끓는점 경향(수소화물)"],
+ [5,3,58,"분자간력·끓는점","끓는점 비교"],
+ [6,2,58,"분자간력·끓는점","끓는점 비교"],
+ [7,3,58,"분자간력·끓는점","끓는점 비교(치환벤젠)"],
+ [8,4,58,"분자간력·끓는점","수소결합·HF 성질"],
+ [9,4,58,"분자간력·끓는점","분자간력 종류(얼음)"],
+ [10,4,58,"분자간력·끓는점","수소결합 세기"],
+ [11,2,52,"부분압·증기압","결합차수·원소 존재"],
+ [12,1,58,"분자간력·끓는점","끓는점·분자량(수소화물)"],
+ [13,3,52,"기체운동·속도","기체운동·탈출속도"],
+ [14,2,52,"기체운동·속도","아보가드로·평균속력"],
+ [15,3,52,"기체운동·속도","평균분자속도(그레이엄)"],
+ [16,2,52,"기체운동·속도","확산속도(그레이엄)"],
+ [17,1,52,"기체운동·속도","분출속도·부분압"],
+ [18,2,52,"기체운동·속도","벽면충돌빈도"],
+ [19,3,52,"기체운동·속도","속도분포(맥스웰)"],
+ [20,2,52,"기체운동·속도","평균속력비(그레이엄)"],
+ [21,1,52,"충돌·실제기체","그레이엄법칙·반응식"],
+ [22,1,52,"충돌·실제기체","충돌빈도·평균자유행로"],
+ [23,2,52,"충돌·실제기체","가열 시 성질변화"],
+ [24,1,52,"충돌·실제기체","반데르발스식"],
+ [25,4,52,"충돌·실제기체","이상기체 조건"],
+ [26,3,52,"충돌·실제기체","압축인자·인력/반발력"],
+ [27,3,52,"충돌·실제기체","압축인자 비교(분산력)"],
+ [28,3,52,"부분압·증기압","수상치환·부분압"],
+ [29,2,52,"부분압·증기압","부분압(돌턴)"],
+ [30,1,58,"계면·상태변화","증기압곡선·끓는점"],
+ [31,2,46,"용액·총괄성","증기압 내림(총괄성)"],
+ [32,2,58,"계면·상태변화","모세관·표면장력",[2, 3]],
+ [33,2,58,"계면·상태변화","모세관현상·중력"],
+ [34,3,58,"계면·상태변화","물의 수소결합 수"],
+ [35,2,58,"계면·상태변화","물의 수소결합 수"],
+ [36,4,58,"계면·상태변화","가열곡선·비열"],
+ [37,2,52,"부분압·증기압","증발·증기압 계산(이상기체)"],
+ [38,3,46,"결정구조·조성","고체 몰열용량(뒬롱-프티)"],
+ [39,4,46,"결정구조·조성","이온결정 단위세포"],
+ [40,2,46,"결정구조·조성","합금 단위세포 조성"],
+ [41,2,46,"결정구조·조성","단순·면심입방 단위셀"],
+ [42,2,46,"결정구조·조성","단위세포 원자수비"],
+ [43,3,46,"결정구조·조성","합금 단위세포 조성"],
+ [44,3,46,"결정구조·조성","단위세포 실험식"],
+ [45,3,46,"결정밀도·계산","결정·밀도 종합추론"],
+ [46,3,46,"결정밀도·계산","면심입방 반지름"],
+ [47,2,46,"결정밀도·계산","체심입방 원자수(밀도)"],
+ [48,4,46,"결정밀도·계산","체심입방 기하"],
+ [49,1,46,"결정밀도·계산","면심입방 밀도·아보가드로"],
+ [50,2,46,"결정밀도·계산","면심입방 밀도"],
+ [51,1,46,"결정밀도·계산","체심입방 밀도식"],
+ [52,2,46,"결정구조·조성","사면체·팔면체 구멍 실험식"],
+ [53,4,46,"용액·총괄성","방사능 단위환산(몰)"],
+ [54,1,46,"결정밀도·계산","결정 밀도(에피택시얼)"],
+ [55,4,46,"용액·총괄성","농도 단위환산(ppb→몰농도)"],
+ [56,2,46,"용액·총괄성","농도(질량%)·분해반응"],
+ [57,1,46,"용액·총괄성","몰농도(침전반응)"],
+ [58,2,46,"용액·총괄성","적정·질량백분율(요오드)"],
+ [59,1,46,"용액·총괄성","증기압(라울·편차)"],
+ [60,2,46,"용액·총괄성","어는점 내림(반트호프 i)"]
+];
+const CHEM21_OM={
+ 1:"점도는 분자간 인력의 크기를 묻는다. -OH 수가 많을수록 수소결합이 많아 점도가 커진다. 분산력·쌍극자력보다 수소결합 수가 점도 순서를 지배한다.",
+ 2:"인력 세기는 이온결합 > 이온-쌍극자 > 수소결합 > 쌍극자-쌍극자 > 분산력 순. Li⁺…H₂O가 가장 세고, 두 번째로 강한 것은 H₂O…H₂O 수소결합(②).",
+ 3:"끓는점은 분자간 인력 순. 아세트산은 수소결합과 큰 극성을 모두 가져 끓는점이 가장 높다(②). 에탄올도 수소결합하지만 아세트산이 더 강하다.",
+ 4:{'*':"수소결합하는 H₂O·NH₃·HF는 같은 족에서 끓는점이 가장 높다. 분자량만 보고 순서를 매기면 틀린다. 옳은 것은 ③(He<Ne<Ar<Kr<Xe, 분산력↑).",1:"물은 수소결합으로 분자간 인력이 가장 크다. 16족 끓는점은 H₂S<H₂Se<H₂Te<H₂O. H₂O를 가장 낮게 본 것이 오개념.",2:"암모니아는 수소결합으로 분자간 인력이 크다. 15족 끓는점은 PH₃<AsH₃<NH₃<SbH₃. NH₃를 가장 낮게 본 것이 오개념.",4:"플루오린화수소는 수소결합으로 분자간 인력이 매우 크다. 17족 끓는점은 HCl<HBr<HI<HF. HF를 가장 낮게 본 것이 오개념."},
+ 5:"에탄올은 수소결합, 아세톤은 극성, 다이에틸에터는 무극성에 가깝다. 끓는점은 에탄올>아세톤>다이에틸에터 → ③(다>가>나).",
+ 6:{'*':"옳지 않은 것은 ② O₂>NO. 분자량이 비슷하면 극성 분자(NO)의 끓는점이 무극성(O₂)보다 높다.",1:"O₂>N₂는 옳다. 둘 다 무극성, 분자량 32>28이라 분산력이 커 O₂ 끓는점이 더 높다. 이를 틀렸다고 본 것이 오개념.",3:"HF>HCl는 옳다. HF는 수소결합으로 끓는점이 높다. 이를 틀렸다고 본 것이 오개념.",4:"H₂Se>H₂S는 옳다. 둘 다 극성, H₂Se가 분자량이 커 끓는점이 더 높다. 이를 틀렸다고 본 것이 오개념."},
+ 7:"벤젠은 무극성, C₆H₅Cl·C₆H₅Br는 극성(Br이 분자량 커 더 높음), C₆H₅OH는 수소결합. 끓는점은 C₆H₆<C₆H₅Cl<C₆H₅Br<C₆H₅OH(③).",
+ 8:"HF는 수소결합으로 끓는점이 가장 높고, 가장 약한 할로젠화수소산(HF<HCl<HBr<HI)이며, SiO₂(유리)를 녹인다. 보기 넷이 모두 옳다(④).",
+ 9:"얼음(H₂O)에는 쌍극자 힘·분산력·수소결합이 모두 있다(가·나·다=④). 이온이 없어 이온-쌍극자 힘(라)은 없다.",
+ 10:"HF 분자 간 수소결합 세기는 약 29 kJ/mol. 보기 0.01·0.1·1·10 중 가장 가까운 값은 ④ 10. 수소결합을 너무 약하게 어림하면 틀린다.",
+ 11:{'*':"He₂는 결합차수가 0이라 존재하지 않는다(헬륨은 일원자 분자). 다른 보기는 모두 상온에서 존재한다.",1:"O₃(오존)는 상온에서 기체로 존재한다. 존재하지 않는 것은 결합차수 0인 He₂(②).",3:"S₈은 상온에서 고체로 존재한다. 존재하지 않는 것은 결합차수 0인 He₂(②).",4:"P₄는 상온에서 고체로 존재한다. 존재하지 않는 것은 결합차수 0인 He₂(②)."},
+ 12:{'*':"옳은 설명은 ① SiH₄<GeH₄ 분산력(분자량↑). 끓는점은 분자간 인력이 결정한다.",2:"선형 HF 사이에도 수소결합이 작용한다. '작용하지 않는다'고 본 것이 오개념.",3:"끓는점은 전기음성도 차이가 아니라 분자간 인력(수소결합·분산력)이 결정한다. 분자량 큰 분자가 더 높을 수도 있다.",4:"물의 높은 끓는점은 분자내 결합에너지가 아니라 분자간 수소결합 때문. 분자내·분자간 결합을 혼동한 오개념."},
+ 13:"목성 대기는 대부분 수소, 산소는 거의 없다. '수소가 산소와 반응해 물을 만든다'는 수소가 풍부한 이유와 무관(③). 작은 분자량·무극성·태양과의 거리는 관계있다.",
+ 14:"같은 온도·압력·부피면 분자수가 같다(아보가드로). 질소(N≡N, 결합 3개)와 암모니아(N-H 3개)는 공유결합 수도 같다(a·c=②). 질량(28:17)·평균속력은 분자량이 달라 다르다.",
+ 15:"평균속도는 √분자량에 반비례. He(4)→H₂(2)는 √2배. 1300×1.414≈1838 m/s(③). 분자량비를 거꾸로 적용하면 틀린다.",
+ 16:"확산속도∝1/√M. A가 N₂보다 1.3배 빠르면 M_A=28/1.3²≈16.6. 분자량 16에 가까운 메테인(②). 속도비를 분자량비로 바로 쓰면 틀린다.",
+ 17:"밖으로 나온 분자수 ∝ 부분압 × 분출속도(∝1/√M). 부분압 비 1:1:2, 분자량 비 1:2:16이면 분자수 비 4:2.83:2 → (가)>(나)>(다)(①).",
+ 18:"충돌 비율 ∝ 몰수 × 평균속도. T_A=4T_B면 몰수비 1:4, 속도비 2:1 → 충돌비 1×2:4×1=1:2(②).",
+ 19:{'*':"옳지 않은 것은 ③. 온도가 같으면 운동에너지(=3/2 kT)도 같다. 속도 분포가 달라도 운동E는 동일하다.",1:"(가)→(다)로 갈수록 평균속도가 커지므로 분자량은 작아진다. 옳은 설명을 틀렸다고 본 오개념.",2:"평균속도가 클수록 확산이 빠르다. (가)→(다)로 더 빠르게 확산한다. 옳은 설명을 틀렸다고 본 오개념.",4:"온도가 높아지면 분포가 넓어진다. 옳은 설명을 틀렸다고 본 오개념."},
+ 20:{'*':"옳지 않은 것은 ②. O₂:H₂ 분자량비 32:2라 평균속력비는 √(2/32)=1:4. 1:16은 분자량비를 그대로 쓴 오개념.",1:"같은 부피·온도·압력이면 분자수는 같다(아보가드로). 옳은 설명.",3:"온도 일정·압력 2배여도 평균속력비는 √분자량에 반비례해 불변. 옳은 설명.",4:"압력 일정·온도만 올려도 평균속력비는 불변. 옳은 설명."},
+ 21:{'*':"옳은 설명은 ① 혼합기체 중 분자량 최소 SO₂(64)가 가장 빠르다(속도∝1/√M).",2:"SOCl₂ 중심 S의 입체수 4, 비공유전자쌍 1개라 삼각뿔이다. '평면삼각형'은 오개념.",3:"계수를 맞추면 SO₂+2Cl₂→SOCl₂+OCl₂. d=a+c가 아니라 a=c=d=1. 계수 오개념.",4:"이온화에너지가 가장 작은 원소는 S(3주기). 산소(2주기)보다 작다. 주기 비교 오개념."},
+ 22:"충돌빈도 z는 온도↑·압력↑면 증가. 평균자유행로 λ는 압력↑면 감소, 온도엔 무관(일정). 옳은 것은 ㄱ·ㄷ(①).",
+ 23:"부피 일정 용기를 가열하면 평균운동에너지만 증가(∝T). 밀도(질량·부피 일정)와 평균자유행로(분자수·부피 불변)는 그대로. 변하는 것은 나(②).",
+ 24:"1몰 반데르발스 식은 (P+a/V²)(V−b)=RT(①). 인력 보정은 압력에 +a/V², 부피 보정은 V−b.",
+ 25:"이상기체에 가까우려면 인력·부피 영향이 작아야 한다: 낮은 압력·높은 온도·큰 부피·작은 몰수(④).",
+ 26:"PV/RT<1(A)은 실제부피<이상부피라 인력이 주도, >1(B)은 반발력이 주도. A:인력, B:반발력(③).",
+ 27:"낮은 압력대에서 PV/RT는 인력이 클수록 작다. 분자량이 가장 큰 CO₂(분산력 최대)가 PV/RT 최소(③).",
+ 28:"수상치환은 전체압에서 물의 증기압(23.8/760)을 뺀 것이 질소 부분압. w=P_N₂·V·M/(RT)(③). 증기압을 빼지 않으면 틀린다.",
+ 29:"칸막이 제거 후 부피가 늘어난 만큼 분압이 줄어든다. H₂ 분압=2기압×(1.5V/2.5V)=1.2기압(②).",
+ 30:{'*':"옳은 설명은 ① 다이에틸에터(무극성) 끓는점이 가장 낮다. 분자간 인력이 작을수록 끓는점↓·증기압↑.",2:"에탄올은 수소결합 1개, 다이에틸에터는 무극성에 가깝다. '에터 인력이 더 크다'는 오개념.",3:"다이에틸에터는 수소결합을 하지 않는다. '세 액체 모두 수소결합'은 오개념.",4:"같은 온도에서 증기압은 다이에틸에터>에탄올>물. '물 증기압이 가장 크다'는 오개념."},
+ 31:"용액(바닷물)은 증기압이 낮아 증발이 적다. 두 비커의 응축량은 같아 증류수가 거의 다 바닷물로 이동한다(②). 증기압 내림(총괄성)의 결과.",
+ 32:{'*':"옳지 않은 것은 ②·③. ② 올라간 높이가 높을수록 분자간 인력은 크다(작다는 오개념). ③ 달에서 높이가 6배일 뿐 표면장력이 6배는 아니다(표면장력은 분자간 인력이 결정).",1:"모세관 높이는 응집력·부착력·중력이 결정해 재질에 따라 달라진다. 이건 옳은 설명. 틀린 것은 ②·③.",4:"유리 모세관 속 수은은 응집력>부착력이라 내려간다. 이건 옳은 설명. 틀린 것은 ②·③."},
+ 33:"평형은 응집력·부착력과 중력이 균형 이룰 때 잡힌다. 달 중력은 지구의 1/6이라 물은 더 올라가고 수은은 더 내려간다(②).",
+ 34:"물 분자는 비공유전자쌍 2개와 H 2개를 가져 최대 4개의 다른 물 분자와 수소결합한다(③). 한 분자당 수소결합 수 2개와 혼동하지 말 것.",
+ 35:"물 분자 4개가 만들 수 있는 수소결합은 4개(②). 한 분자당 2개씩 가능하지만 4개 분자 배열에서는 4개가 형성된다.",
+ 36:"기울기가 작을수록 비열이 크다: 물 비열>얼음·수증기 비열. 가로 길이=잠열: 증발열(D)>융해열(B). 가·나·다 모두 옳다(④).",
+ 37:"물 1mL=1/18몰이 증발. P=nRT/V=(1/18)(0.082)(273)/100≈0.0124기압 → 0.01기압(②). 이상기체식으로 부분압을 구한다.",
+ 38:"뒬롱-프티: 금속 몰열용량≈3R=24.94 J/mol·K. 비열×원자량=몰열용량이라 M=24.94/0.392≈63.6 → 구리(③).",
+ 39:"NaCl은 Na⁺·Cl⁻가 각각 면심입방. 단위세포당 Na⁺ 4개+Cl⁻ 4개=총 8개(④). 한 종류만 세면 4로 틀린다.",
+ 40:"Cu는 면심 6개(×1/2=3), Au는 꼭짓점 8개(×1/8=1) → Cu₃Au(②). 위치별 분율을 빠뜨리면 틀린다.",
+ 41:"NaCl 단위셀당 4개(Na⁺ 4·Cl⁻ 4), CsCl 단위셀당 1개(Cs⁺ 1·Cl⁻ 1) → ②(4, 1). 구조별 입자수를 혼동하면 틀린다.",
+ 42:"Cu=모서리 12×1/4=3, O=모서리 8×1/4+면심 14×1/2=9 → Cu:O=3:9=1:3(②). 위치별 분율을 정확히 세야 한다.",
+ 43:"면심 Cu 3개, 꼭짓점 Au 1개라 Cu₃Au. 구리/금 원자 개수비는 3(③).",
+ 44:"Ni=꼭짓점 8×1/8+팔면체 4×1/4=2, As=사면체 2개=2 → NiAs(③). 자리별 분율을 정확히 적용해야 한다.",
+ 45:{'*':"옳지 않은 것은 ③. MO₂의 단위격자 부피·결정구조를 모르면 밀도를 구할 수 없다. 269pm는 금속 M의 핵간거리지 MO₂ 격자가 아니다.",1:"원자반지름=핵간거리/2=269/2=134.5pm. 옳은 설명.",2:"다(MO₂)에서 M:O=1:2 몰수비, 라에서 질량비로 M의 몰질량(≈102.4)을 구할 수 있다. 옳은 설명.",4:"다·라로 원자량을, 가·나로 결정구조·핵간거리를 알아 밀도를 구할 수 있다. 옳은 설명."},
+ 46:"면심입방은 면대각선 4r=√2·a. r=a/(2√2)=362/2.828≈128pm → 130pm(③).",
+ 47:"단위세포 질량=밀도×부피, 원자 1개 질량=원자량/Nₐ. 둘로 나누면 원자수=2(체심입방, ②).",
+ 48:"체심입방은 체대각선 4a=√3·l(a=원자반지름). l=4a/√3, 한 면 면적 l²=16a²/3(④).",
+ 49:"아보가드로수를 2배로 잘못 얻었다면 단위세포 길이를 실제보다 크게 본 것. 실제 길이=455×∛(1/2)≈361pm(①).",
+ 50:"면심입방 은: 단위세포 4개, a=408pm, 원자량 108. 밀도=4×108/(Nₐ·a³)≈10.5 g/cm³(②).",
+ 51:"체심입방은 단위세포당 2개, a=4r/√3. 밀도=2M/Nₐ÷(4r/√3)³(①). 면심(4개)·체심(2개) 입자수를 혼동하면 틀린다.",
+ 52:"음이온 Z=면심입방 4개, X=사면체구멍 8×1/8=1, Y=팔면체구멍 4×1/2=2 → XY₂Z₄(②).",
+ 53:"1Ci=²²⁶Ra 1g(=1/226몰=2.5×10²¹개)의 붕괴율. ×1.4×10⁻¹¹/s≈3.5×10¹⁰ → 가장 가까운 ④ 3.7×10¹⁰ Bq.",
+ 54:"CsCl과 같은 격자로 결정화하면 단위세포당 입자수가 같다. 밀도∝화학식량 → 3.988×(58.44/168.36)≈1.4(①).",
+ 55:"36 ppb=용액 10⁹g당 36g. 물 밀도 1이라 10⁹mL당 36/408몰 → 1000mL당 8.8×10⁻⁸몰 → 8.8×10⁻⁸ M(④).",
+ 56:"112mL O₂=0.005몰. 2H₂O₂→2H₂O+O₂에서 H₂O₂ 0.01몰=0.34g. 용액 10g 중 0.34g → 3.4%(②). 분해 계수비를 빠뜨리면 틀린다.",
+ 57:"CuS 0.019g=0.0002몰=Cu²⁺ 0.0002몰. 폐수 2.0L로 나누면 0.0001M=0.10mM(①). 부피로 나누는 단계를 빠뜨리면 틀린다.",
+ 58:"요오드 적정의 계수비를 연쇄 적용하면 Cu²⁺ 0.6mmol. CuCO₃ 0.075g/시료 0.50g=15%(②). 계수비 연결을 놓치면 틀린다.",
+ 59:{'*':"옳은 설명은 ① 양의 편차=A-B 인력<순수 인력이라 흡열 용해, 온도가 낮아진다.",2:"순수 증기압은 B(74.0)>A(71.9)라 B의 분자간 인력이 작아 끓는점이 더 낮다. 'B 끓는점이 더 높다'는 오개념.",3:"양의 편차는 A-B 인력이 순수보다 약해 덜 안정해진다. 'A-B로 더 안정'은 음의 편차 설명. 오개념.",4:"아세톤-물은 음의 편차를 보인다. 양의 편차 예는 에탄올-헥세인, 물-에탄올. 편차 방향을 혼동한 오개념."},
+ 60:"어는점 내림 ΔTf=Kf·m·i에서 i=4. K₃Fe(CN)₆ → K⁺ 3개 + Fe(CN)₆³⁻ 1개로 이온화(②). Fe³⁺·CN⁻로 완전 해리한다고 보면 틀린다."
+};
+const Q_KCH13B=[
+ [1,2,55,"원자모형","방사성 붕괴·중성자수"],
+ [2,2,55,"원자모형","동위원소·중성자수"],
+ [3,4,65,"화학의 기초","화학 변화와 핵 변화"],
+ [4,2,55,"분자의 구조","결합 종류·결정 입자"],
+ [5,2,55,"원자모형","동위원소 판별"],
+ [6,3,58,"몰","몰·입자수 계산"],
+ [7,2,58,"몰","결정수·몰 계산"],
+ [8,2,58,"몰","아보가드로수·결정"],
+ [9,4,52,"기체","기체 압력"],
+ [10,2,52,"기체","기체 밀도"],
+ [11,4,52,"기체","상태 판단·끓는점"],
+ [12,3,50,"양적관계","기체 양적관계(PV=nRT)"],
+ [13,3,50,"양적관계","연소·실험식"],
+ [14,3,50,"양적관계","미정계수·반응식"],
+ [15,1,50,"양적관계","미정계수(계수 합)"],
+ [16,2,50,"양적관계","미정계수"],
+ [17,3,50,"양적관계","완전연소·양적관계"],
+ [18,2,50,"양적관계","연소·양적관계"],
+ [19,4,52,"기체","부분압(돌턴)"],
+ [20,2,68,"원소의 기원","빅뱅·초기 원소"],
+ [21,4,68,"원소의 기원","우주 원소 분포"],
+ [22,4,68,"원소의 기원","항성 핵융합·원소 생성"],
+ [23,3,55,"원자모형","방사성 붕괴·반감기"],
+ [24,1,55,"원자모형","핵 변환(붕괴)"],
+ [25,4,65,"화학의 기초","돌턴 원자론"],
+ [26,2,55,"원자모형","불꽃 스펙트럼·파장"],
+ [27,2,55,"원자모형","수소 스펙트럼 계열"],
+ [28,3,55,"원자모형","스펙트럼·흡수 전이"],
+ [29,4,55,"원자모형","전자 전이·흡수방출"],
+ [30,3,55,"원자모형","원자 구조·러더퍼드"],
+ [31,1,52,"전자배치","양자수 허용"],
+ [32,4,52,"전자배치","부껍질·양자수"],
+ [33,3,52,"전자배치","전자배치 에너지 준위"],
+ [34,3,52,"전자배치","바닥상태 전자배치"],
+ [35,2,52,"전자배치","바닥·들뜬 전자배치"],
+ [36,2,50,"주기율","원자 반지름"],
+ [37,3,50,"주기율","이온 반지름"],
+ [38,3,50,"주기율","등전자종"],
+ [39,4,50,"주기율","이온화에너지"],
+ [40,4,50,"주기율","이온화에너지·이온결합"],
+ [41,4,52,"전자배치","전자배치·원자가전자"],
+ [42,2,50,"주기율","이온화에너지 경향"],
+ [43,3,50,"주기율","이온화에너지 그래프"],
+ [44,3,50,"주기율","전자친화도·결합에너지"],
+ [45,1,50,"주기율","이온화에너지·전자친화도"],
+ [46,1,55,"분자의 구조","옥텟·루이스 구조"],
+ [47,3,55,"분자의 구조","공명·결합 차수"],
+ [48,1,50,"분자의 모양","VSEPR·분자 모양"],
+ [49,1,55,"분자의 구조","옥텟 규칙"],
+ [50,1,50,"분자의 모양","혼성·VSEPR"],
+ [51,1,50,"분자의 모양","VSEPR 입체구조"],
+ [52,4,50,"분자의 모양","혼성 궤도함수"],
+ [53,4,48,"분자의 극성","쌍극자모멘트·극성"],
+ [54,2,48,"분자의 극성","분자의 극성"],
+ [55,4,48,"분자의 극성","쌍극자모멘트 상쇄"],
+ [56,2,48,"분자의 극성","전기음성도·결합 극성"],
+ [57,4,48,"분자의 극성","극성 화학종 개수"],
+ [58,3,48,"분자의 극성","극성 분자 판별"],
+ [59,2,50,"주기율","주기성·크기 비교(종합)"],
+ [60,3,48,"분자의 극성","분자 모양·극성·연소(종합)"]
+];
+const Q_KCH12B=[
+ [1,2,55,"원자모형","원자 구성입자·전자수"],
+ [2,1,55,"원자모형","보어 반지름"],
+ [3,3,50,"기타","비열·열용량"],
+ [4,1,60,"화학식량","평균 원자량·동위원소"],
+ [5,3,60,"화학식량","질량스펙트럼·평균원자량"],
+ [6,3,58,"몰","몰·분자수 계산"],
+ [7,1,58,"몰","산소 원자수 비교"],
+ [8,3,58,"몰","몰 계산"],
+ [9,4,52,"기체","이상기체·분자수(PV=nRT)"],
+ [10,1,52,"기체","기체 법칙(보일)"],
+ [11,3,52,"기체","반응 후 압력·양적관계"],
+ [12,3,52,"기체","증기압·이상기체"],
+ [13,2,52,"기체","기체 밀도 비교"],
+ [14,4,52,"기체","기체 밀도(표준상태)"],
+ [15,1,50,"양적관계","연소분석·조성"],
+ [16,1,50,"양적관계","실험식 결정"],
+ [17,3,50,"양적관계","연소·실험식"],
+ [18,3,50,"양적관계","연소 반응식 계수"],
+ [19,3,50,"양적관계","완전연소·양적관계"],
+ [20,3,50,"양적관계","완전연소·산소량"],
+ [21,2,68,"원소의 기원","빅뱅·초기 원소"],
+ [22,4,68,"원소의 기원","항성 핵융합·원소 생성"],
+ [23,4,68,"원소의 기원","지각·인체 원소 분포"],
+ [24,4,60,"화학식량","질량비·원자 개수비"],
+ [25,2,55,"원자모형","돌턴 원자론·원자 구성"],
+ [26,3,55,"원자모형","핵자당 결합에너지"],
+ [27,3,55,"원자모형","방사성 붕괴·반감기"],
+ [28,1,55,"원자모형","핵반응(전자포획·핵융합)"],
+ [29,3,55,"원자모형","핵 변환(베타 붕괴)"],
+ [30,1,55,"원자모형","방사성 붕괴·입자 방출"],
+ [31,4,52,"전자배치","양자수 허용"],
+ [32,1,55,"원자모형","음극선·원자 구조 실험"],
+ [33,2,55,"원자모형","러더퍼드 실험"],
+ [34,3,55,"원자모형","전자기파·물질 상호작용"],
+ [35,2,55,"원자모형","불꽃 스펙트럼·양자에너지"],
+ [36,3,55,"원자모형","수소 스펙트럼 전이"],
+ [37,2,55,"원자모형","스펙트럼 계열(적외선)"],
+ [38,4,55,"원자모형","전자 전이·파장"],
+ [39,2,55,"원자모형","방전관 선스펙트럼"],
+ [40,4,55,"원자모형","보어 모형·방출 스펙트럼"],
+ [41,2,55,"원자모형","현대 원자모형·과학사"],
+ [42,1,55,"원자모형","전자의 파동성"],
+ [43,2,55,"원자모형","광전효과·광자"],
+ [44,1,55,"원자모형","물질파(드브로이)"],
+ [45,2,55,"원자모형","광자 수·에너지"],
+ [46,1,52,"전자배치","양자수 허용"],
+ [47,2,52,"전자배치","오비탈 에너지 준위"],
+ [48,3,52,"전자배치","훈트규칙·홀전자(궤도함수)"],
+ [49,3,52,"전자배치","홀전자 수"],
+ [50,3,52,"전자배치","훈트규칙 위배"],
+ [51,2,50,"주기율","원자 반지름"],
+ [52,4,50,"주기율","이온 반지름"],
+ [53,4,50,"주기율","이온화에너지 정의"],
+ [54,3,50,"주기율","1차 이온화에너지 비교"],
+ [55,2,50,"주기율","순차적 이온화에너지"],
+ [56,4,50,"주기율","이온 반지름·이온결합"],
+ [57,1,50,"주기율","등전자 이온·주기성"],
+ [58,2,50,"주기율","주기적 성질(종합)"],
+ [59,3,50,"주기율","전기음성도"],
+ [60,2,50,"주기율","전기음성도·이온화(종합)"]
+];
 function mkExam(meta,rows){return Object.assign({},meta,{questions:rows.map(r=>({n:r[0],ans:r[1],p:r[2],area:r[3],type:r[4],page:r[5],misc:(typeof OM!=='undefined'?OM[r[0]]:null)||null}))});}
 const EXAMS=[
  mkExam({id:"kch1to3",title:"화학1 1-3단원 모의고사",range:"화학의 기초 ~ 분자의 극성 · 중등 화올",source:"한국중학생화학대회 기출 재구성",N:422,haeseol:"해설.html"},Q_KCH1),
  {id:"kch1to2",title:"화학1 1-2단원 모의고사",range:"화학의 기초 ~ 주기율 · 원자의 세계",source:"조준모의고사",N:0,haeseol:"해설-kch1to2.html",
   areaOrder:["화학의 기초","화학식량","몰","기체","양적관계","원소의 기원","원자모형","전자배치","주기율","기타"],
   areaGroup:{"화학의 기초":"I. 화학의 첫걸음","화학식량":"I. 화학의 첫걸음","몰":"I. 화학의 첫걸음","기체":"I. 화학의 첫걸음","양적관계":"I. 화학의 첫걸음","원소의 기원":"II. 원자의 세계","원자모형":"II. 원자의 세계","전자배치":"II. 원자의 세계","주기율":"II. 원자의 세계","기타":"기타"},
-  questions:Q_KCH1TO2.map(r=>({n:r[0],ans:r[1],p:r[2],area:r[3],type:r[4],page:0,misc:null}))},
+  questions:Q_KCH1TO2.map(r=>({n:r[0],ans:r[1],p:r[2],area:r[3],type:r[4],page:0,misc:omFor(r[4])}))},
   {id:"kch1u1",title:"화학1 1단원 모의고사",range:"화학의 기초 ~ 양적관계 · 화학의 첫걸음",source:"조준모의고사 · 화올 기출",N:0,estP:true,haeseol:"해설-kch1u1.html",
   areaOrder:["화학의 기초","화학식량","몰","기체","양적관계","기타"],
   areaGroup:{"화학의 기초":"I. 화학의 첫걸음","화학식량":"I. 화학의 첫걸음","몰":"I. 화학의 첫걸음","기체":"I. 화학의 첫걸음","양적관계":"I. 화학의 첫걸음","기타":"기타"},
-  questions:Q_KCH1U1.map(r=>({n:r[0],ans:r[1],p:r[2],area:r[3],type:r[4],page:0,misc:null}))},
+  questions:Q_KCH1U1.map(r=>({n:r[0],ans:r[1],p:r[2],area:r[3],type:r[4],page:0,misc:omFor(r[4])}))},
   {id:"kch2final",title:"화학2 총괄평가",range:"화학2 전범위 · 물질의 상태~산화환원",source:"조준모의고사 · 화올 기출",N:0,estP:true,haeseol:"해설-kch2final.html",
   areaOrder:["기체","액체와 고체","용액","반응엔탈피","화학평형","반응속도","산과 염기","산화환원과 전기화학","기타"],
   areaGroup:{"기체":"I. 물질의 상태와 용액","액체와 고체":"I. 물질의 상태와 용액","용액":"I. 물질의 상태와 용액","반응엔탈피":"II. 반응엔탈피와 평형","화학평형":"II. 반응엔탈피와 평형","반응속도":"III. 반응속도","산과 염기":"IV. 산·염기와 산화환원","산화환원과 전기화학":"IV. 산·염기와 산화환원","기타":"기타"},
-  questions:Q_KCH2F.map(r=>({n:r[0],ans:r[1],p:r[2],area:r[3],type:r[4],page:0,misc:null}))},
- {id:"chem2-1",title:"화학2 1단원 모의고사",range:"기체·액체·고체 · 준비 중",source:"",N:0,questions:[],disabled:true}
+  questions:Q_KCH2F.map(r=>({n:r[0],ans:r[1],p:r[2],area:r[3],type:r[4],page:0,misc:omFor(r[4])}))},
+ {id:"chem2-1",title:"화학2 1단원 모의고사",range:"기체·액체·고체·용액 · 물질의 상태와 용액",source:"조준모의고사 · 화올 기출",N:0,estP:true,haeseol:"해설-chem2-1.html",
+  areaOrder:["기체운동·속도","충돌·실제기체","부분압·증기압","분자간력·끓는점","계면·상태변화","결정구조·조성","결정밀도·계산","용액·총괄성"],
+  areaGroup:{"기체운동·속도":"기체","충돌·실제기체":"기체","부분압·증기압":"기체","분자간력·끓는점":"액체","계면·상태변화":"액체","결정구조·조성":"고체","결정밀도·계산":"고체","용액·총괄성":"용액"},
+  questions:Q_CHEM21.map(r=>({n:r[0],ans:r[1],p:r[2],area:r[3],type:r[4],page:0,accept:r[5],misc:(typeof CHEM21_OM!=="undefined"?CHEM21_OM[r[0]]:null)||null}))},
+ {id:"kch1to3-b",title:"화학1 1-3단원 모의고사 (동형)",range:"화학의 기초 ~ 분자의 극성 · 중등 화올",source:"조준모의고사 · 동형",N:0,estP:true,haeseol:"",
+  areaOrder:["화학의 기초","몰","기체","양적관계","원소의 기원","원자모형","전자배치","주기율","분자의 구조","분자의 모양","분자의 극성"],
+  areaGroup:{"화학의 기초":"I. 화학의 첫걸음","몰":"I. 화학의 첫걸음","기체":"I. 화학의 첫걸음","양적관계":"I. 화학의 첫걸음","원소의 기원":"II. 원자의 세계","원자모형":"II. 원자의 세계","전자배치":"II. 원자의 세계","주기율":"II. 원자의 세계","분자의 구조":"III. 화학 결합과 분자","분자의 모양":"III. 화학 결합과 분자","분자의 극성":"III. 화학 결합과 분자"},
+  questions:Q_KCH13B.map(r=>({n:r[0],ans:r[1],p:r[2],area:r[3],type:r[4],page:0,misc:omFor(r[4])}))},
+ {id:"kch1to2-b",title:"화학1 1-2단원 모의고사 (동형)",range:"화학의 기초 ~ 주기율 · 원자의 세계",source:"조준모의고사 · 동형",N:0,estP:true,haeseol:"",
+  areaOrder:["화학식량","몰","기체","양적관계","원소의 기원","원자모형","전자배치","주기율","기타"],
+  areaGroup:{"화학식량":"I. 화학의 첫걸음","몰":"I. 화학의 첫걸음","기체":"I. 화학의 첫걸음","양적관계":"I. 화학의 첫걸음","원소의 기원":"II. 원자의 세계","원자모형":"II. 원자의 세계","전자배치":"II. 원자의 세계","주기율":"II. 원자의 세계","기타":"기타"},
+  questions:Q_KCH12B.map(r=>({n:r[0],ans:r[1],p:r[2],area:r[3],type:r[4],page:0,misc:omFor(r[4])}))}
 ];
 
 function band(p){return p<20?"A":p<40?"B":p<60?"C":p<80?"D":"E";}
@@ -1064,7 +1415,7 @@ function to100(pts,maxPts){return maxPts?pts/maxPts*100:0;}
 function analyze(exam,answers,cohort){
  const qs=exam.questions,maxTotal=qs.length*PT;
  const GRP=areaGroupFor(exam);
- const graded=qs.map(q=>{const a=answers[q.n];return{...q,choice:a,correct:a===q.ans,band:band(q.p)};});
+ const graded=qs.map(q=>{const a=answers[q.n];return{...q,choice:a,correct:isHit(a,q),band:band(q.p)};});
  const rawCorrect=graded.filter(g=>g.correct).length,total=rawCorrect*PT;
  const areas={};
  for(const g of graded){
@@ -1093,11 +1444,11 @@ function analyze(exam,answers,cohort){
  for(const g of graded){
   if(g.correct||!g.choice||!g.misc) continue;
   const m=g.misc, text=(typeof m==='string')?m:(m[g.choice]||m['*']||null);
-  if(text) misc.push({n:g.n,area:g.area,type:g.type,choice:g.choice,ans:g.ans,text});
+  if(text) misc.push({n:g.n,area:g.area,type:g.type,choice:g.choice,ans:g.ans,ansL:ansLabel(g),text});
  }
- let estPct=null;
- if(!cohort){const mu=qs.reduce((s,q)=>s+q.p/100*PT,0);const varr=qs.reduce((s,q)=>{const p=q.p/100;return s+p*(1-p)*PT*PT;},0);const sd=Math.sqrt(varr);estPct=Phi((total-mu)/sd)*100;}
- return{exam,total,maxTotal,rawCorrect,my100:to100(total,maxTotal),totalStat,cohortTotalMean,estPct,areaList,groupList,quad,conceptList,misc,graded,TH};
+ let estPct=null,estMu=null,estSd=null;
+ if(!cohort){const mu=qs.reduce((s,q)=>s+q.p/100*PT,0);const varr=qs.reduce((s,q)=>{const p=q.p/100;return s+p*(1-p)*PT*PT;},0);const sd=Math.sqrt(varr);estMu=mu;estSd=sd;estPct=Phi((total-mu)/sd)*100;}
+ return{exam,total,maxTotal,rawCorrect,my100:to100(total,maxTotal),totalStat,cohortTotalMean,estPct,areaList,groupList,quad,conceptList,misc,graded,TH,estMu,estSd};
 }
 
 /* ====================== 차트 (SVG, 단색+악센트) ====================== */
@@ -1111,6 +1462,7 @@ function distSVG(r){
  const cmax=Math.max(...counts),iw=W-pad.l-pad.r,ih=H-pad.t-pad.b;
  const x=v=>pad.l+(v-lo)/(hi-lo)*iw;
  const myX=x(r.total);
+ const _mu=arr.reduce((s,v)=>s+v,0)/arr.length,_sd=Math.sqrt(arr.reduce((s,v)=>s+(v-_mu)*(v-_mu),0)/Math.max(1,arr.length)),_curve=gaussPath(_mu,_sd,lo,hi,x,pad.t+ih,ih*0.94);
  const sortedC=arr.slice().sort((a,b)=>a-b);
  const pctScore=pp=>{ if(!sortedC.length)return lo; let idx=Math.floor(pp/100*sortedC.length); if(idx>=sortedC.length)idx=sortedC.length-1; if(idx<0)idx=0; return sortedC[idx]; };
  const refs=[{p:90,l:'상위10%'},{p:75,l:'상위25%'},{p:50,l:'중앙'}].map(o=>{const v=pctScore(o.p),rx=x(v);return `<line x1="${rx}" y1="${pad.t+1}" x2="${rx}" y2="${pad.t+ih}" stroke="var(--ink-4)" stroke-dasharray="2 3" stroke-width="1" opacity=".5"/><text x="${rx}" y="${pad.t+8}" font-size="7.5" fill="var(--ink-4)" text-anchor="middle" font-family="var(--mono)">${o.l}</text>`;}).join("");
@@ -1122,6 +1474,7 @@ function distSVG(r){
  const ticks=[lo,Math.round((lo+hi)/2/PT)*PT,hi].map(v=>`<text x="${x(v)}" y="${H-9}" font-size="9.5" fill="var(--ink-3)" text-anchor="middle" font-family="var(--mono)">${v}</text>`).join("");
  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="점수 분포">
   ${bars}
+  <path d="${_curve}" fill="none" stroke="var(--brass-d)" stroke-width="1.6" opacity=".5"/>
   ${refs}
   <line x1="${myX}" y1="${pad.t-4}" x2="${myX}" y2="${pad.t+ih}" stroke="var(--brass)" stroke-width="2"/>
   <circle cx="${myX}" cy="${pad.t-4}" r="3.5" fill="var(--brass)"/>
@@ -1300,14 +1653,104 @@ function buildSummary(r){
    </div>
  </div>`;
 }
+function persuadeStats(r){
+  const pct=r.totalStat?r.totalStat.pct:(r.estPct!=null?r.estPct:50);
+  const tier=pct>=85?'\ucd5c\uc0c1\uc704\uad8c':pct>=70?'\uc0c1\uc704\uad8c':pct>=50?'\uc911\uc0c1\uc704\uad8c':pct>=30?'\uc911\uc704\uad8c':'\uae30\ucd08 \uc815\ucc29';
+  const recN=r.quad.miss.length, recPts=recN*PT, projTotal=Math.min(r.maxTotal, r.total+recPts);
+  let projPct=pct;
+  if(recPts>0){
+    if(App.cohort&&App.cohort.length){const t=App.cohort.map(s=>s.total),b=t.filter(v=>v<projTotal).length,e=t.filter(v=>v===projTotal).length;projPct=t.length?((b+0.5*e)/t.length*100):pct;}
+    else if(r.estMu!=null&&r.estSd>0){projPct=Phi((projTotal-r.estMu)/r.estSd)*100;}
+  }
+  const as=[...r.areaList].filter(a=>a.nQ>0).sort((a,b)=>b.myAcc-a.myAcc);
+  return {pct,tier,recN,recPts,projTotal,projPct,best:as[0]||null,worst:as.length>1?as[as.length-1]:null};
+}
+/* ===== 영역 레이더 ===== */
+function radarData(r){
+  const pres=r.areaList;
+  if(pres.length<=13) return pres.map(A=>({label:A.name, mine:A.my100, avg:(A.cohMean100!=null?A.cohMean100:A.popAcc)}));
+  const gm={};
+  for(const A of pres){const g=A.group;(gm[g]=gm[g]||{label:g,pts:0,max:0,cohPts:0,hasCoh:false,popW:0,nQ:0});const G=gm[g];G.pts+=A.pts;G.max+=A.maxPts;G.nQ+=A.nQ;G.popW+=A.popAcc*A.nQ;if(A.cohMeanPts!=null){G.cohPts+=A.cohMeanPts;G.hasCoh=true;}}
+  return Object.values(gm).map(G=>({label:String(G.label).replace(/^[IVX]+\.\s*/,''), mine:G.max?G.pts/G.max*100:0, avg:G.hasCoh?(G.max?G.cohPts/G.max*100:0):(G.nQ?G.popW/G.nQ:0)}));
+}
+function radarPoly(axes,key,cx,cy,R){const n=axes.length;return axes.map((a,i)=>{const ang=-Math.PI/2+i*2*Math.PI/n;const v=Math.max(0,Math.min(100,a[key]))/100;return (cx+Math.cos(ang)*R*v).toFixed(1)+','+(cy+Math.sin(ang)*R*v).toFixed(1);}).join(' ');}
+function radarSVG(r){
+  const axes=radarData(r),n=axes.length;
+  if(n<3||n>16) return '';
+  const W=340,H=300,cx=W/2,cy=152,R=104;
+  let rings='';[25,50,75,100].forEach(g=>{const pts=axes.map((a,i)=>{const ang=-Math.PI/2+i*2*Math.PI/n,rr=R*g/100;return (cx+Math.cos(ang)*rr).toFixed(1)+','+(cy+Math.sin(ang)*rr).toFixed(1);}).join(' ');rings+=`<polygon points="${pts}" fill="none" stroke="var(--line)" stroke-width="1" opacity="${g===100?'.9':'.45'}"/>`;});
+  let spokes='',labels='',dots='';
+  const lf=n>10?9:(n>8?10:11), df=n>10?8.5:9.5;
+  axes.forEach((a,i)=>{const ang=-Math.PI/2+i*2*Math.PI/n,ex=cx+Math.cos(ang)*R,ey=cy+Math.sin(ang)*R;
+    spokes+=`<line x1="${cx}" y1="${cy}" x2="${ex.toFixed(1)}" y2="${ey.toFixed(1)}" stroke="var(--line)" stroke-width="1" opacity=".45"/>`;
+    const lx=cx+Math.cos(ang)*(R+17),ly=cy+Math.sin(ang)*(R+17),anc=Math.abs(Math.cos(ang))<0.34?'middle':(Math.cos(ang)>0?'start':'end');
+    labels+=`<text x="${lx.toFixed(1)}" y="${(ly+3).toFixed(1)}" font-size="${lf}" font-weight="600" fill="var(--ink-2)" text-anchor="${anc}">${esc(a.label)}</text>`;
+    const mv=Math.max(0,Math.min(100,a.mine))/100,mx=cx+Math.cos(ang)*R*mv,my=cy+Math.sin(ang)*R*mv;
+    dots+=`<circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="3.3" fill="var(--brass)" stroke="var(--paper)" stroke-width="1.4"/><text x="${mx.toFixed(1)}" y="${(my-7).toFixed(1)}" font-size="${df}" font-weight="700" fill="var(--brass-d)" text-anchor="middle" font-family="var(--mono)">${Math.round(a.mine)}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="영역별 성취 레이더">
+    ${rings}${spokes}
+    <polygon points="${radarPoly(axes,'avg',cx,cy,R)}" fill="var(--ink-4)" opacity=".13"/>
+    <polygon points="${radarPoly(axes,'avg',cx,cy,R)}" fill="none" stroke="var(--ink-3)" stroke-width="1.4" stroke-dasharray="4 3" opacity=".85"/>
+    <polygon points="${radarPoly(axes,'mine',cx,cy,R)}" fill="var(--teal)" opacity=".2"/>
+    <polygon points="${radarPoly(axes,'mine',cx,cy,R)}" fill="none" stroke="var(--teal-d)" stroke-width="2.2"/>
+    ${labels}${dots}
+  </svg>`;
+}
+function radarBlock(r){const sv=radarSVG(r);if(!sv)return '';return `<div class="rdr-wrap">${sv}<div class="rdr-leg"><span><i style="background:var(--teal-d)"></i>본인 정답률</span><span><i style="background:var(--ink-3)"></i>평균(추정 포함)</span></div></div>`;}
+/* ===== 문항 바둑판 ===== */
+function badukHTML(r){
+  const gmap=(typeof areaGroupFor==='function')?(areaGroupFor(r.exam)||{}):{};
+  const grpOf=a=>gmap[a]||a;
+  const aord=(r.exam&&r.exam.areaOrder)||[...new Set(r.graded.map(g=>g.area))];
+  const gord=[]; aord.forEach(a=>{if(!r.graded.some(g=>g.area===a))return;const g=grpOf(a);if(gord.indexOf(g)<0)gord.push(g);});
+  r.graded.forEach(g=>{const k=grpOf(g.area);if(gord.indexOf(k)<0)gord.push(k);});
+  const pal=['--teal-d','--brass-d','--emerald','--rose','--amber','--tk','--bs'];
+  const cmap={};gord.forEach((g,i)=>cmap[g]=pal[i%pal.length]);
+  let cells='';
+  r.graded.forEach(g=>{
+    const col=cmap[grpOf(g.area)]||'--ink-3',multi=Array.isArray(g.accept)&&g.accept.length>1;
+    const tip=`${g.n}번 · ${g.area} · ${g.type} · 정답률 ${g.p}%${(r.exam&&r.exam.estP)?'(추정)':''} · ${g.correct?'정답':'오답'}`;
+    const style=g.correct?`background:var(${col});border-color:var(${col});color:#fff`:`border-color:var(${col});color:var(${col})`;
+    cells+=`<div class="bdk-cell ${g.correct?'ok':'no'}" style="${style}" title="${esc(tip)}"><span class="bn">${g.n}</span><span class="mk">${g.correct?'\u2713':'\u2715'}</span>${multi?'<span class="mk2">\ubcf5</span>':''}</div>`;
+  });
+  let leg='';gord.forEach(g=>{leg+=`<span><i style="background:var(${cmap[g]})"></i>${esc(g)}</span>`;});
+  leg+=`<span style="margin-left:auto"><span class="bn-k ok-k">\u25a0</span> \uc815\ub2f5 \u00b7 <span class="bn-k no-k">\u25a2</span> \uc624\ub2f5</span>`;
+  const btn=(r.exam&&r.exam.haeseol)?`<a class="btn--haeseol" href="${r.exam.haeseol}" target="_blank" rel="noopener">\uc804\uccb4 \ud574\uc124 \ubcf4\uae30 \u2192</a>`:'';
+  return `<div class="bdk-top">${btn}</div><div class="bdk">${cells}</div><div class="bdk-legend">${leg}</div>`;
+}
+/* ===== 정규분포 곡선 ===== */
+function gaussPath(mu,sd,lo,hi,x2px,baseY,peakH){if(!(sd>0))return '';let d='';const N=64;for(let i=0;i<=N;i++){const xv=lo+(hi-lo)*i/N,z=(xv-mu)/sd,y=Math.exp(-z*z/2);d+=(i?'L':'M')+x2px(xv).toFixed(1)+','+(baseY-y*peakH).toFixed(1)+' ';}return d.trim();}
+function distSVGEst(r){
+  const mu=r.estMu,sd=r.estSd;if(mu==null||!(sd>0))return '';
+  const W=420,H=176,pad={l:8,r:8,t:22,b:26};
+  const lo=Math.max(0,mu-3.2*sd),hi=Math.min(r.maxTotal,mu+3.2*sd);
+  const iw=W-pad.l-pad.r,ih=H-pad.t-pad.b,baseY=pad.t+ih,x=v=>pad.l+(v-lo)/(hi-lo)*iw;
+  const path=gaussPath(mu,sd,lo,hi,x,baseY,ih*0.92),myX=x(Math.max(lo,Math.min(hi,r.total)));
+  let fill='M'+myX.toFixed(1)+','+baseY.toFixed(1)+' ';const N=44;
+  for(let i=0;i<=N;i++){const xv=r.total+(hi-r.total)*i/N;if(xv<lo)continue;const z=(xv-mu)/sd,y=Math.exp(-z*z/2);fill+='L'+x(xv).toFixed(1)+','+(baseY-y*ih*0.92).toFixed(1)+' ';}
+  fill+='L'+x(hi).toFixed(1)+','+baseY.toFixed(1)+' Z';
+  const ticks=[Math.round(lo),Math.round(mu),Math.round(hi)].map(v=>`<text x="${x(v).toFixed(1)}" y="${H-9}" font-size="9.5" fill="var(--ink-3)" text-anchor="middle" font-family="var(--mono)">${v}</text>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="\ucd94\uc815 \uc810\uc218 \ubd84\ud3ec">
+    <path d="${fill}" fill="var(--brass)" opacity=".12"/>
+    <path d="${path}" fill="none" stroke="var(--ink-3)" stroke-width="1.8" opacity=".85"/>
+    <line x1="${x(mu).toFixed(1)}" y1="${pad.t}" x2="${x(mu).toFixed(1)}" y2="${baseY}" stroke="var(--ink-4)" stroke-dasharray="2 3" stroke-width="1" opacity=".6"/>
+    <text x="${x(mu).toFixed(1)}" y="${pad.t-3}" font-size="8" fill="var(--ink-4)" text-anchor="middle" font-family="var(--mono)">\ucd94\uc815 \ud3c9\uade0</text>
+    <line x1="${myX.toFixed(1)}" y1="${pad.t-6}" x2="${myX.toFixed(1)}" y2="${baseY}" stroke="var(--brass)" stroke-width="2"/>
+    <circle cx="${myX.toFixed(1)}" cy="${pad.t-6}" r="3.5" fill="var(--brass)"/>
+    <text x="${myX.toFixed(1)}" y="${pad.t-11}" font-size="10" font-weight="700" fill="var(--brass-d)" text-anchor="middle" font-family="var(--mono)">\ubcf8\uc778 ${r.total}</text>
+    <line x1="${pad.l}" y1="${baseY}" x2="${W-pad.r}" y2="${baseY}" stroke="var(--line)" stroke-width="1"/>
+    ${ticks}
+  </svg>`;
+}
 function buildLens(r){
- const aud=(window.App&&App.aud)||'parent';
- const nm=esc(App.idData.name)||'학생';
- const fs=firstStep(r);
- if(aud==='student'){
-  return `<div class="lens lens--s"><div class="lens__lab">${nm}에게</div><div class="lens__tx"><b>지금 할 일:</b> ${fs} 틀린 문항을 다시 풀고 "왜 틀렸는지"를 한 줄 적어 오면, 다음엔 분명히 오른다. 점수보다 한 문제씩 정확히 이해하는 게 진짜 실력이다.</div></div>`;
- }
- return `<div class="lens lens--p"><div class="lens__lab">학부모님께</div><div class="lens__tx"><b>핵심 한 걸음:</b> ${fs} 가정에서는 점수 결과보다 <b>다시 풀어오는 과정</b>을 격려해 주시는 것이 이 시기에 가장 효과적입니다. 자세한 안내는 아래 '학부모 상담 안내'를 참고해 주세요.</div></div>`;
+ const nm=esc(App.idData.name)||'학생'; const fs=firstStep(r); const P=persuadeStats(r);
+ const stand=P.recPts>0
+   ? `${nm} 학생은 백분위 <b>${P.pct.toFixed(0)}</b>${r.totalStat?'':' (추정)'}의 ${P.tier}입니다. 정답률이 높았던 <b>${P.recN}문항</b>만 회복하면 ${App.cohort.length?`백분위 <b>${P.projPct.toFixed(0)}</b>까지 올라설 수 있습니다`:`<b>+${P.recPts}점</b>을 즉시 확보할 수 있습니다`}.`
+   : `${nm} 학생은 백분위 <b>${P.pct.toFixed(0)}</b>의 ${P.tier}로, 쉬운 문항에서의 실수 없이 안정적으로 득점했습니다.`;
+ const focus=(P.best&&P.worst&&P.best.name!==P.worst.name)
+   ? ` 강점은 <b>${esc(P.best.name)}</b>(${P.best.myAcc.toFixed(0)}%), 가장 먼저 보강할 영역은 <b>${esc(P.worst.name)}</b>(${P.worst.myAcc.toFixed(0)}%)입니다.` : '';
+ return `<div class="lens lens--p"><div class="lens__lab">학부모님께</div><div class="lens__tx">${stand}${focus} <b>가장 먼저 할 일:</b> ${fs}. 가정에서는 점수 결과보다 <b>다시 풀어오는 과정</b>을 격려해 주시는 것이 이 시기에 가장 효과적입니다.</div></div>`;
 }
 function buildNote(r){
  const nm=esc(App.idData.name)||'학생';
@@ -1439,9 +1882,14 @@ function renderReport(r,id){
  const statChips=kick.chips.map(c=>`<div class="hds"><div class="hds__v">${c.v}</div><div class="hds__k">${c.k}</div></div>`).join("");
  let _sn=0; const SN=()=>String(++_sn).padStart(2,'0');
  const kScore=`<div class="kpi"><div class="kpi__k">원점수</div><div class="kpi__v">${r.total}<small>/${r.maxTotal}</small></div><div class="kpi__s">백점환산 <b>${r.my100.toFixed(0)}</b> · 맞은 개수 ${r.rawCorrect}/${r.exam.questions.length}</div></div>`;
- const kMean=`<div class="kpi"><div class="kpi__k">전체 평균</div><div class="kpi__v">${meanPts!=null?meanPts.toFixed(0):'-'}<small>/${r.maxTotal}</small></div><div class="kpi__s">${meanPts!=null?(r.total>=meanPts?`평균 대비 <span class="up">+${(r.total-meanPts).toFixed(0)}점</span>`:`평균 대비 <span class="dn">${(r.total-meanPts).toFixed(0)}점</span>`):''}</div></div>`;
- const kPct=`<div class="kpi"><div class="kpi__k">백분위</div><div class="kpi__v">${pct.toFixed(0)}</div><div class="kpi__s kpi__spark">${App.cohort.length?distSVG(r):'추정값'}</div></div>`;
- const kRank=`<div class="kpi"><div class="kpi__k">전체 석차</div><div class="kpi__v">${r.totalStat?r.totalStat.rank:'-'}<small>${r.totalStat?'/'+r.totalStat.n:''}</small></div><div class="kpi__s">${r.totalStat?`상위 ${(100-r.totalStat.pct)<1?'1':(100-r.totalStat.pct).toFixed(0)}%${r.totalStat.ties>1?` · 동점 ${r.totalStat.ties}명`:''}`:'추정'}</div></div>`;
+ const P=persuadeStats(r);
+ const kStand=`<div class="kpi"><div class="kpi__k">백분위 · 위치</div><div class="kpi__v">${P.pct.toFixed(0)}<small> ${r.totalStat?P.tier:'추정'}</small></div><div class="kpi__s">${r.totalStat?`전체 ${r.totalStat.n}명 중 <b>${r.totalStat.rank}등</b> · 상위 ${(100-r.totalStat.pct)<1?'1':(100-r.totalStat.pct).toFixed(0)}%${r.totalStat.ties>1?` · 동점 ${r.totalStat.ties}명`:''}`:'난이도 기반 추정값'}</div></div>`;
+ const kUpside=P.recPts>0
+   ? `<div class="kpi kpi--up"><div class="kpi__k">즉시 회복 가능</div><div class="kpi__v">+${P.recPts}<small>점</small></div><div class="kpi__s">정답률 높았던 <b>${P.recN}문항</b> · ${App.cohort.length?`회복 시 백분위 <b>${P.projPct.toFixed(0)}</b>`:`쉬운 실수만 복구하면 즉시 확보`}</div></div>`
+   : `<div class="kpi kpi--up"><div class="kpi__k">치명적 실수</div><div class="kpi__v">0<small>개</small></div><div class="kpi__s">쉬운 문항에서 실점 없음 · 안정적 득점</div></div>`;
+ const kFocus=(P.best&&P.worst&&P.best.name!==P.worst.name)
+   ? `<div class="kpi"><div class="kpi__k">보강 영역 · ${esc(P.worst.name)}</div><div class="kpi__v">${P.worst.myAcc.toFixed(0)}<small>%</small></div><div class="kpi__s">강점 <b>${esc(P.best.name)}</b> ${P.best.myAcc.toFixed(0)}%</div></div>`
+   : (P.best?`<div class="kpi"><div class="kpi__k">영역 정답률 · ${esc(P.best.name)}</div><div class="kpi__v">${P.best.myAcc.toFixed(0)}<small>%</small></div><div class="kpi__s"></div></div>`:`<div class="kpi"><div class="kpi__k">영역</div><div class="kpi__v">-</div><div class="kpi__s"></div></div>`);
 
  // 요약
  const narr=buildNarrative(r).map(s=>`<p style="margin-bottom:8px">${s}</p>`).join("");
@@ -1501,7 +1949,7 @@ function renderReport(r,id){
  // 오개념
  const _st=App.curStats;
  const miscHTML=r.misc.length
-  ? `<div class="misc">${r.misc.map(m=>{let dist='';if(_st&&_st.enough&&_st.byQ[m.n]){const o=_st.byQ[m.n].optPct;dist=`<div class="mcard__dist">같은 <b>${CHO[m.choice-1]}</b> 선택 ${o[m.choice-1].toFixed(0)}% · 정답 <b>${CHO[m.ans-1]}</b> 선택 ${o[m.ans-1].toFixed(0)}% <span class="muted2">· 추가 입력 ${_st.N}명</span></div>`;}return `<div class="mcard"><div class="mcard__n">${m.n}</div><div class="mcard__b"><div class="mcard__hd">${m.type}</div><div class="mc-line mc-line--err"><span class="mc-line__lab">학생 응답</span><span><b>${CHO[m.choice-1]}</b> 선택 — ${m.text}</span></div><div class="mc-line mc-line--corr"><span class="mc-line__lab">정답·핵심</span><span>정답 <b>${CHO[m.ans-1]}</b> · 짚어야 할 개념 <b>${m.type}</b></span></div><div class="mc-line mc-line--fix"><span class="mc-line__lab">이렇게 교정</span><span>${fixLine(m.type)}</span></div>${dist}</div></div>`;}).join("")}</div>`
+  ? `<div class="misc">${r.misc.map(m=>{let dist='';if(_st&&_st.enough&&_st.byQ[m.n]){const o=_st.byQ[m.n].optPct;dist=`<div class="mcard__dist">같은 <b>${CHO[m.choice-1]}</b> 선택 ${o[m.choice-1].toFixed(0)}% · 정답 <b>${CHO[m.ans-1]}</b> 선택 ${o[m.ans-1].toFixed(0)}% <span class="muted2">· 추가 입력 ${_st.N}명</span></div>`;}return `<div class="mcard"><div class="mcard__n">${m.n}</div><div class="mcard__b"><div class="mcard__hd">${m.type}</div><div class="mc-line mc-line--err"><span class="mc-line__lab">학생 응답</span><span><b>${CHO[m.choice-1]}</b> 선택 — ${m.text}</span></div><div class="mc-line mc-line--corr"><span class="mc-line__lab">정답·핵심</span><span>정답 <b>${m.ansL||CHO[m.ans-1]}</b> · 짚어야 할 개념 <b>${m.type}</b></span></div><div class="mc-line mc-line--fix"><span class="mc-line__lab">이렇게 교정</span><span>${fixLine(m.type)}</span></div>${dist}</div></div>`;}).join("")}</div>`
   : `<div class="empty empty--art">${artFlask(80)}<div>오답 보기에서 사전 정의된 오개념 패턴이 매칭되지 않았습니다.</div></div>`;
 
  // 처방
@@ -1545,12 +1993,11 @@ function renderReport(r,id){
        <button class="btn btn--g" onclick="App.toInput()">← 답안 수정</button>
        <button class="btn" onclick="window.print()">PDF 저장 · 인쇄</button>
        <button class="btn" onclick="App.share(this)">링크 복사</button>
-       <button class="btn" onclick="App.kakaoCard()">카톡 카드</button>
-       <div class="audtog" role="group" aria-label="보기 시점"><button class="audtog__b${App.aud==='parent'?' on':''}" onclick="App.setAud('parent')">학부모</button><button class="audtog__b${App.aud==='student'?' on':''}" onclick="App.setAud('student')">학생</button></div>`}
+       <button class="btn" onclick="App.kakaoCard()">카톡 카드</button>`}
      </div>
    </div>
    <div class="idcard" style="padding:14px 28px;border-bottom:1px solid var(--line-2)">${idcards}</div>
-   <div class="kpis">${kScore}${kMean}${kPct}${kRank}</div>
+   <div class="kpis">${kScore}${kStand}${kUpside}${kFocus}</div>
  </div>
 
  <div class="hero-diag">
@@ -1566,6 +2013,11 @@ function renderReport(r,id){
 
  ${buildSummary(r)}
  ${buildLens(r)}
+
+ <div class="method">
+   <div class="method__lab">진단 설계 · 분석 방법</div>
+   <div class="method__tx">이 리포트는 단순 채점표가 아니라, 학습자가 가진 <b>오개념을 드러내고 교정하는</b> 개념 변화(conceptual change) 접근에 기반한 진단 도구입니다. <b>①</b> 틀린 보기에서 오개념의 근원을 역추적하고, <b>②</b> 모든 문항을 난이도와 정오의 두 축(신호등)으로 분류해 '실력의 공백'과 '습관의 실수'를 구분하며, <b>③</b> 백분위·변별도로 객관적 위치를 산출합니다.</div>
+ </div>
 
  <div class="detail">
    <div class="eyebrow" style="color:var(--ink-3)">상세 진단</div>
@@ -1585,7 +2037,11 @@ function renderReport(r,id){
    <div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('점수 분포 속 나의 위치')}<span class="sec__t">점수 분포 속 나의 위치</span></div>
    <div class="sec__d">지금까지 누적된 전체 <b>${r.totalStat.n}명</b>의 총점 분포입니다. 황동 표식이 본인, 백분위 ${pct.toFixed(0)}. <span class="muted2">백분위 90은 전체의 90%보다 높은 점수라는 뜻입니다.</span></div>
    <div style="max-width:520px;margin:0 auto">${distSVG(r)}</div>
- </div>`:''}
+ </div>`:((App.exam&&App.exam.estP&&r.estMu!=null)?`<div class="sec">
+   <div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('점수 분포 속 나의 위치')}<span class="sec__t">점수 분포 속 나의 위치</span></div>
+   <div class="sec__d">아직 채점 데이터가 누적되지 않아, 문항 난이도로 <b>추정한 분포</b> 위에 본인 위치를 표시했습니다. 추정 백분위 약 ${(r.estPct||0).toFixed(0)}. <span class="muted2">실제 응시 결과가 쌓이면 실측 분포로 바뀝니다.</span></div>
+   <div style="max-width:520px;margin:0 auto">${distSVGEst(r)}</div>
+ </div>`:'')}
 
  ${(App.curTrend&&App.curTrend.length>=2)?`<div class="sec">
    <div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('회차별 점수 추이')}<span class="sec__t">회차별 점수 추이</span></div>
@@ -1595,7 +2051,8 @@ function renderReport(r,id){
 
  <div class="sec">
    <div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('영역별 성취 · 평균과의 비교')}<span class="sec__t">영역별 성취 · 평균과의 비교</span></div>
-   <div class="sec__d">막대는 전체 평균(가운데 선) 대비 본인의 백점환산 차이입니다. 오른쪽(틸)이 우위, 왼쪽(적)이 열위.</div>
+   <div class="sec__d">레이더는 세부 영역별 정답률을 한눈에 보여줍니다. 굵은 틸 윤곽이 본인, 점선이 평균(추정 포함). 아래 표는 단원·세부 영역별로 평균 대비 백점환산 차이를 정리한 것입니다.</div>
+   ${radarBlock(r)}
    <table class="areatab">
      <thead><tr><th>영역</th><th class="hide-sm">득점</th><th>정답률</th><th class="hide-sm">평균환산</th><th class="hide-sm">석차</th><th>평균 대비</th><th>차이</th></tr></thead>
      <tbody>${areaRows}</tbody>
@@ -1622,17 +2079,9 @@ function renderReport(r,id){
 
  <div class="sec sec--long">
    <div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('문항별 정오표')}<span class="sec__t">문항별 정오표</span></div>
-   <div class="gt-legend">
-     <span><span class="ox o">○</span> 정답 (3점)</span><span><span class="ox x">✕</span> 오답·무응답 (0점)</span>
-     ${showStat?`<span>${gl('실측 정답률')} 추가 입력 ${_st.N}명 기준${lowN?' · <b class="disc-lo">* 표본 30명 미만, 참고치</b>':''}</span>`:''}
-     <span style="margin-left:auto">난이도: <span class="bchip b-A">A</span>~<span class="bchip b-E">E</span> (정답률 20%p 구간)</span>
-   </div>
-   ${showStat?`<div class="gt-note">출제 정답률은 시험 설계 시 고정된 기준값, 실측 정답률은 우리 반 누적 응시 결과입니다. 두 값의 차이가 클수록 우리 반에 특별히 쉽거나 어려운 문항입니다.</div>`:''}
-   ${App.exam&&App.exam.estP?`<div class="gt-note">* 이 시험은 출제지에 정답률이 표기되지 않아, 출제 정답률을 영역별 난이도로 추정한 값입니다. 채점 데이터가 쌓이면 실측 정답률을 기준으로 보세요.</div>`:''}
-   <div class="twocol">
-     <table class="gtab"><thead>${gtHead}</thead><tbody>${col1}</tbody></table>
-     <table class="gtab"><thead>${gtHead}</thead><tbody>${col2}</tbody></table>
-   </div>
+   <div class="sec__d">문항을 영역 색으로 묶어 한 판에 펼쳤습니다. 채운 칸이 정답, 점선 칸이 오답입니다. 전체 풀이는 위 '전체 해설 보기'에서 한 번에 봅니다.</div>
+   ${App.exam&&App.exam.estP?`<div class="gt-note">* 정답률은 출제지에 표기가 없어 영역별 난이도로 추정한 값입니다. 채점 데이터가 쌓이면 실측 기준으로 바뀝니다.</div>`:''}
+   ${badukHTML(r)}
  </div>
 
  <div class="sec sec--long">
@@ -1645,6 +2094,7 @@ function renderReport(r,id){
    <div class="note__h">총평 · 종합 소견</div>
    ${buildNote(r)}
    <div class="note__signrow"><svg class="seal" width="46" height="46" viewBox="0 0 46 46" aria-hidden="true"><rect x="2" y="2" width="42" height="42" rx="7" fill="none" stroke="var(--brass)" stroke-width="2"/><text x="23" y="20" font-size="13" font-weight="700" fill="var(--brass-d)" text-anchor="middle" font-family="var(--serif)">曺</text><text x="23" y="35" font-size="9" fill="var(--brass-d)" text-anchor="middle" font-family="var(--serif)">化學</text></svg><div class="note__sign">화학 <b>조준모</b> 올림</div></div>
+   <div class="note__meta">Chemistreal Diagnostic · 오개념 기반 학습 진단 도구 · 문항 난이도·변별도 분석</div>
  </div>
 
  <div class="foot">
@@ -1681,7 +2131,7 @@ const App={
      if(!ex||!ex.id||EXAMS.find(e=>e.id===ex.id))return;
      if(ex.disabled){ EXAMS.push({id:ex.id,title:ex.title||ex.id,range:ex.range||'',disabled:true}); added++; return; }
      if(!Array.isArray(ex.questions)||!ex.questions.length)return;
-     const qs=ex.questions.map(row=>Array.isArray(row)?{n:row[0],ans:row[1],p:row[2],area:row[3],type:row[4],page:row[5]||0,misc:(row[6]||null)}:Object.assign({misc:null},row));
+     const qs=ex.questions.map(row=>Array.isArray(row)?{n:row[0],ans:row[1],p:row[2],area:row[3],type:row[4],page:row[5]||0,misc:(row[6]||null),accept:(Array.isArray(row[7])?row[7]:undefined)}:Object.assign({misc:null},row));
      const e={id:ex.id,title:ex.title||ex.id,range:ex.range||'',source:ex.source||'',N:ex.N||0,questions:qs};
      if(ex.haeseol)e.haeseol=ex.haeseol;
      if(ex.areaOrder)e.areaOrder=ex.areaOrder;
@@ -1739,7 +2189,7 @@ const App={
   return [...m.values()];
  },
  studentSubs(id,examno){ const key=String(examno); return this.subs(id).filter(s=>String(s.examno)===key).slice().sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))||((a.ts||0)-(b.ts||0))); },
- subTotal(s){ const qs=this.exam.questions,a=s.answers||''; let t=0; qs.forEach((q,i)=>{ if(+a[i]===q.ans)t+=PT; }); return t; },
+ subTotal(s){ const qs=this.exam.questions,a=s.answers||''; let t=0; qs.forEach((q,i)=>{ if(isHit(a[i],q))t+=PT; }); return t; },
  addSub(id,rec){ const arr=this.subs(id); arr.push(rec); this.saveSubs(id,arr); return arr; },
  assignExamNo(id,name){
   const arr=this.subs(id), key=this.normName(name);
@@ -1763,7 +2213,7 @@ const App={
  seedCount(id){ const _e=examById(id); return ((typeof SEEDS!=='undefined'&&SEEDS[id])||(_e&&_e.seed)||[]).length; },
  subToCohort(arr){
   const qs=this.exam.questions;
-  return arr.map(rec=>{ const s=rec.answers||''; let total=0; const areaPts={}; qs.forEach((q,i)=>{ areaPts[q.area]=areaPts[q.area]||0; if(+s[i]===q.ans){ total+=PT; areaPts[q.area]+=PT; } }); return {total,areaPts}; });
+  return arr.map(rec=>{ const s=rec.answers||''; let total=0; const areaPts={}; qs.forEach((q,i)=>{ areaPts[q.area]=areaPts[q.area]||0; if(isHit(s[i],q)){ total+=PT; areaPts[q.area]+=PT; } }); return {total,areaPts}; });
  },
  cohortFor(id){ return this.getSeedCohort(id).concat(this.subToCohort(this.latestSubs(id))); },
  /* ===== 교육측정 통계(추가 입력분 실측) ===== */
@@ -1771,13 +2221,13 @@ const App={
   const subs=this.latestSubs(id), qs=this.exam.questions, N=subs.length;
   if(N<MIN_STAT) return {N,enough:false};
   const ans=subs.map(s=>s.answers||'');
-  const tot=ans.map(a=>{let t=0;qs.forEach((q,i)=>{if(+a[i]===q.ans)t++;});return t;});
+  const tot=ans.map(a=>{let t=0;qs.forEach((q,i)=>{if(isHit(a[i],q))t++;});return t;});
   const order=tot.map((t,idx)=>({t,idx})).sort((x,y)=>y.t-x.t);
   const k=Math.max(1,Math.floor(N*0.27)), up=order.slice(0,k), lo=order.slice(-k);
   const perQ=qs.map((q,i)=>{
    let correct=0; const opt=[0,0,0,0];
-   ans.forEach(a=>{ const c=+a[i]; if(c>=1&&c<=4)opt[c-1]++; if(c===q.ans)correct++; });
-   const uc=up.filter(o=>+ans[o.idx][i]===q.ans).length/k, lc=lo.filter(o=>+ans[o.idx][i]===q.ans).length/k;
+   ans.forEach(a=>{ const c=+a[i]; if(c>=1&&c<=4)opt[c-1]++; if(isHit(c,q))correct++; });
+   const uc=up.filter(o=>isHit(ans[o.idx][i],q)).length/k, lc=lo.filter(o=>isHit(ans[o.idx][i],q)).length/k;
    return {n:q.n,i,p:correct/N*100,opt,optPct:opt.map(c=>c/N*100),disc:uc-lc};
   });
   const meanT=tot.reduce((a,b)=>a+b,0)/N, varT=tot.reduce((a,b)=>a+(b-meanT)**2,0)/N;
@@ -2081,7 +2531,6 @@ const App={
   try{ localStorage.setItem('chemistreal:hint:gloss','1'); }catch(e){}
   setTimeout(()=>this.toast('점선 친 용어(백분위·변별도 등)를 누르면 설명이 나옵니다'),900);
  },
- setAud(a){ this.aud=a; this.rerender(); },
  rerender(){ if(this.lastR&&this.exam){ renderReport(this.lastR,this.exam.id); } },
  revealCards(){
   const rep=document.getElementById('report'); if(!rep)return;

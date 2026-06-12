@@ -39,8 +39,8 @@ def acol(area):
     for c,lst in AC.items():
         if area in lst: return c
     return "--ink-3"
-rows="".join(f'<tr><td><a href="#q{n}" class="qjump">{n}</a></td><td class="ans">{CHO[a-1]}</td><td>{(str(p)+"%") if p is not None else "-"}</td><td><span class="area-pill" style="color:var({acol(ar)})">{ar}</span></td><td class="typ">{ty}</td></tr>' for n,a,p,ar,ty in cfg['questions'])
-nav="".join(f'<a href="#q{n}" class="navb">{n}</a>' for n,*_ in cfg['questions'])
+rows="".join(f'<tr><td class="mono">{n}</td><td class="ans">{CHO[a-1]}</td><td>{(str(p)+"%") if p is not None else "-"}</td><td><span class="area-pill" style="color:var({acol(ar)})">{ar}</span></td><td class="typ">{ty}</td></tr>' for n,a,p,ar,ty in cfg['questions'])
+nav=""  # per-문항 해설 하이퍼링크 제거(요청)
 pages_html=""
 for pp in sorted(bypage):
     qs=bypage[pp]; bb=imgb64(pp)
