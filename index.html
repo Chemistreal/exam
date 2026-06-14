@@ -2106,12 +2106,12 @@ function buildNarrative(r){
  const tier=pct>=85?"최상위권":pct>=70?"상위권":pct>=50?"중상위권":pct>=30?"중위권":"기초 보강 단계";
  out.push(`이번 시험에서 <b>${r.total}점 / ${r.maxTotal}점</b>(백점환산 ${r.my100.toFixed(0)}점)을 받아 ${r.totalStat?`전체 ${r.totalStat.n}명 중 <b>${r.totalStat.rank}등</b>, 백분위 <b>${pct.toFixed(0)}</b>의 ${tier}`:`백분위 약 <b>${pct.toFixed(0)}</b>의 ${tier}`} 위치입니다.`);
  const ms=r.quad.miss.length,hs=r.quad.strength.length;
- if(ms>0) out.push(`정답률이 높아 충분히 맞힐 수 있던 문항 <b>${ms}개</b>를 놓쳤습니다. 이 ${ms*PT}점은 실력이 아니라 습관에서 새는 점수이므로, 가장 먼저 메워야 할 최우선 과제입니다.`);
+ if(ms>0) out.push(`정답률이 높아 충분히 맞힐 수 있던 문항 <b>${ms}개</b>가 아쉽게 빗나갔습니다. 이 ${ms*PT}점은 실력이 아니라 읽기·검토 같은 습관과 관련된 부분이라, 가장 먼저 챙기면 좋은 영역입니다.`);
  else out.push(`쉬운 문항에서의 실점이 없어 기본기가 안정적으로 자리 잡았습니다.`);
  if(hs>0) out.push(`반대로 정답률이 낮은 고난도 문항을 <b>${hs}개</b> 맞혀, 단순 암기를 넘어 개념을 응용하는 힘을 보였습니다.`);
  const sorted=[...r.areaList].filter(a=>a.nQ>=2).sort((a,b)=>a.diff100-b.diff100);
  if(sorted.length){const w=sorted[0],s=sorted[sorted.length-1];
-  out.push(`영역별로는 <b>${s.name}</b>가 평균 대비 가장 앞서고, <b>${w.name}</b>가 가장 뒤처집니다. 다음 학습은 ${w.name} 보강을 최우선으로 잡으세요.`);}
+  out.push(`영역별로는 <b>${s.name}</b>가 평균 대비 가장 앞서고, <b>${w.name}</b>가 상대적으로 보강이 필요합니다. 다음 학습은 ${w.name}부터 차근차근 채워 가면 좋겠습니다.`);}
  if(r.misc.length) out.push(`오답 <b>${r.misc.length}문항</b> 각각에 대해 어떤 개념이 흔들렸는지 아래 카드에 정리했습니다.`);
  return out;
 }
@@ -2125,7 +2125,7 @@ function buildKick(r){
  const strong=areas.slice().sort((a,b)=>b.diff100-a.diff100)[0];
  let head;
  if(pct<40) head=`기본기를 다지는 단계입니다. 맞힌 <b>${r.rawCorrect}문항</b>을 발판으로 한 영역씩 쌓아 올리면 됩니다.`;
- else if(miss>0) head=`${tier}, 그러나 충분히 맞힐 <b>${miss*PT}점</b>이 새고 있습니다.`;
+ else if(miss>0) head=`${tier}, 다만 충분히 맞힐 수 있는 <b>${miss*PT}점</b>이 아직 남아 있습니다.`;
  else if(weak&&weak.diff100<0) head=`${tier}. 이제 <b>${weak.name}</b> 한 영역이 분기점입니다.`;
  else head=`약점 없이 균형 잡힌 <b>${tier}</b> 성취입니다.`;
  const chips=[];
@@ -2359,7 +2359,7 @@ function buildNote(r){
 
  let p3='';
  if(miss.length){
-   p3=`반면 점수가 새는 지점이 있습니다. 정답률이 높아 충분히 맞힐 수 있었던 <b>${miss.join(', ')}번</b>에서 ${missPts}점을 놓쳤습니다. 이는 개념을 몰라서가 아니라 검토와 마무리의 문제이며, ${nm} 학생의 실제 실력은 지금 점수보다 분명히 위에 있습니다. `;
+   p3=`반면 조금만 더 챙기면 좋을 지점이 있습니다. 정답률이 높아 충분히 맞힐 수 있었던 <b>${miss.join(', ')}번</b>에서 ${missPts}점을 놓쳤습니다. 이는 개념을 몰라서가 아니라 검토와 마무리의 문제이며, ${nm} 학생의 실제 실력은 지금 점수보다 분명히 위에 있습니다. `;
  }
  if(weak&&weak.diff100<0){
    p3+=`개념 측면에서는 <b>${weak.name}</b> 영역을 다시 세울 필요가 있습니다(정답률 ${weak.myAcc.toFixed(0)}%, 평균 대비 ${weak.diff100.toFixed(0)}점). `;
@@ -2428,7 +2428,7 @@ function buildFAQ(r){
   `백분위 <b>${pct.toFixed(0)}</b>은 함께 시험 본 학생 중 <b>${pct.toFixed(0)}%</b>보다 점수가 높다는 뜻입니다. 석차는 <b>${r.totalStat.rank}등</b>입니다. 인원수에 따라 등수의 의미가 달라지기 때문에, 집단이 바뀌어도 비교가 되는 <b>백분위</b>를 함께 보시면 위치를 더 정확히 가늠하실 수 있습니다.`});
 
  F.push({q:'정답률이 낮은데 맞고, 높은데 틀린 건 무슨 의미인가요?', a:
-  `리포트의 '신호등 사분면'은 모든 문항을 <b>난이도(정답률)</b>와 <b>정오</b>의 두 축으로 나눈 것입니다. 정답률이 높은데 틀린 칸이 <b>'아쉬운 실점'</b>로 가장 먼저 메워야 할 곳이고, 정답률이 낮은데 맞힌 칸은 <b>'심화 강점'</b>으로 응용력이 발휘된 지점입니다.`});
+  `리포트의 '신호등 사분면'은 모든 문항을 <b>난이도(정답률)</b>와 <b>정오</b>의 두 축으로 나눈 것입니다. 정답률이 높은데 틀린 칸이 <b>'아쉬운 실점'</b>으로 가장 먼저 챙기면 좋은 곳이고, 정답률이 낮은데 맞힌 칸은 <b>'심화 강점'</b>으로 응용력이 발휘된 지점입니다.`});
 
  F.push({q:'집에서 무엇을 도와주면 좋을까요?', a:
   `세 가지면 충분합니다. ① 틀린 문항을 <b>다시 풀고 "왜 틀렸는지" 한 줄</b> 적게 해 주세요. ② 점수 결과보다 <b>다시 풀어오는 과정</b>을 칭찬해 주세요. ③ 모르는 개념은 다음 수업에서 질문하도록 격려해 주세요. 점수로 다그치기보다 <b>꾸준함</b>을 응원해 주시는 것이 이 시기에는 가장 효과적입니다.`});
@@ -2463,9 +2463,9 @@ function conceptNoteBtn(r){
     var url='note.html#'+(nm?('name='+encodeURIComponent(nm)+'&'):'')+(exam?('exam='+encodeURIComponent(exam)+'&'):'')+(hb?('hb='+encodeURIComponent(hb)+'&'):'')+'miss='+miss.map(encodeURIComponent).join(',')+(wrong.length?('&wrong='+wrong.join(',')):'');
     var who=nm?(esc1(nm)+' 학생이'):'이 학생이';
     return '<div class="sec sec--cta" style="background:linear-gradient(135deg,rgba(176,135,58,.07),rgba(58,122,107,.05));border:1px solid var(--brass,#B0873A);border-radius:14px;padding:22px 24px;margin-top:18px">'
-      +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--brass-d,#7a5d20);background:rgba(176,135,58,.12);padding:3px 9px;border-radius:6px">지금 당장 해야 할 것</span></div>'
-      +'<div style="font-family:var(--serif);font-size:19px;font-weight:700;color:var(--ink,#23201b);margin-bottom:6px">'+who+' 채워야 할 개념, 강의로 정리했습니다</div>'
-      +'<div style="font-size:13.5px;color:var(--ink-2,#5a554c);line-height:1.6;margin-bottom:16px">이번 시험에서 틀린 <b>'+miss.length+'개 유형</b>에 해당하는 개념 강의만 모아 보여 드립니다. 다음 수업 전에 정독하면, 같은 함정을 다시 밟지 않습니다.</div>'
+      +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--brass-d,#7a5d20);background:rgba(176,135,58,.12);padding:3px 9px;border-radius:6px">다음 학습 가이드</span></div>'
+      +'<div style="font-family:var(--serif);font-size:19px;font-weight:700;color:var(--ink,#23201b);margin-bottom:6px">'+who+' 보완하면 좋을 개념을 강의로 정리했습니다</div>'
+      +'<div style="font-size:13.5px;color:var(--ink-2,#5a554c);line-height:1.6;margin-bottom:16px">이번 시험에서 틀린 <b>'+miss.length+'개 유형</b>에 해당하는 개념 강의만 모아 보여 드립니다. 다음 수업 전에 한 번 읽어 두면, 같은 유형에서 한결 단단해집니다.</div>'
       +'<div style="font-size:12px;color:var(--ink-3,#857f74);margin-bottom:12px">자녀가 직접 보도록 이 링크를 전달해 주셔도 좋습니다.</div>'
       +'<a class="btn btn--p" href="'+url+'" target="_blank" rel="noopener" style="text-decoration:none">개념 발전 노트 열기 →</a>'
       +'</div>';

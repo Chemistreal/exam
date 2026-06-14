@@ -78,8 +78,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,Bl
     <h1 id="ttl">개념 발전 노트</h1>
     <div class="by">조준모 화학 · 모의고사 개념 클리닉</div></div>
   <div class="note" id="note">※ 성적표의 "개념 발전 노트" 버튼을 누르면 그 학생이 틀린 개념 강의만 자동으로 표시됩니다.</div>
-  <div class="todo" id="todo" style="display:none"><h2>📌 <span id="tname">학생</span>이 지금 당장 해야 할 것</h2>
-    <p>이번 시험에서 아래 개념이 흔들렸어. 다음 수업 전에 <b>반드시 끝까지</b> 읽고 와라. 문제를 다시 푸는 게 아니라 개념을 다시 세우는 거다.</p>
+  <div class="todo" id="todo" style="display:none"><h2>📌 <span id="tname">학생</span>이 먼저 살펴보면 좋을 개념</h2>
+    <p>이번 시험에서 아래 개념이 조금 흔들렸습니다. 다음 수업 전에 한 번 차분히 읽어 두면 좋겠습니다. 문제를 다시 푸는 것보다, 개념을 처음부터 다시 세우는 데 초점을 맞췄습니다.</p>
     <ul class="list" id="todolist"></ul></div>
   <div class="toc"><div class="lab">개념 강의 목차</div>
     <a href="#lec-atom">1강 · 원자의 구성과 동위원소</a>
@@ -2452,7 +2452,7 @@ var NOTE_PING_URL = ''; /* 선택: 개념노트 열람을 기록할 구글 Apps 
     var ns=wrongByCid[c].filter(function(v,i,a){return a.indexOf(v)===i;}).sort(function(x,y){return (x*1)-(y*1);});
     var links=ns.map(function(n){ return hb?('<a href="'+hb+'#q'+n+'" target="_blank" rel="noopener">'+n+'번 해설</a>'):(n+'번'); }).join(' · ');
     var div=document.createElement('div'); div.className='qbanner';
-    div.innerHTML='📍 <b>이 개념에서 틀린 문항</b> '+ns.join(', ')+'번'+(hb?' — '+links:'')+'<span class="rv">이 강의를 끝까지 읽은 뒤, 위 문항을 다시 풀어보고 막히면 그 부분만 다시 봐라.</span>';
+    div.innerHTML='📍 <b>이 개념에서 틀린 문항</b> '+ns.join(', ')+'번'+(hb?' — '+links:'')+'<span class="rv">강의를 끝까지 읽은 뒤 위 문항을 다시 풀어 보고, 막히는 부분이 있으면 그 대목을 한 번 더 살펴보면 좋습니다.</span>';
     var tag=el.querySelector('.lec__tag'); if(tag){ el.insertBefore(div, tag); } else { el.insertBefore(div, el.firstChild); }
   });
 
