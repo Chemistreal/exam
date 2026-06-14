@@ -3,9 +3,9 @@
  *       아이콘/매니페스트 등 정적 자원은 cache-first.
  * 배포 갱신이 사용자에게 즉시 전파되도록 한다. 단일 파일 운영에도 안전.
  */
-const VERSION = '2026.06.2';
+const VERSION = '2026.06.4';
 const CACHE = 'chemistreal-' + VERSION;
-const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
+const ASSETS = ['./', './index.html', './note.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).catch(() => {}));
