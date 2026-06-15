@@ -2016,6 +2016,17 @@ function analyze(exam,answers,cohort){
  const totalArr=cohort?cohort.map(s=>s.total):null;
  const totalStat=totalArr?rankPct(total,totalArr):null;
  const cohortTotalMean=totalArr?totalArr.reduce((s,v)=>s+v,0)/totalArr.length:null;
+ let theta=0, rel=null;
+ if(totalArr && totalArr.length>1){
+  const mu=cohortTotalMean; let _v=0; for(const x of totalArr) _v+=(x-mu)*(x-mu);
+  const cohSd=Math.sqrt(_v/totalArr.length)||1; theta=(total-mu)/cohSd;
+  let sumpq=0; qs.forEach(q=>{const p=Math.min(0.999,Math.max(0.001,(q.p||0)/100)); sumpq+=p*(1-p);});
+  const varCount=(cohSd*cohSd)/(PT*PT), kk=qs.length;
+  let kr=varCount>0?(kk/(kk-1))*(1-sumpq/varCount):0; kr=Math.max(0,Math.min(0.98,kr));
+  const semPts=Math.sqrt(varCount)*Math.sqrt(1-kr)*PT;
+  const pAt=x=>rankPct(x,totalArr).pct;
+  rel={kr20:kr, semPts:semPts, cohSd:cohSd, topMid:100-pAt(total), topLo:Math.max(0,100-pAt(total+semPts)), topHi:Math.min(100,100-pAt(total-semPts))};
+ }
  const _ord0=areaOrderFor(exam),_pr0=Object.keys(areas);const _ord=_ord0.filter(a=>areas[a]).concat(_pr0.filter(a=>_ord0.indexOf(a)<0));
  const areaList=_ord.map(a=>{
   const A=areas[a];A.myAcc=A.nQ?A.correct/A.nQ*100:0;A.my100=to100(A.pts,A.maxPts);A.popAcc=A.nQ?A.sumP/A.nQ:0;
@@ -2027,7 +2038,16 @@ function analyze(exam,answers,cohort){
  for(const A of areaList){const g=A.group;if(!groups[g])groups[g]={name:g,nQ:0,maxPts:0,correct:0,pts:0};groups[g].nQ+=A.nQ;groups[g].maxPts+=A.maxPts;groups[g].correct+=A.correct;groups[g].pts+=A.pts;}
  const groupList=Object.values(groups).map(G=>({...G,acc:G.nQ?G.correct/G.nQ*100:0,p100:to100(G.pts,G.maxPts)}));
  const TH=70,quad={strength:[],miss:[],base:[],task:[]};
- for(const g of graded){const hard=g.p<TH;if(g.correct&&hard)quad.strength.push(g);else if(!g.correct&&!hard)quad.miss.push(g);else if(g.correct&&!hard)quad.base.push(g);else quad.task.push(g);}
+ const _SS=(typeof STATIC_STATS!=='undefined')?STATIC_STATS[exam.id]:null;
+ const _L=x=>1/(1+Math.exp(-x)), _lg=p=>{p=Math.min(0.999,Math.max(0.001,p));return Math.log(p/(1-p));};
+ const _gam=(p,D)=>{ if(!(D>0.001))return 0; const b=_lg(p); let lo=0,hi=6; for(let t=0;t<40;t++){const g=(lo+hi)/2; (_L(b+1.16*g)-_L(b-1.16*g))<D?lo=g:hi=g;} return (lo+hi)/2; };
+ const _pers=!!rel;
+ for(const g of graded){
+  let hard;
+  if(_pers){ const p=(g.p||0)/100, D=(_SS&&_SS.byQ&&_SS.byQ[g.n])?_SS.byQ[g.n].disc:0; const exC=_L(_lg(p)+_gam(p,D)*theta); g.expC=Math.round(exC*100); hard=exC<0.5; }
+  else { g.expC=null; hard=g.p<TH; }
+  if(g.correct&&hard)quad.strength.push(g);else if(!g.correct&&!hard)quad.miss.push(g);else if(g.correct&&!hard)quad.base.push(g);else quad.task.push(g);
+ }
  const concepts={};
  for(const g of graded){const k=g.area+"||"+g.type;if(!concepts[k])concepts[k]={area:g.area,type:g.type,nQ:0,correct:0,qs:[]};concepts[k].nQ++;if(g.correct)concepts[k].correct++;concepts[k].qs.push(g.n);}
  const conceptList=Object.values(concepts);
@@ -2040,7 +2060,7 @@ function analyze(exam,answers,cohort){
  }
  let estPct=null,estMu=null,estSd=null;
  if(!cohort){const mu=qs.reduce((s,q)=>s+q.p/100*PT,0);const varr=qs.reduce((s,q)=>{const p=q.p/100;return s+p*(1-p)*PT*PT;},0);const sd=Math.sqrt(varr);estMu=mu;estSd=sd;estPct=Phi((total-mu)/sd)*100;}
- return{exam,total,maxTotal,rawCorrect,my100:to100(total,maxTotal),totalStat,cohortTotalMean,estPct,areaList,groupList,quad,conceptList,misc,graded,TH,estMu,estSd};
+ return{exam,total,maxTotal,rawCorrect,my100:to100(total,maxTotal),totalStat,cohortTotalMean,estPct,areaList,groupList,quad,conceptList,misc,graded,TH,estMu,estSd,theta,rel};
 }
 
 /* ====================== 차트 (SVG, 단색+악센트) ====================== */
@@ -2497,7 +2517,13 @@ function verdictLine(r){
     var weak=areas.slice().sort(function(a,b){return a.diff100-b.diff100;})[0];
     var approx=r.totalStat?'':'추정 ';
     var act=weak?('지금 가장 먼저 볼 곳은 <b>'+esc(weak.name)+'</b> 영역입니다.'):('큰 약점 없이 고르게 맞혔습니다. 심화 문항으로 폭을 넓힐 단계입니다.');
-    return '<div class="verdict" style="margin:14px 28px;padding:14px 18px;background:rgba(58,122,107,.06);border-left:3px solid var(--teal-d,#3A7A6B);border-radius:8px;font-size:14.5px;line-height:1.62;color:var(--ink,#23201b)"><b>한 줄 요약.</b> 현재 '+nm+'의 성취는 '+approx+'<b>'+tier+'</b>(상위 '+top+'%)입니다. '+act+'</div>';
+    var band='';
+    try{ if(r.rel){ var _lo=Math.max(1,Math.round(r.rel.topLo)), _hi=Math.max(_lo,Math.round(r.rel.topHi)); if(_hi-_lo>=1) band=' <span class="muted2">(측정오차 ±1 기준 상위 '+_lo+'~'+_hi+'%)</span>'; } }catch(e){}
+    var goalTxt = pct>=85 ? '지금 흐름이면 최상위권 진입을 충분히 노려볼 수 있는 구간입니다. 약한 고리만 마저 메우면 됩니다.'
+      : pct>=60 ? '상위권을 향하는 길목에 있습니다. 흔들린 개념 몇 개를 다잡으면 한 단계 위가 보입니다.'
+      : pct>=35 ? '기본기는 자리잡는 중입니다. 우선순위가 분명해서, 보강할 곳부터 채우면 반등 여력이 큽니다.'
+      : '지금은 토대를 다지는 단계입니다. 한 영역씩 또렷이 세우면 성취가 따라옵니다.';
+    return '<div class="verdict" style="margin:14px 28px;padding:14px 18px;background:rgba(58,122,107,.06);border-left:3px solid var(--teal-d,#3A7A6B);border-radius:8px;font-size:14.5px;line-height:1.62;color:var(--ink,#23201b)"><b>한 줄 요약.</b> 현재 '+nm+'의 성취는 '+approx+'<b>'+tier+'</b>(상위 '+top+'%)'+band+'입니다. '+act+' '+goalTxt+'</div>';
   }catch(e){return '';}
 }
 function renderReport(r,id){
@@ -2675,6 +2701,8 @@ function renderReport(r,id){
    <div style="max-width:540px;margin:0 auto">${trendSVG(App.curTrend)}</div>
  </div>`:''}
 
+ ${(function(){ const _nm=(App.idData&&App.idData.name)?App.idData.name:''; const _inner=App.longitudinalReportInner(_nm,id); return _inner?`<div class="sec"><div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('여러 시험에 걸친 성취 추이')}<span class="sec__t">여러 시험에 걸친 성취 추이</span></div>${_inner}</div>`:''; })()}
+
  <div class="sec">
    <div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('영역별 성취 · 평균과의 비교')}<span class="sec__t">영역별 성취 · 평균과의 비교</span></div>
    <div class="sec__d">레이더는 세부 영역별 정답률을 한눈에 보여줍니다. 굵은 틸 윤곽이 본인, 점선이 평균(추정 포함). 아래 표는 단원·세부 영역별로 평균 대비 백점환산 차이를 정리한 것입니다.</div>
@@ -2830,6 +2858,52 @@ const App={
  },
  studentSubs(id,examno){ const key=String(examno); return this.subs(id).filter(s=>String(s.examno)===key).slice().sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))||((a.ts||0)-(b.ts||0))); },
  subTotal(s){ const qs=this.exam.questions,a=s.answers||''; let t=0; qs.forEach((q,i)=>{ if(isHit(a[i],q))t+=PT; }); return t; },
+ gradeExam(exam, ans){
+  ans=ans||''; const qs=(exam&&exam.questions)||[]; let total=0; const byType={},byArea={};
+  qs.forEach((q,i)=>{ const hit=isHit(ans[i],q);
+   (byType[q.type]=byType[q.type]||{c:0,n:0}).n++; if(hit)byType[q.type].c++;
+   (byArea[q.area]=byArea[q.area]||{c:0,n:0}).n++; if(hit)byArea[q.area].c++;
+   if(hit)total+=PT; });
+  return {total, max:qs.length*PT, byType, byArea};
+ },
+ gatherStudent(nm){
+  if(!nm)return []; const list=(typeof EXAMS!=='undefined')?EXAMS:[]; const out=[];
+  for(const ex of list){ const arr=this.subs(ex.id); if(!arr.length)continue;
+   const mine=arr.filter(r=>this.normName(r.name)===nm); if(!mine.length)continue;
+   mine.sort((a,b)=>(a.ts||0)-(b.ts||0)); const last=mine[mine.length-1];
+   const g=this.gradeExam(ex,last.answers);
+   out.push({id:ex.id,title:ex.title,date:last.date||'',grade:last.grade||'',school:last.school||'',total:g.total,max:g.max,byType:g.byType,attempts:mine.length}); }
+  out.sort((a,b)=>String(a.date).localeCompare(String(b.date))); return out;
+ },
+ longitudinalReportInner(nm, curId){
+  nm=this.normName(nm||''); if(!nm)return '';
+  const all=this.gatherStudent(nm); if(all.length<2)return '';
+  const who=(this.idData&&this.idData.name)?esc(this.idData.name):'이 학생';
+  const trend=all.map(x=>({date:x.date||'', total:x.total}));
+  const T={}; all.forEach(x=>{ for(const t in x.byType){ (T[t]=T[t]||{c:0,n:0}).c+=x.byType[t].c; T[t].n+=x.byType[t].n; } });
+  const weak=Object.keys(T).map(t=>({t,c:T[t].c,n:T[t].n,r:T[t].n?T[t].c/T[t].n:0})).filter(x=>x.n>=2&&x.r<0.8).sort((a,b)=>a.r-b.r).slice(0,3);
+  const examRows=all.map(x=>{ const pct=Math.round(to100(x.total,x.max)); const cur=x.id===this.exam.id;
+   return `<div class="rs-row"><span class="rs-name">${esc(x.title)}${cur?' <span class="muted2">(이번 시험)</span>':''}</span><span class="rs-date mono">${esc(x.date||'')}</span><span class="rs-score mono"><b>${x.total}</b>점 <span class="muted2">· ${pct}점 환산</span></span></div>`; }).join('');
+  const weakHTML=weak.length?`<div class="card" style="margin-top:10px"><div class="card__h">여러 시험에 걸쳐 챙기면 좋을 유형</div><div class="sec__d" style="margin:2px 0 8px">한 번의 실수가 아니라 여러 시험에서 반복되는 지점이라, 다음 학습에서 우선순위를 두면 좋습니다.</div>${weak.map(x=>`<div class="crow"><span class="crow__t">${esc(x.t)}</span><span class="crow__bar"><i style="width:${Math.round(x.r*100)}%;background:var(--brass)"></i></span><span class="crow__n">${x.c}/${x.n}</span></div>`).join('')}</div>`:'';
+  const combos=new Set(all.map(x=>(x.grade||'')+'|'+(x.school||'')).filter(z=>z!=='|'));
+  const warn=combos.size>1?'<div class="muted2" style="margin-top:8px">같은 이름으로 여러 학년·학교 기록이 함께 잡혔습니다. 동명이인이라면 학생 목록에서 확인해 주세요.</div>':'';
+  return `<div class="sec__d">${who} 학생이 응시한 ${all.length}개 시험을 함께 본 흐름입니다. 한 번의 점수보다 추세가 성장의 방향을 더 잘 보여줍니다.</div>
+   <div style="max-width:540px;margin:0 auto 10px">${trendSVG(trend)}</div>
+   <div class="card">${examRows}</div>
+   ${weakHTML}${warn}`;
+ },
+ longitudinalHTML(rawName){
+  const nm=this.normName(rawName||''); if(!nm)return '';
+  const all=this.gatherStudent(nm); if(all.length<2)return '';
+  const scoreRows=all.map(x=>{ const pct=Math.round(to100(x.total,x.max)); const cur=x.id===this.exam.id;
+   return `<div class="rs-row"><span class="rs-name">${esc(x.title)}${cur?' <span class="muted2">(현재)</span>':''}${x.attempts>1?`<span class="rs-att">${x.attempts}회</span>`:''}</span><span class="rs-date mono">${esc(x.date)}</span><span class="rs-score mono">${pct}점</span></div>`; }).join('');
+  const T={}; all.forEach(x=>{ for(const t in x.byType){ (T[t]=T[t]||{c:0,n:0}).c+=x.byType[t].c; T[t].n+=x.byType[t].n; } });
+  const weak=Object.keys(T).map(t=>({t,c:T[t].c,n:T[t].n,r:T[t].n?T[t].c/T[t].n:0})).filter(x=>x.n>=2).sort((a,b)=>a.r-b.r).slice(0,6);
+  const weakHTML=weak.length?weak.map(x=>`<div class="crow"><span class="crow__t">${esc(x.t)}</span><span class="crow__bar"><i style="width:${Math.round(x.r*100)}%;background:${x.r>=0.7?'var(--bs)':x.r>=0.4?'var(--brass)':'var(--ms)'}"></i></span><span class="crow__n">${x.c}/${x.n}</span></div>`).join(''):'<div class="muted">집계할 유형이 부족합니다</div>';
+  const combos=new Set(all.map(x=>(x.grade||'')+'|'+(x.school||'')).filter(z=>z!=='|'));
+  const warn=combos.size>1?'<div class="muted2" style="margin-top:8px">같은 이름으로 여러 학년·학교 기록이 함께 잡혔습니다. 동명이인일 수 있습니다.</div>':'';
+  return `<div class="card"><div class="card__h">다른 시험까지 · 종단 누적 (${all.length}개 시험)</div><div style="margin:4px 0 2px">${scoreRows}</div><div class="card__h" style="margin-top:12px">누적 유형 숙련도 · 약한 순</div>${weakHTML}${warn}</div>`;
+ },
  addSub(id,rec){ const arr=this.subs(id); arr.push(rec); this.saveSubs(id,arr); return arr; },
  assignExamNo(id,name){
   const arr=this.subs(id), key=this.normName(name);
@@ -2951,7 +3025,8 @@ const App={
    <div class="dash-kpis"><span class="dash-kpi"><b>${best}</b><small>최고 점수</small></span><span class="dash-kpi"><b>${trend.length}</b><small>응시 횟수</small></span>${delta!=null?`<span class="dash-kpi"><b>${delta>=0?'+':''}${delta}</b><small>첫 회차 대비</small></span>`:''}</div>
    ${trend.length>=2?`<div class="card"><div class="card__h">회차별 점수 추이</div>${trendSVG(trend)}</div>`:''}
    ${deltaCard}
-   <div class="card"><div class="card__h">응시 회차</div>${rows}</div>`;
+   <div class="card"><div class="card__h">응시 회차</div>${rows}</div>
+   ${this.longitudinalHTML(subs[subs.length-1].name||'')}`;
  },
  openAttempt(no,i){
   const id=this.exam.id, subs=this.studentSubs(id,no), rec=subs[i]; if(!rec)return;
@@ -3186,7 +3261,7 @@ const App={
   if(persist && !this.demo && !oneOff){
    const examno=this.assignExamNo(id,name);
    this.idData.examno=examno;
-   this.addSub(id,{name,date:this.idData.date||'',answers,examno,ts:Date.now()});
+   this.addSub(id,{name,date:this.idData.date||'',answers,examno,ts:Date.now(),grade:this.idData.grade||'',school:this.idData.school||''});
    this.clearDraft(id);
    const subN=this.subs(id).length; if(subN>0 && subN%20===0) this.toast('백업 권장: 내보내기로 데이터를 저장해 두세요');
   } else if(this.demo){ this.idData.examno=this.idData.examno||''; }
@@ -3263,11 +3338,29 @@ const App={
    answers:qs.map(q=>this.answers[q.n]||0).join(''),
    link:this.shareLink()
   };
+  const mySig=this.sig({name:payload.name,date:payload.date,answers:payload.answers});
+  this.toast('구글 시트로 전송 중...');
   try{
    fetch(SHEET_ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
-    .then(()=>this.toast('구글 시트로 전송했습니다'))
-    .catch(()=>{});
-  }catch(e){}
+    .then(()=>{ setTimeout(()=>this._confirmSave(this.exam.id,mySig,1),1200); })
+    .catch(()=>{ setTimeout(()=>this._confirmSave(this.exam.id,mySig,1),1200); });
+  }catch(e){ this.toast('전송 호출에 실패했습니다 · 로컬 기록은 안전하니 내보내기로 백업하세요'); }
+ },
+ _confirmSave(id,mySig,attempt){
+  if(!SHEET_ENDPOINT)return;
+  const cb='__cfm'+Date.now()+'_'+attempt; const sc=document.createElement('script'); let done=false;
+  const cleanup=()=>{ try{delete window[cb];}catch(e){window[cb]=undefined;} if(sc.parentNode)sc.parentNode.removeChild(sc); };
+  const retryOrFail=()=>{ if(attempt<3){ setTimeout(()=>this._confirmSave(id,mySig,attempt+1),1500*attempt); } else { this.toast('시트 저장을 확인하지 못했습니다 · 로컬 기록은 안전합니다. 내보내기로 백업하거나 잠시 후 시트 동기화로 확인하세요'); } };
+  window[cb]=(res)=>{ done=true; try{
+    if(res&&res.ok===false){ this.toast('동기화 키 불일치로 저장을 확인할 수 없습니다 · 동기화 키를 확인하세요'); cleanup(); return; }
+    const rows=(res&&res.students)||[];
+    const hit=rows.some(rec=>{ if(!rec||!rec.answers)return false; rec.answers=String(rec.answers).replace(/[^0-4]/g,''); return this.sig(rec)===mySig; });
+    if(hit){ this.toast('시트 저장 확인됨 · 현재 '+rows.length+'행'); } else { retryOrFail(); }
+   }catch(e){ retryOrFail(); } cleanup(); };
+  sc.onerror=()=>{ if(!done){ cleanup(); retryOrFail(); } };
+  sc.src=SHEET_ENDPOINT+(SHEET_ENDPOINT.includes('?')?'&':'?')+'action=list&exam='+encodeURIComponent(id)+'&key='+encodeURIComponent(this.syncKey())+'&callback='+cb;
+  document.body.appendChild(sc);
+  setTimeout(()=>{ if(!done){ cleanup(); retryOrFail(); } },8000);
  },
  toast(msg){
   let t=document.getElementById('toast');
