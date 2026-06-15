@@ -401,6 +401,22 @@ svg{display:block}
   @page{margin:14mm}
 }
 /* ===== 추가 기능 컴포넌트 ===== */
+.delp{position:fixed;inset:0;z-index:9999;background:rgba(20,18,15,.5);display:flex;align-items:center;justify-content:center;padding:18px}
+.delp__box{background:var(--paper,#fff);border:1px solid var(--line,#e3ddd2);border-radius:14px;max-width:420px;width:100%;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 18px 50px rgba(0,0,0,.28);overflow:hidden}
+.delp__hd{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line,#e3ddd2);font-family:var(--serif);font-weight:700;font-size:15px;color:var(--ink,#23201b)}
+.delp__hd .muted{font-family:var(--sans);font-weight:400;font-size:12px}
+.delp__close{background:none;border:none;font-size:16px;color:var(--ink-3,#857f74);cursor:pointer;line-height:1}
+.delp__list{overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:6px}
+.delp__row{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;background:var(--paper-2,#faf7f1);border:1px solid var(--line,#e3ddd2);border-radius:10px;padding:11px 13px;cursor:pointer;font-family:var(--sans);transition:background .12s,border-color .12s}
+.delp__row:hover{background:#fbecec;border-color:#e3a8a8}
+.delp__info{display:flex;flex-direction:column;gap:2px;min-width:0}
+.delp__info b{font-size:14px;color:var(--ink,#23201b)}
+.delp__meta{font-size:11.5px;color:var(--ink-3,#857f74)}
+.delp__x{font-size:12px;font-weight:700;color:#b84b4b;white-space:nowrap}
+.delp__empty{padding:26px 14px;text-align:center;color:var(--ink-3,#857f74);font-size:13px}
+.delp__ft{padding:10px 14px;border-top:1px solid var(--line,#e3ddd2);text-align:right}
+.delp__all{background:none;border:none;color:#b84b4b;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--sans)}
+
 .rb-live{font-family:var(--mono);font-size:10px;color:var(--teal-d);background:var(--teal-t);border-radius:5px;padding:2px 7px;letter-spacing:.03em}
 .rb-sep{color:var(--ink-4);margin:0 8px}
 .rs-att{font-family:var(--mono);font-size:10px;color:var(--teal-d);background:var(--teal-t);border-radius:5px;padding:1px 6px;margin-left:7px}
@@ -2870,7 +2886,7 @@ const App={
   const latest=this.latestSubs(this.exam.id), added=latest.length, seed=this.seedCount(this.exam.id), tot=seed+added, subN=this.subs(this.exam.id).length;
   const stat=added>=MIN_STAT?`<span class="rb-live">실측 통계 적용 중</span>`:`<span class="muted">${MIN_STAT}명부터 실측 정답률·변별도</span>`;
   el.innerHTML=`<span>전체 누적 <b>${tot}명</b> <span class="muted">(기존 ${seed} + 추가 ${added}${subN>added?` · 응시 ${subN}회`:''})</span> &nbsp;${stat}</span>
-   <span class="rb-r">${added?`<button class="lnk2" onclick="App.showDash()">반 대시보드</button><span class="rb-sep">·</span><button class="lnk2" onclick="App.showRoster()">학생 목록</button><span class="rb-sep">·</span>`:''}<button class="lnk2" onclick="App.exportRoster()">내보내기</button><label class="lnk2" style="cursor:pointer;margin-left:9px">불러오기<input type="file" accept="application/json" style="display:none" onchange="App.importRoster(event)"></label>${SHEET_ENDPOINT?`<button class="lnk2" style="margin-left:9px" onclick="App.loadFromSheet()">시트 동기화</button><button class="lnk2" style="margin-left:9px" onclick="App.setSyncKey()">동기화 키</button>`:''}${added?`<button class="lnk" style="margin-left:9px" onclick="App.confirmClear()">추가분 초기화</button>`:''}</span>`;
+   <span class="rb-r">${added?`<button class="lnk2" onclick="App.showDash()">반 대시보드</button><span class="rb-sep">·</span><button class="lnk2" onclick="App.showRoster()">학생 목록</button><span class="rb-sep">·</span>`:''}<button class="lnk2" onclick="App.exportRoster()">내보내기</button><label class="lnk2" style="cursor:pointer;margin-left:9px">불러오기<input type="file" accept="application/json" style="display:none" onchange="App.importRoster(event)"></label>${SHEET_ENDPOINT?`<button class="lnk2" style="margin-left:9px" onclick="App.loadFromSheet()">시트 동기화</button><button class="lnk2" style="margin-left:9px" onclick="App.setSyncKey()">동기화 키</button>`:''}${added?`<button class="lnk" style="margin-left:9px" onclick="App.openDelPanel()">학생 기록 지우기</button>`:''}</span>`;
  },
  newStudent(){ this.openExam(this.exam.id); },
  distMini(totals){
@@ -3032,6 +3048,32 @@ const App={
   t.classList.add('on'); clearTimeout(this._ut); this._ut=setTimeout(()=>t.classList.remove('on'),5200);
  },
  undoDelete(){ if(!this._undo)return; const arr=this.subs(this._undo.id).concat(this._undo.recs); this.saveSubs(this._undo.id,arr); this.unmarkDeleted(this._undo.id,this._undo.recs); this._undo=null; const t=document.getElementById('toastU'); if(t)t.classList.remove('on'); this.updateRosterUI(); this.renderRoster((document.getElementById('rsSearch')||{}).value||''); this.toast('삭제를 취소했습니다'); },
+ openDelPanel(){
+  const id=this.exam.id;
+  const list=this.latestSubs(id).slice().sort((a,b)=>(b.ts||0)-(a.ts||0));
+  let ov=document.getElementById('delPanel'); if(ov) ov.remove();
+  ov=document.createElement('div'); ov.id='delPanel'; ov.className='delp';
+  const rows=list.length?list.map(x=>{
+    const nm=esc(x.name||'(이름 없음)');
+    const meta=[x.examno?('수험 '+x.examno):'', x.date||''].filter(Boolean).join(' · ');
+    const k=encodeURIComponent(this.idOf(x));
+    return `<button class="delp__row" onclick="App.delStudent('${k}')"><span class="delp__info"><b>${nm}</b>${meta?`<span class="delp__meta">${esc(meta)}</span>`:''}</span><span class="delp__x">지우기 →</span></button>`;
+  }).join(''):`<div class="delp__empty">추가 입력된 학생이 없습니다.</div>`;
+  ov.innerHTML=`<div class="delp__box"><div class="delp__hd"><span>학생 기록 지우기 <span class="muted">· 이름을 눌러 한 명씩 삭제</span></span><button class="delp__close" onclick="document.getElementById('delPanel').remove()">✕</button></div><div class="delp__list">${rows}</div>${list.length?`<div class="delp__ft"><button class="delp__all" onclick="App.confirmClear();document.getElementById('delPanel').remove();">추가분 전체 삭제</button></div>`:''}</div>`;
+  ov.addEventListener('click',e=>{ if(e.target===ov) ov.remove(); });
+  document.body.appendChild(ov);
+ },
+ delStudent(k){
+  const id=this.exam.id, key=decodeURIComponent(k);
+  const arr=this.subs(id);
+  const removed=arr.filter(x=>this.idOf(x)===key);
+  if(!removed.length){ this.openDelPanel(); return; }
+  const nm=removed[0].name||'학생';
+  if(!confirm(`'${nm}' 학생의 추가 기록을 삭제할까요?`)) return;
+  const kept=arr.filter(x=>this.idOf(x)!==key);
+  this.saveSubs(id,kept); this.markDeleted(id,removed); this._undo={id,recs:removed};
+  this.updateRosterUI(); this.toastUndo(`'${nm}' 삭제됨`); this.openDelPanel();
+ },
  confirmClear(){
   if(confirm(`'${this.exam.title}'에 추가 입력한 학생 기록을 삭제할까요? (기존 ${this.seedCount(this.exam.id)}명 데이터는 그대로 유지됩니다.)`)){
    const removed=this.subs(this.exam.id);
