@@ -2046,6 +2046,7 @@ function analyze(exam,answers,cohort){
   let hard;
   if(_pers){ const p=(g.p||0)/100, D=(_SS&&_SS.byQ&&_SS.byQ[g.n])?_SS.byQ[g.n].disc:0; const exC=_L(_lg(p)+_gam(p,D)*theta); g.expC=Math.round(exC*100); hard=exC<0.5; }
   else { g.expC=null; hard=g.p<TH; }
+  g.hard=hard;
   if(g.correct&&hard)quad.strength.push(g);else if(!g.correct&&!hard)quad.miss.push(g);else if(g.correct&&!hard)quad.base.push(g);else quad.task.push(g);
  }
  const concepts={};
@@ -2103,10 +2104,12 @@ function qmark(kind,cx,cy,color,rr){
  if(kind==='base') return `<rect x="${cx-r+0.3}" y="${cy-r+0.3}" width="${2*r-0.6}" height="${2*r-0.6}" rx="0.8" fill="${color}"/>`;
  return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${color}"/>`;
 }
+function josaIGA(w){ w=(w==null?'':String(w)); if(!w)return '가'; const c=w.charCodeAt(w.length-1); if(c<0xAC00||c>0xD7A3)return '가'; return ((c-0xAC00)%28)?'이':'가'; }
 function scatterSVG(r){
  const W=380,H=300,pad={l:42,r:14,t:14,b:34};
  const iw=W-pad.l-pad.r,ih=H-pad.t-pad.b;
- const cx=pad.l+iw*((100-r.TH)/100); // 임계 정답률 세로선 (난이도축: 왼=어려움)
+ const _useE=r.graded.some(g=>g.expC!=null); const _thr=_useE?50:r.TH;
+ const cx=pad.l+iw*((100-_thr)/100); // 임계 기대정답률 세로선 (난이도축: 왼=어려움)
  const my=pad.t+ih/2;
  const cols={strength:'var(--st)',miss:'var(--ms)',base:'var(--bs)',task:'var(--tk)'};
  const bg=`
@@ -2118,10 +2121,11 @@ function scatterSVG(r){
  const rnd=mulberry32(99);
  let pts="";
  r.graded.forEach(g=>{
-  const px=X(g.p),jy=(rnd()-0.5)*(ih/2-22),py=(g.correct?pad.t+ih/4:pad.t+3*ih/4)+jy;
-  const kind=g.correct?(g.p<r.TH?'strength':'base'):(g.p<r.TH?'task':'miss');
+  const ev=(g.expC!=null)?g.expC:g.p; const hd=(g.hard!=null)?g.hard:(g.p<r.TH);
+  const px=X(ev),jy=(rnd()-0.5)*(ih/2-22),py=(g.correct?pad.t+ih/4:pad.t+3*ih/4)+jy;
+  const kind=g.correct?(hd?'strength':'base'):(hd?'task':'miss');
   const c=cols[kind];
-  pts+=`<g opacity=".92">${qmark(kind,px,py,c)}<title>${g.n}번 · 정답률 ${g.p}% · ${g.correct?'정답':'오답'}</title></g>`;
+  pts+=`<g opacity=".92">${qmark(kind,px,py,c)}<title>${g.n}번 · ${_useE?'기대 정답률':'정답률'} ${Math.round(ev)}% · ${g.correct?'정답':'오답'}</title></g>`;
  });
  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="난이도 정오 사분면">
   ${bg}
@@ -2132,7 +2136,7 @@ function scatterSVG(r){
   <text x="${pad.l-6}" y="${pad.t+3*ih/4+4}" font-size="10" fill="var(--ink-3)" text-anchor="end" font-family="var(--mono)">오답</text>
   <text x="${pad.l}" y="${H-10}" font-size="10" fill="var(--ink-3)" text-anchor="start" font-family="var(--mono)">← 어려움</text>
   <text x="${pad.l+iw}" y="${H-10}" font-size="10" fill="var(--ink-3)" text-anchor="end" font-family="var(--mono)">쉬움 →</text>
-  <text x="${cx}" y="${H-10}" font-size="9" fill="var(--ink-4)" text-anchor="middle" font-family="var(--mono)">정답률 ${r.TH}%</text>
+  <text x="${cx}" y="${H-10}" font-size="9" fill="var(--ink-4)" text-anchor="middle" font-family="var(--mono)">${_useE?'기대 정답률':'정답률'} ${_thr}%</text>
  </svg>`;
 }
 
@@ -2147,7 +2151,7 @@ function buildNarrative(r){
  if(hs>0) out.push(`반대로 정답률이 낮은 고난도 문항을 <b>${hs}개</b> 맞혀, 단순 암기를 넘어 개념을 응용하는 힘을 보였습니다.`);
  const sorted=[...r.areaList].filter(a=>a.nQ>=2).sort((a,b)=>a.diff100-b.diff100);
  if(sorted.length){const w=sorted[0],s=sorted[sorted.length-1];
-  out.push(`영역별로는 <b>${s.name}</b>가 평균 대비 가장 앞서고, <b>${w.name}</b>가 상대적으로 보강이 필요합니다. 다음 학습은 ${w.name}부터 차근차근 채워 가면 좋겠습니다.`);}
+  out.push(`영역별로는 <b>${s.name}</b>${josaIGA(s.name)} 평균 대비 가장 앞서고, <b>${w.name}</b>${josaIGA(w.name)} 상대적으로 보강이 필요합니다. 다음 학습은 ${w.name}부터 차근차근 채워 가면 좋겠습니다.`);}
  if(r.misc.length) out.push(`오답 <b>${r.misc.length}문항</b> 각각에 대해 어떤 개념이 흔들렸는지 아래 카드에 정리했습니다.`);
  return out;
 }
@@ -2173,7 +2177,7 @@ function buildKick(r){
 function buildRx(r){
  const rx=[];
  if(r.quad.miss.length){const ns=r.quad.miss.map(g=>g.n).sort((a,b)=>a-b).join(", ");rx.push({tag:'<span class="rxi__tag tag-pri">최우선</span>',title:`아쉬운 실점 ${r.quad.miss.length}문항부터 복구`,body:`${ns}번. 정답률이 높았던 문항입니다. 풀이를 다시 보며 '왜 틀렸는지'를 한 줄로 적어 오답노트에 남기세요. 여기서 ${r.quad.miss.length*PT}점을 즉시 회복할 수 있습니다.`});}
- const weak=[...r.areaList].filter(a=>a.nQ>=2&&a.diff100<0).map(a=>({a,roi:(1-a.myAcc/100)*a.maxPts})).sort((x,y)=>y.roi-x.roi).slice(0,2).map(o=>o.a);
+ const weak=[...r.areaList].filter(a=>a.nQ>=2&&a.diff100<0).slice().sort((a,b)=>a.diff100-b.diff100).slice(0,2);
  weak.forEach(w=>{if(w.diff100<0)rx.push({tag:'<span class="rxi__tag tag-area">영역 보강</span>',title:`${w.name} 집중 보강`,body:`평균 대비 ${Math.abs(w.diff100).toFixed(0)}점 낮습니다(정답률 ${w.myAcc.toFixed(0)}%). 해당 영역 유형 문제를 한 세트 더 풀어 격차를 좁히세요.`});});
  if(r.misc.length){r.misc.slice(0,2).forEach(m=>rx.push({tag:'<span class="rxi__tag tag-misc">개념 교정</span>',title:`${m.type} 오개념 교정`,body:`${m.n}번에서 "${m.text}"가 드러났습니다. 해당 개념을 다시 정리하고 같은 유형을 한 번 더 점검하세요.`}));}
  if(r.quad.task.length){const ns=r.quad.task.map(g=>g.n).sort((a,b)=>a-b).join(", ");rx.push({tag:'<span class="rxi__tag tag-area">심화 도전</span>',title:`고난도 미해결 문항 재도전`,body:`${ns}번. 정답률이 낮은 변별 문항입니다. 지금 당장은 아니어도, 위 과제를 끝낸 뒤 도전하면 상위권 굳히기로 이어집니다.`});}
@@ -2274,7 +2278,7 @@ function persuadeStats(r){
     if(App.cohort&&App.cohort.length){const t=App.cohort.map(s=>s.total),b=t.filter(v=>v<projTotal).length,e=t.filter(v=>v===projTotal).length;projPct=t.length?((b+0.5*e)/t.length*100):pct;}
     else if(r.estMu!=null&&r.estSd>0){projPct=Phi((projTotal-r.estMu)/r.estSd)*100;}
   }
-  const as=[...r.areaList].filter(a=>a.nQ>0).sort((a,b)=>b.myAcc-a.myAcc);
+  const as=[...r.areaList].filter(a=>a.nQ>=2).sort((a,b)=>b.diff100-a.diff100);
   return {pct,tier,recN,recPts,projTotal,projPct,best:as[0]||null,worst:as.length>1?as[as.length-1]:null};
 }
 /* ===== 영역 레이더 ===== */
@@ -2464,7 +2468,7 @@ function buildFAQ(r){
   `백분위 <b>${pct.toFixed(0)}</b>은 함께 시험 본 학생 중 <b>${pct.toFixed(0)}%</b>보다 점수가 높다는 뜻입니다. 석차는 <b>${r.totalStat.rank}등</b>입니다. 인원수에 따라 등수의 의미가 달라지기 때문에, 집단이 바뀌어도 비교가 되는 <b>백분위</b>를 함께 보시면 위치를 더 정확히 가늠하실 수 있습니다.`});
 
  F.push({q:'정답률이 낮은데 맞고, 높은데 틀린 건 무슨 의미인가요?', a:
-  `리포트의 '신호등 사분면'은 모든 문항을 <b>난이도(정답률)</b>와 <b>정오</b>의 두 축으로 나눈 것입니다. 정답률이 높은데 틀린 칸이 <b>'아쉬운 실점'</b>으로 가장 먼저 챙기면 좋은 곳이고, 정답률이 낮은데 맞힌 칸은 <b>'심화 강점'</b>으로 응용력이 발휘된 지점입니다.`});
+  `리포트의 '신호등 사분면'은 모든 문항을 <b>이 학생 기준 기대 정답 가능성</b>과 <b>정오</b>의 두 축으로 나눈 것입니다. 맞힐 가능성이 높았는데 틀린 칸이 <b>'아쉬운 실점'</b>으로 가장 먼저 챙기면 좋은 곳이고, 맞히기 어려운데 맞힌 칸은 <b>'심화 강점'</b>으로 응용력이 발휘된 지점입니다.`});
 
  F.push({q:'집에서 무엇을 도와주면 좋을까요?', a:
   `세 가지면 충분합니다. ① 틀린 문항을 <b>다시 풀고 "왜 틀렸는지" 한 줄</b> 적게 해 주세요. ② 점수 결과보다 <b>다시 풀어오는 과정</b>을 칭찬해 주세요. ③ 모르는 개념은 다음 수업에서 질문하도록 격려해 주세요. 점수로 다그치기보다 <b>꾸준함</b>을 응원해 주시는 것이 이 시기에는 가장 효과적입니다.`});
@@ -2547,10 +2551,10 @@ function renderReport(r,id){
 
  // 사분면
  const QD=[
-  {k:'miss',c:'var(--ms)',t:'아쉬운 실점',d:'정답률이 높은데 틀린 문항. 실력이 아닌 습관의 구멍. 최우선 교정 대상.',pri:true},
-  {k:'strength',c:'var(--st)',t:'심화 강점',d:'정답률이 낮은데 맞힌 문항. 개념 응용력이 발휘된 지점.'},
-  {k:'base',c:'var(--bs)',t:'기본 안정',d:'쉬운 문항을 정확히 맞힘. 안정적으로 확보한 점수.'},
-  {k:'task',c:'var(--tk)',t:'심화 과제',d:'정답률이 낮고 틀린 문항. 다음 단계 도전 영역.'}
+  {k:'miss',c:'var(--ms)',t:'아쉬운 실점',d:'이 학생 기준 맞힐 가능성이 높았는데 틀린 문항. 실력이 아닌 습관의 구멍. 최우선 교정 대상.',pri:true},
+  {k:'strength',c:'var(--st)',t:'심화 강점',d:'이 학생 기준 맞히기 어려운데 맞힌 문항. 개념 응용력이 발휘된 지점.'},
+  {k:'base',c:'var(--bs)',t:'기본 안정',d:'맞힐 가능성이 높은 문항을 정확히 맞힘. 안정적으로 확보한 점수.'},
+  {k:'task',c:'var(--tk)',t:'심화 과제',d:'이 학생 기준 맞히기 어렵고 틀린 문항. 다음 단계 도전 영역.'}
  ];
  const quadLegend=QD.map(q=>{
   const list=r.quad[q.k];
@@ -2678,7 +2682,7 @@ function renderReport(r,id){
 
  <div class="sec">
    <div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('신호등 사분면 · 난이도 × 정오')}<span class="sec__t">신호등 사분면 · 난이도 × 정오</span></div>
-   <div class="sec__d">모든 문항을 '난이도(정답률)'와 '정오'의 두 축으로 분류합니다. 네 칸이 각각 다른 처방을 가리킵니다.</div>
+   <div class="sec__d">모든 문항을 '이 학생 기준 기대 정답 가능성'과 '정오'의 두 축으로 분류합니다. 같은 문항도 학생 수준에 따라 다르게 읽힙니다. 네 칸이 각각 다른 처방을 가리킵니다.</div>
    <div class="quad-wrap">
      <div>${scatterSVG(r)}</div>
      <div class="quad-legend">${quadLegend}</div>
