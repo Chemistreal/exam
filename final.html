@@ -154,7 +154,6 @@ function qbankAudit(){
     const nQ=e.nQ;
     if(!(nQ>0)) add(e.id,'err','nQ 비정상: '+nQ);
     if(!e.title) add(e.id,'warn','제목(title) 누락');
-    if(!e.pdf) add(e.id,'info','문제지 PDF 미연결');
     if(!e.key||e.key.length!==nQ){ add(e.id,'err','정답키 길이 불일치 ('+(e.key?e.key.length:'없음')+' / 문항 '+nQ+')'); }
     else { e.key.forEach((k,idx)=>{ if([0,1,2,3,4].indexOf(k)<0) add(e.id,'err','문항 '+(idx+1)+' 정답키 범위 이탈: '+k); });
       const miss=new Set(e.miss||[]); const multi=e.multi||{};
@@ -207,7 +206,7 @@ function renderQbank(){
    <div class="sec">${secH('요약')}
      <div class="kpis"><div class="kpi"><b>${st.nExam}</b><span>시험</span></div><div class="kpi"><b>${st.total}</b><span>문항</span></div><div class="kpi"><b style="color:${nErr?'var(--ms)':'var(--teal)'}">${nErr}</b><span>오류</span></div></div>
      <div class="sub" style="margin-top:8px">그룹 · ${grpRows}</div>
-     <div class="sub">area 태그 ${st.withArea}/${st.nExam} · type 태그 ${st.withType}/${st.nExam} · 문제지 ${st.withPdf}/${st.nExam}</div>
+     <div class="sub">area 태그 ${st.withArea}/${st.nExam} · type 태그 ${st.withType}/${st.nExam}</div>
    </div>
    <div class="sec">${secH('무결성 점검')}<div style="margin-top:2px">${issHTML}</div></div>
    <div class="sec">${secH('시험별 개요')}
@@ -236,7 +235,7 @@ function renderList(){
   app.innerHTML=h; window.scrollTo(0,0);
 }
 function openExam(id){
-  cur=FINAL_EXAMS.find(e=>e.id===id); sel={};
+  fShared=false; cur=FINAL_EXAMS.find(e=>e.id===id); sel={};
   const miss=new Set(cur.miss||[]); let total=0; for(let q=1;q<=cur.nQ;q++) if(!miss.has(q)) total++;
   const G=10; let grid='';
   for(let g=1;g<=cur.nQ;g+=G){ const last=Math.min(g+G-1,cur.nQ);
@@ -252,7 +251,7 @@ function openExam(id){
    <div class="prog"><div class="prog__bar"><div class="prog__fill" id="progFill"></div></div><div class="prog__meta"><span id="progCount">0 / ${total} 입력</span><span id="progWarn" class="muted"></span></div></div>
    <div class="omrbox">${grid}</div>
    <div class="toolbar"><button class="btn" onclick="scoreAuto()">채점하기</button><button class="btn ghost sm" onclick="clearSel()">초기화</button>
-     ${cur.pdf?`<a class="pdf" href="problems/${encodeURIComponent(cur.pdf)}" target="_blank">문제지 PDF ↗</a>`:''}</div>`;
+     </div>`;
   window.scrollTo(0,0);
   const f0=document.getElementById('ai_1')||document.querySelector('.ansin:not([disabled])'); if(f0)f0.focus();
 }
@@ -427,7 +426,7 @@ function conceptClinicSec(exam, sel, wrong, cs){
      </div>`; }).join('');
   return `<div class="sec">${secH('오답 개념 클리닉')}<div class="sub">틀린 문항을 개념 영역으로 묶어, 문항별 오개념 → 개념 강의 → 처방으로 한 번에 복습합니다.${anyCommon?' 또래도 많이 틀린 문항(빨강)이 개념 보강 1순위입니다.':''}</div>
    ${body}
-   <div class="note" style="font-size:12px;color:var(--muted)">개념 강의로 원리를 다시 잡고, 문제지 PDF로 같은 개념의 변형 문항을 풀어 결손이 메워졌는지 확인하세요.</div>
+   <div class="note" style="font-size:12px;color:var(--muted)">개념 강의로 원리를 다시 잡고, 같은 개념의 변형 문항을 풀어 결손이 메워졌는지 확인하세요.</div>
   </div>`;
 }
 const RXMAP={'원자의구조':'원자모형','전자기파':'원자모형','수소스펙트럼':'원자모형','전자배치':'원자모형','양자수':'원자모형','원소의기원':'원자모형','방사성붕괴':'원자모형','원자반지름':'주기율','원자의크기':'주기율','이온화에너지':'주기율','전기음성도':'주기율','반응성':'주기율','분자오비탈':'분자의모양','혼성오비탈':'분자의모양','분자의구조':'분자의모양','쌍극자모멘트':'분자의모양','화학결합':'분자의모양','옥텟규칙':'분자의모양','수소결합':'분자간인력','끓는점':'분자간인력','모세관현상':'분자간인력','화학식량':'몰과양적관계','계수맞추기':'몰과양적관계','몰과질량':'몰과양적관계','몰과부피':'몰과양적관계','몰과개수':'몰과양적관계','양적관계':'몰과양적관계','수득률':'몰과양적관계','원소분석장치':'몰과양적관계','성분원소의확인':'몰과양적관계','분자운동속도':'기체','실제기체':'기체','용해도':'액체,용액','삼투압':'액체,용액','상평형':'액체,용액','용액의총괄성':'액체,용액','총괄성':'액체,용액','용액의농도':'액체,용액','농도환산':'액체,용액','액체':'액체,용액','고체의구조':'고체','고체의밀도':'고체','탄소동소체':'고체','틈새형자리':'고체','엔탈피':'열화학','결합에너지':'열화학','헤스법칙':'열화학','깁스자유에너지':'열화학','엔트로피':'열화학','생성엔탈피':'열화학','연소엔탈피':'열화학','에너지':'열화학','열역학':'열화학','평형상수':'화학평형','평형농도':'화학평형','용해평형':'화학평형','조건반대':'화학평형','앙금생성':'화학평형','pH':'산과염기','염의가수분해':'산과염기','물의자동이온화':'산과염기','이온화상수':'산과염기','완충용액':'산과염기','염의액성':'산과염기','액성':'산과염기','헨더슨하셀바흐식':'산과염기','이온화도':'산과염기','산의세기':'산과염기','지시약':'중화반응','다양성자산의적정':'중화반응','산화수':'산화환원','전지':'산화환원','전기분해':'산화환원','기전력':'산화환원','전기화학':'산화환원','산화환원반응':'산화환원','반응차수':'반응속도','속도론':'반응속도','메커니즘':'반응속도','촉매':'반응속도','속도상수':'반응속도','이성질체':'탄소화합물','아미노산':'탄소화합물','DNA':'탄소화합물','탄화수소유도체':'탄소화합물'};
@@ -1060,8 +1059,12 @@ function exportReportHTML(){
 const SHEET_ENDPOINT='https://script.google.com/macros/s/AKfycbxGmSCkip0cQCyOH_JA2SiAMSxri00XObLmHyXlyXwxhG7u7w-x0FH02VN4DQySiUsv9Q/exec';
 function fSyncKey(){ try{ return localStorage.getItem('chemistreal:synckey')||''; }catch(e){ return ''; } }
 function fToast(msg){ let t=document.getElementById('ftoast'); if(!t){ t=document.createElement('div'); t.id='ftoast'; t.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#23201b;color:#fff;padding:9px 16px;border-radius:9px;font-size:13px;z-index:9999;opacity:0;transition:opacity .25s;box-shadow:0 4px 16px rgba(0,0,0,.22);max-width:88%;text-align:center'; document.body.appendChild(t); } t.textContent=msg; requestAnimationFrame(()=>{t.style.opacity='1';}); clearTimeout(t._h); t._h=setTimeout(()=>{t.style.opacity='0';},2600); }
+let fShared=false;
+function hashStrFinal(cur,sel,nm,exno){ let num=0n; for(let q=cur.nQ;q>=1;q--){ num=num*5n+BigInt(sel[q]||0); } const en=encodeURIComponent((nm||'').trim()), no=(exno||''); return 'r='+cur.id+'.'+num.toString(36)+((en||no)?('.'+no+'.'+en):''); }
+function shareLinkFinal(cur,sel,nm,exno){ return location.origin+location.pathname+'#'+hashStrFinal(cur,sel,nm,exno); }
 function saveToSheetFinal(cur,sel,correct,total,W,cs,nm,exno,pct){
   if(!SHEET_ENDPOINT) return;
+  if(fShared) return;
   if(!(nm||exno)) return;
   const miss=new Set(cur.miss||[]); const broad=a=>RX[a]?a:(RXMAP[a]||a); const ag={};
   if(cur.area) for(let q=1;q<=cur.nQ;q++){ if(miss.has(q))continue; const bd=broad(cur.area[q-1]||''); if(!bd)continue; (ag[bd]=ag[bd]||{c:0,t:0}); ag[bd].t++; if(okq(cur,q,sel[q]||0))ag[bd].c++; }
@@ -1072,7 +1075,7 @@ function saveToSheetFinal(cur,sel,correct,total,W,cs,nm,exno,pct){
     date:new Date().toISOString().slice(0,10), exam:cur.title,
     total:correct, max:total, pct100:pct,
     percentile: perc===''?'':+(+perc).toFixed(1), rank:'', n:(cs&&cs.N)||'',
-    correct:correct, areas:areas, answers:ans.join(''), link:'' };
+    correct:correct, areas:areas, answers:ans.join(''), link:shareLinkFinal(cur,sel,nm,exno) };
   try{
     fetch(SHEET_ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
     fToast('구글 시트로 전송했습니다 · '+(nm||exno));
@@ -1116,14 +1119,18 @@ function scoreAuto(){
    ${loopSec(cur,sel)}
    ${tableSec(cur,sel)}
    ${methodSec(cur)}
-   <div class="toolbar"><button class="btn sm" onclick="window.print()">리포트 PDF 저장 ↓</button><button class="btn ghost sm" onclick="exportReportHTML()">공유용 HTML 저장 ↓</button>${cur.pdf?`<a class="pdf" href="problems/${encodeURIComponent(cur.pdf)}" target="_blank">문제지 PDF ↗</a>`:''}
+   <div class="toolbar"><button class="btn sm" onclick="window.print()">리포트 PDF 저장 ↓</button><button class="btn ghost sm" onclick="exportReportHTML()">공유용 HTML 저장 ↓</button>
      <a class="pdf" href="sol-final-${cur.id}.html" target="_blank">정답·개념 해설 ↗</a>
      <button class="btn ghost sm" onclick="openExam('${cur.id}')">다시 채점</button></div>`;
   window.scrollTo(0,0);
 }
 window.addEventListener('beforeprint',function(){window.__det=[].map.call(document.querySelectorAll('details'),function(d){return [d,d.open];});window.__det.forEach(function(x){x[0].open=true;});});
 window.addEventListener('afterprint',function(){(window.__det||[]).forEach(function(x){x[0].open=x[1];});});
-function boot(){ if(location.hash==='#qbank'||location.hash==='#admin'){ renderQbank(); } else { renderList(); } }
+function boot(){
+  const m=location.hash.match(/r=([^.]+)\.([0-9a-z]+)(?:\.([^.]*)\.(.*))?$/);
+  if(m){ const ex=FINAL_EXAMS.find(e=>e.id===m[1]); if(ex){ openExam(ex.id); fShared=true; let n=0n; for(const c of m[2]) n=n*36n+BigInt(parseInt(c,36)); for(let q=1;q<=ex.nQ;q++){ const v=Number(n%5n); n=n/5n; if(v) setAns(q,v); } const ne=document.getElementById('nm'), xe=document.getElementById('exno'); if(m[4]&&ne) ne.value=decodeURIComponent(m[4]); if(m[3]&&xe) xe.value=m[3]; scoreAuto(); return; } }
+  if(location.hash==='#qbank'||location.hash==='#admin'){ renderQbank(); } else { renderList(); }
+}
 window.addEventListener('hashchange',boot);
 boot();
 </script></body></html>
