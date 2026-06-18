@@ -601,6 +601,13 @@ body{background:radial-gradient(130% 90% at 50% -12%,#FCFAF4 0%,var(--paper-soft
       <p>영역별 성취, 난이도 사분면, 개념 진단, 누적 추이를 한 장에 담습니다. 답안을 입력하면 학생별 리포트가 생성됩니다.</p>
     </div>
     <div class="exam-grid" id="examGrid"></div>
+    <div style="margin:30px auto 4px;text-align:center;padding-top:22px;border-top:1px solid #E8E4DA">
+      <a href="final.html" style="display:inline-flex;align-items:center;gap:9px;background:#0E5A4C;color:#fff;border-radius:12px;padding:14px 28px;font-weight:700;font-size:15.5px;text-decoration:none;box-shadow:0 3px 14px rgba(14,90,76,.18)">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+        파이널 · KMChC 기출 채점 →
+      </a>
+      <div style="font-size:12.5px;color:#8a8578;margin-top:9px">한국중학생화학대회 기출을 정답 기준으로 채점하는 별도 공간입니다</div>
+    </div>
   </div>
 </section>
 
@@ -2001,7 +2008,7 @@ function Phi(z){return 0.5*(1+erf(z/Math.SQRT2));}
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
 
 function rankPct(value,arr){const n=arr.length;let below=0,equal=0;for(const v of arr){if(v<value)below++;else if(v===value)equal++;}const greater=n-below-equal;return{rank:greater+1,ties:equal,pct:n?((below+(equal?0.5*equal:0))/n)*100:0,n};}
-function to100(pts,maxPts){return maxPts?pts/maxPts*100:0;}
+function to100(pts,maxPts){return maxPts?pts/maxPts*100:0;} function propCI(k,n){if(!n)return{lo:0,hi:0,m:0};const z=1.96,p=k/n,d=1+z*z/n;const c=(p+z*z/(2*n))/d,h=z*Math.sqrt(p*(1-p)/n+z*z/(4*n*n))/d;const lo=Math.max(0,c-h),hi=Math.min(1,c+h);return{lo:Math.round(lo*100),hi:Math.round(hi*100),m:Math.round((hi-lo)/2*100)};}
 
 function analyze(exam,answers,cohort){
  const qs=exam.questions,maxTotal=qs.length*PT;
@@ -2530,6 +2537,67 @@ function verdictLine(r){
     return '<div class="verdict" style="margin:14px 28px;padding:14px 18px;background:rgba(58,122,107,.06);border-left:3px solid var(--teal-d,#3A7A6B);border-radius:8px;font-size:14.5px;line-height:1.62;color:var(--ink,#23201b)"><b>한 줄 요약.</b> 현재 '+nm+'의 성취는 '+approx+'<b>'+tier+'</b>(상위 '+top+'%)'+band+'입니다. '+act+' '+goalTxt+'</div>';
   }catch(e){return '';}
 }
+const PREREQ={
+ '원자모형':[], '몰과양적관계':[],
+ '주기율':['원자모형'],
+ '분자의모양':['원자모형','주기율'],
+ '분자간인력':['분자의모양','주기율'],
+ '기체':['몰과양적관계'],
+ '액체,용액':['분자간인력','몰과양적관계'],
+ '고체':['분자간인력','몰과양적관계'],
+ '열화학':['몰과양적관계','분자의모양'],
+ '반응속도':['몰과양적관계'],
+ '화학평형':['몰과양적관계','반응속도'],
+ '산과염기':['화학평형'],
+ '중화반응':['산과염기','몰과양적관계'],
+ '산화환원':['몰과양적관계','주기율'],
+ '탄소화합물':['분자의모양','분자간인력'],
+ '배위화학':['원자모형','주기율','분자의모양']
+};
+const IDX_BROAD={
+ '화학의 기초':'몰과양적관계','화학식량':'몰과양적관계','몰':'몰과양적관계','몰과개수':'몰과양적관계','몰과부피':'몰과양적관계','몰과질량':'몰과양적관계','양적관계':'몰과양적관계','계수맞추기':'몰과양적관계','농도':'몰과양적관계',
+ '기체':'기체',
+ '원소의 기원':'원자모형','기본입자':'원자모형','동위원소':'원자모형','방사성붕괴':'원자모형','원자모형':'원자모형','보어모형':'원자모형','전자배치':'원자모형',
+ '주기율':'주기율','반지름':'주기율',
+ '분자의 구조':'분자의모양','분자의 모양':'분자의모양','분자의 극성':'분자의모양',
+ '분자간인력':'분자간인력',
+ '고체':'고체','고체구조':'고체','고체심화':'고체',
+ '반응속도':'반응속도'
+};
+function prereqBlock(r,SN){
+  if(!r||!r.areaList) return '';
+  const ag={};
+  r.areaList.forEach(A=>{ const bd=IDX_BROAD[A.name]; if(!bd)return; (ag[bd]=ag[bd]||{pts:0,max:0,nQ:0}); ag[bd].pts+=A.pts; ag[bd].max+=A.maxPts; ag[bd].nQ+=A.nQ; });
+  const sb={}, cnt={}; for(const d in ag){ if(ag[d].max>0){ sb[d]=Math.round(ag[d].pts/ag[d].max*100); cnt[d]=ag[d].nQ; } }
+  const reliable=d=>cnt[d]>=2;
+  const weak=Object.keys(sb).filter(d=>reliable(d)&&sb[d]<60).sort((a,b)=>sb[a]-sb[b]);
+  if(!weak.length) return '';
+  const target=weak.find(d=>(PREREQ[d]||[]).some(p=>sb[p]!=null));
+  if(!target) return '';
+  const nodes=new Set([target]); const queue=[target];
+  while(queue.length){ const d=queue.shift(); (PREREQ[d]||[]).forEach(p=>{ if(sb[p]==null)return; if(!nodes.has(p)){ nodes.add(p); if(reliable(p)&&sb[p]<60) queue.push(p); } }); }
+  const N=[...nodes];
+  function lvl(d){ const ps=(PREREQ[d]||[]).filter(p=>nodes.has(p)); return ps.length?1+Math.max(...ps.map(lvl)):0; }
+  const lv={}; N.forEach(d=>lv[d]=lvl(d)); const maxLv=Math.max(...N.map(d=>lv[d]));
+  const byLv={}; N.forEach(d=>{(byLv[lv[d]]=byLv[lv[d]]||[]).push(d);});
+  const maxRows=Math.max(...Object.values(byLv).map(a=>a.length));
+  const colW=132,rowH=48,padX=8,padY=12,nodeW=112,nodeH=34;
+  const W=padX*2+(maxLv+1)*colW, H=padY*2+maxRows*rowH;
+  const pos={};
+  for(let l=0;l<=maxLv;l++){ const arr=byLv[l]||[]; arr.forEach((d,ix)=>{ pos[d]={x:padX+l*colW+(colW-nodeW)/2, y:padY+ix*rowH+(maxRows-arr.length)*rowH/2}; }); }
+  const col=d=>!reliable(d)?'var(--ink-4)':(sb[d]>=75?'var(--teal)':sb[d]>=60?'var(--brass)':'var(--ms)');
+  let edges='';
+  N.forEach(d=>{ (PREREQ[d]||[]).filter(p=>nodes.has(p)).forEach(p=>{ const a=pos[p],b=pos[d]; edges+=`<line x1="${(a.x+nodeW).toFixed(1)}" y1="${(a.y+nodeH/2).toFixed(1)}" x2="${b.x.toFixed(1)}" y2="${(b.y+nodeH/2).toFixed(1)}" stroke="var(--line-3)" stroke-width="1.5" marker-end="url(#pqa)"/>`; }); });
+  const rects=N.map(d=>{ const p=pos[d],c=col(d); const sc=reliable(d)?sb[d]+'%':'-'; return `<g><rect x="${p.x.toFixed(1)}" y="${p.y.toFixed(1)}" width="${nodeW}" height="${nodeH}" rx="7" fill="var(--paper-soft)" stroke="${c}" stroke-width="${d===target?2.5:1.5}"/><text x="${(p.x+nodeW/2).toFixed(1)}" y="${(p.y+15).toFixed(1)}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink)">${esc(d)}</text><text x="${(p.x+nodeW/2).toFixed(1)}" y="${(p.y+27).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="700" fill="${c}">${sc}</text></g>`; }).join('');
+  const svg=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px;height:auto;margin-top:6px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="pqa" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L6,3.5 L0,7 Z" fill="var(--ink-3)"/></marker></defs>${edges}${rects}</svg>`;
+  const weakP=[...nodes].filter(p=>p!==target&&reliable(p)&&sb[p]<60).sort((a,b)=>sb[a]-sb[b]);
+  const advice=weakP.length?`<b>${esc(target)}</b> 약점은 선수 개념 <b>${weakP.map(esc).join('·')}</b>의 결손에서 비롯됐을 수 있습니다. 빨간 영역부터 메우면 위층이 함께 풀립니다.`:`<b>${esc(target)}</b>의 선수 개념은 안정적입니다. ${esc(target)} 자체의 개념·유형에 집중하세요.`;
+  return `<div class="sec"><div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('선수 개념 지도 · 학습 순서')}<span class="sec__t">선수 개념 지도 · 학습 순서</span></div>
+   <div class="sec__d">가장 약한 영역이 어떤 선행 개념 위에 서 있는지 보여 줍니다. 화살표는 '먼저 알아야 함', 색은 현재 숙달도(초록 안정·노랑 보통·빨강 약함·회색 표본 부족)입니다.</div>
+   ${svg}
+   <div style="background:var(--teal-t);border:1px solid var(--teal-t2);border-radius:8px;padding:11px 13px;font-size:13px;color:var(--ink-2);margin-top:10px;line-height:1.6">${advice}</div>
+  </div>`;
+}
 function renderReport(r,id){
  const pct=r.totalStat?r.totalStat.pct:r.estPct;
  const meanPts=r.cohortTotalMean;
@@ -2578,7 +2646,7 @@ function renderReport(r,id){
   areaRows+=`<tr>
    <td>${aIco(A.name)}${A.name}</td>
    <td class="hide-sm">${A.pts}/${A.maxPts}</td>
-   <td>${A.myAcc.toFixed(0)}%</td>
+   <td>${A.myAcc.toFixed(0)}%${A.nQ>=2?` <span style="color:var(--ink-4);font-size:.8em;white-space:nowrap">±${propCI(A.correct,A.nQ).m}</span>`:''}</td>
    <td class="hide-sm">${A.cohMean100!=null?A.cohMean100.toFixed(0):A.popAcc.toFixed(0)}</td>
    <td class="hide-sm">${A.rank!=null?A.rank+'/'+A.n:'-'}</td>
    <td><div class="dbar"><div class="dbar__center"></div>${bar}</div></td>
@@ -2709,13 +2777,15 @@ function renderReport(r,id){
 
  <div class="sec">
    <div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('영역별 성취 · 평균과의 비교')}<span class="sec__t">영역별 성취 · 평균과의 비교</span></div>
-   <div class="sec__d">레이더는 세부 영역별 정답률을 한눈에 보여줍니다. 굵은 틸 윤곽이 본인, 점선이 평균(추정 포함). 아래 표는 단원·세부 영역별로 평균 대비 백점환산 차이를 정리한 것입니다.</div>
+   <div class="sec__d">레이더는 세부 영역별 정답률을 한눈에 보여줍니다. 굵은 틸 윤곽이 본인, 점선이 평균(추정 포함). 아래 표는 단원·세부 영역별로 평균 대비 백점환산 차이를 정리한 것입니다. 정답률 옆 ±는 문항 수 기반 95% 오차 범위로, 문항이 적은 영역일수록 넓습니다.</div>
    ${radarBlock(r)}
    <table class="areatab">
      <thead><tr><th>영역</th><th class="hide-sm">득점</th><th>정답률</th><th class="hide-sm">평균환산</th><th class="hide-sm">석차</th><th>평균 대비</th><th>차이</th></tr></thead>
      <tbody>${areaRows}</tbody>
    </table>
  </div>
+
+ ${prereqBlock(r,SN)}
 
  <div class="sec">
    <div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('개념(유형) 숙련도 지도')}<span class="sec__t">개념(유형) 숙련도 지도</span></div>
