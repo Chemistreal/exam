@@ -1,0 +1,136 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5"><title>신뢰도 보정 (Calibration) · CHEMISTREAL</title><style>
+:root{--cream:#FBFAF6;--paper:#fff;--ink:#23201b;--ink-2:#5a564d;--muted:#8a8578;--teal:#0E5A4C;--brass:#B08D57;--line:#E8E4DA;--ms:#C0603A;--ok:#2E7D6B;--ok-bg:#eef5f2;--mono:ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:-apple-system,"Noto Sans KR",sans-serif;line-height:1.5}
+.serif{font-family:"Nanum Myeongjo",Georgia,serif}
+header{background:linear-gradient(180deg,#0E5A4C,#0b4a3f);color:#fff;padding:16px;text-align:center}
+header .logo{font-size:11px;letter-spacing:.18em;opacity:.82;font-weight:600}header h1{margin:5px 0 3px;font-size:20px}header .sub{font-size:11.5px;opacity:.86}
+.wrap{max-width:1040px;margin:0 auto;padding:12px}
+.note{background:#fff;border:1px solid var(--line);border-left:3px solid var(--brass);border-radius:10px;padding:11px 14px;font-size:12.5px;color:var(--ink-2);margin-bottom:12px}.note b{color:var(--ink)}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.tools button,.tools label.fb{font-size:11.5px;font-weight:600;border:1px solid var(--line);background:#faf8f1;color:var(--ink);padding:7px 12px;border-radius:8px;cursor:pointer}
+.tools button.pri{background:var(--teal);color:#fff;border-color:var(--teal)}
+.tools button.on{background:#fbece7;border-color:var(--ms);color:var(--ms)}
+.tools select{border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:12.5px}
+.tools .hint{font-size:11px;color:var(--muted)}
+.warn{background:#fdf6ec;border:1px solid #eed9cd;border-left:3px solid var(--brass);border-radius:9px;padding:9px 12px;font-size:12px;margin-bottom:12px;color:#8a6a1e}
+.bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 13px;flex:1;min-width:110px;text-align:center}
+.stat .v{font-size:19px;font-weight:800;font-family:var(--mono)}.stat .k{font-size:10.5px;color:var(--muted);margin-top:2px}.stat .s2{font-size:10px;margin-top:1px}
+.stat.good .v{color:var(--ok)}.stat.bad .v{color:var(--ms)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:820px){.grid2{grid-template-columns:1fr}}
+.panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-bottom:14px}
+.panel h2{font-size:13.5px;margin:0 0 10px;display:flex;justify-content:space-between;align-items:center}.panel h2 .c{font-size:11px;color:var(--muted);font-weight:600}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{font-size:10.5px;color:var(--muted);text-align:left;padding:5px 6px;border-bottom:1.5px solid var(--line)}
+.tbl td{padding:5px 6px;border-bottom:1px solid #f3efe6}
+.grade{font-size:9.5px;font-weight:700;padding:1px 7px;border-radius:5px}.grade.hi{background:#e3efe9;color:#1c5a4c}.grade.mid{background:#fdf0d8;color:#8a6a1e}.grade.lo{background:#fbe3e3;color:#a32}
+.mono{font-family:var(--mono)}
+.hint{font-size:11px;color:var(--muted);margin-top:6px}
+.legend{display:flex;gap:14px;font-size:10.5px;color:var(--muted);margin-top:6px;flex-wrap:wrap}
+.legend span{display:inline-flex;align-items:center;gap:4px}.legend i{width:12px;height:3px;display:inline-block}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:20px}
+svg{display:block}
+</style></head>
+<body><nav style="background:#08352d;padding:7px 16px;display:flex;align-items:center;justify-content:space-between;font-size:11.5px;font-family:-apple-system,sans-serif"><a href="dashboard.html" style="color:#fff;opacity:0.92;text-decoration:none;font-weight:600">&#8592; CHEMISTREAL 허브</a><span style="color:#fff;opacity:0.5;font-size:10px;letter-spacing:.05em">진단 R&amp;D</span></nav>
+<header><div class="logo">CHEMISTREAL · 진단 R&amp;D</div><h1 class="serif">신뢰도 보정 (Calibration)</h1><div class="sub">신뢰도 곡선 · ECE/MCE · 등위회귀 보정 · 진단 신뢰 등급</div></header>
+<div class="wrap">
+<div class="note"><b>S11 신뢰도 보정:</b> 진단이 "80% 숙달"이라 할 때 정말 그 정도 맞는지 검증합니다. 모형이 각 (학생·문항)의 정답 확률을 예측하고, <b>교차검증</b>(응답 일부를 가린 뒤 예측)으로 실제 정답과 비교합니다. <b>신뢰도 곡선</b>이 대각선에 가까우면 잘 보정된 것이고, 위/아래로 벗어나면 과소/과신입니다. <b>ECE</b>(평균 보정 오차)로 수치화하고, <b>등위회귀(isotonic)</b>로 확률을 교정합니다(2겹 교차검증으로 정직하게 평가). 확신도가 실제 정확도와 맞아야 처방을 신뢰할 수 있습니다.</div>
+<div class="tools">
+<select id="exam"></select>
+<button class="pri" onclick="genDemo()">데모 코호트 생성</button>
+<label class="fb">responses.json 불러오기<input type="file" accept="application/json" onchange="importJSON(event)" hidden></label>
+<button id="ovbtn" onclick="OVER=!OVER;document.getElementById('ovbtn').classList.toggle('on',OVER);run()">과신 주입(데모)</button>
+<span class="hint" id="status"></span>
+</div>
+<div id="results"></div>
+</div>
+<footer>CHEMISTREAL 진단 R&amp;D · 신뢰도 보정(Calibration) · S12 지식추적의 전 단계</footer>
+<script>
+const EXAMS=[{id:'jmchc-1',title:'JMChC 모의고사 1회',group:'JMChC',key:[5,5,3,3,4,4,3,3,5,2,2,4,2,4,4,5,4,4,2,3,3,4,5,5,3,2,4,3,3,5,4,2,3,4,5,2,5,4,4,2,3,2,4,3,4,3,5,3,3,3,4,5,5,5,4,4,2,4,2,2]},{id:'jmchc-2',title:'JMChC 모의고사 2회',group:'JMChC',key:[3,3,2,2,3,5,5,3,3,3,4,5,5,5,4,5,4,3,2,4,2,4,4,5,5,2,4,5,4,4,3,4,2,2,4,5,4,4,4,3,5,5,4,4,5,5,5,4,3,4,3,2,5,3,5,2,4,4,4,5]},{id:'jmchc-3',title:'JMChC 모의고사 3회',group:'JMChC',key:[5,3,4,3,4,4,4,3,4,2,2,4,3,4,5,3,4,3,5,4,5,5,2,3,4,4,4,3,5,2,5,4,3,4,5,3,3,2,3,5,3,2,3,4,3,2,5,3,3,4,4,2,4,4,5,4,4,2,4,4]},{id:'jmchc-4',title:'JMChC 모의고사 4회',group:'JMChC',key:[2,4,2,3,5,3,5,5,3,3,3,2,4,4,2,4,3,5,5,3,5,4,4,4,5,5,3,4,5,2,4,2,4,2,4,2,4,4,5,3,2,4,4,3,4,4,2,2,2,5,5,3,5,2,4,3,3,5,3,5]},{id:'jmchc-5',title:'JMChC 모의고사 5회',group:'JMChC',key:[5,2,5,5,5,5,5,2,3,5,5,5,4,5,4,3,4,4,4,3,5,3,5,4,4,5,4,5,4,5,5,5,4,2,5,3,5,4,5,5,3,3,4,5,5,4,2,2,5,4,4,2,2,3,5,4,3,3,4,5]},{id:'jmchc-6',title:'JMChC 모의고사 6회',group:'JMChC',key:[5,5,5,5,3,5,3,4,3,4,5,3,3,2,4,4,2,4,2,3,5,4,3,3,4,4,5,4,3,4,3,3,2,5,3,4,4,5,2,5,3,2,2,3,5,2,4,3,5,4,4,5,5,5,4,3,4,5,3,2]},{id:'jmchc-7',title:'JMChC 모의고사 7회',group:'JMChC',key:[3,3,3,4,3,3,4,5,5,2,2,3,3,4,3,3,5,4,3,2,2,2,4,2,4,3,3,4,3,3,3,5,2,2,4,5,3,5,4,5,4,5,3,5,4,3,5,2,5,5,4,4,5,2,3,3,2,2,2,4]},{id:'jmchc-8',title:'JMChC 모의고사 8회',group:'JMChC',key:[2,2,2,2,4,3,3,5,3,4,5,4,4,3,2,3,3,3,2,3,5,2,5,5,4,4,5,2,3,4,4,5,3,3,5,3,3,3,4,4,3,2,2,3,2,2,3,3,3,4,4,4,5,2,3,2,5,2,2,3]},{id:'jmchc-9',title:'JMChC 모의고사 9회',group:'JMChC',key:[4,3,5,5,5,5,4,4,3,5,2,4,5,5,3,3,2,5,2,4,2,2,5,5,2,2,3,4,2,3,5,5,5,2,4,5,5,3,3,5,5,5,4,3,5,2,2,5,5,5,3,3,3,5,2,2,3,4,5,2]},{id:'jmchc-10',title:'JMChC 모의고사 10회',group:'JMChC',key:[3,4,3,2,4,4,3,3,4,5,5,5,3,3,4,4,3,4,2,5,5,2,5,2,2,4,4,3,5,4,4,5,4,5,3,3,3,3,5,4,3,5,5,4,4,5,5,4,5,2,5,2,5,3,2,3,4,5,4,2]},{id:'jmchc-11',title:'JMChC 모의고사 11회',group:'JMChC',key:[5,4,3,2,2,3,5,4,2,2,4,3,3,2,3,2,5,4,4,4,4,4,4,3,4,2,4,4,3,3,4,4,4,3,3,5,5,2,3,3,5,2,4,5,2,2,5,5,4,4,4,3,2,2,3,2,2,5,4,2]},{id:'jmchc-11-1',title:'JMChC 모의고사 11-1회',group:'JMChC',key:[2,2,3,4,3,4,3,4,4,4,5,3,5,4,3,2,2,2,3,3,2,4,2,3,4,4,3,5,4,4,3,3,3,4,2,2,4,3,2,4,3,3,2,3,5,4,5,4,2,2,3,3,3,2,4,5,4,4,4,5]},{id:'jmchc-12',title:'JMChC 모의고사 12회',group:'JMChC',key:[5,4,5,3,4,3,5,5,3,2,3,5,4,2,5,2,5,4,3,4,3,2,5,5,5,4,5,5,3,4,2,5,4,4,3,4,5,5,5,4,4,3,3,3,2,2,4,3,5,2,3,3,4,4,4,3,4,4,5,4]},{id:'jmchc-13',title:'JMChC 모의고사 13회',group:'JMChC',key:[2,4,5,5,4,3,3,4,2,5,5,2,5,2,2,4,5,5,4,3,5,5,3,2,3,5,5,5,4,5,5,4,2,3,3,2,2,3,2,4,2,3,4,2,5,5,2,2,3,2,4,4,5,4,5,3,5,5,5,3]},{id:'jmchc-14',title:'JMChC 모의고사 14회',group:'JMChC',key:[2,3,4,2,4,4,5,5,3,3,4,5,3,2,5,3,4,3,2,5,4,4,3,5,4,4,5,5,5,4,5,5,5,3,4,5,4,3,3,4,2,4,2,2,2,2,4,5,2,5,3,3,2,2,3,4,2,3,2,2]},{id:'hwol-2013',title:'화올 2013',group:'화올',key:[2,5,2,3,4,2,2,3,3,4,5,4,5,2,3,3,5,4,4,4,5,4,4,4,2,5,5,3,3,3,3,3,3,3,3,4,2,4,4,4,2,3,2,2,2,3,5,4,2,3,2,5,5,5,3,3,4,3,5,5]},{id:'hwol-2014',title:'화올 2014',group:'화올',key:[3,2,2,3,5,4,2,3,2,5,5,4,4,5,2,5,4,5,5,3,3,4,4,2,4,4,5,3,2,5,4,4,5,5,5,4,2,3,4,2,2,4,5,2,5,3,4,5,2,3,5,5,5,4,5,4,3,3,4,5]},{id:'hwol-2015',title:'화올 2015',group:'화올',key:[3,5,5,5,3,3,3,5,4,5,4,2,2,3,4,5,4,2,2,2,4,4,2,4,2,2,5,3,3,3,3,5,3,5,5,2,3,5,4,5,3,4,4,4,2,2,3,4,5,4,5,2,2,4,5,5,3,5,3,4]},{id:'hwol-2016',title:'화올 2016',group:'화올',key:[4,5,5,2,3,5,4,5,2,3,3,4,4,5,4,5,3,2,2,2,4,3,5,2,2,3,4,5,4,5,4,5,4,3,5,2,4,3,3,5,5,3,2,5,5,3,3,4,5,5,5,4,3,4,2,5,2,2,4,4]},{id:'hwol-2017',title:'화올 2017',group:'화올',key:[5,4,2,5,5,3,4,5,2,2,2,5,4,2,5,4,4,5,5,4,3,2,4,2,4,2,5,3,5,4,4,4,2,3,5,4,3,3,5,5,4,5,5,4,3,2,3,3,2,4,4,2,5,4,3,2,2,4,4,2]},{id:'hwol-2018',title:'화올 2018',group:'화올',key:[3,5,3,2,5,4,4,5,4,2,5,2,3,4,3,2,5,2,2,4,2,2,3,5,4,5,2,5,2,4,5,3,3,1,5,4,4,3,4,3,4,5,2,3,5,5,5,4,3,4,5,2,2,4,3,4,4,3,4,2]},{id:'hwol-2019',title:'화올 2019',group:'화올',key:[3,3,4,5,4,3,4,3,2,5,2,3,4,4,3,4,2,4,2,4,2,4,2,3,5,5,2,2,2,5,3,4,2,5,3,5,5,3,5,3,5,2,3,2,2,2,3,4,4,5,3,4,4,4,3,2,2,3,4,3]},{id:'hwol-2021',title:'화올 2021',group:'화올',key:[4,2,2,3,3,4,5,4,3,5,2,3,3,5,4,4,3,3,4,4,4,3,2,5,4,3,5,2,3,2,3,4,2,5,5,4,5,5,3,4,5,3,2,5,4,5,3,4,3,5,5,2,2,3,3,5,4,2,5,2]},{id:'hwol-2022',title:'화올 2022',group:'화올',key:[4,4,4,2,4,4,4,5,2,4,4,3,4,3,4,5,3,4,2,4,4,4,4,3,5,5,3,3,5,3,3,3,2,5,3,4,2,2,4,5,4,4,4,2,2,2,5,3,4,5,2,4,3,4,2,3,3,4,2,5]},{id:'hwol-2023',title:'화올 2023',group:'화올',key:[5,5,4,5,4,3,4,3,5,5,5,2,2,2,2,4,5,3,3,4,4,2,4,2,5,5,3,2,5,4,2,2,5,3,3,3,2,4,3,3,4,5,4,2,2,4,4,4,4,4,5,5,4,4,3,2,3,4,3,3]},{id:'hwol-2024',title:'화올 2024',group:'화올',key:[5,5,4,3,5,3,5,3,3,4,2,4,2,2,5,3,4,4,2,3,3,5,2,4,4,4,2,5,2,5,5,3,3,5,4,4,3,4,3,3,2,4,2,3,5,4,2,2,2,4,3,5,3,3,2,4,5,2,5,4]},{id:'donghyung-1',title:'기출동형 1회 (2015)',group:'동형',key:[2,3,4,5,3,5,2,2,2,3,3,4,5,3,2,5,2,4,4,3,5,4,4,2,5,2,3,3,5,3,4,3,5,5,2,4,5,4,5,2,4,5,3,5,2,2,2,4,3,4,5,4,3,2,2,3,4,5,5,4]},{id:'donghyung-2',title:'기출동형 2회 (2016)',group:'동형',key:[4,3,2,2,3,5,5,2,3,4,5,2,2,4,2,2,4,3,2,4,5,5,4,4,3,4,2,3,4,3,4,4,4,3,2,5,5,5,2,2,4,5,5,3,3,5,5,4,3,2,3,2,5,4,5,3,3,2,2,3]},{id:'donghyung-3',title:'기출동형 3회 (2017)',group:'동형',key:[4,3,2,3,5,4,4,4,2,5,2,5,2,2,4,3,2,5,5,4,5,5,4,3,2,2,3,3,4,5,4,3,4,4,3,2,2,4,5,2,4,5,2,4,3,4,5,3,5,2,2,3,5,3,2,4,4,3,5,4]},{id:'donghyung-4',title:'기출동형 4회 (2013)',group:'동형',key:[5,3,4,3,2,2,4,5,4,4,2,3,2,3,4,2,5,3,5,4,4,3,5,3,3,3,3,5,5,2,3,2,3,3,4,5,4,5,3,2,3,4,5,5,2,4,2,3,3,5,4,4,2,5,3,3,2,3,5,4]},{id:'sanyeom-60',title:'산과염기 60제',group:'산과염기',key:[4,2,5,5,4,4,2,3,5,2,3,5,2,4,2,2,3,2,4,2,5,4,3,3,4,4,3,5,4,4,3,3,3,4,2,2,4,3,2,4,3,3,2,3,5,4,5,4,2,2,3,3,3,2,4,5,4,4,4,4]},{id:'kmchc-2026-1-ilban',title:'KMChC 2026 제1차 · 일반',group:'2026',key:[2,2,3,3,2,3,3,2,3,2,4,3,4,3,5,2,4,4,4,2,2,5,4,2,3,2,5,3,4,5,3,4,5,3,4,2,5,5,4,5,2,4,4,3,4,4,4,5,3,3]},{id:'kmchc-2026-1-simhwa',title:'KMChC 2026 제1차 · 심화',group:'2026',key:[5,4,2,3,2,5,3,4,5,3,4,5,3,4,2,5,5,4,5,2,4,4,3,4,4,4,5,3,3,2,4,4,3,3,4,5,2,4,4,5,4,3,4,5,4,4,3,5,3,3]},{id:'kmchc-2025-2-ilban',title:'KMChC 2025 제2차 · 일반',group:'2025',key:[4,3,3,5,5,5,3,4,4,4,3,4,5,5,4,2,3,2,3,3,3,5,5,4,2,5,2,3,5,4,4,4,3,3,4,5,3,5,3,5,4,4,4,5,2,3,4,5,5,4]},{id:'kmchc-2025-2-simhwa',title:'KMChC 2025 제2차 · 심화',group:'2025',key:[3,3,3,2,4,4,4,4,3,4,4,5,5,2,3,4,4,3,3,5,4,2,3,3,3,4,4,4,3,3,3,5,2,3,5,3,5,4,3,4,4,2,2,3,5,5,4,5,4,5]},{id:'kmchc-2025-1-ilban',title:'KMChC 2025 제1차 · 일반',group:'2025',key:[2,4,3,2,3,5,5,5,3,4,4,3,5,5,2,3,4,4,5,3,5,4,5,5,2,2,3,3,4,3,3,4,3,5,5,5,3,4,4,3,5,5,5,2,3,3,4,5,4,4]},{id:'kmchc-2025-1-simhwa',title:'KMChC 2025 제1차 · 심화',group:'2025',key:[4,5,5,2,5,2,3,3,4,3,4,3,3,5,5,3,4,5,4,3,2,5,5,5,3,3,4,5,4,4,2,3,4,4,4,5,3,2,3,3,5,3,4,3,4,2,5,5,3,4]},{id:'kmchc-2024-2',title:'KMChC 2024 제2차',group:'2024',key:[3,2,4,4,5,4,5,5,5,4,3,4,5,2,3,5,3,2,2,4,5,3,3,2,4,4,2,2,3,3,5,2,3,4,3,5,2,5,3,2,2,5,2,2,5,4,4,4,2,4,3,4,3,2,3,3,5,5,3,3]},{id:'kmchc-2024-1',title:'KMChC 2024 제1차',group:'2024',key:[5,5,4,3,5,3,5,3,3,4,2,4,2,2,5,3,4,4,2,3,3,5,2,4,4,4,2,5,2,5,5,3,3,5,4,4,3,4,3,3,2,4,2,3,5,4,2,2,2,4,3,5,3,3,2,4,5,2,5,4]},{id:'kmchc-2019',title:'KMChC 2019',group:'이전',key:[3,3,4,5,4,3,4,3,2,5,2,3,4,4,3,4,2,4,2,4,2,4,1,3,5,5,2,2,2,5,3,4,2,5,3,5,5,3,5,3,5,1,3,2,2,2,3,4,4,5,3,4,4,4,3,2,2,3,4,3]},{id:'kmchc-2018',title:'KMChC 2018',group:'이전',key:[3,5,3,2,5,4,4,5,4,2,5,2,3,4,3,2,5,2,2,4,2,2,3,5,4,5,2,5,2,4,5,3,3,1,5,4,4,3,4,3,4,5,2,3,5,5,5,4,3,4,5,2,2,4,3,4,4,3,4,2]}];
+let DB={roster:[],resp:{}}, EXAM=EXAMS[0], OVER=false, RES=null;
+const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const sig=z=>1/(1+Math.exp(-z));const cP=p=>Math.max(1e-4,Math.min(1-1e-4,p));
+function buildExamSel(){const g={};EXAMS.forEach((e,i)=>(g[e.group]=g[e.group]||[]).push([e,i]));let h='';
+ Object.keys(g).forEach(gr=>{h+='<optgroup label="'+esc(gr)+'">'+g[gr].map(([e,i])=>'<option value="'+i+'">'+esc(e.title)+'</option>').join('')+'</optgroup>';});
+ document.getElementById('exam').innerHTML=h;}
+function fit1PLm(rows,nP,nI,iters){let theta=new Array(nP).fill(0),b=new Array(nI).fill(0);
+ for(let it=0;it<iters;it++){
+  for(let p=0;p<nP;p++){let g=0,h=0;for(let i=0;i<nI;i++){const x=rows[p][i];if(x===null)continue;const pr=cP(sig(theta[p]-b[i]));g+=x-pr;h+=pr*(1-pr);}g-=theta[p]/2.25;h+=1/2.25;if(h>0)theta[p]=Math.max(-4,Math.min(4,theta[p]+g/h));}
+  const mt=theta.reduce((a,c)=>a+c,0)/nP;for(let p=0;p<nP;p++)theta[p]-=mt;
+  for(let i=0;i<nI;i++){let g=0,h=0;for(let p=0;p<nP;p++){const x=rows[p][i];if(x===null)continue;const pr=cP(sig(theta[p]-b[i]));g+=pr-x;h+=pr*(1-pr);}g-=b[i]/4;h+=1/4;if(h>0)b[i]=Math.max(-4,Math.min(4,b[i]+g/h));}}
+ return {theta,b};}
+function buildCells(){const items=[];Object.keys(DB.resp).forEach(ex=>{const e=EXAMS.find(z=>z.id===ex);if(!e)return;e.key.forEach((k,i)=>items.push({ex,i,key:k}));});
+ const sids=DB.roster.map(s=>s.sid);const X=sids.map(sid=>items.map(it=>{const r=DB.resp[it.ex]&&DB.resp[it.ex][sid];if(!r||!r[it.i])return null;return r[it.i]===it.key?1:0;}));
+ return {X,sids,items,nP:sids.length,nI:items.length};}
+function isoFit(pairs){const s=pairs.slice().sort((a,b)=>a.p-b.p);const blk=[];
+ for(const pt of s){let b={sum:pt.y,cnt:1,xmax:pt.p};while(blk.length && blk[blk.length-1].sum/blk[blk.length-1].cnt > b.sum/b.cnt){const pr=blk.pop();b.sum+=pr.sum;b.cnt+=pr.cnt;}blk.push(b);}
+ return blk;}
+function isoApply(blk,p){for(const b of blk){if(p<=b.xmax)return b.sum/b.cnt;}return blk.length?blk[blk.length-1].sum/blk[blk.length-1].cnt:p;}
+function bins(pairs,nb){const B=[];for(let k=0;k<nb;k++)B.push({lo:k/nb,hi:(k+1)/nb,n:0,sp:0,sy:0});
+ pairs.forEach(pt=>{let k=Math.min(nb-1,Math.floor(pt.p*nb));B[k].n++;B[k].sp+=pt.p;B[k].sy+=pt.y;});
+ return B.map(b=>({...b,mp:b.n?b.sp/b.n:0,my:b.n?b.sy/b.n:0}));}
+function ece(B,N){let e=0,m=0;B.forEach(b=>{if(!b.n)return;const d=Math.abs(b.my-b.mp);e+=(b.n/N)*d;m=Math.max(m,d);});return {ece:e,mce:m};}
+function brier(pairs){return pairs.reduce((a,p)=>a+(p.p-p.y)*(p.p-p.y),0)/pairs.length;}
+function run(){if(!DB.roster.length){RES=null;render();return;}
+ const {X,sids,items,nP,nI}=buildCells();if(nP<5||nI<10){RES=null;render();return;}
+ const train=X.map(r=>r.slice());const test=[];
+ for(let p=0;p<nP;p++)for(let i=0;i<nI;i++){if(X[p][i]!=null && Math.random()<0.25){test.push({p,i,y:X[p][i]});train[p][i]=null;}}
+ const fit=fit1PLm(train,nP,nI,50);
+ let pairs=test.map(t=>{let pr=cP(sig(fit.theta[t.p]-fit.b[t.i]));if(OVER){pr=cP(sig(Math.log(pr/(1-pr))/0.45));}return {p:pr,y:t.y};});
+ // 2겹 등위회귀 보정
+ const half=pairs.slice();for(let i=half.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[half[i],half[j]]=[half[j],half[i]];}
+ const A=half.slice(0,Math.floor(half.length/2)),Bf=half.slice(Math.floor(half.length/2));
+ const mapA=isoFit(A),mapB=isoFit(Bf);
+ const cal=[...A.map(p=>({p:isoApply(mapB,p.p),y:p.y})),...Bf.map(p=>({p:isoApply(mapA,p.p),y:p.y}))];
+ const N=pairs.length;const Braw=bins(pairs,10),Bcal=bins(cal,10);
+ const raw=ece(Braw,N),calm=ece(Bcal,N);
+ RES={pairs,cal,Braw,Bcal,raw,calm,brierRaw:brier(pairs),brierCal:brier(cal),N,nStud:nP,mapFull:isoFit(pairs)};render();}
+function reliabilitySVG(B,N){const W=380,H=300,pad=38;const x=v=>pad+v*(W-2*pad);const y=v=>H-pad-v*(H-2*pad);
+ let g='<svg viewBox="0 0 '+W+' '+H+'">';
+ g+='<rect x="'+pad+'" y="'+pad+'" width="'+(W-2*pad)+'" height="'+(H-2*pad)+'" fill="#fcfbf8" stroke="#eee"/>';
+ for(let t=0;t<=1.001;t+=0.25){g+='<line x1="'+x(t)+'" y1="'+pad+'" x2="'+x(t)+'" y2="'+(H-pad)+'" stroke="#f0ece4"/><line x1="'+pad+'" y1="'+y(t)+'" x2="'+(W-pad)+'" y2="'+y(t)+'" stroke="#f0ece4"/>';
+   g+='<text x="'+x(t)+'" y="'+(H-pad+13)+'" font-size="8" fill="#999" text-anchor="middle">'+t.toFixed(2)+'</text><text x="'+(pad-5)+'" y="'+(y(t)+3)+'" font-size="8" fill="#999" text-anchor="end">'+t.toFixed(2)+'</text>';}
+ g+='<line x1="'+x(0)+'" y1="'+y(0)+'" x2="'+x(1)+'" y2="'+y(1)+'" stroke="#bbb" stroke-dasharray="4,3"/>';
+ // bars: gap between pred and obs
+ let pts='';B.forEach(b=>{if(!b.n)return;const mx=x(b.mp),my=y(b.my);
+   g+='<line x1="'+mx+'" y1="'+y(b.mp)+'" x2="'+mx+'" y2="'+my+'" stroke="#C0603A" stroke-width="1" opacity="0.4"/>';
+   const r=3+Math.sqrt(b.n)/Math.sqrt(N)*16;g+='<circle cx="'+mx+'" cy="'+my+'" r="'+r.toFixed(1)+'" fill="#0E5A4C" opacity="0.55"/>';pts+=mx+','+my+' ';});
+ g+='<polyline points="'+pts+'" fill="none" stroke="#0E5A4C" stroke-width="1.5" opacity="0.5"/>';
+ g+='<text x="'+(W/2)+'" y="'+(H-6)+'" font-size="9" fill="#888" text-anchor="middle">예측 확률 →</text>';
+ g+='<text x="12" y="'+(H/2)+'" font-size="9" fill="#888" text-anchor="middle" transform="rotate(-90 12 '+(H/2)+')">실제 정답률</text>';
+ return g+'</svg>';}
+function render(){const R=document.getElementById('results');
+ if(!RES){R.innerHTML='<div class="hint">충분한 응답이 필요합니다(학생 5명·문항 10개 이상). 데모 코호트를 생성하거나 여러 시험의 responses.json을 불러오세요.</div>';return;}
+ const {Braw,Bcal,raw,calm,brierRaw,brierCal,N,nStud}=RES;
+ const sparse=Braw.filter(b=>b.n>0 && b.n<5).length, eceClass=raw.ece<0.05?'good':raw.ece<0.1?'':'bad';
+ let h='';
+ if(OVER)h+='<div class="warn">과신 주입 모드: 예측 확률을 인위적으로 0/1에 가깝게 날카롭게 했습니다. 신뢰도 곡선이 대각선에서 S자로 벗어나는 과신을 보여주고, 등위회귀 보정이 이를 교정합니다.</div>';
+ if(nStud<20 || N<200)h+='<div class="warn">소표본 경고: 교차검증 표본('+N+'개 셀, 학생 '+nStud+'명)이 작아 보정 추정 자체가 불확실합니다. 막대 크기가 작은 구간은 신뢰도가 낮습니다. 표본이 늘면 곡선이 안정됩니다.</div>';
+ h+='<div class="bar"><div class="stat"><div class="v">'+N+'</div><div class="k">검증 셀 수(가린 응답)</div></div>'+
+   '<div class="stat '+eceClass+'"><div class="v">'+(raw.ece*100).toFixed(1)+'%</div><div class="k">ECE (보정 오차)</div><div class="s2" style="color:var(--muted)">'+(raw.ece<0.05?'잘 보정됨':raw.ece<0.1?'보통':'미보정')+'</div></div>'+
+   '<div class="stat"><div class="v">'+(raw.mce*100).toFixed(1)+'%</div><div class="k">MCE (최대 오차)</div></div>'+
+   '<div class="stat good"><div class="v">'+(calm.ece*100).toFixed(1)+'%</div><div class="k">보정 후 ECE</div><div class="s2" style="color:var(--muted)">isotonic</div></div>'+
+   '<div class="stat"><div class="v">'+brierRaw.toFixed(3)+'</div><div class="k">Brier 점수</div></div></div>';
+ h+='<div class="grid2"><div class="panel"><h2>신뢰도 곡선 (보정 전) <span class="c">대각선=완벽</span></h2>'+reliabilitySVG(Braw,N)+
+   '<div class="legend"><span><i style="background:#bbb"></i>완벽 보정(대각선)</span><span>● 구간(크기=표본수)</span><span><i style="background:#C0603A"></i>오차(세로선)</span></div></div>'+
+   '<div class="panel"><h2>신뢰도 곡선 (등위회귀 보정 후) <span class="c">대각선에 근접</span></h2>'+reliabilitySVG(Bcal,N)+'<div class="hint">보정 후 점들이 대각선에 더 붙으면 확률이 교정된 것입니다.</div></div></div>';
+ // 신뢰 등급 표
+ h+='<div class="panel"><h2>진단 신뢰 등급 <span class="c">보정 후 확률 구간별 실제 정확도</span></h2><table class="tbl"><tr><th>예측 확률 구간</th><th>실제 정답률</th><th>표본</th><th>신뢰 등급</th></tr>';
+ Bcal.forEach(b=>{if(!b.n)return;const dev=Math.abs(b.my-b.mp);const gr=b.n>=15&&dev<0.08?['hi','높음']:b.n>=8&&dev<0.15?['mid','중간']:['lo','낮음'];
+   h+='<tr><td class="mono">'+(b.lo*100).toFixed(0)+'~'+(b.hi*100).toFixed(0)+'%</td><td class="mono">'+(b.my*100).toFixed(0)+'%</td><td class="mono">'+b.n+'</td><td><span class="grade '+gr[0]+'">'+gr[1]+'</span></td></tr>';});
+ h+='</table><div class="hint">확신도가 높은(0.8+) 진단이 실제로도 그만큼 맞으면 신뢰 등급이 높습니다. 표본이 적거나 예측·실제 괴리가 크면 낮음 · 그 구간 진단은 신중히 다뤄야 합니다.</div></div>';
+ R.innerHTML=h;}
+function nextSid(){let n=1;const u=new Set(DB.roster.map(r=>r.sid));while(u.has('S'+String(n).padStart(2,'0')))n++;return 'S'+String(n).padStart(2,'0');}
+function genDemo(){DB={roster:[],resp:{}};const group=EXAM.group;const exes=EXAMS.filter(e=>e.group===group);const useEx=exes.length?exes:EXAMS.slice(0,8);
+ for(let st=0;st<28;st++){const sid=nextSid();DB.roster.push({sid});const ability=Math.random()*3-1.5;
+   useEx.forEach(e=>{const row=e.key.map(k=>{const b=Math.random()*2.4-1.2;const pr=cP(sig(ability-b));if(Math.random()<pr)return k;let w;do{w=1+Math.floor(Math.random()*5);}while(w===k);return w;});
+     DB.resp[e.id]=DB.resp[e.id]||{};DB.resp[e.id][sid]=row;});}
+ document.getElementById('status').textContent='데모 28명 · '+useEx.length+'개 시험 · 교차검증 중...';setTimeout(()=>{run();document.getElementById('status').textContent='데모 28명 · '+useEx.length+'개 시험 · 완료';},10);}
+function importJSON(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();
+ r.onload=()=>{try{const d=JSON.parse(r.result);DB.roster=d.roster||[];DB.resp={};if(d.exams)Object.keys(d.exams).forEach(ex=>{DB.resp[ex]=d.exams[ex].responses||{};});
+   document.getElementById('status').textContent='불러옴: '+DB.roster.length+'명 · 교차검증 중...';setTimeout(run,10);}catch(e){alert('실패: '+e.message);}};
+ r.readAsText(f);ev.target.value='';}
+document.getElementById('exam').addEventListener('change',ev=>{EXAM=EXAMS[+ev.target.value];});
+buildExamSel();render();
+</script>
+</body></html>

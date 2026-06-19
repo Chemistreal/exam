@@ -1,0 +1,98 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5"><title>서술형 진단 · CHEMISTREAL</title><style>
+:root{--cream:#FBFAF6;--paper:#fff;--ink:#23201b;--ink-2:#5a564d;--muted:#8a8578;--teal:#0E5A4C;--brass:#B08D57;--line:#E8E4DA;--ms:#C0603A;--ok:#2E7D6B;--ok-bg:#eef5f2;--mono:ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:-apple-system,"Noto Sans KR",sans-serif;line-height:1.6}
+.serif{font-family:"Nanum Myeongjo",Georgia,serif}
+header{background:linear-gradient(180deg,#0E5A4C,#0b4a3f);color:#fff;padding:16px;text-align:center}
+header .logo{font-size:11px;letter-spacing:.18em;opacity:.82;font-weight:600}header h1{margin:5px 0 3px;font-size:20px}header .sub{font-size:11.5px;opacity:.86}
+.wrap{max-width:1080px;margin:0 auto;padding:12px}
+.note{background:#fff;border:1px solid var(--line);border-left:3px solid var(--brass);border-radius:10px;padding:11px 14px;font-size:12.5px;color:var(--ink-2);margin-bottom:12px}.note b{color:var(--ink)}
+.draft{background:#fdf6ec;border:1px solid #eed9cd;border-left:3px solid var(--ms);border-radius:9px;padding:9px 13px;font-size:12px;color:#8a5a3a;margin-bottom:12px}
+.dims{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.dim{flex:1;min-width:150px;background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 11px;border-top:3px solid}
+.dim .dn{font-size:11.5px;font-weight:700;margin-bottom:2px}.dim .dd{font-size:10.5px;color:var(--ink-2)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.tabs button{font-size:11.5px;font-weight:600;border:1px solid var(--line);background:#faf8f1;color:var(--ink-2);padding:6px 12px;border-radius:8px;cursor:pointer}
+.tabs button.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+.panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.panel h2{font-size:13.5px;margin:0 0 10px;display:flex;justify-content:space-between;align-items:center}.panel h2 .c{font-size:11px;color:var(--muted);font-weight:600}
+.qbody{background:#faf8f1;border:1px solid var(--line);border-radius:9px;padding:10px 13px;font-size:12.5px;margin-bottom:12px}.qbody .ql{font-size:10px;font-weight:700;color:var(--muted);margin-bottom:3px}
+.rstep{border:1px solid var(--line);border-radius:9px;padding:9px 12px;margin-bottom:8px}
+.rstep .rh{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.rstep .rnum{width:22px;height:22px;border-radius:50%;background:var(--teal);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:none}
+.rstep .rd{flex:1;font-size:12.5px;font-weight:600}.rstep .rp{font-size:10px;font-weight:700;background:var(--ok-bg);color:#1c5a4c;border-radius:8px;padding:1px 8px;flex:none}
+.rstep .rexp{font-size:11.5px;color:var(--ink-2);margin:3px 0 3px 30px}.rstep .rexp b{color:var(--teal)}
+.rstep .rerr{font-size:11px;color:#8a5a3a;margin-left:30px}.rstep .rerr b{color:var(--ms)}
+.scorebox{margin-top:10px}
+textarea{width:100%;min-height:140px;border:1px solid var(--line);border-radius:9px;padding:10px 12px;font-size:12.5px;font-family:inherit;resize:vertical;line-height:1.5}
+.aibtn{margin-top:8px;font-size:12.5px;font-weight:700;border:1px solid var(--teal);background:var(--teal);color:#fff;padding:9px 16px;border-radius:9px;cursor:pointer}
+.aibtn:disabled{opacity:0.5;cursor:default}
+.aihint{font-size:11px;color:var(--muted);margin-top:6px}
+.result{margin-top:14px}
+.rtotal{display:flex;align-items:center;gap:12px;background:var(--ok-bg);border:1px solid #cfe3dc;border-radius:9px;padding:11px 14px;margin-bottom:10px}
+.rtotal .big{font-size:24px;font-weight:800;font-family:var(--mono);color:var(--teal)}.rtotal .ov{font-size:12px;color:var(--ink-2);flex:1}
+.sline{display:flex;align-items:flex-start;gap:9px;padding:8px 4px;border-bottom:1px solid #f3efe6}
+.sline .sn{width:22px;height:22px;border-radius:50%;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:none;color:#fff}
+.sline .sbody{flex:1}.sline .spts{font-family:var(--mono);font-size:11px;font-weight:700;flex:none}
+.sline .serr{font-size:9px;font-weight:700;border-radius:5px;padding:1px 6px;margin-left:6px}
+.serr.개념{background:#fbe3e3;color:#a32}.serr.절차{background:#e6eef6;color:#2c5878}.serr.계산{background:#fdf0d8;color:#8a6a1e}.serr.표현{background:#efeae2;color:#7a756a}.serr.없음{background:#e3efe9;color:#1c5a4c}
+.sline .sfb{font-size:11.5px;color:var(--ink-2);margin-top:2px}
+.err-msg{background:#fbece7;border:1px solid #eed3c8;border-radius:8px;padding:10px 13px;font-size:12px;color:#8a3a1f;margin-top:10px}
+.hint{font-size:11px;color:var(--muted)}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:20px}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:sp 0.7s linear infinite;vertical-align:-2px;margin-right:6px}@keyframes sp{to{transform:rotate(360deg)}}
+</style></head>
+<body><nav style="background:#08352d;padding:7px 16px;display:flex;align-items:center;justify-content:space-between;font-size:11.5px;font-family:-apple-system,sans-serif"><a href="dashboard.html" style="color:#fff;opacity:0.92;text-decoration:none;font-weight:600">&#8592; CHEMISTREAL 허브</a><span style="color:#fff;opacity:0.5;font-size:10px;letter-spacing:.05em">진단 R&amp;D</span></nav>
+<header><div class="logo">CHEMISTREAL · 진단 R&amp;D</div><h1 class="serif">서술형 진단</h1><div class="sub">단계 루브릭 · 부분 점수 · 오류 유형 · AI 채점 · 진단 피드백</div></header>
+<div class="wrap">
+<div class="note"><b>S20 서술형 진단 (145단계의 종착점):</b> 객관식은 "정답 여부"만 말하지만, 서술형은 <b>추론이 어디서 깨졌는지</b>를 드러냅니다. 풀이를 추론 단계로 분해하고, 단계마다 배점·기대·흔한 오류를 정한 <b>루브릭</b>으로 부분 점수를 줍니다. 학생 답안을 붙여넣고 <b>AI 채점</b>(🪄)을 누르면 Claude가 단계별 점수·오류 유형(개념/절차/계산/표현)·진단 피드백을 매깁니다. 이로써 진단의 마지막, 추론 과정 자체의 진단까지 닫힙니다.</div>
+<div class="draft"><b>검토 요망:</b> 루브릭은 Claude 1차 초안이며, AI 채점은 보조 도구입니다. 배점·기대 답안은 선생님 기준으로 조정하고, AI 채점 결과는 반드시 선생님이 최종 확인하세요. <b>AI 채점은 Claude 아티팩트 환경에서 작동합니다</b>(Claude API 호출).</div>
+<div class="dims" id="dims"></div>
+<div class="tabs" id="tabs"></div>
+<div class="panel" id="rubric"></div>
+<div class="panel" id="scorer"></div>
+</div>
+<footer>CHEMISTREAL 진단 R&amp;D · 서술형 진단 · 145단계 품질 로드맵 완료</footer>
+<script>
+const DIMS=[{"n": "정확성", "d": "최종 답·중간 결과가 맞는가", "col": "#0E5A4C"}, {"n": "추론 타당성", "d": "단계 간 논리가 옳게 이어지는가", "col": "#C0603A"}, {"n": "표현·표기", "d": "식·단위·유효숫자·부호 규약", "col": "#4A7C9E"}, {"n": "개념 적용", "d": "올바른 원리를 옳은 조건에 적용했는가", "col": "#B08D57"}, {"n": "의사소통", "d": "근거를 명확히 서술했는가", "col": "#9E7B3F"}], RUBRICS=[{"id": "r1", "area": "열화학", "title": "보른-하버 순환으로 격자 에너지", "total": 10, "problem": "NaCl(s)의 격자 에너지 U를 보른-하버 순환으로 구하라. 주어진 값: Na 승화열 ΔHsub, Na 1차 이온화에너지 IE, Cl₂ 결합 해리에너지 D, Cl 전자친화도 EA, NaCl 표준 생성 엔탈피 ΔHf.", "steps": [{"desc": "보른-하버 순환을 옳은 단계·순서로 구성", "points": 3, "expected": "Na(s)→Na(g) 승화, Na(g)→Na⁺(g) 이온화, ½Cl₂→Cl 해리, Cl→Cl⁻ 전자친화도, Na⁺(g)+Cl⁻(g)→NaCl(s) 격자", "errors": ["½Cl₂ 계수 누락", "단계 빠뜨림", "순환을 닫지 않음"]}, {"desc": "각 항의 부호를 옳게 지정", "points": 2, "expected": "승화·이온화·해리는 흡열(+), 전자친화도·격자·생성은 발열(−)", "errors": ["전자친화도 부호 혼동", "격자 에너지 부호", "생성 엔탈피 부호"]}, {"desc": "헤스 법칙으로 순환식 세우기", "points": 2, "expected": "ΔHf = ΔHsub + IE + ½D + EA + U", "errors": ["½ 누락", "항 빠뜨림", "부호 불일치"]}, {"desc": "격자 에너지 U로 정리·계산", "points": 2, "expected": "U = ΔHf − (ΔHsub + IE + ½D + EA), 수치 대입", "errors": ["이항 부호 오류", "산술 실수"]}, {"desc": "단위·부호 명시", "points": 1, "expected": "kJ/mol, U는 발열(음수) 또는 정의 명시", "errors": ["단위 누락", "부호 미명시"]}]}, {"id": "r2", "area": "산과 염기", "title": "약산의 pH와 근사 검증", "total": 10, "problem": "0.10 M 아세트산(Ka=1.8×10⁻⁵)의 pH를 구하고, 사용한 근사의 타당성을 검증하라.", "steps": [{"desc": "ICE 표(또는 평형 변화) 작성", "points": 2, "expected": "CH₃COOH ⇌ H⁺ + CH₃COO⁻, 변화 −x/+x/+x, 평형 (0.10−x)/x/x", "errors": ["화학종 누락", "변화량 부호"]}, {"desc": "Ka 평형식 세우기", "points": 2, "expected": "Ka = x²/(0.10−x) = 1.8×10⁻⁵", "errors": ["분모 틀림", "농도 대입 오류"]}, {"desc": "근사 적용과 명시", "points": 2, "expected": "0.10 ≫ x이므로 0.10−x ≈ 0.10으로 단순화(근사임을 밝힘)", "errors": ["근사 없이 진행", "근사를 밝히지 않음"]}, {"desc": "x를 풀고 pH 계산", "points": 2, "expected": "x = √(Ka·0.10) ≈ 1.34×10⁻³, pH = −log x ≈ 2.87", "errors": ["pH 정의 오용", "산술 실수", "로그 계산"]}, {"desc": "5% 규칙으로 근사 검증", "points": 2, "expected": "x/0.10 ≈ 1.3% < 5%이므로 근사 타당", "errors": ["검증 생략", "기준 잘못 적용"]}]}, {"id": "r3", "area": "반응 속도", "title": "메커니즘에서 속도식 유도", "total": 10, "problem": "다음 메커니즘에서 속도식을 유도하고 전체 차수를 구하라. 단계 1(빠른 평형): A + B ⇌ C, 단계 2(느림, 율속): C + B → D.", "steps": [{"desc": "율속 단계 식별과 그 속도식", "points": 2, "expected": "느린 단계 2가 율속, rate = k₂[C][B]", "errors": ["단계 1을 율속으로 오인", "속도식 틀림"]}, {"desc": "중간체 식별", "points": 1, "expected": "C는 중간체이므로 최종 속도식에 남길 수 없음", "errors": ["중간체 C를 그대로 둠"]}, {"desc": "예비 평형으로 중간체 농도 표현", "points": 3, "expected": "K₁ = [C]/([A][B]) → [C] = K₁[A][B]", "errors": ["평형식 역수", "정상상태와 혼동"]}, {"desc": "대입하여 최종 속도식", "points": 2, "expected": "rate = k₂K₁[A][B]²", "errors": ["대입 오류", "지수 실수"]}, {"desc": "각 반응물 차수와 전체 차수", "points": 2, "expected": "A 1차, B 2차, 전체 3차", "errors": ["차수 계산 오류", "분자도와 혼동"]}]}, {"id": "r4", "area": "산화 환원", "title": "네른스트 식으로 비표준 전위", "total": 10, "problem": "주어진 두 반쪽 표준 전위와 비표준 농도(25℃)에서 전지 전위 E와 자발성을 구하라.", "steps": [{"desc": "반쪽 반응·전극 식별과 n 결정", "points": 2, "expected": "환원전극(환원)·산화전극(산화) 구분, 이동 전자 수 n", "errors": ["음극/양극 혼동", "n 오류"]}, {"desc": "표준 전지 전위 E°cell 계산", "points": 2, "expected": "E°cell = E°(환원전극) − E°(산화전극), 둘 다 환원전위 기준", "errors": ["부호 규약 혼동"]}, {"desc": "반응 지수 Q 작성", "points": 2, "expected": "Q = [생성물]^계수/[반응물]^계수, 순수 고체·액체 제외", "errors": ["Q 역수", "고체 포함", "계수 지수 누락"]}, {"desc": "네른스트 식 적용", "points": 2, "expected": "E = E°cell − (0.0592/n)·log Q (25℃)", "errors": ["n 위치", "log/ln 혼동", "상수 오류"]}, {"desc": "계산과 자발성 판단", "points": 2, "expected": "E 수치 계산, E>0이면 자발(ΔG<0)", "errors": ["산술 실수", "자발성 판단 오류"]}]}], AC={"열화학": "#B5564E", "산과 염기": "#9E7B3F", "반응 속도": "#A05E7C", "산화 환원": "#5C7A4A"};
+let sel=RUBRICS[0].id, scoring=false;
+const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const ptcol=(a,m)=>{const r=a/m;return r>=0.99?'#2E7D6B':r>=0.5?'#B08D57':'#C0603A';};
+function renderDims(){document.getElementById('dims').innerHTML=DIMS.map(d=>'<div class="dim" style="border-top-color:'+d.col+'"><div class="dn">'+esc(d.n)+'</div><div class="dd">'+esc(d.d)+'</div></div>').join('');}
+function renderTabs(){document.getElementById('tabs').innerHTML=RUBRICS.map(r=>'<button class="'+(r.id===sel?'on':'')+'" onclick="sel=\''+r.id+'\';renderTabs();renderRubric();renderScorer()" style="'+(r.id===sel?'background:'+AC[r.area]+';border-color:'+AC[r.area]:'')+'">'+esc(r.area)+'</button>').join('');}
+function renderRubric(){const r=RUBRICS.find(x=>x.id===sel);
+ let h='<h2>'+esc(r.title)+' <span class="c">총 '+r.total+'점</span></h2>';
+ h+='<div class="qbody"><div class="ql">문제</div>'+esc(r.problem)+'</div>';
+ h+=r.steps.map((s,i)=>'<div class="rstep"><div class="rh"><span class="rnum">'+(i+1)+'</span><span class="rd">'+esc(s.desc)+'</span><span class="rp">'+s.points+'점</span></div>'+
+   '<div class="rexp"><b>기대:</b> '+esc(s.expected)+'</div><div class="rerr"><b>흔한 오류:</b> '+s.errors.map(esc).join(' · ')+'</div></div>').join('');
+ document.getElementById('rubric').innerHTML=h;}
+function renderScorer(){const r=RUBRICS.find(x=>x.id===sel);
+ document.getElementById('scorer').innerHTML='<h2>AI 채점 <span class="c">🪄 Claude API</span></h2>'+
+   '<div class="hint" style="margin-bottom:6px">학생의 서술형 답안을 붙여넣으세요. AI가 위 루브릭에 따라 단계별로 채점합니다.</div>'+
+   '<textarea id="answer" placeholder="예: 보른-하버 순환을 그리면... ΔHf = ΔHsub + IE + ... 따라서 U = ..."></textarea>'+
+   '<button class="aibtn" id="aibtn" onclick="aiScore()">🪄 AI 채점</button>'+
+   '<div class="aihint">AI 채점은 보조이며 최종 판단은 선생님 몫입니다. Claude 아티팩트 환경에서 작동합니다.</div>'+
+   '<div class="result" id="result"></div>';}
+async function aiScore(){const r=RUBRICS.find(x=>x.id===sel);const answer=document.getElementById('answer').value;
+ if(!answer.trim()){document.getElementById('result').innerHTML='<div class="err-msg">학생 답안을 입력하세요.</div>';return;}
+ if(scoring)return;scoring=true;const btn=document.getElementById('aibtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span>채점 중...';
+ document.getElementById('result').innerHTML='';
+ const rubricText=r.steps.map((s,i)=>'단계 '+(i+1)+' ('+s.points+'점): '+s.desc+'\n  기대 답안: '+s.expected+'\n  흔한 오류: '+s.errors.join(', ')).join('\n');
+ const prompt='당신은 화학 올림피아드 서술형 답안을 채점하는 전문 채점자입니다. 아래 루브릭에 따라 학생 답안을 단계별로 채점하세요.\n\n[문제]\n'+r.problem+'\n\n[루브릭] (총 '+r.total+'점)\n'+rubricText+'\n\n[학생 답안]\n'+answer+'\n\n각 단계마다 학생이 받을 점수(0부터 배점까지), 오류 유형(없음/개념/절차/계산/표현 중 하나), 한 줄 진단 피드백을 매기세요. 학생이 명시적으로 쓰지 않은 단계는 0점 처리하고 피드백에 누락을 적으세요.\n반드시 아래 JSON 형식으로만 응답하세요. 다른 텍스트나 마크다운 코드블록 없이 순수 JSON만:\n{"steps":[{"n":1,"awarded":2,"max":3,"error":"개념","feedback":"한 줄 피드백"}],"total":7,"overall":"전체 진단 한두 문장(어디서 추론이 깨졌는지)"}';
+ try{
+  const resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
+  const data=await resp.json();
+  const text=(data.content||[]).map(i=>i.text||"").join("");
+  const clean=text.replace(/```json/g,"").replace(/```/g,"").trim();
+  const res=JSON.parse(clean);
+  renderResult(res,r.total);
+ }catch(e){
+  document.getElementById('result').innerHTML='<div class="err-msg">AI 채점 호출에 실패했습니다: '+esc(e.message)+'<br>이 기능은 Claude 아티팩트 환경에서 작동합니다. 루브릭으로 수동 채점하실 수 있습니다.</div>';
+ }
+ scoring=false;btn.disabled=false;btn.innerHTML='🪄 AI 채점';}
+function renderResult(res,total){const t=res.total!=null?res.total:(res.steps||[]).reduce((a,s)=>a+(s.awarded||0),0);
+ let h='<div class="rtotal"><div class="big">'+t+'/'+total+'</div><div class="ov">'+esc(res.overall||'')+'</div></div>';
+ h+=(res.steps||[]).map(s=>{const et=s.error||'없음';return '<div class="sline"><span class="sn" style="background:'+ptcol(s.awarded||0,s.max||1)+'">'+s.n+'</span><div class="sbody"><span style="font-weight:600;font-size:12.5px">단계 '+s.n+'</span><span class="serr '+esc(et)+'">'+esc(et)+'</span><div class="sfb">'+esc(s.feedback||'')+'</div></div><span class="spts" style="color:'+ptcol(s.awarded||0,s.max||1)+'">'+(s.awarded!=null?s.awarded:'?')+'/'+(s.max!=null?s.max:'?')+'</span></div>';}).join('');
+ document.getElementById('result').innerHTML=h;}
+renderDims();renderTabs();renderRubric();renderScorer();
+</script>
+</body></html>
