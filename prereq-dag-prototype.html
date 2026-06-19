@@ -1,0 +1,248 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5"><title>선수 개념 DAG · 근본 원인 진단 프로토타입</title><style>
+:root{--cream:#FBFAF6;--paper:#fff;--ink:#23201b;--ink-2:#5a564d;--muted:#8a8578;--teal:#0E5A4C;--teal-d:#3A7A6B;--brass:#B08D57;--line:#E8E4DA;--ms:#C0603A;--cobalt:#3F5C8C;--ok-bg:#eef5f2;--mono:ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:-apple-system,"Noto Sans KR",sans-serif;line-height:1.55}
+.serif{font-family:"Nanum Myeongjo",Georgia,serif}
+header{background:linear-gradient(180deg,#0E5A4C,#0b4a3f);color:#fff;padding:22px 18px;text-align:center}
+header .logo{font-size:11.5px;letter-spacing:.18em;opacity:.82;font-weight:600}
+header h1{margin:6px 0 4px;font-size:21px}header .sub{font-size:12px;opacity:.86}
+main{max-width:1080px;margin:0 auto;padding:16px 14px 60px}
+.note{background:#fff;border:1px solid var(--line);border-left:3px solid var(--brass);border-radius:9px;padding:12px 15px;font-size:13px;color:var(--ink-2);margin:14px 0}
+.note b{color:var(--ink)}
+.grid{display:grid;grid-template-columns:1fr 1.15fr;gap:16px}
+@media(max-width:820px){.grid{grid-template-columns:1fr}}
+.panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px 16px;margin-bottom:14px}
+.panel h2{font-size:14px;margin:0 0 11px;display:flex;align-items:center;gap:8px}
+.panel h2 .b{font-family:var(--mono);font-size:11px;font-weight:700;color:#fff;background:var(--teal);width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center}
+.presets{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.presets button{font-size:11.5px;font-weight:600;border:1px solid var(--line);background:#faf8f1;color:var(--ink);padding:6px 11px;border-radius:16px;cursor:pointer}
+.presets button:hover{border-color:var(--teal);color:var(--teal)}
+.presets button.clr{background:#fbf2ec;border-color:#e6d2c8;color:var(--ms)}
+.area{margin:9px 0}
+.area .ah{font-size:11.5px;font-weight:700;letter-spacing:.02em;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{font-size:11.5px;border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 8px;cursor:pointer;user-select:none;display:flex;align-items:center;gap:5px;transition:all .12s}
+.chip .n{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.chip.on{background:#fbece7;border-color:var(--ms);color:#8f3a1f}
+.chip.on .n{color:var(--ms)}
+/* report block */
+.report{background:#fff;border:1px solid var(--line);border-radius:12px;padding:0;overflow:hidden}
+.rhead{background:linear-gradient(180deg,#0E5A4C,#0b4a3f);color:#fff;padding:12px 16px}
+.rhead .t{font-size:13px;font-weight:700}.rhead .s{font-size:11px;opacity:.85;margin-top:2px}
+.rbody{padding:15px 16px}
+.root{background:var(--ok-bg);border:1px solid #cfe3dc;border-left:3px solid var(--teal);border-radius:9px;padding:12px 14px;margin:0 0 12px}
+.root .lab{font-size:11px;font-weight:700;color:var(--teal);letter-spacing:.03em}
+.root .main{font-size:16px;font-weight:700;margin:4px 0 2px;font-family:"Nanum Myeongjo",Georgia,serif}
+.root .why{font-size:12.5px;color:var(--ink-2);margin-top:5px}
+.root .why b{color:var(--ms)}
+.start{display:inline-flex;align-items:center;gap:6px;margin-top:9px;font-size:12.5px;font-weight:700;color:#fff;background:var(--teal);text-decoration:none;padding:7px 13px;border-radius:8px}
+.path{margin:12px 0 0}
+.path .lab{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.03em;margin-bottom:6px}
+.step{display:flex;align-items:center;gap:9px;font-size:12.5px;padding:6px 2px;border-bottom:1px solid #f3efe6}
+.step:last-child{border-bottom:none}
+.step .ord{font-family:var(--mono);font-size:10px;font-weight:700;color:#fff;background:var(--brass);width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none}
+.step a{color:var(--teal);text-decoration:none;font-weight:600}
+.step .rl{font-size:10.5px;color:var(--muted);font-family:var(--mono)}
+.tag{font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:5px;margin-left:auto}
+.tag.root{background:#dcebE5;color:#13463b;border:none;padding:2px 6px}
+.tag.sym{background:#f5ddd4;color:#8f3a1f}
+.empty{text-align:center;color:var(--muted);font-size:13px;padding:24px 10px}
+.figwrap{margin:14px 0 0;text-align:center}
+.figwrap svg{max-width:100%;height:auto;border:1px solid var(--line);border-radius:9px;background:#fcfbf7}
+.figcap{font-size:11px;color:var(--muted);margin-top:5px}
+/* audit */
+details{background:#fff;border:1px solid var(--line);border-radius:12px;padding:0;margin-top:14px}
+summary{padding:13px 16px;font-size:13.5px;font-weight:700;cursor:pointer;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:'▸ ';color:var(--teal)}
+details[open] summary::before{content:'▾ '}
+.audit{padding:0 16px 16px}
+.audit table{width:100%;border-collapse:collapse;font-size:12px}
+.audit th,.audit td{padding:6px 7px;border-bottom:1px solid #f3efe6;text-align:left;vertical-align:top}
+.audit th{color:var(--muted);font-size:10.5px;border-bottom:1.5px solid var(--line)}
+.audit .nn{font-family:var(--mono);font-size:10.5px;color:var(--teal);white-space:nowrap}
+.audit .pq{color:var(--ink-2)}
+.audit .root0{color:var(--brass);font-weight:700;font-size:10.5px}
+.legend{font-size:11px;color:var(--muted);margin:6px 2px 0;line-height:1.6}
+.stat{font-family:var(--mono);font-size:11px;color:var(--ink-2);margin-top:8px}
+footer{text-align:center;color:var(--muted);font-size:11.5px;padding:22px 16px;line-height:1.6}
+</style></head>
+<body><header><div class="logo">CHEMISTREAL · 진단 R&amp;D</div><h1 class="serif">선수 개념 DAG · 근본 원인 진단</h1><div class="sub">프로토타입 · 4개 클러스터(몰 · 평형 · 산염기 · 중화) · 31개 개념</div></header>
+<main>
+<div class="note"><b>이게 무엇인가:</b> 진단에서 틀린 개념을 선수 개념 그래프로 거슬러 올라가, "한 개념이 몇 개의 하류 실패를 설명하는가"로 점수를 매겨 <b>근본 원인</b>을 짚는 프로토타입입니다. 왼쪽에서 약한(틀린) 개념을 토글하면, 오른쪽에 <b>성적표 삽입 블록(미리보기)</b>이 실시간으로 그려집니다. 맨 아래 <b>간선 감사표</b>에서 모든 선수 관계를 검수하세요. <b>간선이 이 시스템의 전부이고, 간선은 선생님 전문 판단입니다.</b> 아래는 1차 초안입니다.</div>
+
+<div class="grid">
+<div>
+<div class="panel">
+<h2><span class="b">1</span>약한(틀린) 개념 표시</h2>
+<div class="presets">
+<button data-pre="mole">데모: 몰농도 흔들림(공통 뿌리)</button>
+<button data-pre="ka">데모: Ka 계열만</button>
+<button data-pre="def">데모: 산염기 정의 흔들림</button>
+<button data-pre="two">데모: 평형·중화 따로 약함</button>
+<button class="clr" data-pre="clear">전부 해제</button>
+</div>
+<div id="chips"></div>
+<div class="stat" id="stat"></div>
+</div>
+</div>
+<div>
+<div class="report" id="report"></div>
+</div>
+</div>
+
+<details id="auditbox">
+<summary>간선 감사표 (선수 개념 관계 검수)</summary>
+<div class="audit">
+<div class="legend">각 개념의 <b>선수 개념</b>이 맞는지 검수하세요. 화살표는 "A를 이해하려면 B가 먼저 필요"를 뜻합니다. 빈칸(선수 없음)은 클러스터의 뿌리 개념입니다. 교차 영역 간선(예: 평형상수 ← 몰농도)이 핵심입니다.</div>
+<div id="audit"></div>
+</div>
+</details>
+
+</main>
+<footer>CHEMISTREAL 진단 R&amp;D · 선수 개념 DAG 프로토타입 · 4개 클러스터 데모<br>검증 후 final.html에 정식 배선 · 전 16영역 확장 예정</footer>
+
+<script>
+const AREAS={
+  '몰':{c:'#B08D57'}, '평형':{c:'#0E5A4C'}, '산염기':{c:'#3F5C8C'}, '중화':{c:'#C0603A'}
+};
+// id = 강의번호. label/area/file/prereq(선수 개념)
+const N={
+ '034':{l:'몰과 아보가드로 수',a:'몰',f:'lec-034-mole-avogadro.html',p:[]},
+ '036':{l:'화학식량',a:'몰',f:'lec-036-formula-mass.html',p:[]},
+ '037':{l:'반응식·계수 맞추기',a:'몰',f:'lec-037-chemical-equations.html',p:[]},
+ '035':{l:'몰질량',a:'몰',f:'lec-035-molar-mass.html',p:['036','034']},
+ '038':{l:'양적 관계',a:'몰',f:'lec-038-stoichiometry.html',p:['035','037']},
+ '039':{l:'기체 반응 법칙',a:'몰',f:'lec-039-gas-laws-avogadro.html',p:['034','037']},
+ '040':{l:'몰농도',a:'몰',f:'lec-040-molarity.html',p:['034','035']},
+ '041':{l:'한계 반응물',a:'몰',f:'lec-041-limiting-reactant.html',p:['038']},
+ '042':{l:'수득률',a:'몰',f:'lec-042-percent-yield.html',p:['038','041']},
+ '073':{l:'가역 반응·동적 평형',a:'평형',f:'lec-073-reversible-equilibrium.html',p:[]},
+ '074':{l:'평형 상수 K',a:'평형',f:'lec-074-equilibrium-constant.html',p:['073','040']},
+ '075':{l:'평형 상수 계산',a:'평형',f:'lec-075-equilibrium-calculation.html',p:['074']},
+ '076':{l:'반응 지수 Q',a:'평형',f:'lec-076-reaction-quotient.html',p:['074']},
+ '077':{l:'르샤틀리에: 농도',a:'평형',f:'lec-077-lechatelier-concentration.html',p:['074','073']},
+ '078':{l:'르샤틀리에: 압력',a:'평형',f:'lec-078-lechatelier-pressure.html',p:['077']},
+ '079':{l:'르샤틀리에: 온도·촉매',a:'평형',f:'lec-079-lechatelier-temperature.html',p:['077']},
+ '081':{l:'산과 염기의 정의',a:'산염기',f:'lec-081-acid-base-definition.html',p:[]},
+ '082':{l:'짝산-짝염기',a:'산염기',f:'lec-082-conjugate-acid-base.html',p:['081']},
+ '083':{l:'물 자동 이온화 Kw',a:'산염기',f:'lec-083-water-autoionization.html',p:['081','074']},
+ '084':{l:'pH와 pOH',a:'산염기',f:'lec-084-ph-poh.html',p:['083']},
+ '085':{l:'산과 염기의 세기',a:'산염기',f:'lec-085-acid-base-strength.html',p:['081']},
+ '086':{l:'약산 이온화 상수 Ka',a:'산염기',f:'lec-086-acid-ionization-constant.html',p:['074','085']},
+ '087':{l:'Kb·Ka·Kb 관계',a:'산염기',f:'lec-087-base-ionization-kb.html',p:['086','082']},
+ '088':{l:'다양성자산',a:'산염기',f:'lec-088-polyprotic-acids.html',p:['086']},
+ '089':{l:'염의 액성',a:'산염기',f:'lec-089-salt-acidity.html',p:['082','086']},
+ '090':{l:'완충 용액',a:'산염기',f:'lec-090-buffer-solution.html',p:['086','082']},
+ '091':{l:'지시약·pH 측정',a:'산염기',f:'lec-091-indicators-ph.html',p:['084']},
+ '093':{l:'중화 반응',a:'중화',f:'lec-093-neutralization.html',p:['081']},
+ '094':{l:'중화의 양적 관계',a:'중화',f:'lec-094-neutralization-stoichiometry.html',p:['040','093']},
+ '095':{l:'중화 적정',a:'중화',f:'lec-095-neutralization-titration.html',p:['094','091']},
+ '096':{l:'적정 곡선·중화점',a:'중화',f:'lec-096-titration-curve.html',p:['095','084','089']}
+};
+const IDS=Object.keys(N);
+// 역간선(의존자)
+const DEP={}; IDS.forEach(i=>DEP[i]=[]);
+IDS.forEach(i=>N[i].p.forEach(pp=>DEP[pp].push(i)));
+// 위상 정렬
+function topo(){const indeg={},q=[],ord=[]; IDS.forEach(i=>indeg[i]=N[i].p.length);
+ IDS.forEach(i=>{if(indeg[i]===0)q.push(i)});
+ while(q.length){const u=q.shift();ord.push(u);DEP[u].forEach(v=>{if(--indeg[v]===0)q.push(v)})} return ord;}
+const TOPO=topo();
+// 하류 폐포(약한 것만)
+function downstreamWeak(root,W){const seen=new Set(),st=[root];const out=new Set();
+ while(st.length){const u=st.pop();DEP[u].forEach(v=>{if(!seen.has(v)){seen.add(v);if(W.has(v))out.add(v);st.push(v)}})} return out;}
+
+let W=new Set();
+function ancestorWeak(id){const seen=new Set(),st=[...N[id].p];
+ while(st.length){const u=st.pop();if(seen.has(u))continue;seen.add(u);if(W.has(u))return true;N[u].p.forEach(x=>st.push(x));} return false;}
+function diagnose(){
+ // 뿌리: 약하면서 전체 상류(선수의 선수...) 중 약한 게 하나도 없는 개념 = 사슬 최상류 약점
+ const roots=[...W].filter(w=>!ancestorWeak(w));
+ const scored=roots.map(r=>{const ds=downstreamWeak(r,W);return {id:r,reach:ds.size+1,sym:ds};})
+   .sort((a,b)=>b.reach-a.reach || TOPO.indexOf(a.id)-TOPO.indexOf(b.id));
+ return scored;
+}
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+function svgGraph(scored){
+ // 약한 노드만 + 약한 간선만, 층(longest path from weak-root) 배치
+ const nodes=[...W]; if(!nodes.length) return '';
+ const layer={}; TOPO.forEach(id=>{if(!W.has(id))return; let mx=0; N[id].p.forEach(pp=>{if(W.has(pp))mx=Math.max(mx,layer[pp]+1)}); layer[id]=mx;});
+ const rows={}; nodes.forEach(id=>{(rows[layer[id]]=rows[layer[id]]||[]).push(id)});
+ const rk=Object.keys(rows).map(Number).sort((a,b)=>a-b);
+ const rootIds=new Set(scored.map(s=>s.id));
+ const W_=140, H_=64, padX=18, padY=22; const maxRow=Math.max(...rk.map(r=>rows[r].length));
+ const width=Math.max(maxRow*W_+padX*2, 300), height=rk.length*H_+padY*2;
+ const pos={};
+ rk.forEach((r,ri)=>{const row=rows[r]; const tot=row.length; const gap=(width-padX*2)/tot;
+  row.forEach((id,ci)=>{pos[id]={x:padX+gap*ci+gap/2, y:padY+ri*H_+18};});});
+ let edges='';
+ nodes.forEach(id=>N[id].p.forEach(pp=>{if(W.has(pp)){const a=pos[pp],b=pos[id];
+   edges+=`<line x1="${a.x}" y1="${a.y+12}" x2="${b.x}" y2="${b.y-12}" stroke="#cfc9bd" stroke-width="1.3" marker-end="url(#ar)"/>`;}}));
+ let cells='';
+ nodes.forEach(id=>{const p=pos[id]; const isRoot=rootIds.has(id); const col=AREAS[N[id].a].c;
+  const w=Math.min(132, 30+N[id].l.length*11);
+  cells+=`<g>
+   <rect x="${p.x-w/2}" y="${p.y-12}" width="${w}" height="26" rx="7" fill="${isRoot?'#0E5A4C':'#fff'}" stroke="${isRoot?'#0E5A4C':col}" stroke-width="${isRoot?2:1.4}"/>
+   <text x="${p.x}" y="${p.y+4}" text-anchor="middle" font-size="10.5" font-weight="${isRoot?700:600}" fill="${isRoot?'#fff':'#23201b'}" font-family="-apple-system,sans-serif">${esc(N[id].l.length>9?N[id].l.slice(0,8)+'…':N[id].l)}</text>
+   <text x="${p.x-w/2+2}" y="${p.y-15}" font-size="8" fill="${col}" font-family="ui-monospace,monospace">${id}</text></g>`;});
+ return `<svg viewBox="0 0 ${width} ${height}" width="${width}"><defs><marker id="ar" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#cfc9bd"/></marker></defs>${edges}${cells}</svg>`;
+}
+
+function render(){
+ document.getElementById('stat').textContent=W.size?`표시된 약한 개념: ${W.size}개`:'';
+ IDS.forEach(id=>{const el=document.querySelector(`[data-id="${id}"]`); if(el)el.classList.toggle('on',W.has(id));});
+ const R=document.getElementById('report');
+ if(!W.size){R.innerHTML=`<div class="rhead"><div class="t">개념 진단 (성적표 삽입 블록)</div><div class="s">미리보기</div></div><div class="rbody"><div class="empty">약한 개념을 표시하면<br>근본 원인 진단이 여기에 나타납니다.</div></div>`; return;}
+ const scored=diagnose();
+ const primary=scored[0];
+ // 우선 학습 경로: 약한 개념 위상순(뿌리 먼저)
+ const fixOrder=TOPO.filter(id=>W.has(id));
+ const symOf=new Set(); scored.forEach(s=>s.sym.forEach(x=>symOf.add(x)));
+ let rootsHtml=scored.map((s,i)=>{
+   const symList=[...s.sym].sort((a,b)=>TOPO.indexOf(a)-TOPO.indexOf(b))
+      .map(x=>`${N[x].l}(${x})`).join(', ');
+   return `<div class="root">
+     <div class="lab">${scored.length>1?`뿌리 ${i+1} / ${scored.length}`:'근본 원인 (뿌리 개념)'}</div>
+     <div class="main">${esc(N[s.id].l)} <span style="font-family:var(--mono);font-size:12px;color:var(--muted)">${s.id}</span></div>
+     <div class="why">이 개념이 약해서, 그 위에 쌓이는 <b>${s.reach-1}개</b> 개념의 실패를 설명합니다${s.sym.size?`: ${esc(symList)}`:'(단독 약점)'}.</div>
+     <a class="start" href="${N[s.id].f}">여기부터 → ${N[s.id].a} ${s.id}강</a>
+   </div>`;}).join('');
+ let pathHtml=`<div class="path"><div class="lab">우선 학습 경로 (뿌리부터)</div>`+
+   fixOrder.map((id,i)=>{const isR=scored.some(s=>s.id===id);
+     return `<div class="step"><span class="ord">${i+1}</span><a href="${N[id].f}">${esc(N[id].l)}</a><span class="rl">${id}강 · ${N[id].a}</span><span class="tag ${isR?'root':'sym'}">${isR?'뿌리':'증상'}</span></div>`;}).join('')+`</div>`;
+ R.innerHTML=`<div class="rhead"><div class="t">개념 진단 (성적표 삽입 블록)</div><div class="s">틀린 개념 ${W.size}개 · 뿌리 ${scored.length}개 검출</div></div>
+   <div class="rbody">${rootsHtml}
+   <div class="figwrap">${svgGraph(scored)}<div class="figcap">약한 개념의 의존 그래프 · 진한 칸 = 뿌리, 화살표 = 선수 → 하류</div></div>
+   ${pathHtml}</div>`;
+}
+
+// chips UI
+(function(){const byA={}; IDS.forEach(id=>{(byA[N[id].a]=byA[N[id].a]||[]).push(id);});
+ const order=['몰','평형','산염기','중화']; let h='';
+ order.forEach(a=>{h+=`<div class="area"><div class="ah"><span class="dot" style="background:${AREAS[a].c}"></span>${a}</div><div class="chips">`;
+  byA[a].forEach(id=>{h+=`<div class="chip" data-id="${id}"><span class="n">${id}</span>${esc(N[id].l)}</div>`;});
+  h+=`</div></div>`;});
+ document.getElementById('chips').innerHTML=h;
+ document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{const id=c.dataset.id; W.has(id)?W.delete(id):W.add(id); render();}));
+})();
+// presets
+const PRE={
+ mole:['040','074','086','094','090','096'],
+ ka:['086','087','088','089','090'],
+ def:['081','082','085','086','089','093','094'],
+ two:['074','075','094','095','096']
+};
+document.querySelectorAll('[data-pre]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.pre;
+ if(k==='clear'){W=new Set();}else{W=new Set(PRE[k]);} render();}));
+// audit table
+(function(){let rows=''; const order=['몰','평형','산염기','중화'];
+ order.forEach(a=>{IDS.filter(id=>N[id].a===a).forEach(id=>{
+   const pq=N[id].p.length?N[id].p.map(pp=>`${N[pp].l}(${pp})`).join(' , '):'<span class="root0">뿌리 개념</span>';
+   rows+=`<tr><td class="nn">${id}</td><td>${esc(N[id].l)}<br><span style="font-size:9.5px;color:${AREAS[a].c}">${a}</span></td><td class="pq">${pq.replace(/</g,'&lt;').replace(/&lt;span/g,'<span').replace(/&lt;\/span>/g,'</span>')}</td></tr>`;});});
+ document.getElementById('audit').innerHTML=`<table><tr><th>강</th><th>개념</th><th>선수 개념 (← 먼저 필요)</th></tr>${rows}</table>`;
+})();
+render();
+</script>
+</body></html>

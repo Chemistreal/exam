@@ -1,0 +1,173 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5"><title>시스템 사용 가이드 · CHEMISTREAL</title><style>
+:root{--cream:#FBFAF6;--paper:#fff;--ink:#23201b;--ink-2:#5a564d;--muted:#8a8578;--teal:#0E5A4C;--brass:#B08D57;--line:#E8E4DA;--ms:#C0603A;--ok:#2E7D6B;--ok-bg:#eef5f2;--mono:ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:-apple-system,"Noto Sans KR",sans-serif;line-height:1.65}
+.serif{font-family:"Nanum Myeongjo",Georgia,serif}
+header{background:linear-gradient(180deg,#0E5A4C,#0a3f36);color:#fff;padding:26px 16px;text-align:center}
+header .logo{font-size:12px;letter-spacing:.2em;opacity:.8;font-weight:600}header h1{margin:7px 0 4px;font-size:24px}header .sub{font-size:12.5px;opacity:.86}
+.layout{max-width:1100px;margin:0 auto;padding:16px;display:grid;grid-template-columns:0.55fr 1.6fr;gap:18px}
+@media(max-width:860px){.layout{grid-template-columns:1fr}.toc{position:static !important}}
+.toc{position:sticky;top:12px;align-self:start;background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 15px;font-size:12.5px}
+.toc h3{font-size:11px;color:var(--muted);margin:0 0 8px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.toc a{display:block;color:var(--ink-2);text-decoration:none;padding:4px 0;border-left:2px solid transparent;padding-left:9px}
+.toc a:hover{color:var(--teal);border-left-color:var(--brass)}
+.content section{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:16px}
+.content h2{font-size:18px;margin:0 0 12px;color:var(--teal);display:flex;align-items:center;gap:9px}
+.content h2 .n{font-family:var(--mono);font-size:12px;background:var(--ok-bg);color:var(--teal);border-radius:7px;padding:2px 9px;font-weight:700}
+.content h3{font-size:14px;margin:16px 0 6px}.content p{font-size:13px;color:var(--ink-2);margin:0 0 10px}.content b{color:var(--ink)}
+.recipe{border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:9px;padding:12px 15px;margin-bottom:11px}
+.recipe .rt{font-size:13.5px;font-weight:800;margin-bottom:7px}
+.recipe ol{margin:0;padding-left:18px;font-size:12.5px;color:var(--ink-2)}.recipe li{margin-bottom:4px}
+.recipe ol a{color:var(--teal);font-weight:600;text-decoration:none;border-bottom:1px dotted var(--brass)}
+.flow{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin:10px 0}
+.fstep{background:var(--ok-bg);border:1px solid #cfe3dc;border-radius:8px;padding:7px 12px;font-size:11.5px;font-weight:600;color:var(--teal)}
+.farrow{color:var(--brass);padding:0 8px;font-size:15px}
+.toolref{font-size:12.5px}.toolref .tg{margin-bottom:14px}
+.toolref .tgh{font-size:11px;font-weight:800;color:#fff;border-radius:7px;padding:2px 10px;display:inline-block;margin-bottom:6px}
+.toolref table{width:100%;border-collapse:collapse}.toolref td{border-bottom:1px solid #f3efe6;padding:6px 8px;vertical-align:top}
+.toolref td.nm{width:170px}.toolref td.nm a{color:var(--teal);font-weight:700;text-decoration:none;border-bottom:1px dotted var(--brass)}.toolref td.ds{color:var(--ink-2);font-size:12px}
+.limits{background:#fdf6ec;border-left:3px solid var(--ms)}
+.limits h2{color:#8a4a2a}.limits ul{margin:0;padding-left:18px;font-size:12.5px;color:#8a5a3a}.limits li{margin-bottom:6px}.limits b{color:#5a3520}
+.callout{background:var(--ok-bg);border:1px solid #cfe3dc;border-radius:9px;padding:10px 14px;font-size:12.5px;color:#1c5a4c;margin:10px 0}
+.tip{font-size:11.5px;color:var(--muted);font-style:italic}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:24px}
+.hubbtn{display:inline-block;margin-top:10px;font-size:12px;font-weight:700;color:#fff;background:var(--teal);border-radius:8px;padding:8px 16px;text-decoration:none}
+</style></head>
+<body>
+<nav style="background:#08352d;padding:7px 16px;display:flex;align-items:center;justify-content:space-between;font-size:11.5px;font-family:-apple-system,sans-serif"><a href="dashboard.html" style="color:#fff;opacity:0.92;text-decoration:none;font-weight:600">&#8592; CHEMISTREAL 허브</a><span style="color:#fff;opacity:0.5;font-size:10px;letter-spacing:.05em">진단 R&amp;D</span></nav>
+<header><div class="logo">CHEMISTREAL</div><h1 class="serif">시스템 사용 가이드</h1><div class="sub">진단 R&amp;D 전체를 어떻게 쓰는가 · 작업 중심 안내</div></header>
+<div class="layout">
+<aside class="toc"><h3>목차</h3>
+<a href="#philo">1. 무엇이고 왜</a>
+<a href="#quick">2. 빠른 시작</a>
+<a href="#flow">3. 전체 흐름</a>
+<a href="#recipes">4. 자주 하는 작업</a>
+<a href="#tools">5. 도구 전체</a>
+<a href="#limits">6. 정직한 한계</a>
+<a href="dashboard.html" style="margin-top:8px;color:var(--brass);font-weight:700">→ 허브로</a>
+</aside>
+<div class="content">
+
+<section id="philo"><h2><span class="n">1</span>무엇이고 왜</h2>
+<p>이 시스템은 화학 올림피아드 진단을 위한 도구 모음입니다. 대량 모델이 "많이 푼다"로 경쟁할 때, 프리미엄 30명 모델의 차별점은 <b>진단의 깊이와 콘텐츠의 엄밀성</b>입니다. 학생이 무엇을 왜 틀리는지, 추론이 어디서 깨지는지, 교과 너머 어디까지 가야 하는지. 이것이 따라 할 수 없는 해자이고, 이 시스템은 그 해자를 도구로 구축합니다.</p>
+<p>구조는 세 국면입니다. <b>A국면(논리 기반)</b>은 데이터 없이 지식 구조를 만들고, <b>B국면(측정·통계)</b>은 응답 데이터로 능력·숙달을 재고, <b>C국면(콘텐츠·교수법)</b>은 화학 전문성으로 깊이를 더합니다. 그 위에 <b>통합 리포트</b>가 다섯 분석을 하나로 종합하고, <b>수업 브리프</b>가 진단을 교수 자료로 잇습니다.</p>
+<a class="hubbtn" href="dashboard.html">전체 도구 보기 (허브) &#8594;</a>
+</section>
+
+<section id="quick"><h2><span class="n">2</span>빠른 시작</h2>
+<p>처음이라면 이 순서로 5분 안에 시스템을 체험할 수 있습니다.</p>
+<div class="recipe"><div class="rt">5분 체험</div>
+<ol>
+<li><a href="integrated-report.html">통합 리포트</a>를 열고 <b>데모 코호트 생성</b>을 누릅니다. 합성 학생 28명의 진단이 즉시 나옵니다.</li>
+<li><b>학생별</b> 탭에서 한 학생을 골라 처방을 봅니다. 약한 개념이 뿌리부터 정렬됩니다.</li>
+<li>처방의 <b>수업 브리프 &#8594;</b>를 누르면 그 개념을 가르칠 자료가 한 장에 열립니다.</li>
+<li><b>그룹 편성</b> 탭에서 누구를 묶어 가르칠지 봅니다.</li>
+</ol></div>
+<div class="callout">실제로 쓰려면 합성 데이터 대신 <b>선생님 학생들의 실제 답안</b>이 필요합니다. 아래 "한 반 진단하기"를 보세요.</div>
+</section>
+
+<section id="flow"><h2><span class="n">3</span>전체 흐름</h2>
+<p>실제 시험 답안이 들어와 분석을 거쳐 수업으로 나가는 흐름입니다.</p>
+<div class="flow"><span class="fstep">데이터 입력</span><span class="farrow">&#8594;</span><span class="fstep">측정·진단</span><span class="farrow">&#8594;</span><span class="fstep">통합 리포트</span><span class="farrow">&#8594;</span><span class="fstep">그룹 편성</span><span class="farrow">&#8594;</span><span class="fstep">수업 브리프</span></div>
+<p><b>데이터 입력</b>으로 엑셀 답안을 응답 JSON으로 바꾸고, 그 JSON을 <b>B국면 측정 도구</b>들이 읽어 능력·숙달을 추정합니다. <b>통합 리포트</b>가 이를 종합해 학생별 처방과 그룹을 만들고, <b>수업 브리프</b>가 각 개념의 교수 자료로 연결합니다. 가르친 뒤 <b>종단 비교</b>로 효과를 측정합니다.</p>
+</section>
+
+<section id="recipes"><h2><span class="n">4</span>자주 하는 작업</h2>
+
+<div class="recipe"><div class="rt">한 반 진단하기 (실제 데이터)</div>
+<ol>
+<li>학생 답안을 엑셀에 정리합니다. 행=학생, 첫 열=이름/번호, 이후 열=문항 답(1~5 또는 A~E).</li>
+<li><a href="data-import.html">데이터 입력</a>에서 시험을 고르고 답안을 붙여넣습니다. 검증 경고를 확인하고 <b>responses.json</b>을 내려받습니다.</li>
+<li><a href="integrated-report.html">통합 리포트</a>에서 그 JSON을 불러옵니다. 코호트·학생별·그룹 편성이 나옵니다.</li>
+<li>학생별 처방과 그룹 편성에 따라 수업을 설계하고, 각 개념의 <a href="teaching-brief.html">수업 브리프</a>로 자료를 준비합니다.</li>
+</ol></div>
+
+<div class="recipe"><div class="rt">수업 효과 측정하기</div>
+<ol>
+<li>가르치기 <b>전</b> 시험 답안으로 responses.json을 만듭니다(위와 동일).</li>
+<li>가르친 <b>후</b> 같은 학생들의 시험 답안으로 또 하나 만듭니다. 학생 식별자(sid)를 같게 유지합니다.</li>
+<li><a href="longitudinal.html">종단 비교</a>에서 전/후를 각각 불러옵니다.</li>
+<li>영역별 향상, <b>정체·퇴행 개념</b>(수업이 닿지 않은 지점), 학생별 진척을 봅니다.</li>
+</ol></div>
+
+<div class="recipe"><div class="rt">새 시험 만들기</div>
+<ol>
+<li><a href="test-blueprint.html">시험 설계</a>의 <b>커버리지 분석</b>으로 기존 시험들이 무엇을 다루고 빠뜨렸는지 확인합니다.</li>
+<li><b>블루프린트 설계</b>에서 목표 영역·가중치·총 문항·난이도를 정합니다.</li>
+<li>영역별 배분과 bank 가용을 보고, 부족한 영역은 새로 출제합니다.</li>
+</ol></div>
+
+<div class="recipe"><div class="rt">한 개념을 깊이 가르치기</div>
+<ol>
+<li><a href="teaching-brief.html">수업 브리프</a>에서 개념을 고릅니다(또는 리포트 처방에서 연결).</li>
+<li>학생 오개념 → 엄밀한 진술 → 개념변화 교수 이동 → 올림피아드 깊이 순으로 준비합니다.</li>
+<li><a href="learning-path.html">학습 경로</a>에서 그 개념까지의 선수 사슬을 확인합니다. 약점이 선수에 있으면 거기부터 쌓습니다.</li>
+</ol></div>
+
+<div class="recipe"><div class="rt">서술형 답안 채점하기</div>
+<ol>
+<li><a href="constructed-response.html">서술형 진단</a>에서 문제 유형의 루브릭을 봅니다.</li>
+<li>학생 답안을 붙여넣고 <b>AI 채점</b>을 누르면 단계별 점수·오류 유형·진단이 나옵니다(Claude 아티팩트 환경).</li>
+<li>AI 결과를 선생님이 최종 확인합니다.</li>
+</ol></div>
+
+</section>
+
+<section id="tools"><h2><span class="n">5</span>도구 전체</h2>
+<p>허브에서 모두 접근할 수 있습니다. 국면별로 정리합니다.</p>
+<div class="toolref">
+<div class="tg"><span class="tgh" style="background:#B08D57">실행 도구 (가장 자주)</span>
+<table>
+<tr><td class="nm"><a href="data-import.html">데이터 입력</a></td><td class="ds">엑셀 답안 → 응답 JSON. 모든 측정의 출발점.</td></tr>
+<tr><td class="nm"><a href="integrated-report.html">통합 리포트</a></td><td class="ds">능력·숙달·결손·오개념·처방을 종합. 코호트·학생별·그룹 편성.</td></tr>
+<tr><td class="nm"><a href="teaching-brief.html">수업 브리프</a></td><td class="ds">개념 하나의 모든 교수 자료를 한 장에.</td></tr>
+<tr><td class="nm"><a href="longitudinal.html">종단 비교</a></td><td class="ds">전/후 향상도 측정. 수업 효과 검증.</td></tr>
+<tr><td class="nm"><a href="learning-path.html">학습 경로</a></td><td class="ds">목표 개념까지의 선수 사슬·수업 순서.</td></tr>
+<tr><td class="nm"><a href="test-blueprint.html">시험 설계</a></td><td class="ds">커버리지 분석·블루프린트 역설계.</td></tr>
+</table></div>
+<div class="tg"><span class="tgh" style="background:#0E5A4C">A국면 · 논리 기반</span>
+<table>
+<tr><td class="nm"><a href="prereq-dag-editor.html">선수 관계 DAG</a></td><td class="ds">125개 개념의 위계.</td></tr>
+<tr><td class="nm"><a href="ontology-browser.html">개념 온톨로지</a></td><td class="ds">개념 속성·유사쌍·공동요건.</td></tr>
+<tr><td class="nm"><a href="qmatrix-editor.html">Q-행렬 편집기</a></td><td class="ds">문항-개념 매핑.</td></tr>
+<tr><td class="nm"><a href="misconception-catalog.html">오개념 카탈로그</a></td><td class="ds">8유형 125개 오개념.</td></tr>
+<tr><td class="nm"><a href="diagnosis-v1.html">통합 진단 v1</a></td><td class="ds">논리 기반 진단 엔진.</td></tr>
+</table></div>
+<div class="tg"><span class="tgh" style="background:#4A7C9E">B국면 · 측정·통계</span>
+<table>
+<tr><td class="nm"><a href="response-manager.html">응답 관리</a></td><td class="ds">OMR 입력·저장.</td></tr>
+<tr><td class="nm"><a href="item-analysis.html">문항 분석 (CTT)</a></td><td class="ds">난이도·변별도.</td></tr>
+<tr><td class="nm"><a href="item-response-theory.html">IRT</a></td><td class="ds">능력·난이도 추정.</td></tr>
+<tr><td class="nm"><a href="mirt.html">다차원 IRT</a></td><td class="ds">영역별 능력 프로파일.</td></tr>
+<tr><td class="nm"><a href="cdm.html">인지 진단 (CDM)</a></td><td class="ds">개념 숙달 분류.</td></tr>
+<tr><td class="nm"><a href="calibration.html">신뢰도 보정</a></td><td class="ds">확신 교정.</td></tr>
+<tr><td class="nm"><a href="knowledge-tracing.html">지식 추적 (BKT)</a></td><td class="ds">학습·망각 궤적.</td></tr>
+<tr><td class="nm"><a href="spaced-repetition.html">간격 반복</a></td><td class="ds">복습 일정.</td></tr>
+<tr><td class="nm"><a href="mastery-learning.html">숙달 학습</a></td><td class="ds">진급 게이트.</td></tr>
+<tr><td class="nm"><a href="cat.html">적응형 검사 (CAT)</a></td><td class="ds">실시간 문항 선택.</td></tr>
+</table></div>
+<div class="tg"><span class="tgh" style="background:#B5564E">C국면 · 콘텐츠·교수법</span>
+<table>
+<tr><td class="nm"><a href="content-rigor.html">콘텐츠 엄밀성</a></td><td class="ds">단순화 ↔ 엄밀성.</td></tr>
+<tr><td class="nm"><a href="olympiad-depth.html">올림피아드 깊이</a></td><td class="ds">교과 → 올림피아드 확장.</td></tr>
+<tr><td class="nm"><a href="conceptual-change.html">개념변화 교수법</a></td><td class="ds">오개념 교정 4단계.</td></tr>
+<tr><td class="nm"><a href="multi-solution.html">다중 풀이 경로</a></td><td class="ds">사고 유형 진단.</td></tr>
+<tr><td class="nm"><a href="constructed-response.html">서술형 진단</a></td><td class="ds">추론 진단·AI 채점.</td></tr>
+</table></div>
+</div>
+</section>
+
+<section id="limits" class="limits"><h2><span class="n">6</span>정직한 한계</h2>
+<ul>
+<li><b>합성 데이터로 시연합니다.</b> 모든 측정 도구는 데모에서 합성 응답을 씁니다. 실제 가치는 선생님의 진짜 학생 답안을 넣어야 나옵니다. 30명은 IRT/CDM에 표본이 작아 전반에 베이지안 사전분포를 썼습니다.</li>
+<li><b>데이터·콘텐츠는 초안입니다.</b> 선수 간선, 오개념, Q-행렬, 엄밀성·교수 카드 모두 Claude의 1차 초안입니다. SNU 화학 전공·12년 경력의 검토·교정이 출력 품질의 상한입니다.</li>
+<li><b>개념 숙달 추정은 거칩니다.</b> 문항별 정답률 기반이라 개념당 문항이 적으면 부정확합니다(경험적 베이즈로 보정). 여러 시험을 묶을수록 정확해집니다.</li>
+<li><b>오개념은 후보입니다.</b> 통합 리포트는 약한 개념의 알려진 오개념을 "확인할 후보"로 띄울 뿐, 답안 선택지에서 특정 오개념을 짚지는 않습니다. 선택지별 진단은 해설 앱이 담당합니다.</li>
+<li><b>임계값은 조정 대상입니다.</b> 숙달 0.6, 그룹 경계 60% 등은 선생님 반 사정에 맞게 바꿀 여지가 있습니다.</li>
+<li><b>AI 채점은 보조입니다.</b> 서술형 AI 채점은 Claude 아티팩트 환경에서 작동하며, 결과는 반드시 선생님이 최종 확인해야 합니다.</li>
+</ul>
+</section>
+
+</div>
+</div>
+<footer>CHEMISTREAL 진단 R&amp;D · 시스템 사용 가이드</footer>
+</body></html>

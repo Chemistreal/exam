@@ -1,0 +1,364 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5"><title>선수 개념 DAG · 근본 원인 진단 (전체)</title><style>
+:root{--cream:#FBFAF6;--paper:#fff;--ink:#23201b;--ink-2:#5a564d;--muted:#8a8578;--teal:#0E5A4C;--teal-d:#3A7A6B;--brass:#B08D57;--line:#E8E4DA;--ms:#C0603A;--cobalt:#3F5C8C;--ok-bg:#eef5f2;--mono:ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:-apple-system,"Noto Sans KR",sans-serif;line-height:1.55}
+.serif{font-family:"Nanum Myeongjo",Georgia,serif}
+header{background:linear-gradient(180deg,#0E5A4C,#0b4a3f);color:#fff;padding:22px 18px;text-align:center}
+header .logo{font-size:11.5px;letter-spacing:.18em;opacity:.82;font-weight:600}
+header h1{margin:6px 0 4px;font-size:21px}header .sub{font-size:12px;opacity:.86}
+main{max-width:1080px;margin:0 auto;padding:16px 14px 60px}
+.note{background:#fff;border:1px solid var(--line);border-left:3px solid var(--brass);border-radius:9px;padding:12px 15px;font-size:13px;color:var(--ink-2);margin:14px 0}
+.note b{color:var(--ink)}
+.grid{display:grid;grid-template-columns:1fr 1.15fr;gap:16px}
+@media(max-width:820px){.grid{grid-template-columns:1fr}}
+.panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px 16px;margin-bottom:14px}
+.panel h2{font-size:14px;margin:0 0 11px;display:flex;align-items:center;gap:8px}
+.panel h2 .b{font-family:var(--mono);font-size:11px;font-weight:700;color:#fff;background:var(--teal);width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center}
+.presets{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.presets button{font-size:11.5px;font-weight:600;border:1px solid var(--line);background:#faf8f1;color:var(--ink);padding:6px 11px;border-radius:16px;cursor:pointer}
+.presets button:hover{border-color:var(--teal);color:var(--teal)}
+.presets button.clr{background:#fbf2ec;border-color:#e6d2c8;color:var(--ms)}
+.area{margin:9px 0}
+.area .ah{font-size:11.5px;font-weight:700;letter-spacing:.02em;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{font-size:11.5px;border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 8px;cursor:pointer;user-select:none;display:flex;align-items:center;gap:5px;transition:all .12s}
+.chip .n{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.chip.w2{background:#fbece7;border-color:var(--ms);color:#8f3a1f}
+.chip.w2 .n{color:var(--ms)}
+.chip.w1{background:#fdf6ec;border-color:#cf9f3a;color:#7a5b16}
+.chip.w1 .n{color:#a07c1e}
+/* report block */
+.report{background:#fff;border:1px solid var(--line);border-radius:12px;padding:0;overflow:hidden}
+.rhead{background:linear-gradient(180deg,#0E5A4C,#0b4a3f);color:#fff;padding:12px 16px}
+.rhead .t{font-size:13px;font-weight:700}.rhead .s{font-size:11px;opacity:.85;margin-top:2px}
+.conf{display:inline-block;margin-top:7px;font-size:10.5px;font-weight:700;color:#fff;padding:3px 10px;border-radius:12px}
+.confnote{font-size:12px;color:var(--ink-2);margin:0 0 11px;padding:8px 11px;background:#faf8f1;border-radius:8px}
+.rbody{padding:15px 16px}
+.root{background:var(--ok-bg);border:1px solid #cfe3dc;border-left:3px solid var(--teal);border-radius:9px;padding:12px 14px;margin:0 0 12px}
+.root .lab{font-size:11px;font-weight:700;color:var(--teal);letter-spacing:.03em}
+.root .main{font-size:16px;font-weight:700;margin:4px 0 2px;font-family:"Nanum Myeongjo",Georgia,serif}
+.root .why{font-size:12.5px;color:var(--ink-2);margin-top:5px}
+.root .why b{color:var(--ms)}
+.start{display:inline-flex;align-items:center;gap:6px;margin-top:9px;font-size:12.5px;font-weight:700;color:#fff;background:var(--teal);text-decoration:none;padding:7px 13px;border-radius:8px}
+.path{margin:12px 0 0}
+.path .lab{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.03em;margin-bottom:6px}
+.step{display:flex;align-items:center;gap:9px;font-size:12.5px;padding:6px 2px;border-bottom:1px solid #f3efe6}
+.step:last-child{border-bottom:none}
+.step .ord{font-family:var(--mono);font-size:10px;font-weight:700;color:#fff;background:var(--brass);width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none}
+.step a{color:var(--teal);text-decoration:none;font-weight:600}
+.step .rl{font-size:10.5px;color:var(--muted);font-family:var(--mono)}
+.tag{font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:5px;margin-left:auto}
+.tag.root{background:#dcebE5;color:#13463b;border:none;padding:2px 6px}
+.tag.sym{background:#f5ddd4;color:#8f3a1f}
+.empty{text-align:center;color:var(--muted);font-size:13px;padding:24px 10px}
+.figwrap{margin:14px 0 0;text-align:center}
+.figwrap svg{max-width:100%;height:auto;border:1px solid var(--line);border-radius:9px;background:#fcfbf7}
+.figcap{font-size:11px;color:var(--muted);margin-top:5px}
+/* audit */
+details{background:#fff;border:1px solid var(--line);border-radius:12px;padding:0;margin-top:14px}
+summary{padding:13px 16px;font-size:13.5px;font-weight:700;cursor:pointer;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:'▸ ';color:var(--teal)}
+details[open] summary::before{content:'▾ '}
+.audit{padding:0 16px 16px}
+.audit table{width:100%;border-collapse:collapse;font-size:12px}
+.audit th,.audit td{padding:6px 7px;border-bottom:1px solid #f3efe6;text-align:left;vertical-align:top}
+.audit th{color:var(--muted);font-size:10.5px;border-bottom:1.5px solid var(--line)}
+.audit .nn{font-family:var(--mono);font-size:10.5px;color:var(--teal);white-space:nowrap}
+.audit .pq{color:var(--ink-2)}
+.audit .root0{color:var(--brass);font-weight:700;font-size:10.5px}
+.ek{font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;white-space:nowrap}
+.ek.hard{background:#e3efe9;color:#1c5a4c}.ek.soft{background:#f3ece0;color:#8a6a2e}
+.legend{font-size:11px;color:var(--muted);margin:6px 2px 0;line-height:1.6}
+.stat{font-family:var(--mono);font-size:11px;color:var(--ink-2);margin-top:8px}
+footer{text-align:center;color:var(--muted);font-size:11.5px;padding:22px 16px;line-height:1.6}
+</style></head>
+<body><header><div class="logo">CHEMISTREAL · 진단 R&amp;D</div><h1 class="serif">선수 개념 DAG · 근본 원인 진단</h1><div class="sub">전체 16영역 · 125개념 · 200간선</div></header>
+<main>
+<div class="note"><b>이게 무엇인가:</b> 진단에서 틀린 개념을 선수 개념 그래프로 거슬러 올라가, "한 개념이 몇 개의 하류 실패를 설명하는가"로 점수를 매겨 <b>근본 원인</b>을 짚는 프로토타입입니다. 왼쪽 개념을 클릭하면 <b>틀림 → 약함 → 정상</b>으로 바뀝니다(정답률 반영). 오른쪽에 <b>성적표 삽입 블록</b>이 실시간으로 그려지고, <b>뿌리 명확도</b>로 진단의 확신도를 표시합니다. 맨 아래 <b>간선 감사표</b>에서 모든 선수 관계를 검수하세요. <b>간선이 이 시스템의 전부이고, 간선은 선생님 전문 판단입니다.</b> 아래는 1차 초안입니다.</div>
+
+<div class="grid">
+<div>
+<div class="panel">
+<h2><span class="b">1</span>약한(틀린) 개념 표시</h2>
+<div class="presets">
+<button data-pre="molar">몰농도 → 평형·산염기·중화·반응속도</button>
+<button data-pre="config">전자 배치 → 주기율·결합·산화수</button>
+<button data-pre="en">전기음성도 → 극성·수소결합·유기산</button>
+<button data-pre="eqK">평형상수 → 산염기 토대</button>
+<button data-pre="bond">화학 결합 → 고체·산화·유기·배위</button>
+<button class="clr" data-pre="clear">전부 해제</button>
+</div>
+<div id="chips"></div>
+<div class="stat" id="stat"></div>
+</div>
+</div>
+<div>
+<div class="report" id="report"></div>
+</div>
+</div>
+
+<details id="auditbox">
+<summary>간선 감사표 (선수 개념 관계 검수)</summary>
+<div class="audit">
+<div class="legend">각 선수 관계가 (a) 맞는지, (b) <b>필수</b>(없으면 이해 불가)인지 <b>도움</b>(있으면 유리)인지 검수하세요. 도움 간선은 약해도 뿌리로 강하게 끌어가지 않습니다. 교차 영역 간선(예: 평형상수 ← 몰농도)이 핵심 판정입니다.</div>
+<div id="audit"></div>
+</div>
+</details>
+
+</main>
+<footer>CHEMISTREAL 진단 R&amp;D · 선수 개념 DAG 프로토타입 · 전 16영역<br>검증 후 final.html에 정식 배선 · 전 16영역 확장 예정</footer>
+
+<script>
+const AREAS={'원자모형':{c:'#0E5A4C'},'주기율':{c:'#B08D57'},'분자의 모양':{c:'#3F5C8C'},'분자 간 인력':{c:'#6B8E7F'},'몰과 양적 관계':{c:'#C0603A'},'기체':{c:'#4A7C9E'},'액체와 용액':{c:'#8A6FA0'},'고체와 결정':{c:'#7A8450'},'열화학':{c:'#B5564E'},'화학 평형':{c:'#2E7D6B'},'산과 염기':{c:'#9E7B3F'},'중화 반응':{c:'#C77B4A'},'산화 환원':{c:'#5C7A4A'},'반응 속도':{c:'#A05E7C'},'탄소 화합물':{c:'#4F6D8C'},'배위 화학':{c:'#927250'}};
+// id = 강의번호. label/area/file/prereq(선수 개념)
+const N={
+'001':{l:'원자의 구조와 동위원소',a:'원자모형',f:'lec-001-atomic-structure-isotopes.html',p:[]},
+'002':{l:'빛의 이중성과 전자기파',a:'원자모형',f:'lec-002-light-duality.html',p:[]},
+'003':{l:'수소 선스펙트럼과 리드베리',a:'원자모형',f:'lec-003-hydrogen-spectrum.html',p:['002']},
+'004':{l:'보어 모형과 에너지 양자화',a:'원자모형',f:'lec-004-bohr-model.html',p:['003']},
+'005':{l:'양자수와 오비탈',a:'원자모형',f:'lec-005-quantum-numbers.html',p:['004']},
+'006':{l:'전자 배치 규칙',a:'원자모형',f:'lec-006-electron-configuration.html',p:['005']},
+'007':{l:'가림과 유효핵전하',a:'원자모형',f:'lec-007-shielding-zeff.html',p:['006']},
+'008':{l:'드브로이 물질파와 불확정성',a:'원자모형',f:'lec-008-de-broglie.html',p:['004']},
+'009':{l:'원소의 기원과 핵합성',a:'원자모형',f:'lec-009-nucleosynthesis.html',p:['001']},
+'010':{l:'방사성 붕괴와 반감기',a:'원자모형',f:'lec-010-radioactive-decay.html',p:['001', '009']},
+'011':{l:'주기율표의 구조',a:'주기율',f:'lec-011-periodic-table-structure.html',p:['006']},
+'012':{l:'원자·이온 반지름',a:'주기율',f:'lec-012-atomic-ionic-radii.html',p:['011', '007']},
+'013':{l:'이온화에너지',a:'주기율',f:'lec-013-ionization-energy.html',p:['012', '007']},
+'014':{l:'전자친화도',a:'주기율',f:'lec-014-electron-affinity.html',p:['013']},
+'015':{l:'전기음성도',a:'주기율',f:'lec-015-electronegativity.html',p:['013', '014']},
+'016':{l:'주기·족 경향 종합',a:'주기율',f:'lec-016-periodic-trends-synthesis.html',p:['012', '013', '014', '015']},
+'017':{l:'금속·비금속·준금속',a:'주기율',f:'lec-017-metals-nonmetals.html',p:['011', '015']},
+'018':{l:'옥텟 규칙과 루이스 구조',a:'분자의 모양',f:'lec-018-octet-lewis.html',p:['006']},
+'019':{l:'화학 결합 3종',a:'분자의 모양',f:'lec-019-bond-types.html',p:['018', '015']},
+'020':{l:'결합 차수·길이·에너지',a:'분자의 모양',f:'lec-020-bond-order-length-energy.html',p:['019']},
+'021':{l:'형식전하와 공명',a:'분자의 모양',f:'lec-021-formal-charge-resonance.html',p:['018']},
+'022':{l:'VSEPR 기본',a:'분자의 모양',f:'lec-022-vsepr-basics.html',p:['018']},
+'023':{l:'분자의 모양',a:'분자의 모양',f:'lec-023-molecular-shapes.html',p:['022']},
+'024':{l:'결합각과 고립전자쌍 효과',a:'분자의 모양',f:'lec-024-bond-angles.html',p:['023']},
+'025':{l:'분자의 극성',a:'분자의 모양',f:'lec-025-molecular-polarity.html',p:['023', '015']},
+'026':{l:'혼성 오비탈',a:'분자의 모양',f:'lec-026-hybrid-orbitals.html',p:['023', '005']},
+'027':{l:'시그마·파이 결합',a:'분자의 모양',f:'lec-027-sigma-pi-bonds.html',p:['026', '020']},
+'028':{l:'분자 간 힘 개요',a:'분자 간 인력',f:'lec-028-imf-overview.html',p:['025']},
+'029':{l:'분산력',a:'분자 간 인력',f:'lec-029-dispersion-forces.html',p:['028']},
+'030':{l:'쌍극자-쌍극자 힘',a:'분자 간 인력',f:'lec-030-dipole-dipole.html',p:['028', '025']},
+'031':{l:'수소 결합',a:'분자 간 인력',f:'lec-031-hydrogen-bonding.html',p:['030', '015']},
+'032':{l:'분자 간 힘과 끓는점',a:'분자 간 인력',f:'lec-032-imf-boiling-point.html',p:['029', '030', '031']},
+'033':{l:'용해도: 비슷한 것끼리 녹는다',a:'분자 간 인력',f:'lec-033-solubility.html',p:['031', '025']},
+'034':{l:'몰과 아보가드로 수',a:'몰과 양적 관계',f:'lec-034-mole-avogadro.html',p:[]},
+'035':{l:'몰질량',a:'몰과 양적 관계',f:'lec-035-molar-mass.html',p:['034', '036']},
+'036':{l:'화학식량',a:'몰과 양적 관계',f:'lec-036-formula-mass.html',p:['001']},
+'037':{l:'화학 반응식과 계수 맞추기',a:'몰과 양적 관계',f:'lec-037-chemical-equations.html',p:[]},
+'038':{l:'양적 관계',a:'몰과 양적 관계',f:'lec-038-stoichiometry.html',p:['035', '037']},
+'039':{l:'기체 반응 법칙·아보가드로 법칙',a:'몰과 양적 관계',f:'lec-039-gas-laws-avogadro.html',p:['034', '037']},
+'040':{l:'몰농도',a:'몰과 양적 관계',f:'lec-040-molarity.html',p:['034', '035']},
+'041':{l:'한계 반응물',a:'몰과 양적 관계',f:'lec-041-limiting-reactant.html',p:['038']},
+'042':{l:'수득률',a:'몰과 양적 관계',f:'lec-042-percent-yield.html',p:['038', '041']},
+'043':{l:'화학량론 종합',a:'몰과 양적 관계',f:'lec-043-stoichiometry-synthesis.html',p:['038', '040', '041', '042']},
+'044':{l:'기체 압력과 기본 성질',a:'기체',f:'lec-044-gas-pressure.html',p:[]},
+'045':{l:'보일·샤를 법칙',a:'기체',f:'lec-045-boyle-charles.html',p:['044']},
+'046':{l:'이상기체 방정식',a:'기체',f:'lec-046-ideal-gas-law.html',p:['045', '034']},
+'047':{l:'부분압력',a:'기체',f:'lec-047-partial-pressure.html',p:['046']},
+'048':{l:'기체 분자 운동론·확산',a:'기체',f:'lec-048-kinetic-theory.html',p:['044', '045']},
+'049':{l:'실제 기체',a:'기체',f:'lec-049-real-gases.html',p:['046', '028']},
+'050':{l:'증발과 증기압',a:'액체와 용액',f:'lec-050-evaporation-vapor-pressure.html',p:['028']},
+'051':{l:'끓는점과 상평형',a:'액체와 용액',f:'lec-051-boiling-phase-diagram.html',p:['050']},
+'052':{l:'용해 과정과 용해도',a:'액체와 용액',f:'lec-052-dissolution-solubility.html',p:['033']},
+'053':{l:'기체의 용해도',a:'액체와 용액',f:'lec-053-gas-solubility.html',p:['052', '047']},
+'054':{l:'농도 표현: 몰랄·몰분율',a:'액체와 용액',f:'lec-054-concentration-units.html',p:['040']},
+'055':{l:'총괄성 개요',a:'액체와 용액',f:'lec-055-colligative-overview.html',p:['054', '052']},
+'056':{l:'끓는점 오름·어는점 내림',a:'액체와 용액',f:'lec-056-bp-elevation-fp-depression.html',p:['055', '051']},
+'057':{l:'삼투압',a:'액체와 용액',f:'lec-057-osmotic-pressure.html',p:['055']},
+'058':{l:'고체의 분류',a:'고체와 결정',f:'lec-058-solid-classification.html',p:['019']},
+'059':{l:'결정 격자와 단위 세포',a:'고체와 결정',f:'lec-059-crystal-lattice.html',p:['058']},
+'060':{l:'금속 결정 구조',a:'고체와 결정',f:'lec-060-metallic-crystal.html',p:['059', '019']},
+'061':{l:'이온 결정 구조',a:'고체와 결정',f:'lec-061-ionic-crystal.html',p:['059', '019']},
+'062':{l:'공유 결정·분자 결정',a:'고체와 결정',f:'lec-062-covalent-molecular-crystal.html',p:['059', '019', '028']},
+'063':{l:'고체 성질 종합',a:'고체와 결정',f:'lec-063-solid-properties-synthesis.html',p:['060', '061', '062']},
+'064':{l:'발열·흡열 반응',a:'열화학',f:'lec-064-exo-endothermic.html',p:[]},
+'065':{l:'엔탈피와 반응 엔탈피',a:'열화학',f:'lec-065-enthalpy.html',p:['064']},
+'066':{l:'결합 에너지',a:'열화학',f:'lec-066-bond-energy.html',p:['065', '020']},
+'067':{l:'헤스 법칙',a:'열화학',f:'lec-067-hess-law.html',p:['065']},
+'068':{l:'표준 생성 엔탈피',a:'열화학',f:'lec-068-formation-enthalpy.html',p:['067']},
+'069':{l:'비열과 열량 측정',a:'열화학',f:'lec-069-specific-heat.html',p:['064']},
+'070':{l:'상태 변화의 엔탈피',a:'열화학',f:'lec-070-phase-change-enthalpy.html',p:['065', '051']},
+'071':{l:'엔트로피와 무질서도',a:'열화학',f:'lec-071-entropy.html',p:['064']},
+'072':{l:'깁스 자유 에너지와 자발성',a:'열화학',f:'lec-072-gibbs-free-energy.html',p:['071', '065']},
+'073':{l:'가역 반응과 동적 평형',a:'화학 평형',f:'lec-073-reversible-equilibrium.html',p:[]},
+'074':{l:'평형 상수 K',a:'화학 평형',f:'lec-074-equilibrium-constant.html',p:['073', '040']},
+'075':{l:'평형 상수 계산과 의미',a:'화학 평형',f:'lec-075-equilibrium-calculation.html',p:['074']},
+'076':{l:'반응 지수 Q와 평형 예측',a:'화학 평형',f:'lec-076-reaction-quotient.html',p:['074']},
+'077':{l:'르샤틀리에 원리: 농도',a:'화학 평형',f:'lec-077-lechatelier-concentration.html',p:['074', '073']},
+'078':{l:'르샤틀리에: 압력',a:'화학 평형',f:'lec-078-lechatelier-pressure.html',p:['077']},
+'079':{l:'르샤틀리에: 온도·촉매',a:'화학 평형',f:'lec-079-lechatelier-temperature.html',p:['077']},
+'080':{l:'평형 이동 종합',a:'화학 평형',f:'lec-080-equilibrium-synthesis.html',p:['077', '078', '079']},
+'081':{l:'산과 염기의 정의',a:'산과 염기',f:'lec-081-acid-base-definition.html',p:[]},
+'082':{l:'짝산-짝염기',a:'산과 염기',f:'lec-082-conjugate-acid-base.html',p:['081']},
+'083':{l:'물의 자동 이온화와 Kw',a:'산과 염기',f:'lec-083-water-autoionization.html',p:['081', '074']},
+'084':{l:'pH와 pOH',a:'산과 염기',f:'lec-084-ph-poh.html',p:['083']},
+'085':{l:'산과 염기의 세기',a:'산과 염기',f:'lec-085-acid-base-strength.html',p:['081']},
+'086':{l:'약산의 이온화 상수 Ka',a:'산과 염기',f:'lec-086-acid-ionization-constant.html',p:['074', '085']},
+'087':{l:'약염기 Kb와 Ka·Kb 관계',a:'산과 염기',f:'lec-087-base-ionization-kb.html',p:['086', '082']},
+'088':{l:'다양성자산',a:'산과 염기',f:'lec-088-polyprotic-acids.html',p:['086']},
+'089':{l:'염의 액성',a:'산과 염기',f:'lec-089-salt-acidity.html',p:['082', '086']},
+'090':{l:'완충 용액',a:'산과 염기',f:'lec-090-buffer-solution.html',p:['086', '082']},
+'091':{l:'지시약과 pH 측정',a:'산과 염기',f:'lec-091-indicators-ph.html',p:['084']},
+'092':{l:'산과 염기 종합',a:'산과 염기',f:'lec-092-acid-base-synthesis.html',p:['084', '086', '089', '090']},
+'093':{l:'중화 반응',a:'중화 반응',f:'lec-093-neutralization.html',p:['081']},
+'094':{l:'중화의 양적 관계',a:'중화 반응',f:'lec-094-neutralization-stoichiometry.html',p:['040', '093']},
+'095':{l:'중화 적정',a:'중화 반응',f:'lec-095-neutralization-titration.html',p:['094', '091']},
+'096':{l:'적정 곡선·중화점',a:'중화 반응',f:'lec-096-titration-curve.html',p:['095', '084', '089']},
+'097':{l:'중화 반응 종합',a:'중화 반응',f:'lec-097-neutralization-synthesis.html',p:['094', '095', '096']},
+'098':{l:'산화수',a:'산화 환원',f:'lec-098-oxidation-number.html',p:['018', '015']},
+'099':{l:'산화·환원의 정의',a:'산화 환원',f:'lec-099-redox-definition.html',p:['019']},
+'100':{l:'산화수와 산화·환원',a:'산화 환원',f:'lec-100-oxidation-number-redox.html',p:['098', '099']},
+'101':{l:'산화제·환원제',a:'산화 환원',f:'lec-101-oxidizing-reducing-agent.html',p:['100']},
+'102':{l:'산화 환원 반응식의 균형',a:'산화 환원',f:'lec-102-redox-balancing.html',p:['100', '037']},
+'103':{l:'금속의 반응성',a:'산화 환원',f:'lec-103-metal-reactivity.html',p:['099', '013']},
+'104':{l:'화학 전지',a:'산화 환원',f:'lec-104-galvanic-cell.html',p:['103', '100']},
+'105':{l:'전기 분해',a:'산화 환원',f:'lec-105-electrolysis.html',p:['104']},
+'106':{l:'산화 환원 종합',a:'산화 환원',f:'lec-106-redox-synthesis.html',p:['102', '104', '105']},
+'107':{l:'반응 속도의 정의',a:'반응 속도',f:'lec-107-reaction-rate.html',p:['040']},
+'108':{l:'충돌 이론',a:'반응 속도',f:'lec-108-collision-theory.html',p:['107', '048']},
+'109':{l:'활성화 에너지',a:'반응 속도',f:'lec-109-activation-energy.html',p:['108', '065']},
+'110':{l:'농도와 반응 속도',a:'반응 속도',f:'lec-110-concentration-rate.html',p:['108', '040']},
+'111':{l:'온도와 반응 속도',a:'반응 속도',f:'lec-111-temperature-rate.html',p:['109']},
+'112':{l:'촉매',a:'반응 속도',f:'lec-112-catalyst.html',p:['109', '079']},
+'113':{l:'반응 속도 종합',a:'반응 속도',f:'lec-113-reaction-rate-synthesis.html',p:['110', '111', '112']},
+'114':{l:'탄소 화합물의 특징',a:'탄소 화합물',f:'lec-114-carbon-compounds.html',p:['019']},
+'115':{l:'탄화수소',a:'탄소 화합물',f:'lec-115-hydrocarbons.html',p:['114', '020']},
+'116':{l:'작용기 개론',a:'탄소 화합물',f:'lec-116-functional-groups.html',p:['115']},
+'117':{l:'알코올·에터',a:'탄소 화합물',f:'lec-117-alcohols-ethers.html',p:['116']},
+'118':{l:'카보닐·카복실산·에스터',a:'탄소 화합물',f:'lec-118-carbonyl-carboxyl-ester.html',p:['116', '085']},
+'119':{l:'이성질체',a:'탄소 화합물',f:'lec-119-isomers.html',p:['115', '027']},
+'120':{l:'방향족',a:'탄소 화합물',f:'lec-120-aromatic-benzene.html',p:['115', '021']},
+'121':{l:'탄소 화합물 종합',a:'탄소 화합물',f:'lec-121-carbon-compounds-synthesis.html',p:['116', '118', '119', '120']},
+'122':{l:'착이온과 배위 결합',a:'배위 화학',f:'lec-122-complex-ion-coordinate-bond.html',p:['019', '021']},
+'123':{l:'리간드와 배위수',a:'배위 화학',f:'lec-123-ligand-coordination-number.html',p:['122']},
+'124':{l:'착물의 구조와 성질',a:'배위 화학',f:'lec-124-complex-structure-properties.html',p:['123', '023', '005']},
+'125':{l:'배위 화학 종합',a:'배위 화학',f:'lec-125-coordination-synthesis.html',p:['122', '123', '124']}
+};
+const IDS=Object.keys(N);
+// 도움(contextual) 간선: 약해도 뿌리 귀속에 강하게 영향 안 줌. 나머지는 필수(blocking).
+const SOFT={'036':['001'],'048':['045'],'108':['048'],'112':['079'],'124':['005'],'098':['015'],'103':['013'],'070':['051'],'049':['028'],'096':['089'],'095':['091'],'066':['020'],'053':['047'],'109':['065'],'120':['021'],'122':['021']};
+const isSoft=(id,pp)=>(SOFT[id]||[]).includes(pp);
+const hardP=id=>N[id].p.filter(pp=>!isSoft(id,pp));
+// 역간선 (전체 / 필수만)
+const DEP={}, DEPH={}; IDS.forEach(i=>{DEP[i]=[];DEPH[i]=[];});
+IDS.forEach(i=>N[i].p.forEach(pp=>{DEP[pp].push(i); if(!isSoft(i,pp))DEPH[pp].push(i);}));
+// 위상 정렬
+function topo(){const indeg={},q=[],ord=[]; IDS.forEach(i=>indeg[i]=N[i].p.length);
+ IDS.forEach(i=>{if(indeg[i]===0)q.push(i)});
+ while(q.length){const u=q.shift();ord.push(u);DEP[u].forEach(v=>{if(--indeg[v]===0)q.push(v)})} return ord;}
+const TOPO=topo();
+// 하류 폐포(약한 것만)
+function downstreamWeak(root,W){const seen=new Set(),st=[root];const out=new Set();
+ while(st.length){const u=st.pop();DEPH[u].forEach(v=>{if(!seen.has(v)){seen.add(v);if(W.has(v))out.add(v);st.push(v)}})} return out;}
+
+let S={}, W=new Set();
+const sev=id=>S[id]||0;
+function ancestorWeak(id){const seen=new Set(),st=[...hardP(id)];
+ while(st.length){const u=st.pop();if(seen.has(u))continue;seen.add(u);if(W.has(u))return true;hardP(u).forEach(x=>st.push(x));} return false;}
+function nearWeakAnc(id){const seen=new Set();let fr=[...hardP(id)];
+ while(fr.length){const nx=[];for(const u of fr){if(seen.has(u))continue;seen.add(u);if(W.has(u))return u;hardP(u).forEach(x=>nx.push(x));}fr=nx;} return null;}
+function diagnose(){
+ const roots=[...W].filter(w=>!ancestorWeak(w));
+ const scored=roots.map(r=>{const ds=downstreamWeak(r,W);let sw=sev(r);ds.forEach(x=>sw+=sev(x));return {id:r,reach:ds.size+1,sym:ds,sw};})
+   .sort((a,b)=>b.reach-a.reach || b.sw-a.sw || TOPO.indexOf(a.id)-TOPO.indexOf(b.id));
+ return scored;
+}
+function confidence(scored){
+ const tot=W.size, top=scored[0]?scored[0].reach:0, clarity=tot?top/tot:0, nr=scored.length;
+ if(nr===1) return {lvl:'명확',col:'#0E5A4C',txt:'단일 뿌리가 모든 약점을 설명',clarity,nr};
+ if(clarity>=0.6) return {lvl:'대체로 명확',col:'#3A7A6B',txt:`주 뿌리가 약점의 ${Math.round(clarity*100)}%를 설명`,clarity,nr};
+ if(clarity>=0.4) return {lvl:'혼재',col:'#B08D57',txt:`독립 뿌리 ${nr}개 혼재 · 가장 위 뿌리부터`,clarity,nr};
+ return {lvl:'분산',col:'#C0603A',txt:`독립 약점 ${nr}개로 분산 · 뿌리 불명확`,clarity,nr};
+}
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+function svgGraph(scored){
+ let nodes=[...W]; if(!nodes.length) return ''; let omitted=0;
+ if(nodes.length>16 && scored.length){const keep=new Set([scored[0].id,...scored[0].sym]);const sh=nodes.filter(n=>keep.has(n));omitted=nodes.length-sh.length;nodes=sh;}
+ const inSet=new Set(nodes);
+ const rootIds=new Set(scored.map(s=>s.id));
+ const par={}; nodes.forEach(id=>{
+   if(rootIds.has(id)){par[id]=[];return;}
+   const hp=hardP(id).filter(pp=>inSet.has(pp)).map(p=>({p,kind:'hard'}));
+   const sp=(SOFT[id]||[]).filter(pp=>inSet.has(pp)).map(p=>({p,kind:'soft'}));
+   let es=hp.concat(sp);
+   if(!es.length){const a=nearWeakAnc(id); if(a&&inSet.has(a))es=[{p:a,kind:'recon'}];}
+   par[id]=es;});
+ const layer={}; TOPO.filter(id=>inSet.has(id)).forEach(id=>{let mx=0;par[id].forEach(e=>{mx=Math.max(mx,(layer[e.p]||0)+1)});layer[id]=mx;});
+ const rows={}; nodes.forEach(id=>{(rows[layer[id]]=rows[layer[id]]||[]).push(id)});
+ const rk=Object.keys(rows).map(Number).sort((a,b)=>a-b);
+ const H_=64,padX=18,padY=22,maxRow=Math.max(...rk.map(r=>rows[r].length),1);
+ const width=Math.max(maxRow*140+padX*2,300),height=rk.length*H_+padY*2+(omitted?16:0);
+ const pos={}; rk.forEach((r,ri)=>{const row=rows[r],gap=(width-padX*2)/row.length;
+   row.forEach((id,ci)=>pos[id]={x:padX+gap*ci+gap/2,y:padY+ri*H_+18});});
+ let edges=''; nodes.forEach(id=>par[id].forEach(e=>{const a=pos[e.p],b=pos[id];
+   const d=e.kind==='soft'?' stroke-dasharray="2 3"':(e.kind==='recon'?' stroke-dasharray="5 3"':'');
+   edges+=`<line x1="${a.x}" y1="${a.y+12}" x2="${b.x}" y2="${b.y-12}" stroke="#cfc9bd" stroke-width="1.3"${d} marker-end="url(#ar)"/>`;}));
+ let cells=''; nodes.forEach(id=>{const p=pos[id],isR=rootIds.has(id),col=AREAS[N[id].a].c,sv=sev(id);
+   const w=Math.min(132,30+N[id].l.length*11);
+   const fill=isR?(sv>=2?'#0E5A4C':'#2E7D6B'):(sv>=2?'#fbece7':'#fff'), tcol=isR?'#fff':'#23201b';
+   cells+=`<g><rect x="${p.x-w/2}" y="${p.y-12}" width="${w}" height="26" rx="7" fill="${fill}" stroke="${isR?'#0E5A4C':col}" stroke-width="${isR?2:1.4}"/>`+
+     `<text x="${p.x}" y="${p.y+4}" text-anchor="middle" font-size="10.5" font-weight="${isR?700:600}" fill="${tcol}" font-family="-apple-system,sans-serif">${esc(N[id].l.length>9?N[id].l.slice(0,8)+'…':N[id].l)}</text>`+
+     `<text x="${p.x-w/2+2}" y="${p.y-15}" font-size="8" fill="${col}" font-family="ui-monospace,monospace">${id}</text></g>`;});
+ const omn=omitted?`<text x="${width/2}" y="${height-5}" text-anchor="middle" font-size="9" fill="#8a8578">+ 다른 약점 ${omitted}개는 경로·표 참조</text>`:'';
+ return `<svg viewBox="0 0 ${width} ${height}" width="${width}"><defs><marker id="ar" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#cfc9bd"/></marker></defs>${edges}${cells}${omn}</svg>`;
+}
+
+function render(){
+ W=new Set(Object.keys(S));
+ const ns=W.size, n2=[...W].filter(id=>sev(id)>=2).length, n1=ns-n2;
+ document.getElementById('stat').textContent=ns?`표시: 틀림 ${n2} · 약함 ${n1}`:'';
+ IDS.forEach(id=>{const el=document.querySelector(`[data-id="${id}"]`); if(el){el.classList.remove('w1','w2');if(sev(id)===1)el.classList.add('w1');if(sev(id)>=2)el.classList.add('w2');}});
+ const R=document.getElementById('report');
+ if(!ns){R.innerHTML=`<div class="rhead"><div class="t">개념 진단 (성적표 삽입 블록)</div><div class="s">미리보기</div></div><div class="rbody"><div class="empty">개념을 클릭(틀림→약함→정상)하면<br>근본 원인 진단이 여기에 나타납니다.</div></div>`; return;}
+ const scored=diagnose(), conf=confidence(scored);
+ const fixOrder=TOPO.filter(id=>W.has(id));
+ let rootsHtml=scored.map((s,i)=>{
+   const symList=[...s.sym].sort((a,b)=>TOPO.indexOf(a)-TOPO.indexOf(b)).map(x=>`${N[x].l}(${x})`).join(', ');
+   return `<div class="root"><div class="lab">${scored.length>1?`뿌리 ${i+1} / ${scored.length}`:'근본 원인 (뿌리 개념)'}</div>`+
+     `<div class="main">${esc(N[s.id].l)} <span style="font-family:var(--mono);font-size:12px;color:var(--muted)">${s.id}</span></div>`+
+     `<div class="why">이 개념이 약해서, 그 위에 쌓이는 <b>${s.reach-1}개</b> 개념의 실패를 설명합니다${s.sym.size?`: ${esc(symList)}`:'(단독 약점)'}.</div>`+
+     `<a class="start" href="${N[s.id].f}">여기부터 → ${N[s.id].a} ${s.id}강</a></div>`;}).join('');
+ let pathHtml=`<div class="path"><div class="lab">우선 학습 경로 (뿌리부터)</div>`+
+   fixOrder.map((id,i)=>{const isR=scored.some(s=>s.id===id),sv=sev(id);
+     return `<div class="step"><span class="ord">${i+1}</span><a href="${N[id].f}">${esc(N[id].l)}</a><span class="rl">${id}강 · ${N[id].a}</span><span class="tag ${isR?'root':'sym'}">${isR?'뿌리':(sv>=2?'증상':'약함')}</span></div>`;}).join('')+`</div>`;
+ R.innerHTML=`<div class="rhead"><div class="t">개념 진단 (성적표 삽입 블록)</div><div class="s">틀림·약함 ${ns}개 · 뿌리 ${scored.length}개</div><span class="conf" style="background:${conf.col}">뿌리 명확도: ${conf.lvl}</span></div>`+
+   `<div class="rbody"><div class="confnote">${conf.txt}.</div>${rootsHtml}`+
+   `<div class="figwrap">${svgGraph(scored)}<div class="figcap">의존 그래프 · 진한 칸=뿌리 · 실선=필수 선수 · 짧은점선=도움 선수 · 긴점선=가까운 약한 상류</div></div>`+
+   `${pathHtml}</div>`;
+}
+
+// chips UI
+(function(){const byA={}; IDS.forEach(id=>{(byA[N[id].a]=byA[N[id].a]||[]).push(id);});
+ const order=['원자모형', '주기율', '분자의 모양', '분자 간 인력', '몰과 양적 관계', '기체', '액체와 용액', '고체와 결정', '열화학', '화학 평형', '산과 염기', '중화 반응', '산화 환원', '반응 속도', '탄소 화합물', '배위 화학']; let h='';
+ order.forEach(a=>{h+=`<div class="area"><div class="ah"><span class="dot" style="background:${AREAS[a].c}"></span>${a}</div><div class="chips">`;
+  byA[a].forEach(id=>{h+=`<div class="chip" data-id="${id}"><span class="n">${id}</span>${esc(N[id].l)}</div>`;});
+  h+=`</div></div>`;});
+ document.getElementById('chips').innerHTML=h;
+ document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{const id=c.dataset.id;const v=S[id]||0;if(v===0)S[id]=2;else if(v===2)S[id]=1;else delete S[id];render();}));
+})();
+// presets
+const PRE={
+ molar:['040','074','086','094','107','110'],
+ config:['006','011','018','022','098'],
+ en:['015','025','031','033','118'],
+ eqK:['074','083','086','089'],
+ bond:['019','058','099','114','122']
+};
+document.querySelectorAll('[data-pre]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.pre;
+ if(k==='clear'){S={};}else{S={};PRE[k].forEach(id=>S[id]=2);} render();}));
+// audit table
+(function(){let rows=''; const order=['원자모형', '주기율', '분자의 모양', '분자 간 인력', '몰과 양적 관계', '기체', '액체와 용액', '고체와 결정', '열화학', '화학 평형', '산과 염기', '중화 반응', '산화 환원', '반응 속도', '탄소 화합물', '배위 화학'];
+ order.forEach(a=>{IDS.filter(id=>N[id].a===a).forEach(id=>{
+   const pq=N[id].p.length?N[id].p.map(pp=>`${esc(N[pp].l)}(${pp}) <span class="ek ${isSoft(id,pp)?'soft':'hard'}">${isSoft(id,pp)?'도움':'필수'}</span>`).join('   '):'<span class="root0">뿌리 개념</span>';
+   rows+=`<tr><td class="nn">${id}</td><td>${esc(N[id].l)}<br><span style="font-size:9.5px;color:${AREAS[a].c}">${a}</span></td><td class="pq">${pq}</td></tr>`;});});
+ document.getElementById('audit').innerHTML=`<table><tr><th>강</th><th>개념</th><th>선수 개념 (← 먼저 필요)</th></tr>${rows}</table>`;
+})();
+render();
+</script>
+</body></html>
