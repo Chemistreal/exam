@@ -1,0 +1,86 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5"><title>옥텟 규칙과 루이스 구조 · 개념강의</title><style>
+:root{--cream:#FBFAF6;--paper:#fff;--ink:#23201b;--ink-2:#5a564d;--muted:#8a8578;--teal:#0E5A4C;--teal-d:#3A7A6B;--brass:#B08D57;--line:#E8E4DA;--ms:#C0603A;--ok-bg:#eef5f2;--mono:ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:-apple-system,"Noto Sans KR",sans-serif;line-height:1.62}
+.serif{font-family:"Nanum Myeongjo",Georgia,serif}
+header{background:linear-gradient(180deg,#0E5A4C,#0b4a3f);color:#fff;padding:24px 20px;text-align:center}
+header .logo{font-size:12px;letter-spacing:.18em;opacity:.82;font-weight:600}header h1{margin:6px 0 4px;font-size:23px}header .sub{font-size:12.5px;opacity:.86}
+main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
+.back{display:inline-flex;gap:5px;color:var(--teal);text-decoration:none;font-size:14px;font-weight:600;padding:8px 0}
+.hw{background:#fff;border:1px solid var(--line);border-left:3px solid var(--brass);border-radius:9px;padding:12px 15px;font-size:13.5px;color:var(--ink-2);margin:12px 0}
+.hw b{color:var(--ink)}
+.lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
+.sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
+.sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
+.sec__t{font-size:16px;font-weight:700}
+.sec p{margin:12px 0}.sec p:first-of-type{margin-top:0}.sec p:last-child{margin-bottom:0}
+.key{background:var(--ok-bg);border-left:3px solid var(--teal);border-radius:9px;padding:13px 16px;margin:15px 0;font-weight:600;color:#13463b;line-height:1.7}
+.trap{background:#fbf2ec;border-left:3px solid var(--ms);border-radius:9px;padding:12px 16px;margin:14px 0;font-size:14.5px;line-height:1.66}
+.trap .lab{font-weight:700;color:var(--ms);font-size:13px;letter-spacing:.02em}
+.eg{background:#faf8f1;border:1px dashed var(--line);border-radius:9px;padding:12px 15px;margin:12px 0;font-size:14.5px;line-height:1.66}
+.eg .lab{font-weight:700;color:var(--brass);font-size:12.5px}
+.fm{font-family:var(--mono);font-size:.97em;white-space:nowrap}
+.big{font-family:"Nanum Myeongjo",Georgia,serif;font-size:18.5px;line-height:1.72;color:var(--teal);text-align:center;padding:16px 10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:18px 0}
+.struct{font-family:var(--mono);font-size:17px;text-align:center;letter-spacing:.05em;background:#f6f4ec;border-radius:9px;padding:14px;margin:12px 0;color:#1c3a33}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:8px 0}
+th,td{padding:7px 9px;border-bottom:1px solid #f1ede4;text-align:left}th{color:var(--muted);font-size:12px;font-weight:600;border-bottom:1.5px solid var(--line)}
+td.mono{font-family:var(--mono)}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px}
+</style></head>
+<body><header><div class="logo">CHEMISTREAL · 개념강의</div><h1 class="serif">옥텟 규칙과 루이스 구조</h1><div class="sub">018 · 분자의 모양</div></header><main>
+<a class="back" href="final.html">‹ 파이널로</a>
+<div class="hw">이번 진단에서 <b>루이스 구조 · 옥텟</b>이 보강으로 잡혔어. 이 1강을 끝까지 읽고 <b>직접 해보기</b>까지. 분자를 그림으로 그리는 첫걸음이고, 이게 안 되면 다음 강들(공명·분자 모양)을 손도 못 대. 그리는 절차를 손에 익히는 게 오늘 목표야.</div>
+
+<p class="lead">자, 원자들이 왜 굳이 뭉쳐서 분자를 만들까? 답은 앞에서 봤어. 18족의 꽉 찬 안정한 배치(011)를 닮고 싶어서야. 그 안정한 상태를 향해 전자를 공유하거나 주고받는 게 화학 결합이고. 오늘은 그 "옥텟을 채운다"는 원리와, 분자 안에서 전자가 어떻게 배치됐는지를 그림으로 그리는 루이스 구조를 배울 거야. 그리는 절차 다섯 단계를 손에 익히면, 웬만한 분자는 다 그릴 수 있어.</p>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">01</span><span class="sec__t">옥텟 규칙 · 8을 향한 본능</span></div>
+<p>원자는 최외각 전자를 8개로 채우려는 경향이 있어. 이걸 옥텟 규칙이라고 해. 왜 하필 8이냐면, 18족 비활성 기체가 최외각 8개(s²p⁶)로 가장 안정하기 때문이야(011). 다른 원자들도 그 안정한 8개 배치를 본뜨려고 결합하는 거지.</p>
+<p>방법은 두 가지야. 전자를 서로 공유해서 같이 8개를 채우거나(공유 결합), 아예 주고받아서 각자 8개가 되거나(이온 결합). 둘 다 다음 강(019)에서 자세히 볼 거고, 오늘은 공유로 옥텟을 채우는 그림에 집중하자.</p>
+<div class="trap"><span class="lab">함정 · 수소는 8이 아니라 2</span><br>수소(H)는 1주기라 최외각 껍질이 1s 하나뿐이고, 그게 꽉 차면 2개야(듀엣). 그래서 H는 8이 아니라 2를 채우면 만족해. 헬륨도 마찬가지. "옥텟 8개, 단 H는 2개"를 꼭 같이 기억해. H를 8로 채우려다 구조가 다 어긋나.</div>
+</div>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">02</span><span class="sec__t">루이스 구조 그리는 법 · 다섯 단계</span></div>
+<p>루이스 구조는 원자가 전자를 점으로, 공유한 전자쌍(결합)을 선으로 그린 분자 지도야. 절차는 이래.</p>
+<table><tr><th>단계</th><th>할 일</th></tr>
+<tr><td class="mono">①</td><td>모든 원자의 원자가 전자 수를 더해 총 전자 수를 센다 (이온이면 전하 반영)</td></tr>
+<tr><td class="mono">②</td><td>중심 원자를 정하고(보통 전기음성도가 가장 낮은 것, H는 절대 중심 안 됨) 주변 원자를 단일결합으로 연결</td></tr>
+<tr><td class="mono">③</td><td>주변 원자부터 옥텟(H는 듀엣)을 고립 전자쌍으로 채운다</td></tr>
+<tr><td class="mono">④</td><td>남은 전자를 중심 원자에 고립쌍으로 올린다</td></tr>
+<tr><td class="mono">⑤</td><td>중심 원자가 옥텟이 안 되면, 주변의 고립쌍을 끌어와 다중결합을 만든다</td></tr></table>
+<div class="key">핵심 감각: 전자는 "공유쌍(결합)"과 "고립쌍" 두 가지로만 존재해. 그리고 옥텟을 셀 때 공유쌍은 양쪽 원자가 모두 자기 것으로 세. 그래서 결합 하나는 양쪽 원자에 각각 전자 2개씩 기여하는 셈이야. 이 "공유쌍은 양쪽이 센다"를 놓치면 옥텟 계산이 어긋나.</div>
+</div>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">03</span><span class="sec__t">예제로 익히기 · 물, 이산화탄소, 질소</span></div>
+<p><b>물 <span class="fm">H₂O</span>.</b> 총 원자가 전자 = O(6) + H(1)×2 = 8개. O를 중심에 두고 H 둘을 단일결합으로 연결(결합 2개에 전자 4개 사용). 남은 4개는 O에 고립쌍 둘로. O는 결합쌍 2 + 고립쌍 2 = 전자 8개로 옥텟 완성, H는 각각 2개로 듀엣 완성.</p>
+<div class="struct">H − O − H &nbsp;&nbsp;(O 위·아래 고립쌍 2)</div>
+<p><b>이산화탄소 <span class="fm">CO₂</span>.</b> 총 전자 = C(4) + O(6)×2 = 16개. C를 중심에 두고 O 둘을 단일결합으로 연결하면 C가 전자 4개뿐이라 옥텟이 안 돼(④까지로는 부족). 그래서 ⑤단계, 양쪽 O의 고립쌍을 끌어와 이중결합 두 개를 만들어. 그러면 C가 8개, 각 O도 8개로 모두 옥텟.</p>
+<div class="struct">O = C = O</div>
+<p><b>질소 <span class="fm">N₂</span>.</b> 총 전자 = N(5)×2 = 10개. N 둘을 단일결합으로 잇고 옥텟을 맞추려면, 전자가 모자라 삼중결합이 필요해. N 둘이 전자쌍 3개를 공유하는 삼중결합을 만들면 각 N이 8개(결합쌍 3 + 고립쌍 1). 질소 분자가 그렇게 안정하고 반응을 잘 안 하는 게 이 강한 삼중결합 때문이야(다음 강 결합 에너지로 이어짐).</p>
+<div class="struct">:N ≡ N: &nbsp;&nbsp;(양 끝 N에 고립쌍 1개씩)</div>
+</div>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">04</span><span class="sec__t">옥텟의 예외 · 항상 8은 아니다</span></div>
+<p>옥텟 규칙은 강력하지만 예외가 있어. 세 가지 유형을 알아두면 돼.</p>
+<table><tr><th>유형</th><th>설명</th><th>예</th></tr>
+<tr><td>옥텟 미만</td><td>중심 원자가 8개를 못 채움(전자 부족)</td><td class="mono">BF₃(B 6), BeCl₂(Be 4)</td></tr>
+<tr><td>옥텟 초과</td><td>중심이 8개를 넘김(확장 옥텟)</td><td class="mono">PCl₅(P 10), SF₆(S 12)</td></tr>
+<tr><td>홀수 전자</td><td>총 전자가 홀수라 옥텟 불가</td><td class="mono">NO, NO₂</td></tr></table>
+<div class="trap"><span class="lab">함정 · 확장 옥텟은 3주기부터</span><br>옥텟을 초과(9개 이상)할 수 있는 건 3주기 이상의 원소뿐이야(빈 d 오비탈을 쓸 여지가 있어서). 2주기 원소(C, N, O, F)는 절대 옥텟을 넘지 못해. 그러니 질소나 산소를 중심에 두고 전자 10개, 12개를 그리면 틀려. "확장은 인(P)·황(S) 같은 3주기부터"로 기억해.</div>
+<p>붕소(BF₃)나 베릴륨(BeCl₂)은 반대로 8개를 못 채워. 그래서 이런 분자들은 전자가 부족한 상태라, 전자쌍을 받아들이려는 성질(다음 단원의 산·염기 개념과도 연결)이 강해. 옥텟이 "규칙"이긴 해도 절대 법칙은 아니라는 걸 알아두자.</p>
+</div>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
+<p>오늘 들고 갈 한 문장.</p>
+<div class="big">"옥텟(H는 2)을 향해 전자를 공유한다 · 다섯 단계로 그리고, 모자라면 다중결합."</div>
+<p>전자는 공유쌍(결합)과 고립쌍으로만 존재하고, 공유쌍은 양쪽 원자가 모두 세. 절차는 총 전자 세기 → 골격 → 주변 옥텟 → 중심 → 다중결합. 예외는 옥텟 미만(BF₃)·초과(SF₆, 3주기+)·홀수 전자.</p>
+<p>다음 강(019 화학 결합 3종)에서는 오늘 본 "공유"를 포함해 결합의 세 종류(공유·이온·금속)를 전기음성도 차이(015)로 갈라 정리해. 그리고 오늘 그린 루이스 구조는 곧 분자의 모양(022 VSEPR)으로 직결돼. 중심 원자 주변의 전자쌍(결합쌍+고립쌍)이 몇 개냐가 모양을 정하거든. 오늘 그리기를 손에 익히는 게 그 출발점이야.</p>
+<div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 분자들을 다섯 단계로 직접 그려봐. ① 총 원자가 전자 세고 ② 골격 잡고 ③ 주변 옥텟·④ 중심·⑤ 모자라면 다중결합. 각 원자가 옥텟(H는 듀엣)인지, 전자 총수가 맞는지 검산까지. 예외 유형이면 어디에 해당하는지 적어. 한 바퀴 돌리면 이 절차는 네 거다.</div>
+</div>
+
+<footer>Chemistreal · 개념강의 018 · 옥텟 규칙과 루이스 구조</footer>
+</main></body></html>

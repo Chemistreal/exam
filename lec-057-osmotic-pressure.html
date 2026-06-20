@@ -1,0 +1,72 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5"><title>삼투압 · 개념강의</title><style>
+:root{--cream:#FBFAF6;--paper:#fff;--ink:#23201b;--ink-2:#5a564d;--muted:#8a8578;--teal:#0E5A4C;--teal-d:#3A7A6B;--brass:#B08D57;--line:#E8E4DA;--ms:#C0603A;--ok-bg:#eef5f2;--mono:ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:-apple-system,"Noto Sans KR",sans-serif;line-height:1.62}
+.serif{font-family:"Nanum Myeongjo",Georgia,serif}
+header{background:linear-gradient(180deg,#0E5A4C,#0b4a3f);color:#fff;padding:24px 20px;text-align:center}
+header .logo{font-size:12px;letter-spacing:.18em;opacity:.82;font-weight:600}header h1{margin:6px 0 4px;font-size:23px}header .sub{font-size:12.5px;opacity:.86}
+main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
+.back{display:inline-flex;gap:5px;color:var(--teal);text-decoration:none;font-size:14px;font-weight:600;padding:8px 0}
+.hw{background:#fff;border:1px solid var(--line);border-left:3px solid var(--brass);border-radius:9px;padding:12px 15px;font-size:13.5px;color:var(--ink-2);margin:12px 0}
+.hw b{color:var(--ink)}
+.lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
+.sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
+.sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
+.sec__t{font-size:16px;font-weight:700}
+.sec p{margin:12px 0}.sec p:first-of-type{margin-top:0}.sec p:last-child{margin-bottom:0}
+.key{background:var(--ok-bg);border-left:3px solid var(--teal);border-radius:9px;padding:13px 16px;margin:15px 0;font-weight:600;color:#13463b;line-height:1.7}
+.trap{background:#fbf2ec;border-left:3px solid var(--ms);border-radius:9px;padding:12px 16px;margin:14px 0;font-size:14.5px;line-height:1.66}
+.trap .lab{font-weight:700;color:var(--ms);font-size:13px;letter-spacing:.02em}
+.eg{background:#faf8f1;border:1px dashed var(--line);border-radius:9px;padding:12px 15px;margin:12px 0;font-size:14.5px;line-height:1.66}
+.eg .lab{font-weight:700;color:var(--brass);font-size:12.5px}
+.fm{font-family:var(--mono);font-size:.97em;white-space:nowrap}
+.big{font-family:"Nanum Myeongjo",Georgia,serif;font-size:18.5px;line-height:1.72;color:var(--teal);text-align:center;padding:16px 10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:18px 0}
+.fig{text-align:center;background:#faf8f1;border:1px solid var(--line);border-radius:10px;padding:12px;margin:14px 0}
+.fig svg{width:100%;height:auto;max-width:300px}
+.fig figcaption{font-size:12px;color:var(--ink-2);margin-top:6px;line-height:1.45}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px}
+</style></head>
+<body><header><div class="logo">CHEMISTREAL · 개념강의</div><h1 class="serif">삼투압</h1><div class="sub">057 · 액체와 용액</div></header><main>
+<a class="back" href="final.html">‹ 파이널로</a>
+<div class="hw">이번 진단에서 <b>삼투 · 삼투압</b>이 보강으로 잡혔어. 이 1강을 끝까지 읽고 <b>직접 해보기</b>까지. 총괄성의 마지막이자 액체·용액 영역의 마지막이야. "용매가 저농도에서 고농도로 이동(삼투)하고, 그걸 막는 압력이 삼투압(π=iMRT)"이 핵심이야.</div>
+
+<p class="lead">자, 총괄성의 마지막은 삼투압이야. 소금물에 채소를 담그면 쪼그라들고, 민물에 둔 세포는 부풀잖아. 이게 다 삼투 현상이야. 용매만 통과시키는 반투막을 사이에 두면, 용매가 묽은 쪽에서 진한 쪽으로 이동하거든. 그 이동을 막으려면 압력이 필요한데, 그게 삼투압이지. 오늘은 삼투가 어느 방향으로 일어나는지, 삼투압을 어떻게 계산하는지(PV=nRT를 닮은 식)를 잡으면서 이 영역을 닫을 거야.</p>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">01</span><span class="sec__t">삼투 · 용매가 진한 쪽으로 이동 (그림)</span></div>
+<p>반투막은 작은 용매 분자는 통과시키고 큰 용질 입자는 막는 막이야. 이 막을 사이에 두고 한쪽엔 묽은 용액(또는 순수 용매), 한쪽엔 진한 용액을 두면, <b>용매가 묽은 쪽(저농도)에서 진한 쪽(고농도)으로 이동</b>해. 양쪽 농도를 같게 만들려는 방향이지. 이게 삼투야.</p>
+<div class="fig"><svg viewBox="0 0 290 180"><rect x="45" y="38" width="200" height="120" fill="none" stroke="#bdb8ac" stroke-width="2"/><line x1="145" y1="38" x2="145" y2="158" stroke="#C0603A" stroke-width="2.5" stroke-dasharray="3 3"/><rect x="47" y="104" width="97" height="52" fill="#cfe3dc"/><rect x="146" y="74" width="97" height="82" fill="#7fb3a6"/><text x="95" y="30" text-anchor="middle" fill="#13463b" font-size="10" font-weight="700">용매(저농도)</text><text x="195" y="30" text-anchor="middle" fill="#13463b" font-size="10" font-weight="700">용액(고농도)</text><line x1="118" y1="130" x2="172" y2="130" stroke="#0E5A4C" stroke-width="2.5"/><polygon points="172,130 164,125 164,135" fill="#0E5A4C"/><text x="145" y="172" text-anchor="middle" fill="#C0603A" font-size="9">반투막</text><line x1="258" y1="74" x2="258" y2="104" stroke="#9a7a3a" stroke-width="1.5"/><text x="263" y="92" fill="#9a7a3a" font-size="9">삼투압</text></svg><figcaption>용매가 저농도 → 고농도로 이동(화살표) · 높이 차를 막는 압력이 삼투압</figcaption></div>
+<p>그림에서 보듯, 용매가 진한 쪽으로 넘어가서 진한 쪽 액면이 높아져. 이 높이 차가 만드는 압력이 삼투를 멈추게 하는데, 바로 그 압력이 삼투압이야.</p>
+</div>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">02</span><span class="sec__t">삼투압 · 삼투를 막는 압력</span></div>
+<p>삼투압은 삼투에 의한 용매 이동을 막기 위해, 진한 용액 쪽에 가해야 하는 압력이야. 농도가 진할수록(입자가 많을수록) 용매를 더 강하게 끌어들이니, 막는 데 필요한 압력도 커. 삼투압을 구하는 식은 신기하게도 이상기체 방정식과 똑 닮았어.</p>
+<div class="big" style="font-size:17px">π = i M R T</div>
+<p><span class="fm">π</span>가 삼투압, <span class="fm">M</span>은 몰농도, <span class="fm">R</span>은 기체 상수, <span class="fm">T</span>는 절대온도, <span class="fm">i</span>는 입자 수 인자(전해질이면 이온 개수)야. <span class="fm">PV=nRT</span>를 변형하면 <span class="fm">P=(n/V)RT</span>인데, <span class="fm">n/V</span>가 몰농도니까 형태가 같지. 총괄성이라 여기서도 입자 수(<span class="fm">i</span>)가 들어가.</p>
+<div class="key">π = iMRT. 삼투압은 몰농도와 절대온도에 비례하고, 전해질이면 i를 곱해. 형태가 이상기체 방정식과 같아 외우기 쉬워. 농도가 진할수록 삼투압이 크고, 그만큼 용매를 끌어당기는 힘이 세다는 뜻이야.</div>
+</div>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">03</span><span class="sec__t">생활 속 삼투 · 채소·세포·링거</span></div>
+<p>삼투는 우리 주변과 몸속에서 늘 일어나.</p>
+<div class="eg"><span class="lab">예제 · 쪼그라듦과 부풂</span> 채소를 소금물(고농도)에 담그면, 채소 속 물이 더 진한 바깥으로 빠져나가 채소가 쪼그라들어(절임의 원리). 반대로 세포를 순수한 물(저농도)에 두면, 물이 세포 안으로 밀려들어 세포가 부풀지. 농도 차가 큰 쪽으로 물이 이동하는 거야.</div>
+<p>병원에서 쓰는 링거액은 세포 안과 농도를 맞춘 등장액이야. 농도가 같으면 물이 한쪽으로 쏠리지 않아 세포가 안전하거든. 만약 농도가 안 맞으면 세포가 쪼그라들거나 터질 수 있어. 또 삼투압은 작은 농도 차에도 크게 나타나서, 고분자(단백질 등)의 분자량을 측정하는 데도 쓰여.</p>
+</div>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">04</span><span class="sec__t">함정 정리</span></div>
+<div class="trap"><span class="lab">함정 · 삼투에서 움직이는 건 용매다</span><br>삼투에서 반투막을 통과해 이동하는 건 <b>용매</b>(작은 분자)야. 용질이 아니야(용질은 막에 막혀 못 지나가). 그리고 방향은 용매가 "저농도 → 고농도"로 가서 농도를 같게 만들려 해. "용질이 이동한다", "고농도에서 저농도로 간다"고 거꾸로 외우면 틀려. 막히는 건 용질, 이동하는 건 용매, 방향은 저농도→고농도(용매 기준). 그리고 삼투압도 총괄성이라 전해질 i를 곱하는 걸 잊지 마.</div>
+</div>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 영역 마무리</span></div>
+<p>오늘 들고 갈 한 문장.</p>
+<div class="big">"용매가 저농도 → 고농도로 이동(삼투) · 막는 압력이 삼투압 π = iMRT."</div>
+<p>반투막을 통해 용매가 진한 쪽으로 이동하는 게 삼투, 그걸 막는 압력이 삼투압이야. π=iMRT로 몰농도·절대온도에 비례하고 전해질은 i를 곱해. 채소 절임·세포·링거가 그 예고, 이동하는 건 용매(용질 아님)야.</p>
+<p>이걸로 <b>액체와 용액 영역 8강이 모두 끝났어.</b> 증발·증기압(050)에서 출발해 끓는점·상평형(051), 용해도(052·053)를 보고, 농도 단위(054)를 정비한 뒤, 총괄성(055)과 그 세 현상(끓는점·어는점 056, 삼투압 057)으로 마무리했지. 핵심은 "용질을 녹이면 용액의 성질이 입자 수만큼 변한다"는 총괄성이야. 다음 영역(고체와 결정)에서는 상태가 액체에서 고체로 넘어가, 결정 구조와 고체의 종류를 다뤄. 여기까지 단단히 다졌으면 다음이 든든할 거야.</p>
+<div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 삼투 문제를 풀어봐. ① 용매가 저농도 → 고농도로 이동(막히는 건 용질) ② 삼투압 π = iMRT ③ 전해질이면 i 곱하기. 채소가 왜 쪼그라드는지도 설명해봐. 그리고 입으로 말해. "삼투는 용매가 진한 쪽으로 가는 것이고, 삼투압은 그걸 막는 압력 iMRT다." 한 바퀴 돌리면 이 개념은 네 거다.</div>
+</div>
+
+<footer>Chemistreal · 개념강의 057 · 삼투압</footer>
+</main></body></html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5"><title>기체 분자 운동론·확산 · 개념강의</title><style>
+:root{--cream:#FBFAF6;--paper:#fff;--ink:#23201b;--ink-2:#5a564d;--muted:#8a8578;--teal:#0E5A4C;--teal-d:#3A7A6B;--brass:#B08D57;--line:#E8E4DA;--ms:#C0603A;--ok-bg:#eef5f2;--mono:ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:-apple-system,"Noto Sans KR",sans-serif;line-height:1.62}
+.serif{font-family:"Nanum Myeongjo",Georgia,serif}
+header{background:linear-gradient(180deg,#0E5A4C,#0b4a3f);color:#fff;padding:24px 20px;text-align:center}
+header .logo{font-size:12px;letter-spacing:.18em;opacity:.82;font-weight:600}header h1{margin:6px 0 4px;font-size:23px}header .sub{font-size:12.5px;opacity:.86}
+main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
+.back{display:inline-flex;gap:5px;color:var(--teal);text-decoration:none;font-size:14px;font-weight:600;padding:8px 0}
+.hw{background:#fff;border:1px solid var(--line);border-left:3px solid var(--brass);border-radius:9px;padding:12px 15px;font-size:13.5px;color:var(--ink-2);margin:12px 0}
+.hw b{color:var(--ink)}
+.lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
+.sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
+.sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
+.sec__t{font-size:16px;font-weight:700}
+.sec p{margin:12px 0}.sec p:first-of-type{margin-top:0}.sec p:last-child{margin-bottom:0}
+.key{background:var(--ok-bg);border-left:3px solid var(--teal);border-radius:9px;padding:13px 16px;margin:15px 0;font-weight:600;color:#13463b;line-height:1.7}
+.trap{background:#fbf2ec;border-left:3px solid var(--ms);border-radius:9px;padding:12px 16px;margin:14px 0;font-size:14.5px;line-height:1.66}
+.trap .lab{font-weight:700;color:var(--ms);font-size:13px;letter-spacing:.02em}
+.eg{background:#faf8f1;border:1px dashed var(--line);border-radius:9px;padding:12px 15px;margin:12px 0;font-size:14.5px;line-height:1.66}
+.eg .lab{font-weight:700;color:var(--brass);font-size:12.5px}
+.fm{font-family:var(--mono);font-size:.97em;white-space:nowrap}
+.big{font-family:"Nanum Myeongjo",Georgia,serif;font-size:18.5px;line-height:1.72;color:var(--teal);text-align:center;padding:16px 10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:18px 0}
+ul.cl{margin:10px 0;padding-left:20px}ul.cl li{margin:6px 0;font-size:14.5px}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px}
+</style></head>
+<body><header><div class="logo">CHEMISTREAL · 개념강의</div><h1 class="serif">기체 분자 운동론·확산</h1><div class="sub">048 · 기체</div></header><main>
+<a class="back" href="final.html">‹ 파이널로</a>
+<div class="hw">이번 진단에서 <b>분자 운동론 · 확산(그레이엄)</b>이 보강으로 잡혔어. 이 1강을 끝까지 읽고 <b>직접 해보기</b>까지. 기체 법칙이 "왜" 성립하는지를 분자 수준에서 설명하고, 가벼운 기체가 빨리 퍼지는 법칙을 잡는 강의야. "평균 운동에너지는 절대온도에 비례"가 핵심이야.</div>
+
+<p class="lead">자, 지금까지 기체 법칙을 식으로 다뤘는데, 오늘은 그게 "왜" 성립하는지를 분자의 움직임으로 설명할 거야. 압력이 충돌이고 온도가 운동에너지라는 미시적 그림이지. 그리고 여기서 재밌는 결과가 하나 나와. 같은 온도에서도 가벼운 분자가 더 빨리 움직인다는 거야. 그래서 가벼운 기체가 더 빨리 퍼지는데(확산), 그걸 정량화한 게 그레이엄 법칙이야. 오늘은 운동론의 가정과 온도-운동에너지 관계, 그리고 확산 속도를 잡을 거야.</p>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">01</span><span class="sec__t">기체 분자 운동론 · 이상기체의 그림</span></div>
+<p>기체 분자 운동론은 이상기체를 설명하는 분자 수준의 모형이야. 몇 가지 가정 위에 서 있어.</p>
+<ul class="cl"><li>기체 분자는 크기가 거의 없는 점으로 본다(분자 자체 부피 무시).</li><li>분자는 끊임없이 무작위로 직선 운동한다.</li><li>분자끼리, 벽과의 충돌은 완전 탄성 충돌이다(에너지 손실 없음).</li><li>분자 사이의 인력은 무시한다.</li></ul>
+<p>이 가정들로 기체 법칙이 다 설명돼. 압력은 분자가 벽에 부딪히는 힘(044)이고, 부피를 줄이면 충돌이 잦아져 압력이 오르고(보일), 온도를 올리면 분자가 빨라져 부피가 늘거나 압력이 오르지(샤를). 이상기체 방정식 PV=nRT도 이 운동론에서 유도돼.</p>
+</div>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">02</span><span class="sec__t">온도와 운동에너지 · 절대온도에 비례</span></div>
+<p>운동론의 가장 중요한 결론이야. <b>기체 분자의 평균 운동에너지는 절대온도에 비례한다.</b> 온도가 높다는 건 곧 분자들이 평균적으로 빠르게 움직인다는 뜻이지. 절대온도를 2배로 올리면 평균 운동에너지도 2배가 돼.</p>
+<div class="key">평균 운동에너지 ∝ 절대온도(K). 그래서 온도는 분자 운동의 격렬함을 나타내는 양이야. 중요한 따름정리: <b>같은 온도에서는 어떤 기체든 평균 운동에너지가 같다.</b> 수소든 산소든, 온도만 같으면 평균 운동에너지가 똑같아. 이게 다음 확산 법칙의 핵심 열쇠야.</div>
+</div>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">03</span><span class="sec__t">같은 온도면 가벼운 게 빠르다</span></div>
+<p>여기서 흥미로운 결과가 나와. 같은 온도면 평균 운동에너지가 같은데, 운동에너지는 <span class="fm">½mv²</span>(질량 × 속도²)이잖아. 운동에너지가 같다면, <b>질량(m)이 작은 분자일수록 속도(v)가 빨라야</b> 해. 무거운 분자는 같은 에너지로 느리게, 가벼운 분자는 빠르게 움직이는 거지.</p>
+<div class="eg"><span class="lab">예제 · 직관</span> 같은 온도의 수소(<span class="fm">H₂</span>, 가벼움)와 산소(<span class="fm">O₂</span>, 무거움)는 평균 운동에너지가 같아. 그런데 수소가 훨씬 가벼우니, 같은 에너지를 가지려면 수소가 훨씬 빨리 움직여. 그래서 수소 분자가 산소보다 빠르게 날아다니지. "가벼운 게 빠르다"가 결론이야.</div>
+</div>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">04</span><span class="sec__t">확산과 그레이엄 법칙 · 1/√M</span></div>
+<p>분자가 빠를수록 기체가 더 빨리 퍼져. 한 기체가 다른 기체 속으로 퍼져 나가는 걸 확산, 작은 구멍으로 새어 나가는 걸 분출이라고 하는데, 둘 다 분자 속도에 좌우돼. 이걸 정량화한 게 그레이엄 법칙이야. <b>확산(분출) 속도는 몰질량의 제곱근에 반비례한다.</b></p>
+<div class="big" style="font-size:16px">속도 ∝ 1 / √M &nbsp;⇒&nbsp; v₁ / v₂ = √(M₂ / M₁)</div>
+<p>두 기체의 확산 속도 비는 몰질량 비의 제곱근을 뒤집은 거야. 가벼운(M 작은) 기체가 빠르고, 무거운 기체가 느려. 제곱근이 붙는다는 게 포인트지.</p>
+<div class="eg"><span class="lab">예제 · 수소 vs 산소</span> 수소(<span class="fm">M=2</span>)와 산소(<span class="fm">M=32</span>)의 확산 속도 비는? <span class="fm">v(H₂) / v(O₂) = √(32/2) = √16 = 4</span>. 수소가 산소보다 <b>4배</b> 빨리 확산해. 몰질량이 16배 차이지만, 제곱근이 붙어서 속도는 4배 차이인 거지.</div>
+<div class="trap"><span class="lab">함정 · 제곱근을 빼먹기</span><br>그레이엄 법칙에서 제곱근을 빼먹고 "몰질량에 그냥 반비례"로 쓰면 틀려. 위 예제에서 몰질량이 16배 차이라고 속도가 16배 차이가 아니라, 제곱근을 씌운 4배 차이야. 그리고 비를 세울 때 어느 게 분자·분모인지 주의해. 가벼운 기체가 빨라야 하니, 속도 비 <span class="fm">v₁/v₂</span>는 몰질량 비를 뒤집은 <span class="fm">√(M₂/M₁)</span>이야. 방향을 헷갈리지 마.</div>
+</div>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
+<p>오늘 들고 갈 한 문장.</p>
+<div class="big">"평균 운동에너지 ∝ 절대온도 · 같은 온도면 가벼운 게 빠르다 · 확산 속도 ∝ 1/√M."</div>
+<p>운동론은 분자를 점·무작위 운동·탄성 충돌·인력 무시로 모형화해. 평균 운동에너지는 절대온도에 비례하고(같은 온도면 동일), 그래서 가벼운 분자가 빠르고, 확산 속도는 몰질량의 제곱근에 반비례(그레이엄, 수소가 산소의 4배).</p>
+<p>다음 강(049 실제 기체)이 이 영역의 마지막이야. 지금까지 다룬 이상기체는 어디까지나 모형이고, 실제 기체는 조건에 따라 거기서 벗어나거든. 운동론의 가정(분자 부피 0, 인력 0)이 언제 깨지는지를 보면, 실제 기체가 왜 이상기체와 다른지 이해돼. 오늘의 운동론 가정을 들고, 그 가정이 깨지는 현실로 넘어가자.</p>
+<div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 확산 문제를 풀어봐. ① 그레이엄 법칙 v₁/v₂ = √(M₂/M₁) ② 가벼운 기체가 빠른 방향인지 확인 ③ 제곱근 빼먹지 않기. 그리고 입으로 말해. "같은 온도면 평균 운동에너지가 같아 가벼운 게 빠르고, 속도는 몰질량 제곱근에 반비례한다." 한 바퀴 돌리면 이 개념은 네 거다.</div>
+</div>
+
+<footer>Chemistreal · 개념강의 048 · 기체 분자 운동론·확산</footer>
+</main></body></html>
