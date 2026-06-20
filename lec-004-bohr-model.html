@@ -1,0 +1,82 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5"><title>보어 모형과 에너지 양자화 · 개념강의</title><style>
+:root{--cream:#FBFAF6;--paper:#fff;--ink:#23201b;--ink-2:#5a564d;--muted:#8a8578;--teal:#0E5A4C;--teal-d:#3A7A6B;--brass:#B08D57;--line:#E8E4DA;--ms:#C0603A;--ok-bg:#eef5f2;--mono:ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:-apple-system,"Noto Sans KR",sans-serif;line-height:1.62}
+.serif{font-family:"Nanum Myeongjo",Georgia,serif}
+header{background:linear-gradient(180deg,#0E5A4C,#0b4a3f);color:#fff;padding:24px 20px;text-align:center}
+header .logo{font-size:12px;letter-spacing:.18em;opacity:.82;font-weight:600}header h1{margin:6px 0 4px;font-size:23px}header .sub{font-size:12.5px;opacity:.86}
+main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
+.back{display:inline-flex;gap:5px;color:var(--teal);text-decoration:none;font-size:14px;font-weight:600;padding:8px 0}
+.hw{background:#fff;border:1px solid var(--line);border-left:3px solid var(--brass);border-radius:9px;padding:12px 15px;font-size:13.5px;color:var(--ink-2);margin:12px 0}
+.hw b{color:var(--ink)}
+.lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
+.sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
+.sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
+.sec__t{font-size:16px;font-weight:700}
+.sec p{margin:12px 0}.sec p:first-of-type{margin-top:0}.sec p:last-child{margin-bottom:0}
+.key{background:var(--ok-bg);border-left:3px solid var(--teal);border-radius:9px;padding:13px 16px;margin:15px 0;font-weight:600;color:#13463b;line-height:1.7}
+.trap{background:#fbf2ec;border-left:3px solid var(--ms);border-radius:9px;padding:12px 16px;margin:14px 0;font-size:14.5px;line-height:1.66}
+.trap .lab{font-weight:700;color:var(--ms);font-size:13px;letter-spacing:.02em}
+.eg{background:#faf8f1;border:1px dashed var(--line);border-radius:9px;padding:12px 15px;margin:12px 0;font-size:14.5px;line-height:1.66}
+.eg .lab{font-weight:700;color:var(--brass);font-size:12.5px}
+.fm{font-family:var(--mono);font-size:.95em;white-space:nowrap}
+.big{font-family:"Nanum Myeongjo",Georgia,serif;font-size:18.5px;line-height:1.72;color:var(--teal);text-align:center;padding:16px 10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:18px 0}
+.lv{font-family:var(--mono);font-size:13px;background:#0e5a4c;color:#eaf3f0;border-radius:9px;padding:12px 14px;margin:13px 0;overflow-x:auto;line-height:1.95}
+.lv b{color:#f0c987}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px}
+</style></head>
+<body><header><div class="logo">CHEMISTREAL · 개념강의</div><h1 class="serif">보어 모형과 에너지 양자화</h1><div class="sub">004 · 원자모형</div></header><main>
+<a class="back" href="final.html">‹ 파이널로</a>
+<div class="hw">이번 진단에서 <b>원자모형 · 에너지 준위</b>가 보강으로 잡혔어. 이 1강을 끝까지 읽고 <b>직접 해보기</b>까지. 앞 강(수소 스펙트럼)에서 "에너지가 띄엄띄엄"이라고만 했던 걸, 오늘 <span class="fm">Eₙ</span> 식으로 증명하고 직접 계산까지 해볼 거야.</div>
+
+<p class="lead">자, 앞에서 수소가 정해진 파장만 내는 건 전자 에너지가 띄엄띄엄해서라고 했지. 오늘은 그 "띄엄띄엄"에 숫자를 붙일 거야. 보어가 준 식 하나, <span class="fm">Eₙ = −13.6 Z²/n²</span>. 이 식만 제대로 읽으면 음(−) 부호의 의미, n이 클수록 에너지가 어떻게 변하는지, 전이할 때 나오는 광자 에너지, 이온화 에너지가 전부 한 식에서 쏟아져 나와. 시험에서 제일 많이 틀리는 "n 크면 에너지가 큰 거야 작은 거야?"를 오늘 끝장내자.</p>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">01</span><span class="sec__t">보어의 그림 · 허용된 궤도와 점프</span></div>
+<p>보어의 아이디어는 이래. 전자는 핵 주위 아무 데나 못 돌고, 허용된 특정 궤도(층) 위에서만 돌 수 있어. 각 궤도는 정해진 에너지를 가져. 그리고 전자가 같은 궤도 위에 머무는 동안에는 빛을 내지도 흡수하지도 않아. 오직 한 궤도에서 다른 궤도로 점프할 때만, 두 궤도의 에너지 차이만큼을 광자로 주고받지.</p>
+<p>이 궤도에 번호를 붙인 게 주양자수 n이야. n=1이 핵에 가장 가까운 안쪽 궤도, n=2, 3… 으로 갈수록 바깥 궤도지. 앞 강에서 본 "에너지 계단"이 바로 이 궤도들이야. 이제 각 계단의 높이를 식으로 주는 거지.</p>
+</div>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">02</span><span class="sec__t">핵심 식 · Eₙ = −13.6 Z²/n² (단위 eV)</span></div>
+<p>수소꼴 원자(전자가 딱 하나인 것, 수소나 <span class="fm">He⁺</span> 같은)의 n번째 궤도 에너지는 이거야.</p>
+<div class="big" style="font-size:19px">Eₙ = −13.6 · Z²/n² (eV)</div>
+<p>Z는 핵의 양성자 수, n은 궤도 번호야. 수소는 Z=1이니까 <span class="fm">Eₙ = −13.6/n²</span>로 간단해져. 이 식에서 제일 먼저 따져야 할 게 두 가지야. 음(−) 부호와, n이 분모에 제곱으로 들어간다는 것.</p>
+<div class="key">음(−) 부호의 의미 · 전자가 핵에 붙들려 있는 속박 상태라는 뜻이야. 기준점(에너지 0)은 전자가 핵에서 무한히 멀어져서 완전히 자유로워진 상태로 잡아. 거기서 핵에 붙들리면 에너지가 0보다 낮아지니까(안정해지니까) 음수가 돼. 그러니 <b>음수가 클수록(더 깊을수록) 더 안정하고 더 낮은 에너지</b>야.</div>
+<p>이제 숫자를 넣어보자. 수소(Z=1)의 계단들이야.</p>
+<div class="lv">n=1 · E = −13.6 eV &nbsp;(가장 낮음 = 바닥상태 = 가장 안정)<br>n=2 · E = −13.6/4 = <b>−3.40</b> eV<br>n=3 · E = −13.6/9 = <b>−1.51</b> eV<br>n=4 · E = −13.6/16 = <b>−0.85</b> eV<br>n=∞ · E = <b>0</b> eV &nbsp;(전자가 완전히 떨어져 나감 = 이온화)</div>
+</div>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">03</span><span class="sec__t">가장 많이 틀리는 지점 · n이 클수록 에너지는 커진다</span></div>
+<p>위 표를 잘 봐. n이 1에서 4로 갈수록 −13.6, −3.4, −1.51, −0.85… 숫자가 0에 가까워지고 있어. 음수가 점점 얕아지는 거지. 음수가 얕아진다는 건 에너지가 <b>올라간다(커진다)</b>는 뜻이야. −13.6보다 −0.85가 더 큰 수니까.</p>
+<div class="trap"><span class="lab">함정 · "n 크면 에너지 작다"는 착각</span><br>"바깥 궤도면 핵에서 머니까 에너지가 작겠지"라고 직관적으로 적으면 틀려. 반대야. <b>n이 클수록 에너지는 커져(0에 가까워져).</b> n=1이 가장 낮고(가장 음수, 가장 안정), 바깥으로 갈수록 높아져. 헷갈리면 표의 숫자를 떠올려. −13.6 < −3.4 < −1.51 < 0. 음수라서 절댓값이 작은 게 더 큰 수야.</div>
+<p>그리고 또 하나, 계단 간격을 봐. n=1과 n=2 사이는 <span class="fm">−3.4 − (−13.6) = 10.2 eV</span>나 벌어져. 그런데 n=2와 n=3 사이는 <span class="fm">−1.51 − (−3.4) = 1.89 eV</span>밖에 안 돼. n=3과 n=4 사이는 더 좁고. 즉 <b>아래로 갈수록 계단 간격이 확 벌어져.</b> 앞 강에서 "라이먼 계열(n=1로 떨어짐)의 낙폭이 가장 커서 파장이 짧다"고 했던 게 바로 이거야. 그때 그림으로만 말했던 걸, 지금 <span class="fm">−1/n²</span> 식이 증명해준 거지.</p>
+</div>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">04</span><span class="sec__t">전이 에너지 계산 · 스펙트럼과 식을 잇기</span></div>
+<p>이제 앞 강과 완전히 연결하자. 전자가 한 궤도에서 다른 궤도로 점프할 때 주고받는 에너지는, 두 궤도 에너지의 차이야. <span class="fm">ΔE = E_도착 − E_출발</span>. 방출이면 이 차이 크기만큼의 광자가 나오고, 그 광자 에너지가 곧 <span class="fm">E=hν</span>(002강)지.</p>
+<div class="eg"><span class="lab">예제 · 라이먼의 첫 선 (n=2 → n=1)</span> 도착 n=1(−13.6), 출발 n=2(−3.4). 전자가 떨어지며 내놓는 에너지 = <span class="fm">|E₁ − E₂| = |−13.6 − (−3.4)| = 10.2 eV</span>. 그래서 10.2 eV짜리 광자가 방출돼. 에너지가 크니 파장이 짧고, 그래서 자외선(라이먼). 앞 강에서 "라이먼은 자외선"이라고 한 게 숫자로 확인되지.</div>
+<div class="eg"><span class="lab">예제 · 발머의 빨간 선 (n=3 → n=2)</span> 도착 n=2(−3.4), 출발 n=3(−1.51). 방출 에너지 = <span class="fm">|−3.4 − (−1.51)| = 1.89 eV</span>. 라이먼(10.2)보다 훨씬 작지? 그래서 파장이 길어 가시광선(빨강)으로 보여. 같은 식 하나로 두 계열의 차이가 다 설명돼.</div>
+<p>핵심은 이거야. 스펙트럼 문제가 나오면, 두 준위의 에너지를 식으로 구하고 → 차이를 내고 → 그게 광자 에너지(<span class="fm">E=hν=hc/λ</span>)다. 이 3단 콤보면 어떤 전이 문제도 풀려.</p>
+</div>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">05</span><span class="sec__t">이온화 에너지와 Z²의 의미</span></div>
+<p>이온화 에너지는 전자를 원자에서 완전히 떼어내는 에너지야. 식으로 보면 바닥상태(n=1)에서 무한대(n=∞, E=0)까지 끌어올리는 거지. 수소라면 <span class="fm">0 − (−13.6) = 13.6 eV</span>. 그래서 "수소의 이온화 에너지 = 13.6 eV"라는 유명한 값이 식에서 바로 나와. 음(−) 부호를 제대로 이해하면, 이온화 에너지가 왜 바닥 에너지의 크기와 같은지가 보여.</p>
+<p>마지막으로 <span class="fm">Z²</span>. 핵의 양성자가 많을수록 전자를 더 세게 잡아당기니까, 같은 n이라도 에너지가 더 깊어져(더 음수). 그게 <span class="fm">Z²</span>로 들어와. 전자 하나짜리 이온인 <span class="fm">He⁺</span>(Z=2)를 보면, <span class="fm">E₁ = −13.6 × 2² = −54.4 eV</span>. 수소의 4배로 깊지. 그래서 <span class="fm">He⁺</span>는 전자를 떼기가 수소보다 훨씬 힘들어.</p>
+<div class="trap"><span class="lab">짚고 갈 한계</span><br>이 <span class="fm">Eₙ=−13.6Z²/n²</span> 식은 전자가 <b>딱 하나</b>인 수소꼴(H, He⁺, Li²⁺ …)에서만 정확해. 전자가 둘 이상이면 전자끼리 밀어내는 효과 때문에 이 깔끔한 식이 안 맞아. 그래서 다음 강들에서 양자수와 오비탈(005), 가림 효과(007)로 모형을 더 정교하게 다듬어 가는 거야. 보어 모형은 수소를 설명한 멋진 출발점이지만, 끝은 아니라는 것.</div>
+</div>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">06</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
+<p>오늘 들고 갈 한 문장.</p>
+<div class="big">"Eₙ=−13.6Z²/n² · 음수는 속박, n이 클수록 에너지는 0에 가까워(커져)."</div>
+<p>바닥상태 n=1이 가장 낮고 안정, 바깥으로 갈수록 높아지고 간격은 좁아져. 전이 에너지는 두 준위 차이, 그게 광자 에너지(<span class="fm">E=hν</span>)고. 이온화 에너지는 n=1에서 ∞까지(수소 13.6 eV), Z²은 핵전하 효과.</p>
+<p>다음 강(005 양자수와 오비탈)에서는 이 궤도 개념을 한 단계 업그레이드해. 사실 전자는 보어가 그린 깔끔한 원궤도를 도는 게 아니라, 확률 구름인 오비탈로 존재하거든. n 하나로는 부족하고 양자수가 네 개 필요해지지. 오늘의 n이 그 네 양자수 중 첫 번째라고 보면 돼. 에너지 준위 감각을 손에 쥐고 넘어가자.</p>
+<div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 전이 문제를 <span class="fm">Eₙ=−13.6/n²</span>로 직접 계산해봐. ① 두 준위 에너지 각각 구하기 ② 차이 내기 ③ 그게 광자 에너지. 그리고 입으로 말해. "n이 크니까 에너지가 더 큰(0에 가까운) 값이고, 아래로 떨어지니까 방출이다." 한 바퀴 돌리면 이 식은 네 거다.</div>
+</div>
+
+<footer>Chemistreal · 개념강의 004 · 보어 모형과 에너지 양자화</footer>
+</main></body></html>

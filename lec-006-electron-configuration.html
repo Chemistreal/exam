@@ -1,0 +1,84 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5"><title>전자 배치 규칙 · 개념강의</title><style>
+:root{--cream:#FBFAF6;--paper:#fff;--ink:#23201b;--ink-2:#5a564d;--muted:#8a8578;--teal:#0E5A4C;--teal-d:#3A7A6B;--brass:#B08D57;--line:#E8E4DA;--ms:#C0603A;--ok-bg:#eef5f2;--mono:ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:-apple-system,"Noto Sans KR",sans-serif;line-height:1.62}
+.serif{font-family:"Nanum Myeongjo",Georgia,serif}
+header{background:linear-gradient(180deg,#0E5A4C,#0b4a3f);color:#fff;padding:24px 20px;text-align:center}
+header .logo{font-size:12px;letter-spacing:.18em;opacity:.82;font-weight:600}header h1{margin:6px 0 4px;font-size:23px}header .sub{font-size:12.5px;opacity:.86}
+main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
+.back{display:inline-flex;gap:5px;color:var(--teal);text-decoration:none;font-size:14px;font-weight:600;padding:8px 0}
+.hw{background:#fff;border:1px solid var(--line);border-left:3px solid var(--brass);border-radius:9px;padding:12px 15px;font-size:13.5px;color:var(--ink-2);margin:12px 0}
+.hw b{color:var(--ink)}
+.lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
+.sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
+.sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
+.sec__t{font-size:16px;font-weight:700}
+.sec p{margin:12px 0}.sec p:first-of-type{margin-top:0}.sec p:last-child{margin-bottom:0}
+.key{background:var(--ok-bg);border-left:3px solid var(--teal);border-radius:9px;padding:13px 16px;margin:15px 0;font-weight:600;color:#13463b;line-height:1.7}
+.trap{background:#fbf2ec;border-left:3px solid var(--ms);border-radius:9px;padding:12px 16px;margin:14px 0;font-size:14.5px;line-height:1.66}
+.trap .lab{font-weight:700;color:var(--ms);font-size:13px;letter-spacing:.02em}
+.eg{background:#faf8f1;border:1px dashed var(--line);border-radius:9px;padding:12px 15px;margin:12px 0;font-size:14.5px;line-height:1.66}
+.eg .lab{font-weight:700;color:var(--brass);font-size:12.5px}
+.fm{font-family:var(--mono);font-size:.95em;white-space:nowrap}
+.big{font-family:"Nanum Myeongjo",Georgia,serif;font-size:18.5px;line-height:1.72;color:var(--teal);text-align:center;padding:16px 10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:18px 0}
+.lv{font-family:var(--mono);font-size:13px;background:#0e5a4c;color:#eaf3f0;border-radius:9px;padding:12px 14px;margin:13px 0;overflow-x:auto;line-height:1.95}
+.lv b{color:#f0c987}
+.box{font-family:var(--mono);font-size:15px;letter-spacing:.04em;text-align:center;margin:10px 0;color:#13463b}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px}
+</style></head>
+<body><header><div class="logo">CHEMISTREAL · 개념강의</div><h1 class="serif">전자 배치 규칙</h1><div class="sub">006 · 원자모형</div></header><main>
+<a class="back" href="final.html">‹ 파이널로</a>
+<div class="hw">이번 진단에서 <b>전자 배치</b>가 보강으로 잡혔어. 이 1강을 끝까지 읽고 <b>직접 해보기</b>까지. 앞 강(양자수·오비탈)에서 만든 "방 구조"에 전자를 실제로 채우는 게 오늘이야. 이걸 손에 익히면 주기율표 전체가 읽혀.</div>
+
+<p class="lead">자, 앞 강에서 오비탈이라는 방을 다 만들었지. s는 방 1개, p는 3개, d는 5개. 이제 전자를 그 방에 넣을 차례야. 그런데 아무렇게나 넣는 게 아니라 규칙 세 개를 따라. 쌓음, 파울리, 훈트. 오늘 이 세 규칙으로 어떤 원자든 전자 배치를 직접 쓰고, 제일 헷갈리는 4s와 3d의 순서, 그리고 크로뮴·구리 같은 예외까지 정리할 거야.</p>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">01</span><span class="sec__t">규칙 ① 쌓음 원리 · 낮은 데부터 채운다</span></div>
+<p>전자는 에너지가 낮은(안정한) 오비탈부터 차례로 채워. 건물에 사람이 들어올 때 1층부터 채우는 것과 같아. 문제는 그 "층 순서"가 단순히 n 순서가 아니라는 거야. 실제 채우는 순서는 이래.</p>
+<div class="lv">1s → 2s → 2p → 3s → 3p → <b>4s → 3d</b> → 4p → 5s → 4d → 5p → 6s ...</div>
+<p>여기서 눈에 띄는 게 <b>4s가 3d보다 먼저</b> 나온다는 거야. n으로만 보면 3d(n=3)가 4s(n=4)보다 먼저일 것 같은데, 실제 에너지는 4s가 더 낮아서 먼저 채워져. 왜 그런지는 다음 강(007 가림과 유효핵전하)에서 침투 개념으로 증명할 거야. 지금은 "4s 먼저, 그다음 3d"라는 순서를 손에 익히면 돼.</p>
+<div class="eg"><span class="lab">예제</span> 칼륨 K(전자 19개): 1s² 2s² 2p⁶ 3s² 3p⁶ 까지 18개 채우고, 19번째는 3d가 아니라 <span class="fm">4s</span>로 들어가. 그래서 <span class="fm">[Ar]4s¹</span>. 칼슘 Ca(20)는 <span class="fm">[Ar]4s²</span>. 그다음 스칸듐 Sc(21)부터 비로소 3d가 채워지기 시작해서 <span class="fm">[Ar]3d¹4s²</span>.</div>
+</div>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">02</span><span class="sec__t">규칙 ② 파울리 배타 원리 · 한 방에 둘, 스핀은 반대</span></div>
+<p>오비탈 하나(방 하나)에는 전자가 최대 두 개까지만 들어가. 그리고 그 둘은 스핀이 반대여야 해(하나는 ↑, 하나는 ↓). 앞 강의 양자수로 말하면, 두 전자가 n·l·mₗ까지 같아도 스핀(mₛ)은 +½, −½로 달라야 한다는 거야.</p>
+<div class="key">파울리 배타 원리 = 한 원자 안에서 네 양자수가 모두 똑같은 전자는 존재할 수 없다. 그래서 한 오비탈(n·l·mₗ가 같은 방)에는 스핀이 반대인 전자 둘이 최대야. 이게 "방 하나에 정원 2명"의 진짜 이유지.</div>
+<p>표기는 위첨자로 해. <span class="fm">1s²</span>는 1s 방에 전자 2개, <span class="fm">2p⁶</span>는 2p 방 세 개에 전자 6개(꽉 참)라는 뜻이야. 위첨자 숫자를 다 더하면 그 원자의 총 전자 수가 돼. 검산할 때 써.</p>
+</div>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">03</span><span class="sec__t">규칙 ③ 훈트 규칙 · 짝짓기 전에 하나씩 먼저</span></div>
+<p>같은 에너지를 가진 방이 여러 개일 때(예: 2p 방 세 개), 전자를 어떻게 넣을까? 훈트 규칙은 이래. <b>짝을 짓기 전에, 빈 방마다 하나씩 먼저 채운다.</b> 그것도 같은 방향 스핀으로. 다 하나씩 들어간 다음에야 짝을 짓기 시작해.</p>
+<p>왜 그럴까? 전자는 음전하라 서로 밀어내. 한 방에 둘이 같이 있으면 가까워서 반발이 커. 그러니 가능하면 따로따로 다른 방에 들어가서 거리를 두는 게 안정해. 그래서 하나씩 흩어져 들어가는 거야.</p>
+<div class="eg"><span class="lab">예제 · 2p 채우기</span> 탄소 C(2p²): 한 방에 둘 몰아넣는 게 아니라 두 방에 하나씩. <span class="box">↑_ ↑_ __</span> 홀전자 2개. &nbsp; 질소 N(2p³): 세 방에 하나씩 꽉. <span class="box">↑_ ↑_ ↑_</span> 홀전자 3개. &nbsp; 산소 O(2p⁴): 이제 네 번째는 짝지을 수밖에. <span class="box">↑↓ ↑_ ↑_</span> 홀전자 2개.</div>
+<div class="trap"><span class="lab">함정 · 처음부터 짝짓기</span><br>2p²에서 <span class="fm">↑↓ __ __</span>처럼 한 방에 몰아넣으면 틀려. 훈트에 따라 <span class="fm">↑_ ↑_ __</span>로 흩뿌려야 해. 홀전자 수를 묻는 문제(자기적 성질, 상자성 등)에서 이걸 틀리면 답이 어긋나. "먼저 하나씩, 그다음 짝짓기"를 기억해.</div>
+</div>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">04</span><span class="sec__t">채우는 순서 ≠ 빠지는 순서 · 이온의 함정</span></div>
+<p>전이금속에서 정말 자주 틀리는 게 있어. 채울 때는 4s를 3d보다 먼저 채웠지(규칙 ①). 그런데 <b>이온이 될 때(전자를 잃을 때)는 4s 전자가 먼저 빠져.</b> 채우는 순서와 빠지는 순서가 반대인 거야.</p>
+<p>왜냐면 일단 3d에 전자가 들어가고 나면, 그 상황에서는 4s가 3d보다 바깥쪽이라 더 쉽게 떨어지거든. 그래서 양이온을 만들 때는 바깥의 4s부터 떼어내.</p>
+<div class="eg"><span class="lab">예제 · 철 이온</span> 철 Fe(26)은 <span class="fm">[Ar]3d⁶4s²</span>. <span class="fm">Fe²⁺</span>가 될 때 빠지는 건 3d가 아니라 <span class="fm">4s</span> 두 개. 그래서 <span class="fm">Fe²⁺ = [Ar]3d⁶</span>(4s가 비고 3d⁶ 남음). 4s²를 그대로 두고 3d에서 뺀다고 생각하면 틀려.</div>
+</div>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">05</span><span class="sec__t">예외 · 크로뮴과 구리 (반채움·꽉참의 안정성)</span></div>
+<p>마지막으로 유명한 예외 둘. 규칙 ①대로면 크로뮴과 구리는 이렇게 돼야 해. 그런데 실제는 달라.</p>
+<div class="lv">크로뮴 Cr(24) · 예상 [Ar]3d⁴4s² · 실제 <b>[Ar]3d⁵4s¹</b><br>구리 &nbsp;Cu(29) · 예상 [Ar]3d⁹4s² · 실제 <b>[Ar]3d¹⁰4s¹</b></div>
+<p>둘 다 4s 전자 하나를 3d로 옮겨버렸어. 왜? <b>부껍질이 반쯤 찬(d⁵) 상태나 완전히 꽉 찬(d¹⁰) 상태가 유난히 안정하기 때문</b>이야. Cr은 4s에서 하나를 꺼내 3d를 d⁵(반채움)으로 만들고, Cu는 3d를 d¹⁰(꽉참)으로 만드는 게 더 안정해서 그쪽을 택해.</p>
+<div class="key">반채움(d⁵)과 꽉참(d¹⁰)이 특별히 안정한 건, 전자가 모든 d 방에 골고루 퍼져 대칭을 이루기 때문이라고 이해하면 돼. Cr → 3d⁵4s¹, Cu → 3d¹⁰4s¹. 이 둘은 거의 반드시 출제되니 통째로 외워두자.</div>
+<div class="trap"><span class="lab">함정 · 예상값 그대로 적기</span><br>Cr을 <span class="fm">3d⁴4s²</span>, Cu를 <span class="fm">3d⁹4s²</span>로 쓰면 틀려. 규칙대로 쌓다가 d⁴나 d⁹이 나오면 "어, 반채움/꽉참으로 갈 수 있나?"를 의심해. Cr과 Cu가 대표 사례야.</div>
+</div>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">06</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
+<p>오늘 들고 갈 한 문장.</p>
+<div class="big">"낮은 데부터(쌓음), 한 방에 둘 반대 스핀(파울리), 짝짓기 전 하나씩(훈트)."</div>
+<p>4s를 3d보다 먼저 채우되 이온이 될 땐 4s가 먼저 빠진다. 예외는 Cr(3d⁵4s¹)·Cu(3d¹⁰4s¹), 반채움·꽉참이 안정해서 4s 하나를 3d로 보낸 것.</p>
+<p>다음 강(007 가림과 유효핵전하)에서는 오늘 그냥 외웠던 "왜 4s가 3d보다 낮은가", "왜 같은 n에서 s·p·d 에너지가 갈리는가"를 침투와 가림으로 증명해. 전자 배치 순서의 근본 이유를 알게 되는 거지. 그리고 이 전자 배치는 곧바로 주기율표 구조(주기·족), 원자 반지름, 이온화에너지로 이어져. 오늘 채우기를 손에 익히는 게 핵심이야.</p>
+<div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 원자·이온의 전자 배치를 직접 써봐. ① 쌓음 순서대로 채우고 ② p나 d는 훈트로 화살표까지 그려 홀전자 수를 세고 ③ 이온이면 4s(바깥)부터 빼. 그리고 Cr·Cu가 나오면 예외 처리. 위첨자 합이 전자 수와 맞는지 검산까지. 한 바퀴 돌리면 이 개념은 네 거다.</div>
+</div>
+
+<footer>Chemistreal · 개념강의 006 · 전자 배치 규칙</footer>
+</main></body></html>

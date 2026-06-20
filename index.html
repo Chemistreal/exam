@@ -662,6 +662,13 @@ body{background:radial-gradient(130% 90% at 50% -12%,#FCFAF4 0%,var(--paper-soft
 /* ===== 전체 인쇄(진단표+개념노트) 추가 스타일 (CLAUDE) ===== */
 .cnote{max-width:none;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;line-height:1.8}
 .cnote-head{margin:0 0 14px;padding:16px 20px;border-radius:14px;background:linear-gradient(135deg,#2f4858,#0f6e6e);color:#fff}
+    .cnote-todo{background:var(--warnbg);border:1px solid #f3d8b8;border-left:5px solid var(--warn);border-radius:12px;padding:14px 18px;margin:0 0 16px}
+    .cnote-todo ul{margin:6px 0 0;padding:0;list-style:none}
+    .cnote-todo li{padding:3px 0;font-size:14px;color:var(--ink2)}
+    .cnote-todo .ct-h{font-weight:800;color:var(--warn);font-size:14px;margin:2px 0}
+    .cnote-todo .ct-h2{font-weight:700;color:var(--muted);font-size:13px;margin:12px 0 2px}
+    .cnote-todo .ct-pri{display:inline-block;background:var(--warn);color:#fff;font-size:11px;font-weight:700;padding:1px 7px;border-radius:8px}
+    .cnote-todo .ct-w{color:var(--muted);font-size:12px}
 .cnote-head .k{font-size:11px;letter-spacing:.12em;font-weight:700;opacity:.85}
 .cnote-head h2{margin:4px 0 2px;font-size:20px;font-weight:800;color:#fff;border:none;padding:0}
 .cnote-head .d{font-size:12.5px;opacity:.85}
@@ -1390,7 +1397,7 @@ const CHEM21_OM={
  56:"112mL O₂=0.005몰. 2H₂O₂→2H₂O+O₂에서 H₂O₂ 0.01몰=0.34g. 용액 10g 중 0.34g → 3.4%(②). 분해 계수비를 빠뜨리면 틀린다.",
  57:"CuS 0.019g=0.0002몰=Cu²⁺ 0.0002몰. 폐수 2.0L로 나누면 0.0001M=0.10mM(①). 부피로 나누는 단계를 빠뜨리면 틀린다.",
  58:"요오드 적정의 계수비를 연쇄 적용하면 Cu²⁺ 0.6mmol. CuCO₃ 0.075g/시료 0.50g=15%(②). 계수비 연결을 놓치면 틀린다.",
- 59:{'*':"옳은 설명은 ① 양의 편차=A-B 인력<순수 인력이라 흡열 용해, 온도가 낮아진다.",2:"순수 증기압은 B(74.0)>A(71.9)라 B의 분자간 인력이 작아 끓는점이 더 낮다. 'B 끓는점이 더 높다'는 오개념.",3:"양의 편차는 A-B 인력이 순수보다 약해 덜 안정해진다. 'A-B로 더 안정'은 음의 편차 설명. 오개념.",4:"아세톤-물은 음의 편차를 보인다. 양의 편차 예는 에탄올-헥세인, 물-에탄올. 편차 방향을 혼동한 오개념."},
+ 59:{'*':"옳은 설명은 ① 양의 편차=A-B 인력<순수 인력이라 흡열 용해, 온도가 낮아진다.",2:"순수 증기압은 B(74.0)>A(71.9)라 B의 분자간 인력이 작아 끓는점이 더 낮다. 'B 끓는점이 더 높다'는 오개념.",3:"양의 편차는 A-B 인력이 순수보다 약해 덜 안정해진다. 'A-B로 더 안정'은 음의 편차 설명. 오개념.",4:"아세톤-클로로포름은 음의 편차를 보인다. 양의 편차 예는 에탄올-헥세인, 물-에탄올. 편차 방향을 혼동한 오개념."},
  60:"어는점 내림 ΔTf=Kf·m·i에서 i=4. K₃Fe(CN)₆ → K⁺ 3개 + Fe(CN)₆³⁻ 1개로 이온화(②). Fe³⁺·CN⁻로 완전 해리한다고 보면 틀린다."
 };
 const Q_KCH13B=[
@@ -2388,7 +2395,7 @@ function buildSummary(r){
 }
 function persuadeStats(r){
   const pct=r.totalStat?r.totalStat.pct:(r.estPct!=null?r.estPct:50);
-  const tier=pct>=85?'\ucd5c\uc0c1\uc704\uad8c':pct>=70?'\uc0c1\uc704\uad8c':pct>=50?'\uc911\uc0c1\uc704\uad8c':pct>=30?'\uc911\uc704\uad8c':'\uae30\ucd08 \uc815\ucc29';
+  const tier=pct>=85?'최상위권':pct>=70?'상위권':pct>=50?'중상위권':pct>=30?'중위권':'기초 정착';
   const recN=r.quad.miss.length, recPts=recN*PT, projTotal=Math.min(r.maxTotal, r.total+recPts);
   let projPct=pct;
   if(recPts>0){
@@ -2445,11 +2452,11 @@ function badukHTML(r){
     const col=cmap[grpOf(g.area)]||'--ink-3',multi=Array.isArray(g.accept)&&g.accept.length>1;
     const tip=`${g.n}번 · ${g.area} · ${g.type} · 정답률 ${g.p}%${(r.exam&&r.exam.estP)?'(추정)':''} · ${g.correct?'정답':'오답'}`;
     const style=g.correct?`background:var(${col});border-color:var(${col});color:#fff`:`border-color:var(${col});color:var(${col})`;
-    cells+=`<div class="bdk-cell ${g.correct?'ok':'no'}" style="${style}" title="${esc(tip)}"><span class="bn">${g.n}</span><span class="mk">${g.correct?'\u2713':'\u2715'}</span>${multi?'<span class="mk2">\ubcf5</span>':''}</div>`;
+    cells+=`<div class="bdk-cell ${g.correct?'ok':'no'}" style="${style}" title="${esc(tip)}"><span class="bn">${g.n}</span><span class="mk">${g.correct?'\u2713':'\u2715'}</span>${multi?'<span class="mk2">복</span>':''}</div>`;
   });
   let leg='';gord.forEach(g=>{leg+=`<span><i style="background:var(${cmap[g]})"></i>${esc(g)}</span>`;});
-  leg+=`<span style="margin-left:auto"><span class="bn-k ok-k">\u25a0</span> \uc815\ub2f5 \u00b7 <span class="bn-k no-k">\u25a2</span> \uc624\ub2f5</span>`;
-  const btn=(r.exam&&r.exam.haeseol)?`<a class="btn--haeseol" href="${r.exam.haeseol}" target="_blank" rel="noopener">\uc804\uccb4 \ud574\uc124 \ubcf4\uae30 \u2192</a>`:'';
+  leg+=`<span style="margin-left:auto"><span class="bn-k ok-k">\u25a0</span> 정답 \u00b7 <span class="bn-k no-k">\u25a2</span> 오답</span>`;
+  const btn=(r.exam&&r.exam.haeseol)?`<a class="btn--haeseol" href="${r.exam.haeseol}" target="_blank" rel="noopener">전체 해설 보기 \u2192</a>`:'';
   return `<div class="bdk-top">${btn}</div><div class="bdk">${cells}</div><div class="bdk-legend">${leg}</div>`;
 }
 /* ===== 정규분포 곡선 ===== */
@@ -2464,14 +2471,14 @@ function distSVGEst(r){
   for(let i=0;i<=N;i++){const xv=r.total+(hi-r.total)*i/N;if(xv<lo)continue;const z=(xv-mu)/sd,y=Math.exp(-z*z/2);fill+='L'+x(xv).toFixed(1)+','+(baseY-y*ih*0.92).toFixed(1)+' ';}
   fill+='L'+x(hi).toFixed(1)+','+baseY.toFixed(1)+' Z';
   const ticks=[Math.round(lo),Math.round(mu),Math.round(hi)].map(v=>`<text x="${x(v).toFixed(1)}" y="${H-9}" font-size="9.5" fill="var(--ink-3)" text-anchor="middle" font-family="var(--mono)">${v}</text>`).join('');
-  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="\ucd94\uc815 \uc810\uc218 \ubd84\ud3ec">
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="추정 점수 분포">
     <path d="${fill}" fill="var(--brass)" opacity=".12"/>
     <path d="${path}" fill="none" stroke="var(--ink-3)" stroke-width="1.8" opacity=".85"/>
     <line x1="${x(mu).toFixed(1)}" y1="${pad.t}" x2="${x(mu).toFixed(1)}" y2="${baseY}" stroke="var(--ink-4)" stroke-dasharray="2 3" stroke-width="1" opacity=".6"/>
-    <text x="${x(mu).toFixed(1)}" y="${pad.t-3}" font-size="8" fill="var(--ink-4)" text-anchor="middle" font-family="var(--mono)">\ucd94\uc815 \ud3c9\uade0</text>
+    <text x="${x(mu).toFixed(1)}" y="${pad.t-3}" font-size="8" fill="var(--ink-4)" text-anchor="middle" font-family="var(--mono)">추정 평균</text>
     <line x1="${myX.toFixed(1)}" y1="${pad.t-6}" x2="${myX.toFixed(1)}" y2="${baseY}" stroke="var(--brass)" stroke-width="2"/>
     <circle cx="${myX.toFixed(1)}" cy="${pad.t-6}" r="3.5" fill="var(--brass)"/>
-    <text x="${myX.toFixed(1)}" y="${pad.t-11}" font-size="10" font-weight="700" fill="var(--brass-d)" text-anchor="middle" font-family="var(--mono)">\ubcf8\uc778 ${r.total}</text>
+    <text x="${myX.toFixed(1)}" y="${pad.t-11}" font-size="10" font-weight="700" fill="var(--brass-d)" text-anchor="middle" font-family="var(--mono)">본인 ${r.total}</text>
     <line x1="${pad.l}" y1="${baseY}" x2="${W-pad.r}" y2="${baseY}" stroke="var(--line)" stroke-width="1"/>
     ${ticks}
   </svg>`;
@@ -2811,12 +2818,12 @@ function renderReport(r,id){
    <div class="cover__sub">${r.exam.range}</div>
    <div class="cover-rule"></div>
    <div class="cover__meta">${esc(idc.name)||'학생'} · 수험번호 ${idc.examno||'-'} · ${idc.date||''}</div>
-   <div class="cover__by"><div class="dawon-sig"><div class="dawon-logo" role="img" aria-label="다원교육"></div><div class="dawon-wm">다원교육 영재관</div><div class="dawon-role">조준모 <b>T</b> · 화학 올림피아드</div></div></div>
+   <div class="cover__by"><div class="dawon-sig"><div class="dawon-logo" role="img" aria-label="다원교육"></div><div class="dawon-wm">다원교육 영재관</div><div class="dawon-role">조준모<b>T</b> · 화학 올림피아드</div></div></div>
  </div>
  <div class="rhead">
    <div class="rhead__top">
      <div>
-       <div class="rhead__ey">Chemistreal Diagnostic Report · 다원교육 영재관 조준모 T</div>
+       <div class="rhead__ey">Chemistreal Diagnostic Report · 다원교육 영재관 조준모T</div>
        <div class="rhead__t">${r.exam.title}</div>
        <div class="rhead__r">${r.exam.range}</div>
      </div>
@@ -5460,7 +5467,7 @@ App.boot();
 <div class="sub">아레니우스·브뢴스테드 정의, 짝산-짝염기, 양쪽성, 중화와 알짜 이온식까지</div>
 
 <h3><span class="num">①</span> '산·염기'의 정의는 발전해 왔다</h3>
-<p class="lead">신맛이 나면 산, 미�끈하면 염기 — 이런 경험적 구분에서 시작해, 화학은 산·염기를 점점 더 정밀하게 정의해 왔어. 이번 강의는 그 정의의 발전(아레니우스 → 브뢴스테드)과, 그 위에서 중화 반응을 정확히 쓰는 법(알짜 이온 반응식)을 정리한다. 다음 30강(산염기 평형·적정)의 토대가 되니 개념을 확실히 잡자.</p>
+<p class="lead">신맛이 나면 산, 미끈하면 염기 — 이런 경험적 구분에서 시작해, 화학은 산·염기를 점점 더 정밀하게 정의해 왔어. 이번 강의는 그 정의의 발전(아레니우스 → 브뢴스테드)과, 그 위에서 중화 반응을 정확히 쓰는 법(알짜 이온 반응식)을 정리한다. 다음 30강(산염기 평형·적정)의 토대가 되니 개념을 확실히 잡자.</p>
 
 <h3><span class="num">②</span> 아레니우스 정의 — 물에서 H⁺와 OH⁻</h3>
 <p>가장 기본적인 정의야. <b>아레니우스 산</b>은 물에 녹아 <b>수소 이온(H⁺, 실제로는 H₃O⁺)</b>을 내놓는 물질, <b>아레니우스 염기</b>는 물에 녹아 <b>수산화 이온(OH⁻)</b>을 내놓는 물질이야(예: 산 HCl, 염기 NaOH).</p>
@@ -5892,6 +5899,7 @@ window.printAllFull = function(){
       var miss=[], seen={};
       (r.graded||[]).forEach(function(g){ if(!g.correct && g.type && !seen[g.type]){ seen[g.type]=1; miss.push(g.type); } });
       var cids={}; miss.forEach(function(t){ var c=CNOTE_REG[String(t).replace(/\s/g,'')]; if(c) cids[c]=1; });
+      var wrongByCidP={}; (r.graded||[]).forEach(function(g){ if(!g.correct && g.type && g.n){ var cc=CNOTE_REG[String(g.type).replace(/\s/g,'')]; if(cc){ (wrongByCidP[cc]=wrongByCidP[cc]||[]).push(g.n); } } });
       var nm=((App.idData&&App.idData.name)||s.name||'').trim();
       /* 관련 강의 클론 */
       var lecHTML='', any=false, all=Object.keys(cids).length===0;
@@ -5910,12 +5918,23 @@ window.printAllFull = function(){
       var noteHint = all
         ? '이번 시험에서 틀린 유형을 특정 강의로 좁히기 어려워, 개념 강의 전체를 실었습니다.'
         : ('이번 시험에서 흔들린 '+miss.length+'개 유형에 해당하는 개념 강의를 실었습니다.');
+      var sumHTML='';
+      if(any && !all && src){
+        var docOrderP={}; src.querySelectorAll('.lec').forEach(function(el,i){ docOrderP[el.getAttribute('data-cid')]=i; });
+        var lnmP=function(c){ var el=src.querySelector('.lec[data-cid="'+c+'"]'); var h=el&&el.querySelector('h2'); return h?h.textContent.split('·').pop().trim():c; };
+        var priL=Object.keys(cids).map(function(c){ var w=wrongByCidP[c]?wrongByCidP[c].filter(function(v,i,a){return a.indexOf(v)===i;}).length:0; return {c:c,w:w}; });
+        priL.sort(function(a,b){ return (b.w-a.w)||((docOrderP[a.c]||0)-(docOrderP[b.c]||0)); });
+        var nP=Math.min(5,Math.max(3,priL.filter(function(x){return x.w>=2;}).length)); if(priL.length<=nP) nP=priL.length;
+        sumHTML='<div class="cnote-todo"><div class="ct-h">먼저 볼 강 · 수업 전 이것부터</div><ul>';
+        priL.forEach(function(x,i){ if(i===nP && nP<priL.length){ sumHTML+='</ul><div class="ct-h2">여유 되면 · 나머지 개념</div><ul>'; } sumHTML+='<li>· '+esc(lnmP(x.c))+(i<nP?' <span class="ct-pri">우선</span>':'')+(x.w?(' <span class="ct-w">틀린 문항 '+x.w+'개</span>'):'')+'</li>'; });
+        sumHTML+='</ul></div>';
+      }
       var cnoteBlock = any ? (
         '<div class="print-ctx cnote">'
         + '<div class="cnote-head"><div class="k">개념 발전 노트 · 다원교육 영재관 조준모T</div>'
         + '<h2>'+(nm?(esc(nm)+' 학생의 '):'')+'개념 발전 노트</h2>'
         + '<div class="d">'+noteHint+'</div></div>'
-        + lecHTML + '</div>'
+        + sumHTML + lecHTML + '</div>'
       ) : '';
       combined += '<div class="print-block">'
         + '<div class="print-ctx">'+reportHTML+'</div>'
