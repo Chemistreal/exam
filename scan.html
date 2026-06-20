@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>OMR 스캔 채점 · Chemistreal</title>
+<style>
+  :root{--ink:#23201b;--ink2:#5a554c;--ink3:#857f74;--paper:#fff;--bg:#f4f2ec;--line:#e3ddd2;
+        --brass:#B0873A;--brassd:#7a5d20;--teal:#3A7A6B;--red:#b84b4b;--amber:#c98a23;--green:#3f8f55;
+        --serif:Georgia,'Times New Roman',serif;--sans:'Helvetica Neue',Arial,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+        --mono:'SF Mono',Consolas,monospace}
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans)}
+  .wrap{max-width:760px;margin:0 auto;padding:18px 16px 60px}
+  header{text-align:center;padding:10px 0 16px}
+  header h1{font-family:var(--serif);font-size:22px;margin:0 0 4px;letter-spacing:.01em}
+  header p{margin:0;color:var(--ink3);font-size:13px}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line);
+       background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:14px;font-weight:600;
+       padding:11px 16px;border-radius:10px;cursor:pointer;text-decoration:none}
+  .btn--p{background:var(--brass);border-color:var(--brass);color:#fff}
+  .btn--t{background:var(--teal);border-color:var(--teal);color:#fff}
+  .btn:active{transform:translateY(1px)}
+  .btn[disabled]{opacity:.5;pointer-events:none}
+  .row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  .grow{flex:1}
+  .hint{font-size:12.5px;color:var(--ink3);line-height:1.55;margin-top:8px}
+  .hint b{color:var(--ink2)}
+  /* picker */
+  #drop{border:2px dashed var(--line);border-radius:14px;padding:38px 18px;text-align:center;cursor:pointer;background:#fbf9f4}
+  #drop .big{font-family:var(--serif);font-size:18px;margin-bottom:6px}
+  #drop .sub{color:var(--ink3);font-size:13px}
+  input[type=file]{display:none}
+  /* align */
+  .cwrap{position:relative;width:100%;background:#2a2722;border-radius:10px;overflow:hidden;line-height:0}
+  #cv{width:100%;display:block;touch-action:none}
+  #loupe{position:absolute;top:8px;left:8px;width:130px;height:130px;border-radius:50%;
+         border:2px solid #fff;box-shadow:0 4px 14px rgba(0,0,0,.4);display:none;background:#000}
+  .bar{display:flex;gap:9px;align-items:center;margin-bottom:12px}
+  .bar .ttl{font-family:var(--serif);font-size:16px;flex:1}
+  /* review */
+  .counts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .pill{font-size:12px;font-weight:600;padding:5px 10px;border-radius:20px;border:1px solid var(--line);background:#faf8f3;color:var(--ink2)}
+  .pill b{font-family:var(--mono)}
+  .pill--a{color:var(--amber);border-color:#e6cfa0;background:#fdf6e8}
+  .pill--g{color:var(--ink3)}
+  .pill--r{color:var(--red);border-color:#e3b3b3;background:#fbeded}
+  #grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .gcell{display:flex;align-items:center;gap:7px;border:1.5px solid var(--line);border-radius:9px;
+         padding:7px 9px;cursor:pointer;background:#fff;user-select:none}
+  .gcell .qn{font-family:var(--mono);font-size:11px;color:var(--ink3);width:20px;text-align:right}
+  .gcell .av{font-family:var(--serif);font-size:18px;font-weight:700;width:18px;text-align:center}
+  .gcell.hi{border-color:#bfe0c8}
+  .gcell.lo{border-color:var(--amber);background:#fdf6e8}
+  .gcell.blank{border-color:var(--line);background:#f5f3ee}
+  .gcell.blank .av{color:var(--ink3)}
+  .gcell.dbl{box-shadow:0 0 0 2px rgba(184,75,75,.3) inset}
+  .gcell.edited{border-color:var(--teal);background:#eef6f3}
+  .gcell .av.set{color:var(--ink)}
+  .ansline{margin-top:14px;font-family:var(--mono);font-size:12px;color:var(--ink2);word-break:break-all;
+           background:#faf8f3;border:1px solid var(--line);border-radius:8px;padding:10px 12px;line-height:1.7}
+  .ansline .lab{display:block;font-family:var(--sans);font-size:11px;color:var(--ink3);margin-bottom:5px}
+  .legend{font-size:11.5px;color:var(--ink3);margin-top:10px;display:flex;gap:14px;flex-wrap:wrap}
+  .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:4px;border:1.5px solid}
+  .lg-hi i{border-color:#bfe0c8;background:#fff}.lg-lo i{border-color:var(--amber);background:#fdf6e8}
+  .lg-bl i{border-color:var(--line);background:#f5f3ee}.lg-ed i{border-color:var(--teal);background:#eef6f3}
+  .lg-r2 i{border-color:var(--red);background:#fbeded}
+  #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);opacity:0;
+         background:#23201b;color:#fff;padding:11px 18px;border-radius:10px;font-size:13px;transition:.25s;pointer-events:none;z-index:50}
+  #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+  .chipbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:2px 0 12px}
+  .chip-lead{font-size:12px;color:var(--ink2);font-weight:600;margin-right:2px}
+  .chip{font-size:12px;border:1px solid var(--amber);background:#fdf6e8;color:var(--ink);border-radius:16px;padding:4px 10px;cursor:pointer;font-family:var(--mono)}
+  .chip i{font-style:normal;color:var(--amber);font-size:10.5px;margin-left:3px}
+  .chip.dblc{border-color:var(--red);background:#fbeded}.chip.dblc i{color:var(--red)}
+  .chk-ok{font-size:12px;color:var(--ink3)}
+  .gcell.lo2{border-color:var(--red);background:#fbeded}
+  .gcell.pulse{animation:pulsering .55s ease-in-out 2}
+  @keyframes pulsering{0%,100%{box-shadow:0 0 0 0 rgba(176,135,58,0)}50%{box-shadow:0 0 0 4px rgba(176,135,58,.55)}}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>OMR 스캔 채점</h1>
+    <p>답안지를 찍어 올리면 60문항을 자동 판독합니다 · 검토 후 복사</p>
+  </header>
+
+  <!-- 1) 사진 선택 -->
+  <section id="s-pick">
+    <div class="card">
+      <div id="drop">
+        <div class="big">답안지 사진 올리기</div>
+        <div class="sub">탭하여 촬영하거나 사진을 선택하세요</div>
+      </div>
+      <input type="file" id="file" accept="image/*" capture="environment">
+      <div class="hint">● 네 모서리의 <b>검은 사각형 4개</b>가 모두 보이게, 가능한 한 정면에서 촬영하세요.<br>
+        ● 시험별 <b>OMR 답안지(PDF)</b>를 인쇄해 사용하세요. 학생은 점·체크·동그라미·형광펜 무엇으로 표시해도 됩니다.</div>
+    </div>
+  </section>
+
+  <!-- 2) 모서리 맞춤 -->
+  <section id="s-align" class="hidden">
+    <div class="card">
+      <div class="bar">
+        <span class="ttl">네 모서리를 맞추세요</span>
+        <button class="btn btn--p" id="btnRecog">인식하기 →</button>
+      </div>
+      <div class="cwrap">
+        <canvas id="cv"></canvas>
+        <canvas id="loupe" width="130" height="130"></canvas>
+      </div>
+      <div class="hint">파란 핸들 <b>네 개</b>를 각 모서리의 <b>검은 사각형 중심</b>으로 끌어다 놓으세요.
+        손가락을 떼면 확대경이 사라집니다. 정밀하게 맞출수록 인식이 정확해집니다.</div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn" id="btnNew">새 사진</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3) 검토 -->
+  <section id="s-review" class="hidden">
+    <div class="card">
+      <div class="bar"><span class="ttl">판독 결과 검토</span>
+        <button class="btn btn--t" id="btnCopy">답안 복사</button></div>
+      <div class="counts" id="counts"></div>
+      <div class="chipbar" id="chipbar"></div>
+      <div id="grid"></div>
+      <div class="legend">
+        <span class="lg-hi"><i></i>확실</span>
+        <span class="lg-lo"><i></i>확인 권장</span>
+        <span class="lg-r2"><i></i>재확인</span>
+        <span class="lg-bl"><i></i>무응답</span>
+        <span class="lg-ed"><i></i>수정함</span>
+        <span>칸을 탭하면 1·2·3·4·무응답 순으로 바뀝니다</span>
+      </div>
+      <div class="ansline" id="ansline"><span class="lab">60문항 답안 (리포트에 붙여넣기)</span><span id="ansstr"></span></div>
+      <div class="row" style="margin-top:14px">
+        <button class="btn" id="btnBack">다시 맞추기</button>
+        <button class="btn" id="btnNew2">새 사진</button>
+      </div>
+    </div>
+  </section>
+</div>
+<div id="toast"></div>
+
+<script>/* omr_core.js v3 — 표기 무관 OMR 인식 + 자동 모서리 검출 (브라우저 + node 공용)
+ * 추가: detectFiducials(자동 정렬), 셀별 로컬 배경, 풀해상도 샘플링, 연속 신뢰도(cscore).
+ * 입력: img={data:RGBA,width,height}, coords(omr_coords.json), dst(선택; 없으면 자동검출 권장)
+ */
+(function (root) {
+  'use strict';
+
+  // ===== 선형대수 =====
+  function solve8(A, b) {
+    var n = 8, i, j, k;
+    for (i = 0; i < n; i++) {
+      var piv = i;
+      for (k = i + 1; k < n; k++) if (Math.abs(A[k][i]) > Math.abs(A[piv][i])) piv = k;
+      if (piv !== i) { var t = A[i]; A[i] = A[piv]; A[piv] = t; var tb = b[i]; b[i] = b[piv]; b[piv] = tb; }
+      var d = A[i][i] || 1e-12;
+      for (j = i; j < n; j++) A[i][j] /= d; b[i] /= d;
+      for (k = 0; k < n; k++) { if (k === i) continue; var f = A[k][i]; if (!f) continue;
+        for (j = i; j < n; j++) A[k][j] -= f * A[i][j]; b[k] -= f * b[i]; }
+    }
+    return b;
+  }
+  function solveHomography(src, dst) {
+    var A = [], b = [];
+    for (var i = 0; i < 4; i++) {
+      var x = src[i][0], y = src[i][1], X = dst[i][0], Y = dst[i][1];
+      A.push([x, y, 1, 0, 0, 0, -X * x, -X * y]); b.push(X);
+      A.push([0, 0, 0, x, y, 1, -Y * x, -Y * y]); b.push(Y);
+    }
+    var h = solve8(A, b);
+    return [h[0], h[1], h[2], h[3], h[4], h[5], h[6], h[7], 1];
+  }
+  function applyH(H, x, y) {
+    var X = H[0]*x+H[1]*y+H[2], Y = H[3]*x+H[4]*y+H[5], W = H[6]*x+H[7]*y+H[8];
+    return [X / W, Y / W];
+  }
+  function percentile(arr, p) {
+    if (!arr.length) return NaN;
+    var s = arr.slice().sort(function (a, b) { return a - b; });
+    return s[Math.min(s.length - 1, Math.max(0, Math.round((p / 100) * (s.length - 1))))];
+  }
+
+  // ===== 자동 모서리(피듀셜) 검출 =====
+  function toGraySmall(img, targetLong) {
+    var W = img.width, H = img.height, scale = targetLong / Math.max(W, H);
+    if (scale > 1) scale = 1;
+    var w = Math.max(1, Math.round(W * scale)), h = Math.max(1, Math.round(H * scale));
+    var g = new Float32Array(w * h);
+    for (var y = 0; y < h; y++) {
+      var sy = Math.min(H - 1, Math.floor(y / scale));
+      for (var x = 0; x < w; x++) {
+        var sx = Math.min(W - 1, Math.floor(x / scale)), o = (sy * W + sx) * 4;
+        g[y * w + x] = 0.299 * img.data[o] + 0.587 * img.data[o + 1] + 0.114 * img.data[o + 2];
+      }
+    }
+    return { g: g, w: w, h: h, scaleX: W / w, scaleY: H / h };
+  }
+  function otsu(g) {
+    var hist = new Array(256), i; for (i = 0; i < 256; i++) hist[i] = 0;
+    for (i = 0; i < g.length; i++) hist[g[i] | 0]++;
+    var total = g.length, sum = 0; for (i = 0; i < 256; i++) sum += i * hist[i];
+    var sumB = 0, wB = 0, maxVar = -1, thr = 127;
+    for (i = 0; i < 256; i++) {
+      wB += hist[i]; if (!wB) continue; var wF = total - wB; if (!wF) break;
+      sumB += i * hist[i]; var mB = sumB / wB, mF = (sum - sumB) / wF, v = wB * wF * (mB - mF) * (mB - mF);
+      if (v > maxVar) { maxVar = v; thr = i; }
+    }
+    return thr;
+  }
+  function detectFiducials(img, opts) {
+    opts = opts || {};
+    var S = toGraySmall(img, opts.detLong || 900), g = S.g, w = S.w, h = S.h;
+    // 적응형 어두움 임계: 근-검정 피듀셜만 잡고 옅은 윤곽(약 153)/번호(약 189)는 제외
+    var hist = new Float64Array(256), hi;
+    for (hi = 0; hi < g.length; hi++) hist[g[hi] | 0]++;
+    function hp(p) { var need = p / 100 * g.length, acc = 0; for (var b = 0; b < 256; b++) { acc += hist[b]; if (acc >= need) return b; } return 255; }
+    var inkE = hp(2), paperE = hp(80), thr = inkE + 0.40 * (paperE - inkE);
+    if (thr < inkE + 12) thr = inkE + 12;
+    if (thr > 150) thr = 150;
+    var dark = new Uint8Array(w * h);
+    for (var i = 0; i < g.length; i++) dark[i] = g[i] < thr ? 1 : 0;
+    var lab = new Int32Array(w * h), comps = [], stack = [], nlab = 0;
+    for (var y = 0; y < h; y++) for (var x = 0; x < w; x++) {
+      var idx = y * w + x; if (!dark[idx] || lab[idx]) continue;
+      nlab++; var minx = x, maxx = x, miny = y, maxy = y, cnt = 0, sx = 0, sy = 0;
+      stack.length = 0; stack.push(idx); lab[idx] = nlab;
+      while (stack.length) {
+        var p = stack.pop(), py = (p / w) | 0, px = p - py * w;
+        cnt++; sx += px; sy += py;
+        if (px < minx) minx = px; if (px > maxx) maxx = px; if (py < miny) miny = py; if (py > maxy) maxy = py;
+        var q;
+        if (px > 0)   { q = p - 1; if (dark[q] && !lab[q]) { lab[q] = nlab; stack.push(q); } }
+        if (px < w-1) { q = p + 1; if (dark[q] && !lab[q]) { lab[q] = nlab; stack.push(q); } }
+        if (py > 0)   { q = p - w; if (dark[q] && !lab[q]) { lab[q] = nlab; stack.push(q); } }
+        if (py < h-1) { q = p + w; if (dark[q] && !lab[q]) { lab[q] = nlab; stack.push(q); } }
+      }
+      var bw = maxx - minx + 1, bh = maxy - miny + 1;
+      comps.push({ cnt: cnt, bw: bw, bh: bh, fill: cnt / (bw * bh),
+        aspect: Math.min(bw, bh) / Math.max(bw, bh), cx: sx / cnt, cy: sy / cnt });
+    }
+    var minSide = Math.max(6, 0.012 * Math.min(w, h)), maxSide = 0.13 * Math.min(w, h);
+    var cand = comps.filter(function (c) {
+      var side = Math.max(c.bw, c.bh);
+      return c.fill > 0.82 && c.aspect > 0.72 && side >= minSide && side <= maxSide;
+    });
+    if (cand.length < 4) return null;
+    function pick(fn) { var best = cand[0], bv = fn(best); for (var k = 1; k < cand.length; k++) { var v = fn(cand[k]); if (v < bv) { bv = v; best = cand[k]; } } return best; }
+    var TL = pick(function (c) { return c.cx + c.cy; });
+    var TR = pick(function (c) { return (w - c.cx) + c.cy; });
+    var BR = pick(function (c) { return (w - c.cx) + (h - c.cy); });
+    var BL = pick(function (c) { return c.cx + (h - c.cy); });
+    var four = [TL, TR, BR, BL];
+    for (var a = 0; a < 4; a++) for (var b2 = a + 1; b2 < 4; b2++) if (four[a] === four[b2]) return null;
+    // 사각형 타당성(면적)
+    var area = Math.abs((TR.cx-TL.cx)*(BL.cy-TL.cy) - (BL.cx-TL.cx)*(TR.cy-TL.cy)) +
+               Math.abs((BL.cx-BR.cx)*(TR.cy-BR.cy) - (TR.cx-BR.cx)*(BL.cy-BR.cy));
+    area *= 0.5;
+    if (area < 0.06 * w * h) return null;
+    var dst = four.map(function (c) { return [c.cx * S.scaleX, c.cy * S.scaleY]; });
+    // 변 길이 균형으로 신뢰도
+    function d2(p, q) { return Math.hypot(p.cx - q.cx, p.cy - q.cy); }
+    var top = d2(TL, TR), bot = d2(BL, BR), lft = d2(TL, BL), rgt = d2(TR, BR);
+    var hbal = Math.min(top, bot) / Math.max(top, bot), vbal = Math.min(lft, rgt) / Math.max(lft, rgt);
+    var conf = (hbal > 0.6 && vbal > 0.6) ? 'ok' : 'check';
+    return { dst: dst, conf: conf, cand: cand.length, balance: Math.min(hbal, vbal) };
+  }
+
+  // ===== 셀 샘플링 =====
+  function cellSample(img, cx, cy, r, darkL, satT) {
+    var data = img.data, W = img.width, H = img.height;
+    var x0 = Math.max(0, Math.floor(cx - r)), x1 = Math.min(W - 1, Math.ceil(cx + r));
+    var y0 = Math.max(0, Math.floor(cy - r)), y1 = Math.min(H - 1, Math.ceil(cy + r));
+    var r2 = r * r, n = 0, mark = 0;
+    for (var y = y0; y <= y1; y++) { var dy = y - cy;
+      for (var x = x0; x <= x1; x++) {
+        var dx = x - cx; if (dx * dx + dy * dy > r2) continue;
+        var o = (y * W + x) * 4, R = data[o], G = data[o + 1], B = data[o + 2];
+        var L = 0.299 * R + 0.587 * G + 0.114 * B;
+        var mx = R > G ? (R > B ? R : B) : (G > B ? G : B), mn = R < G ? (R < B ? R : B) : (G < B ? G : B);
+        var Sv = mx > 0 ? (mx - mn) / mx : 0;
+        if ((L < darkL) || (Sv > satT && mx > 70)) mark++;
+        n++;
+      }
+    }
+    return n ? mark / n : 0;
+  }
+  // 고리(annulus)에서 국소 종이 밝기(밝은 쪽) 추정
+  function localPaper(img, cx, cy, rIn, rOut) {
+    var data = img.data, W = img.width, H = img.height;
+    var x0 = Math.max(0, Math.floor(cx - rOut)), x1 = Math.min(W - 1, Math.ceil(cx + rOut));
+    var y0 = Math.max(0, Math.floor(cy - rOut)), y1 = Math.min(H - 1, Math.ceil(cy + rOut));
+    var ri2 = rIn * rIn, ro2 = rOut * rOut, vals = [];
+    for (var y = y0; y <= y1; y++) { var dy = y - cy;
+      for (var x = x0; x <= x1; x++) {
+        var dx = x - cx, dd = dx * dx + dy * dy; if (dd < ri2 || dd > ro2) continue;
+        var o = (y * W + x) * 4;
+        vals.push(0.299 * data[o] + 0.587 * data[o + 1] + 0.114 * data[o + 2]);
+      }
+    }
+    return vals.length >= 12 ? percentile(vals, 65) : NaN;
+  }
+  function fiducialLuma(img, cx, cy, r) {
+    var data = img.data, W = img.width, H = img.height;
+    var x0 = Math.max(0, Math.floor(cx - r)), x1 = Math.min(W - 1, Math.ceil(cx + r));
+    var y0 = Math.max(0, Math.floor(cy - r)), y1 = Math.min(H - 1, Math.ceil(cy + r));
+    var n = 0, s = 0;
+    for (var y = y0; y <= y1; y++) for (var x = x0; x <= x1; x++) {
+      var o = (y * W + x) * 4; s += 0.299 * data[o] + 0.587 * data[o + 1] + 0.114 * data[o + 2]; n++;
+    }
+    return n ? s / n : 0;
+  }
+
+  function recognize(img, coords, dst, opts) {
+    opts = opts || {};
+    var R_SCALE  = opts.rScale  != null ? opts.rScale  : 1.10;
+    var DARK_FRAC= opts.darkFrac!= null ? opts.darkFrac: 0.45;
+    var SAT_T    = opts.satT    != null ? opts.satT    : 0.28;
+    var FLOOR    = opts.floor   != null ? opts.floor   : 0.025;
+    var DBL_FRAC = opts.dblFrac != null ? opts.dblFrac : 0.55;
+
+    var fu = coords.fid;
+    var src = [[fu.TL.u, fu.TL.v], [fu.TR.u, fu.TR.v], [fu.BR.u, fu.BR.v], [fu.BL.u, fu.BL.v]];
+    var H = solveHomography(src, dst);
+    var rU = coords.bub_r_norm_u, rV = coords.bub_r_norm_v, NQ = coords.nq, NC = coords.nc;
+
+    var inkL = (fiducialLuma(img, dst[0][0], dst[0][1], 6) + fiducialLuma(img, dst[1][0], dst[1][1], 6) +
+                fiducialLuma(img, dst[2][0], dst[2][1], 6) + fiducialLuma(img, dst[3][0], dst[3][1], 6)) / 4;
+
+    // 중심·반지름 + 전역 종이(폴백)
+    var centers = new Array(NQ * NC), radii = new Array(NQ * NC), glum = [];
+    for (var bi = 0; bi < coords.bubbles.length; bi++) {
+      var bb = coords.bubbles[bi];
+      var c0 = applyH(H, bb.u, bb.v), cu = applyH(H, bb.u + rU, bb.v), cv = applyH(H, bb.u, bb.v + rV);
+      var rr = R_SCALE * Math.min(Math.hypot(cu[0]-c0[0], cu[1]-c0[1]), Math.hypot(cv[0]-c0[0], cv[1]-c0[1]));
+      var key = (bb.q - 1) * NC + bb.c; centers[key] = c0; radii[key] = Math.max(3, rr);
+      glum.push(localPaper(img, c0[0], c0[1], radii[key] * 1.3, radii[key] * 1.75));
+    }
+    var globalPaper = percentile(glum.filter(function (v) { return v === v; }), 60);
+    if (!(globalPaper > inkL + 10)) globalPaper = Math.max(200, inkL + 60);
+
+    // 점수: 전역 어두움 임계(피듀셜 잉크 + 종이) 하나로 통일 → 문항 내 최소값 차감 시 옅은 윤곽이 균일하게 상쇄됨
+    var darkL = globalPaper - DARK_FRAC * (globalPaper - inkL);
+    var score = new Array(NQ * NC), all = [];
+    for (var k2 = 0; k2 < NQ * NC; k2++) {
+      score[k2] = cellSample(img, centers[k2][0], centers[k2][1], radii[k2], darkL, SAT_T);
+      all.push(score[k2]);
+    }
+    var base = percentile(all, 35);
+
+    var answers = new Array(NQ), conf = new Array(NQ), cscore = new Array(NQ), reason = new Array(NQ);
+    var blanks = [], doubles = [];
+    for (var q = 0; q < NQ; q++) {
+      var s = [score[q*NC], score[q*NC+1], score[q*NC+2], score[q*NC+3]];
+      var minSib = Math.min(s[0], s[1], s[2], s[3]);
+      var m = [s[0]-minSib, s[1]-minSib, s[2]-minSib, s[3]-minSib];
+      var chosen = 0, maxM = -1;
+      for (var c = 0; c < NC; c++) if (m[c] > maxM) { maxM = m[c]; chosen = c; }
+      var sortedM = m.slice().sort(function (a, b) { return b - a; }), secM = sortedM[1];
+      var filled = maxM >= FLOOR;
+      var ambiguous = filled && secM >= DBL_FRAC * maxM && secM >= FLOOR * 0.7;
+      answers[q] = filled ? (chosen + 1) : 0;
+      // 연속 신뢰도
+      var margin = maxM > 0 ? (maxM - secM) / maxM : 0;          // 1·2위 분리도
+      var strength = Math.min(1, maxM / (4 * FLOOR));             // 표시 강도
+      var cs = filled ? Math.max(0, Math.min(1, 0.5 * strength + 0.5 * margin)) : 0;
+      if (ambiguous) cs = Math.min(cs, 0.25);
+      cscore[q] = cs;
+      conf[q] = (filled && !ambiguous && cs >= 0.6) ? 'high' : 'low';
+      reason[q] = !filled ? 'blank' : (ambiguous ? 'double' : (maxM < 2 * FLOOR ? 'faint' : (margin < 0.4 ? 'close' : '')));
+      if (!filled) blanks.push(q + 1);
+      if (ambiguous) doubles.push(q + 1);
+    }
+    return { answers: answers, conf: conf, cscore: cscore, reason: reason, blanks: blanks, doubles: doubles,
+             stats: { inkL: inkL, globalPaper: globalPaper, darkL: darkL, base: base },
+             score2d: score, centers: centers, H: H };
+  }
+
+  var api = { solveHomography: solveHomography, applyH: applyH, recognize: recognize,
+              detectFiducials: detectFiducials, otsu: otsu };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else root.OMR = api;
+})(typeof window !== 'undefined' ? window : this);
+</script>
+<script>var COORDS={"page": {"w": 210.0, "h": 297.0}, "fid": {"TL": {"u": 0.0, "v": 0.0}, "TR": {"u": 1.0, "v": 0.0}, "BR": {"u": 1.0, "v": 1.0}, "BL": {"u": 0.0, "v": 1.0}}, "bub_r_norm_u": 0.015294, "bub_r_norm_v": 0.010117, "nq": 60, "nc": 4, "bubbles": [{"q": 1, "c": 0, "u": 0.094118, "v": 0.233463}, {"q": 1, "c": 1, "u": 0.147059, "v": 0.233463}, {"q": 1, "c": 2, "u": 0.2, "v": 0.233463}, {"q": 1, "c": 3, "u": 0.252941, "v": 0.233463}, {"q": 2, "c": 0, "u": 0.094118, "v": 0.270428}, {"q": 2, "c": 1, "u": 0.147059, "v": 0.270428}, {"q": 2, "c": 2, "u": 0.2, "v": 0.270428}, {"q": 2, "c": 3, "u": 0.252941, "v": 0.270428}, {"q": 3, "c": 0, "u": 0.094118, "v": 0.307393}, {"q": 3, "c": 1, "u": 0.147059, "v": 0.307393}, {"q": 3, "c": 2, "u": 0.2, "v": 0.307393}, {"q": 3, "c": 3, "u": 0.252941, "v": 0.307393}, {"q": 4, "c": 0, "u": 0.094118, "v": 0.344358}, {"q": 4, "c": 1, "u": 0.147059, "v": 0.344358}, {"q": 4, "c": 2, "u": 0.2, "v": 0.344358}, {"q": 4, "c": 3, "u": 0.252941, "v": 0.344358}, {"q": 5, "c": 0, "u": 0.094118, "v": 0.381323}, {"q": 5, "c": 1, "u": 0.147059, "v": 0.381323}, {"q": 5, "c": 2, "u": 0.2, "v": 0.381323}, {"q": 5, "c": 3, "u": 0.252941, "v": 0.381323}, {"q": 6, "c": 0, "u": 0.094118, "v": 0.418288}, {"q": 6, "c": 1, "u": 0.147059, "v": 0.418288}, {"q": 6, "c": 2, "u": 0.2, "v": 0.418288}, {"q": 6, "c": 3, "u": 0.252941, "v": 0.418288}, {"q": 7, "c": 0, "u": 0.094118, "v": 0.455253}, {"q": 7, "c": 1, "u": 0.147059, "v": 0.455253}, {"q": 7, "c": 2, "u": 0.2, "v": 0.455253}, {"q": 7, "c": 3, "u": 0.252941, "v": 0.455253}, {"q": 8, "c": 0, "u": 0.094118, "v": 0.492218}, {"q": 8, "c": 1, "u": 0.147059, "v": 0.492218}, {"q": 8, "c": 2, "u": 0.2, "v": 0.492218}, {"q": 8, "c": 3, "u": 0.252941, "v": 0.492218}, {"q": 9, "c": 0, "u": 0.094118, "v": 0.529183}, {"q": 9, "c": 1, "u": 0.147059, "v": 0.529183}, {"q": 9, "c": 2, "u": 0.2, "v": 0.529183}, {"q": 9, "c": 3, "u": 0.252941, "v": 0.529183}, {"q": 10, "c": 0, "u": 0.094118, "v": 0.566148}, {"q": 10, "c": 1, "u": 0.147059, "v": 0.566148}, {"q": 10, "c": 2, "u": 0.2, "v": 0.566148}, {"q": 10, "c": 3, "u": 0.252941, "v": 0.566148}, {"q": 11, "c": 0, "u": 0.094118, "v": 0.603113}, {"q": 11, "c": 1, "u": 0.147059, "v": 0.603113}, {"q": 11, "c": 2, "u": 0.2, "v": 0.603113}, {"q": 11, "c": 3, "u": 0.252941, "v": 0.603113}, {"q": 12, "c": 0, "u": 0.094118, "v": 0.640078}, {"q": 12, "c": 1, "u": 0.147059, "v": 0.640078}, {"q": 12, "c": 2, "u": 0.2, "v": 0.640078}, {"q": 12, "c": 3, "u": 0.252941, "v": 0.640078}, {"q": 13, "c": 0, "u": 0.094118, "v": 0.677043}, {"q": 13, "c": 1, "u": 0.147059, "v": 0.677043}, {"q": 13, "c": 2, "u": 0.2, "v": 0.677043}, {"q": 13, "c": 3, "u": 0.252941, "v": 0.677043}, {"q": 14, "c": 0, "u": 0.094118, "v": 0.714008}, {"q": 14, "c": 1, "u": 0.147059, "v": 0.714008}, {"q": 14, "c": 2, "u": 0.2, "v": 0.714008}, {"q": 14, "c": 3, "u": 0.252941, "v": 0.714008}, {"q": 15, "c": 0, "u": 0.094118, "v": 0.750973}, {"q": 15, "c": 1, "u": 0.147059, "v": 0.750973}, {"q": 15, "c": 2, "u": 0.2, "v": 0.750973}, {"q": 15, "c": 3, "u": 0.252941, "v": 0.750973}, {"q": 16, "c": 0, "u": 0.094118, "v": 0.787938}, {"q": 16, "c": 1, "u": 0.147059, "v": 0.787938}, {"q": 16, "c": 2, "u": 0.2, "v": 0.787938}, {"q": 16, "c": 3, "u": 0.252941, "v": 0.787938}, {"q": 17, "c": 0, "u": 0.094118, "v": 0.824903}, {"q": 17, "c": 1, "u": 0.147059, "v": 0.824903}, {"q": 17, "c": 2, "u": 0.2, "v": 0.824903}, {"q": 17, "c": 3, "u": 0.252941, "v": 0.824903}, {"q": 18, "c": 0, "u": 0.094118, "v": 0.861868}, {"q": 18, "c": 1, "u": 0.147059, "v": 0.861868}, {"q": 18, "c": 2, "u": 0.2, "v": 0.861868}, {"q": 18, "c": 3, "u": 0.252941, "v": 0.861868}, {"q": 19, "c": 0, "u": 0.094118, "v": 0.898833}, {"q": 19, "c": 1, "u": 0.147059, "v": 0.898833}, {"q": 19, "c": 2, "u": 0.2, "v": 0.898833}, {"q": 19, "c": 3, "u": 0.252941, "v": 0.898833}, {"q": 20, "c": 0, "u": 0.094118, "v": 0.935798}, {"q": 20, "c": 1, "u": 0.147059, "v": 0.935798}, {"q": 20, "c": 2, "u": 0.2, "v": 0.935798}, {"q": 20, "c": 3, "u": 0.252941, "v": 0.935798}, {"q": 21, "c": 0, "u": 0.435294, "v": 0.233463}, {"q": 21, "c": 1, "u": 0.488235, "v": 0.233463}, {"q": 21, "c": 2, "u": 0.541176, "v": 0.233463}, {"q": 21, "c": 3, "u": 0.594118, "v": 0.233463}, {"q": 22, "c": 0, "u": 0.435294, "v": 0.270428}, {"q": 22, "c": 1, "u": 0.488235, "v": 0.270428}, {"q": 22, "c": 2, "u": 0.541176, "v": 0.270428}, {"q": 22, "c": 3, "u": 0.594118, "v": 0.270428}, {"q": 23, "c": 0, "u": 0.435294, "v": 0.307393}, {"q": 23, "c": 1, "u": 0.488235, "v": 0.307393}, {"q": 23, "c": 2, "u": 0.541176, "v": 0.307393}, {"q": 23, "c": 3, "u": 0.594118, "v": 0.307393}, {"q": 24, "c": 0, "u": 0.435294, "v": 0.344358}, {"q": 24, "c": 1, "u": 0.488235, "v": 0.344358}, {"q": 24, "c": 2, "u": 0.541176, "v": 0.344358}, {"q": 24, "c": 3, "u": 0.594118, "v": 0.344358}, {"q": 25, "c": 0, "u": 0.435294, "v": 0.381323}, {"q": 25, "c": 1, "u": 0.488235, "v": 0.381323}, {"q": 25, "c": 2, "u": 0.541176, "v": 0.381323}, {"q": 25, "c": 3, "u": 0.594118, "v": 0.381323}, {"q": 26, "c": 0, "u": 0.435294, "v": 0.418288}, {"q": 26, "c": 1, "u": 0.488235, "v": 0.418288}, {"q": 26, "c": 2, "u": 0.541176, "v": 0.418288}, {"q": 26, "c": 3, "u": 0.594118, "v": 0.418288}, {"q": 27, "c": 0, "u": 0.435294, "v": 0.455253}, {"q": 27, "c": 1, "u": 0.488235, "v": 0.455253}, {"q": 27, "c": 2, "u": 0.541176, "v": 0.455253}, {"q": 27, "c": 3, "u": 0.594118, "v": 0.455253}, {"q": 28, "c": 0, "u": 0.435294, "v": 0.492218}, {"q": 28, "c": 1, "u": 0.488235, "v": 0.492218}, {"q": 28, "c": 2, "u": 0.541176, "v": 0.492218}, {"q": 28, "c": 3, "u": 0.594118, "v": 0.492218}, {"q": 29, "c": 0, "u": 0.435294, "v": 0.529183}, {"q": 29, "c": 1, "u": 0.488235, "v": 0.529183}, {"q": 29, "c": 2, "u": 0.541176, "v": 0.529183}, {"q": 29, "c": 3, "u": 0.594118, "v": 0.529183}, {"q": 30, "c": 0, "u": 0.435294, "v": 0.566148}, {"q": 30, "c": 1, "u": 0.488235, "v": 0.566148}, {"q": 30, "c": 2, "u": 0.541176, "v": 0.566148}, {"q": 30, "c": 3, "u": 0.594118, "v": 0.566148}, {"q": 31, "c": 0, "u": 0.435294, "v": 0.603113}, {"q": 31, "c": 1, "u": 0.488235, "v": 0.603113}, {"q": 31, "c": 2, "u": 0.541176, "v": 0.603113}, {"q": 31, "c": 3, "u": 0.594118, "v": 0.603113}, {"q": 32, "c": 0, "u": 0.435294, "v": 0.640078}, {"q": 32, "c": 1, "u": 0.488235, "v": 0.640078}, {"q": 32, "c": 2, "u": 0.541176, "v": 0.640078}, {"q": 32, "c": 3, "u": 0.594118, "v": 0.640078}, {"q": 33, "c": 0, "u": 0.435294, "v": 0.677043}, {"q": 33, "c": 1, "u": 0.488235, "v": 0.677043}, {"q": 33, "c": 2, "u": 0.541176, "v": 0.677043}, {"q": 33, "c": 3, "u": 0.594118, "v": 0.677043}, {"q": 34, "c": 0, "u": 0.435294, "v": 0.714008}, {"q": 34, "c": 1, "u": 0.488235, "v": 0.714008}, {"q": 34, "c": 2, "u": 0.541176, "v": 0.714008}, {"q": 34, "c": 3, "u": 0.594118, "v": 0.714008}, {"q": 35, "c": 0, "u": 0.435294, "v": 0.750973}, {"q": 35, "c": 1, "u": 0.488235, "v": 0.750973}, {"q": 35, "c": 2, "u": 0.541176, "v": 0.750973}, {"q": 35, "c": 3, "u": 0.594118, "v": 0.750973}, {"q": 36, "c": 0, "u": 0.435294, "v": 0.787938}, {"q": 36, "c": 1, "u": 0.488235, "v": 0.787938}, {"q": 36, "c": 2, "u": 0.541176, "v": 0.787938}, {"q": 36, "c": 3, "u": 0.594118, "v": 0.787938}, {"q": 37, "c": 0, "u": 0.435294, "v": 0.824903}, {"q": 37, "c": 1, "u": 0.488235, "v": 0.824903}, {"q": 37, "c": 2, "u": 0.541176, "v": 0.824903}, {"q": 37, "c": 3, "u": 0.594118, "v": 0.824903}, {"q": 38, "c": 0, "u": 0.435294, "v": 0.861868}, {"q": 38, "c": 1, "u": 0.488235, "v": 0.861868}, {"q": 38, "c": 2, "u": 0.541176, "v": 0.861868}, {"q": 38, "c": 3, "u": 0.594118, "v": 0.861868}, {"q": 39, "c": 0, "u": 0.435294, "v": 0.898833}, {"q": 39, "c": 1, "u": 0.488235, "v": 0.898833}, {"q": 39, "c": 2, "u": 0.541176, "v": 0.898833}, {"q": 39, "c": 3, "u": 0.594118, "v": 0.898833}, {"q": 40, "c": 0, "u": 0.435294, "v": 0.935798}, {"q": 40, "c": 1, "u": 0.488235, "v": 0.935798}, {"q": 40, "c": 2, "u": 0.541176, "v": 0.935798}, {"q": 40, "c": 3, "u": 0.594118, "v": 0.935798}, {"q": 41, "c": 0, "u": 0.776471, "v": 0.233463}, {"q": 41, "c": 1, "u": 0.829412, "v": 0.233463}, {"q": 41, "c": 2, "u": 0.882353, "v": 0.233463}, {"q": 41, "c": 3, "u": 0.935294, "v": 0.233463}, {"q": 42, "c": 0, "u": 0.776471, "v": 0.270428}, {"q": 42, "c": 1, "u": 0.829412, "v": 0.270428}, {"q": 42, "c": 2, "u": 0.882353, "v": 0.270428}, {"q": 42, "c": 3, "u": 0.935294, "v": 0.270428}, {"q": 43, "c": 0, "u": 0.776471, "v": 0.307393}, {"q": 43, "c": 1, "u": 0.829412, "v": 0.307393}, {"q": 43, "c": 2, "u": 0.882353, "v": 0.307393}, {"q": 43, "c": 3, "u": 0.935294, "v": 0.307393}, {"q": 44, "c": 0, "u": 0.776471, "v": 0.344358}, {"q": 44, "c": 1, "u": 0.829412, "v": 0.344358}, {"q": 44, "c": 2, "u": 0.882353, "v": 0.344358}, {"q": 44, "c": 3, "u": 0.935294, "v": 0.344358}, {"q": 45, "c": 0, "u": 0.776471, "v": 0.381323}, {"q": 45, "c": 1, "u": 0.829412, "v": 0.381323}, {"q": 45, "c": 2, "u": 0.882353, "v": 0.381323}, {"q": 45, "c": 3, "u": 0.935294, "v": 0.381323}, {"q": 46, "c": 0, "u": 0.776471, "v": 0.418288}, {"q": 46, "c": 1, "u": 0.829412, "v": 0.418288}, {"q": 46, "c": 2, "u": 0.882353, "v": 0.418288}, {"q": 46, "c": 3, "u": 0.935294, "v": 0.418288}, {"q": 47, "c": 0, "u": 0.776471, "v": 0.455253}, {"q": 47, "c": 1, "u": 0.829412, "v": 0.455253}, {"q": 47, "c": 2, "u": 0.882353, "v": 0.455253}, {"q": 47, "c": 3, "u": 0.935294, "v": 0.455253}, {"q": 48, "c": 0, "u": 0.776471, "v": 0.492218}, {"q": 48, "c": 1, "u": 0.829412, "v": 0.492218}, {"q": 48, "c": 2, "u": 0.882353, "v": 0.492218}, {"q": 48, "c": 3, "u": 0.935294, "v": 0.492218}, {"q": 49, "c": 0, "u": 0.776471, "v": 0.529183}, {"q": 49, "c": 1, "u": 0.829412, "v": 0.529183}, {"q": 49, "c": 2, "u": 0.882353, "v": 0.529183}, {"q": 49, "c": 3, "u": 0.935294, "v": 0.529183}, {"q": 50, "c": 0, "u": 0.776471, "v": 0.566148}, {"q": 50, "c": 1, "u": 0.829412, "v": 0.566148}, {"q": 50, "c": 2, "u": 0.882353, "v": 0.566148}, {"q": 50, "c": 3, "u": 0.935294, "v": 0.566148}, {"q": 51, "c": 0, "u": 0.776471, "v": 0.603113}, {"q": 51, "c": 1, "u": 0.829412, "v": 0.603113}, {"q": 51, "c": 2, "u": 0.882353, "v": 0.603113}, {"q": 51, "c": 3, "u": 0.935294, "v": 0.603113}, {"q": 52, "c": 0, "u": 0.776471, "v": 0.640078}, {"q": 52, "c": 1, "u": 0.829412, "v": 0.640078}, {"q": 52, "c": 2, "u": 0.882353, "v": 0.640078}, {"q": 52, "c": 3, "u": 0.935294, "v": 0.640078}, {"q": 53, "c": 0, "u": 0.776471, "v": 0.677043}, {"q": 53, "c": 1, "u": 0.829412, "v": 0.677043}, {"q": 53, "c": 2, "u": 0.882353, "v": 0.677043}, {"q": 53, "c": 3, "u": 0.935294, "v": 0.677043}, {"q": 54, "c": 0, "u": 0.776471, "v": 0.714008}, {"q": 54, "c": 1, "u": 0.829412, "v": 0.714008}, {"q": 54, "c": 2, "u": 0.882353, "v": 0.714008}, {"q": 54, "c": 3, "u": 0.935294, "v": 0.714008}, {"q": 55, "c": 0, "u": 0.776471, "v": 0.750973}, {"q": 55, "c": 1, "u": 0.829412, "v": 0.750973}, {"q": 55, "c": 2, "u": 0.882353, "v": 0.750973}, {"q": 55, "c": 3, "u": 0.935294, "v": 0.750973}, {"q": 56, "c": 0, "u": 0.776471, "v": 0.787938}, {"q": 56, "c": 1, "u": 0.829412, "v": 0.787938}, {"q": 56, "c": 2, "u": 0.882353, "v": 0.787938}, {"q": 56, "c": 3, "u": 0.935294, "v": 0.787938}, {"q": 57, "c": 0, "u": 0.776471, "v": 0.824903}, {"q": 57, "c": 1, "u": 0.829412, "v": 0.824903}, {"q": 57, "c": 2, "u": 0.882353, "v": 0.824903}, {"q": 57, "c": 3, "u": 0.935294, "v": 0.824903}, {"q": 58, "c": 0, "u": 0.776471, "v": 0.861868}, {"q": 58, "c": 1, "u": 0.829412, "v": 0.861868}, {"q": 58, "c": 2, "u": 0.882353, "v": 0.861868}, {"q": 58, "c": 3, "u": 0.935294, "v": 0.861868}, {"q": 59, "c": 0, "u": 0.776471, "v": 0.898833}, {"q": 59, "c": 1, "u": 0.829412, "v": 0.898833}, {"q": 59, "c": 2, "u": 0.882353, "v": 0.898833}, {"q": 59, "c": 3, "u": 0.935294, "v": 0.898833}, {"q": 60, "c": 0, "u": 0.776471, "v": 0.935798}, {"q": 60, "c": 1, "u": 0.829412, "v": 0.935798}, {"q": 60, "c": 2, "u": 0.882353, "v": 0.935798}, {"q": 60, "c": 3, "u": 0.935294, "v": 0.935798}]};</script>
+<script>
+(function(){
+  'use strict';
+  var $=function(id){return document.getElementById(id);};
+  var LBL=['TL','TR','BR','BL'];
+  var full=document.createElement('canvas'), fctx=full.getContext('2d',{willReadFrequently:true});
+  var imgData=null, natW=0, natH=0;
+  var cv=$('cv'), ctx=cv.getContext('2d');
+  var scale=1, handles=[], drag=-1, photo=new Image();
+  var result=null, answers=[];
+
+  function toast(m){var t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('on');},1600);}
+  function show(sec){['s-pick','s-align','s-review'].forEach(function(s){$(s).classList.toggle('hidden',s!==sec);});}
+
+  // ---- 사진 로드 ----
+  function loadFile(f){
+    if(!f)return;
+    var url=URL.createObjectURL(f);
+    photo=new Image();
+    photo.onload=function(){
+      URL.revokeObjectURL(url);
+      natW=photo.naturalWidth; natH=photo.naturalHeight;
+      // 인식 정확도를 위해 충분한 해상도 유지(긴 변 2200)
+      var m=Math.max(natW,natH), k=m>2200?2200/m:1;
+      natW=Math.round(natW*k); natH=Math.round(natH*k);
+      full.width=natW; full.height=natH;
+      fctx.drawImage(photo,0,0,natW,natH);
+      imgData=fctx.getImageData(0,0,natW,natH);
+      setupDisplay();
+      show('s-align');
+    };
+    photo.onerror=function(){toast('이미지를 열 수 없습니다');};
+    photo.src=url;
+  }
+
+  function setupDisplay(){
+    var maxW=$('cv').parentNode.clientWidth||700;
+    scale=Math.min(1,maxW/natW);
+    var dW=Math.round(natW*scale), dH=Math.round(natH*scale);
+    cv.width=dW; cv.height=dH; cv.style.width=dW+'px'; cv.style.height=dH+'px';
+    var ins=0.09;
+    handles=[{x:dW*ins,y:dH*ins},{x:dW*(1-ins),y:dH*ins},{x:dW*(1-ins),y:dH*(1-ins)},{x:dW*ins,y:dH*(1-ins)}];
+    draw();
+    autoDetect();
+  }
+
+  function autoDetect(){
+    try{
+      var det=window.OMR.detectFiducials(imgData);
+      if(det&&det.dst){
+        handles=det.dst.map(function(p){return {x:p[0]*scale, y:p[1]*scale};});
+        draw();
+        toast(det.conf==='ok' ? '모서리를 자동 인식했어요 · 확인 후 [인식하기]'
+                              : '모서리 자동 인식(확인 필요) · 위치 점검 후 [인식하기]');
+      }else{
+        toast('네 모서리의 검은 사각형 중심에 핸들을 맞춰주세요');
+      }
+    }catch(e){}
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    ctx.drawImage(full,0,0,cv.width,cv.height);
+    // 사각형 윤곽
+    ctx.beginPath();
+    handles.forEach(function(h,i){i?ctx.lineTo(h.x,h.y):ctx.moveTo(h.x,h.y);});
+    ctx.closePath();
+    ctx.strokeStyle='rgba(90,200,255,.9)'; ctx.lineWidth=2; ctx.stroke();
+    ctx.fillStyle='rgba(90,200,255,.10)'; ctx.fill();
+    // 핸들
+    handles.forEach(function(h,i){
+      ctx.beginPath(); ctx.arc(h.x,h.y,11,0,7); ctx.fillStyle=drag===i?'#26c6ff':'rgba(38,198,255,.85)';
+      ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle='#fff'; ctx.stroke();
+      ctx.beginPath(); ctx.arc(h.x,h.y,2.5,0,7); ctx.fillStyle='#fff'; ctx.fill();
+      ctx.font='bold 11px sans-serif'; ctx.fillStyle='#fff'; ctx.textAlign='center';
+      ctx.fillText(LBL[i],h.x,h.y-15);
+    });
+  }
+
+  function drawLoupe(h){
+    var lp=$('loupe'), lc=lp.getContext('2d'), S=130, Z=4;
+    var fx=h.x/scale, fy=h.y/scale;               // full-res 중심
+    var srcW=S/(scale*Z);
+    lc.clearRect(0,0,S,S);
+    lc.drawImage(full, fx-srcW/2, fy-srcW/2, srcW, srcW, 0,0,S,S);
+    lc.strokeStyle='rgba(255,80,80,.9)'; lc.lineWidth=1.5;
+    lc.beginPath();lc.moveTo(S/2-12,S/2);lc.lineTo(S/2+12,S/2);lc.moveTo(S/2,S/2-12);lc.lineTo(S/2,S/2+12);lc.stroke();
+    lc.beginPath();lc.arc(S/2,S/2,9,0,7);lc.stroke();
+    lp.style.display='block';
+    lp.style.left=(h.x>cv.width/2)?'8px':'';
+    lp.style.right=(h.x>cv.width/2)?'':'8px';
+  }
+
+  function evPos(e){
+    var r=cv.getBoundingClientRect();
+    var p=(e.touches&&e.touches[0])||e;
+    return {x:(p.clientX-r.left)*(cv.width/r.width), y:(p.clientY-r.top)*(cv.height/r.height)};
+  }
+  function hit(p){
+    for(var i=0;i<4;i++){var dx=handles[i].x-p.x,dy=handles[i].y-p.y;if(dx*dx+dy*dy<26*26)return i;}
+    return -1;
+  }
+  function down(e){var p=evPos(e);drag=hit(p);if(drag>=0){e.preventDefault();handles[drag]={x:p.x,y:p.y};draw();drawLoupe(handles[drag]);}}
+  function move(e){if(drag<0)return;e.preventDefault();var p=evPos(e);
+    p.x=Math.max(0,Math.min(cv.width,p.x));p.y=Math.max(0,Math.min(cv.height,p.y));
+    handles[drag]={x:p.x,y:p.y};draw();drawLoupe(handles[drag]);}
+  function up(){if(drag>=0){drag=-1;draw();$('loupe').style.display='none';}}
+  cv.addEventListener('mousedown',down);window.addEventListener('mousemove',move);window.addEventListener('mouseup',up);
+  cv.addEventListener('touchstart',down,{passive:false});cv.addEventListener('touchmove',move,{passive:false});cv.addEventListener('touchend',up);
+
+  // ---- 인식 ----
+  function recognize(){
+    var dst=handles.map(function(h){return [h.x/scale,h.y/scale];});
+    result=window.OMR.recognize(imgData,COORDS,dst);
+    answers=result.answers.slice();
+    renderReview();
+    show('s-review');
+    window.scrollTo(0,0);
+  }
+
+  function renderReview(){
+    var lo=result.conf.filter(function(c){return c==='low';}).length;
+    var bl=result.blanks.length, db=result.doubles.length;
+    $('counts').innerHTML=
+      '<span class="pill pill--g">판독 <b>'+ (60-bl) +'</b>/60</span>'+
+      '<span class="pill pill--a">확인 필요 <b>'+lo+'</b></span>'+
+      '<span class="pill pill--g">무응답 <b>'+bl+'</b></span>'+
+      (db?'<span class="pill pill--r">이중표기 <b>'+db+'</b></span>':'');
+    var g=$('grid'); g.innerHTML='';
+    var order=[]; for(var r=0;r<20;r++)for(var col=0;col<3;col++)order.push(col*20+r);
+    order.forEach(function(qi){
+      var q=qi+1, a=answers[qi];
+      var cell=document.createElement('div');
+      cell.className='gcell '+cellClass(qi,a);
+      cell.id='c'+qi; cell.dataset.q=qi;
+      cell.innerHTML='<span class="qn">'+q+'</span><span class="av '+(a?'set':'')+'">'+(a||'·')+'</span>';
+      cell.addEventListener('click',function(){cycle(qi,cell);});
+      g.appendChild(cell);
+    });
+    renderChips();
+    updAns();
+  }
+
+  function cellClass(qi,a){
+    if(a===0) return 'blank';
+    var cs=(result.cscore&&result.cscore[qi]!=null)?result.cscore[qi]:1;
+    var dbl=result.doubles.indexOf(qi+1)>=0;
+    var c=cs>=0.6?'hi':(cs>=0.3?'lo':'lo2');
+    return c+(dbl?' dbl':'');
+  }
+
+  function renderChips(){
+    var box=$('chipbar'); if(!box) return;
+    var flagged=[];
+    for(var i=0;i<60;i++){
+      var rs=result.reason?result.reason[i]:'';
+      if(rs==='double'||rs==='faint'||rs==='close') flagged.push({q:i+1,r:rs});
+    }
+    if(!flagged.length){ box.innerHTML='<span class="chk-ok">확인 권장 문항 없음 · 그래도 한 번 훑어보세요</span>'; return; }
+    var lab={double:'이중',faint:'흐림',close:'근소'};
+    box.innerHTML='<span class="chip-lead">확인 권장</span>'+flagged.map(function(f){
+      return '<button class="chip'+(f.r==='double'?' dblc':'')+'" data-q="'+(f.q-1)+'">'+f.q+'<i>'+lab[f.r]+'</i></button>';
+    }).join('');
+    Array.prototype.forEach.call(box.querySelectorAll('.chip'),function(ch){
+      ch.addEventListener('click',function(){jumpTo(+ch.dataset.q);});
+    });
+  }
+
+  function jumpTo(qi){
+    var cell=$('c'+qi); if(!cell) return;
+    cell.scrollIntoView({behavior:'smooth',block:'center'});
+    cell.classList.add('pulse'); setTimeout(function(){cell.classList.remove('pulse');},1200);
+  }
+
+  function cycle(qi,cell){
+    answers[qi]=(answers[qi]+1)%5;
+    var a=answers[qi];
+    cell.className='gcell edited'+(a===0?' blank':'');
+    cell.querySelector('.av').textContent=a||'·';
+    cell.querySelector('.av').className='av '+(a?'set':'');
+    updAns();
+  }
+
+  function updAns(){ $('ansstr').textContent=answers.map(function(a){return a||0;}).join(''); }
+
+  function copyAns(){
+    var s=answers.map(function(a){return a||0;}).join('');
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(s).then(function(){toast('답안 60자리를 복사했습니다');},function(){fallbackCopy(s);});
+    }else fallbackCopy(s);
+  }
+  function fallbackCopy(s){
+    var ta=document.createElement('textarea');ta.value=s;document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');toast('복사했습니다');}catch(e){toast('복사 실패 · 길게 눌러 복사하세요');}
+    document.body.removeChild(ta);
+  }
+
+  // ---- 이벤트 바인딩 ----
+  $('drop').addEventListener('click',function(){$('file').click();});
+  $('file').addEventListener('change',function(e){loadFile(e.target.files[0]);});
+  $('btnRecog').addEventListener('click',recognize);
+  $('btnCopy').addEventListener('click',copyAns);
+  $('btnBack').addEventListener('click',function(){show('s-align');});
+  $('btnNew').addEventListener('click',function(){$('file').value='';$('file').click();});
+  $('btnNew2').addEventListener('click',function(){$('file').value='';$('file').click();});
+})();
+</script>
+</body>
+</html>
