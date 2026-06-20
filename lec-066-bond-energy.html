@@ -1,0 +1,75 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5"><title>결합 에너지 · 개념강의</title><style>
+:root{--cream:#FBFAF6;--paper:#fff;--ink:#23201b;--ink-2:#5a564d;--muted:#8a8578;--teal:#0E5A4C;--teal-d:#3A7A6B;--brass:#B08D57;--line:#E8E4DA;--ms:#C0603A;--ok-bg:#eef5f2;--mono:ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:-apple-system,"Noto Sans KR",sans-serif;line-height:1.62}
+.serif{font-family:"Nanum Myeongjo",Georgia,serif}
+header{background:linear-gradient(180deg,#0E5A4C,#0b4a3f);color:#fff;padding:24px 20px;text-align:center}
+header .logo{font-size:12px;letter-spacing:.18em;opacity:.82;font-weight:600}header h1{margin:6px 0 4px;font-size:23px}header .sub{font-size:12.5px;opacity:.86}
+main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
+.back{display:inline-flex;gap:5px;color:var(--teal);text-decoration:none;font-size:14px;font-weight:600;padding:8px 0}
+.hw{background:#fff;border:1px solid var(--line);border-left:3px solid var(--brass);border-radius:9px;padding:12px 15px;font-size:13.5px;color:var(--ink-2);margin:12px 0}
+.hw b{color:var(--ink)}
+.lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
+.sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
+.sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
+.sec__t{font-size:16px;font-weight:700}
+.sec p{margin:12px 0}.sec p:first-of-type{margin-top:0}.sec p:last-child{margin-bottom:0}
+.key{background:var(--ok-bg);border-left:3px solid var(--teal);border-radius:9px;padding:13px 16px;margin:15px 0;font-weight:600;color:#13463b;line-height:1.7}
+.trap{background:#fbf2ec;border-left:3px solid var(--ms);border-radius:9px;padding:12px 16px;margin:14px 0;font-size:14.5px;line-height:1.66}
+.trap .lab{font-weight:700;color:var(--ms);font-size:13px;letter-spacing:.02em}
+.eg{background:#faf8f1;border:1px dashed var(--line);border-radius:9px;padding:12px 15px;margin:12px 0;font-size:14.5px;line-height:1.66}
+.eg .lab{font-weight:700;color:var(--brass);font-size:12.5px}
+.fm{font-family:var(--mono);font-size:.97em;white-space:nowrap}
+.big{font-family:"Nanum Myeongjo",Georgia,serif;font-size:18.5px;line-height:1.72;color:var(--teal);text-align:center;padding:16px 10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:18px 0}
+.eqn{font-family:var(--mono);font-size:14px;text-align:center;color:#13463b;background:#eef5f2;border-radius:10px;padding:14px;margin:13px 0;line-height:1.8}
+.eqn b{color:#0E5A4C}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}
+th,td{padding:8px 9px;border-bottom:1px solid #f1ede4;text-align:left}th{color:var(--muted);font-size:11.5px;font-weight:600;border-bottom:1.5px solid var(--line)}
+td.mono{font-family:var(--mono)}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px}
+</style></head>
+<body><header><div class="logo">CHEMISTREAL · 개념강의</div><h1 class="serif">결합 에너지</h1><div class="sub">066 · 열화학</div></header><main>
+<a class="back" href="final.html">‹ 파이널로</a>
+<div class="hw">이번 진단에서 <b>결합 에너지</b>가 보강으로 잡혔어. 이 1강을 끝까지 읽고 <b>직접 해보기</b>까지. ΔH를 결합 관점에서 계산하는 강의야. "결합 끊기=흡열, 만들기=발열"과 "ΔH = 반응물 결합E 합 − 생성물 결합E 합"이 핵심이야.</div>
+
+<p class="lead">자, 064에서 반응은 결합을 끊고 새로 만드는 과정이라고 했지. 오늘은 그걸 숫자로 계산해. 결합을 끊는 데 드는 에너지를 결합 에너지라고 하는데, 이걸 알면 반응 엔탈피 ΔH를 결합 관점에서 구할 수 있어. 핵심 직관은 단순해. 결합을 끊으려면 에너지가 들고(흡열), 결합이 만들어지면 에너지가 나와(발열). 끊는 데 든 것과 만들 때 나온 것의 차이가 ΔH지. 오늘은 이 계산을 잡을 거야.</p>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">01</span><span class="sec__t">결합 에너지 · 끊는 데 드는 에너지</span></div>
+<p>결합 에너지는 기체 상태에서 결합 1몰을 끊는 데 필요한 에너지야. 결합을 끊으려면 항상 에너지를 넣어야 하니까, 결합 에너지는 <b>항상 양수</b>야. 그리고 결합이 강할수록(020) 결합 에너지가 크지.</p>
+<div class="key">결합 에너지 = 결합 1몰을 끊는 데 드는 에너지(항상 양수). 그래서 <b>결합 끊기는 흡열(에너지 흡수), 결합 만들기는 발열(에너지 방출)</b>이야. 끊는 데 드는 에너지와, 만들 때 나오는 에너지의 크기는 같아(같은 결합이면). 방향만 반대지.</div>
+</div>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">02</span><span class="sec__t">결합으로 ΔH 계산 · 끊기 빼기 만들기</span></div>
+<p>반응 엔탈피는 이렇게 계산해. 반응물의 모든 결합을 끊고(에너지 흡수, +), 생성물의 모든 결합을 만들어(에너지 방출, −). 흡수한 것에서 방출한 것을 빼면 ΔH지.</p>
+<div class="eqn"><b>ΔH = (끊는 결합 에너지 합) − (만드는 결합 에너지 합)</b><br>= (반응물 결합 에너지 합) − (생성물 결합 에너지 합)</div>
+<p>끊는 데 든 에너지보다 만들 때 나온 에너지가 더 크면, 전체적으로 에너지가 남아 방출돼서 발열(ΔH&lt;0)이야. 반대면 흡열이고. "반응물 결합 에너지 합에서 생성물 결합 에너지 합을 뺀다"가 공식이야.</p>
+<div class="trap"><span class="lab">함정 · 생성 엔탈피와 부호 방향이 반대</span><br>결합 에너지로 ΔH를 구할 땐 <b>반응물 − 생성물</b>이야(끊는 것 − 만드는 것). 그런데 다음다음 강(068)에서 배울 생성 엔탈피로 구할 땐 <b>생성물 − 반응물</b>이지. 방향이 반대니 헷갈리지 마. 결합 에너지는 "끊기(반응물)에서 시작"하니까 반응물이 앞에 와. 공식의 순서를 정확히 기억해야 부호 실수를 안 해.</div>
+</div>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">03</span><span class="sec__t">계산 예제 · HCl 생성</span></div>
+<p>수소와 염소가 반응해 염화수소가 되는 반응으로 계산해보자.</p>
+<div class="eqn">H₂(g) + Cl₂(g) → 2HCl(g)<br>결합 에너지: H−H = 436, Cl−Cl = 243, H−Cl = 431 (kJ/mol)</div>
+<p>끊는 결합(반응물): <span class="fm">H−H</span> 1개 + <span class="fm">Cl−Cl</span> 1개 = <span class="fm">436 + 243 = 679 kJ</span>. 만드는 결합(생성물): <span class="fm">H−Cl</span> 2개 = <span class="fm">2 × 431 = 862 kJ</span>. 따라서</p>
+<div class="big" style="font-size:15.5px">ΔH = 679 − 862 = −183 kJ (발열)</div>
+<p>끊는 데 679 kJ이 들었는데 만들 때 862 kJ이 나왔으니, 그 차이 183 kJ이 방출돼 발열이야(ΔH&lt;0). 새로 만든 <span class="fm">H−Cl</span> 결합이 끊은 결합들보다 강해서(에너지가 더 나와서) 발열이 된 거지.</p>
+</div>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">04</span><span class="sec__t">근삿값이라는 점</span></div>
+<div class="trap"><span class="lab">함정 · 결합 에너지로 구한 ΔH는 근삿값</span><br>결합 에너지로 구한 ΔH는 정확한 값이 아니라 근삿값이야. 같은 종류 결합이라도 주변 환경에 따라 결합 에너지가 조금씩 다른데, 표의 값은 여러 분자에서의 평균(평균 결합 에너지)이거든. 그래서 결합 에너지 계산은 대략적인 ΔH를 빠르게 추정하는 용도야. 정확한 값은 다음 강들(헤스 법칙·생성 엔탈피)로 구해. 그리고 결합 에너지 계산은 보통 모든 물질이 기체일 때 잘 맞아.</div>
+</div>
+
+<div class="sec">
+<div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
+<p>오늘 들고 갈 한 문장.</p>
+<div class="big">"결합 끊기=흡열, 만들기=발열 · ΔH = 반응물 결합E 합 − 생성물 결합E 합."</div>
+<p>결합 에너지는 결합을 끊는 데 드는 에너지(양수)야. 끊기는 흡열, 만들기는 발열이고, ΔH = 반응물 결합 에너지 합 − 생성물 결합 에너지 합으로 구해(HCl 생성은 −183 kJ, 발열). 다만 평균 결합 에너지를 써서 근삿값이야.</p>
+<p>다음 강(067 헤스 법칙)에서는 직접 측정하기 어려운 반응의 ΔH를 정확히 구하는 강력한 도구를 배워. 반응 엔탈피가 경로와 무관하게 처음·끝으로만 정해진다는 헤스 법칙을 이용해, 아는 반응들을 조합하는 거지. 065에서 본 "역반응이면 부호 반대, 계수면 비례"가 거기서 핵심으로 쓰여. 오늘의 결합 에너지 계산을 들고, 헤스 법칙으로 넘어가자.</p>
+<div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 문제를 결합 에너지로 풀어봐. ① 반응물 결합 에너지 합(끊기) ② 생성물 결합 에너지 합(만들기) ③ ΔH = 반응물 − 생성물, 부호로 발열/흡열 판단. 그리고 입으로 말해. "끊기는 흡열, 만들기는 발열이고, ΔH는 반응물 결합에서 생성물 결합을 뺀다." 한 바퀴 돌리면 이 계산은 네 거다.</div>
+</div>
+
+<footer>Chemistreal · 개념강의 066 · 결합 에너지</footer>
+</main></body></html>
