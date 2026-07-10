@@ -363,6 +363,19 @@ svg{display:block}
 .rs-search{width:100%;max-width:340px;font-family:var(--sans);font-size:14px;padding:10px 13px;border:1px solid var(--line);border-radius:9px;background:var(--surface);margin:14px 0 16px}
 .rs-search:focus{outline:none;border-color:var(--teal)}
 .rs-row{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:8px;font-size:13.5px}
+/* ===== 성장 추이(기준선 대비) 스타일 · 플랜 2단계 ===== */
+.gw-line{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:13px 16px;margin-bottom:10px;font-size:13.5px}
+.gw-k{font-size:11.5px;color:var(--ink-3)}
+.gw-v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:700;font-size:16px}
+.gw-arrow{color:var(--ink-4);font-size:13px}
+.gw-up{color:var(--good);font-weight:700;white-space:nowrap}
+.gw-dn{color:var(--bad);font-weight:700;white-space:nowrap}
+.gw-eq{color:var(--ink-3);font-weight:600;white-space:nowrap}
+.gw-delta{margin-left:auto;font-size:12.5px}
+.gw-src{font-size:11.5px;color:var(--ink-3);margin:0 2px 12px}
+.gw-note{margin-top:10px;font-size:12px;color:var(--ink-3);line-height:1.55}
+.gw-base{background:linear-gradient(180deg,var(--teal-t),rgba(0,0,0,0));border:1px solid var(--teal-t2);border-radius:12px;padding:14px 18px;font-size:13.5px;line-height:1.6}
+@media (max-width:560px){.gw-delta{margin-left:0;width:100%}}
 .rs-no{width:40px;color:var(--ink-3);text-align:right;flex:0 0 auto}
 .rs-name{flex:1;font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rs-date{color:var(--ink-3);font-size:12px}
@@ -437,6 +450,174 @@ svg{display:block}
 .mcard__dist b{color:var(--ink-2);font-weight:700}
 .disc-lo{color:var(--ms)!important}
 .pglink{color:var(--teal-d);text-decoration:underline}
+/* ===== 처방 -> 해설 문항 링크 (플랜 3단계) ===== */
+.rxq-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px}
+.rxq-lab{font-size:10.5px;font-family:var(--mono);letter-spacing:.03em;color:var(--ink-3);margin-right:2px}
+.rxq{display:inline-block;font-size:12px;font-weight:600;padding:3px 9px;border-radius:7px;background:var(--teal-t);color:var(--teal-d);border:1px solid var(--teal-t2);text-decoration:none;transition:.14s}
+.rxq:hover{background:var(--teal-t2);color:var(--teal-d)}
+.rxq-more{font-size:11.5px;color:var(--ink-3);align-self:center}
+/* ===== 선지별 오개념 지도 (플랜 4단계) ===== */
+.mc-map{margin-top:10px;border-top:1px dashed var(--line-2);padding-top:8px}
+.mc-map>summary{cursor:pointer;font-size:12px;font-weight:600;color:var(--ms);list-style:none;display:flex;align-items:center;gap:7px}
+.mc-map>summary::-webkit-details-marker{display:none}
+.mc-map>summary::before{content:"▸";color:var(--ms);font-size:10px;transition:transform .15s}
+.mc-map[open]>summary::before{transform:rotate(90deg)}
+.mc-map__cnt{font-family:var(--mono);font-size:10px;color:var(--ink-3);font-weight:400}
+.mc-map__body{margin-top:8px;display:flex;flex-direction:column;gap:7px}
+.mc-map__row{display:flex;gap:9px;align-items:flex-start;padding:7px 9px;border-radius:8px;background:var(--surface-2)}
+.mc-map__row--picked{background:var(--ms-bg);border:1px solid var(--ms)}
+.mc-map__ch{font-weight:700;color:var(--ink-2);flex:0 0 auto;font-size:13px;line-height:1.5}
+.mc-map__tx{font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+.mc-map__you{font-size:10px;font-weight:700;color:#fff;background:var(--ms);padding:1px 6px;border-radius:5px;margin-left:2px}
+.mc-map__fix{margin-top:3px;font-size:12px;color:var(--ink-3)}
+.mc-map__ans{margin-top:8px;font-size:12px;color:var(--bs);font-weight:600}
+/* ===== 개념 숙달 추적 (플랜 5단계) ===== */
+.mst-summary{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:14px}
+.mst-stat{font-size:13px;font-weight:700;padding:4px 12px;border-radius:8px}
+.mst-stat--set{background:var(--bs-bg);color:var(--bs)}
+.mst-stat--acq{background:var(--st-bg);color:var(--st)}
+.mst-stat--none{background:var(--ms-bg);color:var(--ms)}
+.mst-track{margin-left:auto;font-size:11.5px;color:var(--ink-3);font-family:var(--mono)}
+.mst-groups{display:flex;flex-direction:column;gap:11px;margin-bottom:14px}
+.mst-grp__lab{font-size:12.5px;font-weight:700;margin-bottom:6px;display:flex;align-items:baseline;gap:8px}
+.mst-grp__lab--set{color:var(--bs)}.mst-grp__lab--acq{color:var(--st)}.mst-grp__lab--none{color:var(--ms)}
+.mst-grp__desc{font-size:11px;font-weight:400;color:var(--ink-3)}
+.mst-chips{display:flex;flex-wrap:wrap;gap:7px}
+.mst-chip{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;padding:5px 11px;border-radius:9px;background:var(--surface-2);border:1px solid var(--line-2)}
+.mst-chip--set{border-color:var(--bs);background:var(--bs-bg)}
+.mst-chip--acq{border-color:var(--st);background:var(--st-bg)}
+.mst-chip--none{border-color:var(--ms);background:var(--ms-bg)}
+.mst-reg{font-size:10px;font-weight:700;color:#fff;background:var(--ms);padding:1px 6px;border-radius:5px;margin-left:3px}
+.mst-retest{background:linear-gradient(180deg,var(--surface),var(--surface-2));border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-top:6px}
+.mst-retest__h{font-size:14px;font-weight:700;margin-bottom:2px}
+.mst-rt-row{padding:10px 0;border-bottom:1px solid var(--line-2)}
+.mst-rt-row:last-child{border-bottom:none}
+.mst-rt-row__t{margin-bottom:6px}
+.mst-rt-row__t strong{font-size:13.5px;margin-right:8px}
+.mst-rt-why{font-size:12.5px;color:var(--ink-2)}
+/* ===== 학부모 서사 리포트 (플랜 6단계) ===== */
+.pn-sec{background:linear-gradient(180deg,var(--surface),var(--surface-3))}
+.pn-para{font-size:15px;line-height:1.85;color:var(--ink);margin-bottom:14px;letter-spacing:-.01em}
+.pn-para b{color:var(--teal-d);font-weight:700}
+.pn-comment{background:rgba(58,122,107,.06);border-left:3px solid var(--teal-d);border-radius:8px;padding:12px 16px;margin-bottom:12px}
+.pn-comment__lab{font-size:10.5px;font-family:var(--mono);letter-spacing:.06em;color:var(--teal-d);margin-bottom:4px;text-transform:uppercase}
+.pn-comment__tx{font-size:14px;line-height:1.7;color:var(--ink-2)}
+.pn-comment--empty{border-left-color:var(--line-3);color:var(--ink-3);font-size:13px;line-height:1.6;background:var(--surface-2)}
+.pn-edit{margin-bottom:12px}
+.pn-sig{font-size:12px;color:var(--ink-3);text-align:right;font-family:var(--serif);border-top:1px solid var(--line-2);padding-top:10px;margin-top:4px}
+.pn-sig b{color:var(--brass-d)}
+/* ===== 학생 동기: 목표 진척 · 배지 (플랜 7단계) ===== */
+.mo-goal{background:var(--surface-2);border:1px solid var(--line-2);border-radius:14px;padding:15px 18px;margin-bottom:14px}
+.mo-goal--done{background:linear-gradient(180deg,var(--teal-t),var(--surface-2));border-color:var(--teal-t2)}
+.mo-goal__top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:9px}
+.mo-goal__lab{font-size:12.5px;font-weight:700;color:var(--ink-2)}
+.mo-goal__auto{font-weight:400;font-size:11px;color:var(--ink-3)}
+.mo-goal__val{font-size:13px;color:var(--ink-3)}
+.mo-goal__val b{font-family:var(--mono);font-size:16px;color:var(--teal-d)}
+.mo-goal__bar{height:12px;background:var(--line-2);border-radius:99px;overflow:hidden;position:relative}
+.mo-goal__fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--teal-d));border-radius:99px;transition:width .5s var(--ease)}
+.mo-goal--done .mo-goal__fill{background:linear-gradient(90deg,var(--gold-2),var(--brass-d))}
+.mo-goal__msg{margin-top:9px;font-size:13px;color:var(--ink-2);line-height:1.55}
+.mo-goal__msg b{color:var(--teal-d)}
+.mo-edit{margin-bottom:14px}
+.mo-badges{display:flex;flex-wrap:wrap;gap:10px}
+.mo-badge{display:flex;flex-direction:column;align-items:center;text-align:center;width:96px;padding:12px 8px;border-radius:12px;border:1px solid var(--line-2);background:var(--surface)}
+.mo-badge--set{background:linear-gradient(180deg,var(--teal-t),var(--surface));border-color:var(--teal-t2)}
+.mo-badge--mi{background:linear-gradient(180deg,var(--brass-t),var(--surface));border-color:var(--gold-2)}
+.mo-badge__ic{width:34px;height:34px;display:flex;align-items:center;justify-content:center;margin-bottom:6px}
+.mo-badge--set .mo-badge__ic{color:var(--teal-d)}
+.mo-badge--mi .mo-badge__ic{color:var(--brass-d)}
+.mo-badge__ic svg{width:30px;height:30px}
+.mo-badge__svg svg{width:28px;height:28px}
+.mo-badge__t{font-size:12px;font-weight:700;color:var(--ink);line-height:1.25}
+.mo-badge__s{font-size:10px;color:var(--ink-3);margin-top:2px;font-family:var(--mono);letter-spacing:.03em}
+.mo-empty{font-size:13px;color:var(--ink-3);line-height:1.6;background:var(--surface-2);border-radius:10px;padding:12px 14px}
+@media print{.mo-sec{break-inside:avoid}.mo-goal__fill{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+@media (max-width:560px){.mo-badge{width:calc(33.3% - 7px)}}
+/* ===== 경쟁 맥락 · 목표(플랜 8단계) ===== */
+.cmp-pos{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
+.cmp-pos__big{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--teal-d)}
+.cmp-pos__band{font-size:13px;font-weight:700;color:var(--ink-2);background:var(--surface-2);padding:3px 10px;border-radius:8px}
+.cmp-pos__n{font-size:11.5px;color:var(--ink-3);margin-left:auto;font-family:var(--mono)}
+.cmp-ladder{margin:2px 0 8px}
+.cmp-goal{background:var(--surface-2);border:1px solid var(--line-2);border-radius:12px;padding:12px 16px;margin:6px 0 12px}
+.cmp-goal--done{background:linear-gradient(180deg,var(--teal-t),var(--surface-2));border-color:var(--teal-t2)}
+.cmp-goal__msg{font-size:13.5px;line-height:1.6;color:var(--ink-2)}
+.cmp-goal__msg b{color:var(--brass-d)}
+.cmp-edit{margin-bottom:12px}
+.cmp-levers{background:linear-gradient(180deg,var(--surface),var(--surface-2));border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:12px}
+.cmp-levers__h{font-size:14px;font-weight:700;margin-bottom:2px}
+.cmp-lv{padding:9px 0;border-bottom:1px solid var(--line-2)}
+.cmp-lv:last-child{border-bottom:none}
+.cmp-lv__t{margin-bottom:6px}
+.cmp-lv__t strong{font-size:13.5px;margin-right:8px}
+.cmp-lv__d{font-size:12px;color:var(--ink-3)}
+.cmp-disc{font-size:11px;color:var(--ink-3);line-height:1.55;border-top:1px solid var(--line-2);padding-top:9px}
+@media print{.cmp-sec{break-inside:avoid}.cmp-ladder rect{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+/* ===== 개념 깊이 (플랜 9단계) ===== */
+.dp-summary{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:12px}
+.dp-stat{font-size:13px;font-weight:700;padding:4px 12px;border-radius:8px}
+.dp-stat--deep{background:var(--bs-bg);color:var(--bs)}
+.dp-stat--surface{background:var(--st-bg);color:var(--st)}
+.dp-stat--shallow{background:var(--ms-bg);color:var(--ms)}
+.dp-track{margin-left:auto;font-size:11.5px;color:var(--ink-3);font-family:var(--mono)}
+.dp-lead{font-size:13.5px;line-height:1.7;color:var(--ink-2);background:var(--surface-2);border-radius:10px;padding:12px 15px;margin-bottom:14px}
+.dp-lead b{color:var(--teal-d)}
+.dp-cards{display:flex;flex-direction:column;gap:10px}
+.dp-card{border:1px solid var(--line-2);border-radius:12px;padding:13px 16px;background:var(--surface)}
+.dp-card--deep{border-left:3px solid var(--bs)}
+.dp-card--surface{border-left:3px solid var(--st)}
+.dp-card--shallow{border-left:3px solid var(--ms)}
+.dp-card__h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+.dp-card__name{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;color:var(--ink)}
+.dp-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:7px}
+.dp-badge--deep{background:var(--bs-bg);color:var(--bs)}
+.dp-badge--surface{background:var(--st-bg);color:var(--st)}
+.dp-badge--shallow{background:var(--ms-bg);color:var(--ms)}
+.dp-bars{display:flex;flex-direction:column;gap:5px;margin-bottom:7px}
+.dp-bar{display:flex;align-items:center;gap:9px}
+.dp-bar__lab{font-size:11px;color:var(--ink-3);width:30px;flex:0 0 auto;font-family:var(--mono)}
+.dp-bar__track{flex:1;height:9px;background:var(--line-2);border-radius:99px;overflow:hidden}
+.dp-bar__fill{height:100%;border-radius:99px}
+.dp-bar__fill--b{background:var(--tk)}
+.dp-bar__fill--v{background:var(--teal-d)}
+.dp-bar__val{font-size:11px;color:var(--ink-2);width:34px;text-align:right;font-family:var(--mono)}
+.dp-card__d{font-size:12px;color:var(--ink-3);line-height:1.5}
+@media print{.dp-sec{break-inside:avoid}.dp-bar__fill{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+@media (max-width:560px){.dp-track{margin-left:0;width:100%}}
+/* ===== 성장의 증거 (플랜 10단계) ===== */
+.pf-head{background:linear-gradient(135deg,var(--teal-t),var(--surface-2));border:1px solid var(--teal-t2);border-radius:16px;padding:18px 20px;margin-bottom:16px}
+.pf-head__t{font-size:16px;font-weight:800;color:var(--teal-d);letter-spacing:-.01em}
+.pf-head__s{font-size:12.5px;color:var(--ink-3);margin-top:2px;font-family:var(--mono)}
+.pf-metrics{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.pf-metric{flex:1;min-width:74px;text-align:center;background:var(--surface);border:1px solid var(--line-2);border-radius:11px;padding:11px 6px}
+.pf-metric__v{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--ink);line-height:1}
+.pf-metric__l{font-size:10.5px;color:var(--ink-3);margin-top:4px}
+.pf-block{margin-bottom:14px}
+.pf-block__h{font-size:13px;font-weight:700;margin-bottom:2px;padding-left:9px;border-left:3px solid var(--line-3)}
+.pf-block__h--resolved{border-left-color:var(--bs);color:var(--bs)}
+.pf-block__h--improving{border-left-color:var(--st);color:var(--st)}
+.pf-block__h--open{border-left-color:var(--ms);color:var(--ms)}
+.pf-row{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:10px;background:var(--surface);border:1px solid var(--line-2);margin-bottom:6px}
+.pf-row--resolved{background:var(--bs-bg);border-color:var(--bs)}
+.pf-row--open{background:var(--ms-bg);border-color:var(--line-2)}
+.pf-row__name{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--ink);flex:1;min-width:0}
+.pf-row__flow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:12.5px}
+.pf-from{color:var(--ink-3)}
+.pf-arrow{color:var(--ink-4)}
+.pf-to{color:var(--teal-d);font-weight:700}
+.pf-row--open .pf-to{color:var(--ms)}
+.pf-row__tag{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:6px;flex:0 0 auto}
+.pf-row__tag--resolved{background:var(--bs);color:#fff}
+.pf-row__tag--improving{background:var(--st-bg);color:var(--st)}
+.pf-row__tag--open{background:var(--ms-bg);color:var(--ms)}
+.pf-row__tag--held{background:var(--surface-2);color:var(--ink-3)}
+@media print{.pf-sec{break-inside:avoid}.pf-head,.pf-row--resolved{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+@media (max-width:560px){.pf-metric{min-width:calc(50% - 5px)}.pf-row{flex-wrap:wrap}}
+@media print{.pn-sec{break-inside:avoid}}
+@media (max-width:560px){.mst-track{margin-left:0;width:100%}}
+@media print{.mc-map{border-color:var(--line-3)}.mc-map[open]>summary::before{content:"▸"}}
+@media print{.rxq{background:none;border-color:var(--line-3);color:var(--ink-2)}}
 /* 대시보드 / 프로파일 */
 .dash-kpis{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
 .dash-kpi{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:12px 18px;display:flex;flex-direction:column;gap:2px;min-width:118px}
@@ -998,13 +1179,13 @@ const OMLIB=[
  ["면심입방","면심입방은 단위세포당 4개, 면대각선 4r=√2a 관계를 혼동."],
  ["체심입방","체심입방은 단위세포당 2개, 체대각선 4r=√3a 관계를 혼동."],
  ["결정","결정 구조의 단위세포 입자수·배위수·밀도 계산을 연결하지 못함."],
- ["분자간력","인력 세기(이온결합>이온-쌍극자>수소결합>쌍극자>분산력)를 혼동."],
+ ["분자간력","인력 세기의 일반적 경향(이온-이온>이온-쌍극자>수소결합>쌍극자-쌍극자>분산력)을 혼동."],
  ["분산력","분산력은 분자량이 클수록 커진다는 점을 끓는점·증기압과 연결하지 못함."],
  ["이상기체","이상기체에 가까운 조건(낮은 압력·높은 온도)을 실제기체 거동과 혼동."],
  ["반데르발스","반데르발스 식의 인력 보정(a/V²)·부피 보정(b)의 의미를 혼동."],
  ["그레이엄","그레이엄 법칙(확산·분출 속도∝1/√M)을 거꾸로 적용."],
  ["평균속력","평균분자속력이 √(분자량)에 반비례한다는 점을 적용하지 못함."],
- ["충돌","충돌빈도(온도·압력↑면 증가)와 평균자유행로(압력↑면 감소, 온도 무관)를 혼동."],
+ ["충돌","충돌빈도(온도·압력↑면 증가)와 평균자유행로(수밀도에 반비례: 부피 일정 시 온도 무관, 압력 일정 시 온도에 비례)를 혼동."],
  ["표면장력","표면장력·모세관 현상에서 응집력·부착력·중력의 평형을 혼동."],
  ["비열","가열곡선에서 기울기가 작을수록 비열이 크고, 수평 구간이 잠열임을 혼동."]
 ];
@@ -1411,7 +1592,7 @@ const Q_KCH13B=[
 [8,2,66,"몰","아보가드로수"],
 [9,4,62,"기체","PV=nRT"],
 [10,2,61,"기체","기체"],
-[11,4,67,"기체","물질의상태"],
+[11,1,67,"기체","물질의상태"],
 [12,3,74,"양적관계","몰과양적관계"],
 [13,3,68,"양적관계","실험식"],
 [14,3,77,"양적관계","계수맞추기"],
@@ -1787,7 +1968,7 @@ const MISC_KCH2F={
  11:{"1":{m:"두 영역 모두 인력으로 오인",x:"Z<1은 인력 우세, Z>1은 반발력 우세임을 구분하세요."},"2":{m:"인력·반발력 영역을 뒤바꿈",x:"압축인자 Z 값으로 영역별 우세 힘을 판정하세요."},"4":{m:"두 영역 모두 반발력으로 오인",x:"Z<1 영역은 인력 우세임을 적용하세요."},"*":"압축인자 Z=PV/RT, Z>1(반발 우세)·Z<1(인력 우세) — 이상기체(Z=1) 이탈 해석 주의"},
  12:{"*":{m:"수은 기둥 높이차로 기체 압력 보정 계산 오류",x:"대기압에 기둥차를 더하거나 빼서 기체 압력을 구하세요."}},
  13:{"1":{m:"수위 변화가 없다고 오인",x:"증기압 차로 용매가 이동해 수위가 변함을 적용하세요."},"3":{m:"이동 방향을 반대로 오인",x:"증기압 높은 증류수에서 낮은 바닷물 쪽으로 용매가 이동함을 확인하세요."},"4":{m:"염분이 이동한다고 오인",x:"증기 이동은 용매만 — 염분은 이동하지 않음을 정리하세요."},"*":"용질이 녹으면 증기압이 낮아진다는 라울 법칙을 적용하지 못함."},
- 14:{"1":{m:"분자간력이 셀수록 커지는 양(기화열)을 작아지는 것과 혼동",x:"분자간력↑이면 기화열↑·끓는점↑이나 증기압은↓ — 방향이 반대인 양은 증기압임을 정리하세요."},"2":{m:"끓는점(분자간력에 비례)을 작아지는 양과 혼동",x:"끓는점은 분자간력에 비례해 증가 — 감소하는 양은 증기압임을 확인하세요."},"4":{m:"승화점을 분자간력 반대 방향으로 오인",x:"승화점도 분자간력에 비례 — 분자간력↑에 감소하는 양은 증기압뿐임을 적용하세요."},"*":"인력 세기(이온결합>이온-쌍극자>수소결합>쌍극자>분산력)를 혼동."},
+ 14:{"1":{m:"분자간력이 셀수록 커지는 양(기화열)을 작아지는 것과 혼동",x:"분자간력↑이면 기화열↑·끓는점↑이나 증기압은↓ — 방향이 반대인 양은 증기압임을 정리하세요."},"2":{m:"끓는점(분자간력에 비례)을 작아지는 양과 혼동",x:"끓는점은 분자간력에 비례해 증가 — 감소하는 양은 증기압임을 확인하세요."},"4":{m:"승화점을 분자간력 반대 방향으로 오인",x:"승화점도 분자간력에 비례 — 분자간력↑에 감소하는 양은 증기압뿐임을 적용하세요."},"*":"인력 세기의 일반적 경향(이온-이온>이온-쌍극자>수소결합>쌍극자-쌍극자>분산력)을 혼동."},
  15:{"*":{m:"뒬롱-프티 법칙(몰열용량≈3R)으로 원자량 추정 오류",x:"비열×원자량≈25 J/mol·K로 원자량을 역산해 원소를 고르세요."}},
  16:{"*":{m:"단위세포 내 위치별 원자 분율로 조성비 계산 오류",x:"꼭짓점 1/8·면심 1/2·내부 1로 원자 수를 세어 비를 구하세요."}},
  17:{"*":{m:"단위세포 원자 분율로 실험식 결정 오류",x:"위치별 분율을 합해 두 원소 수의 비를 구하세요."}},
@@ -2090,11 +2271,11 @@ const EXAMS=[
   questions:Q_KCH1.map(r=>({n:r[0],ans:r[1],p:r[2],area:r[3],type:r[4],page:0,misc:(MISC_KCH1TO3[r[0]]||omFor(r[4]))}))},
  {id:"kch1to2",title:"화학1 1-2단원 모의고사",range:"화학의 기초 ~ 주기율 · 원자의 세계",source:"조준모의고사",N:145,haeseol:"sol-kch1to2.html",
   areaOrder:["원자","몰","양적관계","원소분석","빅뱅","방사성붕괴","원자모형","보어모형","양자역학","전자배치","반지름","이온화에너지","주기적성질"],
-  areaGroup:{"원자":"기타","몰":"I. 화학의 첫걸음","양적관계":"I. 화학의 첫걸음","원소분석":"기타","빅뱅":"기타","방사성붕괴":"기타","원자모형":"II. 원자의 세계","보어모형":"기타","양자역학":"기타","전자배치":"II. 원자의 세계","반지름":"기타","이온화에너지":"기타","주기적성질":"기타"},
+  areaGroup:{"몰":"I. 화학의 첫걸음","양적관계":"I. 화학의 첫걸음","원소분석":"I. 화학의 첫걸음","원자":"I. 화학의 첫걸음","빅뱅":"II. 원자의 구조와 기원","방사성붕괴":"II. 원자의 구조와 기원","원자모형":"III. 현대 원자모형","보어모형":"III. 현대 원자모형","양자역학":"III. 현대 원자모형","전자배치":"IV. 전자배치와 주기성","반지름":"IV. 전자배치와 주기성","이온화에너지":"IV. 전자배치와 주기성","주기적성질":"IV. 전자배치와 주기성"},
   questions:Q_KCH1TO2.map(r=>({n:r[0],ans:r[1],p:r[2],area:r[3],type:r[4],page:0,misc:(MISC_KCH1TO2[r[0]]||omFor(r[4]))}))},
  {id:"kch1u1",title:"화학1 1단원 모의고사",range:"화학의 기초 ~ 양적관계 · 화학의 첫걸음",source:"조준모의고사 · 화올 기출",N:139,haeseol:"sol-kch1u1.html",
   areaOrder:["기본입자","원자","열화학","원자량","동위원소","몰과개수","몰과질량","몰과부피","PV=nRT","계수맞추기","실험식","화학반응식","양적관계"],
-  areaGroup:{"기본입자":"기타","원자":"기타","열화학":"기타","원자량":"기타","동위원소":"기타","몰과개수":"기타","몰과질량":"기타","몰과부피":"기타","PV=nRT":"기타","계수맞추기":"기타","실험식":"기타","화학반응식":"기타","양적관계":"I. 화학의 첫걸음"},
+  areaGroup:{"기본입자":"I. 원자의 구성과 측정","원자":"I. 원자의 구성과 측정","열화학":"I. 원자의 구성과 측정","원자량":"I. 원자의 구성과 측정","동위원소":"I. 원자의 구성과 측정","몰과개수":"II. 몰과 기체","몰과질량":"II. 몰과 기체","몰과부피":"II. 몰과 기체","PV=nRT":"II. 몰과 기체","실험식":"III. 화학식·반응식","계수맞추기":"III. 화학식·반응식","화학반응식":"III. 화학식·반응식","양적관계":"III. 화학식·반응식"},
   questions:Q_KCH1U1.map(r=>({n:r[0],ans:r[1],p:r[2],area:r[3],type:r[4],page:0,misc:(MISC_KCH1U1[r[0]]||omFor(r[4]))}))},
  {id:"kch2final",title:"화학2 총괄평가",range:"화학2 전범위 · 물질의 상태~산화환원",source:"조준모의고사 · 화올 기출",N:61,haeseol:"sol-kch2final.html",
   areaOrder:["분자간인력","기체","고체","용액","엔탈피","엔트로피","화학평형","평형상수","상평형용해평형","산화환원","산염기평형","반응속도","중화반응"],
@@ -2110,7 +2291,7 @@ const EXAMS=[
   questions:Q_KCH13B.map(r=>({n:r[0],ans:r[1],p:r[2],area:r[3],type:r[4],page:0,misc:(MISC_KCH13B[r[0]]||omFor(r[4]))}))},
  {id:"kch1to2-b",title:"화학1 1-2단원 모의고사 (동형)",range:"화학의 기초 ~ 주기율 · 원자의 세계",source:"조준모의고사 · 동형",N:145,haeseol:"sol-kch1to2-b.html",
   areaOrder:["원자","몰","양적관계","원소분석","빅뱅","방사성붕괴","원자모형","보어모형","양자역학","전자배치","반지름","이온화에너지","주기적성질"],
-  areaGroup:{"원자":"기타","몰":"I. 화학의 첫걸음","양적관계":"I. 화학의 첫걸음","원소분석":"기타","빅뱅":"기타","방사성붕괴":"기타","원자모형":"II. 원자의 세계","보어모형":"기타","양자역학":"기타","전자배치":"II. 원자의 세계","반지름":"기타","이온화에너지":"기타","주기적성질":"기타"},
+  areaGroup:{"몰":"I. 화학의 첫걸음","양적관계":"I. 화학의 첫걸음","원소분석":"I. 화학의 첫걸음","원자":"I. 화학의 첫걸음","빅뱅":"II. 원자의 구조와 기원","방사성붕괴":"II. 원자의 구조와 기원","원자모형":"III. 현대 원자모형","보어모형":"III. 현대 원자모형","양자역학":"III. 현대 원자모형","전자배치":"IV. 전자배치와 주기성","반지름":"IV. 전자배치와 주기성","이온화에너지":"IV. 전자배치와 주기성","주기적성질":"IV. 전자배치와 주기성"},
   questions:Q_KCH12B.map(r=>({n:r[0],ans:r[1],p:r[2],area:r[3],type:r[4],page:0,misc:(MISC_KCH12B[r[0]]||omFor(r[4]))}))},
  {id:"kch2to3",title:"화학2 1-3단원 모의고사",range:"물질의 상태와 용액 ~ 산·염기 · 중등 화올",source:"조준모의고사",N:17,haeseol:"sol-kch2to3.html",
   areaOrder:["분자간인력","기체","고체","용액","엔탈피","엔트로피","화학평형","평형상수","상평형용해평형","산과염기","산염기평형","지시약","중화반응"],
@@ -2181,7 +2362,7 @@ function analyze(exam,answers,cohort){
   if(g.correct||!g.choice||!g.misc) continue;
   const m=g.misc, mv=(typeof m==='string')?m:(m[g.choice]||m['*']||null);
   const text=(mv&&typeof mv==='object')?mv.m:mv; const fix=(mv&&typeof mv==='object')?(mv.x||null):null;
-  if(text) misc.push({n:g.n,area:g.area,type:g.type,choice:g.choice,ans:g.ans,ansL:ansLabel(g),text,fix});
+  if(text){ let choiceMap=null; if(m&&typeof m==="object"){ choiceMap=[]; for(let ci=1;ci<=4;ci++){ if(ci===g.ans)continue; const cv=m[String(ci)]; if(!cv)continue; const ct=(typeof cv==="object")?cv.m:cv; const cx=(cv&&typeof cv==="object")?(cv.x||null):null; if(ct)choiceMap.push({c:ci,text:ct,fix:cx,picked:(ci===g.choice)}); } if(!choiceMap.length)choiceMap=null; } misc.push({n:g.n,area:g.area,type:g.type,choice:g.choice,ans:g.ans,ansL:ansLabel(g),text,fix,choiceMap}); }
  }
  let estPct=null,estMu=null,estSd=null;
  if(!cohort){const mu=qs.reduce((s,q)=>s+q.p/100*PT,0);const varr=qs.reduce((s,q)=>{const p=q.p/100;return s+p*(1-p)*PT*PT;},0);const sd=Math.sqrt(varr);estMu=mu;estSd=sd;estPct=Phi((total-mu)/sd)*100;}
@@ -2300,11 +2481,11 @@ function buildKick(r){
 }
 function buildRx(r){
  const rx=[];
- if(r.quad.miss.length){const ns=r.quad.miss.map(g=>g.n).sort((a,b)=>a-b).join(", ");rx.push({tag:'<span class="rxi__tag tag-pri">최우선</span>',title:`아쉬운 실점 ${r.quad.miss.length}문항부터 복구`,body:`${ns}번. 정답률이 높았던 문항입니다. 풀이를 다시 보며 '왜 틀렸는지'를 한 줄로 적어 오답노트에 남기세요. 여기서 ${r.quad.miss.length*PT}점을 즉시 회복할 수 있습니다.`});}
+ if(r.quad.miss.length){const ns=r.quad.miss.map(g=>g.n).sort((a,b)=>a-b).join(", ");rx.push({tag:'<span class="rxi__tag tag-pri">최우선</span>',title:`아쉬운 실점 ${r.quad.miss.length}문항부터 복구`,body:`${ns}번. 정답률이 높았던 문항입니다. 풀이를 다시 보며 '왜 틀렸는지'를 한 줄로 적어 오답노트에 남기세요. 여기서 ${r.quad.miss.length*PT}점을 즉시 회복할 수 있습니다.`,qlinks:r.quad.miss.map(g=>g.n).sort((a,b)=>a-b)});}
  const weak=[...r.areaList].filter(a=>a.nQ>=2&&a.diff100<0).slice().sort((a,b)=>a.diff100-b.diff100).slice(0,2);
- weak.forEach(w=>{if(w.diff100<0)rx.push({tag:'<span class="rxi__tag tag-area">영역 보강</span>',title:`${w.name} 집중 보강`,body:`평균 대비 ${Math.abs(w.diff100).toFixed(0)}점 낮습니다(정답률 ${w.myAcc.toFixed(0)}%). 해당 영역 유형 문제를 한 세트 더 풀어 격차를 좁히세요.`});});
- if(r.misc.length){r.misc.slice(0,2).forEach(m=>rx.push({tag:'<span class="rxi__tag tag-misc">개념 교정</span>',title:`${m.type} 오개념 교정`,body:`${m.n}번에서 "${m.text}"가 드러났습니다. 해당 개념을 다시 정리하고 같은 유형을 한 번 더 점검하세요.`}));}
- if(r.quad.task.length){const ns=r.quad.task.map(g=>g.n).sort((a,b)=>a-b).join(", ");rx.push({tag:'<span class="rxi__tag tag-area">심화 도전</span>',title:`고난도 미해결 문항 재도전`,body:`${ns}번. 정답률이 낮은 변별 문항입니다. 지금 당장은 아니어도, 위 과제를 끝낸 뒤 도전하면 상위권 굳히기로 이어집니다.`});}
+ weak.forEach(w=>{if(w.diff100<0){const wrong=r.graded.filter(g=>g.area===w.name&&!g.correct&&g.choice).map(g=>g.n).sort((a,b)=>a-b);rx.push({tag:'<span class="rxi__tag tag-area">영역 보강</span>',title:`${w.name} 집중 보강`,body:`평균 대비 ${Math.abs(w.diff100).toFixed(0)}점 낮습니다(정답률 ${w.myAcc.toFixed(0)}%).`+(wrong.length?` 이 영역에서 틀린 아래 문항 해설부터 확인하세요.`:` 해당 영역 유형 문제를 한 세트 더 풀어 격차를 좁히세요.`),qlinks:wrong});}});
+ if(r.misc.length){r.misc.slice(0,2).forEach(m=>rx.push({tag:'<span class="rxi__tag tag-misc">개념 교정</span>',title:`${m.type} 오개념 교정`,body:`${m.n}번에서 "${m.text}"가 드러났습니다. 해당 개념을 다시 정리하고 같은 유형을 한 번 더 점검하세요.`,qlinks:[m.n]}));}
+ if(r.quad.task.length){const ns=r.quad.task.map(g=>g.n).sort((a,b)=>a-b).join(", ");rx.push({tag:'<span class="rxi__tag tag-area">심화 도전</span>',title:`고난도 미해결 문항 재도전`,body:`${ns}번. 정답률이 낮은 변별 문항입니다. 지금 당장은 아니어도, 위 과제를 끝낸 뒤 도전하면 상위권 굳히기로 이어집니다.`,qlinks:r.quad.task.map(g=>g.n).sort((a,b)=>a-b)});}
  return rx;
 }
 
@@ -2789,11 +2970,11 @@ function renderReport(r,id){
  // 오개념
  const _st=App.curStats;
  const miscHTML=r.misc.length
-  ? `<div class="misc">${r.misc.map(m=>{let dist='';if(_st&&_st.enough&&_st.byQ[m.n]){const o=_st.byQ[m.n].optPct;const _wr=[0,1,2,3].filter(c=>c!==m.ans-1);const _modal=_wr.reduce((a,c)=>o[c]>o[a]?c:a,_wr[0]);const _isM=(m.choice-1===_modal&&o[m.choice-1]>0);dist=`<div class="mcard__dist">같은 <b>${CHO[m.choice-1]}</b> 선택 ${o[m.choice-1].toFixed(0)}%${_isM?` <span class="mc-modal">가장 많은 오답</span>`:``} · 정답 <b>${CHO[m.ans-1]}</b> 선택 ${o[m.ans-1].toFixed(0)}% <span class="muted2">· ${_st.base?`응시`:`최근 입력`} ${_st.N}명 기준</span></div>`;}return `<div class="mcard"><div class="mcard__n">${m.n}</div><div class="mcard__b"><div class="mcard__hd">${m.type}</div><div class="mc-line mc-line--err"><span class="mc-line__lab">학생 응답</span><span><b>${CHO[m.choice-1]}</b> 선택 — ${m.text}</span></div><div class="mc-line mc-line--corr"><span class="mc-line__lab">정답·핵심</span><span>정답 <b>${m.ansL||CHO[m.ans-1]}</b> · 짚어야 할 개념 <b>${m.type}</b></span></div><div class="mc-line mc-line--fix"><span class="mc-line__lab">이렇게 교정</span><span>${m.fix||fixLine(m.type)}</span></div>${dist}</div></div>`;}).join("")}</div>`
+  ? `<div class="misc">${r.misc.map(m=>{let dist='';if(_st&&_st.enough&&_st.byQ[m.n]){const o=_st.byQ[m.n].optPct;const _wr=[0,1,2,3].filter(c=>c!==m.ans-1);const _modal=_wr.reduce((a,c)=>o[c]>o[a]?c:a,_wr[0]);const _isM=(m.choice-1===_modal&&o[m.choice-1]>0);dist=`<div class="mcard__dist">같은 <b>${CHO[m.choice-1]}</b> 선택 ${o[m.choice-1].toFixed(0)}%${_isM?` <span class="mc-modal">가장 많은 오답</span>`:``} · 정답 <b>${CHO[m.ans-1]}</b> 선택 ${o[m.ans-1].toFixed(0)}% <span class="muted2">· ${_st.base?`응시`:`최근 입력`} ${_st.N}명 기준</span></div>`;}return `<div class="mcard"><div class="mcard__n">${m.n}</div><div class="mcard__b"><div class="mcard__hd">${m.type}</div><div class="mc-line mc-line--err"><span class="mc-line__lab">학생 응답</span><span><b>${CHO[m.choice-1]}</b> 선택 — ${m.text}</span></div><div class="mc-line mc-line--corr"><span class="mc-line__lab">정답·핵심</span><span>정답 <b>${m.ansL||CHO[m.ans-1]}</b> · 짚어야 할 개념 <b>${m.type}</b></span></div><div class="mc-line mc-line--fix"><span class="mc-line__lab">이렇게 교정</span><span>${m.fix||fixLine(m.type)}</span></div>${dist}${(m.choiceMap&&m.choiceMap.length>=2)?`<details class="mc-map"><summary>선지별 오개념 지도 <span class="mc-map__cnt">${m.choiceMap.length}개 오답 선지</span></summary><div class="mc-map__body">${m.choiceMap.map(cm=>`<div class="mc-map__row${cm.picked?' mc-map__row--picked':''}"><span class="mc-map__ch">${CHO[cm.c-1]}</span><div class="mc-map__tx"><div>${cm.text}${cm.picked?' <span class="mc-map__you">내 선택</span>':''}</div>${cm.fix?`<div class="mc-map__fix">${cm.fix}</div>`:''}</div></div>`).join("")}<div class="mc-map__ans">정답 <b>${m.ansL||CHO[m.ans-1]}</b></div></div></details>`:''}</div></div>`;}).join("")}</div>`
   : `<div class="empty empty--art">${artFlask(80)}<div>오답 보기에서 사전 정의된 오개념 패턴이 매칭되지 않았습니다.</div></div>`;
 
  // 처방
- const rxHTML=buildRx(r).map(x=>`<div class="rxi"><div class="rxi__no"></div><div class="rxi__b"><strong>${x.tag}${x.title}</strong><p>${x.body}</p></div></div>`).join("");
+ const _rxHb=(HAESEOL?((App.exam&&App.exam.haeseol)||("해설-"+(App.exam?App.exam.id:"")+".html")):"");const _rxLinks=(qlist)=>{ if(!_rxHb||!qlist||!qlist.length)return ""; const cap=qlist.slice(0,12); const pills=cap.map(n=>`<a href="${_rxHb}#q${n}" target="_blank" rel="noopener" class="rxq">${n}번 해설</a>`).join(""); const more=qlist.length>cap.length?`<span class="rxq-more">외 ${qlist.length-cap.length}문항</span>`:""; return `<div class="rxq-row"><span class="rxq-lab">해설 바로가기</span>${pills}${more}</div>`; };const rxHTML=buildRx(r).map(x=>`<div class="rxi"><div class="rxi__no"></div><div class="rxi__b"><strong>${x.tag}${x.title}</strong><p>${x.body}</p>${_rxLinks(x.qlinks)}</div></div>`).join("");
  const faqHTML=buildFAQ(r).map((f,i)=>`<details class="faq__item"${i<2?' open':''}><summary class="faq__q">${f.q}</summary><div class="faq__a">${f.a}</div></details>`).join("");
 
  // 정오표 (2열)
@@ -2891,6 +3072,13 @@ function renderReport(r,id){
  </div>`:''}
 
  ${(function(){ const _nm=(App.idData&&App.idData.name)?App.idData.name:''; const _inner=App.longitudinalReportInner(_nm,id); return _inner?`<div class="sec"><div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('여러 시험에 걸친 성취 추이')}<span class="sec__t">여러 시험에 걸친 성취 추이</span></div>${_inner}</div>`:''; })()}
+ ${(function(){ const _g=App.growthInner(r); return _g?`<div class="sec"><div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('성장 추이 · 기준선 대비')}<span class="sec__t">성장 추이 · 기준선 대비</span></div><div class="sec__d">첫 진단을 <b>기준선(baseline)</b>으로 고정하고 그 뒤의 변화를 영역 단위로 추적합니다. 한 장의 점수보다 <b>변화량</b>이 성장의 방향을 보여줍니다.</div>${_g}</div>`:''; })()}
+ ${(function(){ const _m=App.masteryInner(r); return _m?`<div class="sec"><div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('개념 숙달 추적')}<span class="sec__t">개념 숙달 · 정착 추적</span></div><div class="sec__d">한 번 맞힌 것은 숙달이 아닙니다. 각 영역이 <b>시간이 지나도 유지되는지</b>를 미습득·습득·정착으로 추적하고, 굳히기 위해 다시 볼 개념을 안내합니다.</div>${_m}</div>`:''; })()}
+ ${(function(){ const _p=App.parentNarrative(r); return _p?`<div class="sec pn-sec"><div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('이번 학습 리포트')}<span class="sec__t">이번 학습 리포트 · 학부모용</span></div><div class="sec__d">이번 진단의 핵심을 <b>수치가 아닌 문장</b>으로 정리했습니다. 성장과 숙달의 흐름, 그리고 다음 목표를 한눈에 읽으실 수 있습니다.</div>${_p}</div>`:''; })()}
+ ${(function(){ const _o=App.motivationInner(r); return _o?`<div class="sec mo-sec"><div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('성장 배지와 목표')}<span class="sec__t">성장 배지 · 나의 목표</span></div><div class="sec__d">망각이 아니라 <b>전진</b>을 봅니다. 목표까지의 거리와 지금까지 쌓은 성취를 확인하고, 다음 한 걸음의 동력을 얻으세요.</div>${_o}</div>`:''; })()}
+ ${(function(){ const _c=App.competeInner(r); return _c?`<div class="sec cmp-sec"><div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('경쟁 좌표와 목표')}<span class="sec__t">경쟁 좌표 · 목표 정렬</span></div><div class="sec__d">지금 어디에 있고, 어디로 가는가. 전체 분포 속 위치와 목표까지의 거리, 그리고 그 거리를 좁힐 영역을 함께 봅니다.</div>${_c}</div>`:''; })()}
+ ${(function(){ const _d=App.depthInner(r); return _d?`<div class="sec dp-sec"><div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('개념 깊이와 사고력')}<span class="sec__t">개념 깊이 · 사고력</span></div><div class="sec__d">정답률에는 천장이 있습니다. 진짜 차이는 <b>이해의 깊이</b>에서 납니다. 같은 개념의 기본과 심화를 나눠, 답을 아는 것을 넘어 <b>구조로 이해하는지</b>를 봅니다.</div>${_d}</div>`:''; })()}
+ ${(function(){ const _f=App.proofInner(r); return _f?`<div class="sec pf-sec"><div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('성장의 증거')}<span class="sec__t">성장의 증거 · 폐쇄 루프</span></div><div class="sec__d">진단 -> 처방 -> 재학습 -> 재진단이 하나의 <b>루프</b>로 닫히고, 결과로 증명될 때 시스템이 완성됩니다. 약점으로 짚었던 영역이 실제로 해결됐는지를 증거로 정리합니다.</div>${_f}</div>`:''; })()}
 
  <div class="sec">
    <div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('영역별 성취 · 평균과의 비교')}<span class="sec__t">영역별 성취 · 평균과의 비교</span></div>
@@ -2918,7 +3106,7 @@ function renderReport(r,id){
 
  <div class="sec">
    <div class="sec__h"><span class="sec__no">${SN()}</span>${secIco('다음 학습 처방')}<span class="sec__t">다음 학습 처방</span></div>
-   <div class="sec__d">위 분석을 우선순위 순으로 정리한 실행 목록입니다.</div>
+   <div class="sec__d">위 분석을 우선순위 순으로 정리한 실행 목록입니다. 각 항목의 <b>해설 바로가기</b>를 누르면 그 문항 풀이로 바로 이동합니다.</div>
    <div class="rx">${rxHTML}</div>
  </div>
 
@@ -3094,6 +3282,438 @@ const App={
   const combos=new Set(all.map(x=>(x.grade||'')+'|'+(x.school||'')).filter(z=>z!=='|'));
   const warn=combos.size>1?'<div class="muted2" style="margin-top:8px">같은 이름으로 여러 학년·학교 기록이 함께 잡혔습니다. 동명이인일 수 있습니다.</div>':'';
   return `<div class="card"><div class="card__h">다른 시험까지 · 종단 누적 (${all.length}개 시험)</div><div style="margin:4px 0 2px">${scoreRows}</div><div class="card__h" style="margin-top:12px">누적 유형 숙련도 · 약한 순</div>${weakHTML}${warn}</div>`;
+ },
+ /* ===== 성장 추이: 첫 진단을 기준선으로 고정, 직전·기준선 대비 영역 변화 (플랜 2단계) ===== */
+ growthPriors(nm, excludeSig){
+  nm=this.normName(nm||''); if(!nm)return [];
+  const list=(typeof EXAMS!=='undefined')?EXAMS:[]; const out=[];
+  for(const ex of list){ const arr=this.subs(ex.id); if(!arr.length)continue;
+   for(const s of arr){ if(this.normName(s.name)!==nm)continue; if(excludeSig&&this.sig(s)===excludeSig)continue;
+    const g=this.gradeExam(ex,s.answers);
+    out.push({id:ex.id,title:ex.title,date:s.date||'',ts:s.ts||0,p100:to100(g.total,g.max),byArea:g.byArea}); } }
+  out.sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))||((a.ts||0)-(b.ts||0)));
+  return out;
+ },
+ growthInner(r){
+  if(this.demo)return '';
+  const nm=this.normName((this.idData&&this.idData.name)||''); if(!nm)return '';
+  const ansStr=r.exam.questions.map(q=>this.answers[q.n]||0).join('');
+  const prior=this.growthPriors(nm, nm+'|'+(this.idData.date||'')+'|'+ansStr);
+  if(!prior.length){
+   return (!this.shared&&this.idData.examno)?`<div class="gw-base"><b>성장 기준선이 기록되었습니다.</b> 이번 진단이 ${esc(this.idData.name)} 학생의 첫 기준선(baseline)으로 저장되어, 다음 응시부터 영역별 변화가 이 자리에 표시됩니다.</div>`:'';
+  }
+  const base=prior[0], prev=prior[prior.length-1], multi=prior.length>1;
+  const PAIR={'kch1to3':'kch1to3-b','kch1to3-b':'kch1to3','kch1to2':'kch1to2-b','kch1to2-b':'kch1to2'};
+  const rel=x=>x.id===r.exam.id?'같은 시험 재응시':(PAIR[r.exam.id]===x.id?'동형 시험':'다른 시험(참고)');
+  const cur100=r.my100;
+  const fmt=v=>(v>=0?'+':'')+v.toFixed(1);
+  const dchip=(d,unit)=>Math.abs(d)<0.05?`<span class="gw-eq">그대로</span>`:(d>0?`<span class="gw-up">&#9650; ${fmt(d)}${unit||''}</span>`:`<span class="gw-dn">&#9660; ${fmt(d)}${unit||''}</span>`);
+  const line=`<div class="gw-line">`
+   +`<span><span class="gw-k">기준선 </span><span class="gw-v">${base.p100.toFixed(1)}</span></span>`
+   +(multi?`<span class="gw-arrow">&#8594;</span><span><span class="gw-k">직전 </span><span class="gw-v">${prev.p100.toFixed(1)}</span></span>`:'')
+   +`<span class="gw-arrow">&#8594;</span><span><span class="gw-k">이번 </span><span class="gw-v" style="color:var(--teal-d)">${cur100.toFixed(1)}</span></span>`
+   +`<span class="gw-delta">${multi?`직전 대비 ${dchip(cur100-prev.p100)} <span class="muted2">&middot;</span> `:''}기준선 대비 ${dchip(cur100-base.p100)} <span class="gw-k">(백점환산)</span></span>`
+   +`</div>`;
+  const srcLine=`<div class="gw-src">기준선: ${esc(base.title)} (${esc(base.date||'-')})${multi?` &middot; 직전: ${esc(prev.title)} (${esc(prev.date||'-')})`:''} &middot; 비교 상대: ${rel(prev)}</div>`;
+  const rows=[];
+  for(const A of r.areaList){ if(A.nQ<2)continue;
+   const pv=prev.byArea[A.name], bv=base.byArea[A.name];
+   const pAcc=(pv&&pv.n>=2)?pv.c/pv.n*100:null, bAcc=(bv&&bv.n>=2)?bv.c/bv.n*100:null;
+   if(pAcc==null&&bAcc==null)continue;
+   rows.push({A,pAcc,bAcc});
+  }
+  let tab='';
+  if(rows.length){
+   const tr=rows.map(x=>{
+    const c=x.A.myAcc, ref=(x.pAcc!=null)?x.pAcc:x.bAcc;
+    return `<tr><td>${aIco(x.A.name)}${esc(x.A.name)}</td>`
+     +`<td class="mono">${x.bAcc!=null?x.bAcc.toFixed(0)+'%':'<span class="muted2">-</span>'}</td>`
+     +(multi?`<td class="mono">${x.pAcc!=null?x.pAcc.toFixed(0)+'%':'<span class="muted2">-</span>'}</td>`:'')
+     +`<td class="mono"><b>${c.toFixed(0)}%</b></td>`
+     +`<td>${dchip(c-ref,'p')}${(multi&&x.pAcc==null)?' <span class="muted2">(기준선)</span>':''}</td></tr>`;
+   }).join('');
+   tab=`<table class="areatab"><thead><tr><th>영역</th><th>기준선</th>${multi?'<th>직전</th>':''}<th>이번</th><th>변화</th></tr></thead><tbody>${tr}</tbody></table>`;
+  } else {
+   tab=`<div class="muted2" style="font-size:12.5px">이번 시험과 같은 이름의 영역(문항 2개 이상)이 이전 기록에 없어, 총점 변화만 표시합니다.</div>`;
+  }
+  const cross=(prev.id!==r.exam.id&&PAIR[r.exam.id]!==prev.id);
+  const note=`<div class="gw-note">기준선은 <b>첫 진단으로 고정</b>됩니다. 영역 비교는 같은 이름의 영역끼리(양쪽 문항 2개 이상) 이어 붙인 것이며, ${cross?'서로 다른 시험 사이의 비교는 난이도 차이가 있어 참고용입니다. ':''}같은 시험·동형 재응시 대비가 가장 정확합니다. 변화의 단위 p는 백분율포인트입니다.</div>`;
+  return line+srcLine+tab+note;
+ },
+ /* ===== 숙달 추적: 개념(영역)별 미습득/습득/정착 + 간격 재출제 (플랜 5단계) ===== */
+ masteryInner(r){
+  if(this.demo)return '';
+  const nm=this.normName((this.idData&&this.idData.name)||''); if(!nm)return '';
+  const ansStr=r.exam.questions.map(q=>this.answers[q.n]||0).join('');
+  const prior=this.growthPriors(nm, nm+'|'+(this.idData.date||'')+'|'+ansStr);
+  if(!prior.length){
+   return (!this.shared&&this.idData.examno)?`<div class="gw-base"><b>숙달 추적을 시작합니다.</b> 개념이 <b>시간이 지나도 유지되는지</b>는 두 번째 응시부터 확인할 수 있습니다. 같은 시험이나 동형 시험을 다시 보면, 각 영역이 미습득·습득·정착 중 어디에 있는지 이 자리에 나타납니다.</div>`:'';
+  }
+  const MAST=80, WEAK=60, curDate=this.idData.date||'';
+  const areas=[];
+  for(const A of r.areaList){ if(A.nQ<2)continue;
+   const seq=[];
+   prior.forEach(p=>{ const bv=p.byArea[A.name]; if(bv&&bv.n>=2) seq.push({date:p.date,acc:bv.c/bv.n*100}); });
+   seq.push({date:curDate,acc:A.myAcc,cur:true});
+   const last=seq[seq.length-1];
+   const pre=seq.slice(0,-1);
+   const priorStrong=pre.some(s=>s.acc>=MAST);
+   const priorBest=pre.reduce((m,s)=>Math.max(m,s.acc),0);
+   let state,regressed=false;
+   if(last.acc>=MAST){ state=priorStrong?'set':'acq'; }
+   else if(last.acc>=WEAK){ state='acq'; if(priorBest>=MAST)regressed=true; }
+   else { state='none'; if(priorBest>=MAST)regressed=true; }
+   areas.push({name:A.name,acc:A.myAcc,state,regressed,hist:seq.length>=2,seq});
+  }
+  if(!areas.length)return '';
+  const hasHistory=areas.some(a=>a.hist);
+  if(!hasHistory){
+   return `<div class="gw-base">이번 시험과 <b>같은 영역</b>의 이전 기록이 아직 없어, 숙달 정착 여부는 같은 시험·동형 시험을 다시 볼 때부터 추적됩니다. 지금은 이번 결과가 각 영역의 기준점이 됩니다.</div>`;
+  }
+  const nSet=areas.filter(a=>a.state==='set').length;
+  const nAcq=areas.filter(a=>a.state==='acq').length;
+  const nNone=areas.filter(a=>a.state==='none').length;
+  const nAtt=prior.length+1;
+  const LAB={set:'정착',acq:'습득',none:'미습득'};
+  const CLS={set:'set',acq:'acq',none:'none'};
+  const chip=a=>`<span class="mst-chip mst-chip--${CLS[a.state]}">${aIco(a.name)}${esc(a.name)} <b>${a.acc.toFixed(0)}%</b>${a.regressed?`<span class="mst-reg">흔들림</span>`:''}</span>`;
+  const grp=(st,lab,desc)=>{ const list=areas.filter(a=>a.state===st); if(!list.length)return '';
+   return `<div class="mst-grp"><div class="mst-grp__lab mst-grp__lab--${CLS[st]}">${lab} <span class="mst-grp__desc">${desc}</span></div><div class="mst-chips">${list.map(chip).join('')}</div></div>`; };
+  const summary=`<div class="mst-summary">`
+   +`<span class="mst-stat mst-stat--set">정착 ${nSet}</span>`
+   +`<span class="mst-stat mst-stat--acq">습득 ${nAcq}</span>`
+   +`<span class="mst-stat mst-stat--none">미습득 ${nNone}</span>`
+   +`<span class="mst-track">영역 ${areas.length}개 · 응시 ${nAtt}회 추적</span></div>`;
+  const groups=`<div class="mst-groups">`
+   +grp('set','정착','시간이 지나도 유지됨')
+   +grp('acq','습득','됐지만 아직 굳지 않음')
+   +grp('none','미습득','아직 안정되지 않음')
+   +`</div>`;
+  // 간격 재출제: 퇴행(흔들림) 우선 -> 습득(굳히기) 순, 최대 3영역
+  const hb=(HAESEOL?((r.exam&&r.exam.haeseol)||("해설-"+(r.exam?r.exam.id:"")+".html")):"");
+  const qOf=name=>r.exam.questions.filter(q=>q.area===name).map(q=>q.n).sort((a,b)=>a-b);
+  const links=name=>{ if(!hb)return ''; const qs=qOf(name).slice(0,8); if(!qs.length)return '';
+   return `<div class="rxq-row"><span class="rxq-lab">해설 바로가기</span>${qs.map(n=>`<a href="${hb}#q${n}" target="_blank" rel="noopener" class="rxq">${n}번 해설</a>`).join('')}</div>`; };
+  const reg=areas.filter(a=>a.regressed);
+  const acq=areas.filter(a=>a.state==='acq'&&!a.regressed);
+  const rt=[];
+  reg.forEach(a=>rt.push({name:a.name,why:`예전에 익힌 영역인데 이번에 ${a.acc.toFixed(0)}%로 흔들렸습니다. 지금 다시 점검해 굳히세요.`}));
+  acq.forEach(a=>rt.push({name:a.name,why:`이번엔 잘했지만(${a.acc.toFixed(0)}%) 한 번의 결과입니다. 시간을 두고 다시 확인하면 정착으로 이어집니다.`}));
+  const rtTop=rt.slice(0,3);
+  const retest=rtTop.length?`<div class="mst-retest"><div class="mst-retest__h">간격 재출제 추천</div><div class="sec__d" style="margin:2px 0 10px">한 번 맞힌 것과 <b>계속 유지되는 것</b>은 다릅니다. 아래 영역은 시간 간격을 두고 다시 확인하면 좋습니다.</div>${rtTop.map(x=>`<div class="mst-rt-row"><div class="mst-rt-row__t"><strong>${esc(x.name)}</strong><span class="mst-rt-why">${x.why}</span></div>${links(x.name)}</div>`).join('')}</div>`:'';
+  const note=`<div class="gw-note"><b>미습득</b>은 아직 안정되지 않은 영역, <b>습득</b>은 이번에 됐지만 굳히기 전, <b>정착</b>은 서로 다른 시점에 거듭 맞혀 유지되는 영역입니다. 정착 판정은 이전 응시와 이번을 함께 보아 내립니다. 같은 시험·동형 시험 재응시일수록 정확합니다.</div>`;
+  return summary+groups+retest+note;
+ },
+ /* ===== 학부모 서사 리포트: 수치를 읽는 문장으로 + 강사 코멘트 (플랜 6단계) ===== */
+ pcommentKey(){ return 'chemistreal:pcomment:'+((this.exam&&this.exam.id)||'')+':'+this.normName((this.idData&&this.idData.name)||''); },
+ pcomment(){ try{ return localStorage.getItem(this.pcommentKey())||''; }catch(e){ return ''; } },
+ editParentComment(){
+  if(!this.idData||!(this.idData.name||'').trim()){ this.toast('학생 이름이 있어야 코멘트를 저장할 수 있습니다'); return; }
+  const cur=this.pcomment();
+  const v=prompt('학부모 리포트에 실릴 담당 강사 코멘트를 한두 문장으로 입력하세요.\n(이 브라우저에 학생별로 저장되며, 공유용 HTML·인쇄본에 함께 나갑니다.)', cur);
+  if(v===null)return;
+  try{ const t=v.trim(); if(t) localStorage.setItem(this.pcommentKey(),t); else localStorage.removeItem(this.pcommentKey()); this.toast(t?'코멘트를 저장했습니다':'코멘트를 비웠습니다'); }catch(e){ this.toast('코멘트 저장 실패'); }
+  this.rerender();
+ },
+ parentNarrative(r){
+  if(this.demo)return '';
+  const nm0=(this.idData&&this.idData.name)?this.idData.name:'';
+  const who=esc(nm0)||'이 학생';
+  const nm=this.normName(nm0);
+  const ansStr=r.exam.questions.map(q=>this.answers[q.n]||0).join('');
+  const prior=nm?this.growthPriors(nm, nm+'|'+(this.idData.date||'')+'|'+ansStr):[];
+  const multi=prior.length>0;
+  const MAST=80, WEAK=60;
+  const areas=r.areaList.filter(a=>a.nQ>=2);
+  // 숙달 분류(요약본): masteryInner과 동일 규칙
+  const cls=A=>{ const seq=[]; prior.forEach(p=>{ const bv=p.byArea[A.name]; if(bv&&bv.n>=2) seq.push(bv.c/bv.n*100); }); seq.push(A.myAcc);
+   const last=seq[seq.length-1], pre=seq.slice(0,-1); const pS=pre.some(x=>x>=MAST), pB=pre.reduce((m,x)=>Math.max(m,x),0);
+   let st,reg=false; if(last>=MAST){st=pS?'set':'acq';} else if(last>=WEAK){st='acq'; if(pB>=MAST)reg=true;} else {st='none'; if(pB>=MAST)reg=true;}
+   return {st,reg}; };
+  const tagged=areas.map(A=>({A,...cls(A)}));
+  const setAreas=tagged.filter(x=>x.st==='set').map(x=>x.A);
+  const strongNow=areas.slice().filter(a=>a.myAcc>=MAST).sort((a,b)=>b.myAcc-a.myAcc);
+  const regAreas=tagged.filter(x=>x.reg).map(x=>x.A);
+  const weakAreas=areas.slice().filter(a=>a.myAcc<WEAK).sort((a,b)=>a.diff100-b.diff100);
+  const acqAreas=tagged.filter(x=>x.st==='acq'&&!x.reg).map(x=>x.A);
+  const pct=r.totalStat?r.totalStat.pct:(r.estPct!=null?r.estPct:null);
+  const nm2=(x)=>esc(x.name);
+  const S=[];
+  // 1) 기간·응시
+  if(multi){ const n=prior.length+1; S.push(`지난 학습 기간 동안 ${who} 학생은 <b>${n}회</b>의 정밀 진단을 치렀습니다.`); }
+  else { S.push(`${who} 학생의 <b>${esc(r.exam.title)}</b> 진단 결과입니다.`); }
+  // 2) 궤적
+  if(multi){ const base=prior[0], d=r.my100-base.p100; const dir=Math.abs(d)<0.05?'유지되고':(d>0?'올라':'조정되어');
+   S.push(`총점 백점환산은 기준선 ${base.p100.toFixed(0)}점에서 이번 ${r.my100.toFixed(0)}점으로 ${dir} 있습니다${(pct!=null)?`(현재 백분위 약 ${pct.toFixed(0)})`:''}.`); }
+  else if(pct!=null){ S.push(`이번 백점환산은 ${r.my100.toFixed(0)}점, 전체 분포에서 백분위 약 ${pct.toFixed(0)}에 위치합니다.`); }
+  // 3) 강점
+  if(setAreas.length){ const names=setAreas.slice(0,3).map(nm2).join(', ');
+   S.push(`특히 <b>${names}</b> 영역은 서로 다른 시점에 거듭 좋은 결과를 보여, 시간이 지나도 흔들리지 않는 <b>정착</b> 단계에 올랐습니다.`); }
+  else if(strongNow.length){ const t=strongNow[0]; S.push(`<b>${nm2(t)}</b> 영역에서 ${t.myAcc.toFixed(0)}%로 안정된 실력을 보였습니다.`); }
+  // 4) 흔들림/약점 (건설적)
+  if(regAreas.length){ const t=regAreas[0]; S.push(`반면 <b>${nm2(t)}</b>은 예전에 익혔던 영역인데 이번에 ${t.myAcc.toFixed(0)}%로 흔들려, 지금 다시 다잡아야 할 지점입니다.`); }
+  else if(weakAreas.length){ const t=weakAreas[0]; S.push(`아직 <b>${nm2(t)}</b>은 ${t.myAcc.toFixed(0)}%로 보강이 필요합니다. 우선순위가 분명한 만큼 채우면 반등 여력이 큽니다.`); }
+  else if(!setAreas.length&&!strongNow.length){ S.push('전반적으로 고르게 접근했으며, 다음 단계로 개념의 깊이를 더할 시점입니다.'); }
+  // 5) 다음 목표
+  const targets=[];
+  regAreas.forEach(a=>targets.push(a)); weakAreas.forEach(a=>{ if(!targets.find(t=>t.name===a.name))targets.push(a); }); acqAreas.forEach(a=>{ if(!targets.find(t=>t.name===a.name))targets.push(a); });
+  if(targets.length){ const names=targets.slice(0,2).map(nm2).join('와(과) '); S.push(`다음 학습 기간의 목표는 <b>${names}</b>${targets.length>2?' 등':''}입니다. 위 처방의 해설부터 확인하면 방향이 분명해집니다.`); }
+  else { S.push('다음 단계는 심화 문항으로 폭을 넓히는 것입니다.'); }
+  const para=`<p class="pn-para">${S.join(' ')}</p>`;
+  // 강사 코멘트
+  const cm=this.pcomment();
+  const editBtn=(!this.shared&&!this.demo)?`<button class="btn btn--g no-print pn-edit" onclick="App.editParentComment()">${cm?'코멘트 수정':'강사 코멘트 추가'}</button>`:'';
+  const cmBlock=cm?`<div class="pn-comment"><div class="pn-comment__lab">담당 강사 코멘트</div><div class="pn-comment__tx">${esc(cm)}</div></div>`
+   :((!this.shared&&!this.demo)?`<div class="pn-comment pn-comment--empty">학부모 리포트에 실릴 <b>강사 코멘트</b>를 한 줄 남겨 보세요. 서사 위에 함께 전달됩니다.</div>`:'');
+  const sig=`<div class="pn-sig">다원교육 영재관 · 조준모<b>T</b> · 화학 올림피아드</div>`;
+  return para+cmBlock+editBtn+sig;
+ },
+ /* ===== 학생 동기 설계: 목표 진척 · 정착 배지 · 마일스톤 (플랜 7단계) ===== */
+ sgoalKey(){ return 'chemistreal:sgoal:'+((this.exam&&this.exam.id)||'')+':'+this.normName((this.idData&&this.idData.name)||''); },
+ studentGoal(){ try{ const v=parseInt(localStorage.getItem(this.sgoalKey()),10); return (v>=1&&v<=100)?v:null; }catch(e){ return null; } },
+ editStudentGoal(){
+  if(!this.idData||!(this.idData.name||'').trim()){ this.toast('학생 이름이 있어야 목표를 저장할 수 있습니다'); return; }
+  const cur=this.studentGoal();
+  const v=prompt('목표 점수(백점환산, 1~100)를 입력하세요.\n(이 브라우저에 학생별로 저장됩니다.)', cur||'');
+  if(v===null)return;
+  const t=parseInt(v,10);
+  try{ if(t>=1&&t<=100){ localStorage.setItem(this.sgoalKey(),String(t)); this.toast('목표 '+t+'점을 저장했습니다'); } else { localStorage.removeItem(this.sgoalKey()); this.toast('목표를 비웠습니다'); } }catch(e){ this.toast('목표 저장 실패'); }
+  this.rerender();
+ },
+ motivationInner(r){
+  if(this.demo)return '';
+  const nm0=(this.idData&&this.idData.name)?this.idData.name:''; if(!nm0)return '';
+  const nm=this.normName(nm0);
+  const ansStr=r.exam.questions.map(q=>this.answers[q.n]||0).join('');
+  const prior=this.growthPriors(nm, nm+'|'+(this.idData.date||'')+'|'+ansStr);
+  const cur=r.my100;
+  const priorBest=prior.length?prior.reduce((m,p)=>Math.max(m,p.p100),0):0;
+  const bestEver=Math.max(cur,priorBest);
+  // 목표: 저장값 우선, 없으면 최고기록 위 다음 10점 배수 제안
+  const nextTen=v=>Math.min(100,(Math.floor(v/10)+1)*10);
+  const saved=this.studentGoal();
+  const suggested=bestEver>=100?100:nextTen(bestEver);
+  const goal=saved||suggested;
+  const prog=Math.max(0,Math.min(100,goal?cur/goal*100:0));
+  const reached=cur>=goal;
+  const gap=Math.max(0,Math.round(goal-cur));
+  const goalMsg=reached
+   ?`목표 ${goal}점을 넘었습니다! 다음 목표는 <b>${bestEver>=100?'만점 유지':nextTen(goal)+'점'}</b>입니다.`
+   :`목표 <b>${goal}점</b>까지 <b>${gap}점</b> 남았습니다. 위 처방부터 채우면 가까워집니다.`;
+  const editBtn=(!this.shared&&!this.demo)?`<button class="btn btn--g no-print mo-edit" onclick="App.editStudentGoal()">${saved?'목표 변경':'목표 설정'}</button>`:'';
+  const goalBlock=`<div class="mo-goal ${reached?'mo-goal--done':''}">`
+   +`<div class="mo-goal__top"><span class="mo-goal__lab">나의 목표${saved?'':' <span class="mo-goal__auto">(추천)</span>'}</span>`
+   +`<span class="mo-goal__val">현재 <b>${Math.round(cur)}</b> / 목표 <b>${goal}</b></span></div>`
+   +`<div class="mo-goal__bar"><div class="mo-goal__fill" style="width:${prog.toFixed(1)}%"></div></div>`
+   +`<div class="mo-goal__msg">${goalMsg}</div></div>`;
+  // 정착 배지 (masteryInner과 동일 규칙)
+  const MAST=80, WEAK=60;
+  const setAreas=[];
+  r.areaList.forEach(A=>{ if(A.nQ<2)return; const seq=[]; prior.forEach(p=>{ const bv=p.byArea[A.name]; if(bv&&bv.n>=2)seq.push(bv.c/bv.n*100); }); seq.push(A.myAcc);
+   const last=seq[seq.length-1], pre=seq.slice(0,-1); if(last>=MAST&&pre.some(x=>x>=MAST)) setAreas.push(A); });
+  const setBadges=setAreas.slice(0,8).map(A=>`<div class="mo-badge mo-badge--set"><div class="mo-badge__ic">${aIco(A.name)}</div><div class="mo-badge__t">${esc(A.name)}</div><div class="mo-badge__s">정착</div></div>`);
+  // 마일스톤 배지 (실제 달성분만)
+  const mi=[];
+  const ico=k=>`<span class="mo-badge__svg">${svgIco(k,'ico')}</span>`;
+  if(r.rawCorrect===r.exam.questions.length) mi.push({ic:'trophy',t:'전 문항 정답',s:'완벽'});
+  if(prior.length && cur>priorBest+0.05) mi.push({ic:'up',t:'최고 기록 갱신',s:`${Math.round(cur)}점`});
+  // 첫 X점 돌파(이전 최고 미달 → 이번 도달) 중 가장 높은 것 하나
+  for(const X of [100,90,80,70]){ if(cur>=X && priorBest<X){ mi.push({ic:'starb',t:`첫 ${X}점 돌파`,s:'기록'}); break; } }
+  const nAtt=prior.length+1;
+  if(nAtt>=10) mi.push({ic:'star',t:'10회 진단 완주',s:'꾸준함'});
+  else if(nAtt>=5) mi.push({ic:'star',t:'5회 진단 완주',s:'꾸준함'});
+  else if(nAtt>=3) mi.push({ic:'star',t:'3회 진단 완주',s:'꾸준함'});
+  if(setAreas.length>=5) mi.push({ic:'shield',t:`정착 ${setAreas.length}영역`,s:'안정'});
+  const miBadges=mi.slice(0,6).map(m=>`<div class="mo-badge mo-badge--mi"><div class="mo-badge__ic">${ico(m.ic)}</div><div class="mo-badge__t">${m.t}</div><div class="mo-badge__s">${m.s}</div></div>`);
+  const all=setBadges.concat(miBadges);
+  const badgesBlock=all.length?`<div class="mo-badges">${all.join('')}</div>`
+   :`<div class="mo-empty">아직 획득한 배지가 없습니다. 정착 영역을 만들고 최고 기록을 세우면 이 자리에 배지가 쌓입니다.</div>`;
+  return goalBlock+editBtn+badgesBlock;
+ },
+ /* ===== 경쟁 맥락 · 목표 정렬: 코호트 백분위 좌표 + 목표 tier + 남은 영역 (플랜 8단계) ===== */
+ cgoalKey(){ return 'chemistreal:cgoal:'+((this.exam&&this.exam.id)||'')+':'+this.normName((this.idData&&this.idData.name)||''); },
+ competeGoal(){ try{ const v=parseInt(localStorage.getItem(this.cgoalKey()),10); return [30,15,7,3].indexOf(v)>=0?v:null; }catch(e){ return null; } },
+ editCompeteGoal(){
+  if(!this.idData||!(this.idData.name||'').trim()){ this.toast('학생 이름이 있어야 목표를 저장할 수 있습니다'); return; }
+  const cur=this.competeGoal();
+  const v=prompt('목표를 선택하세요(숫자 입력).\n 1) 상위 30% · 과학고 지향권\n 2) 상위 15% · 영재고 지향권\n 3) 상위 7% · 올림피아드 도전권\n 4) 상위 3% · 수상·메달권', cur?({30:'1',15:'2',7:'3',3:'4'}[cur]):'');
+  if(v===null)return;
+  const map={'1':30,'2':15,'3':7,'4':3}; const t=map[String(v).trim()];
+  try{ if(t){ localStorage.setItem(this.cgoalKey(),String(t)); this.toast('목표: 상위 '+t+'%'); } else { localStorage.removeItem(this.cgoalKey()); this.toast('목표를 비웠습니다'); } }catch(e){ this.toast('목표 저장 실패'); }
+  this.rerender();
+ },
+ competeInner(r){
+  if(this.demo)return '';
+  const nm0=(this.idData&&this.idData.name)?this.idData.name:''; if(!nm0)return '';
+  const pct=r.totalStat?r.totalStat.pct:(r.estPct!=null?r.estPct:null);
+  if(pct==null)return '';
+  const est=!r.totalStat, n=r.totalStat?r.totalStat.n:null;
+  const top=Math.max(0,100-pct);
+  const bandOf=p=>p>=85?'최상위권':p>=70?'상위권':p>=50?'중상위권':p>=30?'중위권':'기초 정착';
+  const TIERS=[{top:30,name:'상위 30%',aim:'과학고 지향권'},{top:15,name:'상위 15%',aim:'영재고 지향권'},{top:7,name:'상위 7%',aim:'올림피아드 도전권'},{top:3,name:'상위 3%',aim:'수상·메달권'}];
+  const saved=this.competeGoal();
+  const suggested=TIERS.find(t=>t.top<top)||TIERS[TIERS.length-1];
+  const tgt=saved?(TIERS.find(t=>t.top===saved)||suggested):suggested;
+  const tgtPct=100-tgt.top;
+  const gap=Math.max(0,Math.round(tgtPct-pct));
+  const reached=pct>=tgtPct;
+  // 사다리 SVG (percentile 0~100, 좌=하위 우=상위)
+  const W=400,ml=12,mr=12,mt=34,barH=20,iw=W-ml-mr,H=104;
+  const X=p=>ml+p/100*iw;
+  const bands=[[0,30,'#E4DFD4','기초'],[30,50,'#E7D9C4','중위'],[50,70,'#DCE6E0','중상위'],[70,85,'#CFE6E0','상위'],[85,100,'#EAD9B0','최상위']];
+  let rects=bands.map(b=>`<rect x="${X(b[0]).toFixed(1)}" y="${mt}" width="${(X(b[1])-X(b[0])).toFixed(1)}" height="${barH}" fill="${b[2]}"/><text x="${((X(b[0])+X(b[1]))/2).toFixed(1)}" y="${mt+barH+13}" font-size="8.5" fill="var(--ink-4)" text-anchor="middle" font-family="var(--mono)">${b[3]}</text>`).join('');
+  // 수상권 존(상위 tgt.top%) 강조 테두리
+  rects+=`<rect x="${X(tgtPct).toFixed(1)}" y="${mt}" width="${(X(100)-X(tgtPct)).toFixed(1)}" height="${barH}" fill="none" stroke="var(--brass-d)" stroke-width="1.2" stroke-dasharray="3 2"/>`;
+  const curX=X(pct), tgX=X(tgtPct);
+  const curMark=`<line x1="${curX.toFixed(1)}" y1="${mt-6}" x2="${curX.toFixed(1)}" y2="${mt+barH+2}" stroke="var(--teal-d)" stroke-width="2"/><polygon points="${curX.toFixed(1)},${mt-6} ${(curX-4).toFixed(1)},${mt-12} ${(curX+4).toFixed(1)},${mt-12}" fill="var(--teal-d)"/><text x="${curX.toFixed(1)}" y="${mt-15}" font-size="9" font-weight="700" fill="var(--teal-d)" text-anchor="middle">현재 상위 ${top.toFixed(0)}%</text>`;
+  const tgMark=`<line x1="${tgX.toFixed(1)}" y1="${mt-2}" x2="${tgX.toFixed(1)}" y2="${(mt+barH+8).toFixed(1)}" stroke="var(--brass-d)" stroke-width="1.6" stroke-dasharray="2 2"/><text x="${tgX.toFixed(1)}" y="${(mt+barH+26).toFixed(1)}" font-size="9" font-weight="700" fill="var(--brass-d)" text-anchor="middle">목표 상위 ${tgt.top}%</text>`;
+  const svg=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="백분위 사다리" class="cmp-ladder">${rects}${curMark}${tgMark}</svg>`;
+  // 좌표 문장
+  const posLine=`<div class="cmp-pos"><span class="cmp-pos__big">상위 ${top.toFixed(0)}%</span><span class="cmp-pos__band">${bandOf(pct)}</span><span class="cmp-pos__n">${est?'추정':(n?('전체 '+n+'명 기준'):'')}${est?' 분포':''}</span></div>`;
+  // 목표 정렬
+  const editBtn=(!this.shared&&!this.demo)?`<button class="btn btn--g no-print cmp-edit" onclick="App.editCompeteGoal()">${saved?'목표 변경':'목표 선택'}</button>`:'';
+  const goalMsg=reached
+   ?`목표 <b>${tgt.name}</b>(${tgt.aim}) 구간에 이미 도달했습니다. 유지하며 다음 단계를 노려보세요.`
+   :`목표 <b>${tgt.name}</b>(${tgt.aim})까지 백분위 <b>${gap}포인트</b> 남았습니다.`;
+  // 남은 영역(지렛대): 약점 상위 3 + 해설 링크
+  const hb=(HAESEOL?((r.exam&&r.exam.haeseol)||("해설-"+(r.exam?r.exam.id:"")+".html")):"");
+  const weak=r.areaList.filter(a=>a.nQ>=2&&a.diff100<0).slice().sort((a,b)=>a.diff100-b.diff100).slice(0,3);
+  const linksOf=name=>{ if(!hb)return ''; const qs=r.exam.questions.filter(q=>q.area===name).map(q=>q.n).sort((a,b)=>a-b).slice(0,6); if(!qs.length)return '';
+   return `<div class="rxq-row"><span class="rxq-lab">해설 바로가기</span>${qs.map(x=>`<a href="${hb}#q${x}" target="_blank" rel="noopener" class="rxq">${x}번 해설</a>`).join('')}</div>`; };
+  const leverBlock=(!reached&&weak.length)?`<div class="cmp-levers"><div class="cmp-levers__h">목표까지 올릴 영역</div><div class="sec__d" style="margin:2px 0 10px">이 영역들이 평균 대비 아래에 있습니다. 여기를 끌어올리면 백분위가 가장 빠르게 오릅니다.</div>${weak.map(w=>`<div class="cmp-lv"><div class="cmp-lv__t"><strong>${esc(w.name)}</strong> <span class="cmp-lv__d">정답률 ${w.myAcc.toFixed(0)}% · 평균 대비 ${w.diff100.toFixed(0)}점</span></div>${linksOf(w.name)}</div>`).join('')}</div>`:'';
+  const disc=`<div class="cmp-disc">학원 코호트 백분위 기준의 목표 좌표입니다. 지향권 명칭은 대략적 안내이며 실제 입시·수상 결과를 보장하지 않습니다.${est?' 현재는 문항 난이도로 추정한 분포이며, 응시가 쌓이면 실측으로 바뀝니다.':''}</div>`;
+  const goalBlock=`<div class="cmp-goal ${reached?'cmp-goal--done':''}"><div class="cmp-goal__msg">${goalMsg}</div></div>`;
+  return posLine+svg+goalBlock+editBtn+leverBlock+disc;
+ },
+ /* ===== 개념 깊이 프로파일: 기본 vs 심화 정답 대비로 이해의 깊이 판정 (플랜 9단계) ===== */
+ depthInner(r){
+  if(this.demo)return '';
+  const BASIC=60; // 정답률(난이도 대용) 임계: p>=60 평이/중하 = 기본, p<60 = 심화
+  const OKR=60;   // 정답 비율 임계
+  const hb=(HAESEOL?((r.exam&&r.exam.haeseol)||("해설-"+(r.exam?r.exam.id:"")+".html")):"");
+  // 영역별 문항을 기본/심화로 분리
+  const byArea={};
+  r.graded.forEach(g=>{ if(!byArea[g.area])byArea[g.area]={name:g.area,basic:[],adv:[]}; (g.p>=BASIC?byArea[g.area].basic:byArea[g.area].adv).push(g); });
+  const rows=[];
+  Object.values(byArea).forEach(a=>{
+   // 깊이 판정에는 기본·심화가 모두 있어야 의미가 있음(양쪽 각 1문항 이상)
+   if(a.basic.length<1||a.adv.length<1)return;
+   const bAcc=a.basic.filter(g=>g.correct).length/a.basic.length*100;
+   const vAcc=a.adv.filter(g=>g.correct).length/a.adv.length*100;
+   let depth; // deep / surface / shallow
+   if(bAcc<OKR) depth='shallow';
+   else if(vAcc>=OKR) depth='deep';
+   else depth='surface';
+   const advWrong=a.adv.filter(g=>!g.correct).map(g=>g.n).sort((x,y)=>x-y);
+   rows.push({name:a.name, bAcc, vAcc, nB:a.basic.length, nV:a.adv.length, depth, advWrong});
+  });
+  if(!rows.length)return '';
+  // 심화 정답률 낮은 순(표면·기초) 우선 정렬
+  const ORD={surface:0,shallow:1,deep:2};
+  rows.sort((x,y)=> (ORD[x.depth]-ORD[y.depth]) || (x.vAcc-y.vAcc));
+  const nDeep=rows.filter(x=>x.depth==='deep').length;
+  const nSurf=rows.filter(x=>x.depth==='surface').length;
+  const nShal=rows.filter(x=>x.depth==='shallow').length;
+  const LAB={deep:'깊은 이해',surface:'표면 이해',shallow:'기초 미흡'};
+  const DSC={deep:'기본과 심화를 모두 해결',surface:'기본은 되지만 심화에서 무너짐',shallow:'기본부터 다지기 필요'};
+  const summary=`<div class="dp-summary">`
+   +`<span class="dp-stat dp-stat--deep">깊은 이해 ${nDeep}</span>`
+   +`<span class="dp-stat dp-stat--surface">표면 이해 ${nSurf}</span>`
+   +`<span class="dp-stat dp-stat--shallow">기초 미흡 ${nShal}</span>`
+   +`<span class="dp-track">영역 ${rows.length}개 · 기본/심화 대비</span></div>`;
+  // 영역별 깊이 막대(기본·심화 정답률 2개 바)
+  const bar=(lab,val)=>`<div class="dp-bar"><span class="dp-bar__lab">${lab}</span><div class="dp-bar__track"><div class="dp-bar__fill dp-bar__fill--${lab==='기본'?'b':'v'}" style="width:${Math.max(3,val).toFixed(0)}%"></div></div><span class="dp-bar__val">${val.toFixed(0)}%</span></div>`;
+  const card=x=>`<div class="dp-card dp-card--${x.depth}">`
+   +`<div class="dp-card__h"><span class="dp-card__name">${aIco(x.name)}${esc(x.name)}</span><span class="dp-badge dp-badge--${x.depth}">${LAB[x.depth]}</span></div>`
+   +`<div class="dp-bars">${bar('기본',x.bAcc)}${bar('심화',x.vAcc)}</div>`
+   +`<div class="dp-card__d">${DSC[x.depth]}${(x.depth==='surface'&&x.advWrong.length&&hb)?` · 심화 미해결 ${x.advWrong.length}문항`:''}</div>`
+   +((x.depth==='surface'&&x.advWrong.length&&hb)?`<div class="rxq-row"><span class="rxq-lab">심화 해설</span>${x.advWrong.slice(0,6).map(n=>`<a href="${hb}#q${n}" target="_blank" rel="noopener" class="rxq">${n}번 해설</a>`).join('')}</div>`:'')
+   +`</div>`;
+  const cards=`<div class="dp-cards">${rows.map(card).join('')}</div>`;
+  // 표면 이해 요지 (있을 때만): 사고 깊이 코칭 한 줄
+  const surfaceNames=rows.filter(x=>x.depth==='surface').map(x=>esc(x.name));
+  const lead=surfaceNames.length
+   ?`<div class="dp-lead"><b>${surfaceNames.slice(0,3).join(', ')}</b>${surfaceNames.length>3?' 등':''}은 기본 문항은 맞히지만 <b>심화에서 무너집니다</b>. 답을 아는 것과 <b>구조로 이해하는 것</b>은 다릅니다. 해당 심화 문항의 풀이를 <b>왜 그렇게 되는지</b>까지 따라가면 천장을 넘습니다.`
+   :(nShal?`<div class="dp-lead">기본이 흔들리는 영역부터 다지면 심화로 확장할 토대가 마련됩니다.`
+   :`<div class="dp-lead">기본과 심화가 고르게 탄탄합니다. 연쇄 추론이 필요한 통찰·심화 커리큘럼으로 깊이를 더할 때입니다.`);
+  const note=`<div class="gw-note">각 영역의 문항을 정답률(난이도) 기준으로 <b>기본</b>과 <b>심화</b>로 나눠, 두 층의 정답 정도를 비교했습니다. 기본만 되고 심화가 안 되면 <b>표면 이해</b>, 둘 다 되면 <b>깊은 이해</b>, 기본부터 약하면 <b>기초 미흡</b>입니다. 객관식 정답률의 천장 위, 이해의 깊이를 보는 지표입니다.</div>`;
+  return summary+lead+'</div>'+cards+note;
+ },
+ /* ===== 폐쇄 루프 증거: 약점 -> 해결 종단 추적으로 성장을 증명 (플랜 10단계) ===== */
+ proofInner(r){
+  if(this.demo)return '';
+  const nm0=(this.idData&&this.idData.name)?this.idData.name:''; if(!nm0)return '';
+  const who=esc(nm0);
+  const nm=this.normName(nm0);
+  const ansStr=r.exam.questions.map(q=>this.answers[q.n]||0).join('');
+  const prior=this.growthPriors(nm, nm+'|'+(this.idData.date||'')+'|'+ansStr);
+  if(!prior.length){
+   return (!this.shared&&this.idData.examno)?`<div class="gw-base"><b>장기 추적을 시작합니다.</b> 진단 -> 처방 -> 재학습 -> 재진단의 <b>폐쇄 루프</b>가 실제로 작동했는지는 두 번째 응시부터 증거로 쌓입니다. 약점으로 짚었던 영역이 뒤에 해결되는 과정이 이 자리에 기록됩니다.</div>`:'';
+  }
+  const WEAK=60, MAST=80, curDate=this.idData.date||'';
+  // 전체 응시(과거+현재)에서 영역별 처음/최근 정답률
+  const seq=[];
+  prior.forEach(p=>seq.push({date:p.date, byArea:p.byArea}));
+  const curBy={}; r.areaList.forEach(a=>{ if(a.nQ>=2) curBy[a.name]={c:Math.round(a.myAcc/100*a.nQ), n:a.nQ}; });
+  seq.push({date:curDate, byArea:curBy, cur:true});
+  // 영역별: 처음 등장(n>=2)과 최근 등장 비교
+  const areaMap={};
+  seq.forEach(s=>{ for(const nmA in s.byArea){ const bv=s.byArea[nmA]; if(!bv||bv.n<2)continue;
+   if(!areaMap[nmA])areaMap[nmA]={name:nmA, first:null, last:null};
+   const acc=bv.c/bv.n*100;
+   if(areaMap[nmA].first===null)areaMap[nmA].first={acc,date:s.date};
+   areaMap[nmA].last={acc,date:s.date}; } });
+  const areas=Object.values(areaMap).filter(a=>a.first&&a.last);
+  // 처음/최근이 서로 다른 시점(등장 2회 이상)인 영역만 종단 의미
+  const tracked=areas.filter(a=>a.first!==a.last && (a.first.date!==a.last.date || true));
+  // 상태 분류
+  const CL=a=>{ const d=a.last.acc-a.first.acc;
+   if(a.first.acc<WEAK && a.last.acc>=MAST) return 'resolved';   // 약점 -> 정착: 루프 닫힘
+   if(a.first.acc<WEAK && a.last.acc>=WEAK) return 'improving';  // 약점 -> 완화(진행)
+   if(a.first.acc>=MAST && a.last.acc>=MAST) return 'held';      // 강점 유지
+   if(d<=-15) return 'down';                                     // 하락
+   if(a.last.acc<WEAK) return 'open';                            // 여전히 약점: 루프 열림
+   return 'improving'; };
+  const tag=tracked.map(a=>({...a, st:CL(a), delta:a.last.acc-a.first.acc}));
+  const resolved=tag.filter(x=>x.st==='resolved').sort((a,b)=>b.delta-a.delta);
+  const improving=tag.filter(x=>x.st==='improving').sort((a,b)=>b.delta-a.delta);
+  const open=tag.filter(x=>x.st==='open');
+  const held=tag.filter(x=>x.st==='held');
+  // 종단 지표
+  const nAtt=prior.length+1;
+  const dates=seq.map(s=>s.date).filter(Boolean).sort();
+  const span=(dates.length>=2)?this._spanText(dates[0],dates[dates.length-1]):'';
+  const base=prior[0], scoreDelta=r.my100-base.p100;
+  // 증거 헤드라인
+  const bits=[];
+  bits.push(`${nAtt}회 진단`);
+  if(span)bits.push(span);
+  if(resolved.length)bits.push(`해결된 약점 ${resolved.length}개`);
+  const headline=`<div class="pf-head"><div class="pf-head__t">지금까지의 성장, 증거로</div><div class="pf-head__s">${who} 학생 · ${bits.join(' · ')}</div>`
+   +`<div class="pf-metrics">`
+   +`<div class="pf-metric"><div class="pf-metric__v">${nAtt}</div><div class="pf-metric__l">진단 횟수</div></div>`
+   +`<div class="pf-metric"><div class="pf-metric__v">${scoreDelta>=0?'+':''}${scoreDelta.toFixed(0)}</div><div class="pf-metric__l">기준선 대비(점)</div></div>`
+   +`<div class="pf-metric"><div class="pf-metric__v">${resolved.length}</div><div class="pf-metric__l">해결된 약점</div></div>`
+   +`<div class="pf-metric"><div class="pf-metric__v">${held.length+resolved.length}</div><div class="pf-metric__l">정착·해결 영역</div></div>`
+   +`</div></div>`;
+  // 닫힌 루프 (해결된 약점) = 핵심 증거
+  const loopRow=(x,cls,lab)=>`<div class="pf-row pf-row--${cls}"><div class="pf-row__name">${aIco(x.name)}${esc(x.name)}</div>`
+   +`<div class="pf-row__flow"><span class="pf-from">${x.first.acc.toFixed(0)}%</span><span class="pf-arrow">-></span><span class="pf-to">${x.last.acc.toFixed(0)}%</span></div>`
+   +`<div class="pf-row__tag pf-row__tag--${cls}">${lab}</div></div>`;
+  let blocks='';
+  if(resolved.length){ blocks+=`<div class="pf-block"><div class="pf-block__h pf-block__h--resolved">닫힌 루프 · 해결된 약점</div><div class="sec__d" style="margin:2px 0 8px">약점으로 짚였던 영역이 재학습을 거쳐 정착으로 올라섰습니다. 진단 -> 처방 -> 성장의 루프가 실제로 닫힌 증거입니다.</div>${resolved.map(x=>loopRow(x,'resolved','해결')).join('')}</div>`; }
+  if(improving.length){ blocks+=`<div class="pf-block"><div class="pf-block__h pf-block__h--improving">진행 중 · 개선되는 약점</div>${improving.slice(0,5).map(x=>loopRow(x,'improving','개선')).join('')}</div>`; }
+  if(open.length){ blocks+=`<div class="pf-block"><div class="pf-block__h pf-block__h--open">아직 열린 루프</div><div class="sec__d" style="margin:2px 0 8px">아래는 아직 해결되지 않았습니다. 다음 사이클의 우선 처방 대상입니다.</div>${open.slice(0,5).map(x=>loopRow(x,'open','진행 필요')).join('')}</div>`; }
+  if(!resolved.length&&!improving.length&&!open.length&&held.length){ blocks+=`<div class="pf-block"><div class="pf-block__h pf-block__h--resolved">강점 유지</div><div class="sec__d" style="margin:2px 0 8px">약점 전환 이력 없이 강점이 유지되고 있습니다.</div>${held.slice(0,6).map(x=>loopRow(x,'held','유지')).join('')}</div>`; }
+  if(!blocks){ return `<div class="gw-base">이번 시험과 <b>같은 영역</b>의 이전 기록이 아직 없어, 폐쇄 루프 증거는 같은 시험·동형 시험을 다시 볼 때부터 쌓입니다.</div>`; }
+  const note=`<div class="gw-note">각 영역이 <b>처음 등장했을 때</b>와 <b>가장 최근</b>의 정답률을 비교했습니다. 약점(60% 미만)이었다가 정착(80% 이상)으로 올라선 영역은 <b>루프가 닫힌</b> 것 - 진단이 처방으로, 처방이 성장으로 이어졌다는 증거입니다. 같은 시험·동형 시험 재응시가 쌓일수록 증거가 촘촘해집니다.</div>`;
+  return headline+blocks+note;
+ },
+ _spanText(d0,d1){
+  try{ const a=new Date(d0), b=new Date(d1); if(isNaN(a)||isNaN(b))return '';
+   const days=Math.round((b-a)/86400000); if(days<=0)return '';
+   if(days<14)return days+'일간'; if(days<70)return Math.round(days/7)+'주간'; return Math.round(days/30)+'개월간';
+  }catch(e){ return ''; }
  },
  addSub(id,rec){ const arr=this.subs(id); arr.push(rec); this.saveSubs(id,arr); return arr; },
  assignExamNo(id,name){
