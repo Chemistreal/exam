@@ -424,7 +424,7 @@ function conceptClinicSec(exam, sel, wrong, cs){
        ${lec?`<details style="margin-top:8px"><summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--teal)">${esc(bd)} 개념 강의 보기</summary><div style="font-size:13px;line-height:1.78;margin-top:7px;color:var(--ink-2)">${lec.s}</div>${lec.u?`<a href="${lec.u}" target="_blank" rel="noopener" style="display:inline-block;margin-top:10px;font-size:13px;color:var(--cobalt);font-weight:700">▶ 개념 강의 보기 ↗</a>`:''}</details>`:''}
        ${r&&r.rx?`<div style="font-size:12px;color:var(--teal-d);margin-top:6px"><b>처방</b> ${esc(r.rx)}</div>`:''}
      </div>`; }).join('');
-  return `<div class="sec">${secH('오답 개념 클리닉')}<div class="sub">틀린 문항을 개념 영역으로 묶어, 문항별 오개념 → 개념 강의 → 처방으로 한 번에 복습합니다.${anyCommon?' 또래도 많이 틀린 문항(빨강)이 개념 보강 1순위입니다.':''}</div>
+  return `<div class="sec" id="clinic">${secH('오답 개념 클리닉')}<div class="sub">틀린 문항을 개념 영역으로 묶어, 문항별 오개념 → 개념 강의 → 처방으로 한 번에 복습합니다.${anyCommon?' 또래도 많이 틀린 문항(빨강)이 개념 보강 1순위입니다.':''}</div>
    ${body}
    <div class="note" style="font-size:12px;color:var(--muted)">개념 강의로 원리를 다시 잡고, 같은 개념의 변형 문항을 풀어 결손이 메워졌는지 확인하세요.</div>
   </div>`;
@@ -1081,6 +1081,22 @@ function saveToSheetFinal(cur,sel,correct,total,W,cs,nm,exno,pct){
     fToast('구글 시트로 전송했습니다 · '+(nm||exno));
   }catch(e){ fToast('시트 전송 호출 실패 · 로컬 기록은 안전합니다'); }
 }
+function nextGuideCta(nm, exam, wrong){
+  try{
+    if(!wrong||!wrong.length) return '';
+    var tags={}, n=0;
+    wrong.forEach(function(w){ var t=(exam.type&&exam.type[w.q-1])||(exam.area&&exam.area[w.q-1])||''; if(t&&!tags[t]){tags[t]=1;n++;} });
+    if(!n) return '';
+    var who=nm?(esc(nm)+' 학생이'):'이 학생이';
+    return '<div class="sec" style="background:linear-gradient(135deg,rgba(176,135,58,.07),rgba(58,122,107,.05));border:1px solid #B0873A;border-radius:14px;padding:22px 24px;margin-top:14px">'
+      +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:11px;font-weight:700;letter-spacing:.04em;color:#7a5d20;background:rgba(176,135,58,.12);padding:3px 9px;border-radius:6px">다음 학습 가이드</span></div>'
+      +'<div class="serif" style="font-size:19px;font-weight:700;margin-bottom:6px">'+who+' 보완하면 좋을 개념을 강의로 정리했습니다</div>'
+      +'<div style="font-size:13.5px;color:var(--ink-2,#5a554c);line-height:1.6;margin-bottom:16px">이번 시험에서 틀린 <b>'+n+'개 유형</b>에 해당하는 개념을 아래 <b>오답 개념 클리닉</b>에 문항별 오개념 → 개념 강의 → 처방 순서로 모아 두었습니다. 다음 수업 전에 한 번 읽어 두면, 같은 유형에서 한결 단단해집니다.</div>'
+      +'<div style="font-size:12px;color:var(--muted,#857f74);margin-bottom:12px">자녀가 직접 보도록 이 화면을 함께 전달해 주셔도 좋습니다.</div>'
+      +'<a href="#clinic" style="display:inline-block;background:#0E5A4C;color:#fff;font-weight:700;font-size:14px;border-radius:10px;padding:11px 18px;text-decoration:none">오답 개념 클리닉 바로가기 →</a>'
+      +'</div>';
+  }catch(e){ return ''; }
+}
 function scoreAuto(){
   const key=cur.key, miss=new Set(cur.miss||[]); let correct=0,total=0; const wrong=[];
   for(let q=1;q<=cur.nQ;q++){ if(miss.has(q))continue; total++; const a=sel[q]||0,k=key[q-1]; if(okq(cur,q,a))correct++; else wrong.push({q,a,k}); }
@@ -1096,6 +1112,7 @@ function scoreAuto(){
    ${nm?`<div class="muted">${esc(nm)}${exno?' · '+esc(exno):''}</div>`:''}
    ${awardCard(W,cur.cut)}
    <div class="kpis"><div class="kpi"><b>${correct}/${total}</b><span>맞은 개수</span></div><div class="kpi"><b>${pct}</b><span>정답률 %</span></div><div class="kpi"><b>${W}</b><span>틀린 문항</span></div></div>
+   ${nextGuideCta(nm,cur,wrong)}
    ${narrativeSec(cur,sel)}
    ${learnerTypeSec(cur,sel,cs,correct,total)}
    ${legendHTML(W,cur.cut)}
