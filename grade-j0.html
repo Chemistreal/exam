@@ -89,6 +89,23 @@ input.txt:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px var(-
 .lnk{font-family:var(--sans);font-weight:600;font-size:13.5px;color:var(--teal-d);text-decoration:none;border:1px solid var(--line-3);border-radius:10px;padding:9px 15px;background:var(--surface)}
 .note{font-size:12px;color:var(--ink-4);text-align:center;margin-top:16px}
 @media(max-width:480px){.arow .an{width:92px}}
+.muted{color:var(--ink-4)}
+.lecrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line-2)}
+.lecrow:last-child{border-bottom:none}
+.lecn{font-size:13.5px;color:var(--ink-2)}
+.pdfhint{font-size:12.5px;color:var(--ink-3);text-align:center;margin:18px 0 6px}
+.pdfhint b{color:var(--teal-d)}
+@media print{
+  :root{--paper:#fff;--paper-soft:#fff;--surface:#fff;--surface-2:#fff}
+  body{background:#fff}
+  .wrap{max-width:100%;padding:0 4px 4px}
+  .printhide,.bar{display:none !important}
+  .card{box-shadow:none;border:1px solid #ddd;break-inside:avoid;margin:8px 0}
+  .qr{break-inside:avoid;border-color:#ddd}
+  .qr__d{display:block !important}
+  .qr__h{cursor:default}
+  a{color:#0A5C53 !important;text-decoration:none}
+}
 </style>
 </head>
 <body>
@@ -221,6 +238,13 @@ function grade(){
 }
 function reset(){ if(!window.confirm('답안을 지우고 다시 풀까요?')) return; S.ans={}; try{localStorage.removeItem('j0_ans');}catch(_){} S.view='entry'; render(); window.scrollTo(0,0); }
 
+// 실제 응시자(조준모의고사 0회) 점수 분포 → 석차·백분위 (엑셀 반영, 익명)
+var COHORT={ n:40, avg:83.2, natAvg:57.4, totals:[12,21,32,37,40,44,54,54,54,59,59,60,60,63,69,69,71,75,78,82,86,87,87,93,93,96,99,100,102,105,108,111,112,117,126,129,129,141,144,171] };
+function cohortStat(score){ var t=COHORT.totals,n=t.length,below=0,above=0,i; for(i=0;i<n;i++){ if(t[i]<score)below++; if(t[i]>score)above++; } return { n:n, avg:COHORT.avg, natAvg:COHORT.natAvg, pct:Math.round(below/n*100), rank:above+1 }; }
+// 영역 → 강의 목차 앵커(추가학습자료). index.html AREA2LEC 체계와 동일.
+var J0LEC={'원자·기본입자':'01','원자량·동위원소':'01','몰·아보가드로수':'05','양적관계·실험식':'05','주기율·전자배치':'02','화학결합·구조':'03','분자극성':'03','기체':'06','열화학':'09','용액·농도':'07','반응속도·평형':'10','산화환원':'13','기타':'04'};
+function lecLink(area){ var c=J0LEC[area]||''; return c?'lecture-index.html#area-'+c:'lecture-index.html'; }
+function printDoc(){ window.print(); }
 function reportHTML(){
   var correct=0, byArea={}, wrongConcepts=[], rows='';
   var order=[];
@@ -252,6 +276,13 @@ function reportHTML(){
     +'<div class="grid3"><div class="tile"><div class="k">'+correct+'</div><div class="l">맞은 문항</div></div>'
     +'<div class="tile"><div class="k">'+(Q.length-correct)+'</div><div class="l">틀린 문항</div></div>'
     +'<div class="tile"><div class="k">'+pct+'<small style="font-size:13px">%</small></div><div class="l">득점률</div></div></div></div>';
+  // 전체 비교 (엑셀 응시자 분포 기준)
+  var CS=cohortStat(score);
+  h+='<div class="card"><div class="sec__h"><span class="sec__no">◆</span><span class="sec__t">전체 비교</span></div>'
+    +'<div class="grid3"><div class="tile"><div class="k">'+CS.rank+'<small style="font-size:13px">위</small></div><div class="l">응시 '+CS.n+'명 중 석차</div></div>'
+    +'<div class="tile"><div class="k">'+CS.pct+'</div><div class="l">백분위(상위 %)</div></div>'
+    +'<div class="tile"><div class="k">'+CS.avg+'</div><div class="l">전체 평균점</div></div></div>'
+    +'<div class="note" style="text-align:left;margin-top:8px">조준모의고사 0회 응시자 '+CS.n+'명 기준 · 전국 모의고사 참고 평균 '+CS.natAvg+'점</div></div>';
   // 영역별
   h+='<div class="card"><div class="sec__h"><span class="sec__no">01</span><span class="sec__t">영역별 정오</span></div>';
   order.sort(function(a,b){return (byArea[a].c/byArea[a].t)-(byArea[b].c/byArea[b].t);});
@@ -264,15 +295,28 @@ function reportHTML(){
     +'<div class="note" style="text-align:left;margin-top:10px">아래 문항별 해설에서 위 개념들을 다시 확인하세요. 자세한 풀이는 <a class="lnk" style="padding:2px 8px;display:inline" href="sol-j0.html" target="_blank">공식 해설</a>에 있습니다.</div>'; }
   else { h+='<div class="chips"><span class="chip ok">약점 없음 · 전 영역 통과</span></div>'; }
   h+='</div>';
+  // 추가 학습 자료 (취약 영역 → 강의 목차)
+  var weak=order.filter(function(a){return byArea[a].c<byArea[a].t;});
+  h+='<div class="card"><div class="sec__h"><span class="sec__no">03</span><span class="sec__t">추가 학습 자료</span></div>';
+  if(weak.length){
+    h+='<div class="note" style="text-align:left;margin:-4px 0 10px">틀린 문항이 있는 영역입니다. 각 강의 목차에서 관련 개념을 복습하세요.</div>';
+    weak.forEach(function(a){ var o=byArea[a];
+      h+='<div class="lecrow"><span class="lecn">'+esc(a)+' <span class="muted">'+o.c+'/'+o.t+'</span></span>'
+        +'<a class="lnk" href="'+lecLink(a)+'" target="_blank" rel="noopener">개념 강의 목차 →</a></div>'; });
+    h+='<div class="note" style="text-align:left;margin-top:10px">문항별 풀이·오개념은 아래 해설, 전체 상세해설은 <a class="lnk" style="padding:2px 8px;display:inline" href="sol-j0.html" target="_blank">공식 해설</a>·<a class="lnk" style="padding:2px 8px;display:inline" href="haeseol-j0.pdf" target="_blank">해설 PDF</a>에 있습니다.</div>';
+  } else { h+='<div class="chips"><span class="chip ok">복습할 취약 영역 없음</span></div>'; }
+  h+='</div>';
   // 문항별
-  h+='<div class="card"><div class="sec__h"><span class="sec__no">03</span><span class="sec__t">문항별 채점 · 해설</span></div>'
+  h+='<div class="card"><div class="sec__h"><span class="sec__no">04</span><span class="sec__t">문항별 채점 · 해설</span></div>'
     +'<div class="note" style="text-align:left;margin:-4px 0 10px">각 문항을 누르면 해설이 열립니다.</div>'+rows+'</div>';
-  h+='<div class="foot"><button class="btn" onclick="copyMsg(this)">학부모 성적 문자 복사</button>'
+  h+='<div class="pdfhint printhide">아래 <b>PDF 저장</b>을 누르면 성적표·영역분석·추가학습자료·문항별 해설이 한 파일로 저장됩니다. (인쇄 창에서 «PDF로 저장»을 선택)</div>'
+    +'<div class="foot printhide"><button class="btn" onclick="printDoc()">📄 성적표+학습자료 PDF 저장</button>'
+    +'<button class="btn" onclick="copyMsg(this)">학부모 성적 문자 복사</button>'
     +'<button class="lnk" onclick="copyShare(this)">결과 링크만 복사</button>'
     +'<button class="btn ghost" onclick="reset()">다시 풀기</button>'
     +'<a class="lnk" href="sol-j0.html" target="_blank">공식 해설 전체 →</a>'
     +'<a class="lnk" href="haeseol-j0.pdf" target="_blank">해설 PDF 내려받기 →</a></div>'
-    +'<div class="note">채점 결과(이름·점수·답안)는 선생님 성적 시트로 자동 저장됩니다.</div>';
+    +'<div class="note printhide">채점 결과(이름·점수·답안)는 선생님 성적 시트로 자동 저장됩니다.</div>';
   return h;
 }
 function tog(n){ var el=document.getElementById('r'+n); if(el) el.classList.toggle('open'); }
