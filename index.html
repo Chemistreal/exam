@@ -2001,6 +2001,9 @@ const EXAMS=[
   questions:Q_J0.map(r=>({n:r[0],ans:r[1],p:r[2],area:r[3],type:r[4],page:0,misc:(MISC_J0[r[0]]||omFor(r[4]))}))},
 ];
 
+/* 시험별 기준 코호트 총점 분포(실응시자, 익명). 불러온 학생이 적어도 이 분포를 함께 써서 석차·백분위를 낸다. */
+const BASE_TOTALS={ 'j0':[12,21,32,37,40,44,54,54,54,59,59,60,60,63,69,69,71,75,78,82,86,87,87,93,93,96,99,100,102,105,108,111,112,117,126,129,129,141,144,171] };
+function baseTotalsFor(id){ return BASE_TOTALS[id]||[]; }
 function band(p){return p<20?"A":p<40?"B":p<60?"C":p<80?"D":"E";}
 const BAND_LABEL={A:"최고난도",B:"고난도",C:"중상",D:"중하",E:"평이"};
 function erf(x){const s=x<0?-1:1;x=Math.abs(x);const t=1/(1+0.3275911*x);const y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);return s*y;}
@@ -2020,7 +2023,9 @@ function analyze(exam,answers,cohort){
   if(!areas[g.area])areas[g.area]={name:g.area,group:GRP[g.area]||"기타",nQ:0,maxPts:0,correct:0,pts:0,sumP:0};
   const A=areas[g.area];A.nQ++;A.maxPts+=PT;A.sumP+=g.p;if(g.correct){A.correct++;A.pts+=PT;}
  }
- const totalArr=cohort?cohort.map(s=>s.total):null;
+ const _base=baseTotalsFor(exam&&exam.id);
+ const _coh=cohort?cohort.map(s=>s.total):[];
+ const totalArr=(_coh.length+_base.length)?_coh.concat(_base):null;   // 불러온 학생 + 기준 코호트(엑셀 응시자)
  const totalStat=totalArr?rankPct(total,totalArr):null;
  const cohortTotalMean=totalArr?totalArr.reduce((s,v)=>s+v,0)/totalArr.length:null;
  let theta=0, rel=null;
@@ -2074,7 +2079,7 @@ function analyze(exam,answers,cohort){
 /* ====================== 차트 (SVG, 단색+악센트) ====================== */
 function distSVG(r){
  // 코호트 총점 히스토그램 + 본인 위치
- const arr=App.cohort.map(s=>s.total),min=Math.min(...arr),max=Math.max(...arr);
+ const arr=App.cohort.map(s=>s.total).concat(baseTotalsFor(App.exam&&App.exam.id)),min=Math.min(...arr),max=Math.max(...arr);
  const W=420,H=170,pad={l:8,r:8,t:14,b:26};
  const bins=24,lo=Math.floor(min/PT)*PT,hi=Math.ceil(max/PT)*PT,bw=(hi-lo)/bins;
  const counts=new Array(bins).fill(0);
@@ -2193,7 +2198,7 @@ function buildRx(r){
 
 /* ====================== 보조 비주얼 ====================== */
 function heroSpark(r){
- const arr=App.cohort.map(s=>s.total); if(!arr.length)return '';
+ const arr=App.cohort.map(s=>s.total).concat(baseTotalsFor(App.exam&&App.exam.id)); if(!arr.length)return '';
  const W=156,H=46,bins=22,min=Math.min(...arr),max=Math.max(...arr);
  const lo=Math.floor(min/PT)*PT,hi=Math.ceil(max/PT)*PT,bw=(hi-lo)/bins||1;
  const counts=new Array(bins).fill(0); arr.forEach(v=>{let b=Math.floor((v-lo)/bw);if(b>=bins)b=bins-1;if(b<0)b=0;counts[b]++;});
@@ -2282,7 +2287,8 @@ function persuadeStats(r){
   const recN=r.quad.miss.length, recPts=recN*PT, projTotal=Math.min(r.maxTotal, r.total+recPts);
   let projPct=pct;
   if(recPts>0){
-    if(App.cohort&&App.cohort.length){const t=App.cohort.map(s=>s.total),b=t.filter(v=>v<projTotal).length,e=t.filter(v=>v===projTotal).length;projPct=t.length?((b+0.5*e)/t.length*100):pct;}
+    const _t=App.cohort.map(s=>s.total).concat(baseTotalsFor(App.exam&&App.exam.id));
+    if(_t.length){const b=_t.filter(v=>v<projTotal).length,e=_t.filter(v=>v===projTotal).length;projPct=((b+0.5*e)/_t.length*100);}
     else if(r.estMu!=null&&r.estSd>0){projPct=Phi((projTotal-r.estMu)/r.estSd)*100;}
   }
   const as=[...r.areaList].filter(a=>a.nQ>=2).sort((a,b)=>b.diff100-a.diff100);
