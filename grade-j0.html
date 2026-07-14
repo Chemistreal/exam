@@ -138,11 +138,12 @@ function copyShare(btn){
 }
 // 학부모 성적 문자 (모의고사용: 시험명·원점수·백점환산·정답수 + 링크)
 function msgText(){
-  var R=computeResult();
+  var R=computeResult(), CS=cohortStat(R.score);
   return '[다원교육 영재관 · 화학 조준모]\n'
     + (S.name||'') + ' 학생 ' + EXAM_TITLE + ' 성적표입니다.\n'
     + '· 원점수 ' + R.score + '/' + TOTAL + '점 · 백점환산 ' + R.pct + '점\n'
     + '· 정답 ' + R.correct + '/' + Q.length + '문항\n'
+    + '· 백분위 ' + CS.pct + ' · 석차 ' + CS.rank + '/' + CS.n + '\n'
     + '아래 링크에서 영역별 정오와 취약 개념을 확인하세요.\n'
     + shareLink();
 }
@@ -166,8 +167,9 @@ function saveSheet(){
   var t=new Date(), ymd=t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2);
   var areas=R.order.map(function(a){return a+' '+(R.byArea[a].c*PER)+'/'+(R.byArea[a].t*PER);}).join(', ');
   var answers=Q.map(function(q){return S.ans[q.n]||0;}).join('');
+  var CS=cohortStat(R.score);   // 응시자 분포 기준 백분위·석차
   var payload={ key:'', name:S.name||'', examno:'', school:S.school||'', grade:S.grade||'', date:ymd,
-    exam:EXAM_TITLE, total:R.score, max:TOTAL, pct100:R.pct, percentile:'', rank:'', n:'',
+    exam:EXAM_TITLE, total:R.score, max:TOTAL, pct100:R.pct, percentile:CS.pct, rank:CS.rank, n:CS.n,
     correct:R.correct, areas:areas, link:shareLink(), answers:answers };
   try{ fetch(SHEET_ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}); SAVED=true; }catch(e){}
 }
