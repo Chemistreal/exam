@@ -105,6 +105,20 @@ var EXAM_TITLE = '조준모의고사 0회';   // 시트 '시험' 열 값 (index.
 var SAVED = false;
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function count(){ return Object.keys(S.ans).length; }
+// 공유 링크: 이름·학교·학년·답안(60자)을 URL에 담아, 열면 성적표를 그대로 다시 보여준다(백엔드 불필요).
+function b64e(str){ try{ return btoa(unescape(encodeURIComponent(str))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }catch(e){ return ''; } }
+function b64d(s){ try{ s=String(s).replace(/-/g,'+').replace(/_/g,'/'); return decodeURIComponent(escape(atob(s))); }catch(e){ return ''; } }
+function shareLink(){
+  var a=Q.map(function(q){return S.ans[q.n]||0;}).join('');
+  var pl=b64e(JSON.stringify({n:S.name||'',s:S.school||'',g:S.grade||'',a:a}));
+  return location.href.split('#')[0].split('?')[0]+'?r='+pl;
+}
+function copyShare(btn){
+  var url=shareLink();
+  var done=function(){ var t=btn.textContent; btn.textContent='링크 복사됨 ✓'; setTimeout(function(){btn.textContent=t;},1500); };
+  try{ navigator.clipboard.writeText(url).then(done,function(){ window.prompt('결과 링크', url); }); }
+  catch(e){ window.prompt('결과 링크', url); }
+}
 function computeResult(){
   var correct=0, byArea={}, order=[];
   Q.forEach(function(q){ var my=S.ans[q.n]||0, ok=(my===q.ans); if(ok)correct++;
@@ -121,7 +135,7 @@ function saveSheet(){
   var answers=Q.map(function(q){return S.ans[q.n]||0;}).join('');
   var payload={ key:'', name:S.name||'', examno:'', school:S.school||'', grade:S.grade||'', date:ymd,
     exam:EXAM_TITLE, total:R.score, max:TOTAL, pct100:R.pct, percentile:'', rank:'', n:'',
-    correct:R.correct, areas:areas, link:'', answers:answers };
+    correct:R.correct, areas:areas, link:shareLink(), answers:answers };
   try{ fetch(SHEET_ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}); SAVED=true; }catch(e){}
 }
 function save(){ try{localStorage.setItem('j0_ans',JSON.stringify(S.ans));}catch(_){} }
@@ -237,7 +251,8 @@ function reportHTML(){
   // 문항별
   h+='<div class="card"><div class="sec__h"><span class="sec__no">03</span><span class="sec__t">문항별 채점 · 해설</span></div>'
     +'<div class="note" style="text-align:left;margin:-4px 0 10px">각 문항을 누르면 해설이 열립니다.</div>'+rows+'</div>';
-  h+='<div class="foot"><button class="btn ghost" onclick="reset()">다시 풀기</button>'
+  h+='<div class="foot"><button class="lnk" onclick="copyShare(this)">결과 링크 복사</button>'
+    +'<button class="btn ghost" onclick="reset()">다시 풀기</button>'
     +'<a class="lnk" href="sol-j0.html" target="_blank">공식 해설 전체 →</a>'
     +'<a class="lnk" href="haeseol-j0.pdf" target="_blank">해설 PDF 내려받기 →</a></div>'
     +'<div class="note">채점 결과(이름·점수·답안)는 선생님 성적 시트로 자동 저장됩니다.</div>';
@@ -261,6 +276,17 @@ function render(){
   }
 }
 try{ var sa=localStorage.getItem('j0_ans'); if(sa) S.ans=JSON.parse(sa)||{}; }catch(e){}
+// 공유 링크(?r=)로 열면 저장된 답안으로 성적표를 바로 보여준다(재저장하지 않음)
+(function(){
+  try{
+    var rp=new URLSearchParams(location.search).get('r'); if(!rp) return;
+    var o=JSON.parse(b64d(rp)||'{}'); if(!o) return;
+    S.name=o.n||''; S.school=o.s||''; S.grade=o.g||'';
+    var a=String(o.a||''); S.ans={};
+    for(var i=0;i<Q.length;i++){ var v=Number(a.charAt(i)||0); if(v>=1&&v<=4) S.ans[Q[i].n]=v; }
+    SAVED=true; S.view='report';
+  }catch(e){}
+})();
 render();
 </script>
 </body>
