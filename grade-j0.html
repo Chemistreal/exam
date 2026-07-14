@@ -99,8 +99,31 @@ var PER = 3, TOTAL = Q.length * PER;
 var S = { name:'', school:'', grade:'', ans:{} , view:'entry' };
 try{ S.name = localStorage.getItem('j0_name')||''; S.school=localStorage.getItem('j0_school')||''; S.grade=localStorage.getItem('j0_grade')||''; }catch(e){}
 var CIRC = ['','①','②','③','④','⑤'];
+// index.html 과 같은 구글 시트 저장 엔드포인트 ('성적기록' 탭). doPost 가 이 형식을 받는다.
+var SHEET_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxGmSCkip0cQCyOH_JA2SiAMSxri00XObLmHyXlyXwxhG7u7w-x0FH02VN4DQySiUsv9Q/exec';
+var EXAM_TITLE = '조준모의고사 0회';   // 시트 '시험' 열 값 (index.html EXAMS 의 j0 title 과 동일)
+var SAVED = false;
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function count(){ return Object.keys(S.ans).length; }
+function computeResult(){
+  var correct=0, byArea={}, order=[];
+  Q.forEach(function(q){ var my=S.ans[q.n]||0, ok=(my===q.ans); if(ok)correct++;
+    var a=byArea[q.area]||(byArea[q.area]={c:0,t:0}); a.t++; if(ok)a.c++; if(order.indexOf(q.area)<0)order.push(q.area); });
+  var score=correct*PER;
+  return { correct:correct, score:score, pct:Math.round(score/TOTAL*100), byArea:byArea, order:order };
+}
+// 성적을 선생님 구글 시트로 전송(1회). no-cors라 응답은 못 읽지만 시트에는 기록된다.
+function saveSheet(){
+  if(SAVED || !SHEET_ENDPOINT) return;
+  var R=computeResult();
+  var t=new Date(), ymd=t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2);
+  var areas=R.order.map(function(a){return a+' '+(R.byArea[a].c*PER)+'/'+(R.byArea[a].t*PER);}).join(', ');
+  var answers=Q.map(function(q){return S.ans[q.n]||0;}).join('');
+  var payload={ key:'', name:S.name||'', examno:'', school:S.school||'', grade:S.grade||'', date:ymd,
+    exam:EXAM_TITLE, total:R.score, max:TOTAL, pct100:R.pct, percentile:'', rank:'', n:'',
+    correct:R.correct, areas:areas, link:'', answers:answers };
+  try{ fetch(SHEET_ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}); SAVED=true; }catch(e){}
+}
 function save(){ try{localStorage.setItem('j0_ans',JSON.stringify(S.ans));}catch(_){} }
 function syncOmr(n){ var o=document.getElementById('o'+n); if(o){ o.value=S.ans[n]||''; o.classList.toggle('filled',!!S.ans[n]); } }
 // OMR 칸 입력 → 문제 자동 체크 + 다음 칸으로 이동
@@ -164,7 +187,7 @@ function grade(){
   if(!S.name.trim()){ var e=document.getElementById('err'); if(e){e.textContent='이름을 입력해 주세요.'; document.getElementById('nm').focus();} window.scrollTo(0,0); return; }
   var miss=Q.length-count();
   if(miss>0 && !window.confirm('미입력 '+miss+'문항이 있습니다. 오답으로 처리하고 채점할까요?')) return;
-  S.view='report'; render(); window.scrollTo(0,0);
+  S.view='report'; saveSheet(); render(); window.scrollTo(0,0);
 }
 function reset(){ if(!window.confirm('답안을 지우고 다시 풀까요?')) return; S.ans={}; try{localStorage.removeItem('j0_ans');}catch(_){} S.view='entry'; render(); window.scrollTo(0,0); }
 
@@ -217,7 +240,7 @@ function reportHTML(){
   h+='<div class="foot"><button class="btn ghost" onclick="reset()">다시 풀기</button>'
     +'<a class="lnk" href="sol-j0.html" target="_blank">공식 해설 전체 →</a>'
     +'<a class="lnk" href="haeseol-j0.pdf" target="_blank">해설 PDF 내려받기 →</a></div>'
-    +'<div class="note">이 성적표는 이 기기에서 즉시 계산한 결과입니다. 링크를 공유해도 답안은 전송되지 않습니다.</div>';
+    +'<div class="note">채점 결과(이름·점수·답안)는 선생님 성적 시트로 자동 저장됩니다.</div>';
   return h;
 }
 function tog(n){ var el=document.getElementById('r'+n); if(el) el.classList.toggle('open'); }
