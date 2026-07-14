@@ -119,6 +119,22 @@ function copyShare(btn){
   try{ navigator.clipboard.writeText(url).then(done,function(){ window.prompt('결과 링크', url); }); }
   catch(e){ window.prompt('결과 링크', url); }
 }
+// 학부모 성적 문자 (모의고사용: 시험명·원점수·백점환산·정답수 + 링크)
+function msgText(){
+  var R=computeResult();
+  return '[다원교육 영재관 · 화학 조준모]\n'
+    + (S.name||'') + ' 학생 ' + EXAM_TITLE + ' 성적표입니다.\n'
+    + '· 원점수 ' + R.score + '/' + TOTAL + '점 · 백점환산 ' + R.pct + '점\n'
+    + '· 정답 ' + R.correct + '/' + Q.length + '문항\n'
+    + '아래 링크에서 영역별 정오와 취약 개념을 확인하세요.\n'
+    + shareLink();
+}
+function copyMsg(btn){
+  var m=msgText();
+  var done=function(){ var t=btn.textContent; btn.textContent='문자 복사됨 ✓'; setTimeout(function(){btn.textContent=t;},1600); };
+  try{ navigator.clipboard.writeText(m).then(done,function(){ window.prompt('학부모 성적 문자', m); }); }
+  catch(e){ window.prompt('학부모 성적 문자', m); }
+}
 function computeResult(){
   var correct=0, byArea={}, order=[];
   Q.forEach(function(q){ var my=S.ans[q.n]||0, ok=(my===q.ans); if(ok)correct++;
@@ -251,7 +267,8 @@ function reportHTML(){
   // 문항별
   h+='<div class="card"><div class="sec__h"><span class="sec__no">03</span><span class="sec__t">문항별 채점 · 해설</span></div>'
     +'<div class="note" style="text-align:left;margin:-4px 0 10px">각 문항을 누르면 해설이 열립니다.</div>'+rows+'</div>';
-  h+='<div class="foot"><button class="lnk" onclick="copyShare(this)">결과 링크 복사</button>'
+  h+='<div class="foot"><button class="btn" onclick="copyMsg(this)">학부모 성적 문자 복사</button>'
+    +'<button class="lnk" onclick="copyShare(this)">결과 링크만 복사</button>'
     +'<button class="btn ghost" onclick="reset()">다시 풀기</button>'
     +'<a class="lnk" href="sol-j0.html" target="_blank">공식 해설 전체 →</a>'
     +'<a class="lnk" href="haeseol-j0.pdf" target="_blank">해설 PDF 내려받기 →</a></div>'
