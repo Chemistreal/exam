@@ -23,6 +23,13 @@ label.fld span{display:block;font-family:var(--mono);font-size:10px;letter-spaci
 input.txt{width:100%;font-family:var(--sans);font-size:15px;padding:11px 13px;border:1px solid var(--line-3);border-radius:10px;background:var(--paper-soft);color:var(--ink)}
 input.txt:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-t)}
 .row2{display:flex;gap:10px}.row2 .fld{flex:1}
+.omr-h{font-size:12.5px;color:var(--ink-3);margin-bottom:12px}.omr-h b{color:var(--teal-d)}
+.omr{display:grid;grid-template-columns:repeat(auto-fill,minmax(50px,1fr));gap:8px 7px}
+.omr-cell{display:flex;flex-direction:column;align-items:center;gap:3px}
+.omr-n{font-family:var(--mono);font-size:10px;color:var(--ink-3)}
+.omr-in{width:100%;max-width:46px;text-align:center;font-family:var(--mono);font-size:16px;padding:8px 0;border:1px solid var(--line-3);border-radius:8px;background:var(--paper-soft);color:var(--ink);-moz-appearance:textfield}
+.omr-in:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-t)}
+.omr-in.filled{background:var(--teal-t);border-color:var(--teal);color:var(--teal-d);font-weight:700}
 .qc{padding:14px 15px;border:1px solid var(--line-2);border-radius:12px;background:var(--paper-soft);margin:11px 0}
 .qc__h{display:flex;gap:9px;align-items:baseline;margin-bottom:7px}
 .qc__no{font-family:var(--mono);font-weight:600;color:var(--brass-d);font-size:13px;min-width:26px}
@@ -94,8 +101,19 @@ try{ S.name = localStorage.getItem('j0_name')||''; S.school=localStorage.getItem
 var CIRC = ['','①','②','③','④','⑤'];
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function count(){ return Object.keys(S.ans).length; }
+function save(){ try{localStorage.setItem('j0_ans',JSON.stringify(S.ans));}catch(_){} }
+function syncOmr(n){ var o=document.getElementById('o'+n); if(o){ o.value=S.ans[n]||''; o.classList.toggle('filled',!!S.ans[n]); } }
+// OMR 칸 입력 → 문제 자동 체크 + 다음 칸으로 이동
+function omrIn(n,el){
+  var v=(el.value||'').replace(/[^1-4]/g,'').slice(-1); el.value=v;
+  if(v){ S.ans[n]=Number(v); } else { delete S.ans[n]; }
+  el.classList.toggle('filled',!!v);
+  save(); paintQ(n); renderBar();
+  if(v){ var nx=document.getElementById('o'+(n+1)); if(nx){ nx.focus(); nx.select&&nx.select(); } }
+}
+function omrKey(n,e){ if(e.key==='Backspace' && !e.target.value){ var pv=document.getElementById('o'+(n-1)); if(pv){ pv.focus(); e.preventDefault(); } } }
 
-function pick(n,v){ S.ans[n]=v; localStorage.setItem('j0_ans',JSON.stringify(S.ans)); renderBar(); paintQ(n); }
+function pick(n,v){ S.ans[n]=v; save(); renderBar(); paintQ(n); syncOmr(n); }
 function paintQ(n){
   var box=document.getElementById('q'+n); if(!box) return;
   [].forEach.call(box.querySelectorAll('.opt'),function(b){ b.classList.toggle('sel', Number(b.dataset.v)===S.ans[n]); });
@@ -114,6 +132,14 @@ function entryHTML(){
     +'</div>'
     +'<label class="fld" style="margin-bottom:0"><span>학교 (선택)</span><input class="txt" id="sc" placeholder="학교" value="'+esc(S.school)+'"></label>'
     +'<div class="err" id="err"></div></div>';
+  // OMR 답안지: 번호 칸에 1~4를 입력하면 아래 문제에 자동 체크
+  h+='<div class="card"><div class="omr-h"><b>OMR 답안지</b> — 칸에 정답 번호(1~4)를 입력하면 아래 문제에 자동으로 체크되고, 다음 칸으로 넘어갑니다. 문제를 직접 눌러도 됩니다.</div><div class="omr">';
+  Q.forEach(function(q){ var v=S.ans[q.n]||'';
+    h+='<div class="omr-cell"><span class="omr-n">'+q.n+'</span>'
+      +'<input class="omr-in'+(v?' filled':'')+'" id="o'+q.n+'" inputmode="numeric" pattern="[1-4]" maxlength="1" value="'+v+'" '
+      +'oninput="omrIn('+q.n+',this)" onkeydown="omrKey('+q.n+',event)" aria-label="'+q.n+'번 답"></div>';
+  });
+  h+='</div></div>';
   Q.forEach(function(q){
     h+='<div class="qc" id="q'+q.n+'"><div class="qc__h"><span class="qc__no">'+q.n+'</span>'
       +'<span class="qc__area">'+esc(q.area)+' · '+esc(q.concept)+'</span></div>'
@@ -132,7 +158,7 @@ function entryHTML(){
 function renderBar(){
   var el=document.getElementById('bar'); if(!el) return;
   var c=count(), n=Q.length;
-  el.innerHTML='<div class="in"><div class="prog">답안 <b>'+c+'</b> / '+n+' 입력'+(c<n?' · 미입력 '+(n-c)+'문항':' · 완료')+'</div><button class="btn" id="gradeBtn" onclick="grade()">채점하고 성적표 보기</button></div>';
+  el.innerHTML='<div class="in"><div class="prog">답안 <b>'+c+'</b> / '+n+' 입력'+(c<n?' · 미입력 '+(n-c)+'문항':' · 완료')+'</div><button class="btn" id="gradeBtn" onclick="grade()">최종 제출 · 성적표 보기</button></div>';
 }
 function grade(){
   if(!S.name.trim()){ var e=document.getElementById('err'); if(e){e.textContent='이름을 입력해 주세요.'; document.getElementById('nm').focus();} window.scrollTo(0,0); return; }
