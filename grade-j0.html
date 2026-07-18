@@ -236,13 +236,53 @@ function grade(){
   if(!S.name.trim()){ var e=document.getElementById('err'); if(e){e.textContent='이름을 입력해 주세요.'; document.getElementById('nm').focus();} window.scrollTo(0,0); return; }
   var miss=Q.length-count();
   if(miss>0 && !window.confirm('미입력 '+miss+'문항이 있습니다. 오답으로 처리하고 채점할까요?')) return;
-  S.view='report'; saveSheet(); render(); window.scrollTo(0,0);
+  S.view='report'; render(); window.scrollTo(0,0);
+  // 실시간 인원: 시트에서 응시자를 불러온 뒤 석차 갱신 + 저장(콜백은 성공/실패/타임아웃 모두 호출됨)
+  loadCohort(function(){ if(S.view==='report') render(); saveSheet(); });
 }
 function reset(){ if(!window.confirm('답안을 지우고 다시 풀까요?')) return; S.ans={}; try{localStorage.removeItem('j0_ans');}catch(_){} S.view='entry'; render(); window.scrollTo(0,0); }
 
 // 실제 응시자(조준모의고사 0회) 점수 분포 → 석차·백분위 (엑셀 반영, 익명)
-var COHORT={ n:40, avg:83.2, natAvg:57.4, totals:[12,21,32,37,40,44,54,54,54,59,59,60,60,63,69,69,71,75,78,82,86,87,87,93,93,96,99,100,102,105,108,111,112,117,126,129,129,141,144,171] };
-function cohortStat(score){ var t=COHORT.totals,n=t.length,below=0,above=0,i; for(i=0;i<n;i++){ if(t[i]<score)below++; if(t[i]>score)above++; } return { n:n, avg:COHORT.avg, natAvg:COHORT.natAvg, pct:Math.round(below/n*100), rank:above+1 }; }
+// 기준 코호트(엑셀 응시자 40명 총점 분포). 실제 응시자는 시트에서 실시간으로 합쳐 인원을 늘린다.
+var COHORT={ avg:83.2, natAvg:57.4, totals:[12,21,32,37,40,44,54,54,54,59,59,60,60,63,69,69,71,75,78,82,86,87,87,93,93,96,99,100,102,105,108,111,112,117,126,129,129,141,144,171] };
+var LIVE_TOTALS=null;   // 시트에서 불러온 실시간 응시자 [{name,total}]
+function normName(s){ return String(s==null?'':s).replace(/s+/g,''); }
+// 전체 인원 = 기준 40명 + 시트의 다른 응시자(현재 학생 제외; 아래에서 본인 점수 별도 포함)
+function popFor(){
+  var me=normName(S&&S.name);
+  var others=(LIVE_TOTALS||[]).filter(function(t){return normName(t.name)!==me;}).map(function(t){return t.total;});
+  return COHORT.totals.concat(others);
+}
+function cohortStat(score){
+  var pop=popFor().concat([score]), n=pop.length, below=0, above=0, i;
+  for(i=0;i<n;i++){ if(pop[i]<score)below++; else if(pop[i]>score)above++; }
+  return { n:n, avg:COHORT.avg, natAvg:COHORT.natAvg, pct:Math.round(below/n*100), rank:above+1, live:!!LIVE_TOTALS };
+}
+// JSONP (Apps Script는 CORS 미지원이라 스크립트 태그로 불러온다)
+function jsonp(url,cb){
+  var nm='__j0'+(jsonp._i=(jsonp._i||0)+1), s=document.createElement('script'), done=false;
+  function fin(d){ if(done)return; done=true; try{delete window[nm];}catch(e){} if(s.parentNode)s.parentNode.removeChild(s); cb(d); }
+  window[nm]=function(d){ fin(d); };
+  s.onerror=function(){ fin(null); };
+  s.src=url+(url.indexOf('?')>=0?'&':'?')+'callback='+nm;
+  document.head.appendChild(s);
+  setTimeout(function(){ fin(null); },7000);
+}
+// 시트에서 조준모의고사 0회 응시자 답안을 불러와 총점 분포를 만든다(실시간 인원)
+function loadCohort(cb){
+  if(!SHEET_ENDPOINT){ cb&&cb(); return; }
+  jsonp(SHEET_ENDPOINT+'?action=list&exam=j0&key=', function(d){
+    if(d&&d.students&&d.students.length){
+      var t=[]; d.students.forEach(function(st){
+        var a=String(st.answers||'').replace(/[^0-4]/g,''); if(a.length<Q.length) return;
+        var sc=0; for(var i=0;i<Q.length;i++){ if(Number(a.charAt(i))===Q[i].ans) sc+=PER; }
+        t.push({ name:st.name||'', total:sc });
+      });
+      if(t.length) LIVE_TOTALS=t;
+    }
+    cb&&cb();
+  });
+}
 // 영역 → 강의 목차 앵커(추가학습자료). index.html AREA2LEC 체계와 동일.
 var J0LEC={'원자·기본입자':'01','원자량·동위원소':'01','몰·아보가드로수':'05','양적관계·실험식':'05','주기율·전자배치':'02','화학결합·구조':'03','분자극성':'03','기체':'06','열화학':'09','용액·농도':'07','반응속도·평형':'10','산화환원':'13','기타':'04'};
 function lecLink(area){ var c=J0LEC[area]||''; return c?'lecture-index.html#area-'+c:'lecture-index.html'; }
@@ -284,7 +324,7 @@ function reportHTML(){
     +'<div class="grid3"><div class="tile"><div class="k">'+CS.rank+'<small style="font-size:13px">위</small></div><div class="l">응시 '+CS.n+'명 중 석차</div></div>'
     +'<div class="tile"><div class="k">'+CS.pct+'</div><div class="l">백분위(상위 %)</div></div>'
     +'<div class="tile"><div class="k">'+CS.avg+'</div><div class="l">전체 평균점</div></div></div>'
-    +'<div class="note" style="text-align:left;margin-top:8px">조준모의고사 0회 응시자 '+CS.n+'명 기준 · 전국 모의고사 참고 평균 '+CS.natAvg+'점</div></div>';
+    +'<div class="note" style="text-align:left;margin-top:8px">조준모의고사 0회 응시자 '+CS.n+'명 기준'+(CS.live?'(실시간)':'')+' · 전국 모의고사 참고 평균 '+CS.natAvg+'점</div></div>';
   // 영역별
   h+='<div class="card"><div class="sec__h"><span class="sec__no">01</span><span class="sec__t">영역별 정오</span></div>';
   order.sort(function(a,b){return (byArea[a].c/byArea[a].t)-(byArea[b].c/byArea[b].t);});
@@ -350,6 +390,8 @@ try{ var sa=localStorage.getItem('j0_ans'); if(sa) S.ans=JSON.parse(sa)||{}; }ca
   }catch(e){}
 })();
 render();
+// 공유 링크 등으로 성적표가 바로 열린 경우에도 실시간 인원으로 석차 갱신
+if(S.view==='report'){ loadCohort(function(){ if(S.view==='report') render(); }); }
 </script>
 </body>
 </html>
