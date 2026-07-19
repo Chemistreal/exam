@@ -32,7 +32,8 @@ var EXAM_TITLES = {
   'chem2-1':   '화학2 1단원 모의고사',
   'kch1to3-b': '화학1 1-3단원 모의고사 (동형)',
   'kch1to2-b': '화학1 1-2단원 모의고사 (동형)',
-  'kch2to3':   '화학2 1-3단원 모의고사'
+  'kch2to3':   '화학2 1-3단원 모의고사',
+  'j0':        '조준모의고사 0회'
 };
 
 var HEADER = [
@@ -131,4 +132,119 @@ function doGet(e) {
   return cb
     ? ContentService.createTextOutput(cb + '(' + status + ')').setMimeType(ContentService.MimeType.JAVASCRIPT)
     : ContentService.createTextOutput(status).setMimeType(ContentService.MimeType.JSON);
+}
+
+/* ============================================================
+   성적 재계산 · 정리 (관리자가 수동 실행)
+   ------------------------------------------------------------
+   왜 필요한가:
+   백분위·석차·전체누적인원은 "저장하는 그 순간"의 인원으로 한 번만 계산되어
+   행에 박제된다. 그래서 학생이 며칠에 걸쳐 응시하면, 같은 점수인데도
+   먼저 본 학생과 나중에 본 학생의 석차·인원이 제각각(40, 44, 48 …)이 된다.
+   이 함수는 모든 행을 "하나의 최종 코호트"에 대해 다시 계산해 일관되게 맞춘다.
+
+   무엇을 하나:
+   1) 완전 중복 행(이름+답안 동일) 제거 — 저장시각이 가장 최신인 1건만 남김
+   2) 학교명 오타 교정(_SCHOOL_FIX)
+   3) 코호트 = 기준분포(J0_BASE_TOTALS 40명) + 학생별 최신 1건(이름 기준)
+   4) 각 행의 백분위·석차·전체누적인원을 이 코호트로 재계산
+   5) 성적표 문자(18열)도 새 수치로 다시 채움
+
+   실행:  Apps Script 편집기에서 recomputeJ0 선택 → 실행
+   ============================================================ */
+
+/* 조준모의고사 0회 기준 코호트 총점 분포(익명 40명) — index.html의 BASE_TOTALS['j0']와 동일 */
+var J0_BASE_TOTALS = [12,21,32,37,40,44,54,54,54,59,59,60,60,63,69,69,71,75,78,82,86,87,87,93,93,96,99,100,102,105,108,111,112,117,126,129,129,141,144,171];
+
+/* 학교명 오타·표기 교정(필요 시 여기에 추가). 이름 기준으로 학생을 묶으므로 석차엔 영향 없지만 표시를 바로잡는다. */
+var _SCHOOL_FIX = { '휘뭉중': '휘문중' };
+
+function _normName(s) { return String(s == null ? '' : s).replace(/\s+/g, '').trim(); }
+
+/* 클라이언트(grade-j0.html)의 rankPct와 동일한 규칙: 나보다 높은 사람 수+1 = 석차, 백분위=(미만+동점/2)/n */
+function _rankPct(value, arr) {
+  var n = arr.length, below = 0, equal = 0;
+  for (var i = 0; i < n; i++) { var v = arr[i]; if (v < value) below++; else if (v === value) equal++; }
+  return { rank: (n - below - equal) + 1, pct: n ? ((below + 0.5 * equal) / n) * 100 : 0, n: n };
+}
+
+function _fmtNum(x) { return Math.round(Number(x) * 10) / 10; }  // 소수 1자리, .0은 자동으로 사라짐
+
+function _msgJ0(name, total, max, pct100, correct, qCount, percentile, rank, n, link) {
+  return '[다원교육 영재관 · 화학 조준모]\n'
+    + name + ' 학생 조준모의고사 0회 성적표입니다.\n'
+    + '· 원점수 ' + total + '/' + max + '점 · 백점환산 ' + pct100 + '점\n'
+    + '· 정답 ' + correct + '/' + qCount + '문항\n'
+    + '· 백분위 ' + percentile + ' · 석차 ' + rank + '/' + n + '\n'
+    + '아래 링크에서 영역별 정오와 취약 개념을 확인하세요.\n'
+    + link;
+}
+
+/* 조준모의고사 0회 전용 진입점 */
+function recomputeJ0() { recomputeExam('조준모의고사 0회', J0_BASE_TOTALS, 60); }
+
+function recomputeExam(title, baseTotals, qCount) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('성적기록');
+  if (!sheet || sheet.getLastRow() < 2) { Logger.log('성적기록 시트가 비어 있습니다.'); return; }
+
+  // 성적표 문자 헤더(18열) 보장
+  if (String(sheet.getRange(1, 18).getValue() || '') !== '성적표 문자') {
+    sheet.getRange(1, 18).setValue('성적표 문자').setFontWeight('bold');
+  }
+
+  var last = sheet.getLastRow();
+  var data = sheet.getRange(2, 1, last - 1, 18).getValues();
+  // 열: [0]시험 [1]이름 [2]링크 [3]저장시각 [4]수험번호 [5]응시일 [6]학교 [7]학년
+  //     [8]원점수 [9]만점 [10]백점환산 [11]백분위 [12]석차 [13]전체누적인원 [14]맞은개수 [15]영역별 [16]답안 [17]성적표문자
+
+  var idx = [];
+  for (var i = 0; i < data.length; i++) { if (String(data[i][0]) === title) idx.push(i); }
+  if (!idx.length) { Logger.log('해당 시험 행이 없습니다: ' + title); return; }
+
+  // 1) 완전 중복(이름+답안) 제거 — 저장시각 최신 1건만 유지
+  var ts = function (ri) { return (data[ri][3] instanceof Date) ? data[ri][3].getTime() : 0; };
+  var order = idx.slice().sort(function (a, b) { return ts(b) - ts(a); });
+  var seen = {}, dropRows = [];
+  order.forEach(function (ri) {
+    var sig = _normName(data[ri][1]) + '|' + String(data[ri][16] || '').replace(/^'/, '').replace(/[^0-4]/g, '');
+    if (seen[sig]) dropRows.push(ri); else seen[sig] = true;
+  });
+  var keep = idx.filter(function (ri) { return dropRows.indexOf(ri) < 0; });
+
+  // 2) 학교명 오타 교정
+  keep.forEach(function (ri) { var s = String(data[ri][6] || ''); if (_SCHOOL_FIX[s]) data[ri][6] = _SCHOOL_FIX[s]; });
+
+  // 3) 코호트 = 기준분포 + 학생별 최신 1건(이름 기준)
+  var latest = {};
+  keep.forEach(function (ri) {
+    var nm = _normName(data[ri][1]); if (!nm) return;
+    var t = ts(ri), tot = Number(data[ri][8]) || 0;
+    if (!latest[nm] || t >= latest[nm].ts) latest[nm] = { ts: t, total: tot };
+  });
+  var cohort = baseTotals.slice();
+  for (var nm in latest) cohort.push(latest[nm].total);
+
+  // 4)+5) 각 행 재계산 및 문자 재작성
+  keep.forEach(function (ri) {
+    var total = Number(data[ri][8]) || 0;
+    var rp = _rankPct(total, cohort);
+    var pct = _fmtNum(rp.pct);
+    data[ri][11] = pct;       // 백분위
+    data[ri][12] = rp.rank;   // 석차
+    data[ri][13] = rp.n;      // 전체누적인원
+    var name = String(data[ri][1] || '');
+    var max = Number(data[ri][9]) || (qCount * 3);
+    var pct100 = data[ri][10];
+    var correct = Number(data[ri][14]) || 0;
+    var link = String(data[ri][2] || '');
+    data[ri][17] = _msgJ0(name, total, max, pct100, correct, qCount, pct, rp.rank, rp.n, link);
+  });
+
+  // 시트 일괄 반영 후 중복 행 삭제(아래→위)
+  sheet.getRange(2, 1, data.length, 18).setValues(data);
+  dropRows.map(function (ri) { return ri + 2; }).sort(function (a, b) { return b - a; })
+    .forEach(function (r) { sheet.deleteRow(r); });
+
+  Logger.log('recomputeExam 완료 · 유지 ' + keep.length + '행 · 중복삭제 ' + dropRows.length + '행 · 코호트 ' + cohort.length + '명(기준 ' + baseTotals.length + ' + 학생 ' + Object.keys(latest).length + ')');
 }

@@ -2920,10 +2920,11 @@ const App={
    const sc=document.createElement('script'); let done=false;
    const cleanup=()=>{ try{delete window[cb];}catch(e){window[cb]=undefined;} if(sc.parentNode)sc.parentNode.removeChild(sc); };
    window[cb]=(res)=>{ done=true; try{
-     const rows=(res&&res.students)||[]; const tomb=this.deletedSet(id); const seen=new Set(); let n=0;
+     const rows=(res&&res.students)||[]; const tomb=this.deletedSet(id); const names=new Set();
      rows.forEach(rec=>{ if(!rec)return; const a=String(rec.answers||'').replace(/[^0-4]/g,''); if(qsLen&&a.length<qsLen)return;
-       const sg=this.normName(rec.name)+'|'+(rec.date||'')+'|'+a; if(seen.has(sg)||tomb.has(sg))return; seen.add(sg); n++; });
-     const el=document.getElementById('ecn-'+id); if(el)el.textContent=this.examBaseN(ex)+n;
+       const sg=this.normName(rec.name)+'|'+(rec.date||'')+'|'+a; if(tomb.has(sg))return;      // 삭제분 제외
+       const nm=this.normName(rec.name); if(!nm||names.has(nm))return; names.add(nm); });        // 재응시·중복은 한 명으로(석차 인원과 동일 기준)
+     const el=document.getElementById('ecn-'+id); if(el)el.textContent=this.examBaseN(ex)+names.size;
     }catch(e){} cleanup(); };
    sc.onerror=()=>{ if(!done)cleanup(); };
    sc.src=SHEET_ENDPOINT+(SHEET_ENDPOINT.includes('?')?'&':'?')+'action=list&exam='+encodeURIComponent(id)+'&key='+encodeURIComponent(this.syncKey())+'&callback='+cb;
