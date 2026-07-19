@@ -2894,7 +2894,7 @@ const App={
      if(Array.isArray(ex.seed)&&ex.seed.length){e.seed=ex.seed; if(!e.N)e.N=ex.seed.length;}
      EXAMS.push(e); added++;
     });
-    if(added)this.renderExamList();
+    if(added){this.renderExamList();this.refreshExamCounts();}
    }).catch(()=>{});
   }catch(e){}
  },
@@ -2904,9 +2904,32 @@ const App={
    return `<div class="ec" onclick="App.openExam('${ex.id}')">
      <div class="ec__t">${ex.title}</div>
      <div class="ec__r">${ex.range}</div>
-     <div class="ec__m"><span>문항 <b>${ex.questions.length}</b></span><span>배점 <b>${ex.questions.length*PT}</b></span><span>응시 <b>${ex.N}</b></span></div>
+     <div class="ec__m"><span>문항 <b>${ex.questions.length}</b></span><span>배점 <b>${ex.questions.length*PT}</b></span><span>응시 <b id="ecn-${ex.id}">${this.examBaseN(ex)}</b></span></div>
    </div>`;
   }).join("");
+ },
+ /* 카드에 표시할 기준 응시자수: 명시 N이 없으면 기준 코호트(엑셀 분포) 인원으로 대체 */
+ examBaseN(ex){ return (ex&&ex.N)?ex.N:baseTotalsFor(ex&&ex.id).length; },
+ /* 시험별 실제 응시자수 = 기준 인원 + 시트에 쌓인 온라인 제출(중복·삭제 제외)을 실시간으로 카드에 반영 */
+ refreshExamCounts(){
+  if(this.shared||!SHEET_ENDPOINT||!/^https?:$/.test(location.protocol))return;
+  EXAMS.forEach(ex=>{
+   if(!ex||ex.disabled||!ex.questions)return;
+   const id=ex.id, qsLen=ex.questions.length;
+   const cb='__cnt'+id.replace(/[^a-z0-9]/gi,'')+Date.now();
+   const sc=document.createElement('script'); let done=false;
+   const cleanup=()=>{ try{delete window[cb];}catch(e){window[cb]=undefined;} if(sc.parentNode)sc.parentNode.removeChild(sc); };
+   window[cb]=(res)=>{ done=true; try{
+     const rows=(res&&res.students)||[]; const tomb=this.deletedSet(id); const seen=new Set(); let n=0;
+     rows.forEach(rec=>{ if(!rec)return; const a=String(rec.answers||'').replace(/[^0-4]/g,''); if(qsLen&&a.length<qsLen)return;
+       const sg=this.normName(rec.name)+'|'+(rec.date||'')+'|'+a; if(seen.has(sg)||tomb.has(sg))return; seen.add(sg); n++; });
+     const el=document.getElementById('ecn-'+id); if(el)el.textContent=this.examBaseN(ex)+n;
+    }catch(e){} cleanup(); };
+   sc.onerror=()=>{ if(!done)cleanup(); };
+   sc.src=SHEET_ENDPOINT+(SHEET_ENDPOINT.includes('?')?'&':'?')+'action=list&exam='+encodeURIComponent(id)+'&key='+encodeURIComponent(this.syncKey())+'&callback='+cb;
+   document.body.appendChild(sc);
+   setTimeout(()=>{ if(!done)cleanup(); },8000);
+  });
  },
  openExam(id){
   this.exam=EXAMS.find(e=>e.id===id);this.answers={};this.idData={date:new Date().toISOString().slice(0,10)};this.demo=false;this.shared=false;
@@ -3914,6 +3937,7 @@ boot_hooks(){
   this.loadExternalExams();
   const m=location.hash.match(/r=([^.]+)\.([0-9a-z]+)(?:\.([^.]*)\.(.*))?$/);
   if(m){const ex=EXAMS.find(e=>e.id===m[1]);if(ex&&!ex.disabled){this.openExam(ex.id);this.demo=false;this.shared=true;document.body.classList.add('shared-mode');let n=0n;for(const c of m[2])n=n*36n+BigInt(parseInt(c,36));ex.questions.forEach(q=>{const v=Number(n%5n);n=n/5n;if(v)this.setAns(q.n,v);});if(m[3])this.idData.examno=m[3];if(m[4])this.idData.name=decodeURIComponent(m[4]);this.renderIdForm();this.updateProg();this.grade(false);return;}}
+  this.refreshExamCounts();
   this.show('select');
  }
 };
