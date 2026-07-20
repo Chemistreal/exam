@@ -48,7 +48,11 @@ function _keyOk(provided) {
 }
 
 function doPost(e) {
+  var lock = null;
   try {
+    // 동시 제출이 겹쳐도 재계산이 꼬이지 않게 직렬화 (최대 20초 대기, 실패 시 잠금 없이 진행)
+    try { lock = LockService.getScriptLock(); lock.waitLock(20000); } catch (eL) { lock = null; }
+
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName('성적기록') || ss.insertSheet('성적기록');
 
@@ -70,6 +74,14 @@ function doPost(e) {
       d.correct, d.areas, "'" + d.answers
     ]);
 
+    // [자동 재계산] 저장 직후 이 시험의 전체 석차·백분위·인원·성적표 문자를 최종 코호트로 재정렬.
+    // 실패해도 저장 자체는 성공 처리(재계산은 일일 백업 트리거나 수동 recomputeJ0로 복구 가능).
+    try {
+      SpreadsheetApp.flush();
+      var cfg = _recomputeConfigFor(d.exam);
+      if (cfg) recomputeExam(d.exam, cfg.base, cfg.qCount);
+    } catch (eR) { Logger.log('자동 재계산 실패(저장은 완료): ' + eR); }
+
     return ContentService
       .createTextOutput(JSON.stringify({ ok: true }))
       .setMimeType(ContentService.MimeType.JSON);
@@ -77,7 +89,15 @@ function doPost(e) {
     return ContentService
       .createTextOutput(JSON.stringify({ ok: false, error: String(err) }))
       .setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    if (lock) try { lock.releaseLock(); } catch (eU) {}
   }
+}
+
+/* 시험 제목 → 자동 재계산 설정. 기준분포가 있는 시험만 등록(없으면 저장만 하고 재계산 생략). */
+function _recomputeConfigFor(title) {
+  if (String(title) === '조준모의고사 0회') return { base: J0_BASE_TOTALS, qCount: 60 };
+  return null;
 }
 
 /**
@@ -150,7 +170,10 @@ function doGet(e) {
    4) 각 행의 백분위·석차·전체누적인원을 이 코호트로 재계산
    5) 성적표 문자(18열)도 새 수치로 다시 채움
 
-   실행:  Apps Script 편집기에서 recomputeJ0 선택 → 실행
+   실행:
+   - 평상시에는 실행할 필요 없음 — 학생이 제출할 때마다 doPost가 자동으로 재계산한다.
+   - 시트를 손으로 고쳤거나 상태가 의심될 때만: 편집기에서 recomputeJ0 선택 → 실행 (수동 복구용)
+   - setupAllTriggers()를 1회 실행하면 매일 새벽 5시 백업 재계산 트리거도 설치된다.
    ============================================================ */
 
 /* 조준모의고사 0회 기준 코호트 총점 분포(익명 40명) — index.html의 BASE_TOTALS['j0']와 동일 */
@@ -170,9 +193,9 @@ function _rankPct(value, arr) {
 
 function _fmtNum(x) { return Math.round(Number(x) * 10) / 10; }  // 소수 1자리, .0은 자동으로 사라짐
 
-function _msgJ0(name, total, max, pct100, correct, qCount, percentile, rank, n, link) {
+function _msgExam(title, name, total, max, pct100, correct, qCount, percentile, rank, n, link) {
   return '[다원교육 영재관 · 화학 조준모]\n'
-    + name + ' 학생 조준모의고사 0회 성적표입니다.\n'
+    + name + ' 학생 ' + title + ' 성적표입니다.\n'
     + '· 원점수 ' + total + '/' + max + '점 · 백점환산 ' + pct100 + '점\n'
     + '· 정답 ' + correct + '/' + qCount + '문항\n'
     + '· 백분위 ' + percentile + ' · 석차 ' + rank + '/' + n + '\n'
@@ -238,7 +261,7 @@ function recomputeExam(title, baseTotals, qCount) {
     var pct100 = data[ri][10];
     var correct = Number(data[ri][14]) || 0;
     var link = String(data[ri][2] || '');
-    data[ri][17] = _msgJ0(name, total, max, pct100, correct, qCount, pct, rp.rank, rp.n, link);
+    data[ri][17] = _msgExam(title, name, total, max, pct100, correct, qCount, pct, rp.rank, rp.n, link);
   });
 
   // 시트 일괄 반영 후 중복 행 삭제(아래→위)
@@ -247,4 +270,32 @@ function recomputeExam(title, baseTotals, qCount) {
     .forEach(function (r) { sheet.deleteRow(r); });
 
   Logger.log('recomputeExam 완료 · 유지 ' + keep.length + '행 · 중복삭제 ' + dropRows.length + '행 · 코호트 ' + cohort.length + '명(기준 ' + baseTotals.length + ' + 학생 ' + Object.keys(latest).length + ')');
+}
+
+/* ============================================================
+   트리거 원클릭 설치 · 상태 확인
+   ------------------------------------------------------------
+   setupAllTriggers : 편집기에서 1회 실행 → 아래 트리거를 전부 설치(중복 자동 제거)
+     · recomputeJ0  매일 새벽 5시(KST) — 백업용 재계산.
+       (평상시 재계산은 제출 즉시 doPost가 수행하므로, 이 트리거는
+        손으로 시트를 고친 날 등을 대비한 안전망이다)
+   triggerStatus   : 현재 설치된 트리거 목록을 로그로 출력(설치 여부 확인용)
+   ============================================================ */
+function setupAllTriggers() {
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === 'recomputeJ0') ScriptApp.deleteTrigger(t);
+  });
+  ScriptApp.newTrigger('recomputeJ0').timeBased()
+    .everyDays(1).atHour(5).inTimezone('Asia/Seoul').create();
+  Logger.log('설치 완료: recomputeJ0 매일 05시(KST) 백업 재계산');
+  triggerStatus();
+}
+
+function triggerStatus() {
+  var ts = ScriptApp.getProjectTriggers();
+  if (!ts.length) { Logger.log('설치된 트리거 없음'); return; }
+  ts.forEach(function (t) {
+    Logger.log('트리거: ' + t.getHandlerFunction() + ' · ' + t.getEventType());
+  });
+  Logger.log('총 ' + ts.length + '개 트리거 설치됨');
 }

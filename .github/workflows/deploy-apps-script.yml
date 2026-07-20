@@ -1,0 +1,62 @@
+# AppsScript-Code.gs가 main에 머지되면 Google Apps Script에 자동 반영 + 같은 URL로 재배포.
+# 최초 1회 설정 방법은 저장소 루트의 AUTODEPLOY.md 참고.
+name: Apps Script 자동 배포
+
+on:
+  push:
+    branches: [main]
+    paths: ['AppsScript-Code.gs']
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 설정 확인
+        id: check
+        env:
+          CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
+          GAS_SCRIPT_ID: ${{ secrets.GAS_SCRIPT_ID }}
+          GAS_DEPLOYMENT_ID: ${{ secrets.GAS_DEPLOYMENT_ID }}
+        run: |
+          if [ -z "$CLASPRC_JSON" ] || [ -z "$GAS_SCRIPT_ID" ] || [ -z "$GAS_DEPLOYMENT_ID" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::자동배포 미설정 — AUTODEPLOY.md의 시크릿 3개(CLASPRC_JSON, GAS_SCRIPT_ID, GAS_DEPLOYMENT_ID)를 등록하면 활성화됩니다. (이번 실행은 건너뜀)"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-node@v4
+        if: steps.check.outputs.ready == 'true'
+        with:
+          node-version: 20
+
+      - name: clasp 설치 · 인증
+        if: steps.check.outputs.ready == 'true'
+        env:
+          CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
+        run: |
+          npm i -g @google/clasp@2.4.2
+          printf '%s' "$CLASPRC_JSON" > ~/.clasprc.json
+
+      - name: 코드 반영 (clasp push)
+        if: steps.check.outputs.ready == 'true'
+        env:
+          GAS_SCRIPT_ID: ${{ secrets.GAS_SCRIPT_ID }}
+        run: |
+          printf '{"scriptId":"%s","rootDir":"gas"}' "$GAS_SCRIPT_ID" > .clasp.json
+          mkdir -p gas
+          clasp pull                     # 기존 매니페스트(appsscript.json) 보존
+          find gas -name '*.js' -delete  # 기존 코드 파일 제거(매니페스트는 유지)
+          cp AppsScript-Code.gs gas/AppsScript-Code.js
+          clasp push -f
+
+      - name: 재배포 (같은 URL 유지)
+        if: steps.check.outputs.ready == 'true'
+        env:
+          GAS_DEPLOYMENT_ID: ${{ secrets.GAS_DEPLOYMENT_ID }}
+        run: |
+          clasp deploy -i "$GAS_DEPLOYMENT_ID" -d "auto-deploy $GITHUB_SHA"
+          echo "::notice::Apps Script 재배포 완료 — 웹앱 URL은 그대로 유지됩니다."
