@@ -123,8 +123,7 @@ function openExam(id){
     +'<h1 style="font-size:18px">'+esc(cur.title)+'</h1>'
     +'<div class="card"><label>이름 *</label><input class="txt" id="nm" autocomplete="off">'
     +'<div class="row2"><div><label>학교 *</label><input class="txt" id="sch" autocomplete="off"></div>'
-    +'<div><label>학년</label><input class="txt" id="grd" inputmode="numeric" placeholder="예: 2" autocomplete="off"></div></div>'
-    +'<label>수험번호 (선택)</label><input class="txt" id="exno" autocomplete="off"></div>'
+    +'<div><label>학년</label><input class="txt" id="grd" inputmode="numeric" placeholder="예: 2" autocomplete="off"></div></div></div>'
     +'<div class="card"><label>답안 (1~4)</label><div class="hint">숫자를 입력하면 다음 칸으로 넘어갑니다. 답안 숫자열을 붙여넣으면 한 번에 채워집니다.</div>'
     +'<div class="omr" id="omr" onpaste="onPaste(event)">'+omr+'</div>'
     +'<div class="prog" id="prog"></div></div>'
@@ -152,7 +151,6 @@ function submitAns(){
   const nm=(document.getElementById('nm').value||'').trim();
   const sch=(document.getElementById('sch').value||'').trim();
   const grd=(document.getElementById('grd').value||'').trim();
-  const exno=(document.getElementById('exno').value||'').trim();
   if(!nm){ toast('이름을 입력하세요'); document.getElementById('nm').focus(); return; }
   if(!sch){ toast('학교를 입력하세요'); document.getElementById('sch').focus(); return; }
   const nQ=cur.nQ||cur.key.length; const miss=new Set(cur.miss||[]);
@@ -171,11 +169,11 @@ function submitAns(){
   const ans=[]; for(let q=1;q<=nQ;q++) ans.push(sel[q]||0);
 
   // ── 시트 payload (final.html saveToSheetFinal과 동일 형식 · 학교 채움) ──
-  const payload={ key:fSyncKey(), name:nm, examno:exno, school:sch, grade:grd,
+  const payload={ key:fSyncKey(), name:nm, examno:'', school:sch, grade:grd,
     date:new Date().toISOString().slice(0,10), exam:cur.title,
     total:correct, max:total, pct100:pct,
     percentile:'', rank:'', n:'',
-    correct:correct, areas:areas, answers:ans.join(''), link:shareLink(cur,sel,nm,exno) };
+    correct:correct, areas:areas, answers:ans.join(''), link:shareLink(cur,sel,nm) };
   try{ fetch(SHEET_ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
     toast('제출되었습니다 · '+nm);
   }catch(e){ toast('전송 호출 실패 — 다시 시도하세요'); }
