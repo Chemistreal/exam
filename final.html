@@ -20,6 +20,7 @@ main{max-width:780px;margin:0 auto;padding:16px 15px 60px}
 .card{position:relative}
 .slink{position:absolute;top:10px;right:10px;font-size:11px;color:var(--teal,#3A7A6B);background:rgba(58,122,107,.08);border:1px solid rgba(58,122,107,.25);border-radius:7px;padding:4px 8px;cursor:pointer;font-weight:600}
 .slink:active{background:rgba(58,122,107,.18)}
+#repPDF.pdfing{background:#fff;padding:10px 12px;border-radius:0}
 .tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--ok-bg);color:var(--teal)}
 .tag.s{background:#f3edff;color:#6b4fb0}
 .idbar{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 4px}
@@ -1225,6 +1226,7 @@ function scoreAuto(){
   const cs=cohortStats(cur); SNO=0; window.__fw=wrong;
   saveToSheetFinal(cur,sel,correct,total,W,cs,nm,exno,pct);
   app.innerHTML=`<button class="back" onclick="renderList()">‹ 시험 목록</button>
+   <div id="repPDF">
    <h2 class="serif" style="margin:6px 0 2px;font-size:20px">${esc(cur.title)} · 성적표</h2>
    ${nm?`<div class="muted">${esc(nm)}${exno?' · '+esc(exno):''}</div>`:''}
    ${finalHero(nm,cur,correct,total,W,pct)}
@@ -1254,14 +1256,57 @@ function scoreAuto(){
    ${tableSec(cur,sel)}
    ${closingSecFinal(nm,cur,correct,total,W,pct)}
    ${methodSec(cur)}
-   <div class="toolbar"><button class="btn sm" onclick="window.print()">리포트 PDF 저장 ↓</button><button class="btn ghost sm" onclick="exportReportHTML()">공유용 HTML 저장 ↓</button>
+   </div>
+   <div class="toolbar"><button class="btn" onclick="downloadReportPDF()">📄 성적표 PDF 다운로드 ↓</button><button class="btn ghost sm" onclick="exportReportHTML()">공유용 HTML 저장 ↓</button>
      <a class="pdf" href="sol-final-${cur.id}.html" target="_blank">정답·개념 해설 ↗</a>
+     <button class="btn ghost sm" onclick="window.print()">인쇄</button>
      <button class="btn sm" onclick="nextStudent()">다음 학생 입력 ▶</button>
      <button class="btn ghost sm" onclick="openExam('${cur.id}')">다시 채점</button></div>`;
   window.scrollTo(0,0);
 }
 window.addEventListener('beforeprint',function(){window.__det=[].map.call(document.querySelectorAll('details'),function(d){return [d,d.open];});window.__det.forEach(function(x){x[0].open=true;});});
 window.addEventListener('afterprint',function(){(window.__det||[]).forEach(function(x){x[0].open=x[1];});});
+
+/* ===== 성적표 PDF 다운로드 (인쇄 대화상자 없이 파일 생성) ===== */
+function loadScriptOnce(src){ return new Promise(function(res,rej){ var ex=document.querySelector('script[data-lib="'+src+'"]'); if(ex){ if(ex.dataset.loaded){res();return;} ex.addEventListener('load',function(){res();}); ex.addEventListener('error',function(){rej(new Error(src));}); return; } var s=document.createElement('script'); s.src=src; s.dataset.lib=src; s.onload=function(){s.dataset.loaded='1';res();}; s.onerror=function(){rej(new Error(src));}; document.head.appendChild(s); }); }
+async function ensurePdfLibs(){ if(!window.html2canvas) await loadScriptOnce('vendor/html2canvas.min.js'); if(!(window.jspdf&&window.jspdf.jsPDF)) await loadScriptOnce('vendor/jspdf.umd.min.js'); }
+async function downloadReportPDF(){
+  var el=document.getElementById('repPDF'); if(!el){ fToast('리포트를 찾을 수 없습니다'); return; }
+  fToast('PDF 만드는 중… 잠시만요');
+  var dets=[].map.call(el.querySelectorAll('details'),function(d){return [d,d.open];}); dets.forEach(function(x){x[0].open=true;});
+  el.classList.add('pdfing');
+  try{
+    await ensurePdfLibs();
+    await new Promise(function(r){setTimeout(r,80);});
+    var canvas=await html2canvas(el,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false,windowWidth:el.scrollWidth});
+    var jsPDF=window.jspdf.jsPDF;
+    var pdf=new jsPDF({unit:'mm',format:'a4',orientation:'portrait'});
+    var pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight();
+    var M=8, iw=pw-M*2, pageH=ph-M*2;
+    var pxPerMM=canvas.width/iw, sliceH=Math.floor(pageH*pxPerMM);
+    var totalPages=Math.max(1,Math.ceil(canvas.height/sliceH));
+    var y=0, page=0;
+    while(y<canvas.height){
+      var h=Math.min(sliceH, canvas.height-y);
+      var c=document.createElement('canvas'); c.width=canvas.width; c.height=h;
+      var ctx=c.getContext('2d'); ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,c.width,h);
+      ctx.drawImage(canvas,0,y,canvas.width,h,0,0,canvas.width,h);
+      if(page>0) pdf.addPage();
+      pdf.addImage(c.toDataURL('image/jpeg',0.92),'JPEG',M,M,iw,h/pxPerMM);
+      pdf.setFontSize(8); pdf.setTextColor(150);
+      pdf.text('Chemistreal   '+(page+1)+' / '+totalPages, pw/2, ph-3, {align:'center'});
+      y+=h; page++;
+    }
+    var nm=(window.__rpt&&window.__rpt.name)||'';
+    var fn=((nm?nm+'_':'')+(cur&&cur.title||'성적표')+'_성적표').replace(/[\\/:*?"<>|]+/g,'')+'.pdf';
+    // 파일명 보장을 위해 blob 다운로드를 직접 트리거
+    var blob=pdf.output('blob'); var url=URL.createObjectURL(blob);
+    var a=document.createElement('a'); a.href=url; a.download=fn; document.body.appendChild(a); a.click();
+    setTimeout(function(){ try{URL.revokeObjectURL(url); a.remove();}catch(e){} },1500);
+    fToast('PDF 다운로드 완료 · '+fn);
+  }catch(err){ console.error(err); fToast('PDF 생성 실패 — 인쇄 버튼을 이용해 주세요'); }
+  finally{ el.classList.remove('pdfing'); dets.forEach(function(x){x[0].open=x[1];}); }
+}
 function boot(){
   const m=location.hash.match(/r=([^.]+)\.([0-9a-z]+)(?:\.([^.]*)\.(.*))?$/);
   if(m){ const ex=FINAL_EXAMS.find(e=>e.id===m[1]); if(ex){ openExam(ex.id); fShared=true; let n=0n; for(const c of m[2]) n=n*36n+BigInt(parseInt(c,36)); for(let q=1;q<=ex.nQ;q++){ const v=Number(n%5n); n=n/5n; if(v) setAns(q,v); } const ne=document.getElementById('nm'), xe=document.getElementById('exno'); if(m[4]&&ne) ne.value=decodeURIComponent(m[4]); if(m[3]&&xe) xe.value=m[3]; scoreAuto(); return; } }
