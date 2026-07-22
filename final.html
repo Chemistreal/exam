@@ -1360,6 +1360,18 @@ window.addEventListener('afterprint',function(){(window.__det||[]).forEach(funct
 /* ===== 성적표 PDF 다운로드 (인쇄 대화상자 없이 파일 생성) ===== */
 function loadScriptOnce(src){ return new Promise(function(res,rej){ var ex=document.querySelector('script[data-lib="'+src+'"]'); if(ex){ if(ex.dataset.loaded){res();return;} ex.addEventListener('load',function(){res();}); ex.addEventListener('error',function(){rej(new Error(src));}); return; } var s=document.createElement('script'); s.src=src; s.dataset.lib=src; s.onload=function(){s.dataset.loaded='1';res();}; s.onerror=function(){rej(new Error(src));}; document.head.appendChild(s); }); }
 async function ensurePdfLibs(){ if(!window.html2canvas) await loadScriptOnce('vendor/html2canvas.min.js'); if(!(window.jspdf&&window.jspdf.jsPDF)) await loadScriptOnce('vendor/jspdf.umd.min.js'); }
+/* PDF 페이지를 요소 중간에서 자르지 않도록, 블록 요소의 상·하단 y좌표(canvas 기준)를 안전 절단점으로 모은다 */
+function pdfBreakYs(el, scale, maxH){
+  var cr=el.getBoundingClientRect(), set={0:1};
+  // 모든 블록 요소의 상·하단을 후보로(중첩·중복은 Set이 정리). div까지 포함해 잘게 끊을 수 있게 한다
+  el.querySelectorAll('div,p,li,tr,svg,table,h2,h3,details,summary,img').forEach(function(n){
+    var r=n.getBoundingClientRect(); if(r.height<=0 || r.height>maxH) return;   // 페이지보다 큰 컨테이너는 경계로 쓰지 않음(내부에서 끊음)
+    var top=Math.round((r.top-cr.top)*scale), bot=Math.round((r.bottom-cr.top)*scale);
+    if(top>4 && top<maxH) set[top]=1;
+    if(bot>4 && bot<maxH) set[bot]=1;
+  });
+  return Object.keys(set).map(Number).sort(function(a,b){return a-b;});
+}
 async function downloadReportPDF(){
   var el=document.getElementById('repPDF'); if(!el){ fToast('리포트를 찾을 수 없습니다'); return; }
   fToast('교재형 PDF 만드는 중… 잠시만요');
@@ -1388,19 +1400,31 @@ async function downloadReportPDF(){
     var pdf=new jsPDF({unit:'mm',format:'a4',orientation:'portrait'});
     var pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight();
     var M=8, iw=pw-M*2, pageH=ph-M*2;
-    var pxPerMM=canvas.width/iw, sliceH=Math.floor(pageH*pxPerMM);
-    var totalPages=Math.max(1,Math.ceil(canvas.height/sliceH));
-    var y=0, page=0;
-    while(y<canvas.height){
-      var h=Math.min(sliceH, canvas.height-y);
-      var c=document.createElement('canvas'); c.width=canvas.width; c.height=h;
-      var ctx=c.getContext('2d'); ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,c.width,h);
-      ctx.drawImage(canvas,0,y,canvas.width,h,0,0,canvas.width,h);
-      if(page>0) pdf.addPage();
-      pdf.addImage(c.toDataURL('image/jpeg',0.92),'JPEG',M,M,iw,h/pxPerMM);
+    var pxPerMM=canvas.width/iw, pageMaxPx=Math.floor(pageH*pxPerMM);
+    // 실제 CSS→canvas 배율로 요소 경계(안전 절단점)를 canvas 좌표로 환산
+    var realScale=canvas.height/(el.scrollHeight||canvas.height);
+    var breaks=pdfBreakYs(el, realScale, canvas.height);
+    // 요소 중간이 잘리지 않도록, 페이지 한도 내 가장 아래쪽 경계에서 끊는다
+    var segs=[], y=0, guard=0;
+    while(y<canvas.height-1 && guard++<800){
+      var limit=y+pageMaxPx, cut=-1;
+      if(limit>=canvas.height){ cut=canvas.height; }
+      else {
+        for(var i=0;i<breaks.length;i++){ if(breaks[i]>y+40 && breaks[i]<=limit && breaks[i]>cut) cut=breaks[i]; }
+        if(cut<0) cut=limit; // 한 요소가 한 페이지보다 큰 경우에만 불가피하게 분할
+      }
+      segs.push([y,cut]); y=cut;
+    }
+    var totalPages=segs.length;
+    for(var pageN=0; pageN<segs.length; pageN++){
+      var y0=segs[pageN][0], hh=segs[pageN][1]-segs[pageN][0]; if(hh<=0) continue;
+      var c=document.createElement('canvas'); c.width=canvas.width; c.height=hh;
+      var ctx=c.getContext('2d'); ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,c.width,hh);
+      ctx.drawImage(canvas,0,y0,canvas.width,hh,0,0,canvas.width,hh);
+      if(pageN>0) pdf.addPage();
+      pdf.addImage(c.toDataURL('image/jpeg',0.92),'JPEG',M,M,iw,hh/pxPerMM);
       pdf.setFontSize(8); pdf.setTextColor(150);
-      pdf.text('Chemistreal   '+(page+1)+' / '+totalPages, pw/2, ph-3, {align:'center'});
-      y+=h; page++;
+      pdf.text('Chemistreal   '+(pageN+1)+' / '+totalPages, pw/2, ph-3, {align:'center'});
     }
     var nm=(window.__rpt&&window.__rpt.name)||'';
     var fn=((nm?nm+'_':'')+(cur&&cur.title||'성적표')+'_성적표').replace(/[\\/:*?"<>|]+/g,'')+'.pdf';
