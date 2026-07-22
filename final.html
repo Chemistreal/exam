@@ -902,6 +902,19 @@ function winProbSec(exam, sel, cs, correct, total, W){
    ${rows}
    ${marg}</div>`;
 }
+/* 수상권 밖일 때: 몇 문항만 회복하면 입상(장려상 이상) 가능성이 얼마로 오르는지 격려 문구 */
+function belowAwardKick(exam, correct, total, weak){
+  try{
+    var cut=exam.cut; if(!cut||total<=0) return null;
+    var gap=Math.max(1,(total-correct)-cut[4]);                                  // 장려상 도달까지 회복해야 할 정답 수
+    var pB=Math.round(winProb(total, Math.min(total,correct+gap), cut)[4]*100);  // 회복 시 입상 가능성
+    var near=gap<=6;
+    var s='아쉽게 이번엔 수상권 밖이지만, <b>장려상까지 '+gap+'문항</b>'+(near?' 남았습니다':'입니다')+'. ';
+    s+='오답 <b>'+gap+'문항</b>'+(near?'만':'을')+' 회복하면 다음 실전 <b>입상 가능성 약 '+pB+'%</b>'+(near?'까지 올라갑니다':'입니다')+'.';
+    if(weak) s+=' 열쇠는 <b>'+esc(weak)+'</b> 영역입니다.';
+    return s;
+  }catch(e){ return null; }
+}
 function tierPathSec(exam,sel){
   const miss=new Set(exam.miss||[]); let c=0,t=0;
   for(let q=1;q<=exam.nQ;q++){if(miss.has(q))continue; t++; if(okq(exam,q,sel[q]||0))c++;}
@@ -1161,7 +1174,7 @@ function finalHero(nm, exam, correct, total, W, pct){
     var kick;
     if(a.idx===0){ kick='최고 등급입니다. 이 수준을 <b>유지하는 힘</b>이 다음 목표입니다.'; }
     else if(a.inA){ kick=a.name+' 위치, <b>'+a.gap+'문항</b>이면 '+a.nextTier+'에 닿습니다.'+(weak?' 열쇠는 <b>'+esc(weak)+'</b> 영역입니다.':''); }
-    else { kick='수상권까지 <b>'+a.gap+'문항</b>. '+(weak?'<b>'+esc(weak)+'</b> 영역부터 메우면 가장 빠릅니다.':'약한 영역부터 메우면 가장 빠릅니다.'); }
+    else { kick=belowAwardKick(exam,correct,total,weak) || ('수상권까지 <b>'+a.gap+'문항</b>. '+(weak?'<b>'+esc(weak)+'</b> 영역부터 메우면 가장 빠릅니다.':'약한 영역부터 메우면 가장 빠릅니다.')); }
     var types={}; (window.__fw||[]).forEach(function(w){ var t=(exam.type&&exam.type[w.q-1])||(exam.area&&exam.area[w.q-1])||''; if(t) types[t]=1; });
     var nT=Object.keys(types).length;
     return '<div class="fhero"><div class="fhero__ey">핵심 진단</div>'
