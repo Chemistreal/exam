@@ -276,7 +276,7 @@ function openExam(id){
   app.innerHTML=`<button class="back" onclick="renderList()">‹ 시험 목록</button>
    <h2 class="serif" style="margin:6px 0 2px;font-size:20px">${esc(cur.title)}</h2>
    <div class="muted">${cur.nQ}문항 · 4지선다${cur.miss&&cur.miss.length?` · ${cur.miss.join(', ')}번 정답 미확정(채점 제외)`:''}</div>
-   <div class="idbar"><input id="nm" placeholder="이름 (성장 추적용)"><input id="exno" placeholder="수험번호 (선택)" inputmode="numeric"></div>
+   <div class="idbar"><input id="nm" placeholder="이름"><input id="sch" placeholder="학교"><input id="grd" placeholder="학년" inputmode="numeric"></div>
    <div class="kbhint">답안은 키보드 숫자 <b>1–4</b>로 입력하면 자동으로 다음 칸으로 넘어갑니다. <b>←→</b> 이동 · <b>Backspace</b> 지움 · <b>Enter</b> 채점. 숫자열을 붙여넣으면 한 번에 채워집니다.</div>
    <div class="prog"><div class="prog__bar"><div class="prog__fill" id="progFill"></div></div><div class="prog__meta"><span id="progCount">0 / ${total} 입력</span><span id="progWarn" class="muted"></span></div></div>
    <div class="omrbox">${grid}</div>
@@ -1104,23 +1104,23 @@ function fToast(msg){ let t=document.getElementById('ftoast'); if(!t){ t=documen
 let fShared=false;
 function hashStrFinal(cur,sel,nm,exno){ let num=0n; for(let q=cur.nQ;q>=1;q--){ num=num*5n+BigInt(sel[q]||0); } const en=encodeURIComponent((nm||'').trim()), no=(exno||''); return 'r='+cur.id+'.'+num.toString(36)+((en||no)?('.'+no+'.'+en):''); }
 function shareLinkFinal(cur,sel,nm,exno){ return location.origin+location.pathname+'#'+hashStrFinal(cur,sel,nm,exno); }
-function saveToSheetFinal(cur,sel,correct,total,W,cs,nm,exno,pct){
+function saveToSheetFinal(cur,sel,correct,total,W,cs,nm,sch,grd,pct){
   if(!SHEET_ENDPOINT) return;
   if(fShared) return;
-  if(!(nm||exno)) return;
+  if(!(nm||sch)) return;
   const miss=new Set(cur.miss||[]); const broad=a=>RX[a]?a:(RXMAP[a]||a); const ag={};
   if(cur.area) for(let q=1;q<=cur.nQ;q++){ if(miss.has(q))continue; const bd=broad(cur.area[q-1]||''); if(!bd)continue; (ag[bd]=ag[bd]||{c:0,t:0}); ag[bd].t++; if(okq(cur,q,sel[q]||0))ag[bd].c++; }
   const areas=Object.keys(ag).map(d=>d+' '+ag[d].c+'/'+ag[d].t).join(', ');
   const ans=[]; for(let q=1;q<=cur.nQ;q++) ans.push(sel[q]||0);
   let perc=''; try{ if(cs&&cs.percReady&&cs.totals&&cs.totals.length) perc=percentile(cs.totals,correct); }catch(e){}
-  const payload={ key:fSyncKey(), name:nm||'', examno:exno||'', school:'', grade:'',
+  const payload={ key:fSyncKey(), name:nm||'', examno:'', school:sch||'', grade:grd||'',
     date:new Date().toISOString().slice(0,10), exam:cur.title,
     total:correct, max:total, pct100:pct,
     percentile: perc===''?'':+(+perc).toFixed(1), rank:'', n:(cs&&cs.N)||'',
-    correct:correct, areas:areas, answers:ans.join(''), link:shareLinkFinal(cur,sel,nm,exno) };
+    correct:correct, areas:areas, answers:ans.join(''), link:shareLinkFinal(cur,sel,nm) };
   try{
     fetch(SHEET_ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
-    fToast('구글 시트로 전송했습니다 · '+(nm||exno));
+    fToast('구글 시트로 전송했습니다 · '+(nm||sch));
   }catch(e){ fToast('시트 전송 호출 실패 · 로컬 기록은 안전합니다'); }
 }
 function nextGuideCta(nm, exam, wrong){
@@ -1219,16 +1219,16 @@ function scoreAuto(){
   const key=cur.key, miss=new Set(cur.miss||[]); let correct=0,total=0; const wrong=[];
   for(let q=1;q<=cur.nQ;q++){ if(miss.has(q))continue; total++; const a=sel[q]||0,k=key[q-1]; if(okq(cur,q,a))correct++; else wrong.push({q,a,k}); }
   const W=wrong.length, pct=total?Math.round(correct/total*100):0;
-  const nm=(document.getElementById('nm').value||'').trim(), exno=(document.getElementById('exno').value||'').trim();
-  window.__rpt={name:nm,exno:exno};
+  const nm=(document.getElementById('nm').value||'').trim(), sch=(document.getElementById('sch').value||'').trim(), grd=(document.getElementById('grd').value||'').trim();
+  window.__rpt={name:nm,school:sch,grade:grd};
   const ans=[]; for(let q=1;q<=cur.nQ;q++) ans.push(sel[q]||0);
-  const arr=subs(cur.id); arr.push({name:nm,exno,ts:Date.now(),correct,total,wrong:W,ans}); saveSubs(cur.id,arr);
+  const arr=subs(cur.id); arr.push({name:nm,school:sch,grade:grd,ts:Date.now(),correct,total,wrong:W,ans}); saveSubs(cur.id,arr);
   const cs=cohortStats(cur); SNO=0; window.__fw=wrong;
-  saveToSheetFinal(cur,sel,correct,total,W,cs,nm,exno,pct);
+  saveToSheetFinal(cur,sel,correct,total,W,cs,nm,sch,grd,pct);
   app.innerHTML=`<button class="back" onclick="renderList()">‹ 시험 목록</button>
    <div id="repPDF">
    <h2 class="serif" style="margin:6px 0 2px;font-size:20px">${esc(cur.title)} · 성적표</h2>
-   ${nm?`<div class="muted">${esc(nm)}${exno?' · '+esc(exno):''}</div>`:''}
+   ${nm?`<div class="muted">${esc(nm)}${sch?' · '+esc(sch):''}${grd?' · '+esc(grd)+'학년':''}</div>`:''}
    ${finalHero(nm,cur,correct,total,W,pct)}
    ${nextGuideCta(nm,cur,wrong)}
    ${narrativeSec(cur,sel)}
