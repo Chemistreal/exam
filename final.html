@@ -1225,7 +1225,7 @@ function nextGuideCta(nm, exam, wrong){
       +'<div class="serif" style="font-size:19px;font-weight:700;margin-bottom:6px">'+who+' 보완하면 좋을 개념을 강의로 정리했습니다</div>'
       +'<div style="font-size:13.5px;color:var(--ink-2,#5a554c);line-height:1.6;margin-bottom:16px">이번 시험에서 틀린 <b>'+n+'개 유형</b>에 해당하는 개념을 아래 <b>오답 개념 클리닉</b>에 문항별 오개념 → 개념 강의 → 처방 순서로 모아 두었습니다. 다음 수업 전에 한 번 읽어 두면, 같은 유형에서 한결 단단해집니다.</div>'
       +'<div style="font-size:12px;color:var(--muted,#857f74);margin-bottom:12px">자녀가 직접 보도록 이 화면을 함께 전달해 주셔도 좋습니다.</div>'
-      +'<a href="#clinic" style="display:inline-block;background:#0E5A4C;color:#fff;font-weight:700;font-size:14px;border-radius:10px;padding:11px 18px;text-decoration:none">오답 개념 클리닉 바로가기 →</a>'
+      +'<a role="button" tabindex="0" onclick="scrollToClinic();return false" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){scrollToClinic();return false}" style="cursor:pointer;display:inline-block;background:#0E5A4C;color:#fff;font-weight:700;font-size:14px;border-radius:10px;padding:11px 18px;text-decoration:none">오답 개념 클리닉 바로가기 →</a>'
       +'</div>';
   }catch(e){ return ''; }
 }
@@ -1417,6 +1417,8 @@ function boot(){
   if(m){ const ex=FINAL_EXAMS.find(e=>e.id===m[1]); if(ex){ openExam(ex.id); fShared=true; let n=0n; for(const c of m[2]) n=n*36n+BigInt(parseInt(c,36)); for(let q=1;q<=ex.nQ;q++){ const v=Number(n%5n); n=n/5n; if(v) setAns(q,v); } const ne=document.getElementById('nm'), xe=document.getElementById('exno'); if(m[4]&&ne) ne.value=decodeURIComponent(m[4]); if(m[3]&&xe) xe.value=m[3]; scoreAuto(); return; } }
   if(location.hash==='#qbank'||location.hash==='#admin'){ renderQbank(); } else { renderList(); }
 }
+/* 해시를 바꾸지 않고 오답 개념 클리닉으로 스크롤(공유 리포트 #r= 상태 유지) */
+function scrollToClinic(){ var e=document.getElementById('clinic'); if(e){ e.scrollIntoView({behavior:'smooth',block:'start'}); } }
 window.addEventListener('hashchange',boot);
 boot();
 </script></body></html>
