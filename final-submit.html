@@ -90,7 +90,7 @@ function hashStrFinal(cur,sel,nm,exno){ let num=0n; for(let q=cur.nQ;q>=1;q--){ 
    ====================================================================== */
 const GROUPS=[['JMChC','JMChC 모의고사'],['화올','화학올림피아드 기출'],['동형','기출 동형'],['산과염기','산·염기 집중'],['2026','KMChC 2026'],['2025','KMChC 2025'],['2024','KMChC 2024'],['이전','KMChC 이전 기출']];
 const app=document.getElementById('app');
-let cur=null, sel={};
+let cur=null, sel={}, LOCKED=false;
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function fSyncKey(){ try{ return localStorage.getItem('chemistreal:synckey')||''; }catch(e){ return ''; } }
 function toast(m){ let t=document.getElementById('toast'); if(!t){t=document.createElement('div');t.id='toast';t.className='toast';document.body.appendChild(t);} t.textContent=m; t.classList.add('on'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('on'),2600); }
@@ -119,7 +119,7 @@ function openExam(id){
     omr+='<div class="qc'+(m?' miss':'')+'"><span class="qc__n">'+q+'</span>'
       +'<input id="a'+q+'" inputmode="numeric" maxlength="1" '+(m?'disabled':'')+' oninput="onIn('+q+',this)" onkeydown="onKey(event,'+q+')"></div>';
   }
-  app.innerHTML='<button class="back" onclick="renderList()">‹ 시험 목록</button>'
+  app.innerHTML=(LOCKED?'<div class="brand">Chemistreal · 조준모 화학</div>':'<button class="back" onclick="renderList()">‹ 시험 목록</button>')
     +'<h1 style="font-size:18px">'+esc(cur.title)+'</h1>'
     +'<div class="card"><label>이름 *</label><input class="txt" id="nm" autocomplete="off">'
     +'<div class="row2"><div><label>학교 *</label><input class="txt" id="sch" autocomplete="off"></div>'
@@ -202,11 +202,19 @@ function showResult(nm,sch,exam,correct,total,pct,rs,wrong){
     +'</div></div>'
     +(arows?'<div class="card"><label>영역별 정답 (약한 순)</label>'+arows+'</div>':'')
     +'<div class="card ok" style="text-align:center">✓ 답안이 선생님께 전송되었습니다</div>'
-    +'<button class="btn ghost" onclick="renderList()">다른 시험 제출</button>'
+    +(LOCKED?'':'<button class="btn ghost" onclick="renderList()">다른 시험 제출</button>')
     +'<footer>Chemistreal Final · 학생 제출용</footer>';
   window.scrollTo(0,0);
 }
 
-renderList();
+/* ?exam=<회차id> 로 특정 시험에 바로 진입(회차별 링크). 없으면 전체 목록 */
+function boot(){
+  let id=null;
+  try{ id=new URLSearchParams(location.search).get('exam'); }catch(e){}
+  if(!id){ const m=location.hash.match(/exam=([\w-]+)/); if(m)id=m[1]; }
+  if(id && FINAL_EXAMS.some(e=>e.id===id)){ LOCKED=true; openExam(id); }
+  else renderList();
+}
+boot();
 
 </script>
