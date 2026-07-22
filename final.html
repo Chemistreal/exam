@@ -249,7 +249,7 @@ function renderList(){
   const groups={}; FINAL_EXAMS.forEach(e=>{(groups[e.group]=groups[e.group]||[]).push(e)});
   const order=['JMChC','화올','동형','산과염기','2026','2025','2024','이전'];
   const GLAB={'JMChC':['JMChC 모의고사','60문항 · 영역·개념'],'화올':['화학올림피아드 기출','연도별 · 영역·개념'],'동형':['기출동형 모의고사','영역·개념'],'산과염기':['산·염기 60제','영역·개념']};
-  let h=`<div class="note">기출을 답안 입력만 하면 자동 채점하고 <b>수상권 + 영역·개념 진단</b>으로 분석합니다. 만점 대상 · 4틀림까지 금상 · 9틀림까지 은상 · 13틀림까지 동상 · 18틀림까지 장려상, 다음 등급까지 2문제 이내면 '○○권'. 응시가 누적되면 백분위·문항 정답률·선택지 분석이 더해집니다.</div>`;
+  let h=`<div style="display:flex;justify-content:flex-end;margin:2px 0 8px"><button class="btn ghost sm" onclick="copyStudentLink()">학생 제출 링크 복사 ⧉</button></div><div class="note">기출을 답안 입력만 하면 자동 채점하고 <b>수상권 + 영역·개념 진단</b>으로 분석합니다. 만점 대상 · 4틀림까지 금상 · 9틀림까지 은상 · 13틀림까지 동상 · 18틀림까지 장려상, 다음 등급까지 2문제 이내면 '○○권'. 응시가 누적되면 백분위·문항 정답률·선택지 분석이 더해집니다.</div>`;
   order.forEach(g=>{ if(!groups[g])return;
     const gl=GLAB[g]||['KMChC '+(g==='이전'?'이전 연도':g+'년'),'자동 채점'];
     h+=`<div class="grp">${gl[0]}<span class="gt">${gl[1]}</span></div><div class="cards">`;
@@ -280,6 +280,16 @@ function openExam(id){
   window.scrollTo(0,0);
   const f0=document.getElementById('ai_1')||document.querySelector('.ansin:not([disabled])'); if(f0)f0.focus();
 }
+/* 연속 채점: 채점 직후 같은 시험의 빈 입력 폼으로 돌아가 다음 학생을 바로 입력(이름 칸 포커스) */
+function nextStudent(){ if(!cur)return; const id=cur.id; openExam(id); const f=document.getElementById('nm'); if(f)f.focus(); }
+/* 학생용 답안 제출 페이지(final-submit.html) 링크 복사 */
+function copyStudentLink(){
+  const url=location.origin+location.pathname.replace(/[^/]*$/, 'final-submit.html');
+  const ok=()=>fToast('학생 제출 링크 복사됨 · '+url);
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(ok).catch(()=>fallbackCopy(url,ok)); }
+  else fallbackCopy(url,ok);
+}
+function fallbackCopy(text,ok){ const t=document.createElement('textarea'); t.value=text; t.style.position='fixed'; t.style.opacity='0'; document.body.appendChild(t); t.select(); try{document.execCommand('copy');ok();}catch(e){fToast(text);} t.remove(); }
 function adjInput(q,dir){ let n=q+dir; while(n>=1&&n<=cur.nQ){ const el=document.getElementById('ai_'+n); if(el&&!el.disabled) return el; n+=dir; } return null; }
 function setAns(q,v){ const el=document.getElementById('ai_'+q); if(!el||el.disabled)return; if(v>=1&&v<=4){ sel[q]=v; el.value=v; el.classList.add('filled'); } else { delete sel[q]; el.value=''; el.classList.remove('filled'); } }
 function typeAns(q,el){ let v=el.value.replace(/[^1-4]/g,''); v=v?v.slice(-1):''; el.value=v; if(v){ sel[q]=+v; el.classList.add('filled'); const nx=adjInput(q,1); if(nx)nx.focus(); } else { delete sel[q]; el.classList.remove('filled'); } updateProg(); }
@@ -1241,6 +1251,7 @@ function scoreAuto(){
    ${methodSec(cur)}
    <div class="toolbar"><button class="btn sm" onclick="window.print()">리포트 PDF 저장 ↓</button><button class="btn ghost sm" onclick="exportReportHTML()">공유용 HTML 저장 ↓</button>
      <a class="pdf" href="sol-final-${cur.id}.html" target="_blank">정답·개념 해설 ↗</a>
+     <button class="btn sm" onclick="nextStudent()">다음 학생 입력 ▶</button>
      <button class="btn ghost sm" onclick="openExam('${cur.id}')">다시 채점</button></div>`;
   window.scrollTo(0,0);
 }
