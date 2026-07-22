@@ -1450,11 +1450,26 @@ async function ensurePdfLibs(){ if(!window.html2canvas) await loadScriptOnce('ve
 /* 안전 절단점(블록 요소 경계)을 촘촘히 모은다. div까지 포함해 문단·행 사이에서 끊을 수 있게 한다 */
 function pdfBreakYs(el, scale, maxH){
   var cr=el.getBoundingClientRect(), set={0:1};
+  function add(y){ if(y>4 && y<maxH) set[Math.round(y)]=1; }
+  // (1) 요소 경계(상단·하단) — 한 페이지 넘는 블록은 제외
   el.querySelectorAll('div,p,li,tr,svg,table,h2,h3,details,summary,img').forEach(function(n){
     var r=n.getBoundingClientRect(); if(r.height<=0 || r.height>maxH) return;
-    var top=Math.round((r.top-cr.top)*scale), bot=Math.round((r.bottom-cr.top)*scale);
-    if(top>4 && top<maxH) set[top]=1;
-    if(bot>4 && bot<maxH) set[bot]=1;
+    add((r.top-cr.top)*scale); add((r.bottom-cr.top)*scale);
+  });
+  // (2) 줄 단위 절단점 — 긴 흐름 텍스트(문단·설명)는 줄 사이에서 끊어 페이지를 채우고 줄 중간 잘림을 막는다.
+  //     블록 높이 제한 없이(한 페이지를 넘는 문단이 핵심 대상), 각 줄 상자의 하단을 후보로 추가.
+  function addLines(n){
+    if(n.getBoundingClientRect().height<=0) return;
+    try{ var rg=document.createRange(); rg.selectNodeContents(n);
+      var rects=rg.getClientRects();
+      for(var i=0;i<rects.length;i++){ add((rects[i].bottom-cr.top)*scale); }
+    }catch(e){}
+  }
+  el.querySelectorAll('p,li,summary').forEach(addLines);
+  // 클래스 없는 긴 문단 div(클리닉 강의요약 등)도 직접 렌더링하는 텍스트가 길면 줄 단위로
+  el.querySelectorAll('div').forEach(function(d){
+    var t=''; for(var i=0;i<d.childNodes.length;i++){ if(d.childNodes[i].nodeType===3) t+=d.childNodes[i].textContent; }
+    if(t.replace(/\s+/g,'').length>=120) addLines(d);
   });
   return Object.keys(set).map(Number).sort(function(a,b){return a-b;});
 }
@@ -1471,8 +1486,9 @@ function pdfAtomics(el, scale, maxH){
       || parseFloat(cs.borderTopWidth)>0 || parseFloat(cs.borderBottomWidth)>0;
     if(filled) out.push([Math.round((r.top-cr.top)*scale), Math.round((r.bottom-cr.top)*scale)]);
   });
-  // 제목류: 제목 상단 ~ (제목 하단 + 다음 내용 일부)까지 한 덩어리로 묶어 고아 제목 방지
-  var tail=130*scale;
+  // 제목류: 제목 상단 ~ (제목 하단 + 다음 내용 약 2줄)까지 한 덩어리로 묶어 고아 제목 방지.
+  // 꼬리를 짧게(≈2줄) 잡아, 제목 뒤에 최소 몇 줄이 따라오게만 보장하고 과도한 밀어냄(빈 페이지)은 피한다.
+  var tail=60*scale;
   el.querySelectorAll('.sec__h,.tb-h,.tb-lh,.tb-cover,.tb-cover+.tb-sub,h2,h3').forEach(function(n){
     var r=n.getBoundingClientRect(); if(r.height<=0) return;
     var top=Math.round((r.top-cr.top)*scale), bot=Math.round((r.bottom-cr.top)*scale+tail);
