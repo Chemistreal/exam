@@ -1382,7 +1382,9 @@ function pdfBreakYs(el, scale, maxH){
   });
   return Object.keys(set).map(Number).sort(function(a,b){return a-b;});
 }
-/* 색이 채워진 박스(배경색·배경이미지·테두리)의 상·하단(canvas 기준). 이 박스는 절단 대신 통째로 다음 페이지로 넘긴다 */
+/* 절단하면 안 되는 구간의 [상단,하단](canvas 기준).
+   (1) 색이 채워진 박스(배경·테두리) — 통째로 넘김
+   (2) 제목 + 바로 뒤 내용 일부 — 제목이 페이지 끝에 홀로 남지 않게 함께 넘김 */
 function pdfAtomics(el, scale, maxH){
   var cr=el.getBoundingClientRect(), out=[];
   el.querySelectorAll('*').forEach(function(n){
@@ -1392,6 +1394,13 @@ function pdfAtomics(el, scale, maxH){
       || (cs.backgroundImage && cs.backgroundImage!=='none')
       || parseFloat(cs.borderTopWidth)>0 || parseFloat(cs.borderBottomWidth)>0;
     if(filled) out.push([Math.round((r.top-cr.top)*scale), Math.round((r.bottom-cr.top)*scale)]);
+  });
+  // 제목류: 제목 상단 ~ (제목 하단 + 다음 내용 일부)까지 한 덩어리로 묶어 고아 제목 방지
+  var tail=130*scale;
+  el.querySelectorAll('.sec__h,.tb-h,.tb-lh,.tb-cover,.tb-cover+.tb-sub,h2,h3').forEach(function(n){
+    var r=n.getBoundingClientRect(); if(r.height<=0) return;
+    var top=Math.round((r.top-cr.top)*scale), bot=Math.round((r.bottom-cr.top)*scale+tail);
+    if(bot-top<maxH) out.push([top,bot]);
   });
   return out;
 }
