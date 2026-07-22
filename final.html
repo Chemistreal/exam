@@ -21,6 +21,17 @@ main{max-width:780px;margin:0 auto;padding:16px 15px 60px}
 .slink{position:absolute;top:10px;right:10px;font-size:11px;color:var(--teal,#3A7A6B);background:rgba(58,122,107,.08);border:1px solid rgba(58,122,107,.25);border-radius:7px;padding:4px 8px;cursor:pointer;font-weight:600}
 .slink:active{background:rgba(58,122,107,.18)}
 #repPDF.pdfing{background:#fff;padding:10px 12px;border-radius:0}
+/* PDF 캡처 시: 페이지에 걸쳐 잘려도 지저분하지 않도록 큰 컨테이너의 테두리·그림자·둥근모서리·배경 제거(책처럼 흐르게).
+   작은 색상 박스(핵심/함정/처방/문항)와 히어로·수상 카드는 그대로 둔다. */
+#repPDF.pdfing .sec,
+#repPDF.pdfing .note,
+#repPDF.pdfing .tb-area,
+#repPDF.pdfing .fclosing,
+#repPDF.pdfing .detail{
+  border:none!important; box-shadow:none!important; border-radius:0!important; background:transparent!important;
+  padding-left:0!important; padding-right:0!important; margin-left:0!important; margin-right:0!important;
+}
+#repPDF.pdfing .sec{margin-top:14px!important}
 .tb-appendix{margin-top:26px;border-top:3px double var(--brass,#B08D57);padding-top:18px}
 .tb-cover{font-family:'Nanum Myeongjo',Georgia,serif;font-size:24px;font-weight:800;color:var(--teal-d,#0c3a32)}
 .tb-sub{color:var(--muted,#8a8172);font-size:12.5px;line-height:1.6;margin:5px 0 16px}
