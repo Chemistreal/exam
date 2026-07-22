@@ -46,6 +46,14 @@ input.txt:focus{border-color:var(--teal);outline:none}
 .toast.on{opacity:1}
 .back{background:none;border:none;color:var(--teal);font-size:14px;padding:6px 0;cursor:pointer}
 footer{margin-top:26px;text-align:center;font-size:11px;color:var(--muted)}
+.pdfcard{padding:12px 12px}
+.pdfbar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.pdfbar label{margin:0}
+.pdfopen{font-size:13px;font-weight:700;color:#fff;background:var(--teal);text-decoration:none;border-radius:9px;padding:8px 12px;white-space:nowrap}
+.pdfopen:active{background:var(--teal-d)}
+.pdfframe{width:100%;height:74vh;min-height:440px;border:1px solid var(--line);border-radius:10px;margin-top:9px;background:#f3efe6}
+.pdftoggle{background:none;border:1.5px solid var(--line);border-radius:9px;color:var(--ink);font-size:13px;font-weight:600;padding:7px 11px;cursor:pointer}
+.pdfhidden .pdfframe{display:none}
 </style>
 <div class="wrap" id="app"></div>
 <script>
@@ -114,6 +122,21 @@ function renderList(){
   app.innerHTML=h; window.scrollTo(0,0);
 }
 
+/* 문제지 PDF 뷰어(있을 때만). 데스크톱은 인라인, 모바일은 '전체 화면으로 열기'로 네이티브 뷰어 */
+function problemPanel(exam){
+  if(!exam.pdf) return '';
+  const url=esc(exam.pdf);
+  return '<div class="card pdfcard" id="pdfcard">'
+    +'<div class="pdfbar"><label>📄 문제지 · 먼저 풀어 보세요</label>'
+    +'<span style="display:flex;gap:7px"><button type="button" class="pdftoggle" onclick="togglePdf()" id="pdftgl">접기</button>'
+    +'<a class="pdfopen" href="'+url+'" target="_blank" rel="noopener">전체 화면 ↗</a></span></div>'
+    +'<div class="hint">문제를 읽고 아래에 답안을 입력해 제출하세요. 휴대폰에서 문제가 안 보이면 <b>전체 화면 ↗</b>을 누르세요.</div>'
+    +'<iframe class="pdfframe" src="'+url+'#view=FitH" title="문제지" loading="lazy"></iframe>'
+    +'</div>';
+}
+function togglePdf(){ const c=document.getElementById('pdfcard'), b=document.getElementById('pdftgl');
+  if(!c)return; const hid=c.classList.toggle('pdfhidden'); if(b)b.textContent=hid?'문제 보기':'접기'; }
+
 function openExam(id){
   cur=FINAL_EXAMS.find(e=>e.id===id); sel={};
   const nQ=cur.nQ||cur.key.length; const miss=new Set(cur.miss||[]);
@@ -124,6 +147,7 @@ function openExam(id){
   }
   app.innerHTML=(LOCKED?'<div class="brand">Chemistreal · 조준모 화학</div>':'<button class="back" onclick="renderList()">‹ 시험 목록</button>')
     +'<h1 style="font-size:18px">'+esc(cur.title)+'</h1>'
+    +problemPanel(cur)
     +'<div class="card"><label>이름 *</label><input class="txt" id="nm" autocomplete="off">'
     +'<div class="row2"><div><label>학교 *</label><input class="txt" id="sch" autocomplete="off"></div>'
     +'<div><label>학년</label><input class="txt" id="grd" inputmode="numeric" placeholder="예: 2" autocomplete="off"></div></div></div>'
