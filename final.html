@@ -21,6 +21,22 @@ main{max-width:780px;margin:0 auto;padding:16px 15px 60px}
 .slink{position:absolute;top:10px;right:10px;font-size:11px;color:var(--teal,#3A7A6B);background:rgba(58,122,107,.08);border:1px solid rgba(58,122,107,.25);border-radius:7px;padding:4px 8px;cursor:pointer;font-weight:600}
 .slink:active{background:rgba(58,122,107,.18)}
 #repPDF.pdfing{background:#fff;padding:10px 12px;border-radius:0}
+.tb-appendix{margin-top:26px;border-top:3px double var(--brass,#B08D57);padding-top:18px}
+.tb-cover{font-family:'Nanum Myeongjo',Georgia,serif;font-size:24px;font-weight:800;color:var(--teal-d,#0c3a32)}
+.tb-sub{color:var(--muted,#8a8172);font-size:12.5px;line-height:1.6;margin:5px 0 16px}
+.tb-area{margin:14px 0 16px;padding:14px 15px;border:1px solid var(--line,#e7e1d4);border-radius:12px;background:#fff}
+.tb-h{font-family:'Nanum Myeongjo',Georgia,serif;font-size:18px;font-weight:800;color:var(--teal-d,#0c3a32);border-bottom:2px solid var(--teal,#3A7A6B);padding-bottom:6px;margin-bottom:9px}
+.tb-h span{font-size:12px;font-weight:400;color:var(--muted,#8a8172)}
+.tb-q{font-size:12.5px;padding:2px 0}
+.tb-qs{margin-bottom:6px}
+.tb-lab{font-size:12px;font-weight:800;color:var(--teal,#3A7A6B);margin-top:11px}
+.tb-lab--lec{color:var(--teal-d,#0c3a32)}
+.tb-lec p,.tb-box p{font-size:12.8px;line-height:1.85;color:#2c2a24;margin:5px 0 0}
+.tb-box{margin-top:9px;padding:9px 11px;border-radius:8px}
+.tb-key{background:rgba(58,122,107,.07)}
+.tb-trap{background:rgba(177,68,47,.06)}.tb-trap .tb-lab{color:#b1442f}
+.tb-rx{background:rgba(176,141,87,.10)}.tb-rx .tb-lab{color:var(--brass,#B08D57)}
+.tb-foot{text-align:center;font-size:11px;color:var(--muted,#8a8172);margin-top:14px}
 .tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--ok-bg);color:var(--teal)}
 .tag.s{background:#f3edff;color:#6b4fb0}
 .idbar{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 4px}
@@ -470,6 +486,31 @@ function conceptClinicSec(exam, sel, wrong, cs){
    <div class="note" style="font-size:12px;color:var(--muted)">개념 강의로 원리를 다시 잡고, 같은 개념의 변형 문항을 풀어 결손이 메워졌는지 확인하세요.</div>
   </div>`;
 }
+/* PDF 교재용 부록: 오답 개념을 영역별로 강의 전문·핵심·함정·처방까지 모두 담아 이 파일 하나로 복습 가능하게 한다 */
+function buildConceptTextbook(exam, wrong){
+  if(!wrong||!wrong.length) return '';
+  var broad=function(a){ return RX[a]?a:(RXMAP[a]||a); };
+  var groups={};
+  wrong.forEach(function(w){ var ar=exam.area?(exam.area[w.q-1]||'기타'):'기타'; var bd=broad(ar); (groups[bd]=groups[bd]||[]).push(w); });
+  var order=Object.keys(groups).sort(function(a,b){ return groups[b].length-groups[a].length; });
+  var pages=order.map(function(bd){
+    var r=RX[bd], lec=LEC[bd];
+    var its=groups[bd].map(function(w){ var ty=exam.type?(exam.type[w.q-1]||''):'';
+      return '<div class="tb-q"><b>'+w.q+'번</b> <span style="color:#b1442f">'+(w.a?CIRC[w.a]:'·')+'</span> → <span style="color:#1f7a68">'+ansLabel(exam,w.q)+'</span>'+(ty?' · <span style="color:#555">'+esc(ty)+'</span>':'')+'</div>'; }).join('');
+    return '<div class="tb-area">'
+      +'<div class="tb-h">'+esc(bd)+' <span>· 이번 시험 오답 '+groups[bd].length+'문항</span></div>'
+      +'<div class="tb-qs">'+its+'</div>'
+      +(lec&&lec.s?'<div class="tb-lec"><div class="tb-lab tb-lab--lec">📘 개념 강의</div><p>'+esc(lec.s)+'</p></div>':'')
+      +(r&&r.k?'<div class="tb-box tb-key"><div class="tb-lab">✔ 핵심 개념</div><p>'+esc(r.k)+'</p></div>':'')
+      +(r&&r.t?'<div class="tb-box tb-trap"><div class="tb-lab">⚠ 자주 틀리는 함정</div><p>'+esc(r.t)+'</p></div>':'')
+      +(r&&r.rx?'<div class="tb-box tb-rx"><div class="tb-lab">▶ 복습 처방</div><p>'+esc(r.rx)+'</p></div>':'')
+      +'</div>';
+  }).join('');
+  return '<div class="tb-appendix"><div class="tb-cover">부록 · 오답 개념 총정리</div>'
+    +'<div class="tb-sub">이번 시험에서 틀린 문항의 개념을 영역별로 교재처럼 정리했습니다. 개념 강의 → 핵심 → 함정 → 처방 순서로, 이 문서 하나만으로 복습할 수 있습니다.</div>'
+    + pages
+    +'<div class="tb-foot">Chemistreal · 조준모 화학 — 오답 개념 총정리</div></div>';
+}
 const RXMAP={'원자의구조':'원자모형','전자기파':'원자모형','수소스펙트럼':'원자모형','전자배치':'원자모형','양자수':'원자모형','원소의기원':'원자모형','방사성붕괴':'원자모형','원자반지름':'주기율','원자의크기':'주기율','이온화에너지':'주기율','전기음성도':'주기율','반응성':'주기율','분자오비탈':'분자의모양','혼성오비탈':'분자의모양','분자의구조':'분자의모양','쌍극자모멘트':'분자의모양','화학결합':'분자의모양','옥텟규칙':'분자의모양','수소결합':'분자간인력','끓는점':'분자간인력','모세관현상':'분자간인력','화학식량':'몰과양적관계','계수맞추기':'몰과양적관계','몰과질량':'몰과양적관계','몰과부피':'몰과양적관계','몰과개수':'몰과양적관계','양적관계':'몰과양적관계','수득률':'몰과양적관계','원소분석장치':'몰과양적관계','성분원소의확인':'몰과양적관계','분자운동속도':'기체','실제기체':'기체','용해도':'액체,용액','삼투압':'액체,용액','상평형':'액체,용액','용액의총괄성':'액체,용액','총괄성':'액체,용액','용액의농도':'액체,용액','농도환산':'액체,용액','액체':'액체,용액','고체의구조':'고체','고체의밀도':'고체','탄소동소체':'고체','틈새형자리':'고체','엔탈피':'열화학','결합에너지':'열화학','헤스법칙':'열화학','깁스자유에너지':'열화학','엔트로피':'열화학','생성엔탈피':'열화학','연소엔탈피':'열화학','에너지':'열화학','열역학':'열화학','평형상수':'화학평형','평형농도':'화학평형','용해평형':'화학평형','조건반대':'화학평형','앙금생성':'화학평형','pH':'산과염기','염의가수분해':'산과염기','물의자동이온화':'산과염기','이온화상수':'산과염기','완충용액':'산과염기','염의액성':'산과염기','액성':'산과염기','헨더슨하셀바흐식':'산과염기','이온화도':'산과염기','산의세기':'산과염기','지시약':'중화반응','다양성자산의적정':'중화반응','산화수':'산화환원','전지':'산화환원','전기분해':'산화환원','기전력':'산화환원','전기화학':'산화환원','산화환원반응':'산화환원','반응차수':'반응속도','속도론':'반응속도','메커니즘':'반응속도','촉매':'반응속도','속도상수':'반응속도','이성질체':'탄소화합물','아미노산':'탄소화합물','DNA':'탄소화합물','탄화수소유도체':'탄소화합물'};
 const RX={
 '원자모형':{k:'수소꼴 이온 에너지 준위(En∝-Z²/n²)·발머-뤼드베리 식, 광전효과(문턱진동수·일함수)·드브로이 물질파(λ=h/p), 양자수(n,l,ml,ms)와 오비탈, 쌓음·훈트·파울리, 전자배치 예외(Cr·Cu).',t:'수소는 에너지가 n에만 의존(2s=2p)하나 다전자는 2s<2p로 갈림. 광전효과는 빛의 세기가 아닌 진동수가 전자 방출을 결정. 흡수/방출 시 m·n 자리와 부호 혼동.',rx:'양자수 조합→오비탈 에너지 비교, Cr·Cu 전자배치 도식, 수소꼴 이온 광자에너지 계산을 반복하세요.'},
@@ -907,10 +948,10 @@ function belowAwardKick(exam, correct, total, weak){
   try{
     var cut=exam.cut; if(!cut||total<=0) return null;
     var gap=Math.max(1,(total-correct)-cut[4]);                                  // 장려상 도달까지 회복해야 할 정답 수
-    var pB=Math.round(winProb(total, Math.min(total,correct+gap), cut)[4]*100);  // 회복 시 입상 가능성
-    var near=gap<=6;
-    var s='아쉽게 이번엔 수상권 밖이지만, <b>장려상까지 '+gap+'문항</b>'+(near?' 남았습니다':'입니다')+'. ';
-    s+='오답 <b>'+gap+'문항</b>'+(near?'만':'을')+' 회복하면 다음 실전 <b>입상 가능성 약 '+pB+'%</b>'+(near?'까지 올라갑니다':'입니다')+'.';
+    var steps=[gap, gap+3, gap+6].filter(function(k){ return correct+k<=total; });
+    if(!steps.length) steps=[Math.min(gap, total-correct)];
+    var ladder=steps.map(function(k){ var p=Math.round(winProb(total, Math.min(total,correct+k), cut)[4]*100); return '+'+k+'문항 <b>'+p+'%</b>'; }).join(' → ');
+    var s='아쉽게 이번엔 수상권 밖이지만, <b>장려상까지 '+gap+'문항</b>입니다. 회복할수록 입상 가능성이 오릅니다 — '+ladder+'.';
     if(weak) s+=' 열쇠는 <b>'+esc(weak)+'</b> 영역입니다.';
     return s;
   }catch(e){ return null; }
@@ -1285,9 +1326,12 @@ function loadScriptOnce(src){ return new Promise(function(res,rej){ var ex=docum
 async function ensurePdfLibs(){ if(!window.html2canvas) await loadScriptOnce('vendor/html2canvas.min.js'); if(!(window.jspdf&&window.jspdf.jsPDF)) await loadScriptOnce('vendor/jspdf.umd.min.js'); }
 async function downloadReportPDF(){
   var el=document.getElementById('repPDF'); if(!el){ fToast('리포트를 찾을 수 없습니다'); return; }
-  fToast('PDF 만드는 중… 잠시만요');
+  fToast('교재형 PDF 만드는 중… 잠시만요');
   var dets=[].map.call(el.querySelectorAll('details'),function(d){return [d,d.open];}); dets.forEach(function(x){x[0].open=true;});
   el.classList.add('pdfing');
+  // 오답 개념 총정리 부록을 캡처 동안만 리포트 끝에 붙였다가 제거(화면 본문은 그대로 유지)
+  var appendix=null;
+  try{ var apx=buildConceptTextbook(cur, (window.__fw||[])); if(apx){ appendix=document.createElement('div'); appendix.innerHTML=apx; el.appendChild(appendix); } }catch(e){}
   try{
     await ensurePdfLibs();
     await new Promise(function(r){setTimeout(r,80);});
@@ -1318,7 +1362,7 @@ async function downloadReportPDF(){
     setTimeout(function(){ try{URL.revokeObjectURL(url); a.remove();}catch(e){} },1500);
     fToast('PDF 다운로드 완료 · '+fn);
   }catch(err){ console.error(err); fToast('PDF 생성 실패 — 인쇄 버튼을 이용해 주세요'); }
-  finally{ el.classList.remove('pdfing'); dets.forEach(function(x){x[0].open=x[1];}); }
+  finally{ if(appendix&&appendix.parentNode) appendix.parentNode.removeChild(appendix); el.classList.remove('pdfing'); dets.forEach(function(x){x[0].open=x[1];}); }
 }
 function boot(){
   const m=location.hash.match(/r=([^.]+)\.([0-9a-z]+)(?:\.([^.]*)\.(.*))?$/);
