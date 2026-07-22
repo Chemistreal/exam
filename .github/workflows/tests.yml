@@ -1,0 +1,23 @@
+# 채점 규칙·학생제출 동기화 검사. 어긋나면 빨간불.
+name: 채점 테스트
+
+on:
+  push:
+    branches: [main]
+    paths: ['final.html', 'final-submit.html', 'tests/**']
+  pull_request:
+    paths: ['final.html', 'final-submit.html', 'tests/**']
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 원점수 채점 규칙
+        run: node tests/final-score.js
+      - name: 학생제출 ↔ 교사용 동기화
+        run: node tests/final-submit-sync.js
