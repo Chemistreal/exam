@@ -1128,9 +1128,19 @@ function finalWeakArea(exam, wrong){
     var best='', n=0; Object.keys(cnt).forEach(function(k){ if(cnt[k]>n){n=cnt[k];best=k;} }); return best;
   }catch(e){ return ''; }
 }
+/* 시험별 오답 감점 배점: JMChC·산과염기는 무감점(정답+3 / 무응답0 / 오답0),
+   그 외(화올·기출동형·KMChC 기출)는 오답 −1 (정답+3 / 무응답0 / 오답−1) */
+function finalPenalty(exam){ var g=(exam&&exam.group)||''; return (g==='JMChC'||g==='산과염기')?0:1; }
+/* 원점수 = 정답×3 − 오답×감점 (무응답 0). 오답은 '찍었는데 틀린' 것만(무응답 제외). */
+function finalRawScore(exam, correct, wrongList){
+  var pen=finalPenalty(exam);
+  var wrongAns=(wrongList||[]).filter(function(w){ return w&&w.a>=1&&w.a<=4; }).length;
+  return { pen:pen, wrongAns:wrongAns, score:correct*3 - pen*wrongAns };
+}
 function finalHero(nm, exam, correct, total, W, pct){
   try{
     var a=award(W, exam.cut);
+    var _rs=finalRawScore(exam, correct, (window.__fw||[])), _max=total*3;
     var weak=finalWeakArea(exam, (window.__fw||[]));
     var kick;
     if(a.idx===0){ kick='최고 등급입니다. 이 수준을 <b>유지하는 힘</b>이 다음 목표입니다.'; }
@@ -1142,6 +1152,7 @@ function finalHero(nm, exam, correct, total, W, pct){
       +'<div class="fhero__tier">'+a.name+'</div>'
       +'<div class="fhero__head">'+kick+'</div>'
       +'<div class="fhero__stats">'
+      +'<div class="fhds"><b>'+_rs.score+'/'+_max+'</b><span>원점수'+(_rs.pen?' · 오답 −1':'')+'</span></div>'
       +'<div class="fhds"><b>'+correct+'/'+total+'</b><span>맞은 개수</span></div>'
       +'<div class="fhds"><b>'+pct+'%</b><span>정답률</span></div>'
       +'<div class="fhds"><b>'+nT+'개</b><span>틀린 유형</span></div>'
