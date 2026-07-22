@@ -82,6 +82,10 @@ function doPost(e) {
       if (cfg) recomputeExam(d.exam, cfg.base, cfg.qCount);
     } catch (eR) { Logger.log('자동 재계산 실패(저장은 완료): ' + eR); }
 
+    // [자동 문자 생성] 저장 직후 '성적문자' 탭을 최신 성적기록으로 통째로 다시 채운다.
+    // 실패해도 저장은 성공 처리(수동 fillReportMessages로 복구 가능).
+    try { fillReportMessages(); } catch (eM) { Logger.log('자동 문자 생성 실패(저장은 완료): ' + eM); }
+
     return ContentService
       .createTextOutput(JSON.stringify({ ok: true }))
       .setMimeType(ContentService.MimeType.JSON);
@@ -308,7 +312,8 @@ function triggerStatus() {
    성적표 링크가 자연스럽게 녹은 문자를 만들어 별도 탭 '성적문자'의
    맨 왼쪽(A열)에 한 셀씩 채운다. (데이터 시트 구조는 건드리지 않음)
 
-   실행:  편집기에서 fillReportMessages 선택 → 실행
+   실행:  학생/교사가 답안을 제출할 때마다 doPost가 자동으로 호출한다.
+          (수동으로 다시 채우려면 편집기에서 fillReportMessages 선택 → 실행)
    ============================================================ */
 var MSG_EXAMS = {
   '조준모의고사 0회': { topic: '화학 전 범위(원자의 구조·주기율·화학 결합·기체·열화학·용액·산화환원)를 아우르는 중등 화올 종합 진단', mode: 'perc' },
