@@ -1371,17 +1371,29 @@ window.addEventListener('afterprint',function(){(window.__det||[]).forEach(funct
 /* ===== 성적표 PDF 다운로드 (인쇄 대화상자 없이 파일 생성) ===== */
 function loadScriptOnce(src){ return new Promise(function(res,rej){ var ex=document.querySelector('script[data-lib="'+src+'"]'); if(ex){ if(ex.dataset.loaded){res();return;} ex.addEventListener('load',function(){res();}); ex.addEventListener('error',function(){rej(new Error(src));}); return; } var s=document.createElement('script'); s.src=src; s.dataset.lib=src; s.onload=function(){s.dataset.loaded='1';res();}; s.onerror=function(){rej(new Error(src));}; document.head.appendChild(s); }); }
 async function ensurePdfLibs(){ if(!window.html2canvas) await loadScriptOnce('vendor/html2canvas.min.js'); if(!(window.jspdf&&window.jspdf.jsPDF)) await loadScriptOnce('vendor/jspdf.umd.min.js'); }
-/* PDF 페이지를 요소 중간에서 자르지 않도록, 블록 요소의 상·하단 y좌표(canvas 기준)를 안전 절단점으로 모은다 */
+/* 안전 절단점(블록 요소 경계)을 촘촘히 모은다. div까지 포함해 문단·행 사이에서 끊을 수 있게 한다 */
 function pdfBreakYs(el, scale, maxH){
   var cr=el.getBoundingClientRect(), set={0:1};
-  // 모든 블록 요소의 상·하단을 후보로(중첩·중복은 Set이 정리). div까지 포함해 잘게 끊을 수 있게 한다
   el.querySelectorAll('div,p,li,tr,svg,table,h2,h3,details,summary,img').forEach(function(n){
-    var r=n.getBoundingClientRect(); if(r.height<=0 || r.height>maxH) return;   // 페이지보다 큰 컨테이너는 경계로 쓰지 않음(내부에서 끊음)
+    var r=n.getBoundingClientRect(); if(r.height<=0 || r.height>maxH) return;
     var top=Math.round((r.top-cr.top)*scale), bot=Math.round((r.bottom-cr.top)*scale);
     if(top>4 && top<maxH) set[top]=1;
     if(bot>4 && bot<maxH) set[bot]=1;
   });
   return Object.keys(set).map(Number).sort(function(a,b){return a-b;});
+}
+/* 색이 채워진 박스(배경색·배경이미지·테두리)의 상·하단(canvas 기준). 이 박스는 절단 대신 통째로 다음 페이지로 넘긴다 */
+function pdfAtomics(el, scale, maxH){
+  var cr=el.getBoundingClientRect(), out=[];
+  el.querySelectorAll('*').forEach(function(n){
+    var r=n.getBoundingClientRect(); if(r.height<=2 || r.height>=maxH) return;
+    var cs; try{ cs=getComputedStyle(n); }catch(e){ return; }
+    var filled=(cs.backgroundColor && cs.backgroundColor!=='rgba(0, 0, 0, 0)' && cs.backgroundColor!=='transparent')
+      || (cs.backgroundImage && cs.backgroundImage!=='none')
+      || parseFloat(cs.borderTopWidth)>0 || parseFloat(cs.borderBottomWidth)>0;
+    if(filled) out.push([Math.round((r.top-cr.top)*scale), Math.round((r.bottom-cr.top)*scale)]);
+  });
+  return out;
 }
 async function downloadReportPDF(){
   var el=document.getElementById('repPDF'); if(!el){ fToast('리포트를 찾을 수 없습니다'); return; }
@@ -1415,14 +1427,22 @@ async function downloadReportPDF(){
     // 실제 CSS→canvas 배율로 요소 경계(안전 절단점)를 canvas 좌표로 환산
     var realScale=canvas.height/(el.scrollHeight||canvas.height);
     var breaks=pdfBreakYs(el, realScale, canvas.height);
-    // 요소 중간이 잘리지 않도록, 페이지 한도 내 가장 아래쪽 경계에서 끊는다
+    var atomics=pdfAtomics(el, realScale, pageMaxPx);
+    // 요소 중간이 잘리지 않도록 페이지 한도 내 가장 아래쪽 경계에서 끊고,
+    // 절단이 '색 채워진 박스' 안에 걸리면 그 박스 위로 밀어 통째로 다음 페이지로 넘긴다
     var segs=[], y=0, guard=0;
     while(y<canvas.height-1 && guard++<800){
       var limit=y+pageMaxPx, cut=-1;
       if(limit>=canvas.height){ cut=canvas.height; }
       else {
         for(var i=0;i<breaks.length;i++){ if(breaks[i]>y+40 && breaks[i]<=limit && breaks[i]>cut) cut=breaks[i]; }
-        if(cut<0) cut=limit; // 한 요소가 한 페이지보다 큰 경우에만 불가피하게 분할
+        if(cut<0) cut=limit;
+        // 스냅: 절단선이 채워진 박스 내부를 지나면 박스 상단으로 당긴다(박스가 페이지 위쪽에서 시작할 때만)
+        for(var snap=0; snap<30; snap++){ var moved=false;
+          for(var a=0;a<atomics.length;a++){ var at=atomics[a][0], ab=atomics[a][1];
+            if(cut>at+2 && cut<ab-2 && at>y+40){ cut=at; moved=true; break; } }
+          if(!moved) break;
+        }
       }
       segs.push([y,cut]); y=cut;
     }
