@@ -446,7 +446,7 @@ function fillReportMessages() {
   out.appendRow(head);
   out.getRange(1, 1, 1, head.length).setFontWeight('bold').setBackground('#0E5A4C').setFontColor('#ffffff');
   out.setFrozenRows(1);
-  var rows = [], bandCtr = { high: 0, mid: 0, low: 0 };
+  var rows = [], bands = [], bandCtr = { high: 0, mid: 0, low: 0 };
   for (var i = 0; i < data.length; i++) {
     var r = data[i], title = String(r[0] || ''); if (!title) continue;
     var name = String(r[1] || ''), link = String(r[2] || ''), school = String(r[6] || ''), grade = String(r[7] || '');
@@ -455,12 +455,44 @@ function fillReportMessages() {
     var bd = _band(pct100), qi = bandCtr[bd]++;
     var msg = _buildReportMsg(title, name, correct, pct100, perc, areasStr, link, qi);
     rows.push([msg, name, school, grade, title, correct + '/60', pct100, link]);
+    bands.push(bd);
   }
   if (rows.length) {
-    out.getRange(2, 1, rows.length, 8).setValues(rows);
-    out.getRange(2, 1, rows.length, 1).setWrap(true).setVerticalAlignment('top');
+    var n = rows.length;
+    out.getRange(2, 1, n, 8).setValues(rows);
+    out.getRange(2, 1, n, 1).setWrap(true).setVerticalAlignment('top');
     out.setColumnWidth(1, 640);
     for (var w = 2; w <= 8; w++) out.setColumnWidth(w, w === 8 ? 260 : 70);
+
+    // ── 색상: 성취 밴드(상위·중위·기초)로 한눈에 구분 ──
+    // ROW = 행 전체 옅은 배경, ST = 정답·백점환산 칸 진한 강조색, FC = 강조 글자색
+    var C = {
+      high: { row: '#EAF4EF', st: '#CDE8DD', fc: '#0E5A4C' },   // 상위(≥80): 초록
+      mid:  { row: '#FBF5E7', st: '#F5E4BE', fc: '#8A6D1F' },   // 중위(55~79): 황금
+      low:  { row: '#FBEBE7', st: '#F4D4CC', fc: '#B3452B' }    // 기초(<55): 주황
+    };
+    var rowBg = [], stBg = [], stFc = [];
+    for (var k = 0; k < n; k++) {
+      var c = C[bands[k]] || C.mid;
+      rowBg.push([c.row, c.row, c.row, c.row, c.row, c.st, c.st, '#ffffff']); // 문자·이름·학교·학년·시험 옅게, 정답·백점 진하게, 링크 흰색
+      stBg.push([c.st]); stFc.push([c.fc]);
+    }
+    out.getRange(2, 1, n, 8).setBackgrounds(rowBg);
+    // 정답·백점환산: 가운데 정렬 + 굵게 + 밴드 글자색
+    out.getRange(2, 6, n, 2).setHorizontalAlignment('center').setFontWeight('bold');
+    out.getRange(2, 6, n, 1).setFontColors(stFc);
+    out.getRange(2, 7, n, 1).setFontColors(stFc);
+    // 이름 굵게, 학교·학년·시험 가운데 정렬
+    out.getRange(2, 2, n, 1).setFontWeight('bold');
+    out.getRange(2, 3, n, 3).setHorizontalAlignment('center');
+    // 테두리(행 구분이 또렷하게)
+    out.getRange(1, 1, n + 1, 8).setBorder(true, true, true, true, true, true, '#D8D2C4', SpreadsheetApp.BorderStyle.SOLID);
   }
-  Logger.log('성적문자 작성 완료 · ' + rows.length + '명 (탭: 성적문자, A열=문자)');
+  // 범례: 오른쪽 여백에 밴드 색 안내
+  out.getRange(1, 10).setValue('색 안내').setFontWeight('bold');
+  out.getRange(2, 10).setValue('상위 ≥80').setBackground('#CDE8DD').setFontColor('#0E5A4C').setFontWeight('bold').setHorizontalAlignment('center');
+  out.getRange(3, 10).setValue('중위 55~79').setBackground('#F5E4BE').setFontColor('#8A6D1F').setFontWeight('bold').setHorizontalAlignment('center');
+  out.getRange(4, 10).setValue('기초 <55').setBackground('#F4D4CC').setFontColor('#B3452B').setFontWeight('bold').setHorizontalAlignment('center');
+  out.setColumnWidth(10, 100);
+  Logger.log('성적문자 작성 완료 · ' + rows.length + '명 (탭: 성적문자, A열=문자, 밴드별 색상 적용)');
 }
