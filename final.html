@@ -32,6 +32,60 @@ main{max-width:780px;margin:0 auto;padding:16px 15px 60px}
   padding-left:0!important; padding-right:0!important; margin-left:0!important; margin-right:0!important;
 }
 #repPDF.pdfing .sec{margin-top:14px!important}
+/* ============================================================
+   교재형 성적표 · 인쇄 재디자인 (캡처 시에만 적용)
+   화면은 그대로 두고, PDF는 책처럼 조판되도록 완전 재구성한다.
+   ============================================================ */
+#repPDF.pdfing{background:#fff!important;padding:2px 10px 0!important;color:#1b1913;font-size:13px}
+#repPDF.pdfing>h2,#repPDF.pdfing>h2+.muted{display:none!important} /* 표지가 대체 */
+/* 섹션 = 책의 절(節). 제목은 명조 + 하단 괘선 + 번호 칩 */
+#repPDF.pdfing .sec{margin:0 0 6px!important;padding:0!important}
+#repPDF.pdfing .sec__h{align-items:baseline!important;gap:11px!important;margin:24px 0 13px!important;
+  border-bottom:1.4px solid #0E5A4C!important;padding-bottom:7px!important;break-after:avoid}
+#repPDF.pdfing .sec__no{font-family:'Nanum Myeongjo',Georgia,serif!important;background:#0E5A4C!important;color:#fff!important;
+  width:auto!important;min-width:24px!important;height:23px!important;padding:0 8px!important;border-radius:5px!important;font-size:13px!important;font-weight:700!important}
+#repPDF.pdfing .sec__t{font-family:'Nanum Myeongjo',Georgia,serif!important;font-size:19.5px!important;font-weight:800!important;color:#0b3a31!important;letter-spacing:-.01em!important}
+#repPDF.pdfing .sub{color:#6b6456!important;font-size:12px!important;margin:-3px 0 13px!important;line-height:1.65!important}
+/* 본문 가독성: 줄간·자간·색 */
+#repPDF.pdfing p,#repPDF.pdfing li{font-size:12.9px!important;line-height:1.92!important;color:#2a2820!important;letter-spacing:-.002em}
+#repPDF.pdfing b,#repPDF.pdfing strong{color:#0b3a31}
+/* 오답 클리닉 그룹(.note)은 크기가 커서 여러 페이지로 쪼개져야 한다 → 배경 없이(atomic 아님) 좌측 괘선만. */
+#repPDF.pdfing .note{background:transparent!important;border:none!important;border-left:2px solid #d8cca6!important;
+  border-radius:0!important;padding:6px 0 6px 15px!important;margin:12px 0!important}
+#repPDF.pdfing .tb-box{border-radius:0!important;padding:10px 13px!important;margin-top:10px!important;border-left:2.5px solid transparent}
+#repPDF.pdfing .tb-key{background:#eef4f1!important;border-left-color:#3A7A6B!important}
+#repPDF.pdfing .tb-trap{background:#f9efec!important;border-left-color:#b1442f!important}
+#repPDF.pdfing .tb-rx{background:#f7f1e4!important;border-left-color:#B08D57!important}
+/* 부록(교재) 절 표지·소제목 */
+#repPDF.pdfing .tb-appendix{margin-top:34px!important;border-top:none!important;padding-top:0!important;
+  page-break-before:always}
+#repPDF.pdfing .tb-cover{font-size:27px!important;letter-spacing:-.01em}
+/* .tb-area에는 위/아래 테두리를 주면 안 됨 — pdfAtomics가 통째로 넘길 박스로 오인해
+   한 페이지보다 큰 강의/영역이 안 쪼개지고 빈 페이지를 만든다. 구분은 여백으로. */
+#repPDF.pdfing .tb-area{border:none!important;border-radius:0!important;background:transparent!important;
+  padding:0!important;margin:26px 0 20px!important}
+#repPDF.pdfing .tb-h{font-size:18.5px!important;border-bottom-width:1.2px!important}
+#repPDF.pdfing .tb-lh{font-size:14px!important;color:#0b3a31!important;margin:14px 0 4px!important}
+#repPDF.pdfing .tb-area>p,#repPDF.pdfing .tb-lec p,#repPDF.pdfing .tb-box p{font-size:12.9px!important;line-height:1.95!important}
+/* 표: 인쇄용 깔끔한 괘선 */
+#repPDF.pdfing table{border-collapse:collapse!important}
+#repPDF.pdfing .gtbl th,#repPDF.pdfing .gtbl td{border-color:#e0dacd!important}
+/* 카드형 잔재 평탄화(공유 리포트 내 잔여 그림자 제거) */
+#repPDF.pdfing .detail,#repPDF.pdfing .learner,#repPDF.pdfing .fclosing{box-shadow:none!important}
+/* ── 표지 페이지 ── */
+.pcover{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;
+  padding:0 34px;color:#0b3a31;overflow:hidden;
+  background:radial-gradient(120% 80% at 50% 0%,#f3efe4 0%,#fff 60%);}
+.pcover__top{font-family:var(--mono);font-size:11px;letter-spacing:.28em;color:#B08D57;font-weight:700;margin-bottom:30px}
+.pcover__line{width:54px;height:2px;background:#B08D57;margin:0 auto 30px}
+.pcover__title{font-family:'Nanum Myeongjo',Georgia,serif;font-size:44px;font-weight:800;line-height:1.18;color:#0b3a31;margin-bottom:16px}
+.pcover__exam{font-family:'Nanum Myeongjo',Georgia,serif;font-size:23px;color:#0E5A4C;margin-bottom:38px}
+.pcover__who{font-size:17px;color:#2a2820;line-height:1.9}
+.pcover__who b{font-family:'Nanum Myeongjo',Georgia,serif;font-size:22px;color:#0b3a31}
+.pcover__date{font-family:var(--mono);font-size:12px;color:#8a8172;margin-top:10px;letter-spacing:.06em}
+.pcover__foot{position:absolute;left:0;right:0;bottom:40px;font-size:12px;color:#6b6456;letter-spacing:.02em;line-height:1.9}
+.pcover__seal{width:62px;height:62px;border:2px solid #B08D57;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:'Nanum Myeongjo',serif;font-size:24px;color:#B08D57;margin:0 auto 26px}
 .tb-appendix{margin-top:26px;border-top:3px double var(--brass,#B08D57);padding-top:18px}
 .tb-cover{font-family:'Nanum Myeongjo',Georgia,serif;font-size:24px;font-weight:800;color:var(--teal-d,#0c3a32)}
 .tb-sub{color:var(--muted,#8a8172);font-size:12.5px;line-height:1.6;margin:5px 0 16px}
@@ -1496,11 +1550,41 @@ function pdfAtomics(el, scale, maxH){
   });
   return out;
 }
+/* 강제 페이지 나눔 지점(canvas Y): 부록(장)은 새 페이지 맨 위에서 시작하도록 그 앞에서 끊는다. */
+function pdfForceBreaks(el, scale){
+  var cr=el.getBoundingClientRect(), out=[];
+  el.querySelectorAll('.tb-appendix').forEach(function(n){
+    var r=n.getBoundingClientRect(); if(r.height<=0) return;
+    var top=Math.round((r.top-cr.top)*scale); if(top>4) out.push(top);
+  });
+  return out.sort(function(a,b){return a-b;});
+}
 async function downloadReportPDF(){
   var el=document.getElementById('repPDF'); if(!el){ fToast('리포트를 찾을 수 없습니다'); return; }
   fToast('교재형 PDF 만드는 중… 잠시만요');
   var dets=[].map.call(el.querySelectorAll('details'),function(d){return [d,d.open];}); dets.forEach(function(x){x[0].open=true;});
   el.classList.add('pdfing');
+  var R=window.__rpt||{};
+  var nm=R.name||(document.getElementById('nm')||{}).value||'';
+  var sch=R.school||(document.getElementById('sch')||{}).value||'';
+  var grd=R.grade||(document.getElementById('grd')||{}).value||'';
+  // ── 표지(첫 장) : 한 페이지 높이로 맞춰 단독 페이지가 되게 한다 ──
+  var cover=null;
+  try{
+    var CW=el.clientWidth||el.scrollWidth;
+    var covH=Math.floor(1.40*CW);   // A4 세로 비율(281/194≈1.4485)보다 살짝 짧게 → 표지가 한 페이지에 확실히 들어감
+    cover=document.createElement('div'); cover.className='pcover'; cover.style.height=covH+'px';
+    var who=esc(nm)+(sch||grd? '<br>'+esc([sch, grd?grd+'학년':''].filter(Boolean).join(' · ')) : '');
+    cover.innerHTML='<div class="pcover__top">CHEMISTREAL · 조준모 화학</div>'
+      +'<div class="pcover__seal">化</div>'
+      +'<div class="pcover__line"></div>'
+      +'<div class="pcover__title">파이널 성적<br>진단 리포트</div>'
+      +'<div class="pcover__exam">'+esc((cur&&cur.title)||'')+'</div>'
+      +'<div class="pcover__who">'+(who||'&nbsp;')+'</div>'
+      +'<div class="pcover__date">'+new Date().toLocaleDateString('ko-KR')+'</div>'
+      +'<div class="pcover__foot">수상권 진단 · 영역별 성취 · 오답 개념 클리닉 · 개념 강의 교재<br>학생 개인 맞춤 분석 자료입니다</div>';
+    el.insertBefore(cover, el.firstChild);
+  }catch(e){}
   // 오답 개념 총정리 + 개념 강의 전문 부록을 캡처 동안만 리포트 끝에 붙였다가 제거(화면 본문은 그대로 유지)
   var appendix=null;
   try{
@@ -1519,7 +1603,7 @@ async function downloadReportPDF(){
   try{
     await ensurePdfLibs();
     await new Promise(function(r){setTimeout(r,80);});
-    var canvas=await html2canvas(el,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false,windowWidth:el.scrollWidth});
+    var canvas=await html2canvas(el,{scale:2.5,backgroundColor:'#ffffff',useCORS:true,logging:false,windowWidth:el.scrollWidth});
     var jsPDF=window.jspdf.jsPDF;
     var pdf=new jsPDF({unit:'mm',format:'a4',orientation:'portrait'});
     var pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight();
@@ -1529,12 +1613,18 @@ async function downloadReportPDF(){
     var realScale=canvas.height/(el.scrollHeight||canvas.height);
     var breaks=pdfBreakYs(el, realScale, canvas.height);
     var atomics=pdfAtomics(el, realScale, pageMaxPx);
+    var forceB=pdfForceBreaks(el, realScale);
     // 요소 중간이 잘리지 않도록 페이지 한도 내 가장 아래쪽 경계에서 끊고,
     // 절단이 '색 채워진 박스' 안에 걸리면 그 박스 위로 밀어 통째로 다음 페이지로 넘긴다
     var segs=[], y=0, guard=0;
     while(y<canvas.height-1 && guard++<800){
       var limit=y+pageMaxPx, cut=-1;
-      if(limit>=canvas.height){ cut=canvas.height; }
+      // 강제 나눔(부록 시작): 페이지 중·하단에 부록 시작이 걸리면 거기서 끊어 새 페이지에서 시작.
+      // (부록이 페이지 상단 근처면 그대로 흐르게 두어 얇은 조각 페이지를 막는다)
+      var forced=-1;
+      for(var k=0;k<forceB.length;k++){ if(forceB[k]>y+pageMaxPx*0.1 && forceB[k]<=Math.min(limit,canvas.height)){ forced=forceB[k]; break; } }
+      if(forced>=0){ cut=forced; }
+      else if(limit>=canvas.height){ cut=canvas.height; }
       else {
         for(var i=0;i<breaks.length;i++){ if(breaks[i]>y+40 && breaks[i]<=limit && breaks[i]>cut) cut=breaks[i]; }
         if(cut<0) cut=limit;
@@ -1554,9 +1644,17 @@ async function downloadReportPDF(){
       var ctx=c.getContext('2d'); ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,c.width,hh);
       ctx.drawImage(canvas,0,y0,canvas.width,hh,0,0,canvas.width,hh);
       if(pageN>0) pdf.addPage();
-      pdf.addImage(c.toDataURL('image/jpeg',0.92),'JPEG',M,M,iw,hh/pxPerMM);
+      pdf.addImage(c.toDataURL('image/jpeg',0.95),'JPEG',M,M,iw,hh/pxPerMM);
+      // 러닝 헤더/푸터는 jsPDF 기본 폰트(한글 미지원)라 ASCII만 사용.
+      // 한글 제목·이름은 이미 이미지(본문·표지)에 선명하게 들어가 있다.
+      if(pageN>=1){
+        pdf.setFontSize(7.5); pdf.setTextColor(165);
+        pdf.text('CHEMISTREAL  ·  FINAL DIAGNOSTIC REPORT', M, 5.6);
+        pdf.text('P. '+(pageN+1), pw-M, 5.6, {align:'right'});
+      }
       pdf.setFontSize(8); pdf.setTextColor(150);
-      pdf.text('Chemistreal   '+(pageN+1)+' / '+totalPages, pw/2, ph-3, {align:'center'});
+      pdf.text('CHEMISTREAL  ·  JO JUN-MO CHEMISTRY', M, ph-3.5);
+      pdf.text((pageN+1)+' / '+totalPages, pw-M, ph-3.5, {align:'right'});
     }
     var nm=(window.__rpt&&window.__rpt.name)||'';
     var fn=((nm?nm+'_':'')+(cur&&cur.title||'성적표')+'_성적표').replace(/[\\/:*?"<>|]+/g,'')+'.pdf';
@@ -1566,7 +1664,7 @@ async function downloadReportPDF(){
     setTimeout(function(){ try{URL.revokeObjectURL(url); a.remove();}catch(e){} },1500);
     fToast('PDF 다운로드 완료 · '+fn);
   }catch(err){ console.error(err); fToast('PDF 생성 실패 — 인쇄 버튼을 이용해 주세요'); }
-  finally{ if(appendix&&appendix.parentNode) appendix.parentNode.removeChild(appendix); el.classList.remove('pdfing'); dets.forEach(function(x){x[0].open=x[1];}); }
+  finally{ if(cover&&cover.parentNode) cover.parentNode.removeChild(cover); if(appendix&&appendix.parentNode) appendix.parentNode.removeChild(appendix); el.classList.remove('pdfing'); dets.forEach(function(x){x[0].open=x[1];}); }
 }
 function boot(){
   const m=location.hash.match(/r=([^.]+)\.([0-9a-z]+)(?:\.([^.]*)\.(.*))?$/);
