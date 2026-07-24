@@ -2259,7 +2259,8 @@ async function downloadReportDOCX(){
     P([],{before:5200}),
     txt(nm||'학생',{align:AlignmentType.CENTER,bold:true,size:38,serif:true,after:60}),
     txt([sch,grd?grd+'학년':''].filter(Boolean).join('  ·  '),{align:AlignmentType.CENTER,color:MUT,size:20,after:36}),
-    txt('성취 지표 · 영역별 진단 · 오답 정밀 분석 · 학습 처방 · 개념 강의 교재',{align:AlignmentType.CENTER,color:GOLD,size:16}),
+    txt('성취 지표 · 영역별 진단 · 오답 정밀 분석 · 학습 처방 · 개념 강의 교재',{align:AlignmentType.CENTER,color:GOLD,size:16,after:60}),
+    txt('발행일  '+(function(){try{return new Date().toLocaleDateString('ko-KR');}catch(e){return '';}})(),{align:AlignmentType.CENTER,color:MUT,size:14}),
     PB());
 
   // ── 01 진단 개요 ──
@@ -2279,6 +2280,17 @@ async function downloadReportDOCX(){
   var stCells=stat.map(function(s,i){ return C([txt(s[1],{align:AlignmentType.CENTER,bold:true,size:30,color:EM}),txt(s[0],{align:AlignmentType.CENTER,size:15,color:MUT})],{w:swArr[i],fill:'FBF6E8',mt:140,mb:140}); });
   body.push(TBL(swArr,[ROW(stCells)],{top:bdr(GOLDL,6),bottom:bdr(GOLDL,6),left:bdr(GOLDL,6),right:bdr(GOLDL,6),insideVertical:bdr(GOLDL,6),insideHorizontal:NB}));
   if(perc!=null) body.push(P([run('누적 응시 '+Nn+'명 중 상위 '+(100-perc)+'%  ·  백분위 '+perc+'  ·  석차 '+rank+'/'+Nn,{color:MUT,size:16})],{align:AlignmentType.CENTER,before:110}));
+  // 이번 진단 요약 콜아웃 — 강점/보완/다음 목표를 한눈에(진단 개요 페이지를 채움)
+  var sumStrong=strong.length?strong.slice(0,4).map(function(a){return a.name;}).join(', '):'영역별로 고르게 분포';
+  var sumWeak=weak.length?weak.slice(0,4).map(function(a){return a.name;}).join(', '):'뚜렷한 취약 영역 없음';
+  var sumGoal=aw.inA?(aw.reach?(aw.nextTier+'권까지 '+aw.gap+'문항 — 아래 취약 개념을 회복하면 상위 등급에 도전할 수 있습니다.'):(aw.name+'권을 지키며 상위 등급에 도전하세요.')):('장려상권까지 '+Math.max(1,W-(cut[4]||18))+'문항 — 아래 학습 처방을 우선 학습하세요.');
+  var sumCell=C([
+    P([run('❖  ',{color:GOLD,size:18}),run('이번 진단 요약',{bold:true,color:EM,size:23,serif:true})],{after:130}),
+    P([run('강점 ',{bold:true,color:EM,size:18}),run('   '+sumStrong,{size:18,color:INK})],{after:80}),
+    P([run('보완 ',{bold:true,color:RED,size:18}),run('   '+sumWeak,{size:18,color:INK})],{after:80}),
+    P([run('다음 목표 ',{bold:true,color:GOLD,size:18}),run('   '+sumGoal,{size:18,color:INK,line:300})],{after:0})
+  ],{w:CW,fill:EMT,mt:230,mb:230,ml:300,mr:300});
+  body.push(P([],{before:340}),TBL([CW],[ROW([sumCell])],{top:bdr(GOLDL,4),bottom:bdr(GOLDL,4),left:bdr(GOLD,16),right:bdr(GOLDL,4)}));
 
   // ── 02 영역별 성취 ──
   if(areas.length){
@@ -2357,7 +2369,7 @@ async function downloadReportDOCX(){
   var defHdr=new Header({children:[bgFullPara(frameBg,'png')]});
   // 러닝 푸터: 브랜드 + 페이지 번호(표지 제외)
   var defFtr=new Footer({children:[new Paragraph({alignment:AlignmentType.CENTER,spacing:{before:40,after:0,line:240,lineRule:LineRule.AUTO},
-    children:[run('CHEMISTREAL · 조준모 화학      ',{color:'A99F86',size:14,cs:20}),run('',{color:GOLD,size:14}),new TextRun({children:[PageNumber.CURRENT],color:GOLD,size:14,bold:true}),run(' / ',{color:'A99F86',size:14}),new TextRun({children:[PageNumber.TOTAL_PAGES],color:'A99F86',size:14})]})]});
+    children:[run('CHEMISTREAL · 조준모 화학       ',{color:'8C8266',size:15,cs:20}),new TextRun({children:[PageNumber.CURRENT],color:GOLD,size:15,bold:true}),run('  /  ',{color:'8C8266',size:15}),new TextRun({children:[PageNumber.TOTAL_PAGES],color:'8C8266',size:15})]})]});
   var firstFtr=new Footer({children:[new Paragraph({children:[]})]});
   var doc=new Document({
     creator:'Chemistreal', title:(nm?nm+' ':'')+cur.title+' 성적표',
@@ -2365,7 +2377,7 @@ async function downloadReportDOCX(){
     sections:[{
       properties:{titlePage:true,page:{
         size:{width:11906,height:16838},
-        margin:{top:1200,right:1080,bottom:1200,left:1080,header:200,footer:420}}},
+        margin:{top:1200,right:1080,bottom:1200,left:1080,header:200,footer:560}}},
       headers:{default:defHdr,first:firstHdr},
       footers:{default:defFtr,first:firstFtr},
       children:body}],
