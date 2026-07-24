@@ -2212,6 +2212,13 @@ async function downloadReportDOCX(){
   var rxAreas=(weak.length?weak:areas);  // 분량 제한 없음 — 전 취약 영역(없으면 전 영역)
   var hasRx=rxAreas.some(function(a){return !!(RX[a.name]||RX[bkBroad(a.name)]);});
   var lecFiles=lecturesForWrong(cur, wrong||[]);  // 목차/강의 부록 공용 — 틀린 개념 강의 전체
+  // 섹션 구성(목차·본문 번호 동기화). 실제 렌더되는 섹션만 포함해 번호를 부여한다.
+  var sections=[{key:'overview',t:'진단 개요',d:'원점수·현재 등급·수상권 로드맵'}];
+  if(areas.length) sections.push({key:'area',t:'영역별 성취',d:'영역별 정답률과 강·약점 판정'});
+  sections.push({key:'grid',t:'문항별 정오표',d:'전 문항 정오와 오답 분포 한눈에'});
+  if(hasRx) sections.push({key:'rx',t:'학습 처방',d:'약점 영역별 핵심 개념·함정·복습 처방'});
+  sections.forEach(function(s,i){ s.no=('0'+(i+1)).slice(-2); });
+  function secNo(k){ for(var i=0;i<sections.length;i++) if(sections[i].key===k) return sections[i].no; return ''; }
 
   // ── 이미지 프리페치(원문 크롭 + 동형문제 이미지) ──
   var cropMap={}, dhImgMap={};
@@ -2266,9 +2273,7 @@ async function downloadReportDOCX(){
     PB());
 
   // ── 목차 ──
-  var toc=[{n:'01',t:'진단 개요',d:'원점수·현재 등급·이번 진단 요약'}];
-  if(areas.length) toc.push({n:'02',t:'영역별 성취',d:'영역별 정답률과 강·약점 판정'});
-  if(hasRx) toc.push({n:'03',t:'학습 처방',d:'약점 영역별 핵심 개념·함정·복습 처방'});
+  var toc=sections.map(function(s){return {n:s.no,t:s.t,d:s.d};});
   if((wrong||[]).length) toc.push({n:'부록 Ⅰ',t:'오답 정리 노트',d:'틀린 '+W+'문항의 원문·오답 원인·동형문제'});
   if(lecFiles.length) toc.push({n:'부록 Ⅱ',t:'개념 강의 교재',d:'틀린 개념의 강의 전문'});
   var tcNW=1900, tocRows=toc.map(function(it){
@@ -2291,7 +2296,7 @@ async function downloadReportDOCX(){
     (aw.nextTier&&aw.reach?P([run(aw.nextTier+'권까지 '+aw.gap+'문항',{color:'E6D9A6',size:15})],{before:40,after:0}):P([],{after:0}))],{w:hlw,fill:EM,mt:210,mb:210,ml:320});
   var heroR=C([P([run(''+rs.score,{bold:true,color:'FFFFFF',size:58,serif:true}),run('  / '+rawMax,{color:EMLBL,size:22})],{align:AlignmentType.RIGHT,after:14}),
     P([run('원점수'+(rs.pen?'  ·  오답 −'+rs.pen:''),{color:EMLBL,size:16})],{align:AlignmentType.RIGHT,after:0})],{w:hrw,fill:EM,mt:210,mb:210,mr:320});
-  body.push(kicker('❖  OVERVIEW  ❖'),H('진단 개요','01'),txt(lead,{after:170}),TBL([hlw,hrw],[ROW([heroL,heroR])]),P([],{after:150}));
+  body.push(kicker('❖  OVERVIEW  ❖'),H('진단 개요',secNo('overview')),txt(lead,{after:170}),TBL([hlw,hrw],[ROW([heroL,heroR])]),P([],{after:150}));
   // 통계 표(가변)
   var stat=[['맞은 문항',correct+' / '+total],['정답률',pct+'%'],['틀린 문항',''+W]];
   if(perc!=null) stat.push(['백분위',''+perc]);
@@ -2300,6 +2305,16 @@ async function downloadReportDOCX(){
   var stCells=stat.map(function(s,i){ return C([txt(s[1],{align:AlignmentType.CENTER,bold:true,size:30,color:EM}),txt(s[0],{align:AlignmentType.CENTER,size:15,color:MUT})],{w:swArr[i],fill:'FBF6E8',mt:140,mb:140}); });
   body.push(TBL(swArr,[ROW(stCells)],{top:bdr(GOLDL,6),bottom:bdr(GOLDL,6),left:bdr(GOLDL,6),right:bdr(GOLDL,6),insideVertical:bdr(GOLDL,6),insideHorizontal:NB}));
   if(perc!=null) body.push(P([run('누적 응시 '+Nn+'명 중 상위 '+(100-perc)+'%  ·  백분위 '+perc+'  ·  석차 '+rank+'/'+Nn,{color:MUT,size:16})],{align:AlignmentType.CENTER,before:110}));
+  // 수상권 로드맵 — 등급 컷(허용 오답 수)과 현재 위치를 한 줄 밴드로 시각화
+  body.push(P([run('수상권 로드맵',{bold:true,color:EM,size:20,serif:true}),run('   틀린 문항 수 기준 등급 컷',{color:MUT,size:15})],{before:210,after:70}));
+  var rmW=Math.floor(CW/TIERS.length), rmWArr=[]; for(var ri=0;ri<TIERS.length;ri++) rmWArr.push(ri===TIERS.length-1?(CW-rmW*(TIERS.length-1)):rmW);
+  var rmCells=TIERS.map(function(tn,i){ var isCur=aw.inA&&aw.idx===i; return C([
+      P([run(tn,{bold:true,color:isCur?'FFFFFF':EM,size:19,serif:true})],{align:AlignmentType.CENTER,after:22}),
+      P([run(i===0?'오답 0':'오답 ≤'+cut[i],{color:isCur?'E6D9A6':MUT,size:14})],{align:AlignmentType.CENTER,after:0})
+    ],{w:rmWArr[i],fill:isCur?EM:'FBF6E8',mt:120,mb:120}); });
+  body.push(TBL(rmWArr,[ROW(rmCells)],{top:bdr(GOLDL,5),bottom:bdr(GOLDL,5),left:bdr(GOLDL,5),right:bdr(GOLDL,5),insideVertical:bdr('FFFFFF',10),insideHorizontal:NB}));
+  var rmCap=aw.inA?('현재 오답 '+W+'개 · '+aw.name+'권'+(aw.nextTier&&aw.gap!=null&&aw.gap>=1?('  →  '+aw.nextTier+'권까지 '+aw.gap+'문항'):'  ·  최상위 등급')):('현재 오답 '+W+'개 · 수상권 밖  →  장려상권까지 '+Math.max(1,W-(cut[4]||18))+'문항');
+  body.push(P([run(rmCap,{color:MUT,size:15})],{align:AlignmentType.CENTER,before:80}));
   // 이번 진단 요약 콜아웃 — 강점/보완/다음 목표를 한눈에(진단 개요 페이지를 채움)
   var sumStrong=strong.length?strong.slice(0,4).map(function(a){return a.name;}).join(', '):'영역별로 고르게 분포';
   var sumWeak=weak.length?weak.slice(0,4).map(function(a){return a.name;}).join(', '):'뚜렷한 취약 영역 없음';
@@ -2310,11 +2325,11 @@ async function downloadReportDOCX(){
     P([run('보완 ',{bold:true,color:RED,size:18}),run('   '+sumWeak,{size:18,color:INK})],{after:80}),
     P([run('다음 목표 ',{bold:true,color:GOLD,size:18}),run('   '+sumGoal,{size:18,color:INK,line:300})],{after:0})
   ],{w:CW,fill:EMT,mt:230,mb:230,ml:300,mr:300});
-  body.push(P([],{before:340}),TBL([CW],[ROW([sumCell])],{top:bdr(GOLDL,4),bottom:bdr(GOLDL,4),left:bdr(GOLD,16),right:bdr(GOLDL,4)}));
+  body.push(P([],{before:180}),TBL([CW],[ROW([sumCell])],{top:bdr(GOLDL,4),bottom:bdr(GOLDL,4),left:bdr(GOLD,16),right:bdr(GOLDL,4)}));
 
-  // ── 02 영역별 성취 ──
+  // ── 영역별 성취 ──
   if(areas.length){
-    body.push(PB(),kicker('❖  BY AREA  ❖'),H('영역별 성취','02'));
+    body.push(PB(),kicker('❖  BY AREA  ❖'),H('영역별 성취',secNo('area')));
     var strTxt=strong.length?('강점 영역은 '+strong.slice(0,3).map(function(a){return a.name;}).join(', ')+'입니다. '):'';
     var weakTxt=weak.length?('보완이 필요한 영역은 '+weak.slice(0,3).map(function(a){return a.name;}).join(', ')+'입니다.'):'뚜렷한 취약 영역 없이 고르게 응답했습니다.';
     body.push(txt(strTxt+weakTxt,{after:140}));
@@ -2328,7 +2343,34 @@ async function downloadReportDOCX(){
     body.push(TBL(cols,arows,{top:bdr(GOLDL,4),bottom:bdr(GOLDL,4),left:NB,right:NB,insideHorizontal:bdr('E6DDC8',2),insideVertical:NB}));
   }
 
-  // ── 03 학습 처방 ──
+  // ── 문항별 정오표 (전 문항 정오 맵) ──
+  body.push(PB(),kicker('❖  ITEM MAP  ❖'),H('문항별 정오표',secNo('grid')),
+    txt('전체 '+cur.nQ+'문항의 정오를 한눈에 정리했습니다. 오답이 앞·뒤 어디에 몰려 있는지 보면 시간 배분·집중력 관리의 단서가 됩니다.',{after:110}));
+  // 범례
+  body.push(P([
+    run('■ ',{color:EM,size:20}),run('정답    ',{color:MUT,size:16}),
+    run('■ ',{color:RED,size:20}),run('오답    ',{color:MUT,size:16}),
+    run('■ ',{color:'B9B3A4',size:20}),run('채점 제외',{color:MUT,size:16})
+  ],{after:120}));
+  var GPR=10, gcw=Math.floor(CW/GPR), gcwArr=[]; for(var gi=0;gi<GPR;gi++) gcwArr.push(gi===GPR-1?(CW-gcw*(GPR-1)):gcw);
+  var gRows=[], gCells=[];
+  for(var qn=1;qn<=cur.nQ;qn++){
+    var ex=miss.has(qn), ok=!ex&&okq(cur,qn,sel[qn]||0);
+    var fill=ex?'EDEAE2':(ok?EMT:'F7E3DC'), numC=ex?'9A9486':(ok?EM:RED), mark=ex?'–':(ok?'O':'X');
+    gCells.push(C([
+      P([run(''+qn,{bold:true,color:numC,size:17})],{align:AlignmentType.CENTER,after:6,before:0}),
+      P([run(mark,{bold:true,color:numC,size:15})],{align:AlignmentType.CENTER,after:0,before:0})
+    ],{w:gcwArr[gCells.length],fill:fill,mt:90,mb:90}));
+    if(gCells.length===GPR){ gRows.push(ROW(gCells)); gCells=[]; }
+  }
+  if(gCells.length){ while(gCells.length<GPR){ gCells.push(C([P([],{after:0})],{w:gcwArr[gCells.length]})); } gRows.push(ROW(gCells)); }
+  body.push(TBL(gcwArr,gRows,{top:bdr('FFFFFF',6),bottom:bdr('FFFFFF',6),left:bdr('FFFFFF',6),right:bdr('FFFFFF',6),insideHorizontal:bdr('FFFFFF',6),insideVertical:bdr('FFFFFF',6)}));
+  // 오답 문항 요약 한 줄
+  var wqList=(wrong||[]).slice().sort(function(a,b){return a.q-b.q;}).map(function(w){return w.q;});
+  if(wqList.length) body.push(P([run('틀린 문항  ',{bold:true,color:RED,size:16}),run(wqList.join(', ')+'번',{color:INK,size:16})],{align:AlignmentType.CENTER,before:140}));
+  else body.push(P([run('만점입니다 — 틀린 문항이 없습니다.',{bold:true,color:EM,size:17})],{align:AlignmentType.CENTER,before:140}));
+
+  // ── 학습 처방 ──
   var rxBlocks=[];
   rxAreas.forEach(function(a){ var r=RX[a.name]||RX[bkBroad(a.name)]; if(!r) return;
     rxBlocks.push(P([run(a.name,{bold:true,color:EM,size:24,serif:true}),run('   · 정답률 '+Math.round(a.r*100)+'%',{color:MUT,size:16})],{before:140,after:40}));
@@ -2336,7 +2378,21 @@ async function downloadReportDOCX(){
     if(r.t) rxBlocks.push(P([run('함정  ',{bold:true,color:RED,size:20}),run(esc2(r.t),{size:20,color:'413c32'})],{after:30,border:{left:bdr(RED,14)}}));
     if(r.rx) rxBlocks.push(P([run('처방  ',{bold:true,color:GOLD,size:20}),run(esc2(r.rx),{size:20,color:'413c32'})],{after:80,border:{left:bdr(GOLD,14)}}));
   });
-  if(rxBlocks.length){ body.push(PB(),kicker('❖  PRESCRIPTION  ❖'),H('학습 처방','03'),txt('가장 약한 영역부터, 핵심 개념·자주 틀리는 함정·복습 처방을 제시합니다.',{after:120})); body.push.apply(body,rxBlocks); }
+  if(rxBlocks.length){ body.push(PB(),kicker('❖  PRESCRIPTION  ❖'),H('학습 처방',secNo('rx')),txt('가장 약한 영역부터, 핵심 개념·자주 틀리는 함정·복습 처방을 제시합니다.',{after:120})); body.push.apply(body,rxBlocks); }
+
+  // ── 학습 코칭 체크리스트 (다음 수업까지 할 일) ──
+  var ckItems=[];
+  if(W>0) ckItems.push('오답 정리 노트의 '+W+'문항을 동형문제로 다시 풀고, 왜 틀렸는지 한 줄로 정리하기');
+  else ckItems.push('만점을 유지하며 한 단계 높은 심화·경시 문항으로 사고력을 확장하기');
+  if(weak.length) ckItems.push(weak.slice(0,3).map(function(a){return a.name;}).join(', ')+' 개념 강의(부록)를 정독하고 핵심 3가지 요약하기');
+  else if(lecFiles.length) ckItems.push('부록 개념 강의로 이번 오답 개념을 처음부터 다시 세우기');
+  ckItems.push('헷갈린 개념은 소리 내어 설명해 스스로 점검하기 — 설명이 막히는 지점이 곧 결손 지점입니다');
+  if(aw.inA&&aw.nextTier&&aw.gap!=null&&aw.gap>=1) ckItems.push('다음 진단에서 '+aw.nextTier+'권 도전 — 오답 '+cut[aw.idx-1]+'개 이하 목표');
+  else if(!aw.inA) ckItems.push('다음 진단에서 장려상권 진입 — 오답 '+(cut[4]||18)+'개 이하 목표');
+  var ckInner=[P([run('✓  ',{color:GOLD,size:22}),run('다음 수업까지 · 학습 플랜',{bold:true,color:EM,size:24,serif:true})],{after:140})];
+  ckItems.forEach(function(it){ ckInner.push(P([run('☐   ',{color:GOLD,size:20}),run(it,{size:19,color:INK,line:306})],{after:80})); });
+  ckInner.push(P([run('점수 그 자체보다 다시 풀어오는 과정을 응원해 주세요. 그 반복이 '+(nm||'학생')+' 학생을 다음 등급으로 데려갑니다.',{i:true,color:MUT,size:16})],{before:130,after:0}));
+  body.push(P([],{before:220}),TBL([CW],[ROW([C(ckInner,{w:CW,fill:'FCFAF3',mt:240,mb:240,ml:300,mr:300})])],{top:bdr(GOLD,8),bottom:bdr(GOLDL,4),left:bdr(GOLDL,4),right:bdr(GOLDL,4)}));
 
   // ── 부록: 오답 정리 노트 ──
   if((wrong||[]).length){
