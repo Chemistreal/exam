@@ -50,11 +50,12 @@ for exam in exams:
         )
         seen += 1
 
+# 오답정리는 '다시 풀고 제출'하는 채점형이 아니라, 동형문제·정답·해설을 바로 보여주는
+# 간단 학습 카드로 개선됨(wbCardHTML). 채점 함수(wbGradeOriginal/wbGradeAnalogue)는 설계상 제거.
 for function in (
     "wrongbookShell",
+    "wbCardHTML",
     "hydrateWrongbook",
-    "wbGradeOriginal",
-    "wbGradeAnalogue",
     "downloadReportPDF",
 ):
     assert re.search(rf"function\s+{function}\s*\(", source), function
