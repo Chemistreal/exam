@@ -2210,6 +2210,8 @@ async function downloadReportDOCX(){
   var strong=areas.filter(function(a){return a.t>=2&&a.r>=0.8;}).sort(function(a,b){return b.r-a.r;});
   var weak=areas.filter(function(a){return a.t>=2&&a.r<0.6;});
   var rxAreas=(weak.length?weak:areas);  // 분량 제한 없음 — 전 취약 영역(없으면 전 영역)
+  var hasRx=rxAreas.some(function(a){return !!(RX[a.name]||RX[bkBroad(a.name)]);});
+  var lecFiles=lecturesForWrong(cur, wrong||[]);  // 목차/강의 부록 공용 — 틀린 개념 강의 전체
 
   // ── 이미지 프리페치(원문 크롭 + 동형문제 이미지) ──
   var cropMap={}, dhImgMap={};
@@ -2261,6 +2263,24 @@ async function downloadReportDOCX(){
     txt([sch,grd?grd+'학년':''].filter(Boolean).join('  ·  '),{align:AlignmentType.CENTER,color:MUT,size:20,after:36}),
     txt('성취 지표 · 영역별 진단 · 오답 정밀 분석 · 학습 처방 · 개념 강의 교재',{align:AlignmentType.CENTER,color:GOLD,size:16,after:60}),
     txt('발행일  '+(function(){try{return new Date().toLocaleDateString('ko-KR');}catch(e){return '';}})(),{align:AlignmentType.CENTER,color:MUT,size:14}),
+    PB());
+
+  // ── 목차 ──
+  var toc=[{n:'01',t:'진단 개요',d:'원점수·현재 등급·이번 진단 요약'}];
+  if(areas.length) toc.push({n:'02',t:'영역별 성취',d:'영역별 정답률과 강·약점 판정'});
+  if(hasRx) toc.push({n:'03',t:'학습 처방',d:'약점 영역별 핵심 개념·함정·복습 처방'});
+  if((wrong||[]).length) toc.push({n:'부록 Ⅰ',t:'오답 정리 노트',d:'틀린 '+W+'문항의 원문·오답 원인·동형문제'});
+  if(lecFiles.length) toc.push({n:'부록 Ⅱ',t:'개념 강의 교재',d:'틀린 개념의 강의 전문'});
+  var tcNW=1900, tocRows=toc.map(function(it){
+    var nSize=it.n.length>2?20:34;
+    var numCell=C([P([run(it.n,{bold:true,color:GOLD,size:nSize,serif:true})],{align:AlignmentType.CENTER,before:0,after:0})],{w:tcNW,mt:160,mb:160});
+    var txtCell=C([P([run(it.t,{bold:true,color:EM,size:26,serif:true})],{after:24}),P([run(it.d,{color:MUT,size:17})],{after:0})],{w:CW-tcNW,mt:160,mb:160,ml:200});
+    return ROW([numCell,txtCell]);
+  });
+  body.push(P([],{before:420}),kicker('❖  CONTENTS  ❖'),
+    txt('목차',{align:AlignmentType.CENTER,bold:true,color:EM,size:56,serif:true,after:40}),
+    ornPara(dividerOrn,320,{before:16,after:220}),
+    TBL([tcNW,CW-tcNW],tocRows,{top:bdr(GOLDL,4),bottom:bdr(GOLDL,4),left:NB,right:NB,insideHorizontal:bdr('E6DDC8',2),insideVertical:NB}),
     PB());
 
   // ── 01 진단 개요 ──
@@ -2350,7 +2370,7 @@ async function downloadReportDOCX(){
 
   // ── 부록: 개념 강의 교재 ──
   try{
-    var files=lecturesForWrong(cur, wrong);  // 분량 제한 없음 — 틀린 개념 강의 전체
+    var files=lecFiles;  // 분량 제한 없음 — 틀린 개념 강의 전체(목차와 동일 목록)
     var lecs=files.length?(await Promise.all(files.map(fetchLectureContent))).filter(Boolean):[];
     if(lecs.length){
       body.push(PB(),kicker('❖  APPENDIX · 개념 강의  ❖'),
