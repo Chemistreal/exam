@@ -2146,7 +2146,7 @@ async function downloadReportPDF(){
   try{ await Promise.all([].map.call(el.querySelectorAll('img.bk-wq-img'),function(im){ return new Promise(function(res){ if(im.complete) return res(); im.onload=function(){res();}; im.onerror=function(){res();}; }); })); }catch(e){}
   // 개념 강의 부록(실제 강의 파일 fetch) — 책 스타일로 이어 붙임
   try{
-    var files=lecturesForWrong(cur, wrong).slice(0,24);
+    var files=lecturesForWrong(cur, wrong);  // 분량 제한 없음 — 틀린 개념 강의 전체
     var lecs=files.length?(await Promise.all(files.map(fetchLectureContent))).filter(Boolean):[];
     if(lecs.length){
       var ax='<div class="bk-apxcover bk-full"><div class="bk-apxkicker">APPENDIX · 개념 강의</div><div class="bk-apxtitle">개념 강의 교재</div>'
@@ -2209,7 +2209,7 @@ async function downloadReportDOCX(){
   var areas=Object.keys(ag).map(function(k){return {name:k,c:ag[k].c,t:ag[k].t,r:ag[k].t?ag[k].c/ag[k].t:0};}).sort(function(a,b){return a.r-b.r||b.t-a.t;});
   var strong=areas.filter(function(a){return a.t>=2&&a.r>=0.8;}).sort(function(a,b){return b.r-a.r;});
   var weak=areas.filter(function(a){return a.t>=2&&a.r<0.6;});
-  var rxAreas=(weak.length?weak:areas).slice(0,4);
+  var rxAreas=(weak.length?weak:areas);  // 분량 제한 없음 — 전 취약 영역(없으면 전 영역)
 
   // ── 이미지 프리페치(원문 크롭 + 동형문제 이미지) ──
   var cropMap={}, dhImgMap={};
@@ -2338,7 +2338,7 @@ async function downloadReportDOCX(){
 
   // ── 부록: 개념 강의 교재 ──
   try{
-    var files=lecturesForWrong(cur, wrong).slice(0,24);
+    var files=lecturesForWrong(cur, wrong);  // 분량 제한 없음 — 틀린 개념 강의 전체
     var lecs=files.length?(await Promise.all(files.map(fetchLectureContent))).filter(Boolean):[];
     if(lecs.length){
       body.push(PB(),kicker('❖  APPENDIX · 개념 강의  ❖'),
