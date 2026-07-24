@@ -2080,9 +2080,36 @@ async function downloadReportPDF(){
   }catch(err){ console.error(err); fToast('PDF 생성 실패 — 인쇄 버튼을 이용해 주세요'); }
   finally{ if(el&&el.parentNode) el.parentNode.removeChild(el); }
 }
+/* 공유 성적표 열람 비밀번호(담당 선생님이 학생·학부모에게 안내).
+   ※ 클라이언트 측 게이트라 소스에서 값을 볼 수 있는 '가벼운 잠금'이다(강한 보안 아님). */
+const REPORT_PW='32656';
+function _rpAuthed(){ try{ return sessionStorage.getItem('crp:auth')==='1'; }catch(e){ return false; } }
+function _rpCheck(){
+  var v=((document.getElementById('pwin')||{}).value||'').trim();
+  if(v===REPORT_PW){ try{ sessionStorage.setItem('crp:auth','1'); }catch(e){} if(typeof window.__rpOk==='function') window.__rpOk(); }
+  else { var e=document.getElementById('pwerr'); if(e) e.textContent='비밀번호가 올바르지 않습니다.'; var i=document.getElementById('pwin'); if(i){ i.value=''; i.focus(); } }
+}
+function renderPwGate(onOk){
+  window.__rpOk=onOk;
+  app.innerHTML='<div style="max-width:380px;margin:40px auto;text-align:center;padding:0 16px">'
+    +'<div style="font-size:11.5px;letter-spacing:.16em;color:var(--brass);font-weight:700;margin-bottom:8px">CHEMISTREAL · 조준모 화학</div>'
+    +'<div style="width:56px;height:56px;border:2px solid var(--brass);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:\'Nanum Myeongjo\',serif;font-size:24px;color:var(--teal);margin:12px auto 16px">🔒</div>'
+    +'<h2 class="serif" style="font-size:22px;margin:0 0 6px;color:var(--teal-d)">성적표 열람</h2>'
+    +'<div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:18px">담당 선생님이 안내한 비밀번호를 입력하면<br>성적 진단서를 볼 수 있습니다.</div>'
+    +'<input id="pwin" type="password" inputmode="numeric" autocomplete="off" placeholder="비밀번호"'
+    +' style="width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:11px;font-size:18px;text-align:center;letter-spacing:.3em;background:#fff">'
+    +'<button onclick="_rpCheck()" style="width:100%;margin-top:12px;padding:13px;border:none;border-radius:11px;background:var(--teal);color:#fff;font-size:16px;font-weight:700;cursor:pointer">열기</button>'
+    +'<div id="pwerr" style="color:var(--ms);font-size:12.5px;margin-top:10px;min-height:16px"></div>'
+    +'</div>';
+  var i=document.getElementById('pwin'); if(i){ i.focus(); i.addEventListener('keydown',function(e){ if(e.key==='Enter') _rpCheck(); }); }
+}
 function boot(){
   const m=location.hash.match(/r=([^.]+)\.([0-9a-z]+)(?:\.([^.]*)\.(.*))?$/);
-  if(m){ const ex=FINAL_EXAMS.find(e=>e.id===m[1]); if(ex){ openExam(ex.id); fShared=true; let n=0n; for(const c of m[2]) n=n*36n+BigInt(parseInt(c,36)); for(let q=1;q<=ex.nQ;q++){ const v=Number(n%5n); n=n/5n; if(v) setAns(q,v); } const ne=document.getElementById('nm'), xe=document.getElementById('exno'); if(m[4]&&ne) ne.value=decodeURIComponent(m[4]); if(m[3]&&xe) xe.value=m[3]; scoreAuto(); return; } }
+  if(m){ const ex=FINAL_EXAMS.find(e=>e.id===m[1]); if(ex){
+    const renderShared=function(){ openExam(ex.id); fShared=true; let n=0n; for(const c of m[2]) n=n*36n+BigInt(parseInt(c,36)); for(let q=1;q<=ex.nQ;q++){ const v=Number(n%5n); n=n/5n; if(v) setAns(q,v); } const ne=document.getElementById('nm'), xe=document.getElementById('exno'); if(m[4]&&ne) ne.value=decodeURIComponent(m[4]); if(m[3]&&xe) xe.value=m[3]; scoreAuto(); };
+    if(_rpAuthed()) renderShared(); else renderPwGate(renderShared);
+    return;
+  } }
   if(location.hash==='#qbank'||location.hash==='#admin'){ renderQbank(); } else { renderList(); }
 }
 /* 해시를 바꾸지 않고 오답 개념 클리닉으로 스크롤(공유 리포트 #r= 상태 유지) */
