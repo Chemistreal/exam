@@ -2177,6 +2177,7 @@ function loadScriptOnce(src){ return new Promise(function(res,rej){ var ex=docum
 async function ensureDocxLib(){ if(!window.docx) await loadScriptOnce('vendor/docx.iife.js'); return window.docx; }
 function _pngDims(u8){ try{ if(u8&&u8[0]===0x89&&u8[1]===0x50){ var w=((u8[16]<<24)|(u8[17]<<16)|(u8[18]<<8)|u8[19])>>>0, h=((u8[20]<<24)|(u8[21]<<16)|(u8[22]<<8)|u8[23])>>>0; return {w:w,h:h}; } }catch(e){} return null; }
 async function _fetchImg(url){ try{ var r=await fetch(url,{cache:'no-store'}); if(!r.ok) return null; var b=new Uint8Array(await r.arrayBuffer()); if(!(b[0]===0x89&&b[1]===0x50)) return null; return b; }catch(e){ return null; } }
+async function _fetchBin(url){ try{ var r=await fetch(url,{cache:'no-store'}); if(!r.ok) return null; return new Uint8Array(await r.arrayBuffer()); }catch(e){ return null; } }
 
 async function downloadReportDOCX(){
   if(!cur){ fToast('먼저 채점을 해주세요'); return; }
@@ -2185,7 +2186,8 @@ async function downloadReportDOCX(){
   var Document=Dx.Document,Packer=Dx.Packer,Paragraph=Dx.Paragraph,TextRun=Dx.TextRun,AlignmentType=Dx.AlignmentType,
       Table=Dx.Table,TableRow=Dx.TableRow,TableCell=Dx.TableCell,WidthType=Dx.WidthType,BorderStyle=Dx.BorderStyle,
       ShadingType=Dx.ShadingType,ImageRun=Dx.ImageRun,PageBreak=Dx.PageBreak,VerticalAlign=Dx.VerticalAlign,
-      PageBorderDisplay=Dx.PageBorderDisplay,PageBorderOffsetFrom=Dx.PageBorderOffsetFrom;
+      PageBorderDisplay=Dx.PageBorderDisplay,PageBorderOffsetFrom=Dx.PageBorderOffsetFrom,
+      HPos=Dx.HorizontalPositionRelativeFrom,VPos=Dx.VerticalPositionRelativeFrom,TWrap=Dx.TextWrappingType;
 
   // ── 데이터 재수집(scoreAuto/ buildBook과 동일 규칙) ──
   var miss=new Set(cur.miss||[]), correct=0, total=0;
@@ -2214,6 +2216,8 @@ async function downloadReportDOCX(){
     cropMap[w.q]=await _fetchImg('crops/'+cur.id+'/'+w.q+'.png');
     var dq=dh&&dh[w.q]; if(dq&&dq.image) dhImgMap[w.q]=await _fetchImg(dq.image);
   }));
+  // 고급 장식 자산(직접 생성한 길로셰 표지 배경 + 금박 구분선). 없으면 조용히 생략.
+  var coverBg=await _fetchBin('assets/report/cover-bg.jpg'), dividerOrn=await _fetchImg('assets/report/divider-orn.png');
 
   // ── 색·헬퍼 ──
   var EM='0E4A38',GOLD='B8912E',GOLDL='C9A227',RED='B0512F',INK='221E16',MUT='6b6456',CREAMH='F4ECD8',CI=CIRC;
@@ -2231,6 +2235,10 @@ async function downloadReportDOCX(){
   function H(t,num){return P([run((num?num+'  ':''),{bold:true,color:GOLD,size:20}),run(t,{bold:true,color:EM,size:32,serif:true})],{before:120,after:120,border:{bottom:bdr(EM,10)}});}
   function PB(){return new Paragraph({children:[new PageBreak()]});}
   function imgPara(u8,maxW){ var d=_pngDims(u8)||{w:maxW,h:Math.round(maxW*0.4)}; var w=Math.min(maxW,d.w||maxW), h=Math.round(w*(d.h||1)/(d.w||1)); return P([new ImageRun({type:'png',data:u8,transformation:{width:w,height:h}})],{after:120}); }
+  // 표지 전면 배경(길로셰) — 텍스트 뒤에 페이지 전체로 앵커
+  function bgPara(u8){ if(!u8) return P([],{after:0,before:0}); return new Paragraph({spacing:{after:0,before:0,line:1},children:[new ImageRun({type:'jpg',data:u8,transformation:{width:794,height:1123},floating:{horizontalPosition:{relative:HPos.PAGE,offset:0},verticalPosition:{relative:VPos.PAGE,offset:0},behindDocument:true,allowOverlap:true,wrap:{type:TWrap.NONE}}})]}); }
+  // 금박 구분선 오너먼트(가운데 정렬)
+  function ornPara(u8,ww,o){ o=o||{}; if(!u8) return P([],{after:o.after==null?100:o.after}); var w=ww||300; return P([new ImageRun({type:'png',data:u8,transformation:{width:w,height:Math.round(w*54/600)}})],{align:AlignmentType.CENTER,before:o.before==null?40:o.before,after:o.after==null?140:o.after}); }
   function esc2(s){return String(s==null?'':s);}
   function lecToParas(html){ var out=[]; var doc; try{ doc=new DOMParser().parseFromString(html||'','text/html'); }catch(e){ return out; }
     var nodes=doc.body.querySelectorAll('h1,h2,h3,h4,h5,p,li');
@@ -2240,12 +2248,13 @@ async function downloadReportDOCX(){
     return out; }
 
   var body=[];
-  // ── 표지 ──
-  body.push(P([],{before:2600}),
-    txt('화학올림피아드 정밀 진단',{align:AlignmentType.CENTER,color:MUT,size:22,after:120}),
-    txt('성적 진단서',{align:AlignmentType.CENTER,bold:true,size:72,serif:true,after:160}),
-    txt(cur.title,{align:AlignmentType.CENTER,color:EM,size:30,serif:true,after:200}),
-    txt('化',{align:AlignmentType.CENTER,color:GOLD,size:64,serif:true,after:2000}),
+  // ── 표지 (길로셰 전면 배경 위에 조판) ──
+  body.push(bgPara(coverBg), P([],{before:2300}),
+    txt('화학올림피아드 정밀 진단',{align:AlignmentType.CENTER,color:MUT,size:22,after:110}),
+    txt('성적 진단서',{align:AlignmentType.CENTER,bold:true,size:72,serif:true,after:150}),
+    txt(cur.title,{align:AlignmentType.CENTER,color:EM,size:30,serif:true,after:120}),
+    ornPara(dividerOrn,300,{before:20,after:150}),
+    txt('化',{align:AlignmentType.CENTER,color:GOLD,size:64,serif:true,after:1900}),
     txt(nm||'학생',{align:AlignmentType.CENTER,bold:true,size:34,serif:true,after:40}),
     txt([sch,grd?grd+'학년':''].filter(Boolean).join('  ·  '),{align:AlignmentType.CENTER,color:MUT,size:20,after:40}),
     txt('성취 지표 · 영역별 진단 · 오답 정밀 분석 · 학습 처방 · 개념 강의 교재',{align:AlignmentType.CENTER,color:GOLD,size:16}),
@@ -2290,7 +2299,8 @@ async function downloadReportDOCX(){
   // ── 부록: 오답 정리 노트 ──
   if((wrong||[]).length){
     body.push(PB(),P([],{before:3200}),kicker('❖  APPENDIX · 오답 정리  ❖'),
-      txt('오답 정리 노트',{align:AlignmentType.CENTER,bold:true,color:EM,size:56,serif:true,after:160}),
+      txt('오답 정리 노트',{align:AlignmentType.CENTER,bold:true,color:EM,size:56,serif:true,after:60}),
+      ornPara(dividerOrn,340,{before:20,after:150}),
       txt('이번 시험에서 틀린 '+W+'문항입니다. 왜 틀렸는지와, 숫자·조건만 바꾼 동형문제를 정답·해설과 함께 정리했습니다.',{align:AlignmentType.CENTER,color:MUT}),PB());
     (wrong||[]).slice().sort(function(a,b){return a.q-b.q;}).forEach(function(w){
       var ty=(cur.type&&cur.type[w.q-1])||'', ar=(cur.area&&cur.area[w.q-1])||'', bd=bkBroad(ar);
@@ -2322,7 +2332,8 @@ async function downloadReportDOCX(){
     var lecs=files.length?(await Promise.all(files.map(fetchLectureContent))).filter(Boolean):[];
     if(lecs.length){
       body.push(PB(),P([],{before:3200}),kicker('❖  APPENDIX · 개념 강의  ❖'),
-        txt('개념 강의 교재',{align:AlignmentType.CENTER,bold:true,color:EM,size:56,serif:true,after:160}),
+        txt('개념 강의 교재',{align:AlignmentType.CENTER,bold:true,color:EM,size:56,serif:true,after:60}),
+        ornPara(dividerOrn,340,{before:20,after:150}),
         txt('이번 시험에서 틀린 개념의 강의 전문입니다. 이 부록만으로 개념을 처음부터 다시 세울 수 있습니다.',{align:AlignmentType.CENTER,color:MUT}));
       lecs.forEach(function(L){ body.push(PB(),kicker('개념 강의'),H(L.title,null)); body.push.apply(body, lecToParas(L.html)); });
     }
@@ -2337,7 +2348,7 @@ async function downloadReportDOCX(){
     sections:[{properties:{page:{
       size:{width:11906,height:16838},
       margin:{top:1200,right:1080,bottom:1200,left:1080},
-      borders:{pageBorderDisplay:PageBorderDisplay.ALL_PAGES,pageBorderOffsetFrom:PageBorderOffsetFrom.PAGE,
+      borders:{pageBorderDisplay:PageBorderDisplay.NOT_FIRST_PAGE,pageBorderOffsetFrom:PageBorderOffsetFrom.PAGE,
         top:bdr(GOLD,6,BorderStyle.DOUBLE),bottom:bdr(GOLD,6,BorderStyle.DOUBLE),left:bdr(GOLD,6,BorderStyle.DOUBLE),right:bdr(GOLD,6,BorderStyle.DOUBLE)}}},
       children:body}],
   });
