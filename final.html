@@ -544,8 +544,8 @@ summary::-webkit-details-marker{display:none}
 .wb-first b.x{color:#b0512f}.wb-first b.o{color:var(--teal)}
 .wb-why{font-size:13px;line-height:1.7;color:var(--ink-2);background:#fff7f2;border-left:3px solid var(--ms);border-radius:0 8px 8px 0;padding:9px 12px;margin:0 0 12px}
 .wb-why b{color:#b0512f;margin-right:4px}
-.wb-orig{margin:0 0 12px;font-size:12.5px}
-.wb-orig summary{cursor:pointer;color:var(--teal);font-weight:700}
+.wb-orig{margin:0 0 12px}
+.wb-orig-h{font-size:12.5px;font-weight:700;color:var(--teal);margin-bottom:2px}
 .wb-qimage{display:block;width:100%;height:auto;border:1px solid #e7e0d2;border-radius:8px;background:#fff;margin:9px 0}
 .wb-img-fail{display:none;color:var(--ms);font-size:12.5px;padding:10px;border:1px dashed #d9b8a8;border-radius:8px}
 .wb-dh{border:1px solid #e6ddc8;border-radius:11px;background:#fffdf7;padding:14px 15px}
@@ -1847,9 +1847,9 @@ function wbCardHTML(exam,w,qd,dq){
   var head='<div class="wb-head"><span class="wb-qno">'+q+'번</span>'+(area?'<span class="wb-tag">'+esc(area)+'</span>':'')+(type?'<span class="wb-tag">'+esc(type)+'</span>':'')
     +'<span class="wb-first">처음 <b class="x">'+(w.a?CIRC[w.a]:'무응답')+'</b> · 정답 <b class="o">'+correctLbl+'</b></span></div>';
   var whyHTML=why?'<div class="wb-why"><b>왜 틀렸나</b> '+esc(why)+'</div>':'';
-  var origHTML='<details class="wb-orig"><summary>원문 문제 보기</summary>'
+  var origHTML='<div class="wb-orig"><div class="wb-orig-h">원문 문제</div>'
     +'<img class="wb-qimage" src="'+cropSrc+'" alt="'+esc(exam.title)+' '+q+'번 원문" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'">'
-    +'<div class="wb-img-fail">원문 이미지가 준비되지 않았습니다. 문제지 '+q+'번을 확인해 주세요.</div></details>';
+    +'<div class="wb-img-fail">원문 이미지가 준비되지 않았습니다. 문제지 '+q+'번을 확인해 주세요.</div></div>';
   var dhHTML;
   if(dq && (dq.stem||dq.stemHtml||(dq.choices&&dq.choices.length)||dq.image)){
     var stem=dq.stemHtml||esc(dq.stem||'');
@@ -1867,7 +1867,7 @@ function wbCardHTML(exam,w,qd,dq){
   } else {
     dhHTML='<div class="wb-missing">이 문항의 동형문제는 준비 중입니다. 위 원문과 개념 강의로 복습하세요.</div>';
   }
-  return '<article class="wb-card" data-q="'+q+'">'+head+whyHTML+origHTML+dhHTML+'</article>';
+  return '<article class="wb-card" data-q="'+q+'">'+head+origHTML+whyHTML+dhHTML+'</article>';
 }
 async function hydrateWrongbook(exam,wrong){
   var root=document.getElementById('wrongbook'); if(!root)return;
