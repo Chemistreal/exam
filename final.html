@@ -2188,7 +2188,7 @@ async function downloadReportDOCX(){
       ShadingType=Dx.ShadingType,ImageRun=Dx.ImageRun,PageBreak=Dx.PageBreak,VerticalAlign=Dx.VerticalAlign,
       PageBorderDisplay=Dx.PageBorderDisplay,PageBorderOffsetFrom=Dx.PageBorderOffsetFrom,
       HPos=Dx.HorizontalPositionRelativeFrom,VPos=Dx.VerticalPositionRelativeFrom,TWrap=Dx.TextWrappingType,
-      LineRule=Dx.LineRuleType,Header=Dx.Header;
+      LineRule=Dx.LineRuleType,Header=Dx.Header,Footer=Dx.Footer,PageNumber=Dx.PageNumber;
 
   // ── 데이터 재수집(scoreAuto/ buildBook과 동일 규칙) ──
   var miss=new Set(cur.miss||[]), correct=0, total=0;
@@ -2264,15 +2264,20 @@ async function downloadReportDOCX(){
   // ── 01 진단 개요 ──
   var lead = aw.inA ? (nm||'학생')+' 학생은 이번 「'+cur.title+'」에서 '+cur.nQ+'문항 중 '+correct+'문항을 맞혀 원점수 '+rs.score+'점을 기록했습니다. 틀린 문항 '+W+'개로 현재 '+aw.name+'권'+(aw.nextTier&&aw.reach?(', '+aw.nextTier+'권까지 '+aw.gap+'문항을 남겨두고 있습니다.'):'에 위치합니다.')
     : (nm||'학생')+' 학생은 이번 「'+cur.title+'」에서 '+cur.nQ+'문항 중 '+correct+'문항을 맞혀 원점수 '+rs.score+'점을 기록했습니다. 아래에서 짚은 취약 개념을 회복하면 수상권 진입이 가능합니다.';
-  var heroCell=C([P([run('현재 등급   ',{color:'CFE3D8',size:18}),run(aw.name,{bold:true,color:'FFFFFF',size:40,serif:true}),run('        '+rs.score,{bold:true,color:'FFFFFF',size:48,serif:true}),run(' / '+rawMax+'  원점수'+(rs.pen?' · 오답 −'+rs.pen:''),{color:'CFE3D8',size:18})])],{w:CW,fill:EM,mt:220,mb:220,ml:260,mr:260});
-  body.push(kicker('❖  OVERVIEW  ❖'),H('진단 개요','01'),txt(lead,{after:180}),TBL([CW],[ROW([heroCell])]),P([],{after:160}));
+  var hlw=Math.floor(CW*0.52), hrw=CW-hlw;
+  var heroL=C([P([run('현재 등급',{color:'BFD8CB',size:16,cs:30})],{after:30}),P([run(aw.name,{bold:true,color:'FFFFFF',size:46,serif:true})],{after:0}),
+    (aw.nextTier&&aw.reach?P([run(aw.nextTier+'권까지 '+aw.gap+'문항',{color:'E6D9A6',size:15})],{before:40,after:0}):P([],{after:0}))],{w:hlw,fill:EM,mt:210,mb:210,ml:320});
+  var heroR=C([P([run(''+rs.score,{bold:true,color:'FFFFFF',size:58,serif:true}),run('  / '+rawMax,{color:'BFD8CB',size:22})],{align:AlignmentType.RIGHT,after:14}),
+    P([run('원점수'+(rs.pen?'  ·  오답 −'+rs.pen:''),{color:'BFD8CB',size:16})],{align:AlignmentType.RIGHT,after:0})],{w:hrw,fill:EM,mt:210,mb:210,mr:320});
+  body.push(kicker('❖  OVERVIEW  ❖'),H('진단 개요','01'),txt(lead,{after:170}),TBL([hlw,hrw],[ROW([heroL,heroR])]),P([],{after:150}));
   // 통계 표(가변)
   var stat=[['맞은 문항',correct+' / '+total],['정답률',pct+'%'],['틀린 문항',''+W]];
   if(perc!=null) stat.push(['백분위',''+perc]);
   if(rank!=null) stat.push(['석차',rank+' / '+Nn]);
   var sn=stat.length, sw=Math.floor(CW/sn), swArr=[]; for(var si=0;si<sn;si++) swArr.push(si===sn-1?(CW-sw*(sn-1)):sw);
-  var stCells=stat.map(function(s,i){ return C([txt(s[1],{align:AlignmentType.CENTER,bold:true,size:28,color:EM}),txt(s[0],{align:AlignmentType.CENTER,size:15,color:MUT})],{w:swArr[i],fill:'FBF6E8',mt:130,mb:130}); });
+  var stCells=stat.map(function(s,i){ return C([txt(s[1],{align:AlignmentType.CENTER,bold:true,size:30,color:EM}),txt(s[0],{align:AlignmentType.CENTER,size:15,color:MUT})],{w:swArr[i],fill:'FBF6E8',mt:140,mb:140}); });
   body.push(TBL(swArr,[ROW(stCells)],{top:bdr(GOLDL,6),bottom:bdr(GOLDL,6),left:bdr(GOLDL,6),right:bdr(GOLDL,6),insideVertical:bdr(GOLDL,6),insideHorizontal:NB}));
+  if(perc!=null) body.push(P([run('누적 응시 '+Nn+'명 중 상위 '+(100-perc)+'%  ·  백분위 '+perc+'  ·  석차 '+rank+'/'+Nn,{color:MUT,size:16})],{align:AlignmentType.CENTER,before:110}));
 
   // ── 02 영역별 성취 ──
   if(areas.length){
@@ -2280,10 +2285,13 @@ async function downloadReportDOCX(){
     var strTxt=strong.length?('강점 영역은 '+strong.slice(0,3).map(function(a){return a.name;}).join(', ')+'입니다. '):'';
     var weakTxt=weak.length?('보완이 필요한 영역은 '+weak.slice(0,3).map(function(a){return a.name;}).join(', ')+'입니다.'):'뚜렷한 취약 영역 없이 고르게 응답했습니다.';
     body.push(txt(strTxt+weakTxt,{after:140}));
-    var cols=[3200,1700,1700,CW-3200-1700-1700];
-    var arows=[ROW([cellT('영역',{w:cols[0],bold:true,color:EM,fill:CREAMH}),cellT('정답률',{w:cols[1],bold:true,color:EM,fill:CREAMH,align:AlignmentType.CENTER}),cellT('정오',{w:cols[2],bold:true,color:EM,fill:CREAMH,align:AlignmentType.CENTER}),cellT('판정',{w:cols[3],bold:true,color:EM,fill:CREAMH,align:AlignmentType.CENTER})],{header:true})];
+    var cols=[2500,4300,1300,CW-2500-4300-1300];
+    // 성취도 막대(블록 문자) — 강점 에메랄드 / 취약 빨강 / 보통 금색
+    function barCell(pct,wk,st,w){ var seg=12, fill=Math.max(0,Math.min(seg,Math.round(pct/100*seg))); var c=wk?RED:(st?EM:GOLD);
+      return C([P([run('█'.repeat(fill),{color:c,size:18}),run('░'.repeat(seg-fill),{color:'E3D9BE',size:18}),run('  '+pct+'%',{bold:true,color:wk?RED:EM,size:20})],{after:0,before:0})],{w:w,ml:120,mr:120}); }
+    var arows=[ROW([cellT('영역',{w:cols[0],bold:true,color:EM,fill:CREAMH}),cellT('성취도',{w:cols[1],bold:true,color:EM,fill:CREAMH}),cellT('정오',{w:cols[2],bold:true,color:EM,fill:CREAMH,align:AlignmentType.CENTER}),cellT('판정',{w:cols[3],bold:true,color:EM,fill:CREAMH,align:AlignmentType.CENTER})],{header:true})];
     areas.forEach(function(a){ var p=Math.round(a.r*100); var wk=a.t>=2&&a.r<0.5; var st=a.t>=2&&a.r>=0.8; var v=wk?'취약':(st?'강점':'');
-      arows.push(ROW([ cellT(a.name,{w:cols[0],bold:true}), cellT(p+'%',{w:cols[1],align:AlignmentType.CENTER,bold:true,color:wk?RED:EM}), cellT(a.c+'/'+a.t,{w:cols[2],align:AlignmentType.CENTER,color:MUT}), cellT(v,{w:cols[3],align:AlignmentType.CENTER,fill:wk?'F7E3DC':(st?'E3EFE9':undefined),color:wk?RED:(st?EM:MUT),bold:!!v}) ])); });
+      arows.push(ROW([ cellT(a.name,{w:cols[0],bold:true}), barCell(p,wk,st,cols[1]), cellT(a.c+'/'+a.t,{w:cols[2],align:AlignmentType.CENTER,color:MUT}), cellT(v,{w:cols[3],align:AlignmentType.CENTER,fill:wk?'F7E3DC':(st?'E3EFE9':undefined),color:wk?RED:(st?EM:MUT),bold:!!v}) ])); });
     body.push(TBL(cols,arows,{top:bdr(GOLDL,4),bottom:bdr(GOLDL,4),left:NB,right:NB,insideHorizontal:bdr('E6DDC8',2),insideVertical:NB}));
   }
 
@@ -2346,14 +2354,19 @@ async function downloadReportDOCX(){
   // 프레임/표지는 헤더 이미지로(모든 뷰어에서 안정적으로 모든 페이지에 표시)
   var firstHdr=new Header({children:[bgFullPara(coverBg,'jpg')]});
   var defHdr=new Header({children:[bgFullPara(frameBg,'png')]});
+  // 러닝 푸터: 브랜드 + 페이지 번호(표지 제외)
+  var defFtr=new Footer({children:[new Paragraph({alignment:AlignmentType.CENTER,spacing:{before:40,after:0,line:240,lineRule:LineRule.AUTO},
+    children:[run('CHEMISTREAL · 조준모 화학      ',{color:'A99F86',size:14,cs:20}),run('',{color:GOLD,size:14}),new TextRun({children:[PageNumber.CURRENT],color:GOLD,size:14,bold:true}),run(' / ',{color:'A99F86',size:14}),new TextRun({children:[PageNumber.TOTAL_PAGES],color:'A99F86',size:14})]})]});
+  var firstFtr=new Footer({children:[new Paragraph({children:[]})]});
   var doc=new Document({
     creator:'Chemistreal', title:(nm?nm+' ':'')+cur.title+' 성적표',
     styles:{default:{document:{run:{font:'Malgun Gothic',color:INK}}}},
     sections:[{
       properties:{titlePage:true,page:{
         size:{width:11906,height:16838},
-        margin:{top:1200,right:1080,bottom:1200,left:1080,header:200,footer:200}}},
+        margin:{top:1200,right:1080,bottom:1200,left:1080,header:200,footer:420}}},
       headers:{default:defHdr,first:firstHdr},
+      footers:{default:defFtr,first:firstFtr},
       children:body}],
   });
   try{
