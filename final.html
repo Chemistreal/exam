@@ -1729,7 +1729,7 @@ async function exportReportHTML(){
     }catch(e){}
   }));
   app.querySelectorAll('.back').forEach(function(e){e.remove();});
-  app.querySelectorAll('.toolbar').forEach(function(tb){tb.innerHTML='<button class="btn sm" onclick="downloadReportDOCX()">📝 성적표 Word 저장 ↓</button><button class="btn ghost sm" onclick="downloadReportPDF()">📄 PDF(인쇄) 저장 ↓</button>';});
+  app.querySelectorAll('.toolbar').forEach(function(tb){tb.innerHTML='<button class="btn sm" onclick="downloadReportDOCX()">📝 성적표 Word 저장 ↓</button>';});
   const css=document.querySelector('style').textContent;
   const hook="<scr"+"ipt>("+sharedReportRuntime.toString()+")();</scr"+"ipt>";
   const nm=(window.__rpt&&window.__rpt.name)||'';
@@ -1958,7 +1958,7 @@ function scoreAuto(){
    ${methodSec(cur)}
    ${wrongbookShell(cur,wrong)}
    </div>
-   <div class="toolbar"><button class="btn" onclick="downloadReportDOCX()">📝 성적표 Word 저장 ↓</button><button class="btn ghost sm" onclick="downloadReportPDF()">📄 PDF(인쇄) 저장 ↓</button><button class="btn ghost sm" onclick="exportReportHTML()">공유용 HTML 저장 ↓</button>
+   <div class="toolbar"><button class="btn" onclick="downloadReportDOCX()">📝 성적표 Word 저장 ↓</button><button class="btn ghost sm" onclick="exportReportHTML()">공유용 HTML 저장 ↓</button>
      <a class="pdf" href="sol-final-${cur.id}.html" target="_blank">정답·개념 해설 ↗</a>
      <button class="btn ghost sm" onclick="window.print()">인쇄</button>
      <button class="btn sm" onclick="nextStudent()">다음 학생 입력 ▶</button>
@@ -2221,11 +2221,12 @@ async function downloadReportDOCX(){
   var coverBg=await _fetchBin('assets/report/cover-bg.jpg'), dividerOrn=await _fetchImg('assets/report/divider-orn.png'), frameBg=await _fetchImg('assets/report/frame-bg.png');
 
   // ── 색·헬퍼 ──
-  var EM='0E4A38',GOLD='B8912E',GOLDL='C9A227',RED='B0512F',INK='221E16',MUT='6b6456',CREAMH='F4ECD8',CI=CIRC;
+  // 팔레트: 네이비 + 골드 (EM=주색 네이비, EMT=옅은 네이비 틴트, EMLBL=밝은 네이비 라벨)
+  var EM='16305C',EMT='E7ECF5',EMLBL='AEBDD8',GOLD='B8912E',GOLDL='C9A227',RED='B0512F',INK='20262F',MUT='6b6456',CREAMH='F4ECD8',CI=CIRC;
   var CW=9746;
   var NB={style:BorderStyle.NONE,size:0,color:'FFFFFF'};
   function bdr(c,s,st){return {style:st||BorderStyle.SINGLE,size:s||4,color:c||GOLDL};}
-  function run(t,o){o=o||{};return new TextRun({text:String(t==null?'':t),bold:!!o.bold,italics:!!o.i,color:o.color||INK,size:o.size||22,font:o.serif?'Batang':'Malgun Gothic',characterSpacing:o.cs});}
+  function run(t,o){o=o||{};return new TextRun({text:String(t==null?'':t),bold:!!o.bold,italics:!!o.i,color:o.color||INK,size:o.size||22,font:o.serif?'Nanum Myeongjo':'Malgun Gothic',characterSpacing:o.cs});}
   function P(runs,o){o=o||{};return new Paragraph({alignment:o.align,spacing:{before:o.before==null?60:o.before,after:o.after==null?60:o.after,line:o.line||288,lineRule:LineRule.AUTO},border:o.border,shading:o.fill?{type:ShadingType.CLEAR,fill:o.fill,color:'auto'}:undefined,children:Array.isArray(runs)?runs:[runs]});}
   function txt(t,o){return P([run(t,o)],o);}
   function C(children,o){o=o||{};return new TableCell({width:{size:o.w,type:WidthType.DXA},shading:o.fill?{type:ShadingType.CLEAR,fill:o.fill,color:'auto'}:undefined,verticalAlign:VerticalAlign.CENTER,margins:{top:o.mt||80,bottom:o.mb||80,left:o.ml||120,right:o.mr||120},children:Array.isArray(children)?children:[children]});}
@@ -2244,8 +2245,8 @@ async function downloadReportDOCX(){
   function lecToParas(html){ var out=[]; var doc; try{ doc=new DOMParser().parseFromString(html||'','text/html'); }catch(e){ return out; }
     var nodes=doc.body.querySelectorAll('h1,h2,h3,h4,h5,p,li');
     nodes.forEach(function(n){ if(n.querySelector&&n.querySelector('h1,h2,h3,h4,h5,p,li')) return; var t=(n.textContent||'').replace(/\s+/g,' ').trim(); if(!t) return; var tag=n.tagName.toLowerCase();
-      if(/^h[1-5]$/.test(tag)) out.push(P([run(t,{bold:true,color:GOLD,size:22})],{before:140,after:50}));
-      else out.push(txt((tag==='li'?'· ':'')+t,{size:21,after:60,line:290})); });
+      if(/^h[1-5]$/.test(tag)) out.push(P([run('◆  ',{color:GOLD,size:18}),run(t,{bold:true,color:EM,size:22,serif:true})],{before:180,after:70,border:{bottom:bdr('E6DDC8',3)}}));
+      else out.push(txt((tag==='li'?'·  ':'')+t,{size:21,after:90,line:312})); });
     return out; }
 
   var body=[];
@@ -2265,10 +2266,10 @@ async function downloadReportDOCX(){
   var lead = aw.inA ? (nm||'학생')+' 학생은 이번 「'+cur.title+'」에서 '+cur.nQ+'문항 중 '+correct+'문항을 맞혀 원점수 '+rs.score+'점을 기록했습니다. 틀린 문항 '+W+'개로 현재 '+aw.name+'권'+(aw.nextTier&&aw.reach?(', '+aw.nextTier+'권까지 '+aw.gap+'문항을 남겨두고 있습니다.'):'에 위치합니다.')
     : (nm||'학생')+' 학생은 이번 「'+cur.title+'」에서 '+cur.nQ+'문항 중 '+correct+'문항을 맞혀 원점수 '+rs.score+'점을 기록했습니다. 아래에서 짚은 취약 개념을 회복하면 수상권 진입이 가능합니다.';
   var hlw=Math.floor(CW*0.52), hrw=CW-hlw;
-  var heroL=C([P([run('현재 등급',{color:'BFD8CB',size:16,cs:30})],{after:30}),P([run(aw.name,{bold:true,color:'FFFFFF',size:46,serif:true})],{after:0}),
+  var heroL=C([P([run('현재 등급',{color:EMLBL,size:16,cs:30})],{after:30}),P([run(aw.name,{bold:true,color:'FFFFFF',size:46,serif:true})],{after:0}),
     (aw.nextTier&&aw.reach?P([run(aw.nextTier+'권까지 '+aw.gap+'문항',{color:'E6D9A6',size:15})],{before:40,after:0}):P([],{after:0}))],{w:hlw,fill:EM,mt:210,mb:210,ml:320});
-  var heroR=C([P([run(''+rs.score,{bold:true,color:'FFFFFF',size:58,serif:true}),run('  / '+rawMax,{color:'BFD8CB',size:22})],{align:AlignmentType.RIGHT,after:14}),
-    P([run('원점수'+(rs.pen?'  ·  오답 −'+rs.pen:''),{color:'BFD8CB',size:16})],{align:AlignmentType.RIGHT,after:0})],{w:hrw,fill:EM,mt:210,mb:210,mr:320});
+  var heroR=C([P([run(''+rs.score,{bold:true,color:'FFFFFF',size:58,serif:true}),run('  / '+rawMax,{color:EMLBL,size:22})],{align:AlignmentType.RIGHT,after:14}),
+    P([run('원점수'+(rs.pen?'  ·  오답 −'+rs.pen:''),{color:EMLBL,size:16})],{align:AlignmentType.RIGHT,after:0})],{w:hrw,fill:EM,mt:210,mb:210,mr:320});
   body.push(kicker('❖  OVERVIEW  ❖'),H('진단 개요','01'),txt(lead,{after:170}),TBL([hlw,hrw],[ROW([heroL,heroR])]),P([],{after:150}));
   // 통계 표(가변)
   var stat=[['맞은 문항',correct+' / '+total],['정답률',pct+'%'],['틀린 문항',''+W]];
@@ -2281,7 +2282,7 @@ async function downloadReportDOCX(){
 
   // ── 02 영역별 성취 ──
   if(areas.length){
-    body.push(P([],{before:300}),kicker('❖  BY AREA  ❖'),H('영역별 성취','02'));
+    body.push(PB(),kicker('❖  BY AREA  ❖'),H('영역별 성취','02'));
     var strTxt=strong.length?('강점 영역은 '+strong.slice(0,3).map(function(a){return a.name;}).join(', ')+'입니다. '):'';
     var weakTxt=weak.length?('보완이 필요한 영역은 '+weak.slice(0,3).map(function(a){return a.name;}).join(', ')+'입니다.'):'뚜렷한 취약 영역 없이 고르게 응답했습니다.';
     body.push(txt(strTxt+weakTxt,{after:140}));
@@ -2291,7 +2292,7 @@ async function downloadReportDOCX(){
       return C([P([run('█'.repeat(fill),{color:c,size:18}),run('░'.repeat(seg-fill),{color:'E3D9BE',size:18}),run('  '+pct+'%',{bold:true,color:wk?RED:EM,size:20})],{after:0,before:0})],{w:w,ml:120,mr:120}); }
     var arows=[ROW([cellT('영역',{w:cols[0],bold:true,color:EM,fill:CREAMH}),cellT('성취도',{w:cols[1],bold:true,color:EM,fill:CREAMH}),cellT('정오',{w:cols[2],bold:true,color:EM,fill:CREAMH,align:AlignmentType.CENTER}),cellT('판정',{w:cols[3],bold:true,color:EM,fill:CREAMH,align:AlignmentType.CENTER})],{header:true})];
     areas.forEach(function(a){ var p=Math.round(a.r*100); var wk=a.t>=2&&a.r<0.5; var st=a.t>=2&&a.r>=0.8; var v=wk?'취약':(st?'강점':'');
-      arows.push(ROW([ cellT(a.name,{w:cols[0],bold:true}), barCell(p,wk,st,cols[1]), cellT(a.c+'/'+a.t,{w:cols[2],align:AlignmentType.CENTER,color:MUT}), cellT(v,{w:cols[3],align:AlignmentType.CENTER,fill:wk?'F7E3DC':(st?'E3EFE9':undefined),color:wk?RED:(st?EM:MUT),bold:!!v}) ])); });
+      arows.push(ROW([ cellT(a.name,{w:cols[0],bold:true}), barCell(p,wk,st,cols[1]), cellT(a.c+'/'+a.t,{w:cols[2],align:AlignmentType.CENTER,color:MUT}), cellT(v,{w:cols[3],align:AlignmentType.CENTER,fill:wk?'F7E3DC':(st?EMT:undefined),color:wk?RED:(st?EM:MUT),bold:!!v}) ])); });
     body.push(TBL(cols,arows,{top:bdr(GOLDL,4),bottom:bdr(GOLDL,4),left:NB,right:NB,insideHorizontal:bdr('E6DDC8',2),insideVertical:NB}));
   }
 
@@ -2303,7 +2304,7 @@ async function downloadReportDOCX(){
     if(r.t) rxBlocks.push(P([run('함정  ',{bold:true,color:RED,size:20}),run(esc2(r.t),{size:20,color:'413c32'})],{after:30,border:{left:bdr(RED,14)}}));
     if(r.rx) rxBlocks.push(P([run('처방  ',{bold:true,color:GOLD,size:20}),run(esc2(r.rx),{size:20,color:'413c32'})],{after:80,border:{left:bdr(GOLD,14)}}));
   });
-  if(rxBlocks.length){ body.push(P([],{before:300}),kicker('❖  PRESCRIPTION  ❖'),H('학습 처방','03'),txt('가장 약한 영역부터, 핵심 개념·자주 틀리는 함정·복습 처방을 제시합니다.',{after:120})); body.push.apply(body,rxBlocks); }
+  if(rxBlocks.length){ body.push(PB(),kicker('❖  PRESCRIPTION  ❖'),H('학습 처방','03'),txt('가장 약한 영역부터, 핵심 개념·자주 틀리는 함정·복습 처방을 제시합니다.',{after:120})); body.push.apply(body,rxBlocks); }
 
   // ── 부록: 오답 정리 노트 ──
   if((wrong||[]).length){
@@ -2311,11 +2312,11 @@ async function downloadReportDOCX(){
       txt('오답 정리 노트',{align:AlignmentType.CENTER,bold:true,color:EM,size:52,serif:true,after:50}),
       ornPara(dividerOrn,340,{before:16,after:120}),
       txt('이번 시험에서 틀린 '+W+'문항입니다. 왜 틀렸는지와, 숫자·조건만 바꾼 동형문제를 정답·해설과 함께 정리했습니다.',{align:AlignmentType.CENTER,color:MUT,after:220}));
-    (wrong||[]).slice().sort(function(a,b){return a.q-b.q;}).forEach(function(w){
+    (wrong||[]).slice().sort(function(a,b){return a.q-b.q;}).forEach(function(w,wi){
       var ty=(cur.type&&cur.type[w.q-1])||'', ar=(cur.area&&cur.area[w.q-1])||'', bd=bkBroad(ar);
       var ck=cur.key?cur.key[w.q-1]:0; var aq=answers&&answers[w.q]||{}, dq=dh&&dh[w.q];
       var why=aq.misconception||(ty?omFor(ty):'')||(RX[bd]&&RX[bd].t)||'';
-      body.push(P([run(w.q+'번  ',{bold:true,color:EM,size:28,serif:true}),run((ar?ar+'   ':''),{color:GOLD,size:18,bold:true}),run('처음 ',{color:MUT,size:20}),run(w.a?CI[w.a]:'무응답',{bold:true,color:RED,size:22}),run(' · 정답 ',{color:MUT,size:20}),run(ck?CI[ck]:'·',{bold:true,color:EM,size:22})],{before:200,after:80}));
+      body.push(P([run(w.q+'번  ',{bold:true,color:EM,size:30,serif:true}),run((ar?ar+'   ':''),{color:GOLD,size:18,bold:true}),run((ty?ty+'    ':''),{color:MUT,size:16}),run('처음 ',{color:MUT,size:20}),run(w.a?CI[w.a]:'무응답',{bold:true,color:RED,size:22}),run('  ·  정답 ',{color:MUT,size:20}),run(ck?CI[ck]:'·',{bold:true,color:EM,size:22})],{before:wi===0?200:360,after:90,border:{top:bdr(GOLDL,4)}}));
       if(cropMap[w.q]){ body.push(txt('원문 문제',{bold:true,color:EM,size:20,after:60})); body.push(imgPara(cropMap[w.q],470)); }
       else body.push(txt('원문: 문제지 '+w.q+'번을 확인하세요.',{color:MUT,size:19,after:60}));
       if(why) body.push(P([run('왜 틀렸나  ',{bold:true,color:RED,size:21}),run(esc2(why),{size:21,color:'4a4437'})],{after:140,border:{left:bdr(RED,18)}}));
@@ -2326,7 +2327,7 @@ async function downloadReportDOCX(){
         dhInner.push(P([run('◈ 동형문제 · 같은 개념, 숫자·조건만 바꿈',{bold:true,color:EM,size:24,serif:true})],{after:120}));
         if(dq.stem) dhInner.push(txt(esc2(dq.stem),{after:100}));
         else if(dhImgMap[w.q]) dhInner.push(imgPara(dhImgMap[w.q],440));
-        (dq.choices||[]).forEach(function(c,i){ var isAns=ans===i+1; dhInner.push(P([run(CI[i+1]+'  '+esc2(c),{bold:isAns,color:isAns?EM:INK,size:22})],{fill:isAns?'E3EFE9':undefined,before:16,after:16})); });
+        (dq.choices||[]).forEach(function(c,i){ var isAns=ans===i+1; dhInner.push(P([run(CI[i+1]+'  '+esc2(c),{bold:isAns,color:isAns?EM:INK,size:22})],{fill:isAns?EMT:undefined,before:16,after:16})); });
         dhInner.push(P([run('정답  ',{size:22}),run(ans?CI[ans]:'·',{bold:true,color:EM,size:26,serif:true})],{before:100,after:100}));
         var sol=dq.explanation||''; if(sol){ dhInner.push(P([run('해설',{bold:true,color:EM,size:22})],{before:60,after:40,border:{top:bdr('E6DDC8',4)}})); dhInner.push(txt(esc2(sol),{size:21})); }
         if(dq.misconception) dhInner.push(P([run('오개념  ',{bold:true,color:RED,size:21}),run(esc2(dq.misconception),{size:21,color:'4a4437'})],{before:60}));
