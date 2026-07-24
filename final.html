@@ -2198,68 +2198,74 @@ async function downloadReportPDF(){
   try{
     await ensurePdfLibs();
     await new Promise(function(r){setTimeout(r,80);});
-    // 캔버스 높이가 브라우저 한계(약 65535px)를 넘으면 html2canvas가 빈 캔버스를 반환한다.
-    // 내용 높이에 맞춰 배율을 낮춰 한계 아래로 유지(길이가 짧으면 선명한 2.5배 유지).
-    var _sh=el.scrollHeight||1; var CAP=Math.min(2.5, 63000/_sh); if(CAP<1) CAP=1;
-    var canvas=await html2canvas(el,{scale:CAP,backgroundColor:'#FBF8F1',useCORS:true,logging:false,windowWidth:el.scrollWidth});
     var jsPDF=window.jspdf.jsPDF;
     var pdf=new jsPDF({unit:'mm',format:'a4',orientation:'portrait'});
     var pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight();
-    var M=8, iw=pw-M*2, pageH=ph-M*2;
-    var pxPerMM=canvas.width/iw, pageMaxPx=Math.floor(pageH*pxPerMM);
-    // 실제 CSS→canvas 배율로 요소 경계(안전 절단점)를 canvas 좌표로 환산
-    var realScale=canvas.height/(el.scrollHeight||canvas.height);
-    var breaks=pdfBreakYs(el, realScale, canvas.height);
-    var atomics=pdfAtomics(el, realScale, pageMaxPx);
-    var forceB=pdfForceBreaks(el, realScale);
-    // 요소 중간이 잘리지 않도록 페이지 한도 내 가장 아래쪽 경계에서 끊고,
-    // 절단이 '색 채워진 박스' 안에 걸리면 그 박스 위로 밀어 통째로 다음 페이지로 넘긴다
+    var M=8, iw=pw-M*2, pageHmm=ph-M*2;
+    var elW=el.scrollWidth||840, elH=el.scrollHeight||1;
+    var pageCssH=pageHmm*(elW/iw);   // 한 페이지 내용 높이(CSS px)
+    // 페이지 절단점을 CSS px 좌표로 미리 계산(scale=1) — 렌더 전에 페이지 경계를 정한다.
+    var breaks=pdfBreakYs(el, 1, elH);
+    var atomics=pdfAtomics(el, 1, pageCssH);
+    var forceB=pdfForceBreaks(el, 1);
     var segs=[], y=0, guard=0;
-    while(y<canvas.height-1 && guard++<800){
-      var limit=y+pageMaxPx, cut=-1;
-      // 강제 나눔(부록 시작): 페이지 중·하단에 부록 시작이 걸리면 거기서 끊어 새 페이지에서 시작.
-      // (부록이 페이지 상단 근처면 그대로 흐르게 두어 얇은 조각 페이지를 막는다)
-      var forced=-1;
-      for(var k=0;k<forceB.length;k++){ if(forceB[k]>y+pageMaxPx*0.1 && forceB[k]<=Math.min(limit,canvas.height)){ forced=forceB[k]; break; } }
+    while(y<elH-1 && guard++<1200){
+      var limit=y+pageCssH, cut=-1, forced=-1;
+      for(var k=0;k<forceB.length;k++){ if(forceB[k]>y+pageCssH*0.1 && forceB[k]<=Math.min(limit,elH)){ forced=forceB[k]; break; } }
       if(forced>=0){ cut=forced; }
-      else if(limit>=canvas.height){ cut=canvas.height; }
+      else if(limit>=elH){ cut=elH; }
       else {
         for(var i=0;i<breaks.length;i++){ if(breaks[i]>y+40 && breaks[i]<=limit && breaks[i]>cut) cut=breaks[i]; }
         if(cut<0) cut=limit;
-        // 스냅: 절단선이 채워진 박스 내부를 지나면 박스 상단으로 당긴다(박스가 페이지 위쪽에서 시작할 때만)
         for(var snap=0; snap<30; snap++){ var moved=false;
           for(var a=0;a<atomics.length;a++){ var at=atomics[a][0], ab=atomics[a][1];
             if(cut>at+2 && cut<ab-2 && at>y+40){ cut=at; moved=true; break; } }
           if(!moved) break;
         }
       }
+      if(cut<=y) cut=Math.min(limit,elH);   // 무한루프 방지
       segs.push([y,cut]); y=cut;
     }
     var totalPages=segs.length;
-    for(var pageN=0; pageN<segs.length; pageN++){
-      var y0=segs[pageN][0], hh=segs[pageN][1]-segs[pageN][0]; if(hh<=0) continue;
-      var c=document.createElement('canvas'); c.width=canvas.width; c.height=hh;
-      var ctx=c.getContext('2d'); ctx.fillStyle='#FBF8F1'; ctx.fillRect(0,0,c.width,hh);
-      ctx.drawImage(canvas,0,y0,canvas.width,hh,0,0,canvas.width,hh);
-      if(pageN>0) pdf.addPage();
-      // 페이지 전체 아이보리 바탕(짧은 페이지의 여백도 종이색으로)
-      pdf.setFillColor(251,248,241); pdf.rect(0,0,pw,ph,'F');
-      pdf.addImage(c.toDataURL('image/jpeg',0.95),'JPEG',M,M,iw,hh/pxPerMM);
-      // ── 모든 페이지에 금박 이중 프레임 + 모서리 다이아몬드(벡터·선명) ──
+    // ── iOS 캔버스 한계(면적·치수 제한) 회피 ──
+    // 책 전체를 한 캔버스로 그리면 모바일 사파리/크롬에서 빈 캔버스가 반환된다(28페이지가 전부 백지로 나온 원인).
+    // 페이지 단위로 나눠 캡처하면 각 캔버스가 작아 어떤 기기에서도 안전하다(페이지당 elW*S × pageCssH*S 픽셀).
+    // 속도: 페이지를 하나씩 캡처하면 매번 DOM을 재클론해 느리다. 여러 페이지를 한 번에 캡처(청크)해
+    // html2canvas 호출 수를 줄이되, 각 청크 캔버스는 iOS 안전 크기(면적·치수) 안으로 유지한다.
+    var S=2, CHUNK_PX=8000, chunkCssBudget=Math.floor(CHUNK_PX/S);   // 청크당 최대 픽셀 높이 8000(≈4000 CSS)
+    function drawFrame(pageN){
       pdf.setDrawColor(184,145,46);
       pdf.setLineWidth(0.7); pdf.rect(6.4,6.4,pw-12.8,ph-12.8);
       pdf.setLineWidth(0.25); pdf.rect(8.2,8.2,pw-16.4,ph-16.4);
       pdf.setFillColor(184,145,46);
       [[6.4,6.4],[pw-6.4,6.4],[6.4,ph-6.4],[pw-6.4,ph-6.4]].forEach(function(pt){ var r=1.7;
         pdf.lines([[r,r],[-r,r],[-r,-r],[r,-r]], pt[0], pt[1]-r, [1,1],'F',true); });
-      // 러닝 헤더/푸터는 jsPDF 기본 폰트(한글 미지원)라 ASCII만 사용.
-      if(pageN>=1){
-        pdf.setFontSize(7); pdf.setTextColor(150,120,40);
-        pdf.text('CHEMISTREAL  ·  FINAL DIAGNOSTIC REPORT', pw/2, 4.7, {align:'center'});
-      }
+      if(pageN>=1){ pdf.setFontSize(7); pdf.setTextColor(150,120,40);
+        pdf.text('CHEMISTREAL  ·  FINAL DIAGNOSTIC REPORT', pw/2, 4.7, {align:'center'}); }
       pdf.setFontSize(7.5); pdf.setTextColor(150,120,40);
       pdf.text('JO JUN-MO CHEMISTRY', M+2, ph-3.3);
       pdf.text((pageN+1)+'  /  '+totalPages, pw-M-2, ph-3.3, {align:'right'});
+    }
+    var pi=0;
+    while(pi<segs.length){
+      var chunkY0=segs[pi][0], chunkEnd=segs[pi][1], j=pi+1;
+      while(j<segs.length && (segs[j][1]-chunkY0)<=chunkCssBudget){ chunkEnd=segs[j][1]; j++; }
+      var chunkH=chunkEnd-chunkY0;
+      fToast('책형식 성적표 만드는 중… '+(pi+1)+(j>pi+1?('–'+j):'')+' / '+totalPages);
+      var cc=await html2canvas(el,{scale:S,backgroundColor:'#FBF8F1',useCORS:true,logging:false,
+        windowWidth:elW,windowHeight:elH,x:0,y:chunkY0,width:elW,height:chunkH});
+      for(var s=pi;s<j;s++){
+        var y0=segs[s][0], hCss=segs[s][1]-y0; if(hCss<=0) continue;
+        var pxTop=Math.round((y0-chunkY0)*S), pxH=Math.round(hCss*S);
+        var c=document.createElement('canvas'); c.width=cc.width; c.height=pxH;
+        var ctx=c.getContext('2d'); ctx.fillStyle='#FBF8F1'; ctx.fillRect(0,0,c.width,pxH);
+        ctx.drawImage(cc,0,pxTop,cc.width,pxH,0,0,cc.width,pxH);
+        if(s>0) pdf.addPage();
+        pdf.setFillColor(251,248,241); pdf.rect(0,0,pw,ph,'F');
+        pdf.addImage(c.toDataURL('image/jpeg',0.92),'JPEG',M,M,iw,hCss*(iw/elW));
+        drawFrame(s);
+      }
+      pi=j;
     }
     var nm=(window.__rpt&&window.__rpt.name)||'';
     var fn=((nm?nm+'_':'')+(cur&&cur.title||'성적표')+'_성적표').replace(/[\\/:*?"<>|]+/g,'')+'.pdf';
