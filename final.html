@@ -1729,7 +1729,7 @@ async function exportReportHTML(){
     }catch(e){}
   }));
   app.querySelectorAll('.back').forEach(function(e){e.remove();});
-  app.querySelectorAll('.toolbar').forEach(function(tb){tb.innerHTML='<button class="btn sm" onclick="downloadReportPDF()">📄 성적표 PDF 저장 ↓</button>';});
+  app.querySelectorAll('.toolbar').forEach(function(tb){tb.innerHTML='<button class="btn sm" onclick="downloadReportDOCX()">📝 성적표 Word 저장 ↓</button><button class="btn ghost sm" onclick="downloadReportPDF()">📄 PDF(인쇄) 저장 ↓</button>';});
   const css=document.querySelector('style').textContent;
   const hook="<scr"+"ipt>("+sharedReportRuntime.toString()+")();</scr"+"ipt>";
   const nm=(window.__rpt&&window.__rpt.name)||'';
@@ -1958,7 +1958,7 @@ function scoreAuto(){
    ${methodSec(cur)}
    ${wrongbookShell(cur,wrong)}
    </div>
-   <div class="toolbar"><button class="btn" onclick="downloadReportPDF()">📄 성적표 PDF 저장 ↓</button><button class="btn ghost sm" onclick="exportReportHTML()">공유용 HTML 저장 ↓</button>
+   <div class="toolbar"><button class="btn" onclick="downloadReportDOCX()">📝 성적표 Word 저장 ↓</button><button class="btn ghost sm" onclick="downloadReportPDF()">📄 PDF(인쇄) 저장 ↓</button><button class="btn ghost sm" onclick="exportReportHTML()">공유용 HTML 저장 ↓</button>
      <a class="pdf" href="sol-final-${cur.id}.html" target="_blank">정답·개념 해설 ↗</a>
      <button class="btn ghost sm" onclick="window.print()">인쇄</button>
      <button class="btn sm" onclick="nextStudent()">다음 학생 입력 ▶</button>
@@ -2171,6 +2171,183 @@ async function downloadReportPDF(){
   fToast('인쇄 창에서 "PDF로 저장/PDF로 내보내기"를 선택하세요');
   try{ window.print(); }catch(e){ cleanup(); }
   setTimeout(cleanup, 180000);  // 안전장치: 인쇄 취소 등으로 afterprint 미발생 시 정리
+}
+/* ===== 성적표 Word(.docx) — 학생별 즉석 생성·다운로드 (브라우저 docx 라이브러리, 캡처 미사용·편집 가능) ===== */
+function loadScriptOnce(src){ return new Promise(function(res,rej){ var ex=document.querySelector('script[data-lib="'+src+'"]'); if(ex){ if(ex.dataset.loaded){res();return;} ex.addEventListener('load',function(){res();}); ex.addEventListener('error',function(){rej(new Error(src));}); return; } var s=document.createElement('script'); s.src=src; s.dataset.lib=src; s.onload=function(){s.dataset.loaded='1';res();}; s.onerror=function(){rej(new Error(src));}; document.head.appendChild(s); }); }
+async function ensureDocxLib(){ if(!window.docx) await loadScriptOnce('vendor/docx.iife.js'); return window.docx; }
+function _pngDims(u8){ try{ if(u8&&u8[0]===0x89&&u8[1]===0x50){ var w=((u8[16]<<24)|(u8[17]<<16)|(u8[18]<<8)|u8[19])>>>0, h=((u8[20]<<24)|(u8[21]<<16)|(u8[22]<<8)|u8[23])>>>0; return {w:w,h:h}; } }catch(e){} return null; }
+async function _fetchImg(url){ try{ var r=await fetch(url,{cache:'no-store'}); if(!r.ok) return null; var b=new Uint8Array(await r.arrayBuffer()); if(!(b[0]===0x89&&b[1]===0x50)) return null; return b; }catch(e){ return null; } }
+
+async function downloadReportDOCX(){
+  if(!cur){ fToast('먼저 채점을 해주세요'); return; }
+  fToast('Word 성적표 만드는 중… 잠시만요');
+  var Dx; try{ Dx=await ensureDocxLib(); }catch(e){ fToast('Word 모듈 로드 실패 — 잠시 후 다시'); return; }
+  var Document=Dx.Document,Packer=Dx.Packer,Paragraph=Dx.Paragraph,TextRun=Dx.TextRun,AlignmentType=Dx.AlignmentType,
+      Table=Dx.Table,TableRow=Dx.TableRow,TableCell=Dx.TableCell,WidthType=Dx.WidthType,BorderStyle=Dx.BorderStyle,
+      ShadingType=Dx.ShadingType,ImageRun=Dx.ImageRun,PageBreak=Dx.PageBreak,VerticalAlign=Dx.VerticalAlign,
+      PageBorderDisplay=Dx.PageBorderDisplay,PageBorderOffsetFrom=Dx.PageBorderOffsetFrom;
+
+  // ── 데이터 재수집(scoreAuto/ buildBook과 동일 규칙) ──
+  var miss=new Set(cur.miss||[]), correct=0, total=0;
+  for(var q=1;q<=cur.nQ;q++){ if(miss.has(q))continue; total++; if(okq(cur,q,sel[q]||0))correct++; }
+  var wrong=(window.__fw||[]); var W=wrong.length;
+  var cs; try{ cs=cohortStats(cur); }catch(e){ cs={percReady:false}; }
+  var dh={}, answers={};
+  try{ var _rs=await Promise.all([fetch('donghyung/'+cur.id+'.json',{cache:'no-store'}),fetch('answers/'+cur.id+'.json',{cache:'no-store'})]);
+    if(_rs[0].ok){var _dd=await _rs[0].json();dh=_dd.questions||_dd;}
+    if(_rs[1].ok){var _aa=await _rs[1].json();answers=_aa.questions||_aa;} }catch(e){}
+  var R=window.__rpt||{}, nm=R.name||'', sch=R.school||'', grd=R.grade||'';
+  var cut=cur.cut||[0,4,9,13,18];
+  var rs=finalRawScore(cur, correct, wrong||[]), rawMax=total*3;
+  var aw=award(W, cut), pct=total?Math.round(correct/total*100):0;
+  var perc=null, rank=null, Nn=null;
+  if(cs && cs.percReady && cs.totals && cs.totals.length){ perc=percentile(cs.totals, correct); Nn=cs.totals.length; rank=cs.totals.filter(function(t){return t>correct;}).length+1; }
+  var ag={}; if(cur.area) for(var q2=1;q2<=cur.nQ;q2++){ if(miss.has(q2))continue; var bd0=bkBroad(cur.area[q2-1]||''); if(!bd0)continue; (ag[bd0]=ag[bd0]||{c:0,t:0}); ag[bd0].t++; if(okq(cur,q2,sel[q2]||0))ag[bd0].c++; }
+  var areas=Object.keys(ag).map(function(k){return {name:k,c:ag[k].c,t:ag[k].t,r:ag[k].t?ag[k].c/ag[k].t:0};}).sort(function(a,b){return a.r-b.r||b.t-a.t;});
+  var strong=areas.filter(function(a){return a.t>=2&&a.r>=0.8;}).sort(function(a,b){return b.r-a.r;});
+  var weak=areas.filter(function(a){return a.t>=2&&a.r<0.6;});
+  var rxAreas=(weak.length?weak:areas).slice(0,4);
+
+  // ── 이미지 프리페치(원문 크롭 + 동형문제 이미지) ──
+  var cropMap={}, dhImgMap={};
+  await Promise.all((wrong||[]).map(async function(w){
+    cropMap[w.q]=await _fetchImg('crops/'+cur.id+'/'+w.q+'.png');
+    var dq=dh&&dh[w.q]; if(dq&&dq.image) dhImgMap[w.q]=await _fetchImg(dq.image);
+  }));
+
+  // ── 색·헬퍼 ──
+  var EM='0E4A38',GOLD='B8912E',GOLDL='C9A227',RED='B0512F',INK='221E16',MUT='6b6456',CREAMH='F4ECD8',CI=CIRC;
+  var CW=9746;
+  var NB={style:BorderStyle.NONE,size:0,color:'FFFFFF'};
+  function bdr(c,s,st){return {style:st||BorderStyle.SINGLE,size:s||4,color:c||GOLDL};}
+  function run(t,o){o=o||{};return new TextRun({text:String(t==null?'':t),bold:!!o.bold,italics:!!o.i,color:o.color||INK,size:o.size||22,font:o.serif?'Batang':'Malgun Gothic',characterSpacing:o.cs});}
+  function P(runs,o){o=o||{};return new Paragraph({alignment:o.align,spacing:{before:o.before==null?60:o.before,after:o.after==null?60:o.after,line:o.line||300},border:o.border,shading:o.fill?{type:ShadingType.CLEAR,fill:o.fill,color:'auto'}:undefined,children:Array.isArray(runs)?runs:[runs]});}
+  function txt(t,o){return P([run(t,o)],o);}
+  function C(children,o){o=o||{};return new TableCell({width:{size:o.w,type:WidthType.DXA},shading:o.fill?{type:ShadingType.CLEAR,fill:o.fill,color:'auto'}:undefined,verticalAlign:VerticalAlign.CENTER,margins:{top:o.mt||80,bottom:o.mb||80,left:o.ml||120,right:o.mr||120},children:Array.isArray(children)?children:[children]});}
+  function cellT(t,o){o=o||{};return C([txt(t,{align:o.align,bold:o.bold,color:o.color,size:o.size})],o);}
+  function ROW(cells,o){o=o||{};return new TableRow({tableHeader:o.header,children:cells});}
+  function TBL(colW,rows,borders){return new Table({columnWidths:colW,width:{size:colW.reduce(function(a,b){return a+b;},0),type:WidthType.DXA},borders:borders||{top:NB,bottom:NB,left:NB,right:NB,insideHorizontal:NB,insideVertical:NB},rows:rows});}
+  function kicker(t){return txt(t,{align:AlignmentType.CENTER,color:GOLD,bold:true,size:18,cs:60,after:80});}
+  function H(t,num){return P([run((num?num+'  ':''),{bold:true,color:GOLD,size:20}),run(t,{bold:true,color:EM,size:32,serif:true})],{before:120,after:120,border:{bottom:bdr(EM,10)}});}
+  function PB(){return new Paragraph({children:[new PageBreak()]});}
+  function imgPara(u8,maxW){ var d=_pngDims(u8)||{w:maxW,h:Math.round(maxW*0.4)}; var w=Math.min(maxW,d.w||maxW), h=Math.round(w*(d.h||1)/(d.w||1)); return P([new ImageRun({type:'png',data:u8,transformation:{width:w,height:h}})],{after:120}); }
+  function esc2(s){return String(s==null?'':s);}
+  function lecToParas(html){ var out=[]; var doc; try{ doc=new DOMParser().parseFromString(html||'','text/html'); }catch(e){ return out; }
+    var nodes=doc.body.querySelectorAll('h1,h2,h3,h4,h5,p,li');
+    nodes.forEach(function(n){ if(n.querySelector&&n.querySelector('h1,h2,h3,h4,h5,p,li')) return; var t=(n.textContent||'').replace(/\s+/g,' ').trim(); if(!t) return; var tag=n.tagName.toLowerCase();
+      if(/^h[1-5]$/.test(tag)) out.push(P([run(t,{bold:true,color:GOLD,size:22})],{before:140,after:50}));
+      else out.push(txt((tag==='li'?'· ':'')+t,{size:21,after:60,line:290})); });
+    return out; }
+
+  var body=[];
+  // ── 표지 ──
+  body.push(P([],{before:2600}),
+    txt('화학올림피아드 정밀 진단',{align:AlignmentType.CENTER,color:MUT,size:22,after:120}),
+    txt('성적 진단서',{align:AlignmentType.CENTER,bold:true,size:72,serif:true,after:160}),
+    txt(cur.title,{align:AlignmentType.CENTER,color:EM,size:30,serif:true,after:200}),
+    txt('化',{align:AlignmentType.CENTER,color:GOLD,size:64,serif:true,after:2000}),
+    txt(nm||'학생',{align:AlignmentType.CENTER,bold:true,size:34,serif:true,after:40}),
+    txt([sch,grd?grd+'학년':''].filter(Boolean).join('  ·  '),{align:AlignmentType.CENTER,color:MUT,size:20,after:40}),
+    txt('성취 지표 · 영역별 진단 · 오답 정밀 분석 · 학습 처방 · 개념 강의 교재',{align:AlignmentType.CENTER,color:GOLD,size:16}),
+    PB());
+
+  // ── 01 진단 개요 ──
+  var lead = aw.inA ? (nm||'학생')+' 학생은 이번 「'+cur.title+'」에서 '+cur.nQ+'문항 중 '+correct+'문항을 맞혀 원점수 '+rs.score+'점을 기록했습니다. 틀린 문항 '+W+'개로 현재 '+aw.name+'권'+(aw.nextTier&&aw.reach?(', '+aw.nextTier+'권까지 '+aw.gap+'문항을 남겨두고 있습니다.'):'에 위치합니다.')
+    : (nm||'학생')+' 학생은 이번 「'+cur.title+'」에서 '+cur.nQ+'문항 중 '+correct+'문항을 맞혀 원점수 '+rs.score+'점을 기록했습니다. 아래에서 짚은 취약 개념을 회복하면 수상권 진입이 가능합니다.';
+  var heroCell=C([P([run('현재 등급   ',{color:'CFE3D8',size:18}),run(aw.name,{bold:true,color:'FFFFFF',size:40,serif:true}),run('        '+rs.score,{bold:true,color:'FFFFFF',size:48,serif:true}),run(' / '+rawMax+'  원점수'+(rs.pen?' · 오답 −'+rs.pen:''),{color:'CFE3D8',size:18})])],{w:CW,fill:EM,mt:220,mb:220,ml:260,mr:260});
+  body.push(kicker('❖  OVERVIEW  ❖'),H('진단 개요','01'),txt(lead,{after:180}),TBL([CW],[ROW([heroCell])]),P([],{after:160}));
+  // 통계 표(가변)
+  var stat=[['맞은 문항',correct+' / '+total],['정답률',pct+'%'],['틀린 문항',''+W]];
+  if(perc!=null) stat.push(['백분위',''+perc]);
+  if(rank!=null) stat.push(['석차',rank+' / '+Nn]);
+  var sn=stat.length, sw=Math.floor(CW/sn), swArr=[]; for(var si=0;si<sn;si++) swArr.push(si===sn-1?(CW-sw*(sn-1)):sw);
+  var stCells=stat.map(function(s,i){ return C([txt(s[1],{align:AlignmentType.CENTER,bold:true,size:28,color:EM}),txt(s[0],{align:AlignmentType.CENTER,size:15,color:MUT})],{w:swArr[i],fill:'FBF6E8',mt:130,mb:130}); });
+  body.push(TBL(swArr,[ROW(stCells)],{top:bdr(GOLDL,6),bottom:bdr(GOLDL,6),left:bdr(GOLDL,6),right:bdr(GOLDL,6),insideVertical:bdr(GOLDL,6),insideHorizontal:NB}));
+
+  // ── 02 영역별 성취 ──
+  if(areas.length){
+    body.push(PB(),kicker('❖  BY AREA  ❖'),H('영역별 성취','02'));
+    var strTxt=strong.length?('강점 영역은 '+strong.slice(0,3).map(function(a){return a.name;}).join(', ')+'입니다. '):'';
+    var weakTxt=weak.length?('보완이 필요한 영역은 '+weak.slice(0,3).map(function(a){return a.name;}).join(', ')+'입니다.'):'뚜렷한 취약 영역 없이 고르게 응답했습니다.';
+    body.push(txt(strTxt+weakTxt,{after:140}));
+    var cols=[3200,1700,1700,CW-3200-1700-1700];
+    var arows=[ROW([cellT('영역',{w:cols[0],bold:true,color:EM,fill:CREAMH}),cellT('정답률',{w:cols[1],bold:true,color:EM,fill:CREAMH,align:AlignmentType.CENTER}),cellT('정오',{w:cols[2],bold:true,color:EM,fill:CREAMH,align:AlignmentType.CENTER}),cellT('판정',{w:cols[3],bold:true,color:EM,fill:CREAMH,align:AlignmentType.CENTER})],{header:true})];
+    areas.forEach(function(a){ var p=Math.round(a.r*100); var wk=a.t>=2&&a.r<0.5; var st=a.t>=2&&a.r>=0.8; var v=wk?'취약':(st?'강점':'');
+      arows.push(ROW([ cellT(a.name,{w:cols[0],bold:true}), cellT(p+'%',{w:cols[1],align:AlignmentType.CENTER,bold:true,color:wk?RED:EM}), cellT(a.c+'/'+a.t,{w:cols[2],align:AlignmentType.CENTER,color:MUT}), cellT(v,{w:cols[3],align:AlignmentType.CENTER,fill:wk?'F7E3DC':(st?'E3EFE9':undefined),color:wk?RED:(st?EM:MUT),bold:!!v}) ])); });
+    body.push(TBL(cols,arows,{top:bdr(GOLDL,4),bottom:bdr(GOLDL,4),left:NB,right:NB,insideHorizontal:bdr('E6DDC8',2),insideVertical:NB}));
+  }
+
+  // ── 03 학습 처방 ──
+  var rxBlocks=[];
+  rxAreas.forEach(function(a){ var r=RX[a.name]||RX[bkBroad(a.name)]; if(!r) return;
+    rxBlocks.push(P([run(a.name,{bold:true,color:EM,size:24,serif:true}),run('   · 정답률 '+Math.round(a.r*100)+'%',{color:MUT,size:16})],{before:140,after:40}));
+    if(r.k) rxBlocks.push(P([run('핵심  ',{bold:true,color:EM,size:20}),run(esc2(r.k),{size:20,color:'413c32'})],{after:30,border:{left:bdr(GOLDL,14)}}));
+    if(r.t) rxBlocks.push(P([run('함정  ',{bold:true,color:RED,size:20}),run(esc2(r.t),{size:20,color:'413c32'})],{after:30,border:{left:bdr(RED,14)}}));
+    if(r.rx) rxBlocks.push(P([run('처방  ',{bold:true,color:GOLD,size:20}),run(esc2(r.rx),{size:20,color:'413c32'})],{after:80,border:{left:bdr(GOLD,14)}}));
+  });
+  if(rxBlocks.length){ body.push(PB(),kicker('❖  PRESCRIPTION  ❖'),H('학습 처방','03'),txt('가장 약한 영역부터, 핵심 개념·자주 틀리는 함정·복습 처방을 제시합니다.',{after:120})); body.push.apply(body,rxBlocks); }
+
+  // ── 부록: 오답 정리 노트 ──
+  if((wrong||[]).length){
+    body.push(PB(),P([],{before:3200}),kicker('❖  APPENDIX · 오답 정리  ❖'),
+      txt('오답 정리 노트',{align:AlignmentType.CENTER,bold:true,color:EM,size:56,serif:true,after:160}),
+      txt('이번 시험에서 틀린 '+W+'문항입니다. 왜 틀렸는지와, 숫자·조건만 바꾼 동형문제를 정답·해설과 함께 정리했습니다.',{align:AlignmentType.CENTER,color:MUT}),PB());
+    (wrong||[]).slice().sort(function(a,b){return a.q-b.q;}).forEach(function(w){
+      var ty=(cur.type&&cur.type[w.q-1])||'', ar=(cur.area&&cur.area[w.q-1])||'', bd=bkBroad(ar);
+      var ck=cur.key?cur.key[w.q-1]:0; var aq=answers&&answers[w.q]||{}, dq=dh&&dh[w.q];
+      var why=aq.misconception||(ty?omFor(ty):'')||(RX[bd]&&RX[bd].t)||'';
+      body.push(P([run(w.q+'번  ',{bold:true,color:EM,size:28,serif:true}),run((ar?ar+'   ':''),{color:GOLD,size:18,bold:true}),run('처음 ',{color:MUT,size:20}),run(w.a?CI[w.a]:'무응답',{bold:true,color:RED,size:22}),run(' · 정답 ',{color:MUT,size:20}),run(ck?CI[ck]:'·',{bold:true,color:EM,size:22})],{before:200,after:80}));
+      if(cropMap[w.q]){ body.push(txt('원문 문제',{bold:true,color:EM,size:20,after:60})); body.push(imgPara(cropMap[w.q],470)); }
+      else body.push(txt('원문: 문제지 '+w.q+'번을 확인하세요.',{color:MUT,size:19,after:60}));
+      if(why) body.push(P([run('왜 틀렸나  ',{bold:true,color:RED,size:21}),run(esc2(why),{size:21,color:'4a4437'})],{after:140,border:{left:bdr(RED,18)}}));
+      // 동형문제 박스
+      var dhInner=[];
+      if(dq&&(dq.stem||dq.image||(dq.choices&&dq.choices.length))){
+        var ans=Number(dq.answer)||0;
+        dhInner.push(P([run('◈ 동형문제 · 같은 개념, 숫자·조건만 바꿈',{bold:true,color:EM,size:24,serif:true})],{after:120}));
+        if(dq.stem) dhInner.push(txt(esc2(dq.stem),{after:100}));
+        else if(dhImgMap[w.q]) dhInner.push(imgPara(dhImgMap[w.q],440));
+        (dq.choices||[]).forEach(function(c,i){ var isAns=ans===i+1; dhInner.push(P([run(CI[i+1]+'  '+esc2(c),{bold:isAns,color:isAns?EM:INK,size:22})],{fill:isAns?'E3EFE9':undefined,before:16,after:16})); });
+        dhInner.push(P([run('정답  ',{size:22}),run(ans?CI[ans]:'·',{bold:true,color:EM,size:26,serif:true})],{before:100,after:100}));
+        var sol=dq.explanation||''; if(sol){ dhInner.push(P([run('해설',{bold:true,color:EM,size:22})],{before:60,after:40,border:{top:bdr('E6DDC8',4)}})); dhInner.push(txt(esc2(sol),{size:21})); }
+        if(dq.misconception) dhInner.push(P([run('오개념  ',{bold:true,color:RED,size:21}),run(esc2(dq.misconception),{size:21,color:'4a4437'})],{before:60}));
+      } else { dhInner.push(P([run('◈ 동형문제',{bold:true,color:EM,size:24,serif:true})],{after:80})); dhInner.push(txt('이 문항의 동형문제는 준비 중입니다. 위 원문과 개념 강의로 복습하세요.',{color:MUT,size:20})); }
+      body.push(TBL([CW],[ROW([C(dhInner,{w:CW,fill:'FFFDF7',mt:180,mb:180,ml:220,mr:220})])],{top:bdr(GOLD,6,BorderStyle.DASHED),bottom:bdr(GOLD,6,BorderStyle.DASHED),left:bdr(GOLD,6,BorderStyle.DASHED),right:bdr(GOLD,6,BorderStyle.DASHED)}));
+    });
+  }
+
+  // ── 부록: 개념 강의 교재 ──
+  try{
+    var files=lecturesForWrong(cur, wrong).slice(0,24);
+    var lecs=files.length?(await Promise.all(files.map(fetchLectureContent))).filter(Boolean):[];
+    if(lecs.length){
+      body.push(PB(),P([],{before:3200}),kicker('❖  APPENDIX · 개념 강의  ❖'),
+        txt('개념 강의 교재',{align:AlignmentType.CENTER,bold:true,color:EM,size:56,serif:true,after:160}),
+        txt('이번 시험에서 틀린 개념의 강의 전문입니다. 이 부록만으로 개념을 처음부터 다시 세울 수 있습니다.',{align:AlignmentType.CENTER,color:MUT}));
+      lecs.forEach(function(L){ body.push(PB(),kicker('개념 강의'),H(L.title,null)); body.push.apply(body, lecToParas(L.html)); });
+    }
+  }catch(e){}
+
+  // ── 마무리 ──
+  body.push(P([],{before:200}),P([run('이 리포트는 '+(nm||'학생')+' 학생을 위한 개인 맞춤 분석 자료입니다.  ·  Chemistreal · 조준모 화학',{color:MUT,size:16,i:true})],{align:AlignmentType.CENTER,before:200}));
+
+  var doc=new Document({
+    creator:'Chemistreal', title:(nm?nm+' ':'')+cur.title+' 성적표',
+    styles:{default:{document:{run:{font:'Malgun Gothic',color:INK}}}},
+    sections:[{properties:{page:{
+      size:{width:11906,height:16838},
+      margin:{top:1200,right:1080,bottom:1200,left:1080},
+      borders:{pageBorderDisplay:PageBorderDisplay.ALL_PAGES,pageBorderOffsetFrom:PageBorderOffsetFrom.PAGE,
+        top:bdr(GOLD,6,BorderStyle.DOUBLE),bottom:bdr(GOLD,6,BorderStyle.DOUBLE),left:bdr(GOLD,6,BorderStyle.DOUBLE),right:bdr(GOLD,6,BorderStyle.DOUBLE)}}},
+      children:body}],
+  });
+  try{
+    var blob=await Packer.toBlob(doc);
+    var fn=((nm?nm+'_':'')+(cur.title||'성적표')+'_성적표').replace(/[\\/:*?"<>|]+/g,'')+'.docx';
+    var url=URL.createObjectURL(blob); var a=document.createElement('a'); a.href=url; a.download=fn; document.body.appendChild(a); a.click();
+    setTimeout(function(){ try{URL.revokeObjectURL(url); a.remove();}catch(e){} },1500);
+    fToast('Word 저장 완료 · '+fn);
+  }catch(err){ console.error(err); fToast('Word 생성 실패'); }
 }
 function boot(){
   const m=location.hash.match(/r=([^.]+)\.([0-9a-z]+)(?:\.([^.]*)\.(.*))?$/);
