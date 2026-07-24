@@ -333,10 +333,11 @@ summary::-webkit-details-marker{display:none}
 .bk-rxrow b{color:#14432F}
 /* ── 부록 강의 교재 ── */
 .bk-apx{padding:0 62px}
-.bk-apxcover{page-break-before:always;padding:64px 62px 20px}
+/* 부록 표지: 기본은 흐르는 밴드 헤더(내용이 바로 이어짐). .bk-full 은 한 페이지를 채우는 그랜드 표지. */
+.bk-apxcover{padding:28px 64px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden}
 .bk-apxkicker{font-size:12px;letter-spacing:.28em;color:#9C7A3C;font-weight:700}
-.bk-apxtitle{font-family:"Nanum Myeongjo",serif;font-size:40px;font-weight:800;color:#17130C;margin:12px 0 8px}
-.bk-apxsub{font-size:13px;color:#6b6456;line-height:1.8;max-width:600px}
+.bk-apxtitle{font-family:"Nanum Myeongjo",serif;font-size:40px;font-weight:800;color:#17130C;margin:8px 0 6px}
+.bk-apxsub{font-size:13px;color:#6b6456;line-height:1.8;max-width:560px}
 .bk-lec{margin:26px 0 0}
 .bk-lech{font-family:"Nanum Myeongjo",serif;font-size:21px;font-weight:800;color:#14432F;padding-bottom:8px;border-bottom:2px solid #14432F;margin-bottom:10px}
 .bk-lec .bk-lh{font-family:"Nanum Myeongjo",serif;font-weight:800;color:#17130C;font-size:15px;margin:16px 0 4px}
@@ -419,11 +420,16 @@ summary::-webkit-details-marker{display:none}
 .bk-rxrow::before{background:linear-gradient(90deg,#B8912E,#EBCF74)!important;height:2px!important;width:9px!important}
 .bk-rxrow b{color:#8A6D1F!important}
 /* 부록 표지 · 강의 제목 장식 */
-.bk-apxcover{background:radial-gradient(90% 50% at 50% 0%,#FFFDF6,#F4E9CF)!important;position:relative}
+.bk-apxcover{background:radial-gradient(120% 72% at 50% 42%,#FFFDF6,#F4E9CF)!important;position:relative;overflow:hidden}
+/* 부록 챕터 표지: 한 페이지를 채우는 장식 프레임 + 큰 化 워터마크(여백을 의도적 디자인으로) */
+.bk-apxcover::before{content:"";position:absolute;left:30px;right:30px;top:30px;bottom:30px;border:2px solid #C9A227;border-radius:4px;box-shadow:inset 0 0 0 4px #FBF8F1,inset 0 0 0 5px rgba(184,145,46,.45);pointer-events:none;z-index:0}
+.bk-apxcover.bk-full::after{content:"化";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:"Nanum Myeongjo",serif;font-size:340px;line-height:1;color:rgba(184,145,46,.07);pointer-events:none;z-index:0}
+.bk-apxcover>*{position:relative;z-index:1}
 .bk-apxkicker{color:#B8912E!important}
 .bk-apxkicker::before{content:"❖ "}.bk-apxkicker::after{content:" ❖"}
 .bk-apxtitle{color:#0E4A38!important;text-shadow:0 1px 0 rgba(184,145,46,.15)}
-.bk-apxtitle::after{content:"❦";display:block;font-size:18px;color:#B8912E;font-weight:400;margin-top:8px}
+.bk-apxtitle::before{content:"❦ ❖ ❦";display:block;font-size:15px;color:#B8912E;font-weight:400;letter-spacing:.3em;margin-bottom:16px}
+.bk-apxtitle::after{content:"❦";display:block;font-size:18px;color:#B8912E;font-weight:400;margin-top:12px}
 .bk-lech{color:#0E4A38!important;border-bottom:none!important;position:relative;padding-bottom:9px!important}
 .bk-lech::before{content:"❖ ";color:#B8912E}
 .bk-lech::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2.5px;background:linear-gradient(90deg,#0E4A38,#B8912E 45%,#EBCF74 55%,#B8912E 70%,rgba(184,145,46,0))}
@@ -469,10 +475,12 @@ summary::-webkit-details-marker{display:none}
 .bk-rx{padding-top:20px!important}
 .bk-rxh{font-size:18px!important}
 .bk-rxrow{font-size:14.2px!important;line-height:2.05!important;margin:10px 0!important;padding-left:17px!important}
-.bk-apxcover{padding:84px 72px 24px!important}
+.bk-apxcover{padding:30px 78px!important}
+.bk-apxcover.bk-full{padding:64px 78px!important}
 .bk-apxkicker{font-size:13px!important;letter-spacing:.3em!important}
-.bk-apxtitle{font-size:46px!important}
-.bk-apxsub{font-size:14.5px!important;line-height:2.0!important;margin-top:6px}
+.bk-apxtitle{font-size:44px!important}
+.bk-apxcover.bk-full .bk-apxtitle{font-size:52px!important}
+.bk-apxsub{font-size:14.5px!important;line-height:2.0!important;margin-top:8px}
 .bk-apx{padding:0 72px!important}
 .bk-lec{padding-top:32px!important;margin:0!important}
 .bk-lech{font-size:24px!important;padding-bottom:11px!important;margin-bottom:14px!important}
@@ -510,8 +518,11 @@ summary::-webkit-details-marker{display:none}
 .bk-dh-sol b{color:#0E4A38;margin-right:3px}
 .bk-dh-mis{margin-top:6px!important}.bk-dh-mis b{color:#B0512F}
 .bk-note{margin:9px 0!important;padding-bottom:12px!important;border-bottom:1px solid #cfc4ab;font-size:12.5px;color:#6f6758}
-.bk-ans-card{margin:18px 0!important;padding:16px 18px!important;border:1px solid #d9cfb8;border-radius:7px;background:#fffdf7}
-.bk-ans-card h4{font-family:"Nanum Myeongjo",serif;font-size:17px;color:#0E4A38;margin-bottom:8px!important}
+/* 정답·해설 항목: 박스(테두리/배경) 대신 흐르는 조판 — 테두리가 없어 페이지를 꽉 채우고 빈 공간을 없앤다.
+   (테두리/배경이 있으면 pdfAtomics가 '통짜 블록'으로 잡아 다음 항목을 통째로 다음 페이지로 밀어 빈 공간이 생긴다) */
+.bk-ans-card{margin:26px 0 0!important;padding:0!important;position:relative}
+.bk-ans-card::before{content:"";display:block;width:58px;height:2px;border-radius:2px;background:linear-gradient(90deg,#C9A227,#8A6D1F);margin:0 0 13px!important}
+.bk-ans-card h4{font-family:"Nanum Myeongjo",serif;font-size:18px;color:#0E4A38;margin-bottom:8px!important}
 .bk-ans-card .sol{font-size:13px;line-height:1.9;color:#413c32}
 .bk-ans-card .sol p{margin:5px 0!important}.bk-ans-card .sol h4{font-size:14px;margin-top:8px!important}
 /* ── 화면용 부록 · 오답정리 ── */
@@ -2055,7 +2066,7 @@ function pdfAtomics(el, scale, maxH){
   // 제목류: 제목 상단 ~ (제목 하단 + 다음 내용 약 2줄)까지 한 덩어리로 묶어 고아 제목 방지.
   // 꼬리를 짧게(≈2줄) 잡아, 제목 뒤에 최소 몇 줄이 따라오게만 보장하고 과도한 밀어냄(빈 페이지)은 피한다.
   var tail=60*scale;
-  el.querySelectorAll('.sec__h,.tb-h,.tb-lh,.tb-cover,.tb-cover+.tb-sub,h2,h3,.bk-h,.bk-ah,.bk-lech,.bk-apxtitle,.bk-wq-h').forEach(function(n){
+  el.querySelectorAll('.sec__h,.tb-h,.tb-lh,.tb-cover,.tb-cover+.tb-sub,h2,h3,.bk-h,.bk-ah,.bk-lech,.bk-apxtitle,.bk-wq-h,.bk-ans-card h4').forEach(function(n){
     var r=n.getBoundingClientRect(); if(r.height<=0) return;
     var top=Math.round((r.top-cr.top)*scale), bot=Math.round((r.bottom-cr.top)*scale+tail);
     if(bot-top<maxH) out.push([top,bot]);
@@ -2067,7 +2078,8 @@ function pdfForceBreaks(el, scale){
   var cr=el.getBoundingClientRect(), out=[];
   // 책 리포트는 강제 페이지 나눔을 쓰지 않고 내용을 계속 이어 붙여 빈 페이지를 없앤다.
   // (구 웹 리포트 경로 호환을 위해 .tb-appendix만 유지)
-  el.querySelectorAll('.tb-appendix').forEach(function(n){
+  // 풀페이지 부록 표지(.bk-full)는 새 페이지 맨 위에서 시작(그 앞에서 강제로 끊는다). 밴드형 표지는 자연스럽게 흐른다.
+  el.querySelectorAll('.tb-appendix,.bk-apxcover.bk-full').forEach(function(n){
     var r=n.getBoundingClientRect(); if(r.height<=0) return;
     var top=Math.round((r.top-cr.top)*scale); if(top>4) out.push(top);
   });
@@ -2221,14 +2233,14 @@ function buildBook(exam, selv, cs, correct, total, W, wrong, dh, answers){
         +dhHTML
         +'</div>';
     }).join('');
-    H+='<div class="bk-apxcover"><div class="bk-apxkicker">APPENDIX · 오답 정리</div><div class="bk-apxtitle">오답 정리 노트</div>'
+    H+='<div class="bk-apxcover bk-full"><div class="bk-apxkicker">APPENDIX · 오답 정리</div><div class="bk-apxtitle">오답 정리 노트</div>'
       +'<div class="bk-apxsub">이번 시험에서 틀린 '+W+'문항입니다. 원문과 동형문제를 먼저 스스로 푼 뒤, 다음 구역의 정답 및 해설을 확인하세요.</div></div>'
       +'<div class="bk-apx">'+wqCards+'<div class="bk-foot">Chemistreal · 조준모 화학 — 오답 정리 노트</div></div>'
       +'<div class="bk-apxcover"><div class="bk-apxkicker">APPENDIX · ANSWERS</div><div class="bk-apxtitle">정답 및 해설</div>'
       +'<div class="bk-apxsub">원문과 동형문제를 모두 푼 뒤 확인하세요. 선택지별 오개념과 다음 점검 기준을 함께 정리했습니다.</div></div>'
       +'<div class="bk-apx">'+answerCards.join('')+'<div class="bk-foot">Chemistreal · 조준모 화학 — 정답 및 해설</div></div>';
   }
-  H+='<div class="bk-foot">이 리포트는 '+esc2(nm||'학생')+' 학생을 위한 개인 맞춤 분석 자료입니다.  ·  Chemistreal · 조준모 화학</div>';
+  // 최종 마무리 문구는 downloadReportPDF에서 강의 부록까지 붙인 뒤 문서 맨 끝에 추가한다(중간 삽입 방지).
   return H;
 }
 
@@ -2268,6 +2280,13 @@ async function downloadReportPDF(){
       var apxEl=document.createElement('div'); apxEl.innerHTML=ax; el.appendChild(apxEl);
     }
   }catch(e){}
+  // 마지막 섹션 foot(예: "— 개념 강의 교재")을 문서 맨 끝 마무리 문구로 개인화한다.
+  // (별도 마무리 줄을 새로 추가하면 마지막에 거의 빈 페이지가 생길 수 있어, 기존 마지막 foot을 교체)
+  try{ var _nm=(window.__rpt&&window.__rpt.name)||''; var _foots=el.querySelectorAll('.bk-foot');
+    if(_foots.length){ _foots[_foots.length-1].innerHTML='이 리포트는 '+esc(_nm||'학생')+' 학생을 위한 개인 맞춤 분석 자료입니다.  ·  Chemistreal · 조준모 화학'; } }catch(e){}
+  // 부록 챕터 표지를 한 페이지 높이로 채운다(중앙정렬 장식 표지 → 여백을 의도적 디자인으로).
+  // 강의 부록까지 모두 DOM에 붙인 뒤 적용해 3개 표지(오답정리·정답해설·개념강의)를 통일한다.
+  try{ var _pgH=(281/194)*(el.scrollWidth||840); [].forEach.call(el.querySelectorAll('.bk-apxcover.bk-full'),function(c){ c.style.minHeight=Math.floor(_pgH*0.955)+'px'; }); }catch(e){}
   try{
     await ensurePdfLibs();
     await new Promise(function(r){setTimeout(r,80);});
