@@ -101,8 +101,18 @@ function hashStrFinal(cur,sel,nm,exno){ let num=0n; for(let q=cur.nQ;q>=1;q--){ 
    ====================================================================== */
 const GROUPS=[['JMChC','JMChC 모의고사'],['화올','화학올림피아드 기출'],['동형','기출 동형'],['산과염기','산·염기 집중'],['2026','KMChC 2026'],['2025','KMChC 2025'],['2024','KMChC 2024'],['이전','KMChC 이전 기출']];
 const app=document.getElementById('app');
-let cur=null, sel={}, LOCKED=false;
+let cur=null, sel={}, LOCKED=false, SUBMITTING=false;
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+/* ── 답안 임시저장/복원: 60문항을 풀다 새로고침·이탈해도 이어서 작성 ── */
+function draftKey(id){ return 'chemistreal:finalsubmit:draft:'+id; }
+function saveDraft(){ try{ if(!cur)return;
+  var nm=(document.getElementById('nm')||{}).value||'', sch=(document.getElementById('sch')||{}).value||'', grd=(document.getElementById('grd')||{}).value||'';
+  var hasAny=Object.keys(sel).length||nm||sch||grd;
+  if(!hasAny){ try{localStorage.removeItem(draftKey(cur.id));}catch(e){} return; }
+  localStorage.setItem(draftKey(cur.id), JSON.stringify({sel:sel,nm:nm,sch:sch,grd:grd,ts:Date.now()}));
+}catch(e){} }
+function loadDraft(id){ try{ return JSON.parse(localStorage.getItem(draftKey(id))||'null'); }catch(e){ return null; } }
+function clearDraft(id){ try{ localStorage.removeItem(draftKey(id)); }catch(e){} }
 function fSyncKey(){ try{ return localStorage.getItem('chemistreal:synckey')||''; }catch(e){ return ''; } }
 function toast(m){ let t=document.getElementById('toast'); if(!t){t=document.createElement('div');t.id='toast';t.className='toast';document.body.appendChild(t);} t.textContent=m; t.classList.add('on'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('on'),2600); }
 function shareLink(cur,sel,nm,exno){ return location.origin+location.pathname.replace(/[^/]*$/,'final.html')+'#'+hashStrFinal(cur,sel,nm,exno); }
@@ -138,6 +148,7 @@ function togglePdf(){ const c=document.getElementById('pdfcard'), b=document.get
   if(!c)return; const hid=c.classList.toggle('pdfhidden'); if(b)b.textContent=hid?'문제 보기':'접기'; }
 
 function openExam(id){
+  SUBMITTING=false;
   cur=FINAL_EXAMS.find(e=>e.id===id); sel={};
   const nQ=cur.nQ||cur.key.length; const miss=new Set(cur.miss||[]);
   let omr='';
@@ -148,20 +159,40 @@ function openExam(id){
   app.innerHTML=(LOCKED?'<div class="brand">Chemistreal · 조준모 화학</div>':'<button class="back" onclick="renderList()">‹ 시험 목록</button>')
     +'<h1 style="font-size:18px">'+esc(cur.title)+'</h1>'
     +problemPanel(cur)
-    +'<div class="card"><label>이름 *</label><input class="txt" id="nm" autocomplete="off">'
-    +'<div class="row2"><div><label>학교 *</label><input class="txt" id="sch" autocomplete="off"></div>'
-    +'<div><label>학년</label><input class="txt" id="grd" inputmode="numeric" placeholder="예: 2" autocomplete="off"></div></div></div>'
+    +'<div id="draftnote"></div>'
+    +'<div class="card"><label>이름 *</label><input class="txt" id="nm" autocomplete="off" oninput="saveDraft()">'
+    +'<div class="row2"><div><label>학교 *</label><input class="txt" id="sch" autocomplete="off" oninput="saveDraft()"></div>'
+    +'<div><label>학년</label><input class="txt" id="grd" inputmode="numeric" placeholder="예: 2" autocomplete="off" oninput="saveDraft()"></div></div></div>'
     +'<div class="card"><label>답안 (1~4)</label><div class="hint">숫자를 입력하면 다음 칸으로 넘어갑니다. 답안 숫자열을 붙여넣으면 한 번에 채워집니다.</div>'
     +'<div class="omr" id="omr" onpaste="onPaste(event)">'+omr+'</div>'
     +'<div class="prog" id="prog"></div></div>'
     +'<button class="btn" id="submit" onclick="submitAns()">제출하기</button>';
+  restoreDraft(id);
   updateProg(); window.scrollTo(0,0);
-  const f=document.getElementById('nm'); if(f) f.focus();
+  const f=document.getElementById('nm'); if(f&&!f.value) f.focus();
 }
+/* 저장된 임시 답안을 화면에 복원(있을 때만) */
+function restoreDraft(id){
+  var d=loadDraft(id); if(!d) return;
+  try{
+    if(d.sel&&typeof d.sel==='object'){ Object.keys(d.sel).forEach(function(q){ var v=+d.sel[q]; if(v>=1&&v<=4){ sel[q]=v; var el=document.getElementById('a'+q); if(el){ el.value=v; el.classList.add('on'); } } }); }
+    var nm=document.getElementById('nm'); if(nm&&d.nm) nm.value=d.nm;
+    var sch=document.getElementById('sch'); if(sch&&d.sch) sch.value=d.sch;
+    var grd=document.getElementById('grd'); if(grd&&d.grd) grd.value=d.grd;
+  }catch(e){}
+  var done=Object.keys(sel).length;
+  var when=''; try{ when=new Date(d.ts).toLocaleString('ko-KR'); }catch(e){}
+  var note=document.getElementById('draftnote');
+  if(note) note.innerHTML='<div class="card" style="border-color:#B8912E;background:#fffdf3;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">'
+    +'<span style="font-size:13px;color:#6b5a1f">작성하던 답안을 불러왔습니다 · '+done+'문항'+(when?' · '+esc(when):'')+'</span>'
+    +'<button type="button" class="pdftoggle" onclick="discardDraft()">새로 시작</button></div>';
+}
+/* 저장된 임시 답안 폐기 후 빈 상태로 다시 시작 */
+function discardDraft(){ if(!cur) return; if(!confirm('작성하던 답안을 지우고 새로 시작할까요?')) return; clearDraft(cur.id); var id=cur.id; openExam(id); }
 
 function onIn(q,el){ let v=el.value.replace(/[^1-4]/g,''); v=v?v.slice(-1):''; el.value=v;
   if(v){ sel[q]=+v; el.classList.add('on'); const nx=document.getElementById('a'+nextQ(q)); if(nx&&nextQ(q)!==q)nx.focus(); }
-  else { delete sel[q]; el.classList.remove('on'); } updateProg(); }
+  else { delete sel[q]; el.classList.remove('on'); } updateProg(); saveDraft(); }
 function onKey(e,q){ if(e.key==='Backspace'&&!e.target.value){ const p=document.getElementById('a'+prevQ(q)); if(p){p.focus();e.preventDefault();} } }
 function nextQ(q){ const nQ=cur.nQ||cur.key.length; const miss=new Set(cur.miss||[]); for(let i=q+1;i<=nQ;i++)if(!miss.has(i))return i; return q; }
 function prevQ(q){ const miss=new Set(cur.miss||[]); for(let i=q-1;i>=1;i--)if(!miss.has(i))return i; return q; }
@@ -169,12 +200,13 @@ function onPaste(e){ e.preventDefault(); const raw=((e.clipboardData||window.cli
   const nQ=cur.nQ||cur.key.length; const miss=new Set(cur.miss||[]); let i=1;
   for(const ch of raw){ while(i<=nQ&&miss.has(i))i++; if(i>nQ)break; const v=+ch; const el=document.getElementById('a'+i);
     if(v>=1&&v<=4){ sel[i]=v; if(el){el.value=v;el.classList.add('on');} } i++; }
-  updateProg(); }
+  updateProg(); saveDraft(); }
 function updateProg(){ const nQ=cur.nQ||cur.key.length; const miss=new Set(cur.miss||[]); let tot=0,done=0;
   for(let q=1;q<=nQ;q++){ if(miss.has(q))continue; tot++; if(sel[q])done++; }
   const el=document.getElementById('prog'); if(el)el.textContent='작성 '+done+' / '+tot+' 문항'+(done<tot?' · 미작성 '+(tot-done)+'개':' · 모두 작성됨'); }
 
 function submitAns(){
+  if(SUBMITTING) return; // 이미 제출 진행/완료 — 중복 호출 무시(제출 후 DOM 교체 전 연타 방지)
   const nm=(document.getElementById('nm').value||'').trim();
   const sch=(document.getElementById('sch').value||'').trim();
   const grd=(document.getElementById('grd').value||'').trim();
@@ -183,6 +215,9 @@ function submitAns(){
   const nQ=cur.nQ||cur.key.length; const miss=new Set(cur.miss||[]);
   let unfilled=0; for(let q=1;q<=nQ;q++){ if(miss.has(q))continue; if(!sel[q])unfilled++; }
   if(unfilled && !confirm(unfilled+'문항이 비어 있습니다. 무응답으로 제출할까요?')) return;
+  // 중복 제출 방지(검증 통과 후 잠금 — 버튼 연타·DOM 교체 전 재호출로 시트에 중복 행이 쌓이는 것을 막는다)
+  SUBMITTING=true;
+  var _btn=document.getElementById('submit'); if(_btn){ _btn.disabled=true; _btn.textContent='제출 중…'; }
 
   // ── 채점 (final.html scoreAuto와 동일 규칙) ──
   let correct=0,total=0; const wrong=[];
@@ -204,6 +239,7 @@ function submitAns(){
   try{ fetch(SHEET_ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
     toast('제출되었습니다 · '+nm);
   }catch(e){ toast('전송 호출 실패 — 다시 시도하세요'); }
+  clearDraft(cur.id); // 제출 완료 → 임시저장 답안 삭제
 
   showResult(nm,sch,cur,correct,total,pct,rs,wrong);
 }
