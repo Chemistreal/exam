@@ -542,8 +542,10 @@ summary::-webkit-details-marker{display:none}
 .wb-tag{font-size:11.5px;padding:3px 9px;border-radius:999px;background:var(--cream);color:var(--ink-2);font-weight:600}
 .wb-first{margin-left:auto;font-size:12.5px;color:var(--ms)}
 .wb-first b.x{color:#b0512f}.wb-first b.o{color:var(--teal)}
-.wb-why{font-size:13px;line-height:1.7;color:var(--ink-2);background:#fff7f2;border-left:3px solid var(--ms);border-radius:0 8px 8px 0;padding:9px 12px;margin:0 0 12px}
+.wb-why{font-size:13px;line-height:1.7;color:var(--ink-2);background:#fff7f2;border-left:3px solid var(--ms);border-radius:0 8px 8px 0;padding:9px 12px;margin:0 0 10px}
 .wb-why b{color:#b0512f;margin-right:4px}
+.wb-fix{font-size:13px;line-height:1.75;color:var(--ink-2);background:#eef4f1;border-left:3px solid var(--teal);border-radius:0 8px 8px 0;padding:9px 12px;margin:0 0 12px}
+.wb-fix b{color:var(--teal);margin-right:4px}
 .wb-orig{margin:0 0 12px}
 .wb-orig-h{font-size:12.5px;font-weight:700;color:var(--teal);margin-bottom:2px}
 .wb-qimage{display:block;width:100%;height:auto;border:1px solid #e7e0d2;border-radius:8px;background:#fff;margin:9px 0}
@@ -1859,7 +1861,7 @@ function closingSecFinal(nm, exam, correct, total, W, pct){
 function wrongbookShell(exam, wrong){
   if(!(wrong||[]).length) return '<section class="wb"><h3 class="wb-title">부록 · 오답정리</h3><div class="wb-loading">이번 진단에는 다시 볼 오답이 없습니다.</div></section>';
   return '<section class="wb" id="wrongbook"><h3 class="wb-title">부록 · 오답정리</h3>'
-    +'<div class="wb-sub">틀린 문항마다 <b>왜 틀렸는지</b>와, <b>숫자·조건만 살짝 바꾼 동형문제</b>를 정답·해설까지 바로 정리했습니다. 읽으며 개념을 다시 확인하세요.</div>'
+    +'<div class="wb-sub">틀린 문항마다 <b>왜 틀렸는지</b> → <b>꼭 알아야 할 개념 보충</b> → <b>숫자·조건만 살짝 바꾼 동형문제</b>(정답·해설)까지 한 흐름으로 정리했습니다. 개념을 다시 잡고 바로 변형 문항으로 확인하세요.</div>'
     +'<div class="wb-loading" data-wb-loading>오답 '+wrong.length+'문항을 불러오는 중…</div>'
     +'<div data-wb-cards></div></section>';
 }
@@ -1874,11 +1876,14 @@ function wbCardHTML(exam,w,qd,dq){
   var q=w.q, area=(exam.area&&exam.area[q-1])||'', type=(exam.type&&exam.type[q-1])||'';
   var accepted=(qd&&qd.acceptableAnswers&&qd.acceptableAnswers.length?qd.acceptableAnswers:[w.k]).filter(Boolean);
   var correctLbl=accepted.map(function(n){return CIRC[n];}).join(', ')||'·';
-  var why=(qd&&qd.misconception)||(type?omFor(type):'')||'';
+  var bd=bkBroad(area), rxo=RX[area]||RX[bd];
+  var why=(qd&&qd.misconception)||(type?omFor(type):'')||(rxo&&rxo.t)||'';
+  var fix=(rxo&&rxo.k)||'';
   var cropSrc='crops/'+exam.id+'/'+q+'.png';
   var head='<div class="wb-head"><span class="wb-qno">'+q+'번</span>'+(area?'<span class="wb-tag">'+esc(area)+'</span>':'')+(type?'<span class="wb-tag">'+esc(type)+'</span>':'')
     +'<span class="wb-first">처음 <b class="x">'+(w.a?CIRC[w.a]:'무응답')+'</b> · 정답 <b class="o">'+correctLbl+'</b></span></div>';
   var whyHTML=why?'<div class="wb-why"><b>왜 틀렸나</b> '+esc(why)+'</div>':'';
+  var fixHTML=fix?'<div class="wb-fix"><b>개념 보충</b> '+esc(fix)+'</div>':'';
   var origHTML='<div class="wb-orig"><div class="wb-orig-h">원문 문제</div>'
     +'<img class="wb-qimage" src="'+cropSrc+'" alt="'+esc(exam.title)+' '+q+'번 원문" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'">'
     +'<div class="wb-img-fail">원문 이미지가 준비되지 않았습니다. 문제지 '+q+'번을 확인해 주세요.</div></div>';
@@ -1899,7 +1904,7 @@ function wbCardHTML(exam,w,qd,dq){
   } else {
     dhHTML='<div class="wb-missing">이 문항의 동형문제는 준비 중입니다. 위 원문과 개념 강의로 복습하세요.</div>';
   }
-  return '<article class="wb-card" data-q="'+q+'">'+head+origHTML+whyHTML+dhHTML+'</article>';
+  return '<article class="wb-card" data-q="'+q+'">'+head+origHTML+whyHTML+fixHTML+dhHTML+'</article>';
 }
 async function hydrateWrongbook(exam,wrong){
   var root=document.getElementById('wrongbook'); if(!root)return;
@@ -2330,9 +2335,10 @@ async function downloadReportDOCX(){
   // ── 영역별 성취 ──
   if(areas.length){
     body.push(PB(),kicker('❖  BY AREA  ❖'),H('영역별 성취',secNo('area')));
-    var strTxt=strong.length?('강점 영역은 '+strong.slice(0,3).map(function(a){return a.name;}).join(', ')+'입니다. '):'';
-    var weakTxt=weak.length?('보완이 필요한 영역은 '+weak.slice(0,3).map(function(a){return a.name;}).join(', ')+'입니다.'):'뚜렷한 취약 영역 없이 고르게 응답했습니다.';
-    body.push(txt(strTxt+weakTxt,{after:140}));
+    var strTxt=strong.length?('강점 영역은 '+strong.slice(0,3).map(function(a){return a.name;}).join(', ')+'로, 이미 안정적으로 득점하고 있습니다. '):'';
+    var weakTxt=weak.length?('반면 '+weak.slice(0,3).map(function(a){return a.name;}).join(', ')+'은(는) 정답률이 낮아 이번 등급을 좌우한 영역입니다. 이 영역들은 뒤의 학습 처방과 부록 오답 노트에서 개념부터 다시 정리했습니다.'):'뚜렷한 취약 영역 없이 고르게 응답했습니다. 지금 수준을 유지하며 심화 문항으로 폭을 넓히면 상위 등급이 가까워집니다.';
+    body.push(txt(strTxt+weakTxt,{after:80}));
+    body.push(txt('아래 표에서 막대가 짧을수록 약한 영역이며, ‘취약’으로 표시된 영역이 개념 보강 1순위입니다.',{color:MUT,size:17,after:140}));
     var cols=[2500,4300,1300,CW-2500-4300-1300];
     // 성취도 막대(블록 문자) — 강점 에메랄드 / 취약 빨강 / 보통 금색
     function barCell(pct,wk,st,w){ var seg=12, fill=Math.max(0,Math.min(seg,Math.round(pct/100*seg))); var c=wk?RED:(st?EM:GOLD);
@@ -2369,11 +2375,21 @@ async function downloadReportDOCX(){
   var wqList=(wrong||[]).slice().sort(function(a,b){return a.q-b.q;}).map(function(w){return w.q;});
   if(wqList.length) body.push(P([run('틀린 문항  ',{bold:true,color:RED,size:16}),run(wqList.join(', ')+'번',{color:INK,size:16})],{align:AlignmentType.CENTER,before:140}));
   else body.push(P([run('만점입니다 — 틀린 문항이 없습니다.',{bold:true,color:EM,size:17})],{align:AlignmentType.CENTER,before:140}));
+  // 오답 분포 분석 — 앞·뒤 어디에 몰렸는지 해석해 학습 코칭 단서 제공
+  if(wqList.length>=3){
+    var half=Math.ceil(cur.nQ/2), backW=wqList.filter(function(q){return q>half;}).length, frontW=wqList.length-backW;
+    var dist;
+    if(backW>=frontW*2) dist='오답이 뒤쪽 절반('+(half+1)+'~'+cur.nQ+'번)에 몰려 있습니다. 시간 압박이나 후반 집중력 저하가 의심되니, 앞 문항을 더 빠르고 정확히 끝내 뒤 문항에 시간을 확보하는 연습이 효과적입니다.';
+    else if(frontW>=backW*2) dist='오답이 앞쪽 절반에 몰려 있습니다. 난이도보다는 초반 기초 개념·계산 실수 점검이 우선입니다.';
+    else dist='오답이 특정 구간에 치우치지 않고 흩어져 있습니다. 시간 문제보다 개념 결손이 원인일 가능성이 큽니다 — 아래 영역별 성취·학습 처방에서 약한 개념을 확인하세요.';
+    body.push(P([run('분포 분석  ',{bold:true,color:GOLD,size:17}),run(dist,{color:INK,size:17})],{before:130,after:0,border:{left:bdr(GOLD,14)}}));
+  }
 
   // ── 학습 처방 ──
   var rxBlocks=[];
   rxAreas.forEach(function(a){ var r=RX[a.name]||RX[bkBroad(a.name)]; if(!r) return;
-    rxBlocks.push(P([run(a.name,{bold:true,color:EM,size:24,serif:true}),run('   · 정답률 '+Math.round(a.r*100)+'%',{color:MUT,size:16})],{before:140,after:40}));
+    var aqs=(wrong||[]).filter(function(w){ var war=(cur.area&&cur.area[w.q-1])||''; return war===a.name||bkBroad(war)===a.name; }).map(function(w){return w.q;}).sort(function(x,y){return x-y;});
+    rxBlocks.push(P([run(a.name,{bold:true,color:EM,size:24,serif:true}),run('   · 정답률 '+Math.round(a.r*100)+'%'+(aqs.length?'  · 이 영역 오답 '+aqs.join(', ')+'번':''),{color:MUT,size:16})],{before:140,after:40}));
     if(r.k) rxBlocks.push(P([run('핵심  ',{bold:true,color:EM,size:20}),run(esc2(r.k),{size:20,color:'413c32'})],{after:30,border:{left:bdr(GOLDL,14)}}));
     if(r.t) rxBlocks.push(P([run('함정  ',{bold:true,color:RED,size:20}),run(esc2(r.t),{size:20,color:'413c32'})],{after:30,border:{left:bdr(RED,14)}}));
     if(r.rx) rxBlocks.push(P([run('처방  ',{bold:true,color:GOLD,size:20}),run(esc2(r.rx),{size:20,color:'413c32'})],{after:80,border:{left:bdr(GOLD,14)}}));
@@ -2399,7 +2415,7 @@ async function downloadReportDOCX(){
     body.push(PB(),kicker('❖  APPENDIX · 오답 정리  ❖'),
       txt('오답 정리 노트',{align:AlignmentType.CENTER,bold:true,color:EM,size:52,serif:true,after:50}),
       ornPara(dividerOrn,340,{before:16,after:120}),
-      txt('이번 시험에서 틀린 '+W+'문항입니다. 왜 틀렸는지와, 숫자·조건만 바꾼 동형문제를 정답·해설과 함께 정리했습니다.',{align:AlignmentType.CENTER,color:MUT,after:220}));
+      txt('틀린 '+W+'문항을 「왜 틀렸나 → 개념 보충 → 동형문제(정답·해설)」 한 흐름으로 정리했습니다. 원인을 짚고 개념을 다시 세운 뒤, 숫자·조건만 바꾼 문항으로 바로 확인하세요.',{align:AlignmentType.CENTER,color:MUT,after:220}));
     (wrong||[]).slice().sort(function(a,b){return a.q-b.q;}).forEach(function(w,wi){
       var ty=(cur.type&&cur.type[w.q-1])||'', ar=(cur.area&&cur.area[w.q-1])||'', bd=bkBroad(ar);
       var ck=cur.key?cur.key[w.q-1]:0; var aq=answers&&answers[w.q]||{}, dq=dh&&dh[w.q];
@@ -2407,7 +2423,9 @@ async function downloadReportDOCX(){
       body.push(P([run(w.q+'번  ',{bold:true,color:EM,size:30,serif:true}),run((ar?ar+'   ':''),{color:GOLD,size:18,bold:true}),run((ty?ty+'    ':''),{color:MUT,size:16}),run('처음 ',{color:MUT,size:20}),run(w.a?CI[w.a]:'무응답',{bold:true,color:RED,size:22}),run('  ·  정답 ',{color:MUT,size:20}),run(ck?CI[ck]:'·',{bold:true,color:EM,size:22})],{before:wi===0?200:360,after:90,border:{top:bdr(GOLDL,4)}}));
       if(cropMap[w.q]){ body.push(txt('원문 문제',{bold:true,color:EM,size:20,after:60})); body.push(imgPara(cropMap[w.q],470)); }
       else body.push(txt('원문: 문제지 '+w.q+'번을 확인하세요.',{color:MUT,size:19,after:60}));
-      if(why) body.push(P([run('왜 틀렸나  ',{bold:true,color:RED,size:21}),run(esc2(why),{size:21,color:'4a4437'})],{after:140,border:{left:bdr(RED,18)}}));
+      if(why) body.push(P([run('왜 틀렸나  ',{bold:true,color:RED,size:21}),run(esc2(why),{size:21,color:'4a4437'})],{after:70,border:{left:bdr(RED,18)}}));
+      var fixK=(RX[ar]&&RX[ar].k)||(RX[bd]&&RX[bd].k)||'';
+      if(fixK) body.push(P([run('개념 보충  ',{bold:true,color:EM,size:21}),run(esc2(fixK),{size:21,color:'384a44'})],{after:140,border:{left:bdr(EM,18)}}));
       // 동형문제 박스
       var dhInner=[];
       if(dq&&(dq.stem||dq.image||(dq.choices&&dq.choices.length))){
