@@ -1950,9 +1950,12 @@ function wbCardHTML(exam,w,qd,dq,co){
     var body=stem?('<div class="wb-stem">'+stem+'</div>'):'';
     if(!stem && dq.image){ body='<img class="wb-qimage" src="'+esc(dq.image)+'" alt="동형문제" loading="lazy" onerror="this.remove()">'; }
     body+=wbChoiceList(dq);
-    // 현재 DB는 같은 개념 유형의 '다른 기출'을 연결한 것이므로, 출처를 밝혀 정확히 표기한다.
-    var srcLbl=(dq.sourceExamTitle&&dq.sourceQuestion)?('<span class="wb-dh-src">'+esc(dq.sourceExamTitle)+' '+esc(String(dq.sourceQuestion))+'번</span>'):'';
-    dhHTML='<div class="wb-dh"><div class="wb-dh-h">같은 개념 유형 문제'+srcLbl+'</div>'
+    // origin=authored → 이 문항 개념에 맞춰 새로 집필한 동형문제.
+    // 그 외(구 DB)는 같은 개념 유형의 '다른 기출'을 연결한 것이므로 출처를 밝힌다.
+    var authored=(dq.origin==='authored');
+    var dhHead=authored?'동형문제 · 같은 개념으로 새로 만든 문제'
+      :('같은 개념 유형 문제'+((dq.sourceExamTitle&&dq.sourceQuestion)?('<span class="wb-dh-src">'+esc(dq.sourceExamTitle)+' '+esc(String(dq.sourceQuestion))+'번</span>'):''));
+    dhHTML='<div class="wb-dh"><div class="wb-dh-h">'+dhHead+'</div>'
       +body
       +'<div class="wb-dh-ans">정답 <b>'+(dq.answer?CIRC[Number(dq.answer)]:'·')+'</b></div>'
       +(sol?'<div class="wb-dh-sol"><b>해설</b> '+sol+'</div>':'')
@@ -2597,8 +2600,9 @@ async function downloadReportDOCX(){
       var dhInner=[];
       if(dhUsable(dq)){
         var ans=Number(dq.answer)||0;
-        var srcT=(dq.sourceExamTitle&&dq.sourceQuestion)?('    · '+dq.sourceExamTitle+' '+dq.sourceQuestion+'번'):'';
-        dhInner.push(P([run('◈ 같은 개념 유형 문제',{bold:true,color:EM,size:24,serif:true}),run(srcT,{color:MUT,size:16})],{after:120}));
+        var authoredW=(dq.origin==='authored');
+        var srcT=(!authoredW&&dq.sourceExamTitle&&dq.sourceQuestion)?('    · '+dq.sourceExamTitle+' '+dq.sourceQuestion+'번'):'';
+        dhInner.push(P([run(authoredW?'◈ 동형문제 · 같은 개념으로 새로 만든 문제':'◈ 같은 개념 유형 문제',{bold:true,color:EM,size:24,serif:true}),run(srcT,{color:MUT,size:16})],{after:120}));
         if(dq.stem) dhInner.push(txt(esc2(dq.stem),{after:100}));
         else if(dhImgMap[w.q]) dhInner.push(imgPara(dhImgMap[w.q],440));
         (dq.choices||[]).forEach(function(c,i){ var isAns=ans===i+1; dhInner.push(P([run(CI[i+1]+'  '+esc2(c),{bold:isAns,color:isAns?EM:INK,size:22})],{fill:isAns?EMT:undefined,before:16,after:16})); });
