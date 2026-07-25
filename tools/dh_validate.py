@@ -15,7 +15,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 # 생성 실패 흔적 — 재집필본에는 절대 있으면 안 된다
-PLACEHOLDER = re.compile(r"누락|렌더\s*실패|TODO|원본 채점표|원본서")
+PLACEHOLDER = re.compile(
+    r"(?:렌더|렌더링|추출|복원|원본)[^\n]{0,30}?누락|누락[^\n]{0,30}?(?:렌더|렌더링|추출|복원)|렌더\s*실패|추출\s*실패|복원되지\s*않"
+    r"|TODO|원본 채점표|원본서"
+)
 CIRCLED = re.compile(r"[①②③④]")
 
 
