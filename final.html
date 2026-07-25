@@ -546,6 +546,21 @@ summary::-webkit-details-marker{display:none}
 .wb-why b{color:#b0512f;margin-right:4px}
 .wb-fix{font-size:13px;line-height:1.75;color:var(--ink-2);background:#eef4f1;border-left:3px solid var(--teal);border-radius:0 8px 8px 0;padding:9px 12px;margin:0 0 12px}
 .wb-fix b{color:var(--teal);margin-right:4px}
+/* 또래 선택지 분포(누적 응시 기반 함정 분석) */
+.wb-peer{margin:0 0 12px;border:1px solid #e6ddc8;border-radius:10px;background:#fcfaf3;padding:11px 13px}
+.wb-peer-h{font-size:12.5px;font-weight:700;color:#8a6d1f;margin-bottom:8px}
+.wb-peer-h span{font-weight:600;color:var(--muted);margin-left:7px}
+.wb-orow{display:flex;align-items:center;gap:9px;margin:4px 0;font-size:12.5px}
+.wb-orow .oc{flex:0 0 20px;color:var(--muted);font-weight:700}
+.wb-orow .ob{flex:1;height:9px;background:#efece2;border-radius:5px;overflow:hidden}
+.wb-orow .ob i{display:block;height:100%;background:#c9c2b0;border-radius:5px}
+.wb-orow .op{flex:0 0 40px;text-align:right;color:var(--ink-2)}
+.wb-orow.is-ans .oc,.wb-orow.is-ans .op{color:var(--teal);font-weight:700}
+.wb-orow.is-ans .ob i{background:var(--teal)}
+.wb-orow.is-trap .oc,.wb-orow.is-trap .op{color:#b0512f;font-weight:700}
+.wb-orow.is-trap .ob i{background:var(--ms)}
+.wb-peer-msg{margin-top:9px;font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.wb-peer-msg b{color:#b0512f}
 .wb-orig{margin:0 0 12px}
 .wb-orig-h{font-size:12.5px;font-weight:700;color:var(--teal);margin-bottom:2px}
 .wb-qimage{display:block;width:100%;height:auto;border:1px solid #e7e0d2;border-radius:8px;background:#fff;margin:9px 0}
@@ -1871,8 +1886,16 @@ function wbChoiceList(dq){
   var ans=Number(dq.answer)||0;
   return '<ol class="wb-opts">'+chs.map(function(c,i){return '<li'+(ans===i+1?' class="ans"':'')+'><span class="ci">'+CIRC[i+1]+'</span><span>'+c+'</span></li>';}).join('')+'</ol>';
 }
+/* 또래 선택지 분포 → 함정 선택지 판정. co={opt:[4],qp,N} 없으면 null */
+function wbTrap(co,accepted,myAns){
+  if(!co||!co.opt) return null;
+  var trap=0,trapP=-1;
+  for(var i=1;i<=4;i++){ if(accepted.indexOf(i)>=0) continue; var v=co.opt[i-1]||0; if(v>trapP){trapP=v;trap=i;} }
+  if(!trap) return null;
+  return {opt:co.opt,qp:co.qp,N:co.N,trap:trap,trapP:trapP,fell:(myAns===trap)};
+}
 /* 간단 오답 카드: 왜 틀렸나 한 줄 + (접힌)원문 + 동형문제·정답·해설을 바로 표시 */
-function wbCardHTML(exam,w,qd,dq){
+function wbCardHTML(exam,w,qd,dq,co){
   var q=w.q, area=(exam.area&&exam.area[q-1])||'', type=(exam.type&&exam.type[q-1])||'';
   var accepted=(qd&&qd.acceptableAnswers&&qd.acceptableAnswers.length?qd.acceptableAnswers:[w.k]).filter(Boolean);
   var correctLbl=accepted.map(function(n){return CIRC[n];}).join(', ')||'·';
@@ -1884,6 +1907,25 @@ function wbCardHTML(exam,w,qd,dq){
     +'<span class="wb-first">처음 <b class="x">'+(w.a?CIRC[w.a]:'무응답')+'</b> · 정답 <b class="o">'+correctLbl+'</b></span></div>';
   var whyHTML=why?'<div class="wb-why"><b>왜 틀렸나</b> '+esc(why)+'</div>':'';
   var fixHTML=fix?'<div class="wb-fix"><b>개념 보충</b> '+esc(fix)+'</div>':'';
+  // 또래 선택지 분포 · 함정 분석(누적 응시 충분할 때만)
+  var peerHTML='', tp=wbTrap(co,accepted,w.a);
+  if(tp){
+    var rows='';
+    for(var oi=1;oi<=4;oi++){
+      var isA=accepted.indexOf(oi)>=0, isT=(oi===tp.trap), pv=tp.opt[oi-1]||0;
+      rows+='<div class="wb-orow'+(isA?' is-ans':'')+(isT?' is-trap':'')+'"><span class="oc">'+CIRC[oi]+'</span>'
+        +'<span class="ob"><i style="width:'+Math.max(2,pv)+'%"></i></span><span class="op">'+pv+'%</span></div>';
+    }
+    var msg='';
+    if(tp.fell) msg='이번에 고른 <b>'+CIRC[w.a]+'</b>는 또래도 가장 많이 걸린 <b>함정 선택지</b>입니다('+tp.trapP+'%). 위 개념 보충에서 이 함정을 만드는 개념 차이를 꼭 확인하세요.';
+    else if(tp.trapP>=25) msg='또래가 가장 많이 걸린 함정은 <b>'+CIRC[tp.trap]+'</b>('+tp.trapP+'%)입니다. 같은 함정에 걸리지 않도록 함께 점검해 두세요.';
+    if(tp.qp!=null){
+      if(tp.qp>=65) msg+=(msg?' ':'')+'또래 정답률 '+tp.qp+'%로 다수가 맞힌 문항이라 <b>반드시 회복</b>해야 합니다.';
+      else if(tp.qp<=40) msg+=(msg?' ':'')+'또래 정답률 '+tp.qp+'%인 고난도 문항입니다. 개념부터 차분히 잡으면 됩니다.';
+    }
+    peerHTML='<div class="wb-peer"><div class="wb-peer-h">또래 선택 분포<span>누적 '+tp.N+'명'+(tp.qp!=null?' · 또래 정답률 '+tp.qp+'%':'')+'</span></div>'+rows
+      +(msg?'<div class="wb-peer-msg">'+msg+'</div>':'')+'</div>';
+  }
   var origHTML='<div class="wb-orig"><div class="wb-orig-h">원문 문제</div>'
     +'<img class="wb-qimage" src="'+cropSrc+'" alt="'+esc(exam.title)+' '+q+'번 원문" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'">'
     +'<div class="wb-img-fail">원문 이미지가 준비되지 않았습니다. 문제지 '+q+'번을 확인해 주세요.</div></div>';
@@ -1904,7 +1946,7 @@ function wbCardHTML(exam,w,qd,dq){
   } else {
     dhHTML='<div class="wb-missing">이 문항의 동형문제는 준비 중입니다. 위 원문과 개념 강의로 복습하세요.</div>';
   }
-  return '<article class="wb-card" data-q="'+q+'">'+head+origHTML+whyHTML+fixHTML+dhHTML+'</article>';
+  return '<article class="wb-card" data-q="'+q+'">'+head+origHTML+whyHTML+fixHTML+peerHTML+dhHTML+'</article>';
 }
 async function hydrateWrongbook(exam,wrong){
   var root=document.getElementById('wrongbook'); if(!root)return;
@@ -1915,8 +1957,12 @@ async function hydrateWrongbook(exam,wrong){
     if(responses[1].ok){var d=await responses[1].json();analogues=d.questions||d;}
   }catch(e){}
   var cards=root.querySelector('[data-wb-cards]'); if(!cards) return;
+  // 선택지 분포는 표본이 충분(MINP 이상)할 때만 — 소표본 추정치는 함정 판정에 쓰지 않는다
+  var cs=null; try{ cs=cohortStats(exam); }catch(e){}
+  var optOK=!!(cs&&cs.qopt&&cs.N>=MINP);
   cards.innerHTML=wrong.slice().sort(function(a,b){return a.q-b.q;}).map(function(w){
-    return wbCardHTML(exam,w,answers[String(w.q)]||{},analogues[String(w.q)]||null);
+    var co=(optOK&&cs.qopt[w.q-1])?{opt:cs.qopt[w.q-1],qp:(cs.qp?cs.qp[w.q-1]:null),N:cs.N}:null;
+    return wbCardHTML(exam,w,answers[String(w.q)]||{},analogues[String(w.q)]||null,co);
   }).join('');
   var loading=root.querySelector('[data-wb-loading]'); if(loading) loading.remove();
 }
@@ -2217,10 +2263,42 @@ async function downloadReportDOCX(){
   var rxAreas=(weak.length?weak:areas);  // 분량 제한 없음 — 전 취약 영역(없으면 전 영역)
   var hasRx=rxAreas.some(function(a){return !!(RX[a.name]||RX[bkBroad(a.name)]);});
   var lecFiles=lecturesForWrong(cur, wrong||[]);  // 목차/강의 부록 공용 — 틀린 개념 강의 전체
+
+  // ── 선택지 분석(또래 함정) — 누적 응시가 MINP 이상일 때만 사용 ──
+  var optOK=!!(cs&&cs.qopt&&cs.N>=MINP);
+  function trapOf(q,myAns){
+    if(!optOK) return null; var opt=cs.qopt[q-1]; if(!opt) return null;
+    var acc=accSet(cur,q), trap=0, trapP=-1;
+    for(var i=1;i<=4;i++){ if(acc.indexOf(i)>=0) continue; var v=opt[i-1]||0; if(v>trapP){trapP=v;trap=i;} }
+    if(!trap) return null;
+    return {opt:opt,qp:(cs.qp?cs.qp[q-1]:null),trap:trap,trapP:trapP,fell:(myAns===trap)};
+  }
+
+  // ── 성장 추적: 같은 이름의 이전 진단 기록에서 영역별 지난 대비 변화 산출 ──
+  var growth=null;
+  try{
+    if(nm){
+      var hist=[];
+      FINAL_EXAMS.forEach(function(e){
+        var hs=subs(e.id).filter(function(r){return r.name&&r.name.trim()===nm&&r.ans&&r.ans.length===e.nQ;});
+        if(hs.length){ var lastR=hs[hs.length-1]; hist.push({e:e,r:lastR,ts:lastR.ts,pct:lastR.total?Math.round(lastR.correct/lastR.total*100):0}); }
+      });
+      hist.sort(function(x,y){return x.ts-y.ts;});
+      if(hist.length>=2){
+        var gCur=hist[hist.length-1], gPrev=hist[hist.length-2];
+        var dsNow=domScoresBroad(gCur.e,gCur.r.ans), dsWas=domScoresBroad(gPrev.e,gPrev.r.ans), dl=[];
+        if(dsNow&&dsWas) for(var dk in dsNow){ if(dk in dsWas) dl.push({d:dk,now:dsNow[dk],was:dsWas[dk],delta:dsNow[dk]-dsWas[dk]}); }
+        dl.sort(function(x,y){return y.delta-x.delta;});
+        growth={hist:hist,gc:gCur,gp:gPrev,dO:gCur.pct-gPrev.pct,dl:dl};
+      }
+    }
+  }catch(e){ growth=null; }
+
   // 섹션 구성(목차·본문 번호 동기화). 실제 렌더되는 섹션만 포함해 번호를 부여한다.
   var sections=[{key:'overview',t:'진단 개요',d:'원점수·현재 등급·수상권 로드맵'}];
   if(areas.length) sections.push({key:'area',t:'영역별 성취',d:'영역별 정답률과 강·약점 판정'});
-  sections.push({key:'grid',t:'문항별 정오표',d:'전 문항 정오와 오답 분포 한눈에'});
+  sections.push({key:'grid',t:'문항별 정오표',d:'전 문항 정오와 오답 분포 한눈에'+(optOK?' · 또래 함정 분석':'')});
+  if(growth) sections.push({key:'growth',t:'성장 추적',d:'지난 진단 대비 전체·영역별 변화'});
   if(hasRx) sections.push({key:'rx',t:'학습 처방',d:'약점 영역별 핵심 개념·함정·복습 처방'});
   sections.forEach(function(s,i){ s.no=('0'+(i+1)).slice(-2); });
   function secNo(k){ for(var i=0;i<sections.length;i++) if(sections[i].key===k) return sections[i].no; return ''; }
@@ -2384,6 +2462,63 @@ async function downloadReportDOCX(){
     else dist='오답이 특정 구간에 치우치지 않고 흩어져 있습니다. 시간 문제보다 개념 결손이 원인일 가능성이 큽니다 — 아래 영역별 성취·학습 처방에서 약한 개념을 확인하세요.';
     body.push(P([run('분포 분석  ',{bold:true,color:GOLD,size:17}),run(dist,{color:INK,size:17})],{before:130,after:0,border:{left:bdr(GOLD,14)}}));
   }
+  // 또래 대비 문항 분석 — 함정 적중·회복 우선·선전 문항(누적 응시 충분할 때만)
+  if(optOK){
+    var fellQs=[], mustQs=[], wonQs=[];
+    (wrong||[]).forEach(function(w){ var t=trapOf(w.q,w.a); if(t&&t.fell) fellQs.push(w.q);
+      if(cs.qp&&cs.qp[w.q-1]!=null&&cs.qp[w.q-1]>=65) mustQs.push(w.q); });
+    for(var wq=1;wq<=cur.nQ;wq++){ if(miss.has(wq))continue; if(!okq(cur,wq,sel[wq]||0))continue;
+      if(cs.qp&&cs.qp[wq-1]!=null&&cs.qp[wq-1]<=40) wonQs.push(wq); }
+    fellQs.sort(function(a,b){return a-b;}); mustQs.sort(function(a,b){return a-b;});
+    body.push(P([run('또래 대비 분석',{bold:true,color:EM,size:20,serif:true}),run('   누적 응시 '+cs.N+'명의 선택지 분포 기준',{color:MUT,size:15})],{before:230,after:80}));
+    if(fellQs.length) body.push(P([run('함정 적중  ',{bold:true,color:RED,size:17}),run('틀린 '+W+'문항 중 '+fellQs.length+'문항('+fellQs.join(', ')+'번)에서 또래가 가장 많이 고른 함정 선택지를 함께 골랐습니다. 개인 실수가 아니라 많은 학생이 걸리는 개념 함정이므로, 부록 오답 노트의 개념 보충을 꼭 확인하세요.',{color:INK,size:17})],{after:70,border:{left:bdr(RED,14)}}));
+    if(mustQs.length) body.push(P([run('회복 우선  ',{bold:true,color:GOLD,size:17}),run(mustQs.join(', ')+'번은 또래 정답률이 65% 이상인 문항입니다. 다수가 맞힌 문항이므로 가장 먼저 회복하면 등급이 바로 올라갑니다.',{color:INK,size:17})],{after:70,border:{left:bdr(GOLD,14)}}));
+    if(wonQs.length) body.push(P([run('선전 문항  ',{bold:true,color:EM,size:17}),run('또래 정답률 40% 이하의 고난도 문항 '+wonQs.length+'개('+wonQs.slice(0,10).join(', ')+(wonQs.length>10?' 외':'')+'번)를 맞혔습니다. 이미 상위권 사고력을 갖추고 있다는 신호입니다.',{color:INK,size:17})],{after:0,border:{left:bdr(EM,14)}}));
+  }
+
+  // ── 성장 추적 (이전 진단 기록이 있을 때만) ──
+  if(growth){
+    body.push(PB(),kicker('❖  GROWTH  ❖'),H('성장 추적',secNo('growth')),
+      txt((nm||'학생')+' 학생의 누적 진단 '+growth.hist.length+'회 기록입니다. 지난 진단(「'+growth.gp.e.title+'」) 대비 이번 진단의 변화를 정리했습니다.',{after:120}));
+    var dOs=(growth.dO>0?'▲ +'+growth.dO:(growth.dO<0?'▼ '+growth.dO:'± 0'))+'%p';
+    var dOc=growth.dO>0?EM:(growth.dO<0?RED:MUT);
+    body.push(P([run('전체 정답률  ',{bold:true,color:EM,size:20}),run(growth.gp.pct+'%   →   ',{color:MUT,size:22}),
+      run(growth.gc.pct+'%',{bold:true,color:EM,size:26,serif:true}),run('    '+dOs,{bold:true,color:dOc,size:22})],{after:150,border:{left:bdr(GOLD,16)}}));
+    // 회차별 정답률 궤적
+    body.push(txt('진단 회차별 정답률',{bold:true,color:EM,size:19,after:70}));
+    var tcW=[3600,4600,CW-3600-4600];
+    var tRows=[ROW([cellT('진단',{w:tcW[0],bold:true,color:EM,fill:CREAMH}),cellT('정답률 추이',{w:tcW[1],bold:true,color:EM,fill:CREAMH}),cellT('정답률',{w:tcW[2],bold:true,color:EM,fill:CREAMH,align:AlignmentType.CENTER})],{header:true})];
+    growth.hist.forEach(function(h,hi){
+      var seg=12, fl=Math.max(0,Math.min(seg,Math.round(h.pct/100*seg))), isLast=hi===growth.hist.length-1;
+      tRows.push(ROW([
+        cellT((hi+1)+'회  '+h.e.title,{w:tcW[0],bold:isLast,color:isLast?EM:INK,size:18}),
+        C([P([run('█'.repeat(fl),{color:isLast?EM:'C9C2B0',size:18}),run('░'.repeat(seg-fl),{color:'E3D9BE',size:18})],{after:0,before:0})],{w:tcW[1],ml:120,mr:120}),
+        cellT(h.pct+'%',{w:tcW[2],align:AlignmentType.CENTER,bold:isLast,color:isLast?EM:MUT,size:19})
+      ]));
+    });
+    body.push(TBL(tcW,tRows,{top:bdr(GOLDL,4),bottom:bdr(GOLDL,4),left:NB,right:NB,insideHorizontal:bdr('E6DDC8',2),insideVertical:NB}));
+    // 영역별 지난 대비 변화
+    if(growth.dl.length){
+      body.push(txt('영역별 지난 진단 대비 변화',{bold:true,color:EM,size:19,before:220,after:70}));
+      var dcW=[3400,2200,2200,CW-3400-2200-2200];
+      var dRows=[ROW([cellT('영역',{w:dcW[0],bold:true,color:EM,fill:CREAMH}),cellT('지난 진단',{w:dcW[1],bold:true,color:EM,fill:CREAMH,align:AlignmentType.CENTER}),cellT('이번 진단',{w:dcW[2],bold:true,color:EM,fill:CREAMH,align:AlignmentType.CENTER}),cellT('변화',{w:dcW[3],bold:true,color:EM,fill:CREAMH,align:AlignmentType.CENTER})],{header:true})];
+      growth.dl.forEach(function(x){
+        var up=x.delta>0, dn=x.delta<0;
+        dRows.push(ROW([ cellT(x.d,{w:dcW[0],bold:true}),
+          cellT(x.was+'%',{w:dcW[1],align:AlignmentType.CENTER,color:MUT}),
+          cellT(x.now+'%',{w:dcW[2],align:AlignmentType.CENTER,color:EM,bold:true}),
+          cellT((up?'▲ +'+x.delta:(dn?'▼ '+x.delta:'± 0'))+'%p',{w:dcW[3],align:AlignmentType.CENTER,bold:true,color:up?EM:(dn?RED:MUT),fill:up?EMT:(dn?'F7E3DC':undefined)}) ]));
+      });
+      body.push(TBL(dcW,dRows,{top:bdr(GOLDL,4),bottom:bdr(GOLDL,4),left:NB,right:NB,insideHorizontal:bdr('E6DDC8',2),insideVertical:NB}));
+      var gUp=growth.dl.filter(function(x){return x.delta>0;}), gDn=growth.dl.filter(function(x){return x.delta<0;});
+      var gMsg='';
+      if(gUp.length) gMsg+='가장 크게 성장한 영역은 '+gUp[0].d+'(▲ +'+gUp[0].delta+'%p)입니다. 이 영역의 학습법이 통했다는 뜻이니 같은 방식을 다른 영역에도 적용해 보세요. ';
+      if(gDn.length){ var bot=growth.dl[growth.dl.length-1]; gMsg+='반대로 '+bot.d+'(▼ '+bot.delta+'%p)은(는) 지난 진단보다 내려갔습니다. 이번 학습 처방에서 이 영역을 우선순위로 두세요.'; }
+      if(!gMsg) gMsg='영역별 변화가 크지 않아 전반적으로 안정적인 수준을 유지하고 있습니다.';
+      body.push(P([run('성장 해석  ',{bold:true,color:GOLD,size:17}),run(gMsg,{color:INK,size:17})],{before:150,after:0,border:{left:bdr(GOLD,14)}}));
+    }
+    body.push(P([run('서로 다른 시험 간 비교이므로 난이도 차이가 있을 수 있습니다. 절대 점수가 아닌 성장 방향 지표로 해석하세요.',{color:MUT,size:15,i:true})],{before:170}));
+  }
 
   // ── 학습 처방 ──
   var rxBlocks=[];
@@ -2425,7 +2560,24 @@ async function downloadReportDOCX(){
       else body.push(txt('원문: 문제지 '+w.q+'번을 확인하세요.',{color:MUT,size:19,after:60}));
       if(why) body.push(P([run('왜 틀렸나  ',{bold:true,color:RED,size:21}),run(esc2(why),{size:21,color:'4a4437'})],{after:70,border:{left:bdr(RED,18)}}));
       var fixK=(RX[ar]&&RX[ar].k)||(RX[bd]&&RX[bd].k)||'';
-      if(fixK) body.push(P([run('개념 보충  ',{bold:true,color:EM,size:21}),run(esc2(fixK),{size:21,color:'384a44'})],{after:140,border:{left:bdr(EM,18)}}));
+      if(fixK) body.push(P([run('개념 보충  ',{bold:true,color:EM,size:21}),run(esc2(fixK),{size:21,color:'384a44'})],{after:(optOK?70:140),border:{left:bdr(EM,18)}}));
+      // 또래 선택 분포 · 함정 분석
+      var tpw=trapOf(w.q,w.a);
+      if(tpw){
+        var dRuns=[run('또래 선택  ',{bold:true,color:GOLD,size:20})];
+        var accW=accSet(cur,w.q);
+        for(var oi=1;oi<=4;oi++){ var isC=accW.indexOf(oi)>=0, isT=(oi===tpw.trap);
+          dRuns.push(run(CI[oi]+' '+(tpw.opt[oi-1]||0)+'%    ',{bold:isC||isT,color:isC?EM:(isT?RED:MUT),size:20})); }
+        if(tpw.qp!=null) dRuns.push(run('· 또래 정답률 '+tpw.qp+'%',{color:MUT,size:18}));
+        body.push(P(dRuns,{after:50}));
+        var tmsg='';
+        if(tpw.fell) tmsg='이번에 고른 '+(w.a?CI[w.a]:'무응답')+'는 또래도 가장 많이 걸린 함정 선택지입니다('+tpw.trapP+'%). 위 개념 보충의 개념 차이를 반드시 확인하세요.';
+        else if(tpw.trapP>=25) tmsg='또래가 가장 많이 걸린 함정은 '+CI[tpw.trap]+'('+tpw.trapP+'%)입니다. 같은 함정도 함께 점검해 두세요.';
+        if(tpw.qp!=null){ if(tpw.qp>=65) tmsg+=(tmsg?' ':'')+'또래 정답률 '+tpw.qp+'%로 다수가 맞힌 문항이라 반드시 회복해야 합니다.';
+          else if(tpw.qp<=40) tmsg+=(tmsg?' ':'')+'또래 정답률 '+tpw.qp+'%인 고난도 문항입니다. 개념부터 차분히 잡으면 됩니다.'; }
+        if(tmsg) body.push(P([run(tmsg,{size:19,color:'4a4437'})],{after:140,border:{left:bdr(GOLDL,14)}}));
+        else body.push(P([],{after:120}));
+      }
       // 동형문제 박스
       var dhInner=[];
       if(dq&&(dq.stem||dq.image||(dq.choices&&dq.choices.length))){
