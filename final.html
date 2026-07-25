@@ -567,6 +567,7 @@ summary::-webkit-details-marker{display:none}
 .wb-img-fail{display:none;color:var(--ms);font-size:12.5px;padding:10px;border:1px dashed #d9b8a8;border-radius:8px}
 .wb-dh{border:1px solid #e6ddc8;border-radius:11px;background:#fffdf7;padding:14px 15px}
 .wb-dh-h{font-family:'Nanum Myeongjo',Georgia,serif;font-size:15px;font-weight:800;color:#8a6d1f;margin-bottom:9px}
+.wb-dh-src{font-family:inherit;font-size:11.5px;font-weight:600;color:var(--muted);margin-left:8px;padding:2px 8px;border:1px solid var(--line);border-radius:999px;vertical-align:middle}
 .wb-stem{font-size:13.5px;line-height:1.85;color:var(--ink)}
 .wb-opts{list-style:none;margin:9px 0 0;padding:0}
 .wb-opts li{display:flex;gap:8px;font-size:13.5px;line-height:1.7;color:var(--ink-2);padding:4px 8px;border-radius:7px}
@@ -1876,7 +1877,7 @@ function closingSecFinal(nm, exam, correct, total, W, pct){
 function wrongbookShell(exam, wrong){
   if(!(wrong||[]).length) return '<section class="wb"><h3 class="wb-title">부록 · 오답정리</h3><div class="wb-loading">이번 진단에는 다시 볼 오답이 없습니다.</div></section>';
   return '<section class="wb" id="wrongbook"><h3 class="wb-title">부록 · 오답정리</h3>'
-    +'<div class="wb-sub">틀린 문항마다 <b>왜 틀렸는지</b> → <b>꼭 알아야 할 개념 보충</b> → <b>숫자·조건만 살짝 바꾼 동형문제</b>(정답·해설)까지 한 흐름으로 정리했습니다. 개념을 다시 잡고 바로 변형 문항으로 확인하세요.</div>'
+    +'<div class="wb-sub">틀린 문항마다 <b>왜 틀렸는지</b> → <b>꼭 알아야 할 개념 보충</b> → <b>같은 개념 유형의 연습 문제</b>(정답·해설)까지 한 흐름으로 정리했습니다. 개념을 다시 잡고 바로 같은 개념 문항으로 확인하세요.</div>'
     +'<div class="wb-loading" data-wb-loading>오답 '+wrong.length+'문항을 불러오는 중…</div>'
     +'<div data-wb-cards></div></section>';
 }
@@ -1885,6 +1886,18 @@ function wbChoiceList(dq){
   var chs=(dq.choicesHtml||dq.choices||[]); if(!chs.length) return '';
   var ans=Number(dq.answer)||0;
   return '<ol class="wb-opts">'+chs.map(function(c,i){return '<li'+(ans===i+1?' class="ans"':'')+'><span class="ci">'+CIRC[i+1]+'</span><span>'+c+'</span></li>';}).join('')+'</ol>';
+}
+/* 동형문제 표시 가능 여부. 생성 과정에서 도형·선택지 추출이 실패한 항목("렌더 누락",
+ * 빈 선택지)은 학생에게 보여주면 오히려 혼란을 주므로 숨기고 안내 문구로 대체한다. */
+function dhUsable(dq){
+  if(!dq) return false;
+  var stem=String(dq.stem||dq.stemHtml||''), expl=String(dq.explanation||dq.explanationHtml||'');
+  if(!stem.trim() && !dq.image) return false;
+  if(/누락|렌더\s*실패/.test(stem+expl)) return false;
+  var chs=(dq.choices||dq.choicesHtml||[]);
+  if(chs.length<4) return false;
+  for(var i=0;i<chs.length;i++){ if(!String(chs[i]==null?'':chs[i]).trim()) return false; }
+  return true;
 }
 /* 또래 선택지 분포 → 함정 선택지 판정. co={opt:[4],qp,N} 없으면 null */
 function wbTrap(co,accepted,myAns){
@@ -1930,21 +1943,23 @@ function wbCardHTML(exam,w,qd,dq,co){
     +'<img class="wb-qimage" src="'+cropSrc+'" alt="'+esc(exam.title)+' '+q+'번 원문" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'">'
     +'<div class="wb-img-fail">원문 이미지가 준비되지 않았습니다. 문제지 '+q+'번을 확인해 주세요.</div></div>';
   var dhHTML;
-  if(dq && (dq.stem||dq.stemHtml||(dq.choices&&dq.choices.length)||dq.image)){
+  if(dhUsable(dq)){
     var stem=dq.stemHtml||esc(dq.stem||'');
     var sol=dq.explanationHtml||esc(dq.explanation||'');
     var mis=dq.misconception||'';
     var body=stem?('<div class="wb-stem">'+stem+'</div>'):'';
     if(!stem && dq.image){ body='<img class="wb-qimage" src="'+esc(dq.image)+'" alt="동형문제" loading="lazy" onerror="this.remove()">'; }
     body+=wbChoiceList(dq);
-    dhHTML='<div class="wb-dh"><div class="wb-dh-h">동형문제 · 같은 개념, 숫자·조건만 바꿈</div>'
+    // 현재 DB는 같은 개념 유형의 '다른 기출'을 연결한 것이므로, 출처를 밝혀 정확히 표기한다.
+    var srcLbl=(dq.sourceExamTitle&&dq.sourceQuestion)?('<span class="wb-dh-src">'+esc(dq.sourceExamTitle)+' '+esc(String(dq.sourceQuestion))+'번</span>'):'';
+    dhHTML='<div class="wb-dh"><div class="wb-dh-h">같은 개념 유형 문제'+srcLbl+'</div>'
       +body
       +'<div class="wb-dh-ans">정답 <b>'+(dq.answer?CIRC[Number(dq.answer)]:'·')+'</b></div>'
       +(sol?'<div class="wb-dh-sol"><b>해설</b> '+sol+'</div>':'')
       +(mis?'<div class="wb-mis"><b>오개념</b> '+esc(mis)+'</div>':'')
       +'</div>';
   } else {
-    dhHTML='<div class="wb-missing">이 문항의 동형문제는 준비 중입니다. 위 원문과 개념 강의로 복습하세요.</div>';
+    dhHTML='<div class="wb-missing">이 문항의 연습 문제는 준비 중입니다. 위 <b>원문</b>과 <b>개념 보충</b>·개념 강의로 복습하세요.</div>';
   }
   return '<article class="wb-card" data-q="'+q+'">'+head+origHTML+whyHTML+fixHTML+peerHTML+dhHTML+'</article>';
 }
@@ -2550,7 +2565,7 @@ async function downloadReportDOCX(){
     body.push(PB(),kicker('❖  APPENDIX · 오답 정리  ❖'),
       txt('오답 정리 노트',{align:AlignmentType.CENTER,bold:true,color:EM,size:52,serif:true,after:50}),
       ornPara(dividerOrn,340,{before:16,after:120}),
-      txt('틀린 '+W+'문항을 「왜 틀렸나 → 개념 보충 → 동형문제(정답·해설)」 한 흐름으로 정리했습니다. 원인을 짚고 개념을 다시 세운 뒤, 숫자·조건만 바꾼 문항으로 바로 확인하세요.',{align:AlignmentType.CENTER,color:MUT,after:220}));
+      txt('틀린 '+W+'문항을 「왜 틀렸나 → 개념 보충 → 같은 개념 유형 문제(정답·해설)」 한 흐름으로 정리했습니다. 원인을 짚고 개념을 다시 세운 뒤, 같은 개념의 문항으로 바로 확인하세요.',{align:AlignmentType.CENTER,color:MUT,after:220}));
     (wrong||[]).slice().sort(function(a,b){return a.q-b.q;}).forEach(function(w,wi){
       var ty=(cur.type&&cur.type[w.q-1])||'', ar=(cur.area&&cur.area[w.q-1])||'', bd=bkBroad(ar);
       var ck=cur.key?cur.key[w.q-1]:0; var aq=answers&&answers[w.q]||{}, dq=dh&&dh[w.q];
@@ -2578,18 +2593,19 @@ async function downloadReportDOCX(){
         if(tmsg) body.push(P([run(tmsg,{size:19,color:'4a4437'})],{after:140,border:{left:bdr(GOLDL,14)}}));
         else body.push(P([],{after:120}));
       }
-      // 동형문제 박스
+      // 같은 개념 유형 문제 박스(추출 실패 항목은 숨기고 안내로 대체)
       var dhInner=[];
-      if(dq&&(dq.stem||dq.image||(dq.choices&&dq.choices.length))){
+      if(dhUsable(dq)){
         var ans=Number(dq.answer)||0;
-        dhInner.push(P([run('◈ 동형문제 · 같은 개념, 숫자·조건만 바꿈',{bold:true,color:EM,size:24,serif:true})],{after:120}));
+        var srcT=(dq.sourceExamTitle&&dq.sourceQuestion)?('    · '+dq.sourceExamTitle+' '+dq.sourceQuestion+'번'):'';
+        dhInner.push(P([run('◈ 같은 개념 유형 문제',{bold:true,color:EM,size:24,serif:true}),run(srcT,{color:MUT,size:16})],{after:120}));
         if(dq.stem) dhInner.push(txt(esc2(dq.stem),{after:100}));
         else if(dhImgMap[w.q]) dhInner.push(imgPara(dhImgMap[w.q],440));
         (dq.choices||[]).forEach(function(c,i){ var isAns=ans===i+1; dhInner.push(P([run(CI[i+1]+'  '+esc2(c),{bold:isAns,color:isAns?EM:INK,size:22})],{fill:isAns?EMT:undefined,before:16,after:16})); });
         dhInner.push(P([run('정답  ',{size:22}),run(ans?CI[ans]:'·',{bold:true,color:EM,size:26,serif:true})],{before:100,after:100}));
         var sol=dq.explanation||''; if(sol){ dhInner.push(P([run('해설',{bold:true,color:EM,size:22})],{before:60,after:40,border:{top:bdr('E6DDC8',4)}})); dhInner.push(txt(esc2(sol),{size:21})); }
         if(dq.misconception) dhInner.push(P([run('오개념  ',{bold:true,color:RED,size:21}),run(esc2(dq.misconception),{size:21,color:'4a4437'})],{before:60}));
-      } else { dhInner.push(P([run('◈ 동형문제',{bold:true,color:EM,size:24,serif:true})],{after:80})); dhInner.push(txt('이 문항의 동형문제는 준비 중입니다. 위 원문과 개념 강의로 복습하세요.',{color:MUT,size:20})); }
+      } else { dhInner.push(P([run('◈ 같은 개념 유형 문제',{bold:true,color:EM,size:24,serif:true})],{after:80})); dhInner.push(txt('이 문항의 연습 문제는 준비 중입니다. 위 원문과 개념 보충·개념 강의로 복습하세요.',{color:MUT,size:20})); }
       body.push(TBL([CW],[ROW([C(dhInner,{w:CW,fill:'FFFDF7',mt:180,mb:180,ml:220,mr:220})])],{top:bdr(GOLD,6,BorderStyle.DASHED),bottom:bdr(GOLD,6,BorderStyle.DASHED),left:bdr(GOLD,6,BorderStyle.DASHED),right:bdr(GOLD,6,BorderStyle.DASHED)}));
     });
   }
