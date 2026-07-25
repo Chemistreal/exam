@@ -55,12 +55,15 @@ def is_round_complement(a,b):
 def audit(lo,hi):
     bank=load()
     idx={it['id']:i for i,it in enumerate(bank)}
-    prior=[it for it in bank if it['id']<lo]           # 이전 전체
+    # ★대조 대상 = 자기 자신을 뺀 은행 전체★
+    #   이전에는 prior = (id < lo) 였다. 그래서 ①같은 배치 안 10제끼리는 서로 대조되지
+    #   않았고 ②이미 등재된 구간을 소급 감사할 수도 없었다(뒤 문항이 안 보임).
+    #   자기 자신만 빼면 두 사각지대가 함께 사라진다.
     targets=[it for it in bank if lo<=it['id']<=hi]
-    # 이전 문항 특징 인덱스
+    # 문항 특징 인덱스 — 전체를 담고, 대조 시점에 자기 자신만 제외한다
     by_scn=dict(); by_skill=dict()
     skel_map=dict()   # (skel, linked) -> list of (id, ans_val)
-    for it in prior:
+    for it in bank:
         by_scn.setdefault(it['scenario'],[]).append(it['id'])
         by_skill.setdefault(it['skill'],[]).append(it['id'])
         sk=skeleton(it)
@@ -69,14 +72,16 @@ def audit(lo,hi):
             skel_map.setdefault(key,[]).append((it['id'],ans_val(it)))
     flags=[]
     for it in targets:
-        hits=[]
-        if it['scenario'] in by_scn: hits.append(('R1 동일 scenario',by_scn[it['scenario']][:3]))
-        if it['skill'] in by_skill: hits.append(('R2 동일 skill',by_skill[it['skill']][:3]))
+        hits=[]; me=it['id']
+        r1=[p for p in by_scn.get(it['scenario'],[]) if p!=me]
+        if r1: hits.append(('R1 동일 scenario',r1[:3]))
+        r2=[p for p in by_skill.get(it['skill'],[]) if p!=me]
+        if r2: hits.append(('R2 동일 skill',r2[:3]))
         sk=skeleton(it)
         if sk:
             key=(sk,tuple(it.get('linked_concepts',[])))
             av=ans_val(it)
-            same=skel_map.get(key,[])
+            same=[(p,v) for p,v in skel_map.get(key,[]) if p!=me]
             if same:
                 eqval=[pid for pid,pv in same if pv is not None and av is not None and abs(pv-av)<1e-6]
                 if eqval: hits.append(('R3 골격+정답값 동일(거울/교체 후보)',eqval[:3]))

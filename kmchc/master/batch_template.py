@@ -98,8 +98,32 @@ def swap(it, i, j):
 
 
 # ─────────────────────────── 검증 ───────────────────────────
+G3B_MIN_MEDIAN = 8      # 이보다 짧은 보기(수치형)는 길이가 단서가 될 수 없어 면제
+G3B_MAX_SPREAD = 0.25
+
+
+def spread(choices):
+    """보기 길이 산포 (max−min)/median. G3b 판정용."""
+    L = sorted(len(str(c)) for c in choices)
+    return (L[3] - L[0]) / ((L[1] + L[2]) / 2 or 1)
+
+
+def g3b_applies(choices):
+    """수치형 짧은 보기는 면제. 실측 근거:
+       중앙길이 ~7자 구간은 산포와 무관하게 정답 2위 비중 30%/27%(차이 없음),
+       15~29자 구간은 산포>0.25 에서 65.9% vs 36.8% 로 갈린다."""
+    L = sorted(len(str(c)) for c in choices)
+    return (L[1] + L[2]) / 2 >= G3B_MIN_MEDIAN
+
+
+def len_rank(it):
+    """정답 보기의 길이 순위(1=가장 긺)."""
+    L = [len(str(c)) for c in it['choices']]
+    return sorted(range(4), key=lambda i: -L[i]).index(it['answer']) + 1
+
+
 def verify(items):
-    """G1/G3/G6 + 해설 길이·구조 + expr 검산 + 위치 분포. 문제 목록 반환."""
+    """G1/G3/G3b/G6 + 해설 길이·구조 + expr 검산 + 위치·길이순위 분포. 문제 목록 반환."""
     issues = []
     for it in items:
         ln, a = [len(x) for x in it['choices']], it['answer']
@@ -107,6 +131,11 @@ def verify(items):
             issues.append((it['id'], 'G3 정답 유일최장', ln, a))
         if (ln[a] == min(ln) and ln.count(min(ln)) == 1):
             issues.append((it['id'], 'G3 정답 유일최단', ln, a))
+        # ★G3b — 보기 길이를 나란히. 산포가 크면 '몇 번째로 긴 것'이 단서가 된다.
+        #   G3 를 오답 패딩으로 해소해 온 관행이 정답을 길이 2위로 몰아 왔다(실측 T11 45%).
+        sp = spread(it['choices'])
+        if g3b_applies(it['choices']) and sp > G3B_MAX_SPREAD:
+            issues.append((it['id'], f'G3b 보기 길이 산포 {sp:.2f}>{G3B_MAX_SPREAD} — 보기를 나란히', ln, a))
         if len(it.get('solution', '')) < 300:
             issues.append((it['id'], f"해설 {len(it.get('solution',''))}자(<300)", '', ''))
         if '[정답]' not in it.get('solution', '') or '자가진단' not in it.get('solution', ''):
@@ -124,8 +153,16 @@ def verify(items):
                 val = eval(it['answer_expr'].replace('//', '/'))
                 if abs(val - float(re.match(r'^-?[\d.]+', ansc.strip()).group())) > 1e-9:
                     issues.append((it['id'], f"expr 불일치 {it['answer_expr']}={val} vs {ansc}", '', ''))
+    # ★G3c 배치 수준 — 정답 길이순위가 한쪽에 몰리면 지식 없이 찍어서 맞힐 수 있다.
+    rr = Counter(len_rank(it) for it in items)
+    if items and max(rr.values()) > max(4, len(items) * 0.4):
+        issues.append(('[배치]', f"G3c 정답 길이순위 편중 {dict(sorted(rr.items()))} "
+                                 f"— 한 순위 {max(rr.values())}/{len(items)}", '', ''))
+
     pp = Counter(it['answer'] for it in items)
-    print(f"위치: ①{pp[0]} ②{pp[1]} ③{pp[2]} ④{pp[3]}")
+    print(f"위치: ①{pp[0]} ②{pp[1]} ③{pp[2]} ④{pp[3]}"
+          f" | 길이순위: " + " ".join(f"{r}위{rr.get(r,0)}" for r in (1, 2, 3, 4))
+          + f" | 산포 평균 {sum(spread(i['choices']) for i in items)/max(1,len(items)):.2f}")
     for i in issues:
         print(f"  ⚠ {i[0]}: {i[1]} {i[2] if i[2] else ''} {i[3] if i[3] != '' else ''}")
     print(f"검증: {'무결 ✓' if not issues else str(len(issues)) + '건 조치 필요'}")
