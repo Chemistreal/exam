@@ -32,7 +32,7 @@ def dh_usable(analogue: dict) -> bool:
 
 # 현재 알려진 손상 항목 수(2400 중). 데이터를 고치면 이 값을 낮추고,
 # 늘어나면(=새 손상 유입) 테스트가 실패하도록 상한으로 고정한다.
-BROKEN_BUDGET = 114
+BROKEN_BUDGET = 110
 
 ROOT = Path(__file__).resolve().parents[1]
 source = (ROOT / "final.html").read_text(encoding="utf-8")
