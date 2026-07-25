@@ -57,7 +57,17 @@ for exam in exams:
         analogue = analogues[key]
         assert analogue["answer"] in (1, 2, 3, 4), (exam["id"], number)
         assert analogue["verified"] is True, (exam["id"], number)
-        assert analogue["explanationHtml"], (exam["id"], number)
+        # 구 DB는 기출 이미지를 끌어와 explanationHtml 을 가지고, 재집필본(origin=authored)은
+        # 글자만으로 완결되므로 explanation/이미지 요구가 다르다.
+        authored = analogue.get("origin") == "authored"
+        if authored:
+            assert analogue["explanation"], (exam["id"], number)
+            assert len(analogue.get("choices") or []) == 4, (exam["id"], number)
+            for banned in ("sourceExamId", "sourceQuestion", "matchLevel"):
+                assert not analogue.get(banned), (exam["id"], number, banned)
+        else:
+            assert analogue["explanationHtml"], (exam["id"], number)
+            assert (ROOT / analogue["image"]).exists(), (exam["id"], number)
         expected_misconceptions = {
             str(option)
             for option in range(1, 5)
@@ -66,7 +76,6 @@ for exam in exams:
         assert expected_misconceptions.issubset(
             analogue["misconceptions"]
         ), (exam["id"], number)
-        assert (ROOT / analogue["image"]).exists(), (exam["id"], number)
         assert answers[key]["answer"] == exam["key"][number - 1], (
             exam["id"],
             number,

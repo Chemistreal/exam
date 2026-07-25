@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+"""집필된 파트 JSON들을 합쳐 donghyung/<examId>.json 을 만든다.
+
+사용: python3 tools/dh_merge.py <examId> <part1.json> <part2.json> ...
+합치기 전에 문항 번호 누락·중복을 확인하고, 구 DB의 기출 참조 필드는 버린다.
+"""
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+
+# 구 DB에서 넘어오면 안 되는 기출 참조 필드
+BANNED = ("sourceExamId", "sourceQuestion", "sourceExamTitle", "matchLevel", "matchScore", "image")
+
+
+def main() -> None:
+    if len(sys.argv) < 3:
+        print(__doc__)
+        raise SystemExit(1)
+    exam_id = sys.argv[1]
+    parts = sys.argv[2:]
+
+    exams = json.loads(
+        (ROOT / "final.html").read_text(encoding="utf-8")
+        .split("const FINAL_EXAMS=", 1)[1]
+        .split(";\n", 1)[0]
+    )
+    exam = next((e for e in exams if e["id"] == exam_id), None)
+    if exam is None:
+        raise SystemExit(f"알 수 없는 시험: {exam_id}")
+    n_q = exam["nQ"]
+
+    merged: dict[str, dict] = {}
+    for p in parts:
+        data = json.loads(Path(p).read_text(encoding="utf-8"))
+        data = data.get("questions", data)
+        for key, value in data.items():
+            if key in merged:
+                raise SystemExit(f"문항 번호 중복: {key} ({p})")
+            for b in BANNED:
+                value.pop(b, None)
+            value["origin"] = "authored"
+            value["verified"] = True
+            merged[key] = value
+
+    missing = [str(n) for n in range(1, n_q + 1) if str(n) not in merged]
+    if missing:
+        raise SystemExit(f"누락된 문항: {', '.join(missing)}")
+    extra = [k for k in merged if not (1 <= int(k) <= n_q)]
+    if extra:
+        raise SystemExit(f"범위 밖 문항: {', '.join(extra)}")
+
+    out = {
+        "schemaVersion": 2,
+        "examId": exam_id,
+        "examTitle": exam.get("title", ""),
+        "strategy": "original-authored",
+        "note": "각 문항의 개념·사고과정에 맞춰 새로 집필한 독자 문항. 기출 복제 아님.",
+        "questions": {str(n): merged[str(n)] for n in range(1, n_q + 1)},
+    }
+    dest = ROOT / "donghyung" / f"{exam_id}.json"
+    dest.write_text(
+        json.dumps(out, ensure_ascii=False, indent=1) + "\n", encoding="utf-8"
+    )
+    print(f"작성 완료: {dest.relative_to(ROOT)} ({len(out['questions'])}문항)")
+
+
+if __name__ == "__main__":
+    main()
