@@ -1893,7 +1893,9 @@ function dhUsable(dq){
   if(!dq) return false;
   var stem=String(dq.stem||dq.stemHtml||''), expl=String(dq.explanation||dq.explanationHtml||'');
   if(!stem.trim() && !dq.image) return false;
-  if(/누락|렌더\s*실패/.test(stem+expl)) return false;
+  // '누락'은 정상적인 한국어 표현("중복이나 누락 없이")으로도 쓰이므로,
+  // 렌더·추출·복원 실패를 가리키는 문맥에서만 손상으로 판정한다.
+  if(/(?:렌더|렌더링|추출|복원|원본)[^\n]{0,30}?누락|누락[^\n]{0,30}?(?:렌더|렌더링|추출|복원)|렌더\s*실패|추출\s*실패|복원되지\s*않/.test(stem+expl)) return false;
   var chs=(dq.choices||dq.choicesHtml||[]);
   if(chs.length<4) return false;
   for(var i=0;i<chs.length;i++){ if(!String(chs[i]==null?'':chs[i]).trim()) return false; }

@@ -12,7 +12,9 @@ from PIL import Image
 
 # 생성 과정에서 도형·선택지 추출이 실패한 항목("렌더 누락", 빈 선택지)은 학생에게
 # 보이면 안 된다. final.html의 dhUsable()과 같은 규칙으로 손상 개수를 감시한다.
-PLACEHOLDER = re.compile(r"누락|렌더\s*실패")
+PLACEHOLDER = re.compile(
+    r"(?:렌더|렌더링|추출|복원|원본)[^\n]{0,30}?누락|누락[^\n]{0,30}?(?:렌더|렌더링|추출|복원)|렌더\s*실패|추출\s*실패|복원되지\s*않"
+)
 
 
 def dh_usable(analogue: dict) -> bool:
