@@ -53,9 +53,39 @@ python3 tests/wrongbook-assets.py
 - 구 DB 항목 → **같은 개념 유형 문제** + 출처(시험명·문항 번호) 표기
 - `dhUsable()` 가드가 빈 선택지·플레이스홀더 항목을 화면·Word 양쪽에서 숨긴다.
 
+## 검수 원칙
+
+집필은 병렬 에이전트가 맡고, **화학적 정확성은 전량 직접 검산**한다.
+문항마다 다음을 확인한다.
+
+1. 정답이 실제로 맞는가 (계산형은 재계산)
+2. 오답 3개가 확실히 틀리는가 (복수 정답 불가)
+3. 지문이 조건 부족으로 모호하지 않은가
+4. 해설의 수치·논리가 정답과 일치하는가
+
+`tools/dh_review.py <examId> [시작] [끝] [--full]` 로 검수용 압축 출력을 얻는다.
+
 ## 진행 상황
+
+전체 41개 시험 2400문항. 재집필 완료분은 `strategy: original-authored`.
 
 | 시험 | 상태 |
 |---|---|
-| jmchc-3 | 재집필 완료(60문항) |
-| 그 외 40개 시험 | 구 DB 유지 — 순차 재집필 예정 |
+| jmchc-3 | 완료 (60문항, 36문항 직접 검산) |
+| jmchc-1 | 완료 (60문항, 60문항 전량 직접 검산 · 오류 0) |
+| jmchc-2 | 완료 (60문항, 60문항 전량 직접 검산 · 오류 0) |
+| 나머지 38개 | 순차 재집필 진행 중 |
+
+남은 시험 목록은 다음으로 확인한다.
+
+```bash
+python3 - <<'PY'
+import json,glob
+exams=json.loads(open('final.html',encoding='utf-8').read()
+    .split("const FINAL_EXAMS=",1)[1].split(";\n",1)[0])
+done={json.load(open(f,encoding='utf-8')).get('examId')
+      for f in glob.glob('donghyung/*.json')
+      if json.load(open(f,encoding='utf-8')).get('strategy')=='original-authored'}
+print([e['id'] for e in exams if e['id'] not in done])
+PY
+```
