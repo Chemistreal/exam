@@ -15,8 +15,10 @@
 | `master/selfaudit.py` | 신규 배치 ↔ 기존 전체 구조 충돌 검사 (R1~R5) |
 | `master/expr_assert.py` | 플레이스홀더·미완성 문자열 검출 |
 | `master/batch_template.py` | 배치 생산 템플릿 |
-| ` master/build_t11_p12.py` | **P11 실작업본** — 다음 배치는 이걸 복사해 쓰면 됨 |
-| `master/briefs/` | 감사 리포트·테마별 착수/마감 문서 54건 |
+| `master/build_t11_p12.py` | **최신 배치 실작업본(P12)** — 다음 배치는 이걸 복사해 쓰면 됨 |
+| `master/calibrate.py` | 실측 코호트 앵커로 `esr_cohort_ref` 부여 (배치 병합 후 실행) |
+| `master/retro_audit.py` | 은행 전체 소급 자기복제 감사 리포트 생성 |
+| `master/briefs/` | 감사 리포트·테마별 착수/마감 문서 + 실측대조·소급감사 리포트 |
 
 아카이브의 `outputs_kmchc/`(139MB 과거 산출물)·`textbook/`(교재 스캔)·`uploads_misc/`는
 용량이 커서 옮기지 않았습니다. 교재 페이지가 필요하면 원본 아카이브의 `textbook/t.zip`을 다시 풉니다.
