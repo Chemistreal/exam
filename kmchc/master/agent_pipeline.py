@@ -23,13 +23,22 @@ agent_pipeline.py — 감사 층5 독립 패스를 '진짜 독립'으로 만드�
   2. 프롬프트에서 `kmchc/` 디렉터리 접근을 **명시적으로 금지**한다 (master_bank.json 에 답이 있다)
   3. 검증자끼리도 서로의 결과를 보지 않는다 — 병렬로 띄우고 결과는 저작자가 종합한다
 
+설계 단계 에이전트 3종 (배치 **전** — design 하위 명령)
+  textbook-miner       교재 쪽 판독 → 개념 목록. 490쪽을 한 컨텍스트에 담을 수 없으므로 쪽 범위 fan-out
+  duplicate-hunter     후보 지식 ↔ 은행 의미 중복 탐색. 기계 R1~R5 는 의미 중복을 못 잡는다
+  distractor-designer  오개념 기반 오답 후보 생성. '거짓이면서 매력적'을 만족하는 후보를 여러 개 받아 고른다
+
+  ※ duplicate-hunter 만은 은행을 봐야 하므로 독립성 제약이 없다. 대신 테마 전량을
+    한 파일로 뽑아 주어 은행을 헤매지 않게 한다.
+
 사용
 ----
-  python3 master/agent_pipeline.py prep M01817 M01826     입력 파일 + 프롬프트 생성
+  python3 master/agent_pipeline.py prep M01817 M01826     검증 입력 4종 + 프롬프트
+  python3 master/agent_pipeline.py design '원자 모형' 76 78   설계 단계 3종 + 테마 대조표
   python3 master/agent_pipeline.py record M01817 M01826 "F1~F7 통과" "감사36"
                                                           층5 통과를 verified 에 기록
 """
-import json, os, sys
+import glob, json, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 BANK = os.path.join(HERE, 'master_bank.json')
@@ -165,6 +174,119 @@ def cmd_prep(lo, hi):
         print()
 
 
+TEXTBOOK_DIR = os.environ.get('KMCHC_TEXTBOOK_DIR', '/tmp/tb')
+
+
+def textbook_pages(lo, hi):
+    """교재 이미지 실제 경로. unzip 이 한글 파일명을 #Uxxxx 로 망가뜨려 두므로 글롭으로 찾는다."""
+    out = []
+    for p in range(int(lo), int(hi) + 1):
+        hit = glob.glob(os.path.join(TEXTBOOK_DIR, f"*_{p}.jpg"))
+        if hit:
+            out.append((p, hit[0]))
+    return out
+
+
+DESIGN_PROMPTS = {
+ 'textbook-miner': """당신은 한국 고등학교 화학 교재의 **판독자**입니다. 지정된 쪽 이미지를 읽고 개념 목록을 만듭니다.
+
+읽을 파일(이미지):
+{pages}
+
+이 쪽들에 실제로 적혀 있는 것만 뽑으십시오. 배경지식으로 채우지 마십시오 — 교재에 없는데 있다고 하면
+그 개념으로 만든 문항이 교재 범위를 벗어납니다.
+
+개념마다: ①한 줄 진술 ②쪽 번호 ③유형(정의 / 실험과 그 결론 / 수식 / 표·그림 자료 / 한계·경계)
+④선수 개념 ⑤교재가 명시한 수치·상수가 있으면 그대로 ⑥문항으로 물을 수 있는 서로 다른 각도를 2~3개.
+
+특히 다음을 놓치지 마십시오 — 표와 그림 안의 수치, 각주, "주의"·"참고" 상자,
+그리고 **한 실험이 무엇까지 말해 주고 무엇은 말해 주지 못하는가**(문항의 핵심 소재입니다).
+
+단원: {theme}
+
+보고: 개념 목록(위 6항목) + 쪽별 요약 한 줄. 판독이 불확실한 글자는 [?] 로 표시하십시오.""",
+
+ 'duplicate-hunter': """당신은 문항 은행의 **의미 중복 탐색자**입니다.
+
+읽을 파일: `{d}/theme_bank.md` (이 테마의 기존 문항 전량 — 발문과 정답)
+새로 만들려는 후보 지식 목록은 사용자가 함께 줍니다.
+
+왜: 기계 검사(R1~R5)는 scenario·skill·계산 골격만 봅니다. **말만 바꾼 같은 지식은 못 잡습니다.**
+실제로 은행에는 이런 부채가 119제 쌓여 있습니다.
+
+후보마다 판정하십시오.
+  ✗ 중복    기존 문항과 **묻는 지식이 같다**. 표현·소재가 달라도 학생이 쓰는 판단이 같으면 중복입니다
+  △ 인접    지식은 다르나 같은 뿌리에서 갈라져 나온다. 어떻게 차별화할지 함께 제시
+  ○ 신규    겹치지 않는다
+
+판정 근거로 **반드시 기존 문항 ID를 대십시오.** ID 없는 지적은 채택하지 않습니다.
+
+다음은 중복이 **아닙니다** — 잘못 걸러내지 마십시오.
+  · 거울 관계이면서 정답 지식이 상반될 때(예: β⁻ 는 Z+1, β⁺ 는 Z−1)
+  · 같은 실험이라도 결과가 달라 결론이 다를 때(음극선 4실험은 각기 다른 지식)
+
+단원: {theme}
+
+보고: 후보별 표(후보 | 판정 | 근거 문항 ID | 차별화 방안). ✗ 와 △ 를 먼저.""",
+
+ 'distractor-designer': """당신은 4지선다 화학 문항의 **오답 설계자**입니다.
+
+사용자가 발문과 정답을 줍니다. 각 문항에 쓸 오답 후보를 **문항당 6개 이상** 만드십시오.
+
+★절대 원칙★ **오답은 '거짓이면서 매력적'이어야 합니다. 둘 중 하나만 만족하면 실격입니다.**
+
+| 오답의 상태 | 판정 |
+|---|---|
+| 거짓 + 매력적 | 이상적 |
+| 거짓 + 아무도 안 고름 | 죽은 선지 — 변별도를 깎는다(실측: 2개면 0.446→0.264) |
+| **참 + 매력적** | **최악 — 음(−)변별. 아는 학생일수록 틀린다** |
+
+그러므로 후보마다 **①무엇이 거짓인지 한 줄로 증명**하고, ②어떤 학생이 왜 끌리는지 밝히십시오.
+독립된 진술로 읽었을 때 참이 될 여지가 조금이라도 있으면 스스로 버리십시오.
+
+겨냥할 대상을 나누어 주십시오.
+  B 흔한 오개념 보유 — 특정 오개념을 확신하는 학생
+  **C 부분 이해 — 절반쯤 아는 학생.** 여기가 가장 어렵고 가장 중요합니다.
+     C 를 흔들지 못하면 상위권 변별도가 0 이 됩니다(가상 응시에서 C=D 10/10 일치 관측)
+
+오답 유형은 다음 8종 안에서 고르고 표기하십시오:
+  proc(절차·귀속 혼동) · sign(부호·방향) · surface(표면적 특징) · conserv(보존량)
+  · unit(단위) · scale(크기 규모) · overgen(과잉 일반화) · causal(인과 뒤바꿈)
+
+단원: {theme}
+
+보고: 문항별로 후보 표(후보 문장 | type | 거짓인 이유 | 겨냥 프로필 | 매력도 상·중·하).
+한 문항의 후보 6개가 서로 다른 type 이 되도록 하십시오.""",
+}
+
+
+def cmd_design(theme, pg_lo=None, pg_hi=None):
+    bank = json.load(open(BANK, encoding='utf-8'))
+    items = [x for x in bank if x.get('theme') == theme]
+    d = os.path.join(OUT_ROOT, 'design_' + theme.replace(' ', '_'))
+    os.makedirs(d, exist_ok=True)
+    with open(os.path.join(d, 'theme_bank.md'), 'w', encoding='utf-8') as f:
+        f.write(f"# {theme} — 기존 문항 전량 ({len(items)}제)\n\n"
+                "발문과 정답만 싣는다. 묻는 지식이 같은지를 보라.\n\n")
+        for x in items:
+            f.write(f"- **{x['id']}** {x['stem']}\n  → 정답 {CIR[x['answer']]} {x['choices'][x['answer']]}\n")
+    print(f"═══ 설계 단계 · {theme} (기존 {len(items)}제) ═══")
+    print(f"대조표 → {os.path.join(d, 'theme_bank.md')} "
+          f"({os.path.getsize(os.path.join(d, 'theme_bank.md')):,}B)")
+
+    pages = textbook_pages(pg_lo, pg_hi) if pg_lo else []
+    if pg_lo and not pages:
+        print(f"⚠ 교재 이미지를 찾지 못함 — {TEXTBOOK_DIR} 확인 "
+              "(컨테이너 리셋 시 handoff 아카이브의 textbook/t.zip 재해동 필요)")
+    plist = "\n".join(f"  {p}쪽  `{f}`" for p, f in pages) or "  (쪽 범위 미지정)"
+    print("\n※ textbook-miner 는 쪽 범위를 나눠 **병렬**로. duplicate-hunter 는 후보 목록이 나온 뒤.\n")
+    for name, tpl in DESIGN_PROMPTS.items():
+        print("─" * 72)
+        print(f"### agent: {name}")
+        print(tpl.format(d=d, theme=theme, pages=plist))
+        print()
+
+
 def cmd_record(lo, hi, note, at):
     bank = json.load(open(BANK, encoding='utf-8'))
     n = 0
@@ -183,6 +305,8 @@ if __name__ == '__main__':
     c = sys.argv[1]
     if c == 'prep':
         cmd_prep(sys.argv[2], sys.argv[3])
+    elif c == 'design':
+        cmd_design(sys.argv[2], *sys.argv[3:5])
     elif c == 'record':
         cmd_record(sys.argv[2], sys.argv[3],
                    sys.argv[4] if len(sys.argv) > 4 else "F1~F7 통과",
