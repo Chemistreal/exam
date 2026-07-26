@@ -4,6 +4,10 @@
 화학적 정확성은 사람이 직접 본다. 판단에 필요한 정보(지문 전체·선택지 전체·정답·
 해설 요지)는 남기고 군더더기만 덜어낸다.
 
+집필 직후에는 스크래치패드의 파트 파일을, 병합한 뒤에는 저장소의
+`donghyung/<examId>.json` 을 읽는다. 파트 파일은 병합 뒤 손대지 않으므로
+저장소 쪽만 고친 내용(표기 정규화 등)은 파트 파일에 반영되어 있지 않다.
+
 사용: python3 tools/dh_review.py <examId> [시작] [끝] [--full]
 """
 
@@ -25,7 +29,10 @@ def load(exam_id: str) -> dict:
     merged: dict[str, dict] = {}
     for p in sorted(glob.glob(str(WORK / f"{exam_id}.part*.json"))):
         merged.update(json.loads(Path(p).read_text(encoding="utf-8")))
-    return merged
+    if merged:
+        return merged
+    repo = Path(__file__).resolve().parents[1] / "donghyung" / f"{exam_id}.json"
+    return json.loads(repo.read_text(encoding="utf-8"))["questions"]
 
 
 def main() -> None:

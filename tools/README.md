@@ -44,7 +44,9 @@
    서로 같다고 본다"를 추가함)
 9. **표기는 유니코드로 통일한다.** 아래첨자 H₂O·위첨자 10²³·전하 Cu²⁺·오비탈 2p⁶·
    Δ H·℃·×·→·⇌ 를 쓴다. `H2O`·`10^23`·`도씨`·`->` 같은 ASCII 표기는 같은 오답노트
-   안에서 다른 문항과 어긋나 보인다. (hwol-2014 1~30번이 ASCII로 집필되어 정규화함)
+   안에서 다른 문항과 어긋나 보인다. 이 원칙은 hwol-2014 를 고치면서 생겼으므로
+   그 전에 집필된 jmchc 계열 412문항에는 ASCII 표기가 남아 있었고,
+   `tools/dh_normalize.py` 로 일괄 정정했다.
 10. **정답에 이르는 경로가 둘이면 안 된다.** 끓는점 서열을 물을 때 분자량 순서와
    답이 일치하면 극성을 몰라도 맞히므로 진단이 되지 않는다. 실제 물질명을 쓰면
    암기로 맞힐 수 있는 문항(CaTiO₃ 단위 세포 등)은 X/Y/Z로 일반화한다.
@@ -80,6 +82,13 @@ python3 tools/dh_validate.py donghyung/<examId>.json
 
 # 5) 시험 안 중복 문항 검사 (지문 3-그램 유사도 · 같은 concept 쌍은 항상 표시)
 python3 tools/dh_dupe_scan.py <examId> [임계값]
+
+# 5-1) 시험끼리 대조 (완료분 전체)
+python3 tools/dh_dupe_scan.py --cross [임계값]
+
+# 5-2) ASCII 표기 정규화 (먼저 인자 없이 돌려 바뀔 내용을 확인한다)
+python3 tools/dh_normalize.py
+python3 tools/dh_normalize.py --write
 
 # 6) 회귀 테스트 (신·구 스키마 모두 검사)
 python3 tests/wrongbook-assets.py
