@@ -213,13 +213,15 @@ def merge_and_house(new, note=BATCH_NOTE):
             p['done'] = done.get(int(no), 0)
         json.dump(plan, open(pp, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
 
-    # 검증 스크립트 자동 실행
+    # 검증 스크립트 자동 실행 (★factcheck = 감사 층5 기계 검사★)
     lo, hi = new[0]['id'], new[-1]['id']
     for cmd in (['python3', os.path.join(BASE, 'selfaudit.py'), lo, hi],
+                ['python3', os.path.join(BASE, 'factcheck.py'), lo, hi],
                 ['python3', os.path.join(BASE, 'master_gate.py')]):
         r = subprocess.run(cmd, capture_output=True, text=True)
         for l in r.stdout.split('\n'):
-            if any(k in l for k in ('강한 충돌', '판정', '전 항목', '🔴')):
+            if any(k in l for k in ('강한 충돌', '판정', '전 항목', '🔴',
+                                    '기계 검사 통과', '독립 패스')):
                 print('  ' + l.strip())
 
     # 사본 동기화(설정된 경우)
