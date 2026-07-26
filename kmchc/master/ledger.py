@@ -102,7 +102,7 @@ def cmd_list(theme_key, only_open=False):
         print(f"{c['id']} [{c['kind']}] {c['stmt']}")
         if c['values']:
             print(f"    수치: {c['values']}")
-        for i, a in c['angles']:
+        for i, a in rows:
             mark = '·'.join(a['by']) if a['by'] else '○ 미소진'
             print(f"    ({i}) {a['a']}   {mark}")
 
