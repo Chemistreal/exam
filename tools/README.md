@@ -102,7 +102,10 @@ python3 tools/dh_dupe_scan.py <examId> [임계값]
 # 5-1) 시험끼리 대조 (완료분 전체)
 python3 tools/dh_dupe_scan.py --cross [임계값]
 
-# 5-2) ASCII 표기 정규화 (먼저 인자 없이 돌려 바뀔 내용을 확인한다)
+# 5-2) 집필 중인 파트를 완료분 전체와 대조 (병합 전에 집필자가 직접 돌린다)
+python3 tools/dh_dupe_scan.py --draft <파트.json> 0.35
+
+# 5-3) ASCII 표기 정규화 (먼저 인자 없이 돌려 바뀔 내용을 확인한다)
 python3 tools/dh_normalize.py
 python3 tools/dh_normalize.py --write
 
@@ -189,7 +192,8 @@ learningPoint 로부터 그 개념의 대표적 오개념을 직접 설계해 �
 | sanyeom-60 | 완료 (60문항, 60문항 전량 직접 검산 · 오류 0 · 전 문항 산·염기) |
 | kmchc-2026-1-ilban | 완료 (50문항, 50문항 전량 직접 검산 · 오류 0 · 세부 주제 직접 배정) |
 | kmchc-2026-1-simhwa | 완료 (50문항, 50문항 전량 직접 검산 · 오류 0 · 일반부 목록 대조) |
-| 나머지 8개 | 순차 재집필 진행 중 |
+| kmchc-2025-2-ilban | 완료 (50문항, 50문항 전량 직접 검산 · 오류 0) |
+| 나머지 7개 | 순차 재집필 진행 중 |
 
 남은 시험 목록은 다음으로 확인한다.
 
