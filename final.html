@@ -647,8 +647,38 @@ const CIRC=['','①','②','③','④'];
 const accSet=(e,q)=>(e.multi&&e.multi[q])?e.multi[q]:[e.key[q-1]];
 const okq=(e,q,a)=>accSet(e,q).indexOf(a)>=0;
 const ansLabel=(e,q)=>{const s=accSet(e,q);return s.length>=4?'전원정답':s.map(x=>CIRC[x]).join('·');};
-function subs(id){try{return JSON.parse(localStorage.getItem(PFX+id)||'[]')}catch(e){return[]}}
-function saveSubs(id,a){try{localStorage.setItem(PFX+id,JSON.stringify(a))}catch(e){}}
+/* ── 같은 시험이 두 ID 로 등록된 쌍: 또래 통계를 한 곳에 모은다 ──────────────
+   화올 2018·2019·2024 와 KMChC 2018·2019·2024 제1차는 같은 시험이 두 번 등록된
+   것이다(문항 크롭 이미지까지 바이트 단위로 같다). 문항 수·정답·복수정답·제외
+   문항·수상 컷이 모두 같아 채점 규칙이 완전히 일치하므로 응시 기록을 합쳐도 된다.
+
+   합치지 않으면 응시가 두 풀로 갈린다. 각 풀이 MINP(8명)를 못 넘기면 또래 정답률·
+   선택 분포·함정 분석·백분위가 **아예 나오지 않는다**. 12명이 6/6 으로 갈리면 양쪽
+   다 통계가 없는데, 합치면 12명으로 전부 나온다.
+
+   문항 내용(crops·answers·donghyung)은 ID 별로 그대로 둔다. 두 ID 의 동형문제를
+   일부러 다르게 집필해 두었으므로, 학생은 같은 시험을 서로 다른 두 벌의 연습
+   문제로 복습할 수 있다. */
+const COHORT_ALIAS={'kmchc-2018':'hwol-2018','kmchc-2019':'hwol-2019','kmchc-2024-1':'hwol-2024'};
+const cohortKey=id=>COHORT_ALIAS[id]||id;
+function subs(id){try{return JSON.parse(localStorage.getItem(PFX+cohortKey(id))||'[]')}catch(e){return[]}}
+function saveSubs(id,a){try{localStorage.setItem(PFX+cohortKey(id),JSON.stringify(a))}catch(e){}}
+/* 별칭 키에 이미 쌓여 있던 기록을 대표 키로 옮긴다(한 번만 돌면 된다).
+   같은 응시가 양쪽에 있을 수 있으므로 답안+시각으로 중복을 거른다. */
+(function mergeAliasRosters(){
+  try{
+    for(var from in COHORT_ALIAS){
+      var raw=localStorage.getItem(PFX+from); if(!raw) continue;
+      var old=JSON.parse(raw)||[], to=COHORT_ALIAS[from];
+      var dst=JSON.parse(localStorage.getItem(PFX+to)||'[]')||[], seen={};
+      dst.forEach(function(r){ seen[(r.ans||[]).join('')+'|'+(r.ts||'')]=1; });
+      old.forEach(function(r){ var k=(r.ans||[]).join('')+'|'+(r.ts||''); if(!seen[k]){ dst.push(r); seen[k]=1; } });
+      dst.sort(function(x,y){ return (x.ts||0)-(y.ts||0); });
+      localStorage.setItem(PFX+to,JSON.stringify(dst));
+      localStorage.removeItem(PFX+from);
+    }
+  }catch(e){}
+})();
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function award(W,cut){let idx=cut.findIndex(c=>W<=c);const inA=idx!==-1;if(!inA)idx=5;const name=inA?TIERS[idx]:'수상권 밖';
   let nextTier=null,gap=null,reach=false;if(idx>0){const n=inA?idx-1:4;nextTier=TIERS[n];gap=W-cut[n];reach=gap>=1&&gap<=2;}return{name,idx,inA,nextTier,gap,reach};}
