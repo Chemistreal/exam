@@ -1,21 +1,23 @@
 /* ============================================================
    final.html 또래 통계 풀 병합 회귀 테스트 (순수 node)
    ------------------------------------------------------------
-   같은 시험이 두 ID 로 등록된 쌍이 있다(화올 ↔ KMChC).
+   같은 시험이 두 ID 로 등록돼 있었다(화올 ↔ KMChC). 화올은 KMChC 의 옛 이름이다.
 
      hwol-2018 ≡ kmchc-2018 · hwol-2019 ≡ kmchc-2019 · hwol-2024 ≡ kmchc-2024-1
 
    문항 크롭 이미지까지 바이트 단위로 같고, 문항 수·정답·복수정답·제외 문항·
-   수상 컷이 모두 일치한다. 응시 기록이 두 풀로 갈리면 각 풀이 MINP(8명)를 넘지
-   못해 또래 정답률·선택 분포·백분위가 아예 나오지 않으므로, 로스터 키를 한쪽으로
-   모아 둔다(COHORT_ALIAS).
+   수상 컷이 모두 일치했다. 그래서 시험 목록에서는 한쪽만 남겼다. 남은 문제는
+   이미 브라우저에 쌓여 있는 응시 기록인데, 두 풀로 갈려 있으면 각 풀이
+   MINP(8명)를 넘지 못해 또래 정답률·선택 분포·백분위가 아예 나오지 않는다.
+   COHORT_ALIAS 가 옛 키를 살아 있는 키로 옮겨 준다.
 
    여기서 지키는 것:
    - 별칭 ID 로 저장해도 대표 키 한 곳에만 쌓인다
    - 어느 ID 로 읽어도 같은 풀이 나온다
    - 예전에 별칭 키에 쌓여 있던 기록은 첫 실행에서 대표 키로 옮겨진다
    - 양쪽에 중복 저장된 응시는 한 번만 남는다
-   - 짝지어진 두 시험의 채점 규칙이 실제로 같다(다르면 합치면 안 된다)
+   - 없앤 쪽 ID 는 목록에서 빠졌고, 그 ID 로 집필한 동형문제는 남긴 시험의
+     문제풀에 들어가 계속 쓰인다(DH_SETS)
 
    실행:  node tests/final-cohort-alias.js
    ============================================================ */
@@ -101,26 +103,44 @@ const rec = (n, ts) => ({ name: 's' + n, ts, correct: 30, total: 60, wrong: 30, 
   chk('중복 응시 제거', api.subs('hwol-2019').length, 1);
 }
 
-/* ── 5. 짝지어진 두 시험의 채점 규칙이 실제로 같은가 ──
-   여기가 어긋나면 풀을 합치는 것 자체가 틀린다. */
+/* ── 5. 병합된 쪽 ID 의 뒤처리 ──
+   두 ID 가 같은 시험이라는 것이 확인된 뒤, 시험 목록에서는 한쪽을 없앴다.
+   그래서 COHORT_ALIAS 는 이제 "두 목록 사이를 잇는 다리"가 아니라
+   "예전 브라우저에 남아 있는 옛 키를 살아 있는 키로 옮기는 이삿짐"이다.
+   지켜야 할 것은 두 가지다.
+     - 없앤 쪽 ID 는 정말로 목록에서 빠졌고, 남긴 쪽은 그대로 있다
+     - 없앤 쪽 ID 로 집필해 둔 동형문제는 버려지지 않고 남긴 시험의
+       문제풀(DH_SETS)에 들어가 있다 — 틀린 문항마다 연습 문제를 두 벌 받는다 */
 {
   const exams = JSON.parse(src.split('const FINAL_EXAMS=')[1].split(';\n')[0]);
   const byId = {}; exams.forEach(e => { byId[e.id] = e; });
   const { api } = boot();
-  const accSet = (e, q) => (e.multi && e.multi[q]) ? e.multi[q] : [e.key[q - 1]];
+  const DH_SETS = JSON.parse(
+    src.split('const DH_SETS=')[1].split('};')[0].replace(/'/g, '"') + '}');
+
   Object.keys(api.COHORT_ALIAS).forEach(from => {
-    const to = api.COHORT_ALIAS[from], A = byId[from], B = byId[to];
-    chk(from + ' · ' + to + ' 둘 다 등록되어 있다', !!(A && B), true);
-    if (!A || !B) return;
-    chk(from + ' 문항 수 일치', A.nQ, B.nQ);
-    chk(from + ' 수상 컷 일치', A.cut, B.cut);
-    chk(from + ' 제외 문항 일치', A.miss || [], B.miss || []);
-    let diff = 0;
-    for (let q = 1; q <= A.nQ; q++) {
-      const a = accSet(A, q).slice().sort(), b = accSet(B, q).slice().sort();
-      if (JSON.stringify(a) !== JSON.stringify(b)) diff++;
-    }
-    chk(from + ' 정답 인정 범위가 모든 문항에서 일치', diff, 0);
+    const to = api.COHORT_ALIAS[from];
+    chk(from + ' 은 시험 목록에서 빠졌다', !!byId[from], false);
+    chk(to + ' 은 시험 목록에 남아 있다', !!byId[to], true);
+    const set = DH_SETS[to] || [];
+    chk(to + ' 문제풀에 ' + from + ' 동형문제가 들어 있다', set.indexOf(from) >= 0, true);
+    chk(to + ' 문제풀에 자기 동형문제도 들어 있다', set.indexOf(to) >= 0, true);
+  });
+
+  /* 문제풀에 담긴 파일이 모두 있고, 시험의 모든 문항을 빠짐없이 덮는가.
+     한 벌이라도 문항이 모자라면 그 문항만 연습 문제가 한 개로 줄어든다. */
+  Object.keys(DH_SETS).forEach(to => {
+    const nQ = byId[to] ? byId[to].nQ : 0;
+    chk(to + ' 은 등록된 시험이다', nQ > 0, true);
+    DH_SETS[to].forEach(fileId => {
+      const p = path.join(__dirname, '..', 'donghyung', fileId + '.json');
+      if (!fs.existsSync(p)) { chk(fileId + '.json 존재', false, true); return; }
+      const doc = JSON.parse(fs.readFileSync(p, 'utf8'));
+      const qs = doc.questions || doc;
+      const missing = [];
+      for (let q = 1; q <= nQ; q++) if (!qs[String(q)]) missing.push(q);
+      chk(fileId + '.json 이 1~' + nQ + '번을 모두 덮는다', missing, []);
+    });
   });
 }
 

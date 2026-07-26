@@ -38,7 +38,18 @@ ROOT = Path(__file__).resolve().parents[1]
 source = (ROOT / "final.html").read_text(encoding="utf-8")
 exams = json.loads(source.split("const FINAL_EXAMS=", 1)[1].split(";\n", 1)[0])
 
-expected = sum(exam["nQ"] for exam in exams)
+# 한 시험에 동형문제 세트가 여러 벌 있을 수 있다. final.html 의 DH_SETS 를 그대로 읽어
+# 모든 세트를 검사한다(여기서 놓치면 두 번째 세트가 검증 없이 학생에게 나간다).
+DH_SETS = json.loads(
+    re.sub(r"'", '"', source.split("const DH_SETS=", 1)[1].split("};", 1)[0] + "}")
+)
+
+
+def analogue_sets(exam_id: str) -> list[str]:
+    return DH_SETS.get(exam_id, [exam_id])
+
+
+expected = sum(len(analogue_sets(exam["id"])) * exam["nQ"] for exam in exams)
 seen = 0
 broken = 0
 
@@ -46,45 +57,46 @@ for exam in exams:
     answers = json.loads(
         (ROOT / "answers" / f"{exam['id']}.json").read_text(encoding="utf-8")
     )["questions"]
-    analogues = json.loads(
-        (ROOT / "donghyung" / f"{exam['id']}.json").read_text(encoding="utf-8")
-    )["questions"]
     assert len(answers) == exam["nQ"], exam["id"]
-    assert len(analogues) == exam["nQ"], exam["id"]
+    sets = []
+    for set_id in analogue_sets(exam["id"]):
+        qs = json.loads(
+            (ROOT / "donghyung" / f"{set_id}.json").read_text(encoding="utf-8")
+        )["questions"]
+        assert len(qs) == exam["nQ"], (exam["id"], set_id)
+        sets.append((set_id, qs))
     for number in range(1, exam["nQ"] + 1):
         key = str(number)
         crop = ROOT / "crops" / exam["id"] / f"{number}.png"
         with Image.open(crop) as image:
             image.verify()
-        analogue = analogues[key]
-        assert analogue["answer"] in (1, 2, 3, 4), (exam["id"], number)
-        assert analogue["verified"] is True, (exam["id"], number)
-        # 구 DB는 기출 이미지를 끌어와 explanationHtml 을 가지고, 재집필본(origin=authored)은
-        # 글자만으로 완결되므로 explanation/이미지 요구가 다르다.
-        authored = analogue.get("origin") == "authored"
-        if authored:
-            assert analogue["explanation"], (exam["id"], number)
-            assert len(analogue.get("choices") or []) == 4, (exam["id"], number)
-            for banned in ("sourceExamId", "sourceQuestion", "matchLevel"):
-                assert not analogue.get(banned), (exam["id"], number, banned)
-        else:
-            assert analogue["explanationHtml"], (exam["id"], number)
-            assert (ROOT / analogue["image"]).exists(), (exam["id"], number)
-        expected_misconceptions = {
-            str(option)
-            for option in range(1, 5)
-            if option != analogue["answer"]
-        }
-        assert expected_misconceptions.issubset(
-            analogue["misconceptions"]
-        ), (exam["id"], number)
-        assert answers[key]["answer"] == exam["key"][number - 1], (
-            exam["id"],
-            number,
-        )
-        if not dh_usable(analogue):
-            broken += 1
-        seen += 1
+        assert answers[key]["answer"] == exam["key"][number - 1], (exam["id"], number)
+        for set_id, analogues in sets:
+            analogue = analogues[key]
+            assert analogue["answer"] in (1, 2, 3, 4), (set_id, number)
+            assert analogue["verified"] is True, (set_id, number)
+            # 구 DB는 기출 이미지를 끌어와 explanationHtml 을 가지고, 재집필본(origin=authored)은
+            # 글자만으로 완결되므로 explanation/이미지 요구가 다르다.
+            authored = analogue.get("origin") == "authored"
+            if authored:
+                assert analogue["explanation"], (set_id, number)
+                assert len(analogue.get("choices") or []) == 4, (set_id, number)
+                for banned in ("sourceExamId", "sourceQuestion", "matchLevel"):
+                    assert not analogue.get(banned), (set_id, number, banned)
+            else:
+                assert analogue["explanationHtml"], (set_id, number)
+                assert (ROOT / analogue["image"]).exists(), (set_id, number)
+            expected_misconceptions = {
+                str(option)
+                for option in range(1, 5)
+                if option != analogue["answer"]
+            }
+            assert expected_misconceptions.issubset(
+                analogue["misconceptions"]
+            ), (set_id, number)
+            if not dh_usable(analogue):
+                broken += 1
+            seen += 1
 
 # 오답정리는 '다시 풀고 제출'하는 채점형이 아니라, 동형문제·정답·해설을 바로 보여주는
 # 간단 학습 카드로 개선됨(wbCardHTML). 채점 함수(wbGradeOriginal/wbGradeAnalogue)는 설계상 제거.
