@@ -101,19 +101,30 @@ def parse_formula(token: str) -> str | None:
     return "".join(out) + token[i:] if saw_digit else None
 
 
+# 이미 반쪽만 올라간 소수 지수를 되돌린다: `10⁴.30` → `10^(4.30)`, `e¹¹.93` → `e^(11.93)`.
+# 아래 지수 규칙이 `(?!\.\d)` 를 갖기 전에 만들어진 자국이라 데이터에 남아 있다.
+HALF_EXP = re.compile(r"([⁰¹²³⁴⁵⁶⁷⁸⁹]+)(\.\d+)")
+UNSUP = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789")
+
+
 def normalize(text: str) -> str:
+    text = HALF_EXP.sub(lambda m: f"^({m.group(1).translate(UNSUP)}{m.group(2)})", text)
     text = text.replace("도씨", "℃").replace("<->", "⇌").replace("<=>", "⇌")
     text = re.sub(r"(?<![<=\-])->", "→", text)
     # 10^23, 10^-5 → 10²³, 10⁻⁵
+    #
+    # 지수부 뒤에 소수점이 이어지면 건드리지 않는다(`(?!\.\d)`). 유니코드에는 위첨자
+    # 소수점이 없어서, 이 조건이 없으면 `10^1.77` 이 `10¹.77` 로 정수부만 올라가
+    # 원래보다 더 읽기 어려워진다. 소수 지수는 `10^(1.77)` 처럼 괄호로 묶어 둔다.
     text = re.sub(
-        r"(?<=\d)\^\s*(-?\d+)", lambda m: m.group(1).translate(SUP), text
+        r"(?<=\d)\^\s*(-?\d+)(?!\.\d)", lambda m: m.group(1).translate(SUP), text
     )
     # Na^+, SO4^2- 의 위첨자부
     text = re.sub(
         r"\^\s*(\d*[+-])", lambda m: m.group(1).translate(SUP), text
     )
     # 남은 지수: [F-]^2, n^2, E_n = -13.6/n^2
-    text = re.sub(r"\^\s*(-?\d+)", lambda m: m.group(1).translate(SUP), text)
+    text = re.sub(r"\^\s*(-?\d+)(?!\.\d)", lambda m: m.group(1).translate(SUP), text)
     # 상수 이름에 붙는 번호: Ka1, pKa2, Ksp1.
     # 뒤쪽 경계를 \b 로 잡으면 "Ka3가" 처럼 한글이 이어질 때 한글도 낱말 문자라
     # 경계가 서지 않는다. 숫자가 더 오지 않는지만 본다.
@@ -122,7 +133,70 @@ def normalize(text: str) -> str:
         lambda m: m.group(1) + m.group(2).translate(SUB),
         text,
     )
-    return TOKEN.sub(lambda m: convert(m.group()), text)
+    text = TOKEN.sub(lambda m: convert(m.group()), text)
+    return charges(text)
+
+
+SUPSIGN = {"+": "⁺", "-": "⁻", "−": "⁻"}
+
+# 위첨자 숫자 뒤에 ASCII 부호가 남은 전하: `SO₄²-`, `Ba²+`.
+# 뒤에 숫자가 오면 `10⁶-10⁷` 같은 범위일 수 있으므로 건드리지 않는다.
+#
+# 위첨자 숫자는 코드포인트가 이어져 있지 않다. ¹²³ 은 U+00B9·U+00B2·U+00B3 이고
+# 나머지는 U+2070 대역이라, `[⁰-⁹]` 로 범위를 잡으면 ¹²³ 이 빠진다. 낱낱이 적는다.
+SUPD = "⁰¹²³⁴⁵⁶⁷⁸⁹"
+# 뒤에 영문자가 오면 전하가 아니다. `d(x²−y²)` 의 `−` 는 오비탈 이름 속 빼기다.
+SUP_SIGN = re.compile(f"([{SUPD}])([+\\-−])(?![\\dA-Za-z{SUPD}])")
+
+# 숫자 없는 맨 전하: `H+` → `H⁺`.
+#
+# **화학식 모양이면 무엇이든 바꾸는 규칙은 쓸 수 없다.** 구조식의 결합선이 화학식
+# 뒤에 그대로 붙어 나오기 때문이다. `C₁(CH₃−)` 의 `−` 는 다음 탄소로 가는 결합선이지
+# 음전하가 아니고, `−CO−NH−` 도 마찬가지다. 뒤에 낱말 문자가 오는지만 보아서는
+# 이 둘을 가릴 수 없다(`CH₃−)` 는 닫는 괄호가 뒤에 온다).
+#
+# 그래서 **실제로 홑이온으로 쓰이는 화학종만 목록으로 적어 두고** 그것만 바꾼다.
+# 목록에 없는 것은 그냥 둔다. 놓치는 쪽이 구조식을 망가뜨리는 쪽보다 낫다.
+IONS = (
+    "H OH H₃O NH₄ Ag Na K Li Cs Rb Cu Hg Tl "
+    "F Cl Br I CN SCN NCS N₃ "
+    "NO₂ NO₃ ClO ClO₂ ClO₃ ClO₄ BrO₃ IO₃ MnO₄ "
+    "HSO₃ HSO₄ HCO₃ HS HCOO CH₃COO C₆H₅COO C₅H₅NH "
+    "H₂PO₄ HC₂O₄ H₂Y "
+    "M A B X Y Z R Q"
+).split()
+BARE_SIGN = re.compile(
+    r"(?<![A-Za-z₀-₉" + SUPD + r"\-−])(" + "|".join(sorted(IONS, key=len, reverse=True)) + r")"
+    # 한글이 뒤에 오는 것은 조사다(`Cl⁻로`, `Ag⁺가`). 영문자·숫자만 막는다.
+    r"([+\-−])(?![A-Za-z\d" + SUPD + r"])"
+)
+
+
+SUB2SUP = str.maketrans("₀₁₂₃₄₅₆₇₈₉", "⁰¹²³⁴⁵⁶⁷⁸⁹")
+
+# 아래첨자로 잘못 내려간 전하: `Cu₂+`, `Al₃+`, `S₂−`.
+#
+# **이 도구가 만든 오류다.** `Cu2+` 의 2 를 원소 기호 뒤에 오는 화학식 숫자로 읽어
+# 아래첨자로 내리는 바람에, '구리(Ⅱ) 이온'이 '구리 원자 2개'가 되었다. 숫자 뒤에
+# 부호가 붙어 있으면 그 숫자는 원자 수가 아니라 전하다.
+#
+# 다만 아래첨자가 진짜 원자 수인 이온도 있다. `I₃⁻`(삼아이오딘화 이온)은 아이오딘이
+# 정말 3개고 전하가 1− 이다. 그런 화학종은 목록에 적어 두고 부호만 올린다.
+REAL_SUBSCRIPT = {"I₃", "Br₃", "Cl₃", "O₂", "O₃", "N₃", "S₂", "S₄", "C₂", "H₂", "Hg₂"}
+SUB_CHARGE = re.compile(r"(?<![A-Za-z₀-₉])([A-Z][a-z]?)([₀-₉])([+\-−])(?![A-Za-z\d])")
+
+
+def _sub_charge(m: re.Match) -> str:
+    symbol, digit, sign = m.groups()
+    if symbol + digit in REAL_SUBSCRIPT:
+        return symbol + digit + SUPSIGN[sign]
+    return symbol + digit.translate(SUB2SUP) + SUPSIGN[sign]
+
+
+def charges(text: str) -> str:
+    text = SUB_CHARGE.sub(_sub_charge, text)
+    text = SUP_SIGN.sub(lambda m: m.group(1) + SUPSIGN[m.group(2)], text)
+    return BARE_SIGN.sub(lambda m: m.group(1) + SUPSIGN[m.group(2)], text)
 
 
 def convert(token: str) -> str:
