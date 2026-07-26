@@ -1,4 +1,12 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5"><title>파이널 · 수상권 진단 · Chemistreal</title><meta property="og:type" content="website"><meta property="og:title" content="조준모 화학 · 파이널 성적표 · 수상권 진단"><meta property="og:description" content="원점수·정답 문항·수상권 진단과 오답 개념 클리닉. 문항별 정오와 학습 처방을 확인하세요."><meta property="og:image" content="https://chemistreal.github.io/exam/og.png"><meta property="og:url" content="https://chemistreal.github.io/exam/final.html"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="조준모 화학 · 파이널 성적표 · 수상권 진단"><meta name="twitter:image" content="https://chemistreal.github.io/exam/og.png"><style>
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5"><title>파이널 · 수상권 진단 · Chemistreal</title><meta property="og:type" content="website"><meta property="og:title" content="조준모 화학 · 파이널 성적표 · 수상권 진단"><meta property="og:description" content="원점수·정답 문항·수상권 진단과 오답 개념 클리닉. 문항별 정오와 학습 처방을 확인하세요."><meta property="og:image" content="https://chemistreal.github.io/exam/og.png"><meta property="og:url" content="https://chemistreal.github.io/exam/final.html"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="조준모 화학 · 파이널 성적표 · 수상권 진단"><meta name="twitter:image" content="https://chemistreal.github.io/exam/og.png"><link rel="manifest" href="manifest.json">
+
+<script>
+/* 서비스워커 — 오프라인에서도 성적표·오답노트가 열리게 한다.
+   index.html 에만 등록돼 있어서, 학생이 성적표 링크로 바로 들어오면
+   등록이 아예 되지 않고 있었다. */
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}
+</script>
+<style>
 :root{--cream:#FBFAF6;--paper:#fff;--ink:#23201b;--ink-2:#5a564d;--muted:#8a8578;--teal:#0E5A4C;--teal-d:#3A7A6B;--brass:#B08D57;--line:#E8E4DA;--ms:#C0603A;--ok-bg:#eef5f2;--no-bg:#f7ece7;--cobalt:#3F5C8C;--mono:ui-monospace,SFMono-Regular,Menlo,monospace}
 *{box-sizing:border-box}
 body{margin:0;background:var(--cream);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;line-height:1.62;-webkit-text-size-adjust:100%}
@@ -2069,6 +2077,21 @@ async function hydrateWrongbook(exam,wrong){
     return wbCardHTML(exam,w,answers[String(w.q)]||{},analogues[String(w.q)]||[],co);
   }).join('');
   var loading=root.querySelector('[data-wb-loading]'); if(loading) loading.remove();
+  warmOffline(exam,wrong);
+}
+/* 오답노트에 필요한 것만 서비스워커에 미리 받아 달라고 부탁한다.
+   원문 이미지는 `loading="lazy"` 라 학생이 스크롤해 지나간 것만 저절로 캐시된다.
+   지금 미리 받아 두면 학원에서 성적표를 열어 본 학생이 지하철에서 다시 열어도
+   그대로 나온다. 실패해도 화면에는 아무 영향이 없다(되면 좋은 것일 뿐). */
+function warmOffline(exam,wrong){
+  try{
+    var sw=navigator.serviceWorker;
+    if(!sw||!sw.controller||!wrong||!wrong.length) return;
+    var urls=['answers/'+exam.id+'.json'];
+    dhSetIds(exam.id).forEach(function(id){ urls.push('donghyung/'+id+'.json'); });
+    wrong.forEach(function(w){ urls.push('crops/'+exam.id+'/'+w.q+'.png'); });
+    sw.controller.postMessage({type:'warm',urls:urls});
+  }catch(e){}
 }
 function scoreAuto(){
   const key=cur.key, miss=new Set(cur.miss||[]); let correct=0,total=0; const wrong=[];
