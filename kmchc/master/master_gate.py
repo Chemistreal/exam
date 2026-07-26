@@ -43,6 +43,19 @@ def g3b_applies(choices):
     L=sorted(len(str(c)) for c in choices)
     return (L[1]+L[2])/2 >= G3B_MIN_MEDIAN
 
+_NUMERIC_CHOICE = re.compile(
+    r'^\s*[−\-]?\d[\d,]*(?:\.\d+)?\s*'          # 수치 본체
+    r'(?:×\s*10\s*[-−]?\d+)?\s*'                # 지수 표기(예외적으로 허용)
+    r'(?:[%가-힣a-zA-Z°Ω/·\s]{0,4})?\s*$')      # 짧은 단위 꼬리(분·년·배·번·g·% …)
+
+def pnum_choice(s):
+    """'수치 보기'일 때만 수를 돌려준다. 서술형이면 None.
+       수치 보기 = 보기 전체가 수치 + 4자 이내 단위. 괄호형 튜플도 제외."""
+    t=str(s).strip()
+    if '(' in t or not _NUMERIC_CHOICE.match(t):
+        return None
+    return pnum(t)
+
 def ans_len_rank(it):
     """정답 보기의 길이 순위(1=가장 긺). 길이 단서 편중 측정용."""
     L=[len(str(c)) for c in it['choices']]
@@ -83,11 +96,15 @@ for it in bank:
             sp=spread(c)
             if sp>G3B_MAX_SPREAD:
                 errs.append(f"G3b 보기 길이 산포 {sp:.2f}>{G3B_MAX_SPREAD} (길이가 단서가 됨 — 보기를 나란히)")
-    # G6 수치 오름차순 (4개 전부 수치 파싱될 때)
-    nums=[pnum(x) for x in c]
+    # G6 수치 오름차순 (4개 전부 '수치 보기'일 때만)
+    #   ★오탐 수정★ 이전에는 보기에서 한글·기호를 걷어낸 뒤 남은 숫자를 그대로 읽었다.
+    #   그래서 "세슘-137은 반감기가 30년이라…" 같은 서술형이 -13730 으로 파싱돼
+    #   수치 보기로 오인되었다(M01797). 수치 보기란 "20 분"·"87.5 %"·"4번"처럼
+    #   보기 전체가 수치와 짧은 단위뿐인 것을 말하므로, 그 형태일 때만 검사한다.
+    #   (batch_template.verify 는 원래 ^\d 로 시작하는 것만 봐서 이 오탐이 없었다.)
+    nums=[pnum_choice(x) for x in c]
     if all(n is not None for n in nums) and nums!=sorted(nums):
-        # 튜플형 "(a, b, c)"은 첫 수만 잡혀 오탐 → 괄호 포함 보기는 제외
-        if not any('(' in str(x) for x in c): errs.append("G6 수치 보기 오름차순 아님")
+        errs.append("G6 수치 보기 오름차순 아님")
     # ★실체: expr 재계산
     ae=it.get('answer_expr')
     if ae:

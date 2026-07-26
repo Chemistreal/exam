@@ -15,7 +15,7 @@
 | `master/selfaudit.py` | 신규 배치 ↔ 기존 전체 구조 충돌 검사 (R1~R5) |
 | `master/expr_assert.py` | 플레이스홀더·미완성 문자열 검출 |
 | `master/batch_template.py` | 배치 생산 템플릿 |
-| `master/build_t11_p12.py` | **최신 배치 실작업본(P12)** — 다음 배치는 이걸 복사해 쓰면 됨 |
+|  `master/build_t11_p16.py` | **최신 배치 실작업본(P16)** — 다음 배치는 이걸 복사해 쓰면 됨 |
 | `master/calibrate.py` | 실측 코호트 앵커로 `esr_cohort_ref` 부여 (배치 병합 후 실행) |
 | `master/retro_audit.py` | 은행 전체 소급 자기복제 감사 리포트 생성 |
 | `master/briefs/` | 감사 리포트·테마별 착수/마감 문서 + 실측대조·소급감사 리포트 |
@@ -36,10 +36,10 @@ cat master/RESUME.md
 
 ```bash
 cd kmchc
-cp master/build_t11_p12.py master/build_t11_p13.py
+cp master/build_t11_p16.py master/build_t12_p1.py
 # START_ID / EXPECT_LEN / BATCH_NOTE 를 고치고 build() 안 문항 10개를 교체
-python3 master/build_t11_p13.py            # 검증만 — 파일을 건드리지 않음
-python3 master/build_t11_p13.py --merge    # 안전 게이트 통과 시 병합 + housekeeping
+python3 master/build_t12_p1.py             # 검증만 — 파일을 건드리지 않음
+python3 master/build_t12_p1.py --merge     # 안전 게이트 통과 시 병합 + housekeeping
 ```
 
 `--merge` 는 저장 직전 안전 게이트(`len` 실측 + ID 충돌 확인)를 통과해야만 진행되고,
