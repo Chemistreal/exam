@@ -230,7 +230,43 @@ learningPoint 로부터 그 개념의 대표적 오개념을 직접 설계해 �
 | kmchc-2025-1-ilban | 완료 (50문항, 50문항 전량 직접 검산 · 오류 0 · 집필자가 중복 19건 자체 교체) |
 | kmchc-2025-1-simhwa | 완료 (50문항, 50문항 전량 직접 검산 · 오류 0 · 집필자가 중복 14건 자체 교체) |
 | kmchc-2024-2 | 완료 (60문항, 60문항 전량 직접 검산 · 세부 주제 직접 배정 · 집필자가 중복 13건 자체 교체 · 검수에서 3건 더 찾아 직접 교체) |
-| 나머지 3개 | 순차 재집필 진행 중 |
+| kmchc-2024-1 | 완료 (60문항, 60문항 전량 직접 검산 · hwol-2024 와 같은 원 시험이라 전 문항을 다른 각도로 · 집필자가 중복 25건 자체 교체 · 검수에서 3건 더 찾아 직접 교체) |
+| 나머지 2개 | 순차 재집필 진행 중 |
+
+### 같은 시험이 두 ID 로 들어와 있다
+
+`answers/` 를 전수 대조하니 **세 쌍이 같은 시험**이었다. 해설·오개념·정답이 60문항
+모두 글자 단위로 같고 `concept` 만 다르다.
+
+| | |
+|---|---|
+| hwol-2018 | kmchc-2018 |
+| hwol-2019 | kmchc-2019 (정답 58/60 일치) |
+| hwol-2024 | kmchc-2024-1 |
+
+앱은 41개 시험을 보여 주지만 서로 다른 시험은 38개다. 대조는 다음으로 한다.
+
+```bash
+python3 - <<'PY'
+import json,glob
+from pathlib import Path
+d={}
+for p in sorted(glob.glob("answers/*.json")):
+    q=json.loads(Path(p).read_text(encoding="utf-8")); q=q.get("questions",q)
+    d[Path(p).stem]=[(q[k].get("learningPoint"),q[k].get("answer")) for k in sorted(q,key=int)]
+n=sorted(d)
+for i,a in enumerate(n):
+    for b in n[i+1:]:
+        if len(d[a])==len(d[b]) and sum(x==y for x,y in zip(d[a],d[b]))>=len(d[a])*0.9:
+            print(a,"≡",b)
+PY
+```
+
+**중복 항목을 지울지는 제품 쪽 판단이므로 건드리지 않았다.** 대신 뒤에 재집필하는
+쪽을 앞의 것과 **일부러 다르게** 집필한다. 그러면 항목이 남아 있어도 학생은 같은
+시험에 대한 독립된 두 벌의 문제를 얻고, 나중에 지우더라도 잃는 것이 없다.
+집필 지시에 짝이 되는 시험 ID 를 반드시 적어 대조하게 한다. kmchc-2024-1 에서는
+집필자 둘이 각각 16건·9건을 이 대조로 잡아냈고, 그중 6건은 수치까지 같았다.
 
 남은 시험 목록은 다음으로 확인한다.
 
