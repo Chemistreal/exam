@@ -22,6 +22,9 @@
    독립 검증한다. 틀린 화학은 없느니만 못하다.
 3. **글자만으로 완결.** 그림·도표가 필요한 문항은 만들지 않는다.
 4. 오답 3개는 원 문항의 함정과 **같은 종류의 오개념**을 유도해야 한다.
+   덧붙여 **정답 번호를 1~4에 고르게 나눈다.** 이 지시를 넣기 전에 집필한
+   jmchc-1 은 60문항 중 31개(52 %)가 ②번이었다. ②만 찍어도 절반을 맞히면
+   오답노트가 진단 도구로서 값을 잃는다. `tools/dh_rebalance.py` 로 확인한다.
 5. **고유명사로 지정된 개념은 대상 자체를 유지한다.** 오스왈트 공정·하버법·리비히
    장치처럼 개념 이름이 특정 공정·장치를 가리키면, 그 공정을 다른 공정으로 바꾸지
    말고 수치와 묻는 방식만 새로 설계한다. (jmchc-5 32번이 접촉법으로 바뀌어 재작성함)
@@ -108,6 +111,10 @@ python3 tools/dh_dupe_scan.py --draft <파트.json> 0.35
 # 5-3) ASCII 표기 정규화 (먼저 인자 없이 돌려 바뀔 내용을 확인한다)
 python3 tools/dh_normalize.py
 python3 tools/dh_normalize.py --write
+
+# 5-4) 정답 번호 편중 확인·재배치 (한 번호가 28 %를 넘으면 손본다)
+python3 tools/dh_rebalance.py <examId>
+python3 tools/dh_rebalance.py <examId> --write
 
 # 6) 회귀 테스트 (신·구 스키마 모두 검사)
 python3 tests/wrongbook-assets.py
