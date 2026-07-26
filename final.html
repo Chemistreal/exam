@@ -520,8 +520,13 @@ summary::-webkit-details-marker{display:none}
 .bk-dh-mis{margin-top:6px!important}.bk-dh-mis b{color:#B0512F}
 .bk-wq-first{margin-left:auto;font-size:13px;color:#6b6456}
 .bk-wq-first .x{color:#B0512F;font-family:"Nanum Myeongjo",serif}.bk-wq-first .o{color:#0E4A38;font-family:"Nanum Myeongjo",serif}
-.bk-dh-ch.ans{background:rgba(14,74,56,.10);border-radius:5px;color:#0E4A38;font-weight:700;padding:2px 6px!important;margin-left:-3px}
-.bk-dh-ans{margin-top:11px!important;font-size:13.5px;color:#332f26}.bk-dh-ans b{color:#0E4A38;font-family:"Nanum Myeongjo",serif;font-size:15px;margin-left:3px}
+/* 보기에는 정답을 칠하지 않는다. 정답·해설은 문제 아래 `.bk-dh-rev` 블록에 따로 모아,
+   먼저 풀어 본 뒤 눈을 내려 확인하게 한다(종이라 접을 수는 없으므로 선으로 가른다). */
+.bk-dh-rev{margin-top:13px!important;padding-top:11px!important;border-top:1.5px dashed #c9a227}
+.bk-dh-rev-h{font-family:"Nanum Myeongjo",serif;font-weight:800;font-size:12.8px;color:#8a6d1f;
+  letter-spacing:.04em;margin-bottom:7px!important}
+.bk-dh-rev-h::before{content:"▾ "}
+.bk-dh-ans{margin-top:0!important;font-size:13.5px;color:#332f26}.bk-dh-ans b{color:#0E4A38;font-family:"Nanum Myeongjo",serif;font-size:15px;margin-left:3px}
 .bk-note{margin:9px 0!important;padding-bottom:12px!important;border-bottom:1px solid #cfc4ab;font-size:12.5px;color:#6f6758}
 /* 정답·해설 항목: 박스(테두리/배경) 대신 흐르는 조판 — 테두리가 없어 페이지를 꽉 채우고 빈 공간을 없앤다.
    (테두리/배경이 있으면 pdfAtomics가 '통짜 블록'으로 잡아 다음 항목을 통째로 다음 페이지로 밀어 빈 공간이 생긴다) */
@@ -572,8 +577,18 @@ summary::-webkit-details-marker{display:none}
 .wb-opts{list-style:none;margin:9px 0 0;padding:0}
 .wb-opts li{display:flex;gap:8px;font-size:13.5px;line-height:1.7;color:var(--ink-2);padding:4px 8px;border-radius:7px}
 .wb-opts li .ci{color:var(--muted);font-weight:700;flex:0 0 auto}
-.wb-opts li.ans{background:var(--ok-bg);color:var(--teal);font-weight:600}
-.wb-opts li.ans .ci{color:var(--teal)}
+/* 보기에는 정답을 표시하지 않는다. 색칠된 보기가 먼저 눈에 들어오면 학생이 풀어 보지
+   않고 눈으로 따라가기만 하므로 동형문제를 붙인 뜻이 사라진다. 정답·해설은 아래
+   `.wb-dh-reveal` 안에 접어 두고, 학생이 스스로 풀어 본 뒤 펼치게 한다. */
+.wb-dh-reveal{margin-top:12px;border-top:1px dashed var(--line);padding-top:11px}
+.wb-dh-reveal>summary{cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:6px;
+  font-size:12.5px;font-weight:700;color:var(--teal);background:var(--ok-bg);border:1px solid #cfe3da;
+  border-radius:999px;padding:5px 13px;-webkit-user-select:none;user-select:none}
+.wb-dh-reveal>summary::-webkit-details-marker{display:none}
+.wb-dh-reveal>summary::before{content:'▸';font-size:11px}
+.wb-dh-reveal[open]>summary::before{content:'▾'}
+.wb-dh-reveal>summary:hover{background:#e4f0eb}
+.wb-dh-reveal>summary:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
 .wb-dh-ans{margin-top:11px;font-size:13.5px;color:var(--ink-2)}
 .wb-dh-ans b{color:var(--teal);font-size:15px;margin-left:3px}
 .wb-dh-sol{margin-top:9px;font-size:13px;line-height:1.85;color:var(--ink-2);border-top:1px dashed var(--line);padding-top:9px}
@@ -585,6 +600,10 @@ summary::-webkit-details-marker{display:none}
 @media print{
   .wb-card{box-shadow:none;break-inside:avoid;page-break-inside:avoid}
   .wb-dh{break-inside:avoid;page-break-inside:avoid}
+  /* 종이에서는 접을 수 없다. beforeprint 에서 모두 펼치므로(아래 스크립트) 여기서는
+     알약 모양 버튼 장식만 걷어 내고 소제목처럼 보이게 한다. */
+  .wb-dh-reveal>summary{background:none;border:0;padding:0;color:var(--teal)}
+  .wb-dh-reveal>summary::before{content:'▾'}
 }
 /* ============================================================
    책형식 성적표 — 네이티브 인쇄(브라우저 PDF 엔진)용 조판.
@@ -1881,11 +1900,11 @@ function wrongbookShell(exam, wrong){
     +'<div class="wb-loading" data-wb-loading>오답 '+wrong.length+'문항을 불러오는 중…</div>'
     +'<div data-wb-cards></div></section>';
 }
-/* 동형문제 보기(①②③④) — 정답 보기는 강조 표시 */
+/* 동형문제 보기(①②③④). 정답에는 아무 표시도 하지 않는다 —
+   먼저 스스로 풀게 하고, 정답은 아래 접힌 블록에서 따로 확인하게 한다. */
 function wbChoiceList(dq){
   var chs=(dq.choicesHtml||dq.choices||[]); if(!chs.length) return '';
-  var ans=Number(dq.answer)||0;
-  return '<ol class="wb-opts">'+chs.map(function(c,i){return '<li'+(ans===i+1?' class="ans"':'')+'><span class="ci">'+CIRC[i+1]+'</span><span>'+c+'</span></li>';}).join('')+'</ol>';
+  return '<ol class="wb-opts">'+chs.map(function(c,i){return '<li><span class="ci">'+CIRC[i+1]+'</span><span>'+c+'</span></li>';}).join('')+'</ol>';
 }
 /* 동형문제 표시 가능 여부. 생성 과정에서 도형·선택지 추출이 실패한 항목("렌더 누락",
  * 빈 선택지)은 학생에게 보여주면 오히려 혼란을 주므로 숨기고 안내 문구로 대체한다. */
@@ -1957,11 +1976,14 @@ function wbCardHTML(exam,w,qd,dq,co){
     var authored=(dq.origin==='authored');
     var dhHead=authored?'동형문제 · 같은 개념으로 새로 만든 문제'
       :('같은 개념 유형 문제'+((dq.sourceExamTitle&&dq.sourceQuestion)?('<span class="wb-dh-src">'+esc(dq.sourceExamTitle)+' '+esc(String(dq.sourceQuestion))+'번</span>'):''));
+    // 정답·해설은 문제 아래에 접어 둔다. 먼저 풀어 본 뒤 펼치라는 뜻이다.
     dhHTML='<div class="wb-dh"><div class="wb-dh-h">'+dhHead+'</div>'
       +body
+      +'<details class="wb-dh-reveal"><summary>정답 · 해설 보기</summary>'
       +'<div class="wb-dh-ans">정답 <b>'+(dq.answer?CIRC[Number(dq.answer)]:'·')+'</b></div>'
       +(sol?'<div class="wb-dh-sol"><b>해설</b> '+sol+'</div>':'')
       +(mis?'<div class="wb-mis"><b>오개념</b> '+esc(mis)+'</div>':'')
+      +'</details>'
       +'</div>';
   } else {
     dhHTML='<div class="wb-missing">이 문항의 연습 문제는 준비 중입니다. 위 <b>원문</b>과 <b>개념 보충</b>·개념 강의로 복습하세요.</div>';
@@ -2165,15 +2187,17 @@ function buildBook(exam, selv, cs, correct, total, W, wrong, dh, answers){
         var ans=Number(dq.answer)||0;
         var dhImg=(!dq.stem&&dq.image)?'<img class="bk-wq-img" src="'+esc2(dq.image)+'" alt="" onerror="this.remove()">':'';
         var stemH=dq.stem?'<div class="bk-dh-stem">'+esc2(dq.stem)+'</div>':'';
-        var chs=(dq.choices||[]).map(function(c,i){return '<div class="bk-dh-ch'+(ans===i+1?' ans':'')+'">'+CI[i+1]+' '+esc2(c)+'</div>';}).join('');
+        // 보기에는 정답 표시를 하지 않는다(먼저 풀어 보게 한다).
+        var chs=(dq.choices||[]).map(function(c,i){return '<div class="bk-dh-ch">'+CI[i+1]+' '+esc2(c)+'</div>';}).join('');
         var sol=dq.explanationHtml||esc2(dq.explanation||'');
         var dhMis=dq.misconception||'';
         dhHTML='<div class="bk-dh"><div class="bk-dh-h">동형문제 · 같은 개념, 숫자·조건만 바꿈</div>'
           +dhImg+stemH+chs
+          +'<div class="bk-dh-rev"><div class="bk-dh-rev-h">정답 · 해설</div>'
           +'<div class="bk-dh-ans">정답 <b>'+(ans?CI[ans]:'·')+'</b></div>'
           +(sol?'<div class="bk-dh-sol"><b>해설</b> '+sol+'</div>':'')
           +(dhMis?'<div class="bk-dh-mis"><b>오개념</b> '+esc2(dhMis)+'</div>':'')
-          +'</div>';
+          +'</div></div>';
       } else {
         dhHTML='<div class="bk-dh"><div class="bk-dh-h">동형문제</div><div class="bk-dh-stem">이 문항의 동형문제는 준비 중입니다. 위 원문과 개념 강의로 복습하세요.</div></div>';
       }
@@ -2607,8 +2631,11 @@ async function downloadReportDOCX(){
         dhInner.push(P([run(authoredW?'◈ 동형문제 · 같은 개념으로 새로 만든 문제':'◈ 같은 개념 유형 문제',{bold:true,color:EM,size:24,serif:true}),run(srcT,{color:MUT,size:16})],{after:120}));
         if(dq.stem) dhInner.push(txt(esc2(dq.stem),{after:100}));
         else if(dhImgMap[w.q]) dhInner.push(imgPara(dhImgMap[w.q],440));
-        (dq.choices||[]).forEach(function(c,i){ var isAns=ans===i+1; dhInner.push(P([run(CI[i+1]+'  '+esc2(c),{bold:isAns,color:isAns?EM:INK,size:22})],{fill:isAns?EMT:undefined,before:16,after:16})); });
-        dhInner.push(P([run('정답  ',{size:22}),run(ans?CI[ans]:'·',{bold:true,color:EM,size:26,serif:true})],{before:100,after:100}));
+        // 보기에는 정답 표시를 하지 않는다(먼저 풀어 보게 한다).
+        (dq.choices||[]).forEach(function(c,i){ dhInner.push(P([run(CI[i+1]+'  '+esc2(c),{color:INK,size:22})],{before:16,after:16})); });
+        // 정답·해설은 점선으로 가른 뒤 문제 아래에 따로 모은다.
+        dhInner.push(P([run('▾ 정답 · 해설',{bold:true,color:'8A6D1F',size:20,serif:true})],{before:180,after:60,border:{top:bdr(GOLD,6,BorderStyle.DASHED)}}));
+        dhInner.push(P([run('정답  ',{size:22}),run(ans?CI[ans]:'·',{bold:true,color:EM,size:26,serif:true})],{before:40,after:100}));
         var sol=dq.explanation||''; if(sol){ dhInner.push(P([run('해설',{bold:true,color:EM,size:22})],{before:60,after:40,border:{top:bdr('E6DDC8',4)}})); dhInner.push(txt(esc2(sol),{size:21})); }
         if(dq.misconception) dhInner.push(P([run('오개념  ',{bold:true,color:RED,size:21}),run(esc2(dq.misconception),{size:21,color:'4a4437'})],{before:60}));
       } else { dhInner.push(P([run('◈ 같은 개념 유형 문제',{bold:true,color:EM,size:24,serif:true})],{after:80})); dhInner.push(txt('이 문항의 연습 문제는 준비 중입니다. 위 원문과 개념 보충·개념 강의로 복습하세요.',{color:MUT,size:20})); }
