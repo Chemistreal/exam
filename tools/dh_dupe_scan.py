@@ -18,9 +18,13 @@ jmchc-7 37번이 둘 다 꼭짓점·면심·체심에서 AB₃C를 세는 문항
 다만 재는 것은 지문의 **겉모양**이다. "…에 대한 설명으로 옳은 것은?" 처럼
 상투구를 공유하면 내용이 전혀 달라도 0.4~0.5가 나온다. 최종 판단은 사람이 한다.
 
+**집필 중에 쓰려면 `--draft`.** 병합하기 전의 파트 JSON을 완료분 전체와 대조한다.
+집필자가 스스로 돌려 보고 고치는 것이 검수자가 찾아 주는 것보다 훨씬 싸다.
+
 사용:
-    python3 tools/dh_dupe_scan.py <examId> [임계값]   # 한 시험 안
-    python3 tools/dh_dupe_scan.py --cross [임계값]    # 재집필 완료분 전체 대조
+    python3 tools/dh_dupe_scan.py <examId> [임계값]        # 한 시험 안
+    python3 tools/dh_dupe_scan.py --cross [임계값]         # 재집필 완료분 전체 대조
+    python3 tools/dh_dupe_scan.py --draft <파트.json> [임계값]  # 집필 중인 파트를 완료분과 대조
 """
 
 from __future__ import annotations
@@ -135,6 +139,42 @@ def scan_cross(threshold: float) -> None:
             print(f"      [{concepts[key]}] {stems[key].splitlines()[0][:66]}")
 
 
+def scan_draft(path: str, threshold: float) -> None:
+    """아직 병합하지 않은 파트 JSON을 재집필 완료분 전체와 대조한다."""
+    draft = json.loads(Path(path).read_text(encoding="utf-8"))
+    draft = draft.get("questions", draft)
+    mine = {k: (trigrams(v.get("stem", "")), v.get("stem", "")) for k, v in draft.items()}
+
+    # `<examId>.part1.json` 처럼 이름을 지으므로 앞부분이 시험 id 다. 이미 병합된
+    # 자기 자신과 대조하면 전부 1.00 이 나오므로 뺀다.
+    own = Path(path).name.split(".part")[0]
+
+    hits = []
+    for exam_id in authored_exams():
+        if exam_id == own:
+            continue
+        for number, question in load(exam_id)["questions"].items():
+            other = trigrams(question.get("stem", ""))
+            for key, (gs, stem) in mine.items():
+                union = gs | other
+                if not union:
+                    continue
+                score = len(gs & other) / len(union)
+                if score >= threshold:
+                    hits.append((score, key, stem, exam_id, number, question.get("stem", "")))
+
+    hits.sort(reverse=True)
+    print(f"초안 {len(mine)}문항 · 완료분 대조 · 유사도 {threshold} 이상 {len(hits)}건")
+    for score, key, stem, exam_id, number, other_stem in hits:
+        print(f"  {score:.2f}  초안 {key}  ↔  {exam_id} {number}")
+        print(f"      초안: {stem.splitlines()[0][:66]}")
+        print(f"      기존: {other_stem.splitlines()[0][:66]}")
+    if not hits:
+        print("  겹치는 문항 없음. 다만 이 검사는 지문의 겉모양만 본다.")
+        print("  수치와 소재가 같아도 문장을 다르게 쓰면 걸리지 않으므로,")
+        print("  같은 개념을 다룬 기존 문항이 있는지는 직접 읽어 확인해야 한다.")
+
+
 def main() -> None:
     args = sys.argv[1:]
     if not args:
@@ -142,6 +182,11 @@ def main() -> None:
         raise SystemExit(1)
     if args[0] == "--cross":
         scan_cross(float(args[1]) if len(args) > 1 else 0.45)
+    elif args[0] == "--draft":
+        if len(args) < 2:
+            print(__doc__)
+            raise SystemExit(1)
+        scan_draft(args[1], float(args[2]) if len(args) > 2 else 0.40)
     else:
         scan_one(args[0], float(args[1]) if len(args) > 1 else 0.30)
 
