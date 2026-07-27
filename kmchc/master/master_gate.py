@@ -127,6 +127,12 @@ for it in bank:
     else:
         wrong_mention=sum(1 for i in range(4) if i!=a and CIR[i] in sol)
         if wrong_mention<3: errs.append("G9 해설에 오답 3개 미언급")
+    # G10 평문 위반 — 은행은 평문이다. 마크다운 강조가 그대로 학생에게 노출된다.
+    #   ★T12 P1 2차·P3 2차·P3 4차에서 세 번 발생★ 전부 '수정하면서' 들어갔다.
+    #   설계 문서를 쓰던 손으로 해설을 고치면 강조 표기가 딸려 온다 — 기계로 막는다.
+    for field in ('stem', 'solution'):
+        if '**' in str(it.get(field, '')):
+            errs.append(f"G10 {field} 에 마크다운 강조(**) — 은행은 평문")
     # 필수 의도서
     if not it.get('answer_proof'): errs.append("G1 증명 없음")
     if not it.get('device'): errs.append("G4 장치 없음")
