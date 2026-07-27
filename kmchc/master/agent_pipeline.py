@@ -292,7 +292,13 @@ def cmd_record(lo, hi, note, at):
     n = 0
     for x in bank:
         if lo <= x['id'] <= hi:
+            # ★watch 는 반드시 보존한다★ 검증 회차를 돌며 쌓인 '이 자리를 이렇게 되돌리지 말 것'
+            #   기록이 여기에 들어 있다. 예전에는 통째로 덮어써서 T12 P3 의 10제 분량을
+            #   한 번에 날렸다 — 그 기록이 없으면 다음 사람이 같은 결함을 다시 만든다.
+            watch = (x.get('verified') or {}).get('watch')
             x['verified'] = {"layer5": note, "at": at, "by": "독립 에이전트 패스"}
+            if watch:
+                x['verified']['watch'] = watch
             n += 1
     json.dump(bank, open(BANK, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     total = sum(1 for x in bank if (x.get('verified') or {}).get('layer5'))
