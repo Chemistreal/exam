@@ -169,6 +169,8 @@ table.gtbl td{padding:6px 8px;border-bottom:1px solid #f1ede4}
 table.gtbl td.mono{font-family:var(--mono)}
 .ox{font-weight:800}.ox.o{color:var(--teal)}.ox.x{color:var(--ms)}
 .pill{display:inline-block;font-size:11.5px;padding:1px 8px;border-radius:999px;background:#f1ede4;color:var(--ink-2)}
+/* Word 변환기만 읽는 표(SVG 로만 그려진 것을 글로도 남겨 둔다). 화면에는 안 나온다. */
+.docx-tbl{display:none!important}
 .quad{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
 .qcell{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .qcell .qt{font-size:12px;font-weight:700;margin-bottom:4px}
@@ -1347,7 +1349,7 @@ function scatterSVG(exam,sel,cs){
     if((!ok&&!hard)||(ok&&hard))labs+=`<text x="${(x+4).toFixed(1)}" y="${(y+3).toFixed(1)}" font-size="7.5" fill="${col}">${q}</text>`;}
   const ax=`<text x="${ml}" y="${H-15}" text-anchor="start" font-size="9" fill="var(--muted)">← 어려움</text><text x="${(ml+pw).toFixed(1)}" y="${H-15}" text-anchor="end" font-size="9" fill="var(--muted)">쉬움 →</text><text x="${(ml-3)}" y="${(mt+9)}" text-anchor="end" font-size="8.5" fill="var(--muted)">맞음</text><text x="${(ml-3)}" y="${(mt+ph-1).toFixed(1)}" text-anchor="end" font-size="8.5" fill="var(--muted)">틀림</text>`;
   const corners=`<text x="${ml+4}" y="${mt+11}" font-size="8.5" font-weight="700" fill="var(--teal)">강점</text><text x="${(ml+pw-4).toFixed(1)}" y="${(mt+ph-4).toFixed(1)}" text-anchor="end" font-size="8.5" font-weight="700" fill="var(--ms)">최우선</text>`;
-  return `<div style="text-align:center;margin:6px 0 2px"><svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:420px;height:auto" xmlns="http://www.w3.org/2000/svg">${rects}${dividers}${pts}${labs}${ax}${corners}</svg><div style="font-size:11px;color:var(--muted);margin-top:-2px">번호는 강점(어려움·맞음)·최우선(쉬움·틀림) 문항에 표시</div></div>`;
+  return `<div style="text-align:center;margin:6px 0 2px"><svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:420px;height:auto" xmlns="http://www.w3.org/2000/svg">${rects}${dividers}${pts}${labs}${ax}${corners}</svg><div class="svg-cap" style="font-size:11px;color:var(--muted);margin-top:-2px">번호는 강점(어려움·맞음)·최우선(쉬움·틀림) 문항에 표시</div></div>`;
 }
 function quadSec(exam,selv,cs){
   if(!cs.ready)return `<div class="sec">${secH('신호등 사분면 · 난이도 × 정오')}<div class="note" style="margin:0">문항 난이도(정답률)는 응시 ${MINP}명 이상 누적 시 표시됩니다. (현재 ${cs.N}명)</div></div>`;
@@ -1580,8 +1582,17 @@ function prereqSec(exam, sel, cs){
          <summary>${esc(drillTarget)} 먼저 풀어 보기</summary>
          <div class="wb-more-body">불러오는 중…</div></details>`
     : '';
+  /* 지도는 SVG 라 Word 로 넘어가지 못한다(넘기면 좌표 글자만 쏟아진다).
+     같은 내용을 표로도 적어 두고 화면에서는 감춘다 — Word 쪽 변환기는
+     표를 알아본다. 화면과 종이가 갈라지지 않게 하려는 장치다. */
+  const docxTbl=`<table class="docx-tbl" hidden><thead><tr><th>영역</th><th>층</th><th>숙달도</th><th>먼저 알아야 할 것</th></tr></thead><tbody>${
+    N.slice().sort((a,b)=>lv[a]-lv[b]||a.localeCompare(b)).map(d=>{
+      const ps=(PREREQ[d]||[]).filter(p=>nodes.has(p));
+      const st=!reliable(d)?'표본 부족':(sb[d]>=75?'안정':sb[d]>=60?'보통':'약함');
+      return `<tr><td>${esc(d)}${d===target?' (목표)':''}</td><td>${lv[d]+1}층</td><td>${reliable(d)?sb[d]+'% · '+st:st}</td><td>${ps.length?ps.map(esc).join(' · '):'-'}</td></tr>`;
+    }).join('')}</tbody></table>`;
   return `<div class="sec">${secH('선수 개념 지도 · 학습 순서')}<div class="sub">가장 약한 영역이 어떤 선행 개념 위에 서 있는지 보여 줍니다. 화살표는 '먼저 알아야 함', 색은 현재 숙달도(초록 안정·노랑 보통·빨강 약함·회색 표본 부족)입니다.</div>
-   ${svg}
+   ${svg}${docxTbl}
    <div class="note" style="font-size:12.5px;margin-top:9px">${advice}</div>
    ${drill}
   </div>`;
@@ -3171,7 +3182,8 @@ async function downloadReportDOCX(){
   sections.push({key:'ladder',t:'수상권 목표 정렬',d:'다음 등급까지 어느 영역을 메워야 하는지'});
   sections.push({key:'quad',t:'신호등 사분면',d:'난이도 × 정오로 본 실수·약점 구분'});
   sections.push({key:'depth',t:'개념 깊이 · 사고력',d:'단순 암기형과 다단계 추론형의 정답률 차이'});
-  sections.push({key:'learner',t:'학습 유형 진단',d:'지금 성적을 만든 학습 습관의 모양'});
+  // '학습 유형 진단'은 Word 에서 뺀다(화면에는 그대로 있다). 배지 한 줄로는
+  // 종이에서 할 일이 나오지 않아, 선생님이 지우라고 했다.
   sections.push({key:'prereq',t:'선수 개념',d:'약점이 어느 선행 개념 위에 서 있는지'});
   if(optOK) sections.push({key:'dist',t:'누적 정답률 · 선택지 분석',d:'또래가 많이 걸린 함정 선택지'});
   sections.push({key:'mastery',t:'숙달 현황',d:'영역별 숙달 판정'});
@@ -3252,24 +3264,63 @@ async function downloadReportDOCX(){
      둘이 갈라질 수 없다.
 
      알아보는 것: 섹션 제목(.sec__t) · 설명(.sub) · 강조 상자(.note) ·
-     막대 행(.barrow) · 표 · 그 밖의 문단. SVG 는 건너뛴다(Word 로 옮길 수
-     없고, 같은 내용이 대개 옆의 막대·표에 글자로도 있다). */
+     막대 행(.barrow) · 표 · 그 밖의 문단.
+
+     걷어 내는 것: SVG · 버튼 · 눌러야 채워지는 상자(.wb-more). 예전에는
+     "글이 있는 노드는 한 문단으로" 라는 규칙 하나만 두었는데, 그러면 그림
+     안쪽의 좌표 글자까지 글로 잡혔다. 신호등 사분면이 Word 에서
+     '47101218…맞음틀림강점최우선' 한 줄로 나온 것이 그것이다.
+
+     줄바꿈: 블록 자식(div·table·ol…)이 있으면 반드시 내려간다. 통째로
+     펼치면 '쉬움·틀림 (최우선) · 625 35 41…' 처럼 제목과 값이 붙어 버린다. */
   function secToParas(html, opts){
     opts=opts||{};
     var out=[], doc;
     try{ doc=new DOMParser().parseFromString('<div>'+(html||'')+'</div>','text/html'); }catch(e){ return out; }
     var root=doc.body.firstElementChild; if(!root) return out;
-    // 제목이 없는 섹션도 있다(학습 유형 진단은 배지+문장 한 줄짜리 상자다).
-    // 그럴 때는 불러 준 쪽이 준 제목을 쓴다.
+    // 그림과 화면에서만 뜻이 있는 것은 먼저 걷어 낸다(위 주석 참고).
+    ['svg','button','.svg-cap','.wb-more','.wb-loading','[data-wb-loading]'].forEach(function(q){
+      try{ [].forEach.call(root.querySelectorAll(q),function(n){ if(n.parentNode) n.parentNode.removeChild(n); }); }catch(e){}
+    });
+    // 제목이 없는 섹션도 있다. 그럴 때는 불러 준 쪽이 준 제목을 쓴다.
     var title=root.querySelector('.sec__t');
     var head=title?(title.textContent||'').trim():(opts.title||'');
     if(head) out.push(H(head, opts.no||''));
 
-    function inline(el){ return (el.textContent||'').replace(/\s+/g,' ').trim(); }
+    function inline(el){ return ((el&&el.textContent)||'').replace(/\s+/g,' ').trim(); }
+    var BLOCK={div:1,table:1,details:1,ol:1,ul:1,p:1,section:1,tr:0};
+    // 따로 문단이 되어야 할 자식들
+    function blocks(node){
+      return [].filter.call(node.children||[],function(c){
+        return BLOCK[c.tagName.toLowerCase()]===1 && inline(c);
+      });
+    }
+    // 블록 자식의 글을 뺀, 이 노드가 직접 지닌 글
+    function lead(node){
+      var t='';
+      [].forEach.call(node.childNodes||[],function(n){
+        if(n.nodeType===3){ t+=n.nodeValue; return; }
+        if(n.nodeType!==1) return;
+        if(BLOCK[n.tagName.toLowerCase()]===1 && inline(n)) return;
+        t+=n.textContent||'';
+      });
+      return t.replace(/\s+/g,' ').trim();
+    }
+    // 나란히 놓인 알약(.pill)은 한 줄에 가운뎃점으로 잇는다.
+    // 그대로 두면 '주기율 80→100%열화학 83→100%' 처럼 붙어 버린다.
+    function joined(node){
+      var pills=node.querySelectorAll?node.querySelectorAll('.pill'):[];
+      if(pills.length<2) return '';
+      var all=[].map.call(pills,inline).filter(Boolean);
+      var bare=function(s){ return s.replace(/\s+/g,''); };
+      if(bare(all.join(''))!==bare(inline(node))) return '';   // 알약 말고 딴 글이 섞였으면 손대지 않는다
+      return all.join('  ·  ');
+    }
 
     // 막대 행은 표로 옮긴다(라벨 · 채운 칸 · 값)
     function barRow(el){
-      var lab=inline(el.querySelector('.ba')||{}), val=inline(el.querySelector('.bp')||{});
+      var bar=el.querySelector('.bar'); if(!bar) return null;   // 막대 없는 '막대 행'도 있다
+      var lab=inline(el.querySelector('.ba')), val=inline(el.querySelector('.bp'));
       var i=el.querySelector('.bar i'), pct=0;
       if(i){ var m=/width:\s*([\d.]+)%/.exec(i.getAttribute('style')||''); if(m) pct=Math.round(+m[1]); }
       var labW=Math.floor(CW*0.26), barW=Math.floor(CW*0.56), valW=CW-labW-barW;
@@ -3283,27 +3334,74 @@ async function downloadReportDOCX(){
     }
 
     var pending=[];   // 이어지는 막대 행을 한 표로 묶는다
+    var pendingT=[];  // 막대 없는 행(영역·상태·추이)은 따로 모아 표로 만든다
     function flush(){
-      if(!pending.length) return;
-      var labW=Math.floor(CW*0.26), barW=Math.floor(CW*0.56);
-      out.push(TBL([labW,barW,CW-labW-barW],pending)); pending=[];
-      out.push(P([],{after:60}));
+      if(pending.length){
+        var labW=Math.floor(CW*0.26), barW=Math.floor(CW*0.56);
+        out.push(TBL([labW,barW,CW-labW-barW],pending)); pending=[];
+        out.push(P([],{after:60}));
+      }
+      if(pendingT.length){
+        var n=Math.max.apply(null,pendingT.map(function(r){ return r.length; }));
+        var w=Math.floor(CW/n), colW=[]; for(var i=0;i<n;i++) colW.push(i===n-1?CW-w*(n-1):w);
+        out.push(TBL(colW,pendingT.map(function(cells){
+          var row=cells.slice(); while(row.length<n) row.push('');
+          return ROW(row.map(function(t,ci){
+            return cellT(t,{w:colW[ci],size:18,bold:ci===0,color:ci===0?INK:MUT});
+          }));
+        }),{top:bdr('E6DDC8',2),bottom:bdr('E6DDC8',2),left:NB,right:NB,
+            insideHorizontal:bdr('F0EADC',2),insideVertical:NB}));
+        pendingT=[]; out.push(P([],{after:70}));
+      }
     }
 
-    [].forEach.call(root.children, function walk(node){
+    (function walkAll(list){ [].forEach.call(list, function walk(node){
       if(!node || node.nodeType!==1) return;
       var cls=node.className||'';
       if(typeof cls!=='string') cls=String(cls.baseVal||'');
       var tag=node.tagName.toLowerCase();
-      if(tag==='svg'){ return; }                      // 그림은 옮기지 않는다
       if(cls.indexOf('sec__h')>=0) return;            // 제목은 위에서 이미 처리
-      if(cls.indexOf('barrow')>=0){ pending.push(barRow(node)); return; }
+      if(cls.indexOf('barrow')>=0){
+        var br=barRow(node);
+        if(br){ if(pendingT.length) flush(); pending.push(br); return; }
+        if(pending.length) flush();
+        var parts=[].map.call(node.children,inline).filter(Boolean);
+        if(parts.length) pendingT.push(parts);
+        return;
+      }
       flush();
       if(cls.indexOf('sub')>=0){ var t0=inline(node); if(t0) out.push(txt(t0,{color:MUT,size:19,after:130})); return; }
+      // 사분면은 화면에서도 2×2 다. 종이에서도 2×2 로 놓아야 '쉬운데 틀림'이
+      // 어느 칸인지 눈으로 잡힌다. 줄로 늘어놓으면 뜻이 반쯤 사라진다.
+      if(cls.indexOf('quad')>=0){
+        var qcs=[].slice.call(node.querySelectorAll('.qcell'));
+        if(qcs.length===4){
+          var hw=Math.floor(CW/2);
+          var qcell=function(qc){
+            var qt=qc.querySelector('.qt'), qn=qc.querySelector('.qn2');
+            var cm=/color:\s*#([0-9A-Fa-f]{6})/.exec((qt&&qt.getAttribute('style'))||'');
+            return C([P([run(inline(qt),{bold:true,size:19,color:cm?cm[1].toUpperCase():EM})],{before:0,after:60}),
+                      P([run(inline(qn)||'-',{size:17,color:MUT})],{before:0,after:0,line:300})],
+                     {w:hw,mt:110,mb:110,ml:120,mr:120});
+          };
+          out.push(TBL([hw,CW-hw],
+            [ROW([qcell(qcs[0]),qcell(qcs[1])]),ROW([qcell(qcs[2]),qcell(qcs[3])])],
+            {top:bdr('E6DDC8',2),bottom:bdr('E6DDC8',2),left:bdr('E6DDC8',2),right:bdr('E6DDC8',2),
+             insideHorizontal:bdr('E6DDC8',2),insideVertical:bdr('E6DDC8',2)}));
+          out.push(P([],{after:80}));
+          return;
+        }
+      }
+      if(cls.indexOf('distbar')>=0){
+        var segs=[].map.call(node.children,inline).filter(Boolean);
+        if(segs.length) out.push(txt(segs.join('   '),{size:19,color:MUT,after:110}));
+        return;
+      }
       if(cls.indexOf('note')>=0){
-        var t1=inline(node);
+        var t1=lead(node)||inline(node);
         if(t1) out.push(P([run(t1,{size:20})],{before:120,after:80,fill:'FAF7EF',
           border:{left:bdr(GOLD,14),top:bdr('EDE8DC',2),bottom:bdr('EDE8DC',2),right:bdr('EDE8DC',2)}}));
+        walkAll(blocks(node));                        // 상자 안의 막대·표도 살린다
         return;
       }
       if(tag==='table'){
@@ -3325,12 +3423,15 @@ async function downloadReportDOCX(){
         out.push(P([],{after:80}));
         return;
       }
-      // 자식에 블록이 더 있으면 내려간다. 없으면 이 노드의 글을 한 문단으로.
-      if(node.querySelector&&node.querySelector('.barrow,.note,.sub,table')){
-        [].forEach.call(node.children, walk); return;
+      var kids=blocks(node);
+      if(kids.length){                                // 블록 자식이 있으면 반드시 내려간다
+        var lt=lead(node);
+        if(lt) out.push(txt(lt,{size:20,after:50}));
+        walkAll(kids); flush(); return;
       }
-      var t=inline(node); if(t) out.push(txt(t,{size:20,after:70}));
-    });
+      var t=joined(node)||inline(node);
+      if(t) out.push(txt(t,{size:20,after:70}));
+    }); })(root.children);
     flush();
     return out;
   }
@@ -3723,7 +3824,6 @@ async function downloadReportDOCX(){
       {k:'ladder',  kick:'❖  ROADMAP  ❖',    html:tierPathSec(cur,sel)},
       {k:'quad',    kick:'❖  QUADRANT  ❖',   html:quadSec(cur,sel,cs)},
       {k:'depth',   kick:'❖  DEPTH  ❖',      html:depthSec(cur,sel,cs)},
-      {k:'learner', kick:'❖  LEARNER  ❖',    t:'학습 유형 진단', html:learnerTypeSec(cur,sel,cs,correct,total)},
       {k:'prereq',  kick:'❖  PREREQUISITE  ❖',html:prereqSec(cur,sel,cs)},
       {k:'dist',    kick:'❖  ITEM STATS  ❖', html:distSec(cur,sel,cs)},
       {k:'mastery', kick:'❖  MASTERY  ❖',    html:masterySec(cur)},
@@ -3738,38 +3838,8 @@ async function downloadReportDOCX(){
     });
   }catch(e){}
 
-  /* ── 4주 학습 계획표 (Word 전용) ──────────────────────────────────────
-     처방을 읽는 것과 실행하는 것은 다르다. 종이에는 손으로 체크할 수 있으니
-     주차별 표로 만들어 둔다. 화면에서는 뜻이 없는 형태다. */
-  try{
-    var planAreas=(areas||[]).slice().sort(function(a,b){ return a.r-b.r; }).slice(0,4);
-    if(planAreas.length){
-      body.push(PB(),kicker('❖  4-WEEK PLAN  ❖'),
-        txt('4주 학습 계획표',{align:AlignmentType.CENTER,bold:true,color:EM,size:44,serif:true,after:40}),
-        ornPara(dividerOrn,320,{before:16,after:80}),
-        txt('약한 영역부터 한 주에 하나씩 잡습니다. 끝낸 칸에 표시하며 쓰세요.',
-            {align:AlignmentType.CENTER,color:MUT,size:18,after:180}));
-      var wW=Math.floor(CW*0.10), aW=Math.floor(CW*0.24), dW=Math.floor(CW*0.46), cW=CW-wW-aW-dW;
-      var planRows=[ROW([cellT('주차',{w:wW,bold:true,color:EM,size:18,fill:EMT,align:AlignmentType.CENTER}),
-                         cellT('영역',{w:aW,bold:true,color:EM,size:18,fill:EMT}),
-                         cellT('할 일',{w:dW,bold:true,color:EM,size:18,fill:EMT}),
-                         cellT('완료',{w:cW,bold:true,color:EM,size:18,fill:EMT,align:AlignmentType.CENTER})],{header:true})];
-      planAreas.forEach(function(a,i){
-        var r=RX[a.name]||RX[bkBroad(a.name)]||{};
-        var todo=[r.k?('핵심: '+r.k):'', r.rx?('처방: '+r.rx):''].filter(Boolean).join('   /   ')
-                 || (a.name+' 개념 강의를 읽고 동형문제를 풀어 본다');
-        planRows.push(ROW([
-          cellT((i+1)+'주',{w:wW,bold:true,color:GOLD,size:20,align:AlignmentType.CENTER}),
-          cellT(a.name+'\n정답률 '+Math.round(a.r*100)+'%',{w:aW,size:18,bold:true}),
-          cellT(todo,{w:dW,size:17}),
-          cellT('☐',{w:cW,size:26,align:AlignmentType.CENTER,color:MUT})]));
-      });
-      body.push(TBL([wW,aW,dW,cW],planRows,
-        {top:bdr(EM,8),bottom:bdr(EM,8),left:NB,right:NB,insideHorizontal:bdr('E6DDC8',2),insideVertical:bdr('F0EADC',2)}));
-      body.push(P([run('한 주에 한 영역이면 충분합니다. 여러 개를 한꺼번에 잡으면 어느 것도 남지 않습니다.',
-        {color:MUT,size:18})],{before:140}));
-    }
-  }catch(e){}
+  // 4주 학습 계획표(Word 전용)는 뺐다. 뒤쪽 '학습 처방' 부록이 같은 영역을
+  // 같은 순서로 이미 다루고 있어 두 번 읽는 표가 되었다.
 
   // ── 동형문제 회복률 · 되풀이되는 오개념 ──────────────────────────────
   // 둘 다 화면에만 있던 것이다. "무엇을 틀렸나"는 정오표가 말해 주지만

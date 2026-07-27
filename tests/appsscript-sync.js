@@ -89,7 +89,25 @@ const COHORT_ALIAS = JSON.parse(
     filterRows('없는시험', rows).length, rows.length);
 }
 
-/* ── 4. 열쇠는 코드에 적혀 있으면 안 된다 ──
+/* ── 4. index.html 의 옛 시험도 표에 남아 있어야 한다 ──
+   index.html 은 final.html 과 **같은 시트 엔드포인트**를 쓴다. 표에서 빠지면
+   그 요청의 필터가 통째로 꺼져(want=null) 모든 시험의 행이 딸려 간다 —
+   옛 시험 통계에 KMChC 응시 기록이 섞인다. 실제로 한 번 지웠다가 되살렸다. */
+{
+  const legacy = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+  const ids = [...new Set([...legacy.matchAll(/id:"([\w-]+)",title:"([^"]+)"/g)]
+    .map(m => [m[1], m[2]]).map(JSON.stringify))].map(JSON.parse);
+  chk('index.html 에서 시험을 찾았다', ids.length > 0, true);
+  const missing = ids.filter(([id]) => !EXAM_TITLES[id]).map(([id]) => id);
+  chk('옛 시험이 표에 모두 있다', missing, []);
+  const wrongTitle = ids.filter(([id, t]) => {
+    const v = EXAM_TITLES[id];
+    return !(Array.isArray(v) ? v : [v]).includes(t);
+  }).map(([id, t]) => id + ' → ' + t);
+  chk('옛 시험 제목도 그대로 맞다', wrongTitle, []);
+}
+
+/* ── 5. 열쇠는 코드에 적혀 있으면 안 된다 ──
    이 파일은 공개 저장소에 올라가고 머지되면 자동 배포된다. */
 {
   const hardcoded = /var\s+SECRET\s*=\s*['"][^'"]+['"]/.test(gs);
