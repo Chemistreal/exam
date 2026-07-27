@@ -12,8 +12,11 @@
    뜻이 없다. 한 회차를 실제로 응시한 사람은 성적표 엑셀에 다 들어 있으므로
    그 점수 분포(cohort/baseline.json)를 모집단으로 쓴다.
 
+   엑셀 명단과 지금 채점하는 학생은 서로 다른 사람들이므로 **더한다.**
+   대신해 버리면 새로 채점한 학생이 모집단에서 통째로 빠진다.
+
    여기서 지키는 것:
-   - 기준표가 있는 회차는 채점 순서와 무관하게 모집단이 고정이다
+   - 분모 = 기준표 인원 + 그때까지 채점한 인원
    - 한 명만 채점해도 석차가 나온다(예전에는 8명 전이면 통째로 빈칸)
    - 화면 두 곳(요약·점수 분포)이 같은 숫자를 말한다
    - 기준표에 이름·학교가 새어 들어가지 않는다
@@ -74,8 +77,8 @@ const RANKS = `(function(){ var t=document.body.innerText.replace(/\\s+/g,' '), 
   const browser = await chromium.launch({ executablePath: CHROMIUM, args: ['--no-sandbox'] });
   const errs = [];
 
-  // ── 2부. 채점 순서가 바뀌어도 모집단이 그대로인가 ────────────────
-  console.log('\n── 채점 순서와 무관한 모집단 ──');
+  // ── 2부. 기준표 + 이 브라우저 기록 ──────────────────────────────
+  console.log('\n── 기준표 + 채점 기록 ──');
   const page = await browser.newPage();
   page.on('pageerror', e => errs.push(e.message));
   await page.goto(U, { waitUntil: 'networkidle' });
@@ -85,7 +88,7 @@ const RANKS = `(function(){ var t=document.body.innerText.replace(/\\s+/g,' '), 
   chk('앱이 기준표를 읽었다', loaded.ok, true);
   chk('jmchc-6 모집단 인원', loaded.n, base.exams['jmchc-6'].n);
 
-  // 학생을 한 명씩 채점하며, 매번 모집단(분모)이 같은지 본다
+  // 학생을 한 명씩 채점하며, 매번 분모가 기준표 + 채점 인원인지 본다
   const seen = await page.evaluate(async (RANKS_SRC) => {
     localStorage.clear();
     const out = [];
@@ -104,9 +107,16 @@ const RANKS = `(function(){ var t=document.body.innerText.replace(/\\s+/g,' '), 
 
   chk('세 학생 모두 석차가 나온다', seen.every(s => s.ranks.length >= 2), true);
   chk('한 명만 채점해도 나온다(예전엔 8명 전이면 빈칸)', seen[0].ranks.length >= 2, true);
-  const denoms = seen.flatMap(s => s.ranks.map(r => r.split('/')[1]));
-  chk('분모가 모두 같다(채점 순서 무관)', Array.from(new Set(denoms)), [String(loaded.n)]);
-  chk('분모가 기준표 인원과 같다', denoms[0], String(loaded.n));
+  /* 기준표와 이 브라우저 기록을 **더한다.** 엑셀에 든 사람과 지금 채점하는
+     사람이 전혀 다른 학생들이라고 하셨다. 겹치지 않으면 더하는 것이 맞다 —
+     대신하면 새로 채점한 학생이 모집단에서 통째로 빠진다.
+     그래서 분모는 채점하는 동안 기준표 인원 + 그때까지 채점한 인원이다. */
+  seen.forEach(s => {
+    const denom = Number(s.ranks[0].split('/')[1]);
+    chk(`분모 = 기준표 ${loaded.n} + 채점 ${s.locals} · ${s.nm}`, denom, loaded.n + s.locals);
+  });
+  chk('기준표만 쓰지 않는다(새 학생이 빠지면 안 된다)',
+      Number(seen[seen.length - 1].ranks[0].split('/')[1]) > loaded.n, true);
   seen.forEach(s => chk(`화면 두 곳이 일치 · ${s.nm}`, Array.from(new Set(s.ranks)), s.ranks.slice(0, 1)));
   // 점수가 다르면 등수도 달라야 한다(전부 같은 등수로 나오면 뭔가 잘못된 것)
   chk('학생마다 등수가 다르다', new Set(seen.map(s => s.ranks[0])).size > 1, true);
