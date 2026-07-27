@@ -82,6 +82,10 @@ let fail=0; const chk=(n,g,w)=>{const ok=JSON.stringify(g)===JSON.stringify(w);
   const dir=path.join(OUT,'x/word');
   const xml=fs.readFileSync(path.join(dir,'document.xml'),'utf8');
   const txt=xml.replace(/<[^>]+>/g,'');
+  // 문단 단위로도 본다. 줄이 서로 붙어 버리는 사고는 통짜 텍스트로는 안 보인다.
+  const lines=(xml.match(/<w:p[ >][\s\S]*?<\/w:p>/g)||[])
+    .map(p=>(p.match(/<w:t[^>]*>([\s\S]*?)<\/w:t>/g)||[])
+      .map(t=>t.replace(/<[^>]+>/g,'')).join('').trim()).filter(Boolean);
   const media=fs.readdirSync(path.join(dir,'media'));
   console.log('이미지 파일 수:',media.length);
 
@@ -101,16 +105,31 @@ let fail=0; const chk=(n,g,w)=>{const ok=JSON.stringify(g)===JSON.stringify(w);
   chk('다원 로고가 문서에 들어 있다',hasLogo,true);
   // ── 화면에만 있던 나머지 섹션들 (secToParas 로 옮긴 것) ──
   [['수상권 목표 정렬','ROADMAP'],['신호등 사분면','QUADRANT'],['개념 깊이','DEPTH'],
-   ['학습 유형 진단','LEARNER'],['선수 개념','PREREQUISITE'],['숙달','MASTERY'],
+   ['선수 개념','PREREQUISITE'],['숙달','MASTERY'],
    ['성장 루프','LONG RUN']].forEach(([ko])=>{
     chk('섹션 · '+ko, new RegExp(ko).test(txt), true);
   });
 
+  /* ── 읽을 수 있는가 ────────────────────────────────────────────────
+     한때 신호등 사분면이 '47101218…맞음틀림강점최우선' 한 줄로 나왔다.
+     그림 안쪽 좌표 글자가 문단으로 잡히고, 칸 제목과 번호가 붙은 탓이다.
+     "섹션이 있다"만 보는 검사는 이걸 통과시킨다. 그래서 문단을 본다. */
+  // 사분면 칸의 '4 6 8 12…'는 정상이다(띄어쓰기가 있다). 그림에서 샌 글자는
+  // 좌표 순으로 붙어 나와 띄어쓰기가 없다 — 그 모양만 잡는다.
+  const glued=lines.filter(l=>/맞음틀림|어려움쉬움|→\d+%[가-힣]/.test(l));
+  chk('붙어 버린 줄이 없다',glued.slice(0,3),[]);
+  chk('그림 속 글자가 새지 않는다',lines.some(l=>/^\d{16,}$/.test(l)),false);
+  chk('화면 전용 상자가 안 넘어온다',/불러오는 중/.test(txt),false);
+  chk('사분면 칸 제목이 제 줄에 있다',lines.some(l=>/^쉬움·틀림 \(최우선\) · \d+$/.test(l)),true);
+  chk('선수 개념 지도가 표로 남는다',/먼저 알아야 할 것/.test(txt),true);
+
+  // ── 뺀 것 (선생님 요청) ──
+  chk('학습 유형 진단은 Word 에 없다',/학습 유형/.test(txt),false);
+  chk('4주 학습 계획표는 Word 에 없다',/학습 계획표/.test(txt),false);
+
   // ── Word 에만 넣은 것 ──
   chk('학부모 한 장 요약',/한 장 요약/.test(txt),true);
   chk('요약에 결론만 담는다는 안내',/이 장만 보셔도 됩니다/.test(txt),true);
-  chk('4주 학습 계획표',/학습 계획표/.test(txt),true);
-  chk('계획표에 체크 칸',/완료/.test(txt),true);
   chk('미니 시험지 답안 기입란',/답안 기입란/.test(txt),true);
 
   // ── 배경 워터마크 ──
