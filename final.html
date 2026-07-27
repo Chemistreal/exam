@@ -888,7 +888,7 @@ function renderList(){
   const groups={}; FINAL_EXAMS.forEach(e=>{(groups[e.group]=groups[e.group]||[]).push(e)});
   const order=['JMChC','동형','산과염기','2026','2025','2024','이전'];
   const GLAB={'JMChC':['JMChC 모의고사','60문항 · 영역·개념'],'동형':['기출동형 모의고사','영역·개념'],'산과염기':['산·염기 60제','영역·개념']};
-  let h=`<div style="display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap;margin:2px 0 8px"><button class="btn ghost sm" onclick="syncAllFromSheet()">시트에서 불러오기 ↓</button><button class="btn ghost sm" onclick="setSyncKey()">동기화 키</button><button class="btn ghost sm" onclick="copyStudentLink()">학생 제출 링크 복사 ⧉</button></div><div class="note">기출을 답안 입력만 하면 자동 채점하고 <b>수상권 + 영역·개념 진단</b>으로 분석합니다. 만점 대상 · 4틀림까지 금상 · 9틀림까지 은상 · 13틀림까지 동상 · 18틀림까지 장려상, 다음 등급까지 2문제 이내면 '○○권'. 응시가 누적되면 백분위·문항 정답률·선택지 분석이 더해집니다.</div>`;
+  let h=`<div style="display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap;margin:2px 0 8px"><button class="btn ghost sm" onclick="syncAllFromSheet()">시트에서 불러오기 ↓</button><button class="btn ghost sm" onclick="setSyncKey()">동기화 키</button><button class="btn ghost sm" onclick="toggleCsLink()" title="성적표 링크에 또래 통계를 실을지. 끄면 주소가 짧아지는 대신 학부모 쪽에서 백분위·문항 정답률이 빠집니다.">또래 통계 링크 ${csLinkOn()?'켬':'끔'}</button><button class="btn ghost sm" onclick="copyStudentLink()">학생 제출 링크 복사 ⧉</button></div><div class="note">기출을 답안 입력만 하면 자동 채점하고 <b>수상권 + 영역·개념 진단</b>으로 분석합니다. 만점 대상 · 4틀림까지 금상 · 9틀림까지 은상 · 13틀림까지 동상 · 18틀림까지 장려상, 다음 등급까지 2문제 이내면 '○○권'. 응시가 누적되면 백분위·문항 정답률·선택지 분석이 더해집니다.</div>`;
   order.forEach(g=>{ if(!groups[g])return;
     const gl=GLAB[g]||['KMChC '+(g==='이전'?'이전 연도':g+'년'),'자동 채점'];
     h+=`<div class="grp">${gl[0]}<span class="gt">${gl[1]}</span></div><div class="cards">`;
@@ -980,16 +980,16 @@ function cohortStats(exam){
   const _raw=subs(exam.id).filter(r=>r.ans&&r.ans.length===exam.nQ); const _cc=cleanCohort(exam,_raw); const arr=_cc.clean; const N=arr.length; const _flag=_cc.flagged.length;
   const miss=new Set(exam.miss||[]); const totals=arr.map(r=>r.correct);
   if(N>=MINP){
-    const qp=[], qopt=[], qdisc=[];
+    const qp=[], qopt=[], qdisc=[], qcnt=[];   // qcnt: 반올림 전 원본 사람 수(공유 링크가 쓴다)
     const idxSorted=arr.map((r,i)=>({i,t:r.correct})).sort((a,b)=>b.t-a.t);
     const g=Math.max(1,Math.floor(N*0.27)); const hi=idxSorted.slice(0,g).map(x=>x.i), lo=idxSorted.slice(-g).map(x=>x.i);
-    for(let q=1;q<=exam.nQ;q++){ if(miss.has(q)){qp.push(null);qopt.push(null);qdisc.push(null);continue;}
+    for(let q=1;q<=exam.nQ;q++){ if(miss.has(q)){qp.push(null);qopt.push(null);qdisc.push(null);qcnt.push(null);continue;}
       let c=0; const opt=[0,0,0,0];
       arr.forEach(r=>{const a=r.ans[q-1]; if(a>=1&&a<=4)opt[a-1]++; if(okq(exam,q,a))c++;});
-      qp.push(Math.round(c/N*100)); qopt.push(opt.map(x=>Math.round(x/N*100)));
+      qp.push(Math.round(c/N*100)); qopt.push(opt.map(x=>Math.round(x/N*100))); qcnt.push(opt);
       const hc=hi.filter(i=>okq(exam,q,arr[i].ans[q-1])).length/g, lc=lo.filter(i=>okq(exam,q,arr[i].ans[q-1])).length/g;
       qdisc.push(+(hc-lc).toFixed(2)); }
-    return {N,ready:true,estimated:false,percReady:true,qp,qopt,qdisc,totals,flagged:_flag};
+    return {N,ready:true,estimated:false,percReady:true,qp,qopt,qdisc,qcnt,totals,flagged:_flag};
   }
   // 소표본: 글로벌 도메인 prior로 난이도 추정 (수축)
   const GP=globalDomainPrior(exam.id);
@@ -2251,11 +2251,37 @@ function hashStrFinal(cur,sel,nm,exno){ let num=0n; for(let q=cur.nQ;q>=1;q--){ 
    선택 분포, 점수 분포 히스토그램 — **합계뿐**이다. 그것만으로 또래 통계가
    전부 그려진다.
 
-   한 문항에 6바이트(정답률·①②③④ 비율·변별도), 점수 분포에 nQ+1바이트.
-   60문항이면 425바이트 → base64로 약 567자. URL 에 넣기에 충분하다.
-   ④를 100에서 빼서 구하지 않고 그대로 담는 이유는, 넷이 각각 반올림돼서
-   합이 꼭 100 이 되지는 않기 때문이다([33,33,0,33] 이 [33,33,0,34] 가 된다). */
-const CS_VER=1;
+   처음 만든 형식(v1)은 한 문항에 6바이트를 썼다 — 정답률·①②③④ 비율·변별도.
+   60문항이면 425바이트, base64 로 567자다. 주소가 이렇게 길어졌다.
+
+       …final.html#s=ATwACkYAHgBGZCgoHgoUyAoKFDwKljIKACgyljwK…(567자)…&r=jmchc-5.gcb…
+
+   카톡으로 보내기에는 너무 길다. 세 군데가 낭비였다.
+
+   - **변별도**는 아무 데서도 읽지 않았다. 담기만 하고 쓰는 곳이 없었다.
+   - **정답률**은 선택 분포에서 그대로 나온다. 정답 보기를 고른 사람 수를
+     더하면 그게 정답률이다. 받는 쪽도 정답표를 갖고 있으니 다시 계산할 수 있다.
+   - **비율(0~100) 대신 사람 수**를 담는다. 10명이 봤으면 값이 0~10 이라
+     4비트면 된다. 게다가 넷을 합치면 응시 인원을 넘을 수 없으므로, 앞의 셋을
+     읽고 나면 넷째가 가질 수 있는 폭이 줄어든다. 남은 폭만큼만 비트를 쓴다.
+
+   제외 문항도 아예 담지 않는다(받는 쪽이 exam.miss 로 안다). 점수 분포는
+   0 이 아닌 칸만 (점수, 사람 수)로 담는다.
+
+   60문항·10명 기준 425바이트 → 113바이트. base64 로 567자 → 151자다.
+
+   개인 기록은 여전히 싣지 않는다. 이름도, 답안지도 보내지 않는다. 사람 수의
+   합계뿐이다. 그것만으로 또래 통계가 전부 그려진다.
+
+   v1 링크는 이미 학부모에게 나갔으므로 계속 읽는다. */
+const CS_VER=2;
+// 0~m 을 담는 데 필요한 비트 수. m 이 0이면 값이 0 뿐이라 한 비트도 필요 없다.
+function bitsFor(m){ return m<=0?0:(32-Math.clz32(m)); }
+function bitW(){ var out=[],acc=0,n=0; return {
+  put:function(v,w){ for(var i=w-1;i>=0;i--){ acc=(acc<<1)|((v>>i)&1); if(++n===8){out.push(acc&255);acc=0;n=0;} } },
+  done:function(){ if(n) out.push((acc<<(8-n))&255); return out; } }; }
+function bitR(bytes){ var i=0,n=0; return {
+  get:function(w){ var v=0; for(var k=0;k<w;k++){ v=(v<<1)|((bytes[i]>>(7-n))&1); if(++n===8){n=0;i++;} } return v; } }; }
 function b64url(bytes){ var s=''; for(var i=0;i<bytes.length;i++) s+=String.fromCharCode(bytes[i]);
   return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
 function unb64url(str){ var s=str.replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4) s+='=';
@@ -2264,46 +2290,84 @@ function unb64url(str){ var s=str.replace(/-/g,'+').replace(/_/g,'/'); while(s.l
 const clamp255=v=>Math.max(0,Math.min(255,Math.round(v||0)));
 
 function packCohort(exam,cs){
-  if(!cs||!cs.percReady||!cs.qp||!cs.qopt) return '';
-  var nQ=exam.nQ, out=[CS_VER, nQ, Math.min(65535,cs.N)>>8, Math.min(65535,cs.N)&255];
-  for(var q=0;q<nQ;q++){
-    var p=cs.qp[q], o=cs.qopt[q], d=cs.qdisc?cs.qdisc[q]:null;
-    // 제외 문항은 정답률 255로 표시한다(0~100 과 겹치지 않는다)
-    out.push(p==null?255:clamp255(p));
-    out.push(clamp255(o?o[0]:0), clamp255(o?o[1]:0), clamp255(o?o[2]:0), clamp255(o?o[3]:0));
-    out.push(d==null?255:clamp255((d+1)*100));   // -1~1 → 0~200
+  if(!cs||!cs.percReady||!cs.qopt) return '';
+  var nQ=exam.nQ, N=Math.min(65535,cs.N||0); if(!N) return '';
+  var miss=new Set(exam.miss||[]), w=bitW();
+  for(var q=1;q<=nQ;q++){
+    if(miss.has(q)) continue;                      // 받는 쪽이 exam.miss 로 안다
+    // 사람 수. cohortStats 가 원본 카운트를 주면 그대로, 아니면 비율에서 되돌린다.
+    var c=(cs.qcnt&&cs.qcnt[q-1])||null, o=cs.qopt[q-1]||[0,0,0,0], rem=N;
+    for(var k=0;k<4;k++){
+      var v=c?c[k]:Math.round((o[k]||0)*N/100);
+      v=Math.max(0,Math.min(rem,Math.round(v||0)));
+      w.put(v,bitsFor(rem)); rem-=v;               // 남은 폭만큼만 비트를 쓴다
+    }
   }
-  // 점수 분포 히스토그램. 백분위를 정확히 되살리는 데 이것만 있으면 된다.
-  var hist=new Array(nQ+1).fill(0);
-  (cs.totals||[]).forEach(function(t){ if(t>=0&&t<=nQ) hist[t]++; });
-  hist.forEach(function(c){ out.push(Math.min(255,c)); });
-  try{ return b64url(Uint8Array.from(out)); }catch(e){ return ''; }
+  // 점수 분포. 백분위를 정확히 되살리는 데 이것만 있으면 된다. 0 인 칸은 뺀다.
+  var hist={}; (cs.totals||[]).forEach(function(t){ if(t>=0&&t<=nQ) hist[t]=(hist[t]||0)+1; });
+  var keys=Object.keys(hist).map(Number).sort(function(a,b){return a-b;});
+  w.put(Math.min(255,keys.length),8);
+  keys.slice(0,255).forEach(function(t){ w.put(t,bitsFor(nQ)); w.put(Math.min(N,hist[t]),bitsFor(N)); });
+  try{ return b64url(Uint8Array.from([CS_VER,nQ,N>>8,N&255].concat(w.done()))); }catch(e){ return ''; }
 }
 function unpackCohort(exam,str){
   try{
     var b=unb64url(str);
-    if(b[0]!==CS_VER || b[1]!==exam.nQ) return null;
-    var nQ=exam.nQ, N=(b[2]<<8)|b[3], qp=[], qopt=[], qdisc=[], i=4;
-    for(var q=0;q<nQ;q++){
-      var p=b[i++], o1=b[i++], o2=b[i++], o3=b[i++], o4=b[i++], d=b[i++];
-      if(p===255){ qp.push(null); qopt.push(null); qdisc.push(null); continue; }
-      qp.push(p);
-      qopt.push([o1,o2,o3,o4]);
-      qdisc.push(d===255?null:+((d/100)-1).toFixed(2));
+    if(b[1]!==exam.nQ) return null;
+    if(b[0]===1) return unpackCohortV1(exam,b);    // 이미 나간 링크
+    if(b[0]!==CS_VER) return null;
+    var nQ=exam.nQ, N=(b[2]<<8)|b[3]; if(!N) return null;
+    var miss=new Set(exam.miss||[]), r=bitR(b.subarray(4)), qp=[], qopt=[];
+    for(var q=1;q<=nQ;q++){
+      if(miss.has(q)){ qp.push(null); qopt.push(null); continue; }
+      var rem=N, c=[];
+      for(var k=0;k<4;k++){ var v=Math.min(rem,r.get(bitsFor(rem))); c.push(v); rem-=v; }
+      // 정답률은 담지 않는다. 정답 보기를 고른 사람 수를 더하면 그게 정답률이다.
+      var acc=accSet(exam,q), corr=0;
+      for(var j=0;j<4;j++) if(acc.indexOf(j+1)>=0) corr+=c[j];
+      qp.push(Math.round(corr/N*100));
+      qopt.push(c.map(function(x){ return Math.round(x/N*100); }));
     }
-    var totals=[];
-    for(var t=0;t<=nQ;t++){ var c=b[i++]||0; for(var k=0;k<c;k++) totals.push(t); }
+    var M=r.get(8), totals=[], hb=bitsFor(nQ), nb=bitsFor(N);
+    for(var i=0;i<M;i++){ var sc=r.get(hb), cnt=r.get(nb); for(var t=0;t<cnt;t++) totals.push(sc); }
     if(!totals.length) return null;
     return {N:N,ready:true,estimated:false,percReady:true,
-            qp:qp,qopt:qopt,qdisc:qdisc,totals:totals,flagged:0,fromLink:true};
+            qp:qp,qopt:qopt,qdisc:null,totals:totals,flagged:0,fromLink:true};
   }catch(e){ return null; }
+}
+// 옛 형식(문항당 6바이트). 이미 학부모에게 나간 링크가 있으므로 계속 읽는다.
+function unpackCohortV1(exam,b){
+  var nQ=exam.nQ, N=(b[2]<<8)|b[3], qp=[], qopt=[], i=4;
+  for(var q=0;q<nQ;q++){
+    var p=b[i++], o1=b[i++], o2=b[i++], o3=b[i++], o4=b[i++]; i++;   // 마지막은 변별도(안 쓴다)
+    if(p===255){ qp.push(null); qopt.push(null); continue; }
+    qp.push(p); qopt.push([o1,o2,o3,o4]);
+  }
+  var totals=[];
+  for(var t=0;t<=nQ;t++){ var c=b[i++]||0; for(var k=0;k<c;k++) totals.push(t); }
+  if(!totals.length) return null;
+  return {N:N,ready:true,estimated:false,percReady:true,
+          qp:qp,qopt:qopt,qdisc:null,totals:totals,flagged:0,fromLink:true};
 }
 function shareLinkFinal(cur,sel,nm,exno){
   /* 또래 통계 스냅숏은 `r=` **앞**에 붙인다. 뒤에 붙이면 이름을 끝까지 집어삼키는
      기존 해시 규칙에 걸려 이름 안으로 들어가 버린다. */
   var snap='';
-  try{ if(!fShared){ var cs=cohortStats(cur); var packed=packCohort(cur,cs); if(packed) snap='s='+packed+'&'; } }catch(e){}
+  try{ if(!fShared&&csLinkOn()){ var cs=cohortStats(cur); var packed=packCohort(cur,cs); if(packed) snap='s='+packed+'&'; } }catch(e){}
   return location.origin+location.pathname+'#'+snap+hashStrFinal(cur,sel,nm,exno);
+}
+/* 아무리 줄여도 또래 통계를 실으면 주소가 답안만 담을 때보다 길어진다.
+   카톡으로 보내기에 너무 길면 통째로 끄는 스위치. 끄면 학부모 쪽 성적표에서
+   백분위·문항 정답률·선택지 분석이 빠진다(개인 성적은 그대로 나온다).
+   채점할 때 만들어 시트에 적히므로, 바꾸면 그 뒤에 채점한 학생부터 적용된다. */
+const CSLINK_KEY='chemistreal:final:cslink';
+function csLinkOn(){ try{ return localStorage.getItem(CSLINK_KEY)!=='0'; }catch(e){ return true; } }
+function toggleCsLink(){
+  var next=!csLinkOn();
+  try{ localStorage.setItem(CSLINK_KEY,next?'1':'0'); }catch(e){}
+  fToast(next?'성적표 링크에 또래 통계를 싣습니다 · 주소가 길어집니다'
+             :'성적표 링크를 짧게 만듭니다 · 학부모 쪽 또래 통계가 빠집니다');
+  renderList();
 }
 function saveToSheetFinal(cur,sel,correct,total,W,cs,nm,sch,grd,pct){
   if(!SHEET_ENDPOINT) return;

@@ -60,14 +60,27 @@ async function cohortSnapshot(browser, errs) {
     saveSubs('hwol-2018', arr);
     const cs = cohortStats(ex);
     const sel2 = {}; mk(3).forEach((v, i) => { sel2[i + 1] = v; });
+    const link = shareLinkFinal(ex, sel2, '홍길동', '');
     return { N: cs.N, ready: cs.percReady, qp0: cs.qp && cs.qp[0], qopt0: cs.qopt && cs.qopt[0],
-             disc0: cs.qdisc && cs.qdisc[0], totals: cs.totals.slice().sort((a, b) => a - b),
-             link: shareLinkFinal(ex, sel2, '홍길동', '') };
+             totals: cs.totals.slice().sort((a, b) => a - b),
+             qp: cs.qp, qopt: cs.qopt, nQ,
+             link, snapLen: (link.match(/#s=([^&]+)&/) || [, ''])[1].length,
+             short: (() => { try { localStorage.setItem('chemistreal:final:cslink', '0'); } catch (e) {}
+                             const s = shareLinkFinal(ex, sel2, '홍길동', '');
+                             try { localStorage.setItem('chemistreal:final:cslink', '1'); } catch (e) {}
+                             return s; })() };
   });
-  console.log(`  교사 쪽: N=${made.N} 1번 정답률=${made.qp0} · 링크 ${made.link.length}자`);
+  console.log(`  교사 쪽: N=${made.N} 1번 정답률=${made.qp0} · 링크 ${made.link.length}자 (스냅숏 ${made.snapLen}자)`);
   chk('교사 쪽 또래 통계 활성', made.ready, true);
   chk('링크에 s= 스냅숏이 들어감', /#s=[A-Za-z0-9_-]+&r=/.test(made.link), true);
-  chk('링크 길이가 2000자 미만', made.link.length < 2000, true);
+  /* 처음 형식은 문항당 6바이트(정답률·①②③④·변별도)를 그대로 담아 60문항이면
+     567자였다. 카톡으로 보내기에 너무 길다는 말을 들었다. 변별도는 아무 데서도
+     안 읽었고, 정답률은 선택 분포에서 다시 나오고, 비율 대신 사람 수를 남은
+     폭만큼만 담으면 된다. 이 한계가 그 세 가지를 함께 지킨다. */
+  chk('스냅숏이 문항당 3자 아래로 줄었다', made.snapLen < made.nQ * 3, true);
+  // 통째로 끄면 답안만 담은 짧은 주소가 나온다
+  chk('스위치를 끄면 s= 가 빠진다', /#s=/.test(made.short), false);
+  chk('끈 링크가 켠 링크보다 짧다', made.short.length < made.link.length - 100, true);
   await teacher.close();
 
   // 학부모 브라우저: 누적 기록이 하나도 없다
@@ -78,7 +91,8 @@ async function cohortSnapshot(browser, errs) {
   const seen = await parent.evaluate(() => {
     const cs = cohortStats(FINAL_EXAMS.find(e => e.id === 'hwol-2018'));
     return { N: cs.N, ready: cs.percReady, fromLink: !!cs.fromLink,
-             qp0: cs.qp && cs.qp[0], qopt0: cs.qopt && cs.qopt[0], disc0: cs.qdisc && cs.qdisc[0],
+             qp0: cs.qp && cs.qp[0], qopt0: cs.qopt && cs.qopt[0],
+             qp: cs.qp, qopt: cs.qopt,
              totals: cs.totals.slice().sort((a, b) => a - b),
              peerText: document.body.innerText.includes('또래') };
   });
@@ -87,10 +101,44 @@ async function cohortSnapshot(browser, errs) {
   chk('인원수 그대로', seen.N, made.N);
   chk('1번 정답률 그대로', seen.qp0, made.qp0);
   chk('1번 선택 분포 그대로', seen.qopt0, made.qopt0);
-  chk('1번 변별도 그대로', seen.disc0, made.disc0);
+  // 한 문항만 맞으면 놓치는 것이 있다. 줄이면서 정답률은 아예 담지 않고
+  // 선택 분포에서 다시 계산하므로, 전 문항이 맞아떨어져야 한다.
+  chk('전 문항 정답률 그대로', seen.qp, made.qp);
+  chk('전 문항 선택 분포 그대로', seen.qopt, made.qopt);
   chk('점수 분포 그대로(백분위 계산용)', seen.totals, made.totals);
   chk('화면에 또래 문구가 나온다', seen.peerText, true);
   await parent.close();
+}
+
+/* ── 1.5부. 옛 형식(v1) 링크 ─────────────────────────────────────────
+   문항당 6바이트짜리 링크가 이미 학부모에게 나갔다. 형식을 줄였다고
+   그 링크들이 빈 성적표가 되면 안 된다. 손으로 v1 바이트를 만들어 읽힌다. */
+async function legacySnapshot(browser, errs) {
+  console.log('\n── 옛 형식(v1) 링크 ──');
+  const page = await browser.newPage();
+  page.on('pageerror', e => errs.push('v1: ' + e.message));
+  await page.goto(U, { waitUntil: 'networkidle' });
+  const got = await page.evaluate(() => {
+    const ex = FINAL_EXAMS.find(e => e.id === 'hwol-2018'), nQ = ex.nQ, N = 12;
+    const miss = new Set(ex.miss || []);
+    const out = [1, nQ, N >> 8, N & 255], want = { qp: [], qopt: [] };
+    for (let q = 1; q <= nQ; q++) {
+      if (miss.has(q)) { out.push(255, 0, 0, 0, 0, 255); want.qp.push(null); want.qopt.push(null); continue; }
+      const p = (q * 7) % 101, o = [(q * 3) % 40, (q * 11) % 30, (q * 5) % 20, (q * 13) % 25];
+      out.push(p, o[0], o[1], o[2], o[3], 120);
+      want.qp.push(p); want.qopt.push(o);
+    }
+    for (let t = 0; t <= nQ; t++) out.push(t === 30 ? 7 : (t === 40 ? 5 : 0));
+    const cs = unpackCohort(ex, b64url(Uint8Array.from(out)));
+    return { ok: !!cs, N: cs && cs.N, qp: cs && cs.qp, qopt: cs && cs.qopt,
+             totals: cs && cs.totals.length, want };
+  });
+  chk('v1 링크가 그대로 읽힌다', got.ok, true);
+  chk('v1 인원수', got.N, 12);
+  chk('v1 정답률 전 문항', got.qp, got.want.qp);
+  chk('v1 선택 분포 전 문항', got.qopt, got.want.qopt);
+  chk('v1 점수 분포', got.totals, 12);
+  await page.close();
 }
 
 /* ── 2부. 이름 감싸기 ────────────────────────────────────────────── */
@@ -196,6 +244,7 @@ async function radarAndSharedUI(browser, errs) {
   const browser = await chromium.launch({ executablePath: CHROMIUM, args: ['--no-sandbox'] });
   const errs = [];
   await cohortSnapshot(browser, errs);
+  await legacySnapshot(browser, errs);
   await nameEncoding(browser, errs);
   await radarAndSharedUI(browser, errs);
   chk('JS 오류 없음', errs, []);
