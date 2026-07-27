@@ -67,6 +67,10 @@ jobs:
         run: python3 tools/dh_lint.py
       - name: 개념 색인이 문항 데이터와 일치
         run: python3 tools/gen_pool_index.py --check
+      # exams.json 이 늦게 와도 앱이 죽지 않도록 파일 안에 심어 둔 예비본.
+      # 손으로 고치는 사본이 아니라 exams.json 에서 생성한 것이라, 어긋나면 빨간불.
+      - name: 시험 목록 예비본이 exams.json 과 일치
+        run: python3 tools/gen_exam_fallback.py --check
       - name: 시험끼리 겹치는 문항 (기준 목록 대비 새로 생긴 것)
         run: python3 tools/dh_dupe_scan.py --cross --baseline
 
