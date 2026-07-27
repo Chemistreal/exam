@@ -125,6 +125,13 @@ python3 tools/dh_dupe_scan.py <examId> [임계값]
 # 5-1) 시험끼리 대조 (완료분 전체)
 python3 tools/dh_dupe_scan.py --cross [임계값]
 
+# 5-1-a) 새로 생긴 겹침만 (CI가 매번 돌린다. 있으면 종료 코드 1)
+#        기준 목록(tools/dupe_baseline.json)에 이미 사람이 읽고 '서로 다른 문항'으로
+#        판정한 22쌍이 적혀 있다. 개수 예산이 아니라 쌍 목록으로 재는 이유는,
+#        한 쌍을 고치면서 다른 쌍을 만들면 총계는 그대로라 예산으로는 못 잡기 때문이다.
+python3 tools/dh_dupe_scan.py --cross --baseline
+python3 tools/dh_dupe_scan.py --cross --baseline --write   # 판정 끝난 뒤 기준 목록 갱신
+
 # 5-2) 집필 중인 파트를 완료분 전체와 대조 (병합 전에 집필자가 직접 돌린다)
 python3 tools/dh_dupe_scan.py --draft <파트.json> 0.35
 
@@ -138,7 +145,51 @@ python3 tools/dh_rebalance.py <examId> --write
 
 # 6) 회귀 테스트 (신·구 스키마 모두 검사)
 python3 tests/wrongbook-assets.py
+
+# 7) 상시 검사 — 표기 잔여 · 정답 분포 · 문항 형식을 한 번에 (CI가 매번 돌린다)
+python3 tools/dh_lint.py
+python3 tools/dh_lint.py -v        # 통과한 시험까지 모두 출력
+
+# 8) 아무도 읽지 않는 자산 찾기 (시험 목록에서 뺀 id 의 answers/·crops/)
+python3 tools/orphan_scan.py
 ```
+
+### CI가 매번 보는 것
+
+`.github/workflows/tests.yml` 이 `final.html`·`tests/`·`tools/`·`donghyung/`·
+`answers/` 중 하나라도 바뀌면 아래를 전부 돌린다. 2400문항은 사람이 매번 훑을 수
+있는 양이 아니라서, **눈으로 못 보는 것만** 기계에 맡긴다.
+
+| 검사 | 무엇을 막나 |
+|---|---|
+| `tests/final-score.js` | 원점수 채점 규칙이 바뀌는 것 |
+| `tests/final-submit-sync.js` | 학생용·교사용 채점이 갈라지는 것 |
+| `tests/final-cohort-alias.js` | 통계 풀 병합·동형문제 세트가 깨지는 것 |
+| `tests/wrongbook-assets.py` | 동형문제 파일·문항이 비거나 손상되는 것 |
+| `tools/dh_lint.py` | 표기가 되돌아가는 것 · 한 선택지로 정답이 쏠리는 것 |
+| `tools/dh_dupe_scan.py --cross --baseline` | 시험끼리 같은 문항이 **새로** 생기는 것 |
+| `tools/orphan_scan.py` | 죽은 자산이 쌓이는 것 (알림만, 빨간불 아님) |
+
+화학 내용의 옳고 그름은 여기서 검사하지 않는다. 그건 집필·검수에서 사람이 한다.
+
+### 브라우저가 있어야 도는 검사
+
+CI 러너에는 브라우저가 없어 아래는 손으로 돌린다. 화면 동작을 바꿨으면 돌려 본다.
+
+```bash
+python3 -m http.server 8931 &          # 저장소 루트에서
+export PLAYWRIGHT_MODULE=/경로/playwright CHROMIUM_PATH=/경로/chrome
+node tests/offline.js               # 오프라인에서 성적표·오답노트가 열리는가
+node tests/share-link.js            # 공유 링크의 또래 통계·이름 감싸기
+node tests/wrongbook-interactive.js # 동형문제 눌러 풀기·회복 기록
+node tests/retest-sheet.js          # 동형 미니 시험지 인쇄
+node tests/prereq-drill.js          # 선수 개념 드릴
+```
+
+`tests/offline.js` 는 **서버를 실제로 죽이고** 잰다. Playwright 의 `setOffline` 이
+이 환경에서 localhost 요청을 막지 못하기 때문이다(직접 확인했다 — 서비스워커를
+지우고 한 번도 부른 적 없는 파일을 불러도 200이 온다). 그걸 모르고 짠 첫 테스트는
+전부 통과하면서 아무것도 증명하지 못했다.
 
 `dh_merge.py` 는 번호 누락·중복을 막고, 기출 참조 필드
 (`sourceExamId`·`sourceQuestion`·`matchLevel`·`image` 등)를 병합 단계에서 제거한다.

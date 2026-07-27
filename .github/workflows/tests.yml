@@ -1,12 +1,36 @@
-# 채점 규칙·학생제출 동기화 검사. 어긋나면 빨간불.
-name: 채점 테스트
+# 채점 규칙·데이터 정합성 검사. 어긋나면 빨간불.
+#
+# 문항 데이터는 사람이 매번 훑을 수 있는 양이 아니다(2400문항). 그래서 눈으로
+# 못 보는 것만 골라 기계가 매번 본다. 화학 내용의 옳고 그름은 검사하지 않는다 —
+# 그건 집필·검수에서 사람이 한다.
+name: 채점 · 데이터 검사
 
 on:
+  # YAML 앵커(&/*)는 GitHub Actions 에서 되기도 안 되기도 해서 쓰지 않는다.
+  # 두 목록을 손으로 맞춰 둔다.
   push:
     branches: [main]
-    paths: ['final.html', 'final-submit.html', 'tests/**']
+    paths:
+      - 'final.html'
+      - 'final-submit.html'
+      - 'tests/**'
+      - 'tools/**'
+      - 'donghyung/**'
+      - 'answers/**'
+      - 'exams.json'
+      - 'AppsScript-Code.gs'
+      - '.github/workflows/tests.yml'
   pull_request:
-    paths: ['final.html', 'final-submit.html', 'tests/**']
+    paths:
+      - 'final.html'
+      - 'final-submit.html'
+      - 'tests/**'
+      - 'tools/**'
+      - 'donghyung/**'
+      - 'answers/**'
+      - 'exams.json'
+      - 'AppsScript-Code.gs'
+      - '.github/workflows/tests.yml'
   workflow_dispatch:
 
 jobs:
@@ -16,8 +40,37 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      # wrongbook-assets.py 가 크롭 PNG 2400장이 실제로 열리는지 확인할 때 쓴다.
+      - name: Pillow 설치
+        run: python3 -m pip install --quiet Pillow
+
+      # ── 채점 ──────────────────────────────────────────────
       - name: 원점수 채점 규칙
         run: node tests/final-score.js
       - name: 학생제출 ↔ 교사용 동기화
         run: node tests/final-submit-sync.js
+
+      # ── 데이터 정합성 ─────────────────────────────────────
+      - name: 통계 풀 병합 · 동형문제 세트
+        run: node tests/final-cohort-alias.js
+      - name: 시트 동기화 시험 제목 표
+        run: node tests/appsscript-sync.js
+      - name: 시험 제목 표가 시험 목록과 일치
+        run: python3 tools/gen_exam_titles.py
+      - name: 동형문제 자산 (전 시험 전 문항)
+        run: python3 tests/wrongbook-assets.py
+      - name: 표기 · 정답 분포 · 문항 형식
+        run: python3 tools/dh_lint.py
+      - name: 개념 색인이 문항 데이터와 일치
+        run: python3 tools/gen_pool_index.py --check
+      - name: 시험끼리 겹치는 문항 (기준 목록 대비 새로 생긴 것)
+        run: python3 tools/dh_dupe_scan.py --cross --baseline
+
+      # 떠 있는 자산은 빨간불까지 낼 일은 아니라 알림만 남긴다.
+      # (지울지는 남긴 쪽과 같은 내용인지 사람이 보고 정한다)
+      - name: 아무도 읽지 않는 자산
+        run: python3 tools/orphan_scan.py

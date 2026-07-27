@@ -24,6 +24,8 @@ jmchc-7 37번이 둘 다 꼭짓점·면심·체심에서 AB₃C를 세는 문항
 사용:
     python3 tools/dh_dupe_scan.py <examId> [임계값]        # 한 시험 안
     python3 tools/dh_dupe_scan.py --cross [임계값]         # 재집필 완료분 전체 대조
+    python3 tools/dh_dupe_scan.py --cross --baseline       # 새로 생긴 겹침만 (CI용, 있으면 종료 1)
+    python3 tools/dh_dupe_scan.py --cross --baseline --write  # 판정 끝난 뒤 기준 목록 갱신
     python3 tools/dh_dupe_scan.py --draft <파트.json> [임계값]  # 집필 중인 파트를 완료분과 대조
 """
 
@@ -91,11 +93,15 @@ def scan_one(exam_id: str, threshold: float) -> None:
             print(f"      {key:>2}[{questions[key].get('concept','')}] {head}")
 
 
-def scan_cross(threshold: float) -> None:
+def scan_cross(threshold: float, baseline: Path | None = None, write: bool = False) -> int:
     """모든 재집필본을 서로 대조한다.
 
     1700문항을 전부 짝지으면 150만 쌍이라 느리다. 흔한 3-그램은 후보를 좁히는 데
     쓰지 않고, 드문 3-그램을 하나라도 공유하는 쌍만 실제로 계산한다.
+
+    `baseline` 을 주면 이미 사람이 읽고 넘어간 쌍은 조용히 지나가고 **새로 생긴
+    쌍만** 알린다(있으면 종료 코드 1). 개수 예산이 아니라 쌍 목록으로 재는 이유는,
+    한 쌍을 고치면서 다른 쌍을 만들면 총계는 그대로라 예산으로는 못 잡기 때문이다.
     """
     grams: dict[tuple[str, str], set[str]] = {}
     stems: dict[tuple[str, str], str] = {}
@@ -133,10 +139,50 @@ def scan_cross(threshold: float) -> None:
 
     hits.sort(reverse=True)
     print(f"문항 {len(grams)}개 · 실제 비교 {len(candidates)}쌍 · 유사도 {threshold} 이상 {len(hits)}건")
-    for score, a, b in hits:
+
+    def label(a, b) -> str:
+        return f"{a[0]} {a[1]} ↔ {b[0]} {b[1]}"
+
+    def show(score, a, b) -> None:
         print(f"  {score:.2f}  {a[0]} {a[1]}  ↔  {b[0]} {b[1]}")
         for key in (a, b):
             print(f"      [{concepts[key]}] {stems[key].splitlines()[0][:66]}")
+
+    if baseline is None:
+        for score, a, b in hits:
+            show(score, a, b)
+        return 0
+
+    if write:
+        payload = {
+            "threshold": threshold,
+            "note": "사람이 읽고 '서로 다른 문항'으로 판정한 쌍. 지문 상투구 때문에 "
+                    "유사도만 높게 나온 것들이다. 새 쌍이 생기면 읽어 보고 여기에 "
+                    "추가하거나 문항을 고친다.",
+            "pairs": sorted(label(a, b) for _, a, b in hits),
+        }
+        baseline.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=1) + "\n", encoding="utf-8"
+        )
+        print(f"기준 목록 {len(payload['pairs'])}쌍을 {baseline.name} 에 새로 적었다.")
+        return 0
+
+    known = set(json.loads(baseline.read_text(encoding="utf-8"))["pairs"])
+    fresh = [(s, a, b) for s, a, b in hits if label(a, b) not in known]
+    gone = known - {label(a, b) for _, a, b in hits}
+
+    if gone:
+        print(f"기준 목록에만 있고 지금은 없는 쌍 {len(gone)}개(문항을 고쳤다면 정상):")
+        for item in sorted(gone):
+            print(f"      {item}")
+    if not fresh:
+        print(f"PASS 새로 생긴 겹침 없음 (기준 목록 {len(known)}쌍)")
+        return 0
+    print(f"\nFAIL 새로 생긴 겹침 {len(fresh)}건 — 읽어 보고 고치거나 기준 목록에 추가한다")
+    for score, a, b in fresh:
+        show(score, a, b)
+    print("\n  판정 후 기준 목록 갱신:  python3 tools/dh_dupe_scan.py --cross --baseline --write")
+    return 1
 
 
 def scan_draft(path: str, threshold: float) -> None:
@@ -181,7 +227,16 @@ def main() -> None:
         print(__doc__)
         raise SystemExit(1)
     if args[0] == "--cross":
-        scan_cross(float(args[1]) if len(args) > 1 else 0.45)
+        rest = args[1:]
+        use_baseline = "--baseline" in rest
+        write = "--write" in rest
+        nums = [a for a in rest if not a.startswith("--")]
+        code = scan_cross(
+            float(nums[0]) if nums else 0.45,
+            baseline=(ROOT / "tools" / "dupe_baseline.json") if use_baseline else None,
+            write=write,
+        )
+        raise SystemExit(code)
     elif args[0] == "--draft":
         if len(args) < 2:
             print(__doc__)
