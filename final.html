@@ -593,6 +593,16 @@ summary::-webkit-details-marker{display:none}
    않고 눈으로 따라가기만 하므로 동형문제를 붙인 뜻이 사라진다. 정답·해설은 아래
    `.wb-dh-reveal` 안에 접어 두고, 학생이 스스로 풀어 본 뒤 펼치게 한다. */
 .wb-dh-reveal{margin-top:12px;border-top:1px dashed var(--line);padding-top:11px}
+/* 세트 동형문제를 다 풀고도 더 필요한 학생용. 접혀 있고, 누를 때 받아 온다.
+   기본으로 펼쳐 두면 성적표가 한없이 길어지고 안 볼 문제까지 내려받게 된다. */
+.wb-more{margin-top:14px}
+.wb-more>summary{cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:6px;
+  font-size:12.5px;font-weight:700;color:var(--brass-d,#7A5E1C);background:var(--brass-t,#F1E7CF);
+  border:1px solid #e0d3ad;border-radius:999px;padding:5px 13px;-webkit-user-select:none;user-select:none}
+.wb-more>summary::-webkit-details-marker{display:none}
+.wb-more>summary::before{content:'＋';font-size:11px}
+.wb-more[open]>summary::before{content:'−'}
+.wb-more-body{margin-top:10px}
 .wb-dh-reveal>summary{cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:6px;
   font-size:12.5px;font-weight:700;color:var(--teal);background:var(--ok-bg);border:1px solid #cfe3da;
   border-radius:999px;padding:5px 13px;-webkit-user-select:none;user-select:none}
@@ -2240,8 +2250,90 @@ function wbCardHTML(exam,w,qd,dqs,co){
   } else {
     dhHTML='<div class="wb-missing">이 문항의 연습 문제는 준비 중입니다. 위 <b>원문</b>과 <b>개념 보충</b>·개념 강의로 복습하세요.</div>';
   }
-  return '<article class="wb-card" data-q="'+q+'">'+head+origHTML+whyHTML+fixHTML+peerHTML+dhHTML+'</article>';
+  /* 같은 개념 더 풀기. 세트로 붙은 동형문제를 다 풀고도 더 필요한 학생을 위해
+     2400문항 전체에서 같은 개념 문항을 끌어온다. 누를 때 받아 오므로 성적표를
+     여는 값은 그대로다(색인 gzip 18KB + 그 문항이 든 시험 파일 하나). */
+  var seed=usable[0]||qd||{};
+  var poolKey=esc((seed.concept||'')+'|'+(seed.area||''));
+  var moreHTML='<details class="wb-more" data-pool="'+poolKey+'">'
+    +'<summary>같은 개념 더 풀기</summary>'
+    +'<div class="wb-more-body">불러오는 중…</div></details>';
+  return '<article class="wb-card" data-q="'+q+'">'+head+origHTML+whyHTML+fixHTML+peerHTML+dhHTML+moreHTML+'</article>';
 }
+/* ── 개념으로 문제 더 찾기 ────────────────────────────────────────────
+   동형문제를 `시험 → 문항번호` 로만 찾을 수 있어서, 한 문항에 붙는 연습 문제는
+   그 시험에 집필해 둔 것이 전부였다. 2400문항이 시험 칸막이에 갇혀 있던 셈이다.
+
+   donghyung/index.json 은 '어디에 무엇이 있는지'만 담은 색인이다(지문·해설은
+   들어 있지 않다). 세부 개념으로 먼저 찾고, 모자라면 대분류로 넓힌다.
+   세부 개념 597가지 중 303가지는 문항이 하나뿐이라 두 층이 필요하다. */
+var _poolIndex=null, _poolFiles={};
+async function poolIndex(){
+  if(_poolIndex) return _poolIndex;
+  try{
+    var r=await fetch('donghyung/index.json',{cache:'no-store'});
+    _poolIndex=r.ok?await r.json():{broad:{},concept:{}};
+  }catch(e){ _poolIndex={broad:{},concept:{}}; }
+  return _poolIndex;
+}
+async function poolFile(id){
+  if(_poolFiles[id]) return _poolFiles[id];
+  try{
+    var r=await fetch('donghyung/'+id+'.json',{cache:'no-store'});
+    var j=r.ok?await r.json():null;
+    _poolFiles[id]=(j&&(j.questions||j))||{};
+  }catch(e){ _poolFiles[id]={}; }
+  return _poolFiles[id];
+}
+/* 이 시험(세트 포함)에서 이미 보여 준 것은 빼고 고른다. */
+async function poolPick(concept,area,examId,want){
+  var idx=await poolIndex();
+  var mine={}; dhSetIds(examId).forEach(function(x){ mine[x]=1; });
+  var seen={}, out=[];
+  function take(refs){
+    (refs||[]).forEach(function(ref){
+      if(out.length>=want) return;
+      var bits=ref.split(':');
+      if(mine[bits[0]]||seen[ref]) return;
+      seen[ref]=1; out.push({file:bits[0],q:bits[1]});
+    });
+  }
+  take(idx.concept&&idx.concept[concept]);                 // 세부 개념 먼저
+  if(out.length<want) take(idx.broad&&idx.broad[area]);    // 모자라면 대분류로
+  return out;
+}
+async function loadMore(details){
+  if(details.dataset.loaded) return;
+  details.dataset.loaded='1';
+  var body=details.querySelector('.wb-more-body'); if(!body) return;
+  var bits=(details.dataset.pool||'|').split('|');
+  var picks=[];
+  try{ picks=await poolPick(bits[0],bits[1],(cur&&cur.id)||'',2); }catch(e){}
+  var made=[];
+  for(var i=0;i<picks.length;i++){
+    var qs=await poolFile(picks[i].file), dq=qs[picks[i].q];
+    if(!dhUsable(dq)) continue;
+    var stem=dq.stemHtml||esc(dq.stem||'');
+    var sol=dq.explanationHtml||esc(dq.explanation||'');
+    var mis=dq.misconception||'';
+    made.push('<div class="wb-dh"><div class="wb-dh-h">같은 개념 문제 '+CIRC[made.length+1]
+      +'<span class="wb-dh-src">'+esc(dq.concept||dq.area||'')+'</span></div>'
+      +(stem?('<div class="wb-stem">'+stem+'</div>'):'')
+      +wbChoiceList(dq)
+      +'<details class="wb-dh-reveal"><summary>정답 · 해설 보기</summary>'
+      +'<div class="wb-dh-ans">정답 <b>'+(dq.answer?CIRC[Number(dq.answer)]:'·')+'</b></div>'
+      +(sol?'<div class="wb-dh-sol"><b>해설</b> '+sol+'</div>':'')
+      +(mis?'<div class="wb-mis"><b>오개념</b> '+esc(mis)+'</div>':'')
+      +'</details></div>');
+  }
+  body.innerHTML=made.length?made.join('')
+    :'<div class="wb-missing">같은 개념의 다른 문제가 아직 없습니다.</div>';
+}
+/* details 의 toggle 은 버블링하지 않으므로 캡처 단계에서 받는다. */
+document.addEventListener('toggle',function(e){
+  var t=e.target;
+  if(t&&t.classList&&t.classList.contains('wb-more')&&t.open) loadMore(t);
+},true);
 async function hydrateWrongbook(exam,wrong){
   var root=document.getElementById('wrongbook'); if(!root)return;
   var answers={}, analogues={};
