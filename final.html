@@ -1862,40 +1862,60 @@ function loopSec(exam,sel){
    같은 이름으로 여러 시험을 본 기록을 모아, 문항 유형별로 몇 번 만나 몇 번
    틀렸는지 센다. 시험 하나에서만 틀린 유형은 그날 컨디션일 수 있으므로,
    **서로 다른 시험 두 개 이상에서** 틀린 것만 보여 준다. */
-function misconceptionSec(exam){
+/* 반복 오답 유형을 숫자로만 낸다. 화면과 Word 가 같은 값을 쓰도록 계산은 한 곳에.
+   반환 배열에 takes(응시 시험 수)를 달아 둔다. */
+/* 유형 이름으로 오개념 설명을 찾되, 없으면 그 유형이 속한 대분류의 함정 설명으로
+   채운다. OMLIB 에 없는 세부 유형(PV=nRT 같은 것)이 꽤 있어서 그냥 두면 빈칸이 된다. */
+function missWhy(exam,ty){
+  var why=omFor(ty); if(why) return why;
+  try{
+    var idx=(exam.type||[]).indexOf(ty);
+    var area=(idx>=0&&exam.area)?exam.area[idx]:ty;
+    var bd=RX[area]?area:(RXMAP[area]||area);
+    if(RX[bd]&&RX[bd].t) return RX[bd].t;
+  }catch(e){}
+  return '';
+}
+function repeatedMisses(exam){
   var nmEl=document.getElementById('nm');
   var nm=(nmEl?nmEl.value:((window.__rpt&&window.__rpt.name)||'')).trim();
-  if(!nm) return '';
-  // 시험마다 이 학생의 가장 최근 응시 한 건
+  if(!nm) return [];
   var takes=[];
   FINAL_EXAMS.forEach(function(e){
     var a=subs(e.id).filter(function(r){ return r.name&&r.name.trim()===nm&&r.ans&&r.ans.length===e.nQ; });
     if(a.length) takes.push({e:e,ans:a[a.length-1].ans});
   });
-  if(takes.length<2) return '';
-
-  var stat={};   // 유형 → {met:만난 횟수, bad:틀린 횟수, exams:{시험id:1}}
+  if(takes.length<2) return [];
+  var stat={};
   takes.forEach(function(t){
     var miss=new Set(t.e.miss||[]);
     for(var q=1;q<=t.e.nQ;q++){
       if(miss.has(q)) continue;
       var ty=(t.e.type&&t.e.type[q-1])||(t.e.area&&t.e.area[q-1])||'';
       if(!ty) continue;
-      var s=stat[ty]||(stat[ty]={met:0,bad:0,exams:{}});
-      s.met++;
-      if(!okq(t.e,q,t.ans[q-1]||0)){ s.bad++; s.exams[t.e.id]=1; }
+      var st=stat[ty]||(stat[ty]={met:0,bad:0,exams:{}});
+      st.met++;
+      if(!okq(t.e,q,t.ans[q-1]||0)){ st.bad++; st.exams[t.e.id]=1; }
     }
   });
   var rows=Object.keys(stat).map(function(ty){
-    var s=stat[ty];
-    return {ty:ty,met:s.met,bad:s.bad,nEx:Object.keys(s.exams).length,rate:s.bad/s.met};
+    var st=stat[ty];
+    return {ty:ty,met:st.met,bad:st.bad,nEx:Object.keys(st.exams).length,rate:st.bad/st.met};
   }).filter(function(r){ return r.nEx>=2; })
     .sort(function(a,b){ return (b.nEx-a.nEx)||(b.rate-a.rate)||(b.bad-a.bad); })
     .slice(0,6);
-  if(!rows.length) return '';
+  rows.takes=takes.length; rows.name=nm;
+  return rows;
+}
+function misconceptionSec(exam){
+  var nmEl=document.getElementById('nm');
+  var nm=(nmEl?nmEl.value:((window.__rpt&&window.__rpt.name)||'')).trim();
+  if(!nm) return '';
+  var rows=repeatedMisses(exam); if(!rows.length) return '';
+  var takes={length:rows.takes};
 
   var items=rows.map(function(r){
-    var why=omFor(r.ty)||'';
+    var why=missWhy(exam,r.ty);
     var lec=lecForType(r.ty);
     var pct=Math.round(r.rate*100);
     return '<div class="note" style="margin:9px 0 0;border-left-color:'+(r.rate>=0.6?'var(--ms)':'var(--brass)')+'">'
@@ -1927,18 +1947,26 @@ function misconceptionSec(exam){
    원문을 틀린 문항의 동형문제를 맞히면 **회복**이다 — 숫자와 조건이 달라져도
    같은 개념을 적용했다는 뜻이니까. 동형문제까지 틀리면 그 문항은 아직 남아 있고,
    어느 선택지를 골랐는지가 무엇에 걸리는지를 말해 준다. */
-function recoverySec(exam){
-  var nm=((window.__rpt&&window.__rpt.name)||'').trim(); if(!nm) return '';
+/* 회복 현황을 숫자로만 낸다. 화면(recoverySec)과 Word 가 같은 값을 쓰도록
+   계산을 한 곳에 둔다. 기록이 없으면 빈 배열. */
+function dhRecovery(exam){
+  var nm=((window.__rpt&&window.__rpt.name)||'').trim(); if(!nm) return [];
   var log=dhLog(exam.id).filter(function(r){ return r.name===nm; });
-  if(!log.length) return '';
+  if(!log.length) return [];
   var byQ={};
   log.forEach(function(r){ (byQ[r.q]=byQ[r.q]||[]).push(r); });
   var qs=Object.keys(byQ).map(Number).sort(function(a,b){return a-b;});
   var solved=[], stuck=[];
-  qs.forEach(function(q){
-    (byQ[q].some(function(r){ return r.ok; })?solved:stuck).push(q);
-  });
-  var tried=log.length, right=log.filter(function(r){return r.ok;}).length;
+  qs.forEach(function(q){ (byQ[q].some(function(r){ return r.ok; })?solved:stuck).push(q); });
+  var out=qs;
+  out.solved=solved; out.stuck=stuck;
+  out.tried=log.length; out.right=log.filter(function(r){return r.ok;}).length;
+  out.rate=qs.length?Math.round(solved.length/qs.length*100):0;
+  return out;
+}
+function recoverySec(exam){
+  var qs=dhRecovery(exam); if(!qs.length) return '';
+  var solved=qs.solved, stuck=qs.stuck, tried=qs.tried, right=qs.right;
 
   var stuckHTML='';
   if(stuck.length){
@@ -1955,7 +1983,7 @@ function recoverySec(exam){
       +'<div style="font-size:12.5px;color:var(--muted);margin-top:5px">'
       +'원문은 틀렸지만 같은 개념을 다른 조건에서 맞혔습니다. 개념이 잡힌 것으로 봅니다.</div></div>';
   }
-  var rate=qs.length?Math.round(solved.length/qs.length*100):0;
+  var rate=qs.rate;
   return '<div class="sec" style="border-left:3px solid var(--teal)">'+secH('동형문제 회복률')
     +'<div class="sub">틀린 문항의 동형문제를 직접 풀어 본 결과입니다. '
     +'<b>'+qs.length+'문항</b>에 도전해 <b>'+solved.length+'문항</b>을 회복했습니다'
@@ -3127,7 +3155,10 @@ async function downloadReportDOCX(){
   // 섹션 구성(목차·본문 번호 동기화). 실제 렌더되는 섹션만 포함해 번호를 부여한다.
   var sections=[{key:'overview',t:'진단 개요',d:'원점수·현재 등급·수상권 로드맵'}];
   if(areas.length) sections.push({key:'area',t:'영역별 성취',d:'영역별 정답률과 강·약점 판정'});
+  if(cur.cut&&total>0) sections.push({key:'win',t:'수상 확률',d:'베이지안 추정 · 등급별 달성 확률과 한계 이득'});
   sections.push({key:'grid',t:'문항별 정오표',d:'전 문항 정오와 오답 분포 한눈에'+(optOK?' · 또래 함정 분석':'')});
+  if(dhRecovery(cur).length) sections.push({key:'recover',t:'동형문제 회복률',d:'틀린 문항을 실제로 고쳤는지'});
+  if(repeatedMisses(cur).length) sections.push({key:'repeat',t:'되풀이되는 오개념',d:'여러 시험에서 반복해 틀린 유형'});
   if(growth) sections.push({key:'growth',t:'성장 추적',d:'지난 진단 대비 전체·영역별 변화'});
   if(hasRx) sections.push({key:'rx',t:'학습 처방',d:'약점 영역별 핵심 개념·함정·복습 처방'});
   sections.forEach(function(s,i){ s.no=('0'+(i+1)).slice(-2); });
@@ -3142,6 +3173,9 @@ async function downloadReportDOCX(){
   }));
   // 고급 장식 자산(직접 생성한 길로셰 표지 배경 + 금박 구분선). 없으면 조용히 생략.
   var coverBg=await _fetchBin('assets/report/cover-bg.jpg'), dividerOrn=await _fetchImg('assets/report/divider-orn.png'), frameBg=await _fetchImg('assets/report/frame-bg.png');
+  // 다원 로고. 저장소에 있는데 성적표 어디에도 쓰이지 않고 있었다.
+  // 여백을 잘라 낸 판(_trim)이 표지에 앉히기 좋다.
+  var dawonLogo=await _fetchImg('dawon_logo_trim.png');
 
   // ── 색·헬퍼 ──
   // 팔레트: 네이비 + 골드 (EM=주색 네이비, EMT=옅은 네이비 틴트, EMLBL=밝은 네이비 라벨)
@@ -3164,6 +3198,11 @@ async function downloadReportDOCX(){
   function bgFullPara(u8,type){ if(!u8) return new Paragraph({children:[]}); return new Paragraph({spacing:{after:0,before:0,line:1,lineRule:LineRule.AUTO},children:[new ImageRun({type:type||'png',data:u8,transformation:{width:794,height:1123},floating:{horizontalPosition:{relative:HPos.PAGE,offset:0},verticalPosition:{relative:VPos.PAGE,offset:0},behindDocument:true,allowOverlap:true,wrap:{type:TWrap.NONE}}})]}); }
   // 금박 구분선 오너먼트(가운데 정렬)
   function ornPara(u8,ww,o){ o=o||{}; if(!u8) return P([],{after:o.after==null?100:o.after}); var w=ww||300; return P([new ImageRun({type:'png',data:u8,transformation:{width:w,height:Math.round(w*54/600)}})],{align:AlignmentType.CENTER,before:o.before==null?40:o.before,after:o.after==null?140:o.after}); }
+  // 로고는 가로 비율을 원본에서 읽어 찌그러지지 않게 넣는다.
+  function logoPara(u8,ww,o){ o=o||{}; if(!u8) return P([],{after:o.after==null?100:o.after});
+    var d=_pngDims(u8)||{w:ww,h:Math.round(ww*0.54)}, w=ww||190, h=Math.round(w*(d.h||1)/(d.w||1));
+    return P([new ImageRun({type:'png',data:u8,transformation:{width:w,height:h}})],
+      {align:AlignmentType.CENTER,before:o.before==null?0:o.before,after:o.after==null?100:o.after}); }
   function esc2(s){return String(s==null?'':s);}
   function lecToParas(html){ var out=[]; var doc; try{ doc=new DOMParser().parseFromString(html||'','text/html'); }catch(e){ return out; }
     var nodes=doc.body.querySelectorAll('h1,h2,h3,h4,h5,p,li');
@@ -3175,6 +3214,7 @@ async function downloadReportDOCX(){
   var body=[];
   // ── 표지 (배경 길로셰+化 씰은 첫 페이지 헤더 이미지. 텍스트는 상단(제목)·하단(이름)에 배치) ──
   body.push(P([],{before:1300}),
+    logoPara(dawonLogo,190,{after:120}),
     txt('화학올림피아드 정밀 진단',{align:AlignmentType.CENTER,color:MUT,size:22,after:130}),
     txt('성적 진단서',{align:AlignmentType.CENTER,bold:true,size:78,serif:true,after:150}),
     txt(cur.title,{align:AlignmentType.CENTER,color:EM,size:30,serif:true,after:90}),
@@ -3259,6 +3299,57 @@ async function downloadReportDOCX(){
   }
 
   // ── 문항별 정오표 (전 문항 정오 맵) ──
+  // ── 수상 확률 · 베이지안 추정 ────────────────────────────────────────
+  // 화면에는 있는데 Word 에는 통째로 빠져 있었다. 학부모가 가장 먼저 찾는 숫자다.
+  // 계산은 화면과 같은 winProb() 을 그대로 쓴다(값이 갈라질 수 없다).
+  try{
+    if(cur.cut&&total>0){
+      var wp=winProb(total,correct,cur.cut);
+      if(wp){
+        body.push(PB(),kicker('❖  PROBABILITY  ❖'),H('수상 확률',secNo('win')),
+          txt('이번 성적을 바탕으로, 비슷한 난이도의 실전에서 각 등급 이상을 받을 확률입니다. '
+             +'한 번의 시험에서 추정한 값이라 폭이 있으며, 응시가 쌓일수록 정밀해집니다.',{after:150}));
+        // 수상(장려상 이상) 확률을 크게
+        var pA=Math.round((wp[4]||0)*100);
+        body.push(TBL([CW],[ROW([C([
+          P([run('수상(장려상 이상) 확률',{color:EMLBL,size:16,cs:30})],{align:AlignmentType.CENTER,after:30}),
+          P([run(pA+'%',{bold:true,color:'FFFFFF',size:64,serif:true})],{align:AlignmentType.CENTER,after:0})
+        ],{w:CW,fill:EM,mt:200,mb:200})])]),P([],{after:160}));
+        // 등급별 막대. Word 에는 막대 도형이 없으니 채운 칸의 너비로 흉내 낸다.
+        var barW=Math.floor(CW*0.56), labW=1500, pctW=CW-barW-labW;
+        var wpRows=TIERS.map(function(t,i){
+          var pct=Math.round((wp[i]||0)*100);
+          var fill=Math.max(1,Math.round(barW*pct/100)), rest=barW-fill;
+          var cells=[cellT(t+' 이상',{w:labW,size:19,bold:true,color:EM}),
+                     C([TBL([fill,Math.max(1,rest)],[ROW([
+                        C([P([],{before:0,after:0})],{w:fill,fill:(i<=1?GOLD:EM),mt:34,mb:34,ml:0,mr:0}),
+                        C([P([],{before:0,after:0})],{w:Math.max(1,rest),fill:'EDE8DC',mt:34,mb:34,ml:0,mr:0})])])],
+                       {w:barW,ml:60,mr:60}),
+                     cellT(pct+'%',{w:pctW,size:19,align:AlignmentType.RIGHT,color:MUT})];
+          return ROW(cells);
+        });
+        body.push(TBL([labW,barW,pctW],wpRows));
+        // 한계 이득 — 쉬운데 틀린 문항을 고치면 확률이 얼마나 오르는지
+        var careless=0;
+        if(cs&&cs.ready&&cs.qp){ var mset=new Set(cur.miss||[]);
+          for(var q=1;q<=cur.nQ;q++){ if(mset.has(q))continue; var d=cs.qp[q-1];
+            if(d!=null&&d>=70&&!okq(cur,q,sel[q]||0)) careless++; } }
+        if(careless>0){
+          var wp2=winProb(total,Math.min(total,correct+careless),cur.cut);
+          var gains=TIERS.map(function(t,i){ return {t:t,base:wp[i],d:Math.round(((wp2[i]||0)-(wp[i]||0))*100)}; })
+            .filter(function(g){ return g.base<0.95&&g.d>0; }).sort(function(a,b){ return b.d-a.d; }).slice(0,2);
+          if(gains.length){
+            body.push(P([run('한계 이득  ',{bold:true,color:GOLD,size:20}),
+              run('또래가 대부분 맞힌 쉬운 문항 '+careless+'개를 고치면 '
+                 +gains.map(function(g){ return g.t+' 이상 +'+g.d+'%p'; }).join(' · ')
+                 +'. 가장 큰 점수 여력이 여기 있습니다.',{size:20})],
+              {before:200,after:60,border:{top:bdr(GOLDL,4)}}));
+          }
+        }
+      }
+    }
+  }catch(e){}
+
   body.push(PB(),kicker('❖  ITEM MAP  ❖'),H('문항별 정오표',secNo('grid')),
     txt('전체 '+cur.nQ+'문항의 정오를 한눈에 정리했습니다. 오답이 앞·뒤 어디에 몰려 있는지 보면 시간 배분·집중력 관리의 단서가 됩니다.',{after:110}));
   // 범례
@@ -3447,6 +3538,52 @@ async function downloadReportDOCX(){
     }
   }catch(e){}
 
+  // ── 동형문제 회복률 · 되풀이되는 오개념 ──────────────────────────────
+  // 둘 다 화면에만 있던 것이다. "무엇을 틀렸나"는 정오표가 말해 주지만
+  // "그래서 고쳤나"와 "매번 같은 자리에서 걸리나"는 여기서만 알 수 있다.
+  try{
+    var rec=dhRecovery(cur);
+    if(rec.length){
+      body.push(PB(),kicker('❖  RECOVERY  ❖'),H('동형문제 회복률',secNo('recover')),
+        txt('틀린 문항의 동형문제를 직접 풀어 본 결과입니다. 숫자와 조건이 달라져도 같은 개념을 '
+           +'적용했다면 개념이 잡힌 것으로 봅니다.',{after:150}));
+      body.push(TBL([CW],[ROW([C([
+        P([run(rec.length+'문항에 도전해 ',{color:'FFFFFF',size:22}),
+           run(rec.solved.length+'문항',{bold:true,color:'FFFFFF',size:40,serif:true}),
+           run(' 회복  ('+rec.rate+'%)',{color:'FFFFFF',size:22})],{align:AlignmentType.CENTER,after:0})
+      ],{w:CW,fill:EM,mt:170,mb:170})])]),P([],{after:140}));
+      if(rec.solved.length) body.push(P([run('회복한 문항  ',{bold:true,color:EM,size:20}),
+        run(rec.solved.map(function(q){return q+'번';}).join(' · '),{size:20})],{after:60}));
+      if(rec.stuck.length) body.push(P([run('아직 남은 문항  ',{bold:true,color:RED,size:20}),
+        run(rec.stuck.map(function(q){return q+'번';}).join(' · '),{size:20}),
+        run('   원문도 동형문제도 틀렸습니다. 개념 보충을 다시 읽고 한 문제 더 풀어 보게 하세요.',{color:MUT,size:18})],{after:60}));
+    }
+  }catch(e){}
+  try{
+    var rep=repeatedMisses(cur);
+    if(rep.length){
+      body.push(PB(),kicker('❖  RECURRING  ❖'),H('되풀이되는 오개념',secNo('repeat')),
+        txt('응시한 '+rep.takes+'개 시험을 모아, 서로 다른 시험 두 개 이상에서 반복해 틀린 유형만 골랐습니다. '
+           +'한 번 틀린 것은 그날의 실수일 수 있지만, 여러 시험에서 같은 자리에 걸린다면 개념이 자리 잡지 '
+           +'않은 것입니다.',{after:150}));
+      var rw1=Math.floor(CW*0.30), rw2=Math.floor(CW*0.22), rw3=CW-rw1-rw2;
+      var repRows=[ROW([cellT('유형',{w:rw1,bold:true,color:EM,size:19,fill:EMT}),
+                        cellT('시험 · 오답',{w:rw2,bold:true,color:EM,size:19,fill:EMT,align:AlignmentType.CENTER}),
+                        cellT('무엇에 걸리나',{w:rw3,bold:true,color:EM,size:19,fill:EMT})],{header:true})];
+      rep.forEach(function(r){
+        repRows.push(ROW([
+          cellT(r.ty,{w:rw1,bold:true,size:19}),
+          cellT('시험 '+r.nEx+'개 · '+r.bad+'/'+r.met+' ('+Math.round(r.rate*100)+'%)',
+                {w:rw2,size:18,color:MUT,align:AlignmentType.CENTER}),
+          cellT(missWhy(cur,r.ty)||'-',{w:rw3,size:18})]));
+      });
+      body.push(TBL([rw1,rw2,rw3],repRows,
+        {top:bdr(EM,8),bottom:bdr(EM,8),left:NB,right:NB,insideHorizontal:bdr('E6DDC8',2),insideVertical:NB}));
+      body.push(P([run('가장 급한 것은 '+rep[0].ty+'입니다 — 시험 '+rep[0].nEx+'개에서 걸렸습니다. '
+        +'다음 학습은 여기부터 잡는 것이 가장 빠릅니다.',{color:MUT,size:19})],{before:140}));
+    }
+  }catch(e){}
+
   // ── 부록 · 동형 미니 시험지 ────────────────────────────────────────────
   // 화면의 '동형 미니 시험지 인쇄' 버튼과 같은 내용을 Word 맨 뒤에도 붙인다.
   // 성적표를 Word 로 저장해 두면 시험지를 따로 뽑을 필요 없이 뒷장만 인쇄하면 된다.
@@ -3489,7 +3626,7 @@ async function downloadReportDOCX(){
   }catch(e){}
 
   // ── 마무리 ──
-  body.push(P([],{before:200}),P([run('이 리포트는 '+(nm||'학생')+' 학생을 위한 개인 맞춤 분석 자료입니다.  ·  Chemistreal · 조준모 화학',{color:MUT,size:16,i:true})],{align:AlignmentType.CENTER,before:200}));
+  body.push(P([],{before:200}),logoPara(dawonLogo,120,{before:60,after:60}),P([run('이 리포트는 '+(nm||'학생')+' 학생을 위한 개인 맞춤 분석 자료입니다.  ·  Chemistreal · 조준모 화학',{color:MUT,size:16,i:true})],{align:AlignmentType.CENTER,before:200}));
 
   // 프레임/표지는 헤더 이미지로(모든 뷰어에서 안정적으로 모든 페이지에 표시)
   var firstHdr=new Header({children:[bgFullPara(coverBg,'jpg')]});
