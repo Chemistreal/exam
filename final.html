@@ -1039,6 +1039,17 @@ function methodSec(exam){
    ${glossHTML()}
   </div>`;
 }
+/* 레이더에 쓸 또래 평균을 **세부 영역** 기준으로 낸다.
+   대분류로 접으면 한 단원짜리 시험은 축이 두세 개로 줄어 그림이 삼각형이 된다.
+   (jmchc-4 는 1단원 시험이라 대분류가 원자모형·주기율·분자의모양 셋뿐이었다.)
+   아래 막대 그래프가 이미 세부 영역으로 보여 주므로 같은 기준으로 맞춘다. */
+function cohortDomFine(exam,cs){
+  if(!cs||!cs.ready||!cs.qp||!exam.area)return null;
+  const miss=new Set(exam.miss||[]); const ag={};
+  for(let q=1;q<=exam.nQ;q++){ if(miss.has(q))continue; if(cs.qp[q-1]==null)continue;
+    const a=exam.area[q-1]||'기타'; (ag[a]=ag[a]||{s:0,n:0}); ag[a].s+=cs.qp[q-1]; ag[a].n++; }
+  const out={}; for(const a in ag) out[a]=Math.round(ag[a].s/ag[a].n); return out;
+}
 function cohortDomBroad(exam,cs){
   if(!cs||!cs.ready||!exam.area)return null;
   const miss=new Set(exam.miss||[]); const ag={};
@@ -1047,18 +1058,21 @@ function cohortDomBroad(exam,cs){
 }
 function radarSVG(doms,stu,coh,est){
   const n=doms.length; if(n<3)return '';
-  const cx=200,cy=180,R=116;
+  // 축이 많아지면 이름이 서로 겹친다. 축 수에 따라 그림을 키우고 글자를 줄인다.
+  const big=n>8;
+  const cx=big?230:200, cy=big?205:180, R=big?126:116;
+  const VW=big?460:400, VH=big?410:360, FS=big?7.6:8.5;
   const ang=i=>-Math.PI/2+i*2*Math.PI/n;
   const pt=(i,scale)=>{const r=R*scale; return (cx+r*Math.cos(ang(i))).toFixed(1)+','+(cy+r*Math.sin(ang(i))).toFixed(1);};
   const poly=vals=>doms.map((d,i)=>pt(i,(vals&&vals[d]!=null?vals[d]:0)/100)).join(' ');
   const ring=f=>doms.map((d,i)=>pt(i,f)).join(' ');
   const grid=[0.25,0.5,0.75,1].map(f=>`<polygon points="${ring(f)}" fill="none" stroke="var(--line)" stroke-width="1"/>`).join('');
   const axes=doms.map((d,i)=>`<line x1="${cx}" y1="${cy}" x2="${(cx+R*Math.cos(ang(i))).toFixed(1)}" y2="${(cy+R*Math.sin(ang(i))).toFixed(1)}" stroke="var(--line)" stroke-width="1"/>`).join('');
-  const labels=doms.map((d,i)=>{const lr=R+12,a=ang(i),x=cx+lr*Math.cos(a),y=cy+lr*Math.sin(a),cv=Math.cos(a);const anc=Math.abs(cv)<0.35?'middle':(cv>0?'start':'end');return `<text x="${x.toFixed(1)}" y="${(y+3).toFixed(1)}" text-anchor="${anc}" font-size="8.5" fill="var(--ink-2)">${esc(d)}</text>`;}).join('');
+  const labels=doms.map((d,i)=>{const lr=R+12,a=ang(i),x=cx+lr*Math.cos(a),y=cy+lr*Math.sin(a),cv=Math.cos(a);const anc=Math.abs(cv)<0.35?'middle':(cv>0?'start':'end');return `<text x="${x.toFixed(1)}" y="${(y+3).toFixed(1)}" text-anchor="${anc}" font-size="${FS}" fill="var(--ink-2)">${esc(d)}</text>`;}).join('');
   const cohPoly=coh?`<polygon points="${poly(coh)}" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3 3"/>`:'';
   const stuPoly=`<polygon points="${poly(stu)}" fill="var(--teal)" fill-opacity="0.14" stroke="var(--teal)" stroke-width="2"/>`;
   const stuDots=doms.map((d,i)=>{const p=pt(i,(stu[d]||0)/100).split(',');return `<circle cx="${p[0]}" cy="${p[1]}" r="2.2" fill="var(--teal)"/>`;}).join('');
-  return `<div style="text-align:center;margin:8px 0 2px"><svg viewBox="0 0 400 360" style="width:100%;max-width:400px;height:auto" xmlns="http://www.w3.org/2000/svg">
+  return `<div style="text-align:center;margin:8px 0 2px"><svg viewBox="0 0 ${VW} ${VH}" style="width:100%;max-width:${VW}px;height:auto" xmlns="http://www.w3.org/2000/svg">
     ${grid}${axes}${cohPoly}${stuPoly}${stuDots}${labels}
   </svg>
   <div style="font-size:11.5px;color:var(--muted);margin-top:-4px"><span style="color:var(--teal);font-weight:700">■</span> 나${coh?` &nbsp;&nbsp;<span style="color:var(--muted);font-weight:700">┄</span> 또래 평균${est?'(추정)':''}`:''} &nbsp;&nbsp;바깥일수록 정답률 높음</div></div>`;
@@ -1067,8 +1081,14 @@ function areaSec(exam,selv,cs){
   if(!exam.area||exam.area.length!==exam.nQ)return `<div class="sec">${secH('영역별 성취')}<div class="note">이 시험은 영역별 진단이 <b>준비 중</b>입니다. 총점·백분위·문항별 분석으로 진단을 제공합니다.</div></div>`; const miss=new Set(exam.miss||[]); const ag={};
   const ans=[];for(let q=1;q<=exam.nQ;q++){ans.push(selv[q]||0);if(miss.has(q))continue;const a=exam.area[q-1]||'기타';(ag[a]=ag[a]||{c:0,t:0});ag[a].t++;if(okq(exam,q,selv[q]||0))ag[a].c++;}
   const rows=Object.entries(ag).map(([a,v])=>({a,c:v.c,t:v.t,p:Math.round(v.c/v.t*100)})).sort((x,y)=>x.p-y.p);
-  const sb=domScoresBroad(exam,ans)||{},cb=cohortDomBroad(exam,cs),rdoms=Object.keys(RX).filter(d=>d in sb);
-  const radar=rdoms.length>=3?radarSVG(rdoms,sb,cb,cs&&cs.estimated):'';
+  /* 레이더도 아래 막대와 **같은 세부 영역**으로 그린다. 대분류로 접으면 한 단원짜리
+     시험에서 축이 셋만 남아 삼각형이 되고, 정작 아래 막대에 있는 열세 영역이
+     그림에는 하나도 안 보인다. 축이 너무 많으면 글자가 겹치므로, 문항이 많은
+     영역부터 최대 열넷까지만 세우고 나머지는 아래 막대에서 본다. */
+  const fine=domScores(exam,ans)||{}, cf=cohortDomFine(exam,cs);
+  const rdoms=rows.slice().sort((x,y)=>(y.t-x.t)||(x.p-y.p)).slice(0,14)
+    .map(r=>r.a).sort((a,b)=>(fine[a]||0)-(fine[b]||0));
+  const radar=rdoms.length>=3?radarSVG(rdoms,fine,cf,cs&&cs.estimated):'';
   return `<div class="sec">${secH('영역별 성취 · 약한 단원부터')}${radar}${rows.map(r=>`<div class="barrow"><span class="ba">${esc(r.a)}</span><span class="bar"><i style="width:${r.p}%;background:${pcolor(r.p)}"></i></span><span class="bp">${r.c}/${r.t}</span></div>`).join('')}</div>`;
 }
 function typeSec(exam,selv){
@@ -2727,8 +2747,8 @@ function scoreAuto(){
    <div class="toolbar"><button class="btn" onclick="downloadReportDOCX()">📝 성적표 Word 저장 ↓</button><button class="btn ghost sm" onclick="printRetest()">동형 미니 시험지 인쇄 🖨</button><button class="btn ghost sm" onclick="exportReportHTML()">공유용 HTML 저장 ↓</button>
      <a class="pdf" href="sol-final-${cur.id}.html" target="_blank">정답·개념 해설 ↗</a>
      <button class="btn ghost sm" onclick="window.print()">인쇄</button>
-     <button class="btn sm" onclick="nextStudent()">다음 학생 입력 ▶</button>
-     <button class="btn ghost sm" onclick="openExam('${cur.id}')">다시 채점</button></div>`;
+     ${fShared?'':`<button class="btn sm" onclick="nextStudent()">다음 학생 입력 ▶</button>
+     <button class="btn ghost sm" onclick="openExam('${cur.id}')">다시 채점</button>`}</div>`;
   window.__wbPromise=hydrateWrongbook(cur,wrong);
   window.scrollTo(0,0);
 }
@@ -3424,6 +3444,47 @@ async function downloadReportDOCX(){
         ornPara(dividerOrn,340,{before:16,after:120}),
         txt('이번 시험에서 틀린 개념의 강의 전문입니다. 이 부록만으로 개념을 처음부터 다시 세울 수 있습니다.',{align:AlignmentType.CENTER,color:MUT,after:220}));
       lecs.forEach(function(L,li){ body.push(li===0?P([],{before:120}):PB(),H(L.title,null)); body.push.apply(body, lecToParas(L.html)); });
+    }
+  }catch(e){}
+
+  // ── 부록 · 동형 미니 시험지 ────────────────────────────────────────────
+  // 화면의 '동형 미니 시험지 인쇄' 버튼과 같은 내용을 Word 맨 뒤에도 붙인다.
+  // 성적표를 Word 로 저장해 두면 시험지를 따로 뽑을 필요 없이 뒷장만 인쇄하면 된다.
+  // 고르는 규칙은 화면과 같다(retestPick) — 이미 풀어 본 동형문제는 빼고 다른 벌로.
+  try{
+    var rtItems=retestPick(cur, wrong, dh);
+    if(rtItems.length){
+      body.push(PB(),kicker('❖  APPENDIX · 동형 미니 시험지  ❖'),
+        txt('동형 미니 시험지',{align:AlignmentType.CENTER,bold:true,color:EM,size:52,serif:true,after:50}),
+        ornPara(dividerOrn,340,{before:16,after:120}),
+        txt('틀린 문항의 동형문제만 모았습니다. 이 부분만 인쇄해 다음 수업 입실고사로 쓰세요. 정답·해설은 맨 뒤에 따로 있습니다.',
+            {align:AlignmentType.CENTER,color:MUT,after:220}));
+      rtItems.forEach(function(it,i){
+        var dq=it.dq;
+        body.push(P([run(String(i+1)+'.  ',{bold:true,color:EM,size:24,serif:true}),
+                     run('원문 '+it.q+'번',{color:MUT,size:16}),
+                     run('   '+(dq.concept||dq.area||''),{color:MUT,size:16})],
+                    {before:i?260:120,after:100}));
+        if(dq.stem) body.push(txt(esc2(dq.stem),{after:80}));
+        (dq.choices||[]).forEach(function(c,ci){
+          body.push(P([run(CI[ci+1]+'  '+esc2(c),{color:INK,size:22})],{before:14,after:14}));
+        });
+      });
+      // 정답·해설은 새 쪽에서 시작한다. 앞장만 떼어 주면 그대로 학생용이다.
+      body.push(PB(),txt('동형 미니 시험지 · 정답과 해설',
+        {align:AlignmentType.CENTER,bold:true,color:'8A6D1F',size:30,serif:true,after:60}),
+        txt('앞쪽 문제지만 떼어 주면 학생용이 됩니다.',{align:AlignmentType.CENTER,color:MUT,size:18,after:200}));
+      rtItems.forEach(function(it,i){
+        var dq=it.dq, ans=Number(dq.answer)||0;
+        body.push(P([run(String(i+1)+'.  ',{bold:true,color:EM,size:22}),
+                     run('정답 ',{size:20}),
+                     run(ans?CI[ans]:'·',{bold:true,color:EM,size:24,serif:true}),
+                     run('    (원문 '+it.q+'번 · '+(dq.concept||dq.area||'')+')',{color:MUT,size:16})],
+                    {before:i?140:40,after:40}));
+        if(dq.explanation) body.push(txt(esc2(dq.explanation),{size:20}));
+        if(dq.misconception) body.push(P([run('오개념  ',{bold:true,color:RED,size:19}),
+          run(esc2(dq.misconception),{size:19,color:'4a4437'})],{before:40}));
+      });
     }
   }catch(e){}
 
