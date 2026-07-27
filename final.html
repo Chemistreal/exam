@@ -766,7 +766,12 @@ async function loadExams(){
 }
 
 const TIERS=['대상','금상','은상','동상','장려상'];
-const MINP=8, PFX='final:roster:';
+/* 또래 통계를 보여 주기 시작하는 최소 인원. 8명이었다.
+   8명이 모이기 전에 채점한 학생은 석차도 문항 정답률도 사분면도 통째로
+   빈칸이었다 — 선생님이 "8명 미만이라도 다 보여 달라"고 해서 1명으로 내렸다.
+   대신 표본이 적을 때 나오는 '응시 N명 기준 잠정치' 안내는 그대로 둔다.
+   숫자를 감추지 않되, 몇 명짜리 숫자인지는 반드시 같이 보이게 한다. */
+const MINP=1, PFX='final:roster:';
 const app=document.getElementById('app');
 let cur=null, sel={};
 const CIRC=['','①','②','③','④'];
@@ -962,6 +967,40 @@ function cleanCohort(exam,arr){
     if(bad) flagged.push({rec:r,reason:bad}); else clean.push(r); });
   return {clean, flagged};
 }
+/* ── 석차의 모집단 ──────────────────────────────────────────────────────
+   석차·백분위는 그때까지 **이 브라우저에 채점해 둔 학생 수**를 모집단으로
+   삼았다. 그래서 같은 시험인데 학생마다 숫자가 달랐다 — 먼저 채점한 학생은
+   3/9, 나중에 채점한 학생은 8/10, 8명이 되기 전에 본 학생은 아예 석차가
+   없었다. 모집단이 "지금까지 내가 채점한 만큼"이면 석차는 뜻을 잃는다.
+
+   한 회차를 실제로 응시한 사람은 성적표 엑셀에 다 들어 있다. 그 점수 분포를
+   `cohort/baseline.json` 에 담아 두고 모집단으로 쓴다. 누구를 먼저 채점하든
+   같은 숫자가 나오고, 첫 학생부터 석차가 나온다.
+
+   담긴 것은 히스토그램뿐이다(몇 점을 몇 명). 이름도 학교도 없다.
+
+   이 브라우저 기록과 **더하지 않고 대신한다.** 엑셀에 이미 들어 있는 학생을
+   앱에서 다시 채점하면 한 사람이 두 번 세어져 모집단이 부푼다. 이름 없이는
+   같은 사람인지 알 수 없으므로, 응시자 명부인 엑셀 쪽을 믿는다.
+   기준표가 없는 시험은 예전대로 이 브라우저 기록을 쓴다. */
+var BASELINE=null;
+async function loadBaseline(){
+  try{ var r=await fetch('cohort/baseline.json',{cache:'no-cache'});
+    if(r.ok){ var j=await r.json(); if(j&&j.exams) BASELINE=j.exams; } }catch(e){}
+}
+function baselineTotals(examId){
+  var e=BASELINE&&BASELINE[examId]; if(!e||!e.hist) return null;
+  var out=[]; for(var k in e.hist){ var s=+k, c=e.hist[k]|0; for(var i=0;i<c;i++) out.push(s); }
+  return out.length?out:null;
+}
+/* 어느 분포로 등수를 매길지 한 곳에서 정한다. 화면·Word·인쇄가 갈라지면 안 된다. */
+function rankPool(exam,cs){
+  var base=baselineTotals(exam&&exam.id);
+  var loc=(cs&&cs.totals)||[];
+  var pool=base||loc;
+  return {pool:pool, N:pool.length, fromBaseline:!!base, ready:pool.length>=MINP};
+}
+function rankIn(pool,my){ return pool.filter(function(t){return t>my;}).length+1; }
 function globalDomainPrior(excludeId){
   const ag={}; let aS=0,aN=0;
   FINAL_EXAMS.forEach(e=>{ if(e.id===excludeId||!e.area||e.area.length!==e.nQ)return; const a=cleanCohort(e,subs(e.id).filter(r=>r.ans&&r.ans.length===e.nQ)).clean; if(a.length<3)return; const miss=new Set(e.miss||[]);
@@ -1395,17 +1434,19 @@ function propCI(p,N){
   return {lo:Math.max(0,Math.round((c-m)*100)),hi:Math.min(100,Math.round((c+m)*100)),m:Math.round(m*100)};
 }
 function percSec(exam,my,cs){
-  if(!cs.percReady)return''; const pc=percentile(cs.totals,my); const N=cs.N; const ci=propCI(pc/100,N);
   /* 석차. 백분위만 적어 두면 "그래서 몇 등이냐"를 반드시 되묻는다.
-     Word·인쇄 책자에는 처음부터 있었는데 화면에만 빠져 있었다.
      동점자는 같은 등수를 나눠 갖는다(공동 1등 둘이면 다음이 3등).
-     세는 식은 Word 쪽과 같은 것을 쓴다 — 둘이 갈라지면 안 된다. */
-  const Nn=cs.totals.length, rank=cs.totals.filter(t=>t>my).length+1;
-  const curve=bellCurveSVG(cs.totals, my, exam.nQ);
+     모집단과 세는 식은 rankPool·rankIn 한 곳에서만 정한다 —
+     화면·Word·인쇄가 서로 다른 등수를 말하면 안 된다. */
+  const rp=rankPool(exam,cs); if(!rp.ready) return '';
+  const pc=percentile(rp.pool,my); const N=rp.N; const ci=propCI(pc/100,N);
+  const Nn=rp.N, rank=rankIn(rp.pool,my);
+  const curve=bellCurveSVG(rp.pool, my, exam.nQ);
   const bar=`<div class="barrow" style="margin-top:8px"><span class="ba">내 위치</span><span class="bar" style="height:12px;position:relative"><span style="position:absolute;left:${ci.lo}%;width:${Math.max(0,ci.hi-ci.lo)}%;top:0;bottom:0;background:var(--cobalt);opacity:0.18"></span><i style="width:${pc}%;background:var(--cobalt)"></i></span><span class="bp">${pc}</span></div>`;
   return `<div class="sec">${secH('점수 분포 속 나의 위치')}<div class="muted">누적 응시 ${Nn}명 중 <b>석차 ${rank}/${Nn}</b> · <b>상위 ${100-pc}%</b> · 백분위 <b>${pc}</b> <span style="font-size:12px">(95% 구간 ${ci.lo}~${ci.hi})</span></div>
    ${curve||bar}
-   ${N<20?`<div style="font-size:11.5px;color:var(--muted);margin-top:5px">응시 ${N}명 기준의 잠정치 — 표본이 쌓이면 정밀해집니다.</div>`:''}</div>`;
+   ${rp.fromBaseline?`<div style="font-size:11.5px;color:var(--muted);margin-top:5px">이 회차 전체 응시 기록 ${N}명 기준입니다.</div>`
+     :(N<20?`<div style="font-size:11.5px;color:var(--muted);margin-top:5px">응시 ${N}명 기준의 잠정치 — 표본이 쌓이면 정밀해집니다.</div>`:'')}</div>`;
 }
 const OMLIB=[
  ["중성자","질량수에서 양성자수(원자번호)를 빼는 과정을 놓침. 중성자수 = 질량수 − 양성자수."],
@@ -1808,7 +1849,8 @@ function learnerTypeSec(exam, sel, cs, correct, total){
   const sb=domScoresBroad(exam,sel); const accs=sb?Object.values(sb):[];
   const mean=accs.length?accs.reduce((a,b)=>a+b,0)/accs.length:0;
   const variance=accs.length?Math.sqrt(accs.reduce((s,v)=>s+(v-mean)**2,0)/accs.length):0;
-  const pct=(cs&&cs.percReady)?percentile(cs.totals,correct):Math.round(correct/Math.max(1,total)*100);
+  const _rpP=rankPool(exam,cs);
+  const pct=_rpP.ready?percentile(_rpP.pool,correct):Math.round(correct/Math.max(1,total)*100);
   let t;
   if(pct<40) t={name:'기초 정착형',desc:'기본 개념을 다지는 단계입니다. 자주 나오는 유형부터 확실히 잡으면 빠르게 오릅니다.'};
   else if(miss>=3 && miss>=hard) t={name:'실수 교정형',desc:'아는 문항에서 점수가 새는 패턴입니다. 검토 습관만 잡으면 즉시 상승 여력이 큽니다.'};
@@ -2382,11 +2424,12 @@ function saveToSheetFinal(cur,sel,correct,total,W,cs,nm,sch,grd,pct){
   if(cur.area) for(let q=1;q<=cur.nQ;q++){ if(miss.has(q))continue; const bd=broad(cur.area[q-1]||''); if(!bd)continue; (ag[bd]=ag[bd]||{c:0,t:0}); ag[bd].t++; if(okq(cur,q,sel[q]||0))ag[bd].c++; }
   const areas=Object.keys(ag).map(d=>d+' '+ag[d].c+'/'+ag[d].t).join(', ');
   const ans=[]; for(let q=1;q<=cur.nQ;q++) ans.push(sel[q]||0);
-  let perc=''; try{ if(cs&&cs.percReady&&cs.totals&&cs.totals.length) perc=percentile(cs.totals,correct); }catch(e){}
+  let perc='', rnk=''; try{ const _rp=rankPool(cur,cs);
+    if(_rp.ready){ perc=percentile(_rp.pool,correct); rnk=rankIn(_rp.pool,correct)+'/'+_rp.N; } }catch(e){}
   const payload={ key:fSyncKey(), name:nm||'', examno:'', school:sch||'', grade:grd||'',
     date:new Date().toISOString().slice(0,10), exam:cur.title,
     total:correct, max:total, pct100:pct,
-    percentile: perc===''?'':+(+perc).toFixed(1), rank:'', n:(cs&&cs.N)||'',
+    percentile: perc===''?'':+(+perc).toFixed(1), rank:rnk, n:(cs&&cs.N)||'',
     correct:correct, areas:areas, answers:ans.join(''), link:shareLinkFinal(cur,sel,nm) };
   try{
     fetch(SHEET_ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
@@ -2439,11 +2482,9 @@ function finalHero(nm, exam, correct, total, W, pct){
     // 석차는 맨 위에서 바로 보여야 하는 숫자다. 아래 '점수 분포 속 나의 위치'
     // 와 같은 식으로 센다(동점자는 같은 등수).
     var rk='';
-    try{ var cs0=cohortStats(exam);
-      if(cs0&&cs0.percReady&&cs0.totals&&cs0.totals.length){
-        var Nn=cs0.totals.length, rank=cs0.totals.filter(function(t){return t>correct;}).length+1;
-        rk='<div class="fhds"><b>'+rank+'/'+Nn+'</b><span>석차</span></div>';
-      } }catch(e){}
+    try{ var rp0=rankPool(exam,cohortStats(exam));
+      if(rp0.ready) rk='<div class="fhds"><b>'+rankIn(rp0.pool,correct)+'/'+rp0.N+'</b><span>석차</span></div>';
+    }catch(e){}
     return '<div class="fhero"><div class="fhero__ey">핵심 진단</div>'
       +'<div class="fhero__tier">'+a.name+'</div>'
       +'<div class="fhero__head">'+kick+'</div>'
@@ -2479,8 +2520,8 @@ function parentNoteFinal(nm, exam, correct, total, W, pct){
       +'위 <b>오답 개념 클리닉</b>의 문항별 오개념과 개념 강의를 자녀와 함께 한 번 읽어 주시고, 같은 개념의 변형 문항을 다시 풀어보게 해 주세요. 점수 그 자체보다 <b>다시 풀어오는 과정</b>을 격려해 주시는 것이 이 시기에 가장 효과적입니다.';
     var cm=localStorage.getItem(fpcKey(exam,nm))||'';
     var cmHtml=cm?'<div class="cmt"><span class="clab">담당 강사 코멘트</span>'+esc(cm)+'</div>':'';
-    var btn='<button class="btn ghost sm no-print" style="margin-top:10px" onclick="editFinalComment()">'+(cm?'코멘트 수정':'강사 코멘트 추가')+'</button>';
-    return '<div class="fpn"><span class="fpn__lab">학부모님께</span><p>'+p1+'</p><p>'+p2+'</p>'+cmHtml+btn+'</div>';
+    // 코멘트 버튼은 뺐다(선생님 요청). 이미 적어 둔 코멘트는 그대로 나온다.
+    return '<div class="fpn"><span class="fpn__lab">학부모님께</span><p>'+p1+'</p><p>'+p2+'</p>'+cmHtml+'</div>';
   }catch(e){ return ''; }
 }
 function closingSecFinal(nm, exam, correct, total, W, pct){
@@ -2898,10 +2939,8 @@ function buildBook(exam, selv, cs, correct, total, W, wrong, dh, answers){
   var aw=award(W, cut);
   var pct=total?Math.round(correct/total*100):0;
   var perc=null, rank=null, Nn=null;
-  if(cs && cs.percReady && cs.totals && cs.totals.length){
-    perc=percentile(cs.totals, correct); Nn=cs.totals.length;
-    rank=cs.totals.filter(function(t){return t>correct;}).length + 1;
-  }
+  var _rp=rankPool(exam,cs);
+  if(_rp.ready){ perc=percentile(_rp.pool, correct); Nn=_rp.N; rank=rankIn(_rp.pool, correct); }
   var miss=new Set(exam.miss||[]);
   // 영역 집계
   var ag={};
@@ -3213,7 +3252,8 @@ async function downloadReportDOCX(){
   var rs=finalRawScore(cur, correct, wrong||[]), rawMax=total*3;
   var aw=award(W, cut), pct=total?Math.round(correct/total*100):0;
   var perc=null, rank=null, Nn=null;
-  if(cs && cs.percReady && cs.totals && cs.totals.length){ perc=percentile(cs.totals, correct); Nn=cs.totals.length; rank=cs.totals.filter(function(t){return t>correct;}).length+1; }
+  var _rp=rankPool(cur,cs);
+  if(_rp.ready){ perc=percentile(_rp.pool, correct); Nn=_rp.N; rank=rankIn(_rp.pool, correct); }
   var ag={}; if(cur.area) for(var q2=1;q2<=cur.nQ;q2++){ if(miss.has(q2))continue; var bd0=bkBroad(cur.area[q2-1]||''); if(!bd0)continue; (ag[bd0]=ag[bd0]||{c:0,t:0}); ag[bd0].t++; if(okq(cur,q2,sel[q2]||0))ag[bd0].c++; }
   var areas=Object.keys(ag).map(function(k){return {name:k,c:ag[k].c,t:ag[k].t,r:ag[k].t?ag[k].c/ag[k].t:0};}).sort(function(a,b){return a.r-b.r||b.t-a.t;});
   var strong=areas.filter(function(a){return a.t>=2&&a.r>=0.8;}).sort(function(a,b){return b.r-a.r;});
@@ -3547,7 +3587,8 @@ async function downloadReportDOCX(){
               kv('원점수', rs.score+' / '+rawMax + (rs.pen?'   (오답 −'+rs.pen+')':'')),
               kv('맞은 문항', correct+' / '+total+'   ('+pct+'%)')];
     if(sumWp) rows.push(kv('수상 확률', Math.round((sumWp[4]||0)*100)+'%   (장려상 이상)',{color:'2E7D5B'}));
-    if(cs&&cs.percReady) rows.push(kv('또래 중 위치', '상위 '+(100-percentile(cs.totals,correct))+'%   (누적 '+cs.N+'명)'));
+    var _rp2=rankPool(cur,cs);
+    if(_rp2.ready) rows.push(kv('또래 중 위치', '상위 '+(100-percentile(_rp2.pool,correct))+'%   ·   석차 '+rankIn(_rp2.pool,correct)+'/'+_rp2.N));
     if(aw.nextTier&&aw.gap!=null) rows.push(kv('다음 등급까지', aw.nextTier+'  ·  '+aw.gap+'문항'));
 
     body.push(kicker('❖  SUMMARY  ❖'),
@@ -4065,6 +4106,7 @@ function scrollToClinic(){ var e=document.getElementById('clinic'); if(e){ e.scr
 /* 시험 목록·채점 규칙을 받아 온 뒤에 화면을 그린다. */
 async function start(){
   FINAL_EXAMS=await loadExams();
+  await loadBaseline();          // 석차 모집단. 없어도 진행한다(그때는 예전처럼 이 브라우저 기록만 본다).
   if(!FINAL_EXAMS){
     // 여기까지 오면 정말 아무 데도 없다. 빈 화면 대신 이유를 보여 주고 스스로
     // 다시 시도한다(학생이 새로고침을 몰라도 되도록).
