@@ -77,8 +77,11 @@ def main() -> int:
                 orphans.append(("crops", path, size_of(path)))
 
     # donghyung 은 문제풀로 끌어다 쓰는 것까지 살아 있는 것으로 본다.
+    # index.json 은 시험 id 가 아니라 개념 색인이다. `final.html` 이 선수 개념
+    # 드릴에서 직접 받아 간다. 시험 id 로만 보면 고아로 잡혀 "지워라"가 나가는데,
+    # 그대로 지우면 드릴이 죽는다.
     for path in sorted((ROOT / "donghyung").glob("*.json")):
-        if path.stem.startswith("_"):
+        if path.stem.startswith("_") or path.name == "index.json":
             continue
         if path.stem not in live and path.stem not in pooled:
             orphans.append(("donghyung", path, size_of(path)))
