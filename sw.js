@@ -21,15 +21,15 @@
  * 화면에 뜬 뒤 곧바로 미리 받아 두면 학생이 나중에 오프라인이 되어도 열린다.
  * (`loading="lazy"` 라 스크롤하지 않은 이미지는 저절로는 캐시되지 않는다)
  */
-const VERSION = '2026.07.1';
+const VERSION = '2026.07.2';
 const SHELL = 'chemistreal-shell-' + VERSION;
 const DATA = 'chemistreal-data';          // 버전 없음 — 배포해도 남긴다
 const ASSETS = ['./', './index.html', './note.html', './final.html', './final-submit.html',
-                './manifest.json', './icon-192.png', './icon-512.png'];
+                './exams.json', './manifest.json', './icon-192.png', './icon-512.png'];
 
 // data 캐시에 넣을 경로. 여기 없는 것은 shell 로 간다.
 const IMMUTABLE = /\/crops\//;                       // 바뀌지 않는다
-const REFRESHABLE = /\/(donghyung|answers)\//;       // 고칠 수 있다
+const REFRESHABLE = /\/(donghyung|answers)\/|exams\.json$/;   // 고칠 수 있다
 
 self.addEventListener('install', e => {
   // addAll 은 하나라도 404 면 전부 실패한다. 파일 목록이 바뀌어도 설치가

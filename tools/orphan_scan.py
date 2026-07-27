@@ -32,7 +32,7 @@ SOURCE = (ROOT / "final.html").read_text(encoding="utf-8")
 
 
 def live_exam_ids() -> set[str]:
-    exams = json.loads(SOURCE.split("const FINAL_EXAMS=", 1)[1].split(";\n", 1)[0])
+    exams = json.loads((ROOT / "exams.json").read_text(encoding="utf-8"))
     return {e["id"] for e in exams}
 
 

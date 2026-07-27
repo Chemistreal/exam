@@ -36,7 +36,7 @@ BROKEN_BUDGET = 0
 
 ROOT = Path(__file__).resolve().parents[1]
 source = (ROOT / "final.html").read_text(encoding="utf-8")
-exams = json.loads(source.split("const FINAL_EXAMS=", 1)[1].split(";\n", 1)[0])
+exams = json.loads((ROOT / "exams.json").read_text(encoding="utf-8"))
 
 # 한 시험에 동형문제 세트가 여러 벌 있을 수 있다. final.html 의 DH_SETS 를 그대로 읽어
 # 모든 세트를 검사한다(여기서 놓치면 두 번째 세트가 검증 없이 학생에게 나간다).

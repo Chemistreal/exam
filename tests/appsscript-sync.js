@@ -37,7 +37,7 @@ function chk(desc, got, exp) {
 const block = gs.slice(gs.indexOf('var EXAM_TITLES = {'),
                        gs.indexOf('\n};', gs.indexOf('var EXAM_TITLES = {')) + 3);
 const EXAM_TITLES = new Function(block + '; return EXAM_TITLES;')();
-const EXAMS = JSON.parse(html.split('const FINAL_EXAMS=')[1].split(';\n')[0]);
+const EXAMS = JSON.parse(fs.readFileSync(path.join(ROOT, 'exams.json'), 'utf8'));
 const COHORT_ALIAS = JSON.parse(
   html.split('const COHORT_ALIAS=')[1].split('};')[0].replace(/'/g, '"') + '}');
 

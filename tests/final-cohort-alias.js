@@ -112,7 +112,7 @@ const rec = (n, ts) => ({ name: 's' + n, ts, correct: 30, total: 60, wrong: 30, 
      - 없앤 쪽 ID 로 집필해 둔 동형문제는 버려지지 않고 남긴 시험의
        문제풀(DH_SETS)에 들어가 있다 — 틀린 문항마다 연습 문제를 두 벌 받는다 */
 {
-  const exams = JSON.parse(src.split('const FINAL_EXAMS=')[1].split(';\n')[0]);
+  const exams = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'exams.json'), 'utf8'));
   const byId = {}; exams.forEach(e => { byId[e.id] = e; });
   const { api } = boot();
   const DH_SETS = JSON.parse(

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""`AppsScript-Code.gs` 의 EXAM_TITLES 를 `final.html` 의 시험 목록에서 만든다.
+"""`AppsScript-Code.gs` 의 EXAM_TITLES 를 `exams.json` 의 시험 목록에서 만든다.
 
 시트는 시험을 **제목 문자열**로 구분한다. 저장(doPost)은 `d.exam = cur.title` 로
 제목을 쓰고, 불러오기(doGet)는 시험 id 를 받아 제목으로 바꿔 그 행만 거른다.
@@ -55,8 +55,7 @@ MERGED = {"kmchc-2018": "hwol-2018", "kmchc-2019": "hwol-2019", "kmchc-2024-1": 
 
 
 def exams() -> list[dict]:
-    source = (ROOT / "final.html").read_text(encoding="utf-8")
-    return json.loads(source.split("const FINAL_EXAMS=", 1)[1].split(";\n", 1)[0])
+    return json.loads((ROOT / "exams.json").read_text(encoding="utf-8"))
 
 
 def cohort_alias() -> dict[str, str]:
@@ -67,7 +66,6 @@ def cohort_alias() -> dict[str, str]:
 
 def build() -> dict[str, list[str]]:
     live = exams()
-    by_id = {e["id"]: e["title"] for e in live}
     out: dict[str, list[str]] = {}
     for exam in live:
         titles = [exam["title"]] + HISTORY.get(exam["id"], [])
