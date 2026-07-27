@@ -126,6 +126,9 @@ let fail=0; const chk=(n,g,w)=>{const ok=JSON.stringify(g)===JSON.stringify(w);
   // ── 뺀 것 (선생님 요청) ──
   chk('학습 유형 진단은 Word 에 없다',/학습 유형/.test(txt),false);
   chk('4주 학습 계획표는 Word 에 없다',/학습 계획표/.test(txt),false);
+  // 목차 제목도 본문 제목도 '선택지 분석'을 지나가므로 이 한 줄이 둘 다 잡는다.
+  // ('함정 선택지'는 오답 노트 부록과 한 장 요약에 그대로 남아 있으므로 쓰면 안 된다.)
+  chk('누적 정답률·선택지 분석은 Word 에 없다',/선택지 분석/.test(txt),false);
 
   // ── Word 에만 넣은 것 ──
   chk('학부모 한 장 요약',/한 장 요약/.test(txt),true);

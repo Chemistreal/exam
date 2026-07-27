@@ -3249,7 +3249,8 @@ async function downloadReportDOCX(){
   // '학습 유형 진단'은 Word 에서 뺀다(화면에는 그대로 있다). 배지 한 줄로는
   // 종이에서 할 일이 나오지 않아, 선생님이 지우라고 했다.
   sections.push({key:'prereq',t:'선수 개념',d:'약점이 어느 선행 개념 위에 서 있는지'});
-  if(optOK) sections.push({key:'dist',t:'누적 정답률 · 선택지 분석',d:'또래가 많이 걸린 함정 선택지'});
+  // '누적 정답률 · 선택지 분석'도 Word 에서 뺀다(화면에는 그대로). 같은 함정
+  // 선택지 이야기가 문항별 정오표와 오답 정리 부록에 이미 문항마다 붙어 있다.
   sections.push({key:'mastery',t:'숙달 현황',d:'영역별 숙달 판정'});
   sections.push({key:'loop',t:'성장 루프',d:'처방 → 학습 → 재진단의 효과'});
   if(dhRecovery(cur).length) sections.push({key:'recover',t:'동형문제 회복률',d:'틀린 문항을 실제로 고쳤는지'});
@@ -3889,7 +3890,6 @@ async function downloadReportDOCX(){
       {k:'quad',    kick:'❖  QUADRANT  ❖',   html:quadSec(cur,sel,cs)},
       {k:'depth',   kick:'❖  DEPTH  ❖',      html:depthSec(cur,sel,cs)},
       {k:'prereq',  kick:'❖  PREREQUISITE  ❖',html:prereqSec(cur,sel,cs)},
-      {k:'dist',    kick:'❖  ITEM STATS  ❖', html:distSec(cur,sel,cs)},
       {k:'mastery', kick:'❖  MASTERY  ❖',    html:masterySec(cur)},
       {k:'loop',    kick:'❖  LONG RUN  ❖',   html:loopSec(cur,sel)}
     ];
