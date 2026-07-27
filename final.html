@@ -1727,6 +1727,71 @@ function loopSec(exam,sel){
    ${proj}
   </div>`;
 }
+/* ── 누적 오개념 프로필 ───────────────────────────────────────────────
+   한 번 틀린 것과 다섯 번 틀린 것은 다른 이야기다. 지금 성적표는 이번 시험에서
+   무엇을 틀렸는지만 말하고, 그 학생이 **매번 같은 자리에서 걸린다**는 사실은
+   어디에도 나오지 않는다. 그게 사실 가장 중요한 정보인데.
+
+   같은 이름으로 여러 시험을 본 기록을 모아, 문항 유형별로 몇 번 만나 몇 번
+   틀렸는지 센다. 시험 하나에서만 틀린 유형은 그날 컨디션일 수 있으므로,
+   **서로 다른 시험 두 개 이상에서** 틀린 것만 보여 준다. */
+function misconceptionSec(exam){
+  var nmEl=document.getElementById('nm');
+  var nm=(nmEl?nmEl.value:((window.__rpt&&window.__rpt.name)||'')).trim();
+  if(!nm) return '';
+  // 시험마다 이 학생의 가장 최근 응시 한 건
+  var takes=[];
+  FINAL_EXAMS.forEach(function(e){
+    var a=subs(e.id).filter(function(r){ return r.name&&r.name.trim()===nm&&r.ans&&r.ans.length===e.nQ; });
+    if(a.length) takes.push({e:e,ans:a[a.length-1].ans});
+  });
+  if(takes.length<2) return '';
+
+  var stat={};   // 유형 → {met:만난 횟수, bad:틀린 횟수, exams:{시험id:1}}
+  takes.forEach(function(t){
+    var miss=new Set(t.e.miss||[]);
+    for(var q=1;q<=t.e.nQ;q++){
+      if(miss.has(q)) continue;
+      var ty=(t.e.type&&t.e.type[q-1])||(t.e.area&&t.e.area[q-1])||'';
+      if(!ty) continue;
+      var s=stat[ty]||(stat[ty]={met:0,bad:0,exams:{}});
+      s.met++;
+      if(!okq(t.e,q,t.ans[q-1]||0)){ s.bad++; s.exams[t.e.id]=1; }
+    }
+  });
+  var rows=Object.keys(stat).map(function(ty){
+    var s=stat[ty];
+    return {ty:ty,met:s.met,bad:s.bad,nEx:Object.keys(s.exams).length,rate:s.bad/s.met};
+  }).filter(function(r){ return r.nEx>=2; })
+    .sort(function(a,b){ return (b.nEx-a.nEx)||(b.rate-a.rate)||(b.bad-a.bad); })
+    .slice(0,6);
+  if(!rows.length) return '';
+
+  var items=rows.map(function(r){
+    var why=omFor(r.ty)||'';
+    var lec=lecForType(r.ty);
+    var pct=Math.round(r.rate*100);
+    return '<div class="note" style="margin:9px 0 0;border-left-color:'+(r.rate>=0.6?'var(--ms)':'var(--brass)')+'">'
+      +'<div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">'
+      +'<b>'+esc(r.ty)+'</b>'
+      +'<span style="font-family:var(--mono);font-size:12px;color:var(--muted)">'
+      +'시험 '+r.nEx+'개에서 · '+r.met+'문항 중 '+r.bad+'문항 오답('+pct+'%)</span></div>'
+      +(why?'<div style="font-size:13px;margin-top:5px">'+esc(why)+'</div>':'')
+      +(lec?'<div style="font-size:12px;margin-top:5px"><a href="'+esc(lec)+'" target="_blank" rel="noopener" style="color:var(--teal);font-weight:600">개념 강의 열기 →</a></div>':'')
+      +'</div>';
+  }).join('');
+
+  var worst=rows[0];
+  return '<div class="sec" style="border-left:3px solid var(--ms)">'+secH('되풀이되는 오개념')
+    +'<div class="sub">'+esc(nm)+' 학생이 응시한 <b>'+takes.length+'개 시험</b>을 모아, '
+    +'서로 다른 시험 <b>두 개 이상</b>에서 반복해 틀린 유형만 골랐습니다. '
+    +'한 번 틀린 것은 그날의 실수일 수 있지만, 여러 시험에서 같은 자리에 걸린다면 '
+    +'개념이 자리 잡지 않은 것입니다.</div>'
+    +items
+    +'<div style="font-size:12.5px;color:var(--muted);margin-top:10px">'
+    +'가장 급한 것은 <b>'+esc(worst.ty)+'</b>입니다 — 시험 '+worst.nEx+'개에서 걸렸습니다. '
+    +'다음 학습은 여기부터 잡는 것이 가장 빠릅니다.</div></div>';
+}
 function masterySec(exam){
   const nm=(document.getElementById('nm')?document.getElementById('nm').value:'').trim(); if(!nm)return'';
   const hist=[];
@@ -2403,6 +2468,7 @@ function scoreAuto(){
    ${prereqSec(cur,sel,cs)}
    ${dashboardSec(cur)}
    ${growthSec(cur)}
+   ${misconceptionSec(cur)}
    ${masterySec(cur)}
    ${loopSec(cur,sel)}
    ${tableSec(cur,sel)}
