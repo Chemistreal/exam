@@ -856,6 +856,203 @@ function showExamQ(id){
     rows+=`<tr><td class="mono">${q}</td><td class="mono">${e.key?e.key[q-1]:'?'}</td><td>${e.area?esc(e.area[q-1]||''):'<span class="muted">·</span>'}</td><td>${e.type?esc(e.type[q-1]||''):'<span class="muted">·</span>'}</td><td>${flag}</td></tr>`; }
   const el=document.getElementById('qbdetail'); if(el) el.innerHTML=`<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="gtbl"><thead><tr><th>문항</th><th>정답</th><th>area</th><th>type</th><th>비고</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
+/* ══════════════════════════════════════════════════════════════════════
+   명단 관리 (#roster)
+   ----------------------------------------------------------------------
+   이름을 잘못 입력했을 때 고칠 방법이 없었다. 그런데 이름이 틀리면 그
+   학생의 기록이 **둘로 갈라진다** — 성장 추적·숙달 추적·되풀이되는 오개념은
+   전부 이름이 같은지로 같은 학생을 잇기 때문이다. 한 글자 오타 하나에
+   지난 회차가 통째로 안 보인다.
+
+   여기서 할 수 있는 것: 이름 일괄 고치기(전 회차) · 회차별 기록 수정·삭제 ·
+   비슷한 이름 찾아 합치기 · 백업 내보내기/가져오기.
+
+   기록은 이 브라우저에만 있다(localStorage). 브라우저를 지우면 사라지므로
+   가끔 내보내 두는 편이 좋다.
+   ══════════════════════════════════════════════════════════════════════ */
+function rosterIndex(){
+  var by={}, done={};
+  FINAL_EXAMS.forEach(function(e){
+    var k=cohortKey(e.id); if(done[k]) return; done[k]=1;
+    subs(e.id).forEach(function(r,i){
+      var nm=(r.name||'').trim()||'(이름 없음)';
+      (by[nm]=by[nm]||[]).push({exam:e,idx:i,rec:r});
+    });
+  });
+  return by;
+}
+// 한 글자 차이까지 본다. 두 글자 이상 다르면 다른 사람일 가능성이 크다.
+function editDist(a,b){
+  var m=a.length,n=b.length; if(Math.abs(m-n)>1) return 9;
+  var prev=[],curr=[],i,j; for(j=0;j<=n;j++) prev[j]=j;
+  for(i=1;i<=m;i++){ curr[0]=i;
+    for(j=1;j<=n;j++) curr[j]=Math.min(prev[j]+1,curr[j-1]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));
+    prev=curr.slice(); }
+  return prev[n];
+}
+function nameSuspects(names){
+  var out=[];
+  for(var i=0;i<names.length&&out.length<20;i++) for(var j=i+1;j<names.length&&out.length<20;j++){
+    var a=names[i], b=names[j];
+    if(a==='(이름 없음)'||b==='(이름 없음)') continue;
+    var A=a.replace(/\s+/g,''), B=b.replace(/\s+/g,'');
+    if(A===B){ out.push({a:a,b:b,ia:i,ib:j,why:'띄어쓰기만 다름'}); continue; }
+    if(A.length>=2&&B.length>=2&&editDist(A,B)===1) out.push({a:a,b:b,ia:i,ib:j,why:'한 글자 다름'});
+  }
+  return out;
+}
+function rosterRenameAt(i){ var n=(window.__rnames||[])[i]; if(n) rosterRename(n); }
+function rosterMergeAt(i,j){ var a=(window.__rnames||[])[i], b=(window.__rnames||[])[j]; if(a&&b) rosterMerge(a,b); }
+function rosterRename(from){
+  var to=prompt('"'+from+'" 를 어떤 이름으로 고칠까요?\n(이 이름으로 된 모든 회차 기록이 함께 바뀝니다)', from);
+  if(to===null) return;
+  to=to.trim(); if(!to||to===from) return;
+  var n=rosterApplyRename(from,to);
+  fToast(n?('"'+from+'" → "'+to+'" · '+n+'건 고쳤습니다'):'바뀐 기록이 없습니다');
+  renderRoster();
+}
+function rosterApplyRename(from,to){
+  var n=0, done={};
+  FINAL_EXAMS.forEach(function(e){
+    var k=cohortKey(e.id); if(done[k]) return; done[k]=1;
+    var arr=subs(e.id), hit=false;
+    arr.forEach(function(r){ if((r.name||'').trim()===from){ r.name=to; hit=true; n++; } });
+    if(hit) saveSubs(e.id,arr);
+  });
+  if(n) noteRename(from,to);      // 시트에서 다시 받아와도 되살아나지 않게
+  return n;
+}
+function rosterMerge(a,b){
+  if(!confirm('"'+a+'" 와 "'+b+'" 를 같은 학생으로 봅니다.\n"'+a+'" 기록을 "'+b+'" 로 합칠까요?')) return;
+  var n=rosterApplyRename(a,b);
+  fToast(n+'건을 "'+b+'" 로 합쳤습니다'); renderRoster();
+}
+function rosterEdit(examId,idx){
+  var arr=subs(examId), r=arr[idx]; if(!r) return;
+  var cur0=[(r.name||''),(r.school||''),(r.grade||'')].join(' / ');
+  var v=prompt('이름 / 학교 / 학년  (슬래시로 구분)', cur0);
+  if(v===null) return;
+  var p=v.split('/'), nm=(p[0]||'').trim();
+  if(!nm){ fToast('이름은 비울 수 없습니다'); return; }
+  if(nm!==(r.name||'').trim()) noteRename((r.name||'').trim(),nm);
+  r.name=nm; r.school=(p[1]||'').trim(); r.grade=(p[2]||'').trim();
+  saveSubs(examId,arr); fToast('고쳤습니다'); renderRoster();
+}
+function rosterDel(examId,idx){
+  var arr=subs(examId), r=arr[idx]; if(!r) return;
+  if(!confirm('"'+(r.name||'이름 없음')+'" 의 이 회차 기록을 지울까요?\n되돌릴 수 없습니다.')) return;
+  arr.splice(idx,1); saveSubs(examId,arr); fToast('지웠습니다'); renderRoster();
+}
+function rosterExport(){
+  var out={version:1, savedAt:new Date().toISOString(), renames:renameMap(), rosters:{}};
+  for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i);
+    if(k&&k.indexOf(PFX)===0) out.rosters[k.slice(PFX.length)]=JSON.parse(localStorage.getItem(k)||'[]'); }
+  var blob=new Blob([JSON.stringify(out,null,1)],{type:'application/json'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='chemistreal-명단-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); },1000);
+  fToast('내려받았습니다 · 안전한 곳에 보관하세요');
+}
+function rosterImport(){
+  var inp=document.createElement('input'); inp.type='file'; inp.accept='application/json,.json';
+  inp.onchange=function(){
+    var f=inp.files&&inp.files[0]; if(!f) return;
+    var fr=new FileReader();
+    fr.onload=function(){
+      var data; try{ data=JSON.parse(fr.result); }catch(e){ fToast('읽지 못했습니다 — 내보낸 파일이 맞나요?'); return; }
+      if(!data||!data.rosters){ fToast('명단 백업 파일이 아닙니다'); return; }
+      var ids=Object.keys(data.rosters);
+      if(!confirm('시험 '+ids.length+'개분을 합칩니다.\n지금 기록은 지우지 않고, 없는 것만 더합니다.')) return;
+      var added=0;
+      ids.forEach(function(id){
+        var arr=subs(id), seen={};
+        arr.forEach(function(r){ seen[subSig(r)]=1; });
+        (data.rosters[id]||[]).forEach(function(r){
+          var sig=subSig(r); if(seen[sig]) return; seen[sig]=1; arr.push(r); added++; });
+        arr.sort(function(x,y){ return (x.ts||0)-(y.ts||0); });
+        saveSubs(id,arr);
+      });
+      try{ var m=renameMap(); for(var k in (data.renames||{})) if(!m[k]) m[k]=data.renames[k];
+        localStorage.setItem(RENAME_KEY,JSON.stringify(m)); }catch(e){}
+      fToast('새 기록 '+added+'건을 더했습니다'); renderRoster();
+    };
+    fr.readAsText(f);
+  };
+  inp.click();
+}
+function rosterForgetRenames(){
+  if(!confirm('이름 고침 기록을 지웁니다.\n지운 뒤 시트에서 다시 불러오면 옛 이름이 되살아날 수 있습니다.')) return;
+  try{ localStorage.removeItem(RENAME_KEY); }catch(e){}
+  fToast('지웠습니다'); renderRoster();
+}
+function renderRoster(){
+  cur=null; sel={};
+  var by=rosterIndex();
+  var names=Object.keys(by).sort(function(a,b){ return by[b].length-by[a].length || a.localeCompare(b,'ko'); });
+  // 버튼은 이름 대신 이 목록의 색인을 넘긴다(따옴표가 든 이름에서도 안 깨진다)
+  window.__rnames=names;
+  var nRec=names.reduce(function(s,n){ return s+by[n].length; },0);
+  var sus=nameSuspects(names);
+  var rm=renameMap(), rmKeys=Object.keys(rm);
+
+  var susHTML=sus.length?`<div class="sec">${secH('비슷한 이름 '+sus.length+'쌍')}
+    <div class="sub">한 글자 차이거나 띄어쓰기만 다른 이름입니다. 같은 학생이면 합치세요 — 합쳐야 성장 추적과 숙달 추적이 이어집니다.</div>
+    ${sus.map(function(s){ return `<div class="barrow" style="gap:8px;align-items:center;margin:5px 0">
+      <span style="font-weight:700">${esc(s.a)}</span><span class="muted">(${by[s.a].length}회)</span>
+      <span class="muted">↔</span>
+      <span style="font-weight:700">${esc(s.b)}</span><span class="muted">(${by[s.b].length}회)</span>
+      <span class="pill">${esc(s.why)}</span>
+      <button class="btn ghost sm" onclick="rosterMergeAt(${s.ia},${s.ib})">${esc(s.b)} 로 합치기</button>
+      <button class="btn ghost sm" onclick="rosterMergeAt(${s.ib},${s.ia})">${esc(s.a)} 로 합치기</button>
+      </div>`; }).join('')}</div>`:'';
+
+  var rows=names.map(function(nm,ni){
+    var list=by[nm].slice().sort(function(x,y){ return (x.rec.ts||0)-(y.rec.ts||0); });
+    var pcts=list.map(function(v){ return v.rec.total?Math.round(v.rec.correct/v.rec.total*100):0; });
+    var avg=pcts.length?Math.round(pcts.reduce(function(a,b){return a+b;},0)/pcts.length):0;
+    var inner=list.map(function(v){
+      var p=v.rec.total?Math.round(v.rec.correct/v.rec.total*100):0;
+      var when=v.rec.ts?new Date(v.rec.ts).toLocaleDateString('ko-KR'):'-';
+      return `<tr><td>${esc(v.exam.title)}</td>
+        <td class="mono">${v.rec.correct}/${v.rec.total} · ${p}%</td>
+        <td class="mono">${esc(when)}</td>
+        <td>${esc([v.rec.school,v.rec.grade?v.rec.grade+'학년':''].filter(Boolean).join(' '))||'<span class="muted">-</span>'}</td>
+        <td><button class="btn ghost sm" onclick="rosterEdit('${esc(v.exam.id)}',${v.idx})">수정</button>
+            <button class="btn ghost sm" onclick="rosterDel('${esc(v.exam.id)}',${v.idx})">삭제</button></td></tr>`;
+    }).join('');
+    return `<details style="border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin:6px 0">
+      <summary style="cursor:pointer;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <b style="font-size:15px">${esc(nm)}</b>
+        <span class="pill">${list.length}회</span>
+        <span class="muted" style="font-size:12.5px">평균 ${avg}%</span>
+        <button class="btn ghost sm" style="margin-left:auto" onclick="event.preventDefault();event.stopPropagation();rosterRenameAt(${ni})">이름 고치기</button>
+      </summary>
+      <div style="overflow-x:auto;margin-top:7px"><table class="gtbl"><thead><tr>
+        <th>시험</th><th>점수</th><th>날짜</th><th>학교·학년</th><th>수정</th></tr></thead>
+        <tbody>${inner}</tbody></table></div></details>`;
+  }).join('');
+
+  app.innerHTML=`<button class="back" onclick="location.hash='';renderList()">‹ 시험 목록</button>
+   <h1 style="margin:6px 0 2px">명단 관리</h1>
+   <div class="muted" style="margin-bottom:10px">학생 <b>${names.length}명</b> · 기록 <b>${nRec}건</b></div>
+   <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+     <button class="btn ghost sm" onclick="rosterExport()">백업 내려받기 ↓</button>
+     <button class="btn ghost sm" onclick="rosterImport()">백업 가져오기 ↑</button>
+     <button class="btn ghost sm" onclick="syncAllFromSheet()">시트에서 불러오기 ↓</button>
+   </div>
+   <div class="note">기록은 <b>이 브라우저에만</b> 있습니다. 브라우저 데이터를 지우면 함께 사라지니 가끔 백업을 내려받아 두세요.
+     이름을 고치면 그 학생의 <b>모든 회차</b>가 함께 바뀌고, 성장 추적·숙달 추적이 다시 이어집니다.</div>
+   ${susHTML}
+   ${rmKeys.length?`<div class="sec">${secH('고친 이름 '+rmKeys.length+'건')}
+     <div class="sub">시트에는 옛 이름 행이 그대로 남아 있습니다. '시트에서 불러오기'를 할 때 이 표대로 바꿔서 받아옵니다 — 그래야 오타가 되살아나지 않습니다.</div>
+     <div style="margin-top:6px">${rmKeys.map(function(k){ return '<span class="pill" style="margin:2px 5px 2px 0;display:inline-block">'+esc(k)+' → '+esc(rm[k])+'</span>'; }).join('')}</div>
+     <button class="btn ghost sm" style="margin-top:8px" onclick="rosterForgetRenames()">고침 기록 지우기</button></div>`:''}
+   <div class="sec">${secH('학생별 기록')}
+     <div class="sub">이름을 눌러 펼치면 회차별 기록을 고치거나 지울 수 있습니다.</div>
+     ${rows||'<div class="muted" style="margin-top:8px">아직 채점한 기록이 없습니다.</div>'}</div>`;
+  window.scrollTo(0,0);
+}
 function renderQbank(){
   cur=null; sel={};
   const issues=qbankAudit(), st=qbankStats();
@@ -893,7 +1090,7 @@ function renderList(){
   const groups={}; FINAL_EXAMS.forEach(e=>{(groups[e.group]=groups[e.group]||[]).push(e)});
   const order=['JMChC','동형','산과염기','2026','2025','2024','이전'];
   const GLAB={'JMChC':['JMChC 모의고사','60문항 · 영역·개념'],'동형':['기출동형 모의고사','영역·개념'],'산과염기':['산·염기 60제','영역·개념']};
-  let h=`<div style="display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap;margin:2px 0 8px"><button class="btn ghost sm" onclick="syncAllFromSheet()">시트에서 불러오기 ↓</button><button class="btn ghost sm" onclick="setSyncKey()">동기화 키</button><button class="btn ghost sm" onclick="toggleCsLink()" title="성적표 링크에 또래 통계를 실을지. 끄면 주소가 짧아지는 대신 학부모 쪽에서 백분위·문항 정답률이 빠집니다.">또래 통계 링크 ${csLinkOn()?'켬':'끔'}</button><button class="btn ghost sm" onclick="copyStudentLink()">학생 제출 링크 복사 ⧉</button></div><div class="note">기출을 답안 입력만 하면 자동 채점하고 <b>수상권 + 영역·개념 진단</b>으로 분석합니다. 만점 대상 · 4틀림까지 금상 · 9틀림까지 은상 · 13틀림까지 동상 · 18틀림까지 장려상, 다음 등급까지 2문제 이내면 '○○권'. 응시가 누적되면 백분위·문항 정답률·선택지 분석이 더해집니다.</div>`;
+  let h=`<div style="display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap;margin:2px 0 8px"><button class="btn ghost sm" onclick="location.hash='#roster'">명단 관리 ⚙</button><button class="btn ghost sm" onclick="syncAllFromSheet()">시트에서 불러오기 ↓</button><button class="btn ghost sm" onclick="setSyncKey()">동기화 키</button><button class="btn ghost sm" onclick="toggleCsLink()" title="성적표 링크에 또래 통계를 실을지. 끄면 주소가 짧아지는 대신 학부모 쪽에서 백분위·문항 정답률이 빠집니다.">또래 통계 링크 ${csLinkOn()?'켬':'끔'}</button><button class="btn ghost sm" onclick="copyStudentLink()">학생 제출 링크 복사 ⧉</button></div><div class="note">기출을 답안 입력만 하면 자동 채점하고 <b>수상권 + 영역·개념 진단</b>으로 분석합니다. 만점 대상 · 4틀림까지 금상 · 9틀림까지 은상 · 13틀림까지 동상 · 18틀림까지 장려상, 다음 등급까지 2문제 이내면 '○○권'. 응시가 누적되면 백분위·문항 정답률·선택지 분석이 더해집니다.</div>`;
   order.forEach(g=>{ if(!groups[g])return;
     const gl=GLAB[g]||['KMChC '+(g==='이전'?'이전 연도':g+'년'),'자동 채점'];
     h+=`<div class="grp">${gl[0]}<span class="gt">${gl[1]}</span></div><div class="cards">`;
@@ -2216,6 +2413,26 @@ function sheetFetch(examId,onDone){
   setTimeout(function(){ if(!done){ cleanup(); onDone({error:'시트 응답 없음(시간 초과)'}); } },12000);
 }
 /* 같은 응시인지 가리는 열쇠. 시각은 기기마다 달라서 쓸 수 없다. */
+/* ── 이름 고침 기록 ────────────────────────────────────────────────────
+   이름을 고쳐도 구글 시트에는 옛 이름 행이 그대로 남아 있다. 그 상태로
+   '시트에서 불러오기'를 누르면, 시트의 옛 이름 행이 **새 기록으로** 다시
+   들어온다(중복 판정이 이름+답안이라 이름이 다르면 다른 사람으로 본다).
+   고쳐 놓은 것이 원상복구되는 게 아니라, 오타 이름이 하나 더 생긴다.
+
+   그래서 고친 내역을 남겨 두고, 시트에서 받아올 때 옛 이름을 새 이름으로
+   바꿔서 넣는다. 시트를 직접 고치지 못하는 대신 여기서 막는다. */
+const RENAME_KEY='final:renames';
+function renameMap(){ try{ return JSON.parse(localStorage.getItem(RENAME_KEY)||'{}')||{}; }catch(e){ return {}; } }
+function noteRename(from,to){
+  from=String(from||'').trim(); to=String(to||'').trim();
+  if(!from||!to||from===to) return;
+  var m=renameMap();
+  // A→B 로 고쳐 뒀는데 다시 B→C 로 고치면, A 도 C 를 가리키게 편다.
+  for(var k in m) if(m[k]===from) m[k]=to;
+  m[from]=to;
+  try{ localStorage.setItem(RENAME_KEY,JSON.stringify(m)); }catch(e){}
+}
+function applyRename(n){ var s=String(n||'').trim(); var m=renameMap(); return m[s]||s; }
 function subSig(r){ return (r.name||'').trim()+'|'+((r.ans||[]).join('')); }
 /* 시트 한 시험분을 로컬 풀에 합친다. 반환값은 새로 들어온 건수. */
 function mergeSheetRows(exam,rows){
@@ -2230,7 +2447,7 @@ function mergeSheetRows(exam,rows){
     var ans=digits.split('').map(Number);
     var miss=new Set(exam.miss||[]), correct=0, total=0;
     for(var q=1;q<=exam.nQ;q++){ if(miss.has(q))continue; total++; if(okq(exam,q,ans[q-1]||0))correct++; }
-    var rowRec={name:String(rec.name||'').trim(), school:'', grade:'',
+    var rowRec={name:applyRename(rec.name), school:'', grade:'',
                 ts:rec.ts||0, correct:correct, total:total, wrong:total-correct, ans:ans};
     var sig=subSig(rowRec);
     if(seen[sig]) return;
@@ -4104,7 +4321,9 @@ function boot(){
   window.__csLink=null;
   const sm=location.hash.match(/[#&]s=([A-Za-z0-9_-]+)&/);
   if(m){ const ex=FINAL_EXAMS.find(e=>e.id===m[1]); if(ex){ if(sm) window.__csLink={id:ex.id,raw:sm[1]}; openExam(ex.id); fShared=true; let n=0n; for(const c of m[2]) n=n*36n+BigInt(parseInt(c,36)); for(let q=1;q<=ex.nQ;q++){ const v=Number(n%5n); n=n/5n; if(v) setAns(q,v); } const ne=document.getElementById('nm'), xe=document.getElementById('exno'); if(m[4]&&ne) ne.value=decName(m[4]); if(m[3]&&xe) xe.value=m[3]; scoreAuto(); return; } }
-  if(location.hash==='#qbank'||location.hash==='#admin'){ renderQbank(); } else { renderList(); }
+  if(location.hash==='#roster'){ renderRoster(); }
+  else if(location.hash==='#qbank'||location.hash==='#admin'){ renderQbank(); }
+  else { renderList(); }
 }
 /* 해시를 바꾸지 않고 오답 개념 클리닉으로 스크롤(공유 리포트 #r= 상태 유지) */
 function scrollToClinic(){ var e=document.getElementById('clinic'); if(e){ e.scrollIntoView({behavior:'smooth',block:'start'}); } }
