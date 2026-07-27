@@ -1,0 +1,181 @@
+/* ============================================================
+   시트 수정 창구 회귀 테스트 (브라우저 불필요 — CI 에서 돈다)
+   ------------------------------------------------------------
+   이름을 잘못 입력했을 때 앱에서 고쳐도 구글 시트에는 옛 이름 행이 그대로
+   남았다. 그러면 '시트에서 불러오기'가 그 행을 **다른 사람**으로 보고 다시
+   넣고(중복 판정이 이름+답안이라서), 성적문자도 옛 이름으로 나간다.
+
+   그래서 시트를 직접 고치는 창구를 열었다. 행을 지우는 일이 섞이므로
+   조심할 곳이 많다.
+
+   여기서 지키는 것:
+   - **열쇠 없이는 아무것도 안 바꾼다.** 읽기는 열쇠가 없어도 통과시키지만
+     (하위호환), 쓰기까지 열면 URL 을 아는 누구나 남의 성적을 지울 수 있다.
+   - 이름 일괄 고치기는 전 시험에 닿는다
+   - 한 줄 고치기·지우기는 시험+이름+답안이 **다 맞는 행만** 건드린다
+   - 여러 줄을 지울 때 뒤에서부터 지운다(앞에서 지우면 행 번호가 밀린다)
+   - 고친 뒤 성적문자 탭을 다시 만든다
+
+   실행:  node tests/sheet-edit.js
+   ============================================================ */
+'use strict';
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
+
+let fail = 0;
+const chk = (n, got, want) => {
+  const ok = JSON.stringify(got) === JSON.stringify(want);
+  console.log((ok ? '  PASS  ' : '  FAIL  ') + n +
+    (ok ? '' : `  → ${JSON.stringify(got)} (기대 ${JSON.stringify(want)})`));
+  if (!ok) fail++;
+};
+
+/* 시트 흉내. 실제 스프레드시트는 못 띄우니 필요한 만큼만 만든다.
+   행 번호는 1부터, 데이터는 2행부터 — 진짜와 같게 맞춰야 삭제 순서 같은
+   실수가 여기서 걸린다. */
+function fakeSheet(rows) {
+  const grid = rows.map(r => r.slice());
+  let messagesRebuilt = 0;
+  const sheet = {
+    _grid: grid,
+    getLastRow: () => grid.length + 1,          // 머리글 1행 + 데이터
+    getRange(row, col, nRow, nCol) {
+      nRow = nRow || 1; nCol = nCol || 1;
+      return {
+        getValues: () => { const out = [];
+          for (let i = 0; i < nRow; i++) { const src = grid[row - 2 + i] || [], line = [];
+            for (let j = 0; j < nCol; j++) line.push(src[col - 1 + j]);
+            out.push(line); }
+          return out; },
+        setValues(vals) { for (let i = 0; i < vals.length; i++)
+          for (let j = 0; j < vals[i].length; j++) grid[row - 2 + i][col - 1 + j] = vals[i][j]; },
+        setValue(v) { grid[row - 2][col - 1] = v; },
+      };
+    },
+    deleteRow(r) { grid.splice(r - 2, 1); },
+    _rebuilt: () => messagesRebuilt,
+    _bump: () => { messagesRebuilt++; },
+  };
+  return sheet;
+}
+
+function load(sheet, secret) {
+  const gas = {
+    Logger: { log() {} },
+    SpreadsheetApp: {
+      getActiveSpreadsheet: () => ({ getSheetByName: () => sheet }),
+      flush() {},
+    },
+    LockService: { getScriptLock: () => ({ waitLock() {}, releaseLock() {} }) },
+    ContentService: {
+      MimeType: { JSON: 'json', JAVASCRIPT: 'js' },
+      createTextOutput: t => ({ _t: t, setMimeType() { return this; } }),
+    },
+    Utilities: {}, Session: { getScriptTimeZone: () => 'Asia/Seoul' },
+    PropertiesService: { getScriptProperties: () => ({ getProperty: () => secret }) },
+  };
+  vm.createContext(gas);
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'AppsScript-Code.gs'), 'utf8'), gas);
+  // 성적문자 재생성은 시트 전체를 건드리므로 세었는지만 본다
+  gas.fillReportMessages = () => sheet._bump();
+  return gas;
+}
+
+// [0시험 1이름 2링크 3저장시각 4수험번호 5응시일 6학교 7학년 …16답안]
+const R = (exam, name, school, grade, ans) => {
+  const r = new Array(17).fill('');
+  r[0] = exam; r[1] = name; r[6] = school; r[7] = grade; r[16] = "'" + ans;
+  return r;
+};
+const A1 = '1'.repeat(60), A2 = '2'.repeat(60), A3 = '3'.repeat(60);
+const T6 = 'JMChC 모의고사 6회', T7 = 'JMChC 모의고사 7회';
+const seed = () => [
+  R(T6, '김지 성', 'X중', '2', A1),
+  R(T6, '이도현', 'Y중', '3', A2),
+  R(T6, '김지 성', 'X중', '2', A3),   // 같은 이름·다른 답안 — 한 줄 지우기가 이걸 건드리면 안 된다
+  R(T7, '김지 성', 'X중', '2', A1),   // 다른 시험·같은 이름·같은 답안
+];
+const names = sh => sh._grid.map(r => r[1]);
+
+console.log('── 열쇠 없으면 아무것도 안 바꾼다 ──');
+{
+  const sh = fakeSheet(seed());
+  const gas = load(sh, '');                    // 열쇠 미설정
+  const out = JSON.parse(gas.doGet({ parameter: { action: 'deleteRow', exam: 'jmchc-6', name: '김지 성', answers: A1 } })._t);
+  chk('거부한다', out.error, 'no-secret');
+  chk('안내를 준다', /열쇠설정/.test(out.message || ''), true);
+  chk('행이 그대로', sh._grid.length, 4);
+}
+{
+  const sh = fakeSheet(seed());
+  const gas = load(sh, 'S3CRET');
+  const out = JSON.parse(gas.doGet({ parameter: { action: 'rename', from: '김지 성', to: '김지성', key: '틀린키' } })._t);
+  chk('키가 틀리면 거부', out.error, 'unauthorized');
+  chk('이름이 안 바뀐다', names(sh)[0], '김지 성');
+}
+
+console.log('\n── 이름 일괄 고치기 ──');
+{
+  const sh = fakeSheet(seed());
+  const gas = load(sh, 'S3CRET');
+  const out = JSON.parse(gas.doGet({ parameter: { action: 'rename', from: '김지 성', to: '김지성', key: 'S3CRET' } })._t);
+  chk('3건 고쳤다', [out.ok, out.changed], [true, 3]);
+  chk('전 시험에 닿는다', names(sh), ['김지성', '이도현', '김지성', '김지성']);
+  chk('남의 이름은 그대로', names(sh)[1], '이도현');
+  chk('성적문자를 다시 만든다', sh._rebuilt(), 1);
+  const none = JSON.parse(gas.doGet({ parameter: { action: 'rename', from: '없는사람', to: 'X', key: 'S3CRET' } })._t);
+  chk('없는 이름이면 0건', none.changed, 0);
+  const bad = JSON.parse(gas.doGet({ parameter: { action: 'rename', from: '김지성', to: '', key: 'S3CRET' } })._t);
+  chk('빈 이름으로는 못 바꾼다', bad.error, 'bad-args');
+}
+
+console.log('\n── 한 줄 고치기 ──');
+{
+  const sh = fakeSheet(seed());
+  const gas = load(sh, 'S3CRET');
+  const out = JSON.parse(gas.doGet({ parameter: { action: 'editRow', exam: 'jmchc-6', name: '김지 성',
+    answers: A1, setName: '김지성', setSchool: '대원국제중', setGrade: '3', key: 'S3CRET' } })._t);
+  chk('한 줄만 바뀐다', out.changed, 1);
+  chk('그 줄이 바뀌었다', [sh._grid[0][1], sh._grid[0][6], sh._grid[0][7]], ['김지성', '대원국제중', '3']);
+  chk('같은 이름·다른 답안은 그대로', sh._grid[2][1], '김지 성');
+  chk('다른 시험 같은 답안도 그대로', sh._grid[3][1], '김지 성');
+}
+
+console.log('\n── 한 줄 지우기 ──');
+{
+  const sh = fakeSheet(seed());
+  const gas = load(sh, 'S3CRET');
+  const out = JSON.parse(gas.doGet({ parameter: { action: 'deleteRow', exam: 'jmchc-6', name: '김지 성',
+    answers: A1, key: 'S3CRET' } })._t);
+  chk('한 줄만 지운다', [out.changed, sh._grid.length], [1, 3]);
+  chk('남은 줄', names(sh), ['이도현', '김지 성', '김지 성']);
+  chk('다른 시험 줄은 살아 있다', sh._grid[2][0], T7);
+}
+{
+  // 같은 시험·같은 이름·같은 답안이 두 줄이면 둘 다 지운다. 뒤에서부터
+  // 지워야 한다 — 앞에서 지우면 남은 행 번호가 밀려 엉뚱한 줄이 날아간다.
+  const rows = seed(); rows.splice(2, 0, R(T6, '김지 성', 'X중', '2', A1));
+  const sh = fakeSheet(rows);
+  const gas = load(sh, 'S3CRET');
+  const out = JSON.parse(gas.doGet({ parameter: { action: 'deleteRow', exam: 'jmchc-6', name: '김지 성',
+    answers: A1, key: 'S3CRET' } })._t);
+  chk('겹친 두 줄을 지운다', out.changed, 2);
+  /* 이름만 보면 안 된다. 앞에서부터 지우면 남은 줄이 밀려 **다른 답안의
+     같은 이름** 줄이 날아가는데, 이름 목록만 비교하면 그게 안 걸린다.
+     실제로 그렇게 짜 놓고 검사가 통과하는 것을 보았다. 답안까지 본다. */
+  chk('엉뚱한 줄이 안 날아간다', sh._grid.map(r => r[1] + '|' + String(r[16]).slice(1, 2)),
+      ['이도현|2', '김지 성|3', '김지 성|1']);
+}
+
+console.log('\n── 읽기는 예전 그대로 ──');
+{
+  const sh = fakeSheet(seed());
+  const gas = load(sh, '');                     // 열쇠 없어도 목록은 준다(하위호환)
+  const out = JSON.parse(gas.doGet({ parameter: { action: 'list', exam: 'jmchc-6' } })._t);
+  chk('목록은 열쇠 없이도 나온다', out.ok, true);
+  chk('경고를 얹는다', /열쇠/.test(out.warning || ''), true);
+}
+
+console.log(fail ? `\n실패 ${fail}건` : '\n전부 통과');
+process.exit(fail ? 1 : 0);

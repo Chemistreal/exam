@@ -253,10 +253,91 @@ function doGet(e) {
       ? ContentService.createTextOutput(cb + '(' + out + ')').setMimeType(ContentService.MimeType.JAVASCRIPT)
       : ContentService.createTextOutput(out).setMimeType(ContentService.MimeType.JSON);
   }
+  /* ── 시트 고치기 (앱의 '명단 관리'가 부른다) ──────────────────────────
+     이름을 잘못 입력했을 때 앱에서 고쳐도 시트에는 옛 이름 행이 그대로
+     남았다. 그러면 '시트에서 불러오기'가 그 행을 **다른 사람**으로 보고
+     다시 넣는다(중복 판정이 이름+답안이라서). 앱 쪽에도 막는 장치를 뒀지만,
+     시트가 계속 틀린 채로 있으면 성적문자도 옛 이름으로 나간다.
+
+     그래서 시트를 직접 고칠 창구를 연다.
+       ?action=rename&from=..&to=..            이름 일괄(전 시험)
+       ?action=editRow&exam=..&name=..&answers=..&setName=..&setSchool=..&setGrade=..
+       ?action=deleteRow&exam=..&name=..&answers=..
+
+     행을 고르는 열쇠는 앱이 쓰는 것과 같다 — 시험 + 이름 + 답안.
+     저장시각은 기기마다 달라 쓸 수 없다.
+
+     **행을 지우고 고치는 일이라 열쇠 없이는 받지 않는다.** 읽기는 열쇠가
+     없어도 경고만 얹고 통과시키지만(하위호환), 쓰기까지 열어 두면 URL 을
+     아는 누구나 남의 성적을 지울 수 있다. */
+  if (p.action === 'rename' || p.action === 'editRow' || p.action === 'deleteRow') {
+    var res;
+    if (!_secret()) {
+      res = { ok: false, error: 'no-secret',
+              message: '동기화 열쇠가 없어 시트 수정을 받지 않습니다. Apps Script 편집기에서 열쇠설정() 을 한 번 실행하세요.' };
+    } else if (!_keyOk(p.key)) {
+      res = { ok: false, error: 'unauthorized' };
+    } else {
+      res = _sheetEdit(p);
+    }
+    var body = JSON.stringify(res);
+    return cb
+      ? ContentService.createTextOutput(cb + '(' + body + ')').setMimeType(ContentService.MimeType.JAVASCRIPT)
+      : ContentService.createTextOutput(body).setMimeType(ContentService.MimeType.JSON);
+  }
   var status = JSON.stringify(_warn({ ok: true, msg: 'Chemistreal endpoint live' }));
   return cb
     ? ContentService.createTextOutput(cb + '(' + status + ')').setMimeType(ContentService.MimeType.JAVASCRIPT)
     : ContentService.createTextOutput(status).setMimeType(ContentService.MimeType.JSON);
+}
+
+/* 성적기록 시트의 행을 고치거나 지운다. doGet 의 rename·editRow·deleteRow 가 부른다.
+   열 순서: 1시험 2이름 3링크 4저장시각 5수험번호 6응시일 7학교 8학년 … 17답안 */
+function _sheetEdit(p) {
+  var lock = null;
+  try {
+    try { lock = LockService.getScriptLock(); lock.waitLock(20000); } catch (eL) { lock = null; }
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('성적기록');
+    if (!sheet || sheet.getLastRow() < 2) return { ok: true, changed: 0 };
+    var n = sheet.getLastRow() - 1, changed = 0;
+
+    if (p.action === 'rename') {
+      var from = String(p.from || '').trim(), to = String(p.to || '').trim();
+      if (!from || !to || from === to) return { ok: false, error: 'bad-args' };
+      // 이름 열만 통째로 읽고 한 번에 쓴다. 한 칸씩 쓰면 행이 많을 때 느리다.
+      var col = sheet.getRange(2, 2, n, 1).getValues();
+      for (var i = 0; i < n; i++) if (String(col[i][0] || '').trim() === from) { col[i][0] = to; changed++; }
+      if (changed) sheet.getRange(2, 2, n, 1).setValues(col);
+    } else {
+      var want = EXAM_TITLES[p.exam] || null;
+      if (want && !(want instanceof Array)) want = [want];
+      var norm = function (v) { return String(v == null ? '' : v).replace(/^'/, '').replace(/[^0-4]/g, ''); };
+      var name = String(p.name || '').trim(), ans = norm(p.answers);
+      if (!name || !ans) return { ok: false, error: 'bad-args' };
+      var rows = sheet.getRange(2, 1, n, HEADER.length).getValues(), kill = [];
+      for (var j = 0; j < n; j++) {
+        var r = rows[j];
+        if (want && want.indexOf(String(r[0])) < 0) continue;
+        if (String(r[1] || '').trim() !== name) continue;
+        if (norm(r[16]) !== ans) continue;
+        if (p.action === 'deleteRow') { kill.push(j + 2); changed++; continue; }
+        if (p.setName)             sheet.getRange(j + 2, 2).setValue(String(p.setName).trim());
+        if (p.setSchool != null)   sheet.getRange(j + 2, 7).setValue(String(p.setSchool));
+        if (p.setGrade  != null)   sheet.getRange(j + 2, 8).setValue(String(p.setGrade));
+        changed++;
+      }
+      // 뒤에서부터 지운다. 앞에서 지우면 남은 행 번호가 밀린다.
+      for (var k = kill.length - 1; k >= 0; k--) sheet.deleteRow(kill[k]);
+    }
+
+    // 성적문자 탭은 성적기록을 그대로 옮겨 적은 것이라 같이 다시 만든다.
+    if (changed) { try { SpreadsheetApp.flush(); fillReportMessages(); } catch (eM) { Logger.log('문자 재생성 실패: ' + eM); } }
+    return { ok: true, changed: changed };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  } finally {
+    if (lock) try { lock.releaseLock(); } catch (eU) {}
+  }
 }
 
 /* ============================================================

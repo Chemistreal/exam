@@ -149,6 +149,34 @@ const SEED = () => {
   await page.waitForTimeout(500);
   chk('버튼으로 들어가진다', /학생 .*명/.test(await txt()), true);
 
+  /* ── 시트에도 닿는가 ─────────────────────────────────────────────
+     고친 것을 시트에 보내지 않으면 성적문자가 옛 이름으로 나간다.
+     실제 시트를 부를 수는 없으니, 어떤 주소로 나가는지를 가로채 본다. */
+  console.log('\n── 시트로 나가는 요청 ──');
+  await page.evaluate(() => {
+    window.__sent = [];
+    // JSONP 는 <script> 를 붙여서 부른다. 붙는 순간을 잡아 주소만 챙기고 막는다.
+    const add = document.body.appendChild.bind(document.body);
+    document.body.appendChild = function (el) {
+      if (el && el.tagName === 'SCRIPT' && /action=/.test(el.src || '')) {
+        window.__sent.push(el.src);
+        const m = /callback=([^&]+)/.exec(el.src);
+        if (m) setTimeout(() => { try { window[m[1]]({ ok: true, changed: 1 }); } catch (e) {} }, 0);
+        return el;                       // 진짜로 붙이지는 않는다
+      }
+      return add(el);
+    };
+  });
+  await page.evaluate(() => rosterApplyRename('김지성', '김지성A'));
+  await page.evaluate(() => sheetCall({ action: 'rename', from: '김지성', to: '김지성A' }, function () {}));
+  await page.waitForTimeout(300);
+  const sent = await page.evaluate(() => window.__sent.map(u => u.replace(/^[^?]*\?/, '')));
+  chk('시트로 요청이 나간다', sent.length >= 1, true);
+  chk('이름 고치기 동작', /action=rename/.test(sent[0] || ''), true);
+  chk('옛 이름을 보낸다', /from=%EA%B9%80%EC%A7%80%EC%84%B1(&|$)/.test(sent[0] || ''), true);
+  chk('동기화 키를 함께 보낸다', /(^|&)key=/.test(sent[0] || ''), true);
+  chk('콜백 이름을 붙인다', /(^|&)callback=__fsheet/.test(sent[0] || ''), true);
+
   chk('JS 오류 없음', errs, []);
   await browser.close();
   console.log(fail ? `\n실패 ${fail}건` : '\n전부 통과');
