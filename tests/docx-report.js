@@ -99,6 +99,25 @@ let fail=0; const chk=(n,g,w)=>{const ok=JSON.stringify(g)===JSON.stringify(w);
   const logoBytes=fs.statSync(path.join(__dirname,'..','dawon_logo_trim.png')).size;
   const hasLogo=media.some(f=>{try{return fs.statSync(path.join(dir,'media',f)).size===logoBytes;}catch(e){return false;}});
   chk('다원 로고가 문서에 들어 있다',hasLogo,true);
+  // ── 화면에만 있던 나머지 섹션들 (secToParas 로 옮긴 것) ──
+  [['수상권 목표 정렬','ROADMAP'],['신호등 사분면','QUADRANT'],['개념 깊이','DEPTH'],
+   ['학습 유형 진단','LEARNER'],['선수 개념','PREREQUISITE'],['숙달','MASTERY'],
+   ['성장 루프','LONG RUN']].forEach(([ko])=>{
+    chk('섹션 · '+ko, new RegExp(ko).test(txt), true);
+  });
+
+  // ── Word 에만 넣은 것 ──
+  chk('학부모 한 장 요약',/한 장 요약/.test(txt),true);
+  chk('요약에 결론만 담는다는 안내',/이 장만 보셔도 됩니다/.test(txt),true);
+  chk('4주 학습 계획표',/학습 계획표/.test(txt),true);
+  chk('계획표에 체크 칸',/완료/.test(txt),true);
+  chk('미니 시험지 답안 기입란',/답안 기입란/.test(txt),true);
+
+  // ── 배경 워터마크 ──
+  const markBytes=fs.statSync(path.join(__dirname,'..','assets','report','logo-watermark.png')).size;
+  const hasMark=media.some(f=>{try{return fs.statSync(path.join(dir,'media',f)).size===markBytes;}catch(e){return false;}});
+  chk('배경 워터마크가 문서에 들어 있다',hasMark,true);
+
   chk('JS 오류 없음',errs,[]);
   console.log(fail?`\n실패 ${fail}건`:'\n전부 통과');
   process.exit(fail?1:0);
