@@ -774,7 +774,7 @@ function renderList(){
   const groups={}; FINAL_EXAMS.forEach(e=>{(groups[e.group]=groups[e.group]||[]).push(e)});
   const order=['JMChC','동형','산과염기','2026','2025','2024','이전'];
   const GLAB={'JMChC':['JMChC 모의고사','60문항 · 영역·개념'],'동형':['기출동형 모의고사','영역·개념'],'산과염기':['산·염기 60제','영역·개념']};
-  let h=`<div style="display:flex;justify-content:flex-end;margin:2px 0 8px"><button class="btn ghost sm" onclick="copyStudentLink()">학생 제출 링크 복사 ⧉</button></div><div class="note">기출을 답안 입력만 하면 자동 채점하고 <b>수상권 + 영역·개념 진단</b>으로 분석합니다. 만점 대상 · 4틀림까지 금상 · 9틀림까지 은상 · 13틀림까지 동상 · 18틀림까지 장려상, 다음 등급까지 2문제 이내면 '○○권'. 응시가 누적되면 백분위·문항 정답률·선택지 분석이 더해집니다.</div>`;
+  let h=`<div style="display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap;margin:2px 0 8px"><button class="btn ghost sm" onclick="syncAllFromSheet()">시트에서 불러오기 ↓</button><button class="btn ghost sm" onclick="setSyncKey()">동기화 키</button><button class="btn ghost sm" onclick="copyStudentLink()">학생 제출 링크 복사 ⧉</button></div><div class="note">기출을 답안 입력만 하면 자동 채점하고 <b>수상권 + 영역·개념 진단</b>으로 분석합니다. 만점 대상 · 4틀림까지 금상 · 9틀림까지 은상 · 13틀림까지 동상 · 18틀림까지 장려상, 다음 등급까지 2문제 이내면 '○○권'. 응시가 누적되면 백분위·문항 정답률·선택지 분석이 더해집니다.</div>`;
   order.forEach(g=>{ if(!groups[g])return;
     const gl=GLAB[g]||['KMChC '+(g==='이전'?'이전 연도':g+'년'),'자동 채점'];
     h+=`<div class="grp">${gl[0]}<span class="gt">${gl[1]}</span></div><div class="cards">`;
@@ -856,6 +856,13 @@ function globalDomainPrior(excludeId){
   return {dom, overall:aN?aS/aN:60, has:aN>0};
 }
 function cohortStats(exam){
+  /* 공유 링크로 열었고 링크에 또래 통계가 실려 있으면 그것을 쓴다.
+     받는 쪽 브라우저에는 누적 기록이 없어 여기서 계산해 봐야 빈칸이다.
+     링크에 든 것은 합계뿐이라(문항별 정답률·선택 분포·점수 분포) 개인은 드러나지 않는다. */
+  if(window.__csLink && window.__csLink.id===exam.id){
+    if(window.__csLink.parsed===undefined) window.__csLink.parsed=unpackCohort(exam,window.__csLink.raw);
+    if(window.__csLink.parsed) return window.__csLink.parsed;
+  }
   const _raw=subs(exam.id).filter(r=>r.ans&&r.ans.length===exam.nQ); const _cc=cleanCohort(exam,_raw); const arr=_cc.clean; const N=arr.length; const _flag=_cc.flagged.length;
   const miss=new Set(exam.miss||[]); const totals=arr.map(r=>r.correct);
   if(N>=MINP){
@@ -1820,10 +1827,179 @@ async function exportReportHTML(){
 }
 const SHEET_ENDPOINT='https://script.google.com/macros/s/AKfycbxGmSCkip0cQCyOH_JA2SiAMSxri00XObLmHyXlyXwxhG7u7w-x0FH02VN4DQySiUsv9Q/exec';
 function fSyncKey(){ try{ return localStorage.getItem('chemistreal:synckey')||''; }catch(e){ return ''; } }
+function setSyncKey(){
+  var now=fSyncKey();
+  var v=prompt('동기화 키를 입력하세요.\nApps Script 의 스크립트 속성 SECRET 과 똑같이 맞춰야 합니다.\n(이 브라우저에만 저장되고 저장소에는 들어가지 않습니다)', now);
+  if(v===null) return;
+  try{ localStorage.setItem('chemistreal:synckey', v.trim()); }catch(e){}
+  fToast(v.trim()?'동기화 키를 저장했습니다':'동기화 키를 비웠습니다');
+}
+/* ── 구글 시트에서 응시 기록 내려받기 ─────────────────────────────────────
+   지금까지 시트는 **쓰기 전용**이었다(no-cors POST). 기록이 시트에 쌓여도 앱은
+   그걸 다시 읽지 않으니, 또래 통계의 모집단은 늘 '이 브라우저에서 채점한
+   학생들'뿐이었다. 학원 PC 와 노트북에서 반씩 채점하면 양쪽 다 MINP(8명)를
+   못 넘겨 또래 정답률·선택 분포·백분위가 아예 나오지 않는다. 브라우저 저장소를
+   비우면 누적이 통째로 사라지기도 한다.
+
+   Apps Script 는 JSONP 로만 응답하므로(CORS 헤더가 없다) <script> 로 부른다.
+   내려받은 기록은 로컬 기록과 **합치기만** 한다 — 지우지 않는다. 같은 응시인지는
+   이름+답안으로 판단한다(시각은 기기마다 다르다). */
+function sheetFetch(examId,onDone){
+  if(!SHEET_ENDPOINT){ onDone({error:'시트 주소가 설정되지 않았습니다'}); return; }
+  var cb='__fsheet'+Math.floor(performance.now()*1000)+'_'+examId.replace(/[^a-z0-9]/gi,'');
+  var sc=document.createElement('script'), done=false;
+  function cleanup(){ try{ delete window[cb]; }catch(e){ window[cb]=undefined; }
+    if(sc.parentNode) sc.parentNode.removeChild(sc); }
+  window[cb]=function(res){ done=true; cleanup(); onDone(res||{}); };
+  sc.onerror=function(){ if(!done){ cleanup(); onDone({error:'시트 연결 실패 — 배포·권한을 확인하세요'}); } };
+  sc.src=SHEET_ENDPOINT+(SHEET_ENDPOINT.indexOf('?')>=0?'&':'?')
+    +'action=list&exam='+encodeURIComponent(examId)
+    +'&key='+encodeURIComponent(fSyncKey())+'&callback='+cb;
+  document.body.appendChild(sc);
+  setTimeout(function(){ if(!done){ cleanup(); onDone({error:'시트 응답 없음(시간 초과)'}); } },12000);
+}
+/* 같은 응시인지 가리는 열쇠. 시각은 기기마다 달라서 쓸 수 없다. */
+function subSig(r){ return (r.name||'').trim()+'|'+((r.ans||[]).join('')); }
+/* 시트 한 시험분을 로컬 풀에 합친다. 반환값은 새로 들어온 건수. */
+function mergeSheetRows(exam,rows){
+  if(!rows||!rows.length) return 0;
+  var arr=subs(exam.id), seen={};
+  arr.forEach(function(r){ seen[subSig(r)]=1; });
+  var added=0;
+  rows.forEach(function(rec){
+    if(!rec||!rec.answers) return;
+    var digits=String(rec.answers).replace(/[^0-4]/g,'');
+    if(digits.length!==exam.nQ) return;          // 문항 수가 다르면 다른 시험이다
+    var ans=digits.split('').map(Number);
+    var miss=new Set(exam.miss||[]), correct=0, total=0;
+    for(var q=1;q<=exam.nQ;q++){ if(miss.has(q))continue; total++; if(okq(exam,q,ans[q-1]||0))correct++; }
+    var rowRec={name:String(rec.name||'').trim(), school:'', grade:'',
+                ts:rec.ts||0, correct:correct, total:total, wrong:total-correct, ans:ans};
+    var sig=subSig(rowRec);
+    if(seen[sig]) return;
+    seen[sig]=1; arr.push(rowRec); added++;
+  });
+  if(added){ arr.sort(function(a,b){ return (a.ts||0)-(b.ts||0); }); saveSubs(exam.id,arr); }
+  return added;
+}
+/* 모든 시험을 차례로 받는다. 한 번에 다 쏘면 Apps Script 가 동시 실행을 막는다. */
+function syncAllFromSheet(){
+  var list=FINAL_EXAMS.slice(), i=0, total=0, failed=0, warned=false;
+  fToast('시트에서 불러오는 중… (0/'+list.length+')');
+  (function step(){
+    if(i>=list.length){
+      renderList();
+      fToast(failed
+        ? ('불러오기 완료 · 새 기록 '+total+'건 · 실패 '+failed+'개 시험')
+        : (total? ('시트에서 '+total+'건을 새로 받았습니다') : '시트와 이미 같습니다'));
+      return;
+    }
+    var exam=list[i++];
+    sheetFetch(exam.id,function(res){
+      if(res.error||res.ok===false){ failed++; }
+      else{
+        if(res.warning && !warned){ warned=true; console.warn('[시트] '+res.warning); }
+        try{ total+=mergeSheetRows(exam,res.students||[]); }catch(e){ failed++; }
+      }
+      if(i%5===0) fToast('시트에서 불러오는 중… ('+i+'/'+list.length+')');
+      setTimeout(step,120);   // 연속 호출 간격을 조금 둔다
+    });
+  })();
+}
 function fToast(msg){ let t=document.getElementById('ftoast'); if(!t){ t=document.createElement('div'); t.id='ftoast'; t.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#23201b;color:#fff;padding:9px 16px;border-radius:9px;font-size:13px;z-index:9999;opacity:0;transition:opacity .25s;box-shadow:0 4px 16px rgba(0,0,0,.22);max-width:88%;text-align:center'; document.body.appendChild(t); } t.textContent=msg; requestAnimationFrame(()=>{t.style.opacity='1';}); clearTimeout(t._h); t._h=setTimeout(()=>{t.style.opacity='0';},2600); }
 let fShared=false;
-function hashStrFinal(cur,sel,nm,exno){ let num=0n; for(let q=cur.nQ;q>=1;q--){ num=num*5n+BigInt(sel[q]||0); } const en=encodeURIComponent((nm||'').trim()), no=(exno||''); return 'r='+cur.id+'.'+num.toString(36)+((en||no)?('.'+no+'.'+en):''); }
-function shareLinkFinal(cur,sel,nm,exno){ return location.origin+location.pathname+'#'+hashStrFinal(cur,sel,nm,exno); }
+/* 이름은 URL 에 그대로 적지 않는다.
+   `#r=hwol-2018.abc123..홍길동` 처럼 평문으로 붙어 있으면 링크를 단톡방에
+   올렸을 때 미리보기에 뜨고, 주소창과 방문 기록에도 남는다. 링크가 받을 사람
+   밖으로 한 번 흘러가면 그 자리에서 누구 성적표인지 읽힌다.
+
+   base64 로 감싼다. **암호가 아니다** — 마음먹고 풀면 풀린다. 눈에 띄어 새는
+   것을 막을 뿐이고, 링크를 아는 사람이 성적을 볼 수 있다는 사실은 그대로다.
+   `~` 로 시작하면 새 방식, 아니면 예전 링크라 그대로 읽는다. */
+function encName(nm){
+  var s=(nm||'').trim(); if(!s) return '';
+  try{
+    var bytes=new TextEncoder().encode(s), bin='';
+    for(var i=0;i<bytes.length;i++) bin+=String.fromCharCode(bytes[i]);
+    return '~'+btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  }catch(e){ return encodeURIComponent(s); }
+}
+function decName(raw){
+  if(!raw) return '';
+  if(raw.charAt(0)!=='~'){ try{ return decodeURIComponent(raw); }catch(e){ return raw; } }
+  try{
+    var s=raw.slice(1).replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4) s+='=';
+    var bin=atob(s), bytes=new Uint8Array(bin.length);
+    for(var i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  }catch(e){ return ''; }
+}
+function hashStrFinal(cur,sel,nm,exno){ let num=0n; for(let q=cur.nQ;q>=1;q--){ num=num*5n+BigInt(sel[q]||0); } const en=encName(nm), no=(exno||''); return 'r='+cur.id+'.'+num.toString(36)+((en||no)?('.'+no+'.'+en):''); }
+
+/* ── 공유 링크에 또래 통계를 실어 보낸다 ────────────────────────────────
+   `#r=` 링크는 답안만 담고, 받는 쪽 브라우저에서 처음부터 다시 채점한다.
+   그래서 학부모처럼 누적 기록이 없는 브라우저에서는 또래 정답률·선택 분포·
+   백분위가 통째로 빈칸이 됐다. 정작 "우리 아이가 또래 대비 어디쯤인가"가
+   학부모가 가장 보고 싶어 하는 것인데.
+
+   개인 기록은 절대 싣지 않는다. 이름도, 답안지도 보내지 않는다. 문항별 정답률과
+   선택 분포, 점수 분포 히스토그램 — **합계뿐**이다. 그것만으로 또래 통계가
+   전부 그려진다.
+
+   한 문항에 6바이트(정답률·①②③④ 비율·변별도), 점수 분포에 nQ+1바이트.
+   60문항이면 425바이트 → base64로 약 567자. URL 에 넣기에 충분하다.
+   ④를 100에서 빼서 구하지 않고 그대로 담는 이유는, 넷이 각각 반올림돼서
+   합이 꼭 100 이 되지는 않기 때문이다([33,33,0,33] 이 [33,33,0,34] 가 된다). */
+const CS_VER=1;
+function b64url(bytes){ var s=''; for(var i=0;i<bytes.length;i++) s+=String.fromCharCode(bytes[i]);
+  return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
+function unb64url(str){ var s=str.replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4) s+='=';
+  var raw=atob(s), out=new Uint8Array(raw.length);
+  for(var i=0;i<raw.length;i++) out[i]=raw.charCodeAt(i); return out; }
+const clamp255=v=>Math.max(0,Math.min(255,Math.round(v||0)));
+
+function packCohort(exam,cs){
+  if(!cs||!cs.percReady||!cs.qp||!cs.qopt) return '';
+  var nQ=exam.nQ, out=[CS_VER, nQ, Math.min(65535,cs.N)>>8, Math.min(65535,cs.N)&255];
+  for(var q=0;q<nQ;q++){
+    var p=cs.qp[q], o=cs.qopt[q], d=cs.qdisc?cs.qdisc[q]:null;
+    // 제외 문항은 정답률 255로 표시한다(0~100 과 겹치지 않는다)
+    out.push(p==null?255:clamp255(p));
+    out.push(clamp255(o?o[0]:0), clamp255(o?o[1]:0), clamp255(o?o[2]:0), clamp255(o?o[3]:0));
+    out.push(d==null?255:clamp255((d+1)*100));   // -1~1 → 0~200
+  }
+  // 점수 분포 히스토그램. 백분위를 정확히 되살리는 데 이것만 있으면 된다.
+  var hist=new Array(nQ+1).fill(0);
+  (cs.totals||[]).forEach(function(t){ if(t>=0&&t<=nQ) hist[t]++; });
+  hist.forEach(function(c){ out.push(Math.min(255,c)); });
+  try{ return b64url(Uint8Array.from(out)); }catch(e){ return ''; }
+}
+function unpackCohort(exam,str){
+  try{
+    var b=unb64url(str);
+    if(b[0]!==CS_VER || b[1]!==exam.nQ) return null;
+    var nQ=exam.nQ, N=(b[2]<<8)|b[3], qp=[], qopt=[], qdisc=[], i=4;
+    for(var q=0;q<nQ;q++){
+      var p=b[i++], o1=b[i++], o2=b[i++], o3=b[i++], o4=b[i++], d=b[i++];
+      if(p===255){ qp.push(null); qopt.push(null); qdisc.push(null); continue; }
+      qp.push(p);
+      qopt.push([o1,o2,o3,o4]);
+      qdisc.push(d===255?null:+((d/100)-1).toFixed(2));
+    }
+    var totals=[];
+    for(var t=0;t<=nQ;t++){ var c=b[i++]||0; for(var k=0;k<c;k++) totals.push(t); }
+    if(!totals.length) return null;
+    return {N:N,ready:true,estimated:false,percReady:true,
+            qp:qp,qopt:qopt,qdisc:qdisc,totals:totals,flagged:0,fromLink:true};
+  }catch(e){ return null; }
+}
+function shareLinkFinal(cur,sel,nm,exno){
+  /* 또래 통계 스냅숏은 `r=` **앞**에 붙인다. 뒤에 붙이면 이름을 끝까지 집어삼키는
+     기존 해시 규칙에 걸려 이름 안으로 들어가 버린다. */
+  var snap='';
+  try{ if(!fShared){ var cs=cohortStats(cur); var packed=packCohort(cur,cs); if(packed) snap='s='+packed+'&'; } }catch(e){}
+  return location.origin+location.pathname+'#'+snap+hashStrFinal(cur,sel,nm,exno);
+}
 function saveToSheetFinal(cur,sel,correct,total,W,cs,nm,sch,grd,pct){
   if(!SHEET_ENDPOINT) return;
   if(fShared) return;
@@ -2782,7 +2958,10 @@ async function downloadReportDOCX(){
 }
 function boot(){
   const m=location.hash.match(/r=([^.]+)\.([0-9a-z]+)(?:\.([^.]*)\.(.*))?$/);
-  if(m){ const ex=FINAL_EXAMS.find(e=>e.id===m[1]); if(ex){ openExam(ex.id); fShared=true; let n=0n; for(const c of m[2]) n=n*36n+BigInt(parseInt(c,36)); for(let q=1;q<=ex.nQ;q++){ const v=Number(n%5n); n=n/5n; if(v) setAns(q,v); } const ne=document.getElementById('nm'), xe=document.getElementById('exno'); if(m[4]&&ne) ne.value=decodeURIComponent(m[4]); if(m[3]&&xe) xe.value=m[3]; scoreAuto(); return; } }
+  /* 링크에 실려 온 또래 통계(합계만). 개인 기록은 들어 있지 않다. */
+  window.__csLink=null;
+  const sm=location.hash.match(/[#&]s=([A-Za-z0-9_-]+)&/);
+  if(m){ const ex=FINAL_EXAMS.find(e=>e.id===m[1]); if(ex){ if(sm) window.__csLink={id:ex.id,raw:sm[1]}; openExam(ex.id); fShared=true; let n=0n; for(const c of m[2]) n=n*36n+BigInt(parseInt(c,36)); for(let q=1;q<=ex.nQ;q++){ const v=Number(n%5n); n=n/5n; if(v) setAns(q,v); } const ne=document.getElementById('nm'), xe=document.getElementById('exno'); if(m[4]&&ne) ne.value=decName(m[4]); if(m[3]&&xe) xe.value=m[3]; scoreAuto(); return; } }
   if(location.hash==='#qbank'||location.hash==='#admin'){ renderQbank(); } else { renderList(); }
 }
 /* 해시를 바꾸지 않고 오답 개념 클리닉으로 스크롤(공유 리포트 #r= 상태 유지) */

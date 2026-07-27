@@ -103,7 +103,18 @@ function finalRawScore(exam, correct, wrongList){
 function percentile(totals,my){const b=totals.filter(s=>s<my).length,e=totals.filter(s=>s===my).length;return Math.round((b+0.5*e)/totals.length*100);}
 function award(W,cut){let idx=cut.findIndex(c=>W<=c);const inA=idx!==-1;if(!inA)idx=5;const name=inA?TIERS[idx]:'수상권 밖';
   let nextTier=null,gap=null,reach=false;if(idx>0){const n=inA?idx-1:4;nextTier=TIERS[n];gap=W-cut[n];reach=gap>=1&&gap<=2;}return{name,idx,inA,nextTier,gap,reach};}
-function hashStrFinal(cur,sel,nm,exno){ let num=0n; for(let q=cur.nQ;q>=1;q--){ num=num*5n+BigInt(sel[q]||0); } const en=encodeURIComponent((nm||'').trim()), no=(exno||''); return 'r='+cur.id+'.'+num.toString(36)+((en||no)?('.'+no+'.'+en):''); }
+/* 이름은 URL 에 그대로 적지 않는다. final.html 의 encName/decName 과 같아야 한다
+   (tests/final-submit-sync.js 가 hashStrFinal 이 갈라지는 것을 잡는다).
+   base64 는 암호가 아니다 — 눈에 띄어 새는 것을 막을 뿐이다. */
+function encName(nm){
+  var s=(nm||'').trim(); if(!s) return '';
+  try{
+    var bytes=new TextEncoder().encode(s), bin='';
+    for(var i=0;i<bytes.length;i++) bin+=String.fromCharCode(bytes[i]);
+    return '~'+btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  }catch(e){ return encodeURIComponent(s); }
+}
+function hashStrFinal(cur,sel,nm,exno){ let num=0n; for(let q=cur.nQ;q>=1;q--){ num=num*5n+BigInt(sel[q]||0); } const en=encName(nm), no=(exno||''); return 'r='+cur.id+'.'+num.toString(36)+((en||no)?('.'+no+'.'+en):''); }
 /* ======================================================================
    /SHARED — 아래는 학생 제출 페이지 전용
    ====================================================================== */

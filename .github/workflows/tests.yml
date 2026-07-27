@@ -17,6 +17,7 @@ on:
       - 'tools/**'
       - 'donghyung/**'
       - 'answers/**'
+      - 'AppsScript-Code.gs'
       - '.github/workflows/tests.yml'
   pull_request:
     paths:
@@ -26,6 +27,7 @@ on:
       - 'tools/**'
       - 'donghyung/**'
       - 'answers/**'
+      - 'AppsScript-Code.gs'
       - '.github/workflows/tests.yml'
   workflow_dispatch:
 
@@ -53,6 +55,10 @@ jobs:
       # ── 데이터 정합성 ─────────────────────────────────────
       - name: 통계 풀 병합 · 동형문제 세트
         run: node tests/final-cohort-alias.js
+      - name: 시트 동기화 시험 제목 표
+        run: node tests/appsscript-sync.js
+      - name: 시험 제목 표가 시험 목록과 일치
+        run: python3 tools/gen_exam_titles.py
       - name: 동형문제 자산 (전 시험 전 문항)
         run: python3 tests/wrongbook-assets.py
       - name: 표기 · 정답 분포 · 문항 형식

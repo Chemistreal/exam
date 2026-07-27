@@ -16,24 +16,100 @@
  * [중요] 열 순서를 바꿨다. 기존 '성적기록' 탭이 있으면 한 번 비우거나 삭제한 뒤
  *        새로 저장해야 새 머리글이 적용된다(안 그러면 옛 순서와 섞임).
  *
- * [보안] SECRET 을 본인만 아는 값으로 바꾸면 그 키를 가진 사람만 읽기/쓰기 가능.
- *        앱의 "동기화 키" 버튼에 같은 값을 1회 입력. 빈 값('')이면 키 검증 없이 동작.
+ * [보안] 이 파일은 공개 저장소(github.com/Chemistreal/exam)에 그대로 올라가고,
+ *        머지되면 자동 배포까지 된다. 그래서 열쇠를 이 코드에 적으면 안 된다 —
+ *        적는 순간 열쇠가 아니다. 스크립트 속성에 넣어 두고 여기서는 읽기만 한다.
+ *
+ *        열쇠를 정하는 방법 (한 번만):
+ *          1) Apps Script 편집기에서 아래 `열쇠설정` 함수의 따옴표 안에 원하는
+ *             값을 넣고 한 번 실행한다. 실행이 끝나면 그 줄을 다시 비운다
+ *             (저장소에 올라가지 않도록). 또는
+ *          2) 편집기 왼쪽 ⚙ 프로젝트 설정 > 스크립트 속성 > 속성 추가에서
+ *             이름 `SECRET`, 값에 원하는 열쇠를 직접 넣는다.
+ *          3) 앱의 "동기화 키" 버튼에 같은 값을 1회 입력한다.
+ *
+ *        열쇠가 비어 있으면 **이 URL 을 아는 사람은 누구나 학생 이름·학교·점수를
+ *        읽고 쓸 수 있다.** 그 상태에서는 응답에 warning 을 실어 알린다.
  */
-var SECRET = '';
+
+/* 열쇠는 코드가 아니라 스크립트 속성에서 온다. 한 번 읽어 두고 재사용한다
+   (doPost 가 매번 부르는 자리라 속성 조회를 반복하지 않는다). */
+var _SECRET_CACHE = null;
+function _secret() {
+  if (_SECRET_CACHE === null) {
+    try {
+      _SECRET_CACHE = PropertiesService.getScriptProperties().getProperty('SECRET') || '';
+    } catch (e) {
+      _SECRET_CACHE = '';
+    }
+  }
+  return _SECRET_CACHE;
+}
+
+/* 편집기에서 한 번 실행해 열쇠를 정한다. 실행 뒤 따옴표 안을 다시 비운다. */
+function 열쇠설정() {
+  var value = '';           // ← 여기에 열쇠를 넣고 실행한 뒤, 다시 비운다
+  if (!value) {
+    Logger.log('따옴표 안에 열쇠를 넣고 다시 실행하세요. 지금 상태: ' +
+               (_secret() ? '열쇠 설정됨' : '열쇠 없음(누구나 접근 가능)'));
+    return;
+  }
+  PropertiesService.getScriptProperties().setProperty('SECRET', value);
+  _SECRET_CACHE = null;
+  Logger.log('열쇠를 저장했습니다. 이제 이 함수의 따옴표 안을 다시 비우고 저장하세요.');
+}
+
+/* 지금 열쇠가 걸려 있는지만 확인한다(값은 찍지 않는다). */
+function 열쇠확인() {
+  Logger.log(_secret() ? '열쇠 설정됨 — 키를 가진 요청만 통과합니다'
+                       : '열쇠 없음 — URL 을 아는 누구나 읽고 쓸 수 있습니다');
+}
 
 /* 동기화 시 '시험' 열로 거르기 위한 시험 id → 제목 매핑.
  * 저장(doPost)은 시험 제목을, 동기화(doGet)는 시험 id를 보내므로 이 표가 필요하다.
  * [중요] index.html 의 EXAMS 제목을 바꾸면 아래 값도 똑같이 맞춰야 한다. */
 var EXAM_TITLES = {
-  'kch1to3':   '화학1 1-3단원 모의고사',
-  'kch1to2':   '화학1 1-2단원 모의고사',
-  'kch1u1':    '화학1 1단원 모의고사',
-  'kch2final': '화학2 총괄평가',
-  'chem2-1':   '화학2 1단원 모의고사',
-  'kch1to3-b': '화학1 1-3단원 모의고사 (동형)',
-  'kch1to2-b': '화학1 1-2단원 모의고사 (동형)',
-  'kch2to3':   '화학2 1-3단원 모의고사',
-  'j0':        '조준모의고사 0회'
+  'jmchc-1':             ['JMChC 모의고사 1회'],
+  'jmchc-2':             ['JMChC 모의고사 2회'],
+  'jmchc-3':             ['JMChC 모의고사 3회'],
+  'jmchc-4':             ['JMChC 모의고사 4회'],
+  'jmchc-5':             ['JMChC 모의고사 5회'],
+  'jmchc-6':             ['JMChC 모의고사 6회'],
+  'jmchc-7':             ['JMChC 모의고사 7회'],
+  'jmchc-8':             ['JMChC 모의고사 8회'],
+  'jmchc-9':             ['JMChC 모의고사 9회'],
+  'jmchc-10':            ['JMChC 모의고사 10회'],
+  'jmchc-11':            ['JMChC 모의고사 11회'],
+  'jmchc-11-1':          ['JMChC 모의고사 11-1회'],
+  'jmchc-12':            ['JMChC 모의고사 12회'],
+  'jmchc-13':            ['JMChC 모의고사 13회'],
+  'jmchc-14':            ['JMChC 모의고사 14회'],
+  'donghyung-1':         ['기출동형 1회 (2015)'],
+  'donghyung-2':         ['기출동형 2회 (2016)'],
+  'donghyung-3':         ['기출동형 3회 (2017)'],
+  'donghyung-4':         ['기출동형 4회 (2013)'],
+  'sanyeom-60':          ['산과염기 60제'],
+  'kmchc-2026-1-ilban':  ['KMChC 2026 제1차 · 일반'],
+  'kmchc-2026-1-simhwa': ['KMChC 2026 제1차 · 심화'],
+  'kmchc-2025-2-ilban':  ['KMChC 2025 제2차 · 일반'],
+  'kmchc-2025-2-simhwa': ['KMChC 2025 제2차 · 심화'],
+  'kmchc-2025-1-ilban':  ['KMChC 2025 제1차 · 일반'],
+  'kmchc-2025-1-simhwa': ['KMChC 2025 제1차 · 심화'],
+  'kmchc-2024-2':        ['KMChC 2024 제2차'],
+  'hwol-2024':           ['KMChC 2024 제1차', '화올 2024', 'KMChC 2024 제1차 · 동형 2세트'],
+  'hwol-2023':           ['KMChC 2023', '화올 2023'],
+  'hwol-2022':           ['KMChC 2022', '화올 2022'],
+  'hwol-2021':           ['KMChC 2021', '화올 2021'],
+  'hwol-2019':           ['KMChC 2019', '화올 2019', 'KMChC 2019 · 동형 2세트'],
+  'hwol-2018':           ['KMChC 2018', '화올 2018', 'KMChC 2018 · 동형 2세트'],
+  'hwol-2017':           ['KMChC 2017', '화올 2017'],
+  'hwol-2016':           ['KMChC 2016', '화올 2016'],
+  'hwol-2015':           ['KMChC 2015', '화올 2015'],
+  'hwol-2014':           ['KMChC 2014', '화올 2014'],
+  'hwol-2013':           ['KMChC 2013', '화올 2013'],
+  'kmchc-2018':          ['KMChC 2018', '화올 2018', 'KMChC 2018 · 동형 2세트'],
+  'kmchc-2019':          ['KMChC 2019', '화올 2019', 'KMChC 2019 · 동형 2세트'],
+  'kmchc-2024-1':        ['KMChC 2024 제1차', '화올 2024', 'KMChC 2024 제1차 · 동형 2세트'],
 };
 
 var HEADER = [
@@ -43,8 +119,20 @@ var HEADER = [
 ];
 
 function _keyOk(provided) {
-  if (!SECRET) return true;
-  return String(provided || '') === SECRET;
+  var secret = _secret();
+  if (!secret) return true;          // 열쇠 미설정 — 통과시키되 응답에 warning 을 싣는다
+  return String(provided || '') === secret;
+}
+
+/* 열쇠가 없으면 응답에 경고를 얹는다. 조용히 열려 있는 것이 가장 나쁘다 —
+   열쇠를 안 걸었다는 사실 자체를 잊어버리기 때문이다. */
+function _warn(payload) {
+  if (!_secret()) {
+    payload.warning = '동기화 열쇠가 설정돼 있지 않습니다. 이 URL 을 아는 누구나 ' +
+                      '학생 이름·학교·점수를 읽고 쓸 수 있습니다. Apps Script 편집기에서 ' +
+                      '열쇠설정() 을 한 번 실행하세요.';
+  }
+  return payload;
 }
 
 function doPost(e) {
@@ -87,7 +175,7 @@ function doPost(e) {
     try { fillReportMessages(); } catch (eM) { Logger.log('자동 문자 생성 실패(저장은 완료): ' + eM); }
 
     return ContentService
-      .createTextOutput(JSON.stringify({ ok: true }))
+      .createTextOutput(JSON.stringify(_warn({ ok: true })))
       .setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
     return ContentService
@@ -122,7 +210,11 @@ function doGet(e) {
     }
     var students = [];
     try {
-      var want = EXAM_TITLES[p.exam] || null;   // null이면 필터하지 않음(하위호환)
+      // 제목은 바뀐다('화올 2018' → 'KMChC 2018'). 시트에 이미 쌓인 옛 이름을
+      // 잃지 않도록 id 하나에 제목을 여러 개 달고, 그중 아무거나 맞으면 통과시킨다.
+      // 표에 없는 id 면 필터하지 않는다(하위호환).
+      var want = EXAM_TITLES[p.exam] || null;
+      if (want && !(want instanceof Array)) want = [want];   // 옛 형식(문자열 하나)도 받는다
       var ss = SpreadsheetApp.getActiveSpreadsheet();
       var sheet = ss.getSheetByName('성적기록');
       if (sheet && sheet.getLastRow() > 1) {
@@ -130,7 +222,7 @@ function doGet(e) {
         // 새 열 순서: [0시험,1이름,2링크,3저장시각,4수험번호,5응시일,6학교,7학년,...,16답안]
         for (var i = 0; i < rows.length; i++) {
           var r = rows[i];
-          if (want && String(r[0]) !== want) continue;   // '시험' 열로 필터
+          if (want && want.indexOf(String(r[0])) < 0) continue;   // '시험' 열로 필터
           var ans = String(r[16] || '').replace(/^'/, '').replace(/[^0-4]/g, '');
           if (!ans) continue;
           var dd = r[5];   // 응시일
@@ -147,12 +239,12 @@ function doGet(e) {
         }
       }
     } catch (err) {}
-    var out = JSON.stringify({ ok: true, students: students });
+    var out = JSON.stringify(_warn({ ok: true, students: students }));
     return cb
       ? ContentService.createTextOutput(cb + '(' + out + ')').setMimeType(ContentService.MimeType.JAVASCRIPT)
       : ContentService.createTextOutput(out).setMimeType(ContentService.MimeType.JSON);
   }
-  var status = JSON.stringify({ ok: true, msg: 'Chemistreal endpoint live' });
+  var status = JSON.stringify(_warn({ ok: true, msg: 'Chemistreal endpoint live' }));
   return cb
     ? ContentService.createTextOutput(cb + '(' + status + ')').setMimeType(ContentService.MimeType.JAVASCRIPT)
     : ContentService.createTextOutput(status).setMimeType(ContentService.MimeType.JSON);
