@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""`AppsScript-Code.gs` 의 EXAM_TITLES 를 `exams.json` 의 시험 목록에서 만든다.
+"""`AppsScript-Code.gs` 의 EXAM_TITLES 를 `exams.json` + 옛 시험 목록에서 만든다.
 
 시트는 시험을 **제목 문자열**로 구분한다. 저장(doPost)은 `d.exam = cur.title` 로
 제목을 쓰고, 불러오기(doGet)는 시험 id 를 받아 제목으로 바꿔 그 행만 거른다.
@@ -53,6 +53,23 @@ HISTORY = {
 # 없앤 id → 남긴 id. final.html 의 COHORT_ALIAS 와 같아야 한다.
 MERGED = {"kmchc-2018": "hwol-2018", "kmchc-2019": "hwol-2019", "kmchc-2024-1": "hwol-2024"}
 
+# `index.html` 의 옛 시험들. **exams.json 에는 없지만 지우면 안 된다.**
+# index.html 은 final.html 과 **같은 시트 엔드포인트**를 쓰고, 같은 doGet 으로
+# 명단을 받아 간다. 이 표에서 빠지면 필터가 통째로 꺼져서(want=null) 그 요청에
+# **모든 시험의 행**이 딸려 간다 — 옛 시험 통계에 KMChC 응시 기록이 섞인다.
+# 한 번 지웠다가 되살렸다. exams.json 만 보고 표를 다시 만들면 안 된다.
+LEGACY = {
+    "kch1to3":   "화학1 1-3단원 모의고사",
+    "kch1to2":   "화학1 1-2단원 모의고사",
+    "kch1u1":    "화학1 1단원 모의고사",
+    "kch2final": "화학2 총괄평가",
+    "chem2-1":   "화학2 1단원 모의고사",
+    "kch1to3-b": "화학1 1-3단원 모의고사 (동형)",
+    "kch1to2-b": "화학1 1-2단원 모의고사 (동형)",
+    "kch2to3":   "화학2 1-3단원 모의고사",
+    "j0":        "조준모의고사 0회",
+}
+
 
 def exams() -> list[dict]:
     return json.loads((ROOT / "exams.json").read_text(encoding="utf-8"))
@@ -83,7 +100,8 @@ def build() -> dict[str, list[str]]:
     for gone, kept in MERGED.items():
         if kept in out:
             out[gone] = out[kept]
-    return out
+    # index.html 의 옛 시험들(exams.json 에 없다). 앞에 두어 눈에 띄게 한다.
+    return {**{k: [v] for k, v in LEGACY.items()}, **out}
 
 
 def render(table: dict[str, list[str]]) -> str:
