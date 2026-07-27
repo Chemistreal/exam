@@ -71,8 +71,15 @@ let fail=0; const chk=(n,g,w)=>{const ok=JSON.stringify(g)===JSON.stringify(w);
     ols.forEach(ol=>ol.querySelector('li[data-c="'+Number(ol.dataset.ans)+'"]').click());
   });
   await p.waitForTimeout(1200);
-  const pre=await p.evaluate(()=>({rec:dhRecovery(cur).length, rep:repeatedMisses(cur).length}));
-  console.log('사전 상태: 회복 문항',pre.rec,'· 반복 유형',pre.rep);
+  const pre=await p.evaluate(()=>({rec:dhRecovery(cur).length, rep:repeatedMisses(cur).length,
+    // 화면이 말하는 석차를 **모두** 모은다. 맨 위 요약(숫자 뒤에 '석차')과
+    // '점수 분포 속 나의 위치'('석차' 뒤에 숫자) 두 곳이다. 아래에서 서로
+    // 같은지, 그리고 Word 도 같은 숫자를 말하는지 대조한다.
+    ranks:(function(){ var t=document.body.innerText.replace(/\s+/g,' '), out=[];
+      (t.match(/석차\s*\d+\s*\/\s*\d+/g)||[]).forEach(function(m){ out.push(m.replace(/[^\d/]/g,'')); });
+      (t.match(/\d+\s*\/\s*\d+\s*석차/g)||[]).forEach(function(m){ out.push(m.replace(/[^\d/]/g,'')); });
+      return out; })()}));
+  console.log('사전 상태: 회복 문항',pre.rec,'· 반복 유형',pre.rep,'· 화면 석차',pre.ranks.join(', ')||'(없음)');
 
   const [dl]=await Promise.all([p.waitForEvent('download',{timeout:300000}),p.evaluate(()=>downloadReportDOCX())]);
   const f=path.join(OUT,'r.docx'); await dl.saveAs(f);
@@ -122,6 +129,16 @@ let fail=0; const chk=(n,g,w)=>{const ok=JSON.stringify(g)===JSON.stringify(w);
   chk('화면 전용 상자가 안 넘어온다',/불러오는 중/.test(txt),false);
   chk('사분면 칸 제목이 제 줄에 있다',lines.some(l=>/^쉬움·틀림 \(최우선\) · \d+$/.test(l)),true);
   chk('선수 개념 지도가 표로 남는다',/먼저 알아야 할 것/.test(txt),true);
+
+  /* ── 석차 ────────────────────────────────────────────────────────
+     Word·인쇄 책자에는 처음부터 있었는데 화면에만 빠져 있었다. 백분위만
+     적어 두면 "그래서 몇 등이냐"를 반드시 되묻는다. 두 곳이 같은 식으로
+     세는지가 핵심이다 — 화면과 종이가 다른 등수를 말하면 안 된다. */
+  chk('화면 두 곳에 석차가 나온다',pre.ranks.length>=2,true);
+  chk('화면끼리 석차가 어긋나지 않는다',Array.from(new Set(pre.ranks)),pre.ranks.slice(0,1));
+  chk('Word 에도 석차가 있다',/석차/.test(txt),true);
+  chk('화면과 Word 의 석차가 같다',
+      new RegExp('석차\\s*'+(pre.ranks[0]||'x').replace('/','\\s*/\\s*')).test(txt.replace(/\s+/g,' ')),true);
 
   // ── 뺀 것 (선생님 요청) ──
   chk('학습 유형 진단은 Word 에 없다',/학습 유형/.test(txt),false);

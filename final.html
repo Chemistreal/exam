@@ -1396,9 +1396,14 @@ function propCI(p,N){
 }
 function percSec(exam,my,cs){
   if(!cs.percReady)return''; const pc=percentile(cs.totals,my); const N=cs.N; const ci=propCI(pc/100,N);
+  /* 석차. 백분위만 적어 두면 "그래서 몇 등이냐"를 반드시 되묻는다.
+     Word·인쇄 책자에는 처음부터 있었는데 화면에만 빠져 있었다.
+     동점자는 같은 등수를 나눠 갖는다(공동 1등 둘이면 다음이 3등).
+     세는 식은 Word 쪽과 같은 것을 쓴다 — 둘이 갈라지면 안 된다. */
+  const Nn=cs.totals.length, rank=cs.totals.filter(t=>t>my).length+1;
   const curve=bellCurveSVG(cs.totals, my, exam.nQ);
   const bar=`<div class="barrow" style="margin-top:8px"><span class="ba">내 위치</span><span class="bar" style="height:12px;position:relative"><span style="position:absolute;left:${ci.lo}%;width:${Math.max(0,ci.hi-ci.lo)}%;top:0;bottom:0;background:var(--cobalt);opacity:0.18"></span><i style="width:${pc}%;background:var(--cobalt)"></i></span><span class="bp">${pc}</span></div>`;
-  return `<div class="sec">${secH('점수 분포 속 나의 위치')}<div class="muted">누적 응시 ${N}명 중 <b>상위 ${100-pc}%</b> · 백분위 <b>${pc}</b> <span style="font-size:12px">(95% 구간 ${ci.lo}~${ci.hi})</span></div>
+  return `<div class="sec">${secH('점수 분포 속 나의 위치')}<div class="muted">누적 응시 ${Nn}명 중 <b>석차 ${rank}/${Nn}</b> · <b>상위 ${100-pc}%</b> · 백분위 <b>${pc}</b> <span style="font-size:12px">(95% 구간 ${ci.lo}~${ci.hi})</span></div>
    ${curve||bar}
    ${N<20?`<div style="font-size:11.5px;color:var(--muted);margin-top:5px">응시 ${N}명 기준의 잠정치 — 표본이 쌓이면 정밀해집니다.</div>`:''}</div>`;
 }
@@ -2431,6 +2436,14 @@ function finalHero(nm, exam, correct, total, W, pct){
     else { kick=belowAwardKick(exam,correct,total,weak) || ('수상권까지 <b>'+a.gap+'문항</b>. '+(weak?'<b>'+esc(weak)+'</b> 영역부터 메우면 가장 빠릅니다.':'약한 영역부터 메우면 가장 빠릅니다.')); }
     var types={}; (window.__fw||[]).forEach(function(w){ var t=(exam.type&&exam.type[w.q-1])||(exam.area&&exam.area[w.q-1])||''; if(t) types[t]=1; });
     var nT=Object.keys(types).length;
+    // 석차는 맨 위에서 바로 보여야 하는 숫자다. 아래 '점수 분포 속 나의 위치'
+    // 와 같은 식으로 센다(동점자는 같은 등수).
+    var rk='';
+    try{ var cs0=cohortStats(exam);
+      if(cs0&&cs0.percReady&&cs0.totals&&cs0.totals.length){
+        var Nn=cs0.totals.length, rank=cs0.totals.filter(function(t){return t>correct;}).length+1;
+        rk='<div class="fhds"><b>'+rank+'/'+Nn+'</b><span>석차</span></div>';
+      } }catch(e){}
     return '<div class="fhero"><div class="fhero__ey">핵심 진단</div>'
       +'<div class="fhero__tier">'+a.name+'</div>'
       +'<div class="fhero__head">'+kick+'</div>'
@@ -2439,6 +2452,7 @@ function finalHero(nm, exam, correct, total, W, pct){
       +'<div class="fhds"><b>'+correct+'/'+total+'</b><span>맞은 개수</span></div>'
       +'<div class="fhds"><b>'+pct+'%</b><span>정답률</span></div>'
       +'<div class="fhds"><b>'+nT+'개</b><span>틀린 유형</span></div>'
+      +rk
       +(a.inA&&a.idx>0?'<div class="fhds"><b>'+a.gap+'문항</b><span>'+a.nextTier+'까지</span></div>':'')
       +'</div></div>';
   }catch(e){ return awardCard(W, exam.cut); }
