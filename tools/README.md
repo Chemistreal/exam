@@ -200,6 +200,7 @@ node tests/wrongbook-interactive.js # 동형문제 눌러 풀기·회복 기록
 node tests/retest-sheet.js          # 동형 미니 시험지 인쇄
 node tests/prereq-drill.js          # 선수 개념 드릴
 node tests/exams-fallback.js        # exams.json 이 404 여도 앱이 도는가
+node tests/docx-report.js           # Word 성적표(로고·수상 확률·회복률·부록)
 ```
 
 `tests/offline.js` 는 **서버를 실제로 죽이고** 잰다. Playwright 의 `setOffline` 이
