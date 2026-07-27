@@ -1005,6 +1005,18 @@ function cohortStats(exam){
 function percentile(totals,my){const b=totals.filter(s=>s<my).length,e=totals.filter(s=>s===my).length;return Math.round((b+0.5*e)/totals.length*100);}
 
 // ===== 섹션 빌더 =====
+/* 지금 성적표의 학생 이름.
+   `#nm` 입력칸은 채점하는 순간 사라진다(scoreAuto 가 app.innerHTML 을 통째로
+   바꾼다). 화면 섹션들은 **바꾸기 전에** 불리므로 입력칸을 읽어도 됐지만,
+   Word 저장은 그 뒤에 부르므로 같은 코드가 빈 이름을 받는다. 그래서 여러
+   섹션이 Word 에서 통째로 사라져 있었다. 입력칸이 있으면 그것을, 없으면
+   채점 때 갈무리해 둔 값을 쓴다. */
+function curName(){
+  var el=document.getElementById('nm');
+  if(el&&(el.value||'').trim()) return el.value.trim();
+  return ((window.__rpt&&window.__rpt.name)||'').trim();
+}
+
 let SNO=0; function sno(){return String(++SNO).padStart(2,'0');}
 function secH(t){return `<div class="sec__h"><span class="sec__no">${sno()}</span><span class="sec__t">${t}</span></div>`;}
 
@@ -1602,7 +1614,7 @@ function adaptiveSec(exam, sel, cs, correct, total){
   </div>`;
 }
 function dashboardSec(exam){
-  const nm=(document.getElementById('nm')?document.getElementById('nm').value:'').trim(); if(!nm)return'';
+  const nm=curName(); if(!nm)return'';
   const hist=[]; FINAL_EXAMS.forEach(e=>{const a=subs(e.id).filter(r=>r.name&&r.name.trim()===nm&&r.ans&&r.ans.length===e.nQ);if(a.length){const last=a[a.length-1];hist.push({e,r:last,ts:last.ts});}});
   hist.sort((a,b)=>a.ts-b.ts);
   if(hist.length<2) return '';
@@ -1626,7 +1638,7 @@ function dashboardSec(exam){
   </div>`;
 }
 function growthSec(exam){
-  const nm=(document.getElementById('nm')?document.getElementById('nm').value:'').trim(); if(!nm)return'';
+  const nm=curName(); if(!nm)return'';
   const hist=[];
   FINAL_EXAMS.forEach(e=>{const a=subs(e.id).filter(r=>r.name&&r.name.trim()===nm&&r.ans&&r.ans.length===e.nQ);if(a.length){const last=a[a.length-1];hist.push({e,r:last,ts:last.ts,pct:last.total?Math.round(last.correct/last.total*100):0});}});
   hist.sort((a,b)=>a.ts-b.ts);
@@ -1748,7 +1760,7 @@ function tierPathSec(exam,sel){
   </div>`;
 }
 function motivationSec(exam,sel){
-  const nm=(document.getElementById('nm')?document.getElementById('nm').value:'').trim();
+  const nm=curName();
   const miss=new Set(exam.miss||[]); let c=0,t=0; const ans=[];
   for(let q=1;q<=exam.nQ;q++){ans.push(sel[q]||0); if(miss.has(q))continue; t++; if(okq(exam,q,sel[q]||0))c++;}
   const W=t-c, aw=award(W,exam.cut);
@@ -1793,7 +1805,7 @@ function learnerTypeSec(exam, sel, cs, correct, total){
   </div>`;
 }
 function narrativeSec(exam,sel){
-  const nm=(document.getElementById('nm')?document.getElementById('nm').value:'').trim();
+  const nm=curName();
   const who=nm?esc(nm)+' 학생':'학생';
   const miss=new Set(exam.miss||[]); let c=0,t=0; const ans=[];
   for(let q=1;q<=exam.nQ;q++){ans.push(sel[q]||0); if(miss.has(q))continue; t++; if(okq(exam,q,sel[q]||0))c++;}
@@ -1821,7 +1833,7 @@ function narrativeSec(exam,sel){
   </div>`;
 }
 function loopSec(exam,sel){
-  const nm=(document.getElementById('nm')?document.getElementById('nm').value:'').trim(); if(!nm)return'';
+  const nm=curName(); if(!nm)return'';
   const hist=[]; FINAL_EXAMS.forEach(e=>{const a=subs(e.id).filter(r=>r.name&&r.name.trim()===nm&&r.ans&&r.ans.length===e.nQ);if(a.length){const last=a[a.length-1];hist.push({e,r:last,ts:last.ts,pct:last.total?Math.round(last.correct/last.total*100):0});}});
   hist.sort((a,b)=>a.ts-b.ts);
   if(hist.length<2)return'';
@@ -1877,8 +1889,7 @@ function missWhy(exam,ty){
   return '';
 }
 function repeatedMisses(exam){
-  var nmEl=document.getElementById('nm');
-  var nm=(nmEl?nmEl.value:((window.__rpt&&window.__rpt.name)||'')).trim();
+  var nm=curName();
   if(!nm) return [];
   var takes=[];
   FINAL_EXAMS.forEach(function(e){
@@ -1908,8 +1919,7 @@ function repeatedMisses(exam){
   return rows;
 }
 function misconceptionSec(exam){
-  var nmEl=document.getElementById('nm');
-  var nm=(nmEl?nmEl.value:((window.__rpt&&window.__rpt.name)||'')).trim();
+  var nm=curName();
   if(!nm) return '';
   var rows=repeatedMisses(exam); if(!rows.length) return '';
   var takes={length:rows.takes};
@@ -1950,7 +1960,7 @@ function misconceptionSec(exam){
 /* 회복 현황을 숫자로만 낸다. 화면(recoverySec)과 Word 가 같은 값을 쓰도록
    계산을 한 곳에 둔다. 기록이 없으면 빈 배열. */
 function dhRecovery(exam){
-  var nm=((window.__rpt&&window.__rpt.name)||'').trim(); if(!nm) return [];
+  var nm=curName(); if(!nm) return [];
   var log=dhLog(exam.id).filter(function(r){ return r.name===nm; });
   if(!log.length) return [];
   var byQ={};
@@ -1996,7 +2006,7 @@ function recoverySec(exam){
     +solvedHTML+stuckHTML+'</div>';
 }
 function masterySec(exam){
-  const nm=(document.getElementById('nm')?document.getElementById('nm').value:'').trim(); if(!nm)return'';
+  const nm=curName(); if(!nm)return'';
   const hist=[];
   FINAL_EXAMS.forEach(e=>{const a=subs(e.id).filter(r=>r.name&&r.name.trim()===nm&&r.ans&&r.ans.length===e.nQ);if(a.length){const last=a[a.length-1];hist.push({e,r:last,ts:last.ts});}});
   hist.sort((a,b)=>a.ts-b.ts);
@@ -2028,7 +2038,7 @@ function masterySec(exam){
 }
 function trendSec(exam){
   // 같은 학생(이름)으로 다른 파이널 시험 점수 추이
-  const nm=(document.getElementById('nm')?document.getElementById('nm').value:'').trim(); if(!nm)return'';
+  const nm=curName(); if(!nm)return'';
   const rows=[]; FINAL_EXAMS.forEach(e=>{const a=subs(e.id).filter(r=>r.name&&r.name.trim()===nm);if(a.length){const last=a[a.length-1];rows.push({t:e.title,pct:last.total?Math.round(last.correct/last.total*100):0,ts:last.ts});}});
   if(rows.length<2)return''; rows.sort((a,b)=>a.ts-b.ts);
   return `<div class="sec">${secH('여러 시험에 걸친 성취 추이')}<div class="sub">${esc(nm)} 학생의 파이널 응시 추이입니다.</div>
@@ -2468,7 +2478,7 @@ function logAttempt(dh,choice,ok){
   try{
     if(!cur||fShared) return;              // 공유 링크로 열어 본 것은 기록하지 않는다
     var card=dh.closest('.wb-card'); if(!card) return;
-    var nm=((window.__rpt&&window.__rpt.name)||'').trim(); if(!nm) return;
+    var nm=curName(); if(!nm) return;
     var rec={name:nm, q:Number(card.dataset.q)||0,
              src:dh.dataset.src||'', choice:choice, ok:!!ok, ts:Date.now()};
     var arr=dhLog(cur.id);
@@ -3005,7 +3015,7 @@ async function downloadReportPDF(){
 
    정답은 맨 뒤 별도 페이지에 모은다. 잘라 내면 그대로 학생용이 된다. */
 function retestPick(exam, wrong, analogues){
-  var nm=((window.__rpt&&window.__rpt.name)||'').trim();
+  var nm=curName();
   var log=dhLog(exam.id).filter(function(r){ return !nm||r.name===nm; });
   var solvedQ={}, usedSrc={};
   log.forEach(function(r){ if(r.ok) solvedQ[r.q]=1; usedSrc[r.q+'|'+r.src]=1; });
@@ -3022,7 +3032,7 @@ function retestPick(exam, wrong, analogues){
   return fresh.concat(review);
 }
 function retestHTML(exam, items){
-  var nm=((window.__rpt&&window.__rpt.name)||'').trim();
+  var nm=curName();
   var today=new Date(), ymd=today.getFullYear()+'.'+('0'+(today.getMonth()+1)).slice(-2)+'.'+('0'+today.getDate()).slice(-2);
   var body=items.map(function(it,i){
     var dq=it.dq;
@@ -3097,6 +3107,7 @@ async function downloadReportDOCX(){
       ShadingType=Dx.ShadingType,ImageRun=Dx.ImageRun,PageBreak=Dx.PageBreak,VerticalAlign=Dx.VerticalAlign,
       PageBorderDisplay=Dx.PageBorderDisplay,PageBorderOffsetFrom=Dx.PageBorderOffsetFrom,
       HPos=Dx.HorizontalPositionRelativeFrom,VPos=Dx.VerticalPositionRelativeFrom,TWrap=Dx.TextWrappingType,
+      HAlign=Dx.HorizontalPositionAlign,
       LineRule=Dx.LineRuleType,Header=Dx.Header,Footer=Dx.Footer,PageNumber=Dx.PageNumber;
 
   // ── 데이터 재수집(scoreAuto/ buildBook과 동일 규칙) ──
@@ -3157,6 +3168,14 @@ async function downloadReportDOCX(){
   if(areas.length) sections.push({key:'area',t:'영역별 성취',d:'영역별 정답률과 강·약점 판정'});
   if(cur.cut&&total>0) sections.push({key:'win',t:'수상 확률',d:'베이지안 추정 · 등급별 달성 확률과 한계 이득'});
   sections.push({key:'grid',t:'문항별 정오표',d:'전 문항 정오와 오답 분포 한눈에'+(optOK?' · 또래 함정 분석':'')});
+  sections.push({key:'ladder',t:'수상권 목표 정렬',d:'다음 등급까지 어느 영역을 메워야 하는지'});
+  sections.push({key:'quad',t:'신호등 사분면',d:'난이도 × 정오로 본 실수·약점 구분'});
+  sections.push({key:'depth',t:'개념 깊이 · 사고력',d:'단순 암기형과 다단계 추론형의 정답률 차이'});
+  sections.push({key:'learner',t:'학습 유형 진단',d:'지금 성적을 만든 학습 습관의 모양'});
+  sections.push({key:'prereq',t:'선수 개념',d:'약점이 어느 선행 개념 위에 서 있는지'});
+  if(optOK) sections.push({key:'dist',t:'누적 정답률 · 선택지 분석',d:'또래가 많이 걸린 함정 선택지'});
+  sections.push({key:'mastery',t:'숙달 현황',d:'영역별 숙달 판정'});
+  sections.push({key:'loop',t:'성장 루프',d:'처방 → 학습 → 재진단의 효과'});
   if(dhRecovery(cur).length) sections.push({key:'recover',t:'동형문제 회복률',d:'틀린 문항을 실제로 고쳤는지'});
   if(repeatedMisses(cur).length) sections.push({key:'repeat',t:'되풀이되는 오개념',d:'여러 시험에서 반복해 틀린 유형'});
   if(growth) sections.push({key:'growth',t:'성장 추적',d:'지난 진단 대비 전체·영역별 변화'});
@@ -3176,6 +3195,9 @@ async function downloadReportDOCX(){
   // 다원 로고. 저장소에 있는데 성적표 어디에도 쓰이지 않고 있었다.
   // 여백을 잘라 낸 판(_trim)이 표지에 앉히기 좋다.
   var dawonLogo=await _fetchImg('dawon_logo_trim.png');
+  // 모든 쪽 배경에 아주 옅게 깔 워터마크. 미리 흐리게 만들어 둔 파일이라
+  // 뷰어마다 투명도를 다르게 다뤄도 결과가 같다(글씨가 흐려 보이지 않는다).
+  var logoMark=await _fetchImg('assets/report/logo-watermark.png');
 
   // ── 색·헬퍼 ──
   // 팔레트: 네이비 + 골드 (EM=주색 네이비, EMT=옅은 네이비 틴트, EMLBL=밝은 네이비 라벨)
@@ -3203,6 +3225,17 @@ async function downloadReportDOCX(){
     var d=_pngDims(u8)||{w:ww,h:Math.round(ww*0.54)}, w=ww||190, h=Math.round(w*(d.h||1)/(d.w||1));
     return P([new ImageRun({type:'png',data:u8,transformation:{width:w,height:h}})],
       {align:AlignmentType.CENTER,before:o.before==null?0:o.before,after:o.after==null?100:o.after}); }
+  /* 배경 워터마크. 페이지 한가운데는 이미 프레임의 化 인장이 차지하고 있으므로
+     로고는 그보다 아래쪽에 앉힌다. 겹쳐 놓으면 둘 다 지저분해진다. */
+  function markPara(u8){ if(!u8) return new Paragraph({children:[]});
+    var d=_pngDims(u8)||{w:1100,h:589}, w=260, h=Math.round(w*(d.h||1)/(d.w||1));
+    return new Paragraph({spacing:{after:0,before:0,line:1,lineRule:LineRule.AUTO},
+      children:[new ImageRun({type:'png',data:u8,transformation:{width:w,height:h},
+        floating:{horizontalPosition:{relative:HPos.PAGE,align:HAlign.CENTER},
+                  // A4 세로 297mm ≈ 10,690,000 EMU. 프레임의 化 인장이 가운데(45~55%)를
+                  // 차지하므로 로고는 그 아래(약 70%)에 앉힌다.
+                  verticalPosition:{relative:VPos.PAGE,offset:7500000},
+                  behindDocument:true,allowOverlap:true,wrap:{type:TWrap.NONE}}})]}); }
   function esc2(s){return String(s==null?'':s);}
   function lecToParas(html){ var out=[]; var doc; try{ doc=new DOMParser().parseFromString(html||'','text/html'); }catch(e){ return out; }
     var nodes=doc.body.querySelectorAll('h1,h2,h3,h4,h5,p,li');
@@ -3210,6 +3243,97 @@ async function downloadReportDOCX(){
       if(/^h[1-5]$/.test(tag)) out.push(P([run('◆  ',{color:GOLD,size:18}),run(t,{bold:true,color:EM,size:22,serif:true})],{before:180,after:70,border:{bottom:bdr('E6DDC8',3)}}));
       else out.push(txt((tag==='li'?'·  ':'')+t,{size:21,after:90,line:312})); });
     return out; }
+
+
+  /* ── 화면 섹션 HTML → Word 문단 ────────────────────────────────────────
+     화면에는 있는데 Word 에는 없던 섹션이 여럿이었다. 하나씩 손으로 옮기면
+     오래 걸리고, 화면을 고칠 때마다 Word 가 뒤처진다. 그래서 화면이 만든
+     HTML 을 그대로 읽어 문단으로 바꾼다. 같은 함수가 만든 같은 내용이니
+     둘이 갈라질 수 없다.
+
+     알아보는 것: 섹션 제목(.sec__t) · 설명(.sub) · 강조 상자(.note) ·
+     막대 행(.barrow) · 표 · 그 밖의 문단. SVG 는 건너뛴다(Word 로 옮길 수
+     없고, 같은 내용이 대개 옆의 막대·표에 글자로도 있다). */
+  function secToParas(html, opts){
+    opts=opts||{};
+    var out=[], doc;
+    try{ doc=new DOMParser().parseFromString('<div>'+(html||'')+'</div>','text/html'); }catch(e){ return out; }
+    var root=doc.body.firstElementChild; if(!root) return out;
+    // 제목이 없는 섹션도 있다(학습 유형 진단은 배지+문장 한 줄짜리 상자다).
+    // 그럴 때는 불러 준 쪽이 준 제목을 쓴다.
+    var title=root.querySelector('.sec__t');
+    var head=title?(title.textContent||'').trim():(opts.title||'');
+    if(head) out.push(H(head, opts.no||''));
+
+    function inline(el){ return (el.textContent||'').replace(/\s+/g,' ').trim(); }
+
+    // 막대 행은 표로 옮긴다(라벨 · 채운 칸 · 값)
+    function barRow(el){
+      var lab=inline(el.querySelector('.ba')||{}), val=inline(el.querySelector('.bp')||{});
+      var i=el.querySelector('.bar i'), pct=0;
+      if(i){ var m=/width:\s*([\d.]+)%/.exec(i.getAttribute('style')||''); if(m) pct=Math.round(+m[1]); }
+      var labW=Math.floor(CW*0.26), barW=Math.floor(CW*0.56), valW=CW-labW-barW;
+      var fill=Math.max(1,Math.round(barW*pct/100)), rest=Math.max(1,barW-fill);
+      return ROW([
+        cellT(lab,{w:labW,size:18,bold:true,color:EM}),
+        C([TBL([fill,rest],[ROW([
+          C([P([],{before:0,after:0})],{w:fill,fill:(pct>=75?'2E7D5B':pct>=50?GOLD:RED),mt:28,mb:28,ml:0,mr:0}),
+          C([P([],{before:0,after:0})],{w:rest,fill:'EDE8DC',mt:28,mb:28,ml:0,mr:0})])])],{w:barW,ml:50,mr:50}),
+        cellT(val,{w:valW,size:17,color:MUT,align:AlignmentType.RIGHT})]);
+    }
+
+    var pending=[];   // 이어지는 막대 행을 한 표로 묶는다
+    function flush(){
+      if(!pending.length) return;
+      var labW=Math.floor(CW*0.26), barW=Math.floor(CW*0.56);
+      out.push(TBL([labW,barW,CW-labW-barW],pending)); pending=[];
+      out.push(P([],{after:60}));
+    }
+
+    [].forEach.call(root.children, function walk(node){
+      if(!node || node.nodeType!==1) return;
+      var cls=node.className||'';
+      if(typeof cls!=='string') cls=String(cls.baseVal||'');
+      var tag=node.tagName.toLowerCase();
+      if(tag==='svg'){ return; }                      // 그림은 옮기지 않는다
+      if(cls.indexOf('sec__h')>=0) return;            // 제목은 위에서 이미 처리
+      if(cls.indexOf('barrow')>=0){ pending.push(barRow(node)); return; }
+      flush();
+      if(cls.indexOf('sub')>=0){ var t0=inline(node); if(t0) out.push(txt(t0,{color:MUT,size:19,after:130})); return; }
+      if(cls.indexOf('note')>=0){
+        var t1=inline(node);
+        if(t1) out.push(P([run(t1,{size:20})],{before:120,after:80,fill:'FAF7EF',
+          border:{left:bdr(GOLD,14),top:bdr('EDE8DC',2),bottom:bdr('EDE8DC',2),right:bdr('EDE8DC',2)}}));
+        return;
+      }
+      if(tag==='table'){
+        var trs=[].slice.call(node.querySelectorAll('tr'));
+        if(!trs.length) return;
+        var nCol=Math.max.apply(null,trs.map(function(tr){ return tr.children.length; }));
+        var w=Math.floor(CW/Math.max(1,nCol));
+        var colW=[]; for(var ci=0;ci<nCol;ci++) colW.push(ci===nCol-1?CW-w*(nCol-1):w);
+        var rows=trs.map(function(tr,ri){
+          var cells=[].slice.call(tr.children);
+          return ROW(cells.map(function(td,i){
+            return cellT(inline(td),{w:colW[i]||w,size:18,bold:ri===0,
+              color:ri===0?EM:INK,fill:ri===0?EMT:undefined,
+              align:i?AlignmentType.CENTER:undefined});
+          }),{header:ri===0});
+        });
+        out.push(TBL(colW,rows,
+          {top:bdr(EM,8),bottom:bdr(EM,8),left:NB,right:NB,insideHorizontal:bdr('E6DDC8',2),insideVertical:NB}));
+        out.push(P([],{after:80}));
+        return;
+      }
+      // 자식에 블록이 더 있으면 내려간다. 없으면 이 노드의 글을 한 문단으로.
+      if(node.querySelector&&node.querySelector('.barrow,.note,.sub,table')){
+        [].forEach.call(node.children, walk); return;
+      }
+      var t=inline(node); if(t) out.push(txt(t,{size:20,after:70}));
+    });
+    flush();
+    return out;
+  }
 
   var body=[];
   // ── 표지 (배경 길로셰+化 씰은 첫 페이지 헤더 이미지. 텍스트는 상단(제목)·하단(이름)에 배치) ──
@@ -3225,6 +3349,59 @@ async function downloadReportDOCX(){
     txt('성취 지표 · 영역별 진단 · 오답 정밀 분석 · 학습 처방 · 개념 강의 교재',{align:AlignmentType.CENTER,color:GOLD,size:16,after:60}),
     txt('발행일  '+(function(){try{return new Date().toLocaleDateString('ko-KR');}catch(e){return '';}})(),{align:AlignmentType.CENTER,color:MUT,size:14}),
     PB());
+
+
+  /* ── 학부모용 한 장 요약 (Word 전용) ─────────────────────────────────
+     이 문서는 60쪽이 넘는다. 화면이라면 필요한 데만 눌러 보면 되지만 종이는
+     그렇지 않다. 학부모가 한 장만 읽는다면 이 장이어야 한다.
+     표지 바로 다음, 목차보다 앞에 둔다. */
+  try{
+    var sumWeak=(areas||[]).slice().sort(function(a,b){ return a.r-b.r; }).slice(0,3);
+    var sumWp=(cur.cut&&total>0)?winProb(total,correct,cur.cut):null;
+    var sumRep=repeatedMisses(cur), sumRec=dhRecovery(cur);
+    var kv=function(k,v,o){ o=o||{};
+      return ROW([cellT(k,{w:Math.floor(CW*0.30),size:19,color:MUT}),
+                  cellT(v,{w:CW-Math.floor(CW*0.30),size:o.big?26:20,bold:true,
+                           color:o.color||EM,align:AlignmentType.LEFT})]); };
+    var rows=[kv('현재 등급', aw.name, {big:true}),
+              kv('원점수', rs.score+' / '+rawMax + (rs.pen?'   (오답 −'+rs.pen+')':'')),
+              kv('맞은 문항', correct+' / '+total+'   ('+pct+'%)')];
+    if(sumWp) rows.push(kv('수상 확률', Math.round((sumWp[4]||0)*100)+'%   (장려상 이상)',{color:'2E7D5B'}));
+    if(cs&&cs.percReady) rows.push(kv('또래 중 위치', '상위 '+(100-percentile(cs.totals,correct))+'%   (누적 '+cs.N+'명)'));
+    if(aw.nextTier&&aw.gap!=null) rows.push(kv('다음 등급까지', aw.nextTier+'  ·  '+aw.gap+'문항'));
+
+    body.push(kicker('❖  SUMMARY  ❖'),
+      txt('한 장 요약',{align:AlignmentType.CENTER,bold:true,color:EM,size:52,serif:true,after:40}),
+      ornPara(dividerOrn,320,{before:16,after:60}),
+      txt('뒤에 이어지는 정밀 분석의 결론만 모았습니다. 시간이 없으시면 이 장만 보셔도 됩니다.',
+          {align:AlignmentType.CENTER,color:MUT,size:18,after:200}),
+      TBL([Math.floor(CW*0.30),CW-Math.floor(CW*0.30)],rows,
+        {top:bdr(EM,8),bottom:bdr(EM,8),left:NB,right:NB,insideHorizontal:bdr('E6DDC8',2),insideVertical:NB}),
+      P([],{after:200}));
+
+    if(sumWeak.length){
+      body.push(txt('먼저 손댈 곳',{bold:true,color:EM,size:24,serif:true,before:120,after:80,
+        border:{bottom:bdr(GOLDL,4)}}));
+      sumWeak.forEach(function(a,i){
+        body.push(P([run((i+1)+'.  ',{bold:true,color:GOLD,size:22}),
+          run(a.name,{bold:true,color:EM,size:22}),
+          run('   정답률 '+Math.round(a.r*100)+'%',{color:MUT,size:18}),
+          run((RX[a.name]&&RX[a.name].rx)?('\n'+RX[a.name].rx):'',{size:19})],{after:70}));
+      });
+    }
+    if(sumRep.length){
+      body.push(P([run('되풀이되는 약점  ',{bold:true,color:RED,size:20}),
+        run(sumRep.slice(0,3).map(function(r){ return r.ty+'('+r.nEx+'개 시험)'; }).join(' · '),{size:20})],
+        {before:160,after:60,border:{top:bdr('E6DDC8',3)}}));
+    }
+    if(sumRec.length){
+      body.push(P([run('동형문제 회복  ',{bold:true,color:'2E7D5B',size:20}),
+        run(sumRec.length+'문항 중 '+sumRec.solved.length+'문항 회복('+sumRec.rate+'%)',{size:20})],{after:60}));
+    }
+    body.push(P([run('이 문서의 뒤쪽에는 문항별 정오표, 오답 정리 노트, 개념 강의 교재, 그리고 '
+      +'바로 인쇄해 풀릴 수 있는 동형 미니 시험지가 실려 있습니다.',{color:MUT,size:18})],
+      {before:200,after:0}),PB());
+  }catch(e){}
 
   // ── 목차 ──
   var toc=sections.map(function(s){return {n:s.no,t:s.t,d:s.d};});
@@ -3538,6 +3715,62 @@ async function downloadReportDOCX(){
     }
   }catch(e){}
 
+  // ── 화면에만 있던 나머지 섹션들 ──────────────────────────────────────
+  // 화면이 만든 HTML 을 그대로 문단으로 옮긴다(secToParas). 손으로 다시 쓰지
+  // 않으므로 화면을 고치면 Word 도 같이 따라온다.
+  try{
+    var extras=[
+      {k:'ladder',  kick:'❖  ROADMAP  ❖',    html:tierPathSec(cur,sel)},
+      {k:'quad',    kick:'❖  QUADRANT  ❖',   html:quadSec(cur,sel,cs)},
+      {k:'depth',   kick:'❖  DEPTH  ❖',      html:depthSec(cur,sel,cs)},
+      {k:'learner', kick:'❖  LEARNER  ❖',    t:'학습 유형 진단', html:learnerTypeSec(cur,sel,cs,correct,total)},
+      {k:'prereq',  kick:'❖  PREREQUISITE  ❖',html:prereqSec(cur,sel,cs)},
+      {k:'dist',    kick:'❖  ITEM STATS  ❖', html:distSec(cur,sel,cs)},
+      {k:'mastery', kick:'❖  MASTERY  ❖',    html:masterySec(cur)},
+      {k:'loop',    kick:'❖  LONG RUN  ❖',   html:loopSec(cur,sel)}
+    ];
+    extras.forEach(function(x){
+      if(!x.html) return;
+      var paras=secToParas(x.html,{no:secNo(x.k),title:x.t});
+      if(paras.length<2) return;          // 제목만 나온 것은 싣지 않는다
+      body.push(PB(),kicker(x.kick));
+      body.push.apply(body,paras);
+    });
+  }catch(e){}
+
+  /* ── 4주 학습 계획표 (Word 전용) ──────────────────────────────────────
+     처방을 읽는 것과 실행하는 것은 다르다. 종이에는 손으로 체크할 수 있으니
+     주차별 표로 만들어 둔다. 화면에서는 뜻이 없는 형태다. */
+  try{
+    var planAreas=(areas||[]).slice().sort(function(a,b){ return a.r-b.r; }).slice(0,4);
+    if(planAreas.length){
+      body.push(PB(),kicker('❖  4-WEEK PLAN  ❖'),
+        txt('4주 학습 계획표',{align:AlignmentType.CENTER,bold:true,color:EM,size:44,serif:true,after:40}),
+        ornPara(dividerOrn,320,{before:16,after:80}),
+        txt('약한 영역부터 한 주에 하나씩 잡습니다. 끝낸 칸에 표시하며 쓰세요.',
+            {align:AlignmentType.CENTER,color:MUT,size:18,after:180}));
+      var wW=Math.floor(CW*0.10), aW=Math.floor(CW*0.24), dW=Math.floor(CW*0.46), cW=CW-wW-aW-dW;
+      var planRows=[ROW([cellT('주차',{w:wW,bold:true,color:EM,size:18,fill:EMT,align:AlignmentType.CENTER}),
+                         cellT('영역',{w:aW,bold:true,color:EM,size:18,fill:EMT}),
+                         cellT('할 일',{w:dW,bold:true,color:EM,size:18,fill:EMT}),
+                         cellT('완료',{w:cW,bold:true,color:EM,size:18,fill:EMT,align:AlignmentType.CENTER})],{header:true})];
+      planAreas.forEach(function(a,i){
+        var r=RX[a.name]||RX[bkBroad(a.name)]||{};
+        var todo=[r.k?('핵심: '+r.k):'', r.rx?('처방: '+r.rx):''].filter(Boolean).join('   /   ')
+                 || (a.name+' 개념 강의를 읽고 동형문제를 풀어 본다');
+        planRows.push(ROW([
+          cellT((i+1)+'주',{w:wW,bold:true,color:GOLD,size:20,align:AlignmentType.CENTER}),
+          cellT(a.name+'\n정답률 '+Math.round(a.r*100)+'%',{w:aW,size:18,bold:true}),
+          cellT(todo,{w:dW,size:17}),
+          cellT('☐',{w:cW,size:26,align:AlignmentType.CENTER,color:MUT})]));
+      });
+      body.push(TBL([wW,aW,dW,cW],planRows,
+        {top:bdr(EM,8),bottom:bdr(EM,8),left:NB,right:NB,insideHorizontal:bdr('E6DDC8',2),insideVertical:bdr('F0EADC',2)}));
+      body.push(P([run('한 주에 한 영역이면 충분합니다. 여러 개를 한꺼번에 잡으면 어느 것도 남지 않습니다.',
+        {color:MUT,size:18})],{before:140}));
+    }
+  }catch(e){}
+
   // ── 동형문제 회복률 · 되풀이되는 오개념 ──────────────────────────────
   // 둘 다 화면에만 있던 것이다. "무엇을 틀렸나"는 정오표가 말해 주지만
   // "그래서 고쳤나"와 "매번 같은 자리에서 걸리나"는 여기서만 알 수 있다.
@@ -3607,6 +3840,23 @@ async function downloadReportDOCX(){
           body.push(P([run(CI[ci+1]+'  '+esc2(c),{color:INK,size:22})],{before:14,after:14}));
         });
       });
+      // 답안 기입란. 종이로 풀리려면 답을 적을 자리가 있어야 한다(화면엔 필요 없다).
+      var omrPer=10, omrRows=[];
+      for(var oi=0;oi<rtItems.length;oi+=omrPer){
+        var slice=rtItems.slice(oi,oi+omrPer);
+        var cw2=Math.floor(CW/omrPer);
+        omrRows.push(ROW(slice.map(function(_,j){
+          return cellT(String(oi+j+1),{w:cw2,size:16,color:MUT,align:AlignmentType.CENTER,fill:'F6F2E8'});
+        }).concat(slice.length<omrPer?[C([P([],{before:0,after:0})],{w:cw2*(omrPer-slice.length)})]:[])));
+        omrRows.push(ROW(slice.map(function(){
+          return C([P([],{before:120,after:120})],{w:cw2});
+        }).concat(slice.length<omrPer?[C([P([],{before:0,after:0})],{w:cw2*(omrPer-slice.length)})]:[])));
+      }
+      var omrW=[]; for(var oc=0;oc<omrPer;oc++) omrW.push(Math.floor(CW/omrPer));
+      body.push(P([run('답안 기입란',{bold:true,color:EM,size:22,serif:true})],{before:240,after:80}),
+        TBL(omrW,omrRows,{top:bdr(EM,6),bottom:bdr(EM,6),left:bdr(EM,6),right:bdr(EM,6),
+          insideHorizontal:bdr('D8CCA6',3),insideVertical:bdr('D8CCA6',3)}));
+
       // 정답·해설은 새 쪽에서 시작한다. 앞장만 떼어 주면 그대로 학생용이다.
       body.push(PB(),txt('동형 미니 시험지 · 정답과 해설',
         {align:AlignmentType.CENTER,bold:true,color:'8A6D1F',size:30,serif:true,after:60}),
@@ -3630,7 +3880,7 @@ async function downloadReportDOCX(){
 
   // 프레임/표지는 헤더 이미지로(모든 뷰어에서 안정적으로 모든 페이지에 표시)
   var firstHdr=new Header({children:[bgFullPara(coverBg,'jpg')]});
-  var defHdr=new Header({children:[bgFullPara(frameBg,'png')]});
+  var defHdr=new Header({children:[bgFullPara(frameBg,'png'),markPara(logoMark)]});
   // 러닝 푸터: 브랜드 + 페이지 번호(표지 제외)
   var defFtr=new Footer({children:[new Paragraph({alignment:AlignmentType.CENTER,spacing:{before:40,after:0,line:240,lineRule:LineRule.AUTO},
     children:[run('CHEMISTREAL · 조준모 화학       ',{color:'8C8266',size:15,cs:20}),new TextRun({children:[PageNumber.CURRENT],color:GOLD,size:15,bold:true}),run('  /  ',{color:'8C8266',size:15}),new TextRun({children:[PageNumber.TOTAL_PAGES],color:'8C8266',size:15})]})]});
