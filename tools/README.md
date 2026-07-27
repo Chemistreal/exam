@@ -172,6 +172,25 @@ python3 tools/orphan_scan.py
 
 화학 내용의 옳고 그름은 여기서 검사하지 않는다. 그건 집필·검수에서 사람이 한다.
 
+### 브라우저가 있어야 도는 검사
+
+CI 러너에는 브라우저가 없어 아래는 손으로 돌린다. 화면 동작을 바꿨으면 돌려 본다.
+
+```bash
+python3 -m http.server 8931 &          # 저장소 루트에서
+export PLAYWRIGHT_MODULE=/경로/playwright CHROMIUM_PATH=/경로/chrome
+node tests/offline.js               # 오프라인에서 성적표·오답노트가 열리는가
+node tests/share-link.js            # 공유 링크의 또래 통계·이름 감싸기
+node tests/wrongbook-interactive.js # 동형문제 눌러 풀기·회복 기록
+node tests/retest-sheet.js          # 동형 미니 시험지 인쇄
+node tests/prereq-drill.js          # 선수 개념 드릴
+```
+
+`tests/offline.js` 는 **서버를 실제로 죽이고** 잰다. Playwright 의 `setOffline` 이
+이 환경에서 localhost 요청을 막지 못하기 때문이다(직접 확인했다 — 서비스워커를
+지우고 한 번도 부른 적 없는 파일을 불러도 200이 온다). 그걸 모르고 짠 첫 테스트는
+전부 통과하면서 아무것도 증명하지 못했다.
+
 `dh_merge.py` 는 번호 누락·중복을 막고, 기출 참조 필드
 (`sourceExamId`·`sourceQuestion`·`matchLevel`·`image` 등)를 병합 단계에서 제거한다.
 `dh_validate.py` 는 그 필드가 남아 있으면 실패시킨다.

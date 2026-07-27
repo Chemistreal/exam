@@ -653,6 +653,44 @@ summary::-webkit-details-marker{display:none}
    html2canvas 캡처를 쓰지 않고 진짜 글자·벡터로 출력하며, 챕터별로 페이지를 나눈다.
    화면에서는 #bookPDF 를 숨기고, 인쇄 시에만 이 책만 보이게 한다.
    ============================================================ */
+/* ============================================================
+   동형 미니 시험지 (#retestPDF) — 다음 수업 입실고사용 한 장짜리
+   화면에서는 숨기고, body.printretest 일 때만 이것만 인쇄한다.
+   ============================================================ */
+#retestPDF{display:none}
+@media print{
+  body.printretest{background:#fff!important;margin:0!important;padding:0!important}
+  body.printretest>*{display:none!important}
+  body.printretest #retestPDF{display:block!important}
+  body.printretest .rt-sheet{font-family:'IBM Plex Sans KR',system-ui,sans-serif;color:#1a1a1a}
+  body.printretest .rt-head{border-bottom:2px solid #0E5A4C;padding-bottom:7px;margin-bottom:13px}
+  body.printretest .rt-t{font-family:'Nanum Myeongjo',serif;font-size:19px;font-weight:800;color:#0E5A4C}
+  body.printretest .rt-m{font-size:12px;color:#555;margin-top:3px;display:flex;gap:10px;flex-wrap:wrap}
+  body.printretest .rt-name{margin-left:auto;font-weight:700;color:#1a1a1a}
+  /* 문항은 페이지 중간에서 잘리지 않게 통째로 넘긴다 */
+  body.printretest .rt-q{break-inside:avoid;page-break-inside:avoid;margin-bottom:15px;
+    padding-bottom:11px;border-bottom:1px dotted #ccc}
+  body.printretest .rt-qh{display:flex;align-items:baseline;gap:7px;margin-bottom:6px}
+  body.printretest .rt-no{font-weight:800;font-size:14px;color:#0E5A4C;min-width:18px}
+  body.printretest .rt-src,body.printretest .rt-tag{font-size:10.5px;color:#777}
+  body.printretest .rt-tag{background:#f0ece2;padding:1px 6px;border-radius:3px}
+  body.printretest .rt-stem{font-size:12.6px;line-height:1.75;margin-bottom:6px}
+  body.printretest .rt-ch{font-size:12.2px;line-height:1.7;padding-left:8px}
+  body.printretest .rt-img{max-width:100%;height:auto}
+  /* 정답표는 새 페이지에서 시작한다. 잘라 내면 앞장이 그대로 학생용이 된다. */
+  body.printretest .rt-key{break-before:page;page-break-before:always;padding-top:6px}
+  body.printretest .rt-keyh{font-family:'Nanum Myeongjo',serif;font-weight:800;font-size:15px;
+    color:#8a6d1f;border-bottom:1.5px solid #c9a227;padding-bottom:5px;margin-bottom:9px}
+  body.printretest .rt-keyh span{font-size:11px;font-weight:400;color:#777;margin-left:6px}
+  body.printretest .rt-keyt{border-collapse:collapse;margin-bottom:11px}
+  body.printretest .rt-keyt th,body.printretest .rt-keyt td{
+    border:1px solid #ddd;padding:3px 11px;font-size:11.5px;text-align:center}
+  body.printretest .rt-keyt th{background:#f5f2ea;font-weight:700}
+  body.printretest .rt-sol{font-size:11.4px;line-height:1.7;color:#333;margin-bottom:6px;
+    break-inside:avoid;page-break-inside:avoid}
+  body.printretest .rt-sol b{color:#0E5A4C;margin-right:3px}
+}
+
 /* 책 인쇄는 body.printbook 일 때만 적용(일반 Ctrl+P·웹 리포트 인쇄와 충돌 방지) */
 @media print{
   body.printbook{background:#fff!important;margin:0!important;padding:0!important}
@@ -1463,9 +1501,20 @@ function prereqSec(exam, sel, cs){
   const svg=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px;height:auto;margin-top:6px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="pa" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L6,3.5 L0,7 Z" fill="var(--muted)"/></marker></defs>${edges}${rects}</svg>`;
   const weakP=[...nodes].filter(p=>p!==target&&reliable(p)&&sb[p]<60).sort((a,b)=>sb[a]-sb[b]);
   const advice = weakP.length ? `<b>${esc(target)}</b> 약점은 선수 개념 <b>${weakP.map(esc).join('·')}</b>의 결손에서 비롯됐을 수 있습니다. 빨간 영역부터 메우면 위층이 함께 풀립니다.` : `<b>${esc(target)}</b>의 선수 개념은 안정적입니다. ${esc(target)} 자체의 개념과 유형에 집중하세요.`;
+  /* 지도만 보여 주고 끝내면 "그래서 뭘 하라는 건데"가 남는다. 무너진 선수 개념이
+     있으면 **그 영역 문제**를 여기서 바로 풀게 한다. 위층(target)을 붙들고 있는
+     것보다 아래층부터 메우는 것이 빠르기 때문에, 굳이 아래층 문제를 내준다.
+     문항은 개념 색인에서 끌어오고, 누를 때 받아 온다. */
+  const drillTarget = weakP.length ? weakP[0] : null;
+  const drill = drillTarget
+    ? `<details class="wb-more pq-drill" data-pool="|${esc(drillTarget)}" data-label="${esc(drillTarget)} 문제">
+         <summary>${esc(drillTarget)} 먼저 풀어 보기</summary>
+         <div class="wb-more-body">불러오는 중…</div></details>`
+    : '';
   return `<div class="sec">${secH('선수 개념 지도 · 학습 순서')}<div class="sub">가장 약한 영역이 어떤 선행 개념 위에 서 있는지 보여 줍니다. 화살표는 '먼저 알아야 함', 색은 현재 숙달도(초록 안정·노랑 보통·빨강 약함·회색 표본 부족)입니다.</div>
    ${svg}
    <div class="note" style="font-size:12.5px;margin-top:9px">${advice}</div>
+   ${drill}
   </div>`;
 }
 function adaptiveSec(exam, sel, cs, correct, total){
@@ -2531,6 +2580,8 @@ async function loadMore(details){
   details.dataset.loaded='1';
   var body=details.querySelector('.wb-more-body'); if(!body) return;
   var bits=(details.dataset.pool||'|').split('|');
+  // 오답 카드에서는 '같은 개념 문제', 선수 개념 드릴에서는 그 영역 이름을 쓴다.
+  var label=details.dataset.label||'같은 개념 문제';
   var picks=[];
   try{ picks=await poolPick(bits[0],bits[1],(cur&&cur.id)||'',2); }catch(e){}
   var made=[];
@@ -2540,7 +2591,7 @@ async function loadMore(details){
     var stem=dq.stemHtml||esc(dq.stem||'');
     var sol=dq.explanationHtml||esc(dq.explanation||'');
     var mis=dq.misconception||'';
-    made.push('<div class="wb-dh" data-src="'+esc('pool:'+picks[i].file+':'+picks[i].q)+'"><div class="wb-dh-h">같은 개념 문제 '+CIRC[made.length+1]
+    made.push('<div class="wb-dh" data-src="'+esc('pool:'+picks[i].file+':'+picks[i].q)+'"><div class="wb-dh-h">'+label+' '+CIRC[made.length+1]
       +'<span class="wb-dh-src">'+esc(dq.concept||dq.area||'')+'</span></div>'
       +(stem?('<div class="wb-stem">'+stem+'</div>'):'')
       +wbChoiceList(dq)
@@ -2636,7 +2687,7 @@ function scoreAuto(){
    ${methodSec(cur)}
    ${wrongbookShell(cur,wrong)}
    </div>
-   <div class="toolbar"><button class="btn" onclick="downloadReportDOCX()">📝 성적표 Word 저장 ↓</button><button class="btn ghost sm" onclick="exportReportHTML()">공유용 HTML 저장 ↓</button>
+   <div class="toolbar"><button class="btn" onclick="downloadReportDOCX()">📝 성적표 Word 저장 ↓</button><button class="btn ghost sm" onclick="printRetest()">동형 미니 시험지 인쇄 🖨</button><button class="btn ghost sm" onclick="exportReportHTML()">공유용 HTML 저장 ↓</button>
      <a class="pdf" href="sol-final-${cur.id}.html" target="_blank">정답·개념 해설 ↗</a>
      <button class="btn ghost sm" onclick="window.print()">인쇄</button>
      <button class="btn sm" onclick="nextStudent()">다음 학생 입력 ▶</button>
@@ -2856,6 +2907,94 @@ async function downloadReportPDF(){
   fToast('인쇄 창에서 "PDF로 저장/PDF로 내보내기"를 선택하세요');
   try{ window.print(); }catch(e){ cleanup(); }
   setTimeout(cleanup, 180000);  // 안전장치: 인쇄 취소 등으로 afterprint 미발생 시 정리
+}
+/* ===== 동형 미니 시험지 — 다음 수업 입실고사용 인쇄물 =====
+   성적표는 화면에서 보는 것이고, 수업에서는 종이가 필요하다. 틀린 문항의
+   동형문제만 뽑아 한 장짜리 시험지로 만든다. 다음 수업 시작할 때 풀리면
+   지난 시간 오답이 정말 메워졌는지 그 자리에서 확인된다.
+
+   무엇을 담을지 고르는 순서:
+   1) 아직 회복하지 못한 문항을 먼저 (원문도 동형도 틀렸거나, 아직 안 푼 것)
+   2) 화면에서 이미 풀어 본 동형문제는 뺀다 — 답을 아는 문제를 또 주면 뜻이 없다
+   3) 그래도 자리가 남으면 회복한 문항의 다른 동형문제로 채운다(복습)
+
+   정답은 맨 뒤 별도 페이지에 모은다. 잘라 내면 그대로 학생용이 된다. */
+function retestPick(exam, wrong, analogues){
+  var nm=((window.__rpt&&window.__rpt.name)||'').trim();
+  var log=dhLog(exam.id).filter(function(r){ return !nm||r.name===nm; });
+  var solvedQ={}, usedSrc={};
+  log.forEach(function(r){ if(r.ok) solvedQ[r.q]=1; usedSrc[r.q+'|'+r.src]=1; });
+
+  var fresh=[], review=[];
+  (wrong||[]).slice().sort(function(a,b){return a.q-b.q;}).forEach(function(w){
+    var list=(analogues[String(w.q)]||[]).filter(dhUsable);
+    // 화면에서 이미 푼 것은 뺀다
+    var unused=list.filter(function(dq,i){ return !usedSrc[w.q+'|'+(dq._src||('set'+i))]; });
+    var pickFrom=unused.length?unused:list;
+    if(!pickFrom.length) return;
+    (solvedQ[w.q]?review:fresh).push({q:w.q, dq:pickFrom[0]});
+  });
+  return fresh.concat(review);
+}
+function retestHTML(exam, items){
+  var nm=((window.__rpt&&window.__rpt.name)||'').trim();
+  var today=new Date(), ymd=today.getFullYear()+'.'+('0'+(today.getMonth()+1)).slice(-2)+'.'+('0'+today.getDate()).slice(-2);
+  var body=items.map(function(it,i){
+    var dq=it.dq;
+    var stem=dq.stemHtml||esc(dq.stem||'');
+    var chs=(dq.choicesHtml||dq.choices||[]).map(function(c,ci){
+      return '<div class="rt-ch">'+CIRC[ci+1]+' '+c+'</div>';
+    }).join('');
+    return '<div class="rt-q">'
+      +'<div class="rt-qh"><span class="rt-no">'+(i+1)+'</span>'
+      +'<span class="rt-src">원문 '+it.q+'번</span>'
+      +'<span class="rt-tag">'+esc(dq.concept||dq.area||'')+'</span></div>'
+      +(stem?'<div class="rt-stem">'+stem+'</div>':'')
+      +(!stem&&dq.image?'<img class="rt-img" src="'+esc(dq.image)+'" alt="" onerror="this.remove()">':'')
+      +chs+'</div>';
+  }).join('');
+  var keyRows=items.map(function(it,i){
+    return '<tr><td>'+(i+1)+'</td><td>'+(it.dq.answer?CIRC[Number(it.dq.answer)]:'·')+'</td>'
+      +'<td>'+it.q+'번</td><td>'+esc(it.dq.concept||it.dq.area||'')+'</td></tr>';
+  }).join('');
+  var sols=items.map(function(it,i){
+    var sol=it.dq.explanationHtml||esc(it.dq.explanation||'');
+    return sol?('<div class="rt-sol"><b>'+(i+1)+'.</b> '+sol+'</div>'):'';
+  }).join('');
+  return '<div class="rt-sheet">'
+    +'<div class="rt-head"><div class="rt-t">동형 미니 시험지</div>'
+    +'<div class="rt-m">'+esc(exam.title)+' 오답 복습 · '+items.length+'문항 · '+ymd
+    +'<span class="rt-name">이름 '+(nm?esc(nm):'________')+'</span></div></div>'
+    +body
+    +'<div class="rt-key"><div class="rt-keyh">정답 · 해설 <span>(잘라 내면 앞장이 학생용입니다)</span></div>'
+    +'<table class="rt-keyt"><thead><tr><th>번호</th><th>정답</th><th>원문</th><th>개념</th></tr></thead>'
+    +'<tbody>'+keyRows+'</tbody></table>'+sols+'</div></div>';
+}
+async function printRetest(){
+  if(!cur){ fToast('먼저 채점을 해주세요'); return; }
+  var wrong=(window.__fw||[]);
+  if(!wrong.length){ fToast('틀린 문항이 없습니다'); return; }
+  fToast('시험지를 만드는 중…');
+  var analogues={};
+  try{ analogues=await loadAnalogues(cur.id); }catch(e){}
+  var items=retestPick(cur, wrong, analogues);
+  if(!items.length){ fToast('출제할 동형문제가 없습니다'); return; }
+
+  var prev=document.getElementById('retestPDF'); if(prev&&prev.parentNode) prev.parentNode.removeChild(prev);
+  var el=document.createElement('div'); el.id='retestPDF';
+  el.innerHTML=retestHTML(cur, items);
+  document.body.appendChild(el);
+
+  var done=false, cleanup=function(){ if(done)return; done=true;
+    try{ document.body.classList.remove('printretest'); }catch(e){}
+    try{ if(el&&el.parentNode) el.parentNode.removeChild(el); }catch(e){}
+    window.removeEventListener('afterprint',cleanup); };
+  window.addEventListener('afterprint',cleanup);
+  document.body.classList.add('printretest');
+  await new Promise(function(r){ setTimeout(r,150); });
+  fToast(items.length+'문항 · 인쇄 창에서 저장하거나 바로 출력하세요');
+  try{ window.print(); }catch(e){ cleanup(); }
+  setTimeout(cleanup,180000);
 }
 /* ===== 성적표 Word(.docx) — 학생별 즉석 생성·다운로드 (브라우저 docx 라이브러리, 캡처 미사용·편집 가능) ===== */
 function loadScriptOnce(src){ return new Promise(function(res,rej){ var ex=document.querySelector('script[data-lib="'+src+'"]'); if(ex){ if(ex.dataset.loaded){res();return;} ex.addEventListener('load',function(){res();}); ex.addEventListener('error',function(){rej(new Error(src));}); return; } var s=document.createElement('script'); s.src=src; s.dataset.lib=src; s.onload=function(){s.dataset.loaded='1';res();}; s.onerror=function(){rej(new Error(src));}; document.head.appendChild(s); }); }
