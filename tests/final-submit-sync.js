@@ -66,8 +66,22 @@ const exams = JSON.parse(fs.readFileSync(path.join(ROOT, 'exams.json'), 'utf8'))
 chk2('exams.json 에 시험이 들어 있다', exams.length > 0, true);
 [['final.html', A], ['final-submit.html', B]].forEach(([name, src]) => {
   chk2(name + ' 이 exams.json 을 받아 온다', /fetch\('exams\.json'/.test(src), true);
-  // `const FINAL_EXAMS=[{...}]` 처럼 사본을 다시 박아 넣지 않았는지
-  chk2(name + ' 에 시험 목록 사본이 없다', /FINAL_EXAMS\s*=\s*\[\s*\{/.test(src), false);
+  // 손으로 관리하는 사본(`const FINAL_EXAMS=[{...}]`)을 다시 박아 넣지 않았는지.
+  // 생성된 예비본 FALLBACK_EXAMS 는 별개다 — 아래에서 따로 본다.
+  chk2(name + ' 에 손으로 관리하는 사본이 없다', /\bFINAL_EXAMS\s*=\s*\[\s*\{/.test(src), false);
+  // exams.json 이 늦게 와도 앱이 죽지 않아야 한다(실제로 배포 직후 404 로 죽은 적 있다).
+  chk2(name + ' 에 예비본이 심겨 있다', /const FALLBACK_EXAMS=\[\{/.test(src), true);
+  chk2(name + ' 이 캐시·예비본까지 세 겹으로 받는다',
+    /caches\.match\('exams\.json'\)/.test(src) && /FALLBACK_EXAMS\.length/.test(src), true);
+});
+// 예비본이 exams.json 과 글자 단위로 같은지는 tools/gen_exam_fallback.py --check 가 본다.
+// 여기서는 시험 개수만 빠르게 대조한다(도구가 안 돌았을 때 바로 티가 나도록).
+[['final.html', A], ['final-submit.html', B]].forEach(([name, src]) => {
+  const at = src.indexOf('const FALLBACK_EXAMS=[');
+  const end = src.indexOf(';\n', at);
+  let n = -1;
+  try { n = JSON.parse(src.slice(at + 'const FALLBACK_EXAMS='.length, end)).length; } catch (e) {}
+  chk2(name + ' 예비본 시험 수가 exams.json 과 같다', n, exams.length);
 });
 
 console.log('\n결과: ' + pass + ' 일치 / ' + fail + ' 불일치');

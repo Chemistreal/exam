@@ -135,11 +135,69 @@ async function nameEncoding(browser, errs) {
   await opened.close();
 }
 
+
+/* ── 4부. 영역 레이더 · 공유 화면 정리 ─────────────────────────────── */
+async function radarAndSharedUI(browser, errs) {
+  console.log('\n── 영역 레이더 · 공유 화면 ──');
+  const teacher = await browser.newPage();
+  teacher.on('pageerror', e => errs.push('교사: ' + e.message));
+  await teacher.goto(U, { waitUntil: 'networkidle' });
+  await teacher.waitForTimeout(700);
+  const made = await teacher.evaluate(async () => {
+    localStorage.clear();
+    openExam('jmchc-4');
+    document.getElementById('nm').value = '오승민';
+    for (let q = 1; q <= cur.nQ; q++) {
+      const acc = (cur.multi && cur.multi[q]) || [cur.key[q - 1]];
+      setAns(q, acc[0] || 1);
+    }
+    for (let q = 1; q <= cur.nQ; q += 3) setAns(q, (cur.key[q - 1] % 4) + 1);
+    scoreAuto();
+    await new Promise(r => setTimeout(r, 2500));
+    const svg = [].slice.call(document.querySelectorAll('.sec svg')).find(s => s.querySelector('polygon'));
+    // `.barrow` 는 '개념(유형) 숙련도' 섹션에서도 쓰인다. 레이더가 들어 있는
+    // '영역별 성취' 섹션 안에서만 세야 축 수와 견줄 수 있다.
+    const sec = svg ? svg.closest('.sec') : null;
+    const bars = new Set(sec ? [].slice.call(sec.querySelectorAll('.barrow .ba')).map(e => e.textContent) : []);
+    return { axes: svg ? svg.querySelectorAll('text').length : 0,
+             bars: bars.size,
+             nextStudent: document.body.innerText.includes('다음 학생 입력'),
+             link: shareLinkFinal(cur, sel, '오승민', '') };
+  });
+  console.log(`  레이더 축 ${made.axes} · 아래 막대 영역 ${made.bars}`);
+  // 대분류로 접으면 1단원 시험은 축이 3개로 줄어 삼각형이 된다. 세부 영역으로
+  // 그리므로 축이 넉넉히 나와야 한다(최대 14로 자른다).
+  chk('레이더 축이 3개보다 많다', made.axes > 3, true);
+  chk('레이더 축 수가 막대 영역 수와 맞는다(최대 14)', made.axes, Math.min(14, made.bars));
+  chk('교사 화면에는 다음 학생 입력이 있다', made.nextStudent, true);
+  await teacher.close();
+
+  const shared = await browser.newPage();
+  shared.on('pageerror', e => errs.push('공유: ' + e.message));
+  await shared.goto(made.link, { waitUntil: 'networkidle' });
+  await shared.waitForTimeout(2500);
+  const seen = await shared.evaluate(() => ({
+    nextStudent: document.body.innerText.includes('다음 학생 입력'),
+    regrade: document.body.innerText.includes('다시 채점'),
+    retest: document.body.innerText.includes('동형 미니 시험지 인쇄'),
+    word: document.body.innerText.includes('성적표 Word 저장'),
+    name: (window.__rpt || {}).name || '',
+  }));
+  // 학부모·학생이 보는 화면에 채점자용 버튼이 있으면 눌러서 성적표를 잃는다
+  chk('공유 화면에는 다음 학생 입력이 없다', seen.nextStudent, false);
+  chk('공유 화면에는 다시 채점도 없다', seen.regrade, false);
+  chk('시험지 인쇄는 그대로 둔다', seen.retest, true);
+  chk('Word 저장도 그대로 둔다', seen.word, true);
+  chk('성적표 자체는 정상', seen.name, '오승민');
+  await shared.close();
+}
+
 (async () => {
   const browser = await chromium.launch({ executablePath: CHROMIUM, args: ['--no-sandbox'] });
   const errs = [];
   await cohortSnapshot(browser, errs);
   await nameEncoding(browser, errs);
+  await radarAndSharedUI(browser, errs);
   chk('JS 오류 없음', errs, []);
   await browser.close();
   console.log(fail ? `\n결과: 실패 ${fail}건` : '\n결과: 전부 통과');

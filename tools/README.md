@@ -152,7 +152,22 @@ python3 tools/dh_lint.py -v        # 통과한 시험까지 모두 출력
 
 # 8) 아무도 읽지 않는 자산 찾기 (시험 목록에서 뺀 id 의 answers/·crops/)
 python3 tools/orphan_scan.py
+
+# 9) 시험 목록을 고쳤으면 예비본을 다시 심는다 (exams.json → final*.html)
+python3 tools/gen_exam_fallback.py --write
 ```
+
+### 시험 목록은 exams.json 한 곳에서 고친다
+
+`exams.json` 이 유일한 편집 지점이다(한 줄에 시험 하나라 diff 가 읽힌다).
+`final.html`·`final-submit.html` 안의 `FALLBACK_EXAMS` 는 **거기서 생성한 예비본**이라
+손으로 고치지 않는다. 고쳤어도 CI 가 잡는다.
+
+예비본을 다시 넣은 이유가 있다. 목록을 파일 하나로 뺐더니 **그 파일이 늦게 오면
+앱 전체가 죽었다.** 배포 직후 CDN 전파 시차 때문에 성적표 링크로 들어온 학생이
+`HTTP 404` 만 보고 끝난 일이 실제로 있었다. 지금은 세 겹으로 받는다 —
+exams.json → 서비스워커 캐시 → 예비본. 학생 화면에서는 어느 경로로 왔든 차이가
+없고, `tests/exams-fallback.js` 가 404 를 흉내 내 매번 확인한다.
 
 ### CI가 매번 보는 것
 
@@ -184,6 +199,7 @@ node tests/share-link.js            # 공유 링크의 또래 통계·이름 감
 node tests/wrongbook-interactive.js # 동형문제 눌러 풀기·회복 기록
 node tests/retest-sheet.js          # 동형 미니 시험지 인쇄
 node tests/prereq-drill.js          # 선수 개념 드릴
+node tests/exams-fallback.js        # exams.json 이 404 여도 앱이 도는가
 ```
 
 `tests/offline.js` 는 **서버를 실제로 죽이고** 잰다. Playwright 의 `setOffline` 이
