@@ -18,6 +18,8 @@
    - 합친 뒤 시트에서 다시 받아도 옛 이름이 되살아나지 않는다
    - 회차별 기록을 고치고 지울 수 있다
    - 학생을 통째로 지울 수 있다(이름을 다시 받아 확인한다)
+   - 이름·학교·학년이 모두 같아야 같은 학생이다
+   - 채점을 두 번 해서 쌓인 겹친 기록을 한 줄로 줄인다
    - 백업을 내보내고 다시 들여올 수 있다
 
    실행 (먼저 저장소 루트에서 `python3 -m http.server 8931`):
@@ -47,13 +49,13 @@ const SEED = () => {
   const mk = (ex, s) => { let x = (s * 2654435761) >>> 0, a = [];
     for (let i = 0; i < ex.nQ; i++) { x = (x * 1664525 + 1013904223) >>> 0; a.push((x >>> 16) % 4 + 1); }
     return a; };
-  [['jmchc-6', [['김지성', 1], ['김지 성', 2], ['이도현', 3], ['이도헌', 4]]],
-   ['jmchc-7', [['김지성', 5], ['이도현', 6]]]].forEach(([id, people]) => {
+  [['jmchc-6', [['김지성', 'X중', 1], ['김지 성', 'X중', 2], ['이도현', 'X중', 3], ['이도헌', 'X중', 4]]],
+   ['jmchc-7', [['김지성', 'X중', 5], ['이도현', 'X중', 6]]]].forEach(([id, people]) => {
     const ex = FINAL_EXAMS.find(e => e.id === id), miss = new Set(ex.miss || []), arr = [];
-    people.forEach(([nm, s]) => {
+    people.forEach(([nm, sch, s]) => {
       const a = mk(ex, s); let c = 0, t = 0;
       for (let q = 1; q <= ex.nQ; q++) { if (miss.has(q)) continue; t++; if (okq(ex, q, a[q - 1])) c++; }
-      arr.push({ name: nm, school: 'X중', grade: '3', ts: 1700000000000 + s * 86400000,
+      arr.push({ name: nm, school: sch, grade: '3', ts: 1700000000000 + s * 86400000,
                  correct: c, total: t, wrong: t - c, ans: a });
     });
     saveSubs(id, arr);
@@ -86,7 +88,7 @@ const SEED = () => {
   chk('한 글자 차이를 짚는다', /한 글자 다름/.test(t), true);
 
   console.log('\n── 합치기 ──');
-  await page.evaluate(() => rosterMergeAt(window.__rnames.indexOf('김지 성'), window.__rnames.indexOf('김지성')));
+  await page.evaluate(() => rosterMergeAt(window.__rnames.findIndex(k => rosterLabel(k).name === '김지 성'), window.__rnames.findIndex(k => rosterLabel(k).name === '김지성')));
   await page.waitForTimeout(400);
   t = await txt();
   chk('학생이 하나로 줄었다', num(t, /학생 (\d+)명/), 3);
@@ -110,7 +112,8 @@ const SEED = () => {
 
   console.log('\n── 이름 일괄 고치기 ──');
   const renamed = await page.evaluate(() => {
-    const n = rosterApplyRename('이도현', '이도현2');
+    const key = window.__rnames.find(k => rosterLabel(k).name === '이도현');
+    const n = rosterApply(key, r => { r.name = '이도현2'; });
     return { n, six: subs('jmchc-6').map(r => r.name), seven: subs('jmchc-7').map(r => r.name) };
   });
   chk('전 회차가 함께 바뀐다', renamed.n, 2);
@@ -137,21 +140,21 @@ const SEED = () => {
     // 1) 이름을 틀리게 적으면 아무것도 안 지운다
     page.removeAllListeners('dialog');
     page.on('dialog', d => d.accept('엉뚱한이름'));
-    await page.evaluate(() => rosterDelName('김지성'));
+    await page.evaluate(() => rosterDelName(window.__rnames.find(k => rosterLabel(k).name === '김지성')));
     await page.waitForTimeout(400);
     chk('이름이 다르면 안 지운다', await page.evaluate(() => [subs('jmchc-6').length, subs('jmchc-7').length]), before);
 
     // 2) 취소하면 안 지운다
     page.removeAllListeners('dialog');
     page.on('dialog', d => d.dismiss());
-    await page.evaluate(() => rosterDelName('김지성'));
+    await page.evaluate(() => rosterDelName(window.__rnames.find(k => rosterLabel(k).name === '김지성')));
     await page.waitForTimeout(400);
     chk('취소하면 안 지운다', await page.evaluate(() => [subs('jmchc-6').length, subs('jmchc-7').length]), before);
 
     // 3) 이름을 그대로 적으면 전 회차가 없어진다
     page.removeAllListeners('dialog');
     page.on('dialog', d => d.accept('김지성'));
-    await page.evaluate(() => rosterDelName('김지성'));
+    await page.evaluate(() => rosterDelName(window.__rnames.find(k => rosterLabel(k).name === '김지성')));
     await page.waitForTimeout(600);
     const after = await page.evaluate(() => ({
       six: subs('jmchc-6').map(r => r.name), seven: subs('jmchc-7').map(r => r.name),
@@ -164,7 +167,69 @@ const SEED = () => {
     page.on('dialog', d => d.accept(d.type() === 'prompt' ? '고친이름' : undefined));
   }
 
+  /* ── 정체성: 이름 + 학교 + 학년 ────────────────────────────────────
+     선생님이 정한 규칙이다. 같은 이름이라도 학교·학년이 다르면 다른 사람이고,
+     이름만 있고 학교·학년이 비어 있으면 또 다른 사람이다. 실제 명단이
+     이렇게 갈려 있었다 — 같은 학생인데 '과천중 2학년' 줄과 '-' 줄로. */
+  console.log('\n── 이름·학교·학년이 모두 같아야 같은 학생 ──');
+  {
+    await page.evaluate(() => {
+      localStorage.clear();
+      const ex = FINAL_EXAMS.find(e => e.id === 'jmchc-1');
+      const mk = s => { let x = (s * 2654435761) >>> 0, a = [];
+        for (let i = 0; i < ex.nQ; i++) { x = (x * 1664525 + 1013904223) >>> 0; a.push((x >>> 16) % 4 + 1); }
+        return a; };
+      const row = (nm, sch, grd, s) => { const a = mk(s), miss = new Set(ex.miss || []);
+        let c = 0, t = 0;
+        for (let q = 1; q <= ex.nQ; q++) { if (miss.has(q)) continue; t++; if (okq(ex, q, a[q - 1])) c++; }
+        return { name: nm, school: sch, grade: grd, ts: 1000 + s, correct: c, total: t, wrong: t - c, ans: a }; };
+      saveSubs('jmchc-1', [
+        row('이서준', '과천중', '2', 1),   // A
+        row('이서준', '', '', 1),          // 학교·학년이 비었다 → 따로 센다 (같은 답안이라 겹침이기도 하다)
+        row('이서준', '분당중', '3', 7),   // 동명이인 → 따로
+      ]);
+    });
+    await page.evaluate(() => { location.hash = ''; location.hash = '#roster'; });
+    await page.waitForTimeout(600);
+    const t2 = await txt();
+    chk('셋으로 나뉜다', num(t2, /학생 (\d+)명/), 3);
+    chk('학교·학년 없음을 표시한다', /학교·학년 없음/.test(t2), true);
+    chk('동명이인이 안 합쳐진다', /분당중/.test(t2) && /과천중/.test(t2), true);
+    chk('학교·학년만 비어 있다고 짚어 준다', /학교·학년만 비어 있음/.test(t2), true);
+
+    /* 빈 줄은 과천중·분당중 어느 쪽일지 모르므로 둘 다 짝으로 짚는다(고르는 건
+       선생님 몫이다). 다만 **학교가 서로 다른 동명이인끼리는 절대 짝이 아니다** —
+       그 둘을 합치라고 권하면 다른 사람의 기록이 섞인다. */
+    const pairs = await page.evaluate(() => nameSuspects(window.__rnames)
+      .map(s => [rosterLabel(window.__rnames[s.ia]).where, rosterLabel(window.__rnames[s.ib]).where, s.why]));
+    chk('빈 줄은 양쪽 다 후보로 짚는다', pairs.length, 2);
+    chk('모두 같은 이유', Array.from(new Set(pairs.map(p => p[2]))), ['학교·학년만 비어 있음']);
+    chk('학교가 다른 동명이인은 짝이 아니다',
+        pairs.some(p => p[0] && p[1] && p[0] !== p[1]), false);
+  }
+
+  console.log('\n── 겹친 기록 정리 ──');
+  {
+    const before = await page.evaluate(() => ({ dup: rosterDupes().length, n: subs('jmchc-1').length }));
+    chk('겹친 묶음을 찾아낸다', before.dup, 1);
+    page.removeAllListeners('dialog');
+    page.on('dialog', d => d.accept());
+    await page.evaluate(() => rosterDedupe());
+    await page.waitForTimeout(700);
+    const after = await page.evaluate(() => ({
+      dup: rosterDupes().length,
+      rows: subs('jmchc-1').map(r => r.name + '|' + r.school + '|' + r.grade) }));
+    chk('겹침이 사라진다', after.dup, 0);
+    // 학교·학년이 적힌 줄을 남긴다 — 그 줄만이 누구인지 말해 준다
+    chk('채워진 줄을 남긴다', after.rows, ['이서준|과천중|2', '이서준|분당중|3']);
+    page.removeAllListeners('dialog');
+    page.on('dialog', d => d.accept(d.type() === 'prompt' ? '고친이름' : undefined));
+  }
+
   console.log('\n── 백업 ──');
+  // 앞 절이 localStorage 를 비우고 한 시험만 심었다. 백업은 여러 시험을 담는지
+  // 보는 것이므로 다시 심고 시작한다.
+  await page.evaluate(SEED);
   const backup = await page.evaluate(() => {
     const out = { version: 1, renames: JSON.parse(localStorage.getItem('final:renames') || '{}'), rosters: {} };
     for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i);
@@ -212,7 +277,7 @@ const SEED = () => {
       return add(el);
     };
   });
-  await page.evaluate(() => rosterApplyRename('김지성', '김지성A'));
+  await page.evaluate(() => rosterApply(window.__rnames.find(k => rosterLabel(k).name === '김지성'), r => { r.name = '김지성A'; }));
   await page.evaluate(() => sheetCall({ action: 'rename', from: '김지성', to: '김지성A' }, function () {}));
   await page.waitForTimeout(300);
   const sent = await page.evaluate(() => window.__sent.map(u => u.replace(/^[^?]*\?/, '')));

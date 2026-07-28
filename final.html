@@ -944,16 +944,76 @@ function showExamQ(id){
    기록은 이 브라우저에만 있다(localStorage). 브라우저를 지우면 사라지므로
    가끔 내보내 두는 편이 좋다.
    ══════════════════════════════════════════════════════════════════════ */
+/* 누가 같은 학생인가.
+   **이름·학교·학년이 모두 같아야 같은 학생**이다(선생님이 정한 규칙).
+   이름만 있고 학교·학년이 비어 있으면 다른 사람으로 센다 — 실제로 동명이인이
+   있고, 학교·학년이 그 둘을 가르는 유일한 단서다. */
+function rosterKey(r){
+  return [(r.name||'').trim()||'(이름 없음)', (r.school||'').trim(), (r.grade||'').trim()].join('\u0001');
+}
+function rosterLabel(key){
+  var p=String(key).split('\u0001');
+  var tail=[p[1], p[2]?p[2]+'학년':''].filter(Boolean).join(' ');
+  return {name:p[0], where:tail, full:p[0]+(tail?' · '+tail:'')};
+}
 function rosterIndex(){
   var by={}, done={};
   FINAL_EXAMS.forEach(function(e){
     var k=cohortKey(e.id); if(done[k]) return; done[k]=1;
     subs(e.id).forEach(function(r,i){
-      var nm=(r.name||'').trim()||'(이름 없음)';
-      (by[nm]=by[nm]||[]).push({exam:e,idx:i,rec:r});
+      var key=rosterKey(r);
+      (by[key]=by[key]||[]).push({exam:e,idx:i,rec:r});
     });
   });
   return by;
+}
+/* 같은 시험에서 이름과 답안이 같은 기록은 같은 응시다. 채점을 두 번 하면
+   그만큼 쌓였다(그 버그는 고쳤지만 이미 쌓인 것은 남아 있다).
+   무엇이 겹쳤는지 세기만 하고, 지우는 것은 부르는 쪽이 정한다. */
+function rosterDupes(){
+  var out=[], done={};
+  FINAL_EXAMS.forEach(function(e){
+    var k=cohortKey(e.id); if(done[k]) return; done[k]=1;
+    var arr=subs(e.id), byS={};
+    arr.forEach(function(r,i){ (byS[subSig(r)]=byS[subSig(r)]||[]).push(i); });
+    for(var sig in byS) if(byS[sig].length>1)
+      out.push({exam:e, idxs:byS[sig], name:(arr[byS[sig][0]].name||'').trim(), extra:byS[sig].length-1});
+  });
+  return out;
+}
+function rosterDedupe(){
+  var groups=rosterDupes();
+  if(!groups.length){ fToast('겹치는 기록이 없습니다'); return; }
+  var extra=groups.reduce(function(a,g){ return a+g.extra; },0);
+  var head=groups.slice(0,6).map(function(g){
+    return '· '+g.name+' — '+g.exam.title+' ('+(g.extra+1)+'줄)'; }).join('\n');
+  if(!confirm('같은 응시가 여러 줄로 쌓인 곳 '+groups.length+'군데, 지울 줄 '+extra+'개입니다.\n\n'
+     +head+(groups.length>6?('\n· …외 '+(groups.length-6)+'군데'):'')
+     +'\n\n각 묶음에서 한 줄만 남깁니다(학교·학년이 적힌 쪽 우선).\n'
+     +'구글 시트도 같이 정리합니다. 되돌릴 수 없으니 필요하면 먼저 백업을 받으세요.')) return;
+  var removed=0, done={};
+  FINAL_EXAMS.forEach(function(e){
+    var k=cohortKey(e.id); if(done[k]) return; done[k]=1;
+    var arr=subs(e.id), byS={}, keep={};
+    arr.forEach(function(r,i){ (byS[subSig(r)]=byS[subSig(r)]||[]).push(i); });
+    var hit=false;
+    for(var sig in byS){
+      var idxs=byS[sig];
+      // 학교·학년이 적힌 줄을 살린다. 없으면 가장 먼저 들어온 줄.
+      var best=idxs.slice().sort(function(x,y){
+        var rx=arr[x], ry=arr[y];
+        var fx=((rx.school||'')?1:0)+((rx.grade||'')?1:0), fy=((ry.school||'')?1:0)+((ry.grade||'')?1:0);
+        return fy-fx || (rx.ts||0)-(ry.ts||0);
+      })[0];
+      keep[best]=1;
+      if(idxs.length>1) hit=true;
+    }
+    if(!hit) return;
+    var left=arr.filter(function(r,i){ return keep[i]; });
+    removed+=arr.length-left.length; saveSubs(e.id,left);
+  });
+  fToast('겹친 기록 '+removed+'줄을 정리했습니다'); renderRoster();
+  if(removed) sheetCall({action:'dedupe'},function(res){ sheetEditToast(res,'정리했습니다'); });
 }
 // 한 글자 차이까지 본다. 두 글자 이상 다르면 다른 사람일 가능성이 크다.
 function editDist(a,b){
@@ -964,68 +1024,92 @@ function editDist(a,b){
     prev=curr.slice(); }
   return prev[n];
 }
-function nameSuspects(names){
+/* 같은 사람일 법한 두 줄을 찾는다. 셋을 본다.
+   1) 이름은 같은데 한쪽만 학교·학년이 비어 있다 — 시트에서 받아온 줄이
+      대개 이렇다. 가장 흔하고 가장 확실한 경우다.
+   2) 띄어쓰기만 다르다   3) 한 글자만 다르다 */
+function nameSuspects(keys){
   var out=[];
-  for(var i=0;i<names.length&&out.length<20;i++) for(var j=i+1;j<names.length&&out.length<20;j++){
-    var a=names[i], b=names[j];
-    if(a==='(이름 없음)'||b==='(이름 없음)') continue;
-    var A=a.replace(/\s+/g,''), B=b.replace(/\s+/g,'');
-    if(A===B){ out.push({a:a,b:b,ia:i,ib:j,why:'띄어쓰기만 다름'}); continue; }
-    if(A.length>=2&&B.length>=2&&editDist(A,B)===1) out.push({a:a,b:b,ia:i,ib:j,why:'한 글자 다름'});
+  for(var i=0;i<keys.length&&out.length<20;i++) for(var j=i+1;j<keys.length&&out.length<20;j++){
+    var A=rosterLabel(keys[i]), B=rosterLabel(keys[j]);
+    if(A.name==='(이름 없음)'||B.name==='(이름 없음)') continue;
+    if(A.name===B.name){
+      if(!A.where!==!B.where){ out.push({ia:i,ib:j,why:'학교·학년만 비어 있음'}); continue; }
+      if(A.where!==B.where) continue;          // 학교·학년이 서로 다르면 다른 사람이다
+      continue;
+    }
+    // 이름이 다르면, 학교·학년이 어긋나는 짝은 굳이 짚지 않는다
+    if(A.where&&B.where&&A.where!==B.where) continue;
+    var x=A.name.replace(/\s+/g,''), y=B.name.replace(/\s+/g,'');
+    if(x===y){ out.push({ia:i,ib:j,why:'띄어쓰기만 다름'}); continue; }
+    if(x.length>=2&&y.length>=2&&editDist(x,y)===1) out.push({ia:i,ib:j,why:'한 글자 다름'});
   }
   return out;
 }
-function rosterRenameAt(i){ var n=(window.__rnames||[])[i]; if(n) rosterRename(n); }
+/* 아래 동작들은 이름이 아니라 **정체성 열쇠**(이름+학교+학년)로 움직인다.
+   같은 이름이라도 학교·학년이 다르면 다른 사람이라 함께 바뀌면 안 된다. */
+function rosterRenameAt(i){ var k=(window.__rnames||[])[i]; if(k) rosterRename(k); }
 function rosterMergeAt(i,j){ var a=(window.__rnames||[])[i], b=(window.__rnames||[])[j]; if(a&&b) rosterMerge(a,b); }
-function rosterDelNameAt(i){ var n=(window.__rnames||[])[i]; if(n) rosterDelName(n); }
-/* 학생 한 명을 통째로 지운다. 이 앱에서 할 수 있는 가장 되돌리기 어려운 일이라
-   — 전 회차가 한꺼번에 없어지고 구글 시트에서도 지워진다 — 이름을 직접 다시
-   받아 확인한다. 눌러서 넘어가는 확인창 하나로는 손이 미끄러지면 끝이다. */
-function rosterDelName(nm){
-  var list=(rosterIndex()[nm]||[]);
+function rosterDelNameAt(i){ var k=(window.__rnames||[])[i]; if(k) rosterDelName(k); }
+// 이 열쇠에 해당하는 기록만 골라 바꾼다. 반환값은 손댄 건수.
+function rosterApply(key, fn){
+  var n=0, done={};
+  FINAL_EXAMS.forEach(function(e){
+    var ck=cohortKey(e.id); if(done[ck]) return; done[ck]=1;
+    var arr=subs(e.id), hit=false;
+    arr.forEach(function(r){ if(rosterKey(r)===key){ fn(r); hit=true; n++; } });
+    if(hit) saveSubs(e.id,arr);
+  });
+  return n;
+}
+function rosterRename(key){
+  var L=rosterLabel(key);
+  var to=prompt('"'+L.full+'" 의 이름을 어떻게 고칠까요?\n'
+    +'(학교·학년이 같은 이 학생의 모든 회차가 함께 바뀝니다)', L.name);
+  if(to===null) return;
+  to=to.trim(); if(!to||to===L.name) return;
+  var n=rosterApply(key,function(r){ r.name=to; });
+  if(n) noteRename(L.name,to);      // 시트에서 다시 받아와도 되살아나지 않게
+  fToast(n?('"'+L.name+'" → "'+to+'" · '+n+'건 고쳤습니다'):'바뀐 기록이 없습니다');
+  renderRoster();
+  // 시트에도 반영한다. 안 하면 성적문자가 옛 이름으로 나간다.
+  var kp=String(key).split('\u0001');
+  if(n) sheetCall({action:'rename',from:L.name,to:to,school:kp[1]||'',grade:kp[2]||''},
+    function(res){ sheetEditToast(res,'고쳤습니다'); });
+}
+/* 두 줄을 한 사람으로 합친다. 받는 쪽의 이름·학교·학년을 그대로 따라간다 —
+   학교·학년이 비어 있던 쪽이 채워지는 것이 대부분이다. */
+function rosterMerge(a,b){
+  var A=rosterLabel(a), B=rosterLabel(b);
+  if(!confirm('"'+A.full+'" 와 "'+B.full+'" 를 같은 학생으로 봅니다.\n\n'
+     +'앞쪽 기록을 "'+B.full+'" 로 옮깁니다.')) return;
+  var p=String(b).split('\u0001');
+  var n=rosterApply(a,function(r){ r.name=p[0]; r.school=p[1]; r.grade=p[2]; });
+  if(n && A.name!==B.name) noteRename(A.name,B.name);
+  fToast(n+'건을 "'+B.full+'" 로 합쳤습니다'); renderRoster();
+  if(n && A.name!==B.name)
+    sheetCall({action:'rename',from:A.name,to:B.name},function(res){ sheetEditToast(res,'고쳤습니다'); });
+}
+function rosterDelName(key){
+  var L=rosterLabel(key), list=(rosterIndex()[key]||[]);
   if(!list.length){ fToast('기록이 없습니다'); return; }
-  var v=prompt('"'+nm+'" 학생을 명단에서 지웁니다.\n\n'
+  var v=prompt('"'+L.full+'" 학생을 명단에서 지웁니다.\n\n'
     +'• 이 학생의 '+list.length+'개 회차 기록이 모두 없어집니다\n'
-    +'• 구글 시트의 행도 함께 지웁니다 (동명이인이 있으면 같이 지워집니다)\n'
+    +'• 구글 시트의 행도 함께 지웁니다 (같은 이름이 더 있으면 같이 지워집니다)\n'
     +'• 되돌릴 수 없습니다 — 필요하면 먼저 백업을 내려받으세요\n\n'
     +'지우려면 학생 이름을 그대로 입력하세요.');
   if(v===null) return;
-  if(v.trim()!==nm){ fToast('이름이 달라 지우지 않았습니다'); return; }
+  if(v.trim()!==L.name){ fToast('이름이 달라 지우지 않았습니다'); return; }
   var n=0, done={};
   FINAL_EXAMS.forEach(function(e){
-    var k=cohortKey(e.id); if(done[k]) return; done[k]=1;
-    var arr=subs(e.id), left=arr.filter(function(r){ return (r.name||'').trim()!==nm; });
+    var ck=cohortKey(e.id); if(done[ck]) return; done[ck]=1;
+    var arr=subs(e.id), left=arr.filter(function(r){ return rosterKey(r)!==key; });
     if(left.length!==arr.length){ n+=arr.length-left.length; saveSubs(e.id,left); }
   });
-  fToast('"'+nm+'" 기록 '+n+'건을 지웠습니다'); renderRoster();
-  if(n) sheetCall({action:'deleteName',name:nm},function(res){ sheetEditToast(res,'지웠습니다'); });
-}
-function rosterRename(from){
-  var to=prompt('"'+from+'" 를 어떤 이름으로 고칠까요?\n(이 이름으로 된 모든 회차 기록이 함께 바뀝니다)', from);
-  if(to===null) return;
-  to=to.trim(); if(!to||to===from) return;
-  var n=rosterApplyRename(from,to);
-  fToast(n?('"'+from+'" → "'+to+'" · '+n+'건 고쳤습니다'):'바뀐 기록이 없습니다');
-  renderRoster();
-  // 시트에도 반영한다. 안 하면 성적문자가 옛 이름으로 나간다.
-  if(n) sheetCall({action:'rename',from:from,to:to},function(res){ sheetEditToast(res,'고쳤습니다'); });
-}
-function rosterApplyRename(from,to){
-  var n=0, done={};
-  FINAL_EXAMS.forEach(function(e){
-    var k=cohortKey(e.id); if(done[k]) return; done[k]=1;
-    var arr=subs(e.id), hit=false;
-    arr.forEach(function(r){ if((r.name||'').trim()===from){ r.name=to; hit=true; n++; } });
-    if(hit) saveSubs(e.id,arr);
-  });
-  if(n) noteRename(from,to);      // 시트에서 다시 받아와도 되살아나지 않게
-  return n;
-}
-function rosterMerge(a,b){
-  if(!confirm('"'+a+'" 와 "'+b+'" 를 같은 학생으로 봅니다.\n"'+a+'" 기록을 "'+b+'" 로 합칠까요?')) return;
-  var n=rosterApplyRename(a,b);
-  fToast(n+'건을 "'+b+'" 로 합쳤습니다'); renderRoster();
-  if(n) sheetCall({action:'rename',from:a,to:b},function(res){ sheetEditToast(res,'고쳤습니다'); });
+  fToast('"'+L.full+'" 기록 '+n+'건을 지웠습니다'); renderRoster();
+  if(n) sheetCall({action:'deleteName',name:L.name,
+                   school:(String(key).split('\u0001')[1]||''), grade:(String(key).split('\u0001')[2]||'')},
+    function(res){ sheetEditToast(res,'지웠습니다'); });
 }
 function rosterEdit(examId,idx){
   var arr=subs(examId), r=arr[idx]; if(!r) return;
@@ -1095,27 +1179,33 @@ function rosterForgetRenames(){
   fToast('지웠습니다'); renderRoster();
 }
 function renderRoster(){
-  cur=null; sel={};
+  cur=null; sel={}; SNO=0;   // 섹션 번호를 01 부터 다시 센다
   var by=rosterIndex();
-  var names=Object.keys(by).sort(function(a,b){ return by[b].length-by[a].length || a.localeCompare(b,'ko'); });
+  var names=Object.keys(by).sort(function(a,b){
+    var A=rosterLabel(a), B=rosterLabel(b);
+    return A.name.localeCompare(B.name,'ko') || A.where.localeCompare(B.where,'ko');
+  });
   // 버튼은 이름 대신 이 목록의 색인을 넘긴다(따옴표가 든 이름에서도 안 깨진다)
   window.__rnames=names;
   var nRec=names.reduce(function(s,n){ return s+by[n].length; },0);
   var sus=nameSuspects(names);
   var rm=renameMap(), rmKeys=Object.keys(rm);
+  var dupG=rosterDupes(), dupN=dupG.reduce(function(a,g){ return a+g.extra; },0);
 
   var susHTML=sus.length?`<div class="sec">${secH('비슷한 이름 '+sus.length+'쌍')}
     <div class="sub">한 글자 차이거나 띄어쓰기만 다른 이름입니다. 같은 학생이면 합치세요 — 합쳐야 성장 추적과 숙달 추적이 이어집니다.</div>
-    ${sus.map(function(s){ return `<div class="barrow" style="gap:8px;align-items:center;margin:5px 0">
-      <span style="font-weight:700">${esc(s.a)}</span><span class="muted">(${by[s.a].length}회)</span>
+    ${sus.map(function(s){ var A=rosterLabel(names[s.ia]), B=rosterLabel(names[s.ib]);
+      return `<div class="barrow" style="gap:8px;align-items:center;margin:5px 0;flex-wrap:wrap">
+      <span style="font-weight:700">${esc(A.full)}</span><span class="muted">(${by[names[s.ia]].length}회)</span>
       <span class="muted">↔</span>
-      <span style="font-weight:700">${esc(s.b)}</span><span class="muted">(${by[s.b].length}회)</span>
+      <span style="font-weight:700">${esc(B.full)}</span><span class="muted">(${by[names[s.ib]].length}회)</span>
       <span class="pill">${esc(s.why)}</span>
-      <button class="btn ghost sm" onclick="rosterMergeAt(${s.ia},${s.ib})">${esc(s.b)} 로 합치기</button>
-      <button class="btn ghost sm" onclick="rosterMergeAt(${s.ib},${s.ia})">${esc(s.a)} 로 합치기</button>
+      <button class="btn ghost sm" onclick="rosterMergeAt(${s.ia},${s.ib})">${esc(B.full)} 로</button>
+      <button class="btn ghost sm" onclick="rosterMergeAt(${s.ib},${s.ia})">${esc(A.full)} 로</button>
       </div>`; }).join('')}</div>`:'';
 
   var rows=names.map(function(nm,ni){
+    var L=rosterLabel(nm);
     var list=by[nm].slice().sort(function(x,y){ return (x.rec.ts||0)-(y.rec.ts||0); });
     var pcts=list.map(function(v){ return v.rec.total?Math.round(v.rec.correct/v.rec.total*100):0; });
     var avg=pcts.length?Math.round(pcts.reduce(function(a,b){return a+b;},0)/pcts.length):0;
@@ -1131,7 +1221,9 @@ function renderRoster(){
     }).join('');
     return `<details style="border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin:6px 0">
       <summary style="cursor:pointer;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <b style="font-size:15px">${esc(nm)}</b>
+        <b style="font-size:15px">${esc(L.name)}</b>
+        ${L.where?`<span class="muted" style="font-size:12.5px">${esc(L.where)}</span>`
+                 :`<span class="pill" style="background:#F6EDE2;color:#8a6a3a">학교·학년 없음</span>`}
         <span class="pill">${list.length}회</span>
         <span class="muted" style="font-size:12.5px">평균 ${avg}%</span>
         <button class="btn ghost sm" style="margin-left:auto" onclick="event.preventDefault();event.stopPropagation();rosterRenameAt(${ni})">이름 고치기</button>
@@ -1146,14 +1238,26 @@ function renderRoster(){
    <h1 style="margin:6px 0 2px">명단 관리</h1>
    <div class="muted" style="margin-bottom:10px">학생 <b>${names.length}명</b> · 기록 <b>${nRec}건</b></div>
    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+     <button class="btn ghost sm" onclick="rosterDedupe()">중복 정리 ${dupN?('· '+dupN+'줄'):''}</button>
      <button class="btn ghost sm" onclick="rosterExport()">백업 내려받기 ↓</button>
      <button class="btn ghost sm" onclick="rosterImport()">백업 가져오기 ↑</button>
      <button class="btn ghost sm" onclick="syncAllFromSheet()">시트에서 불러오기 ↓</button>
    </div>
-   <div class="note">이름을 고치면 그 학생의 <b>모든 회차</b>가 함께 바뀌고, 성장 추적·숙달 추적이 다시 이어집니다.
+   <div class="note"><b>이름·학교·학년이 모두 같아야 같은 학생</b>으로 봅니다. 이름만 있고 학교·학년이 비어 있으면 따로 셉니다 — 동명이인을 가르는 단서가 그것뿐입니다.
+     이름을 고치면 그 학생의 <b>모든 회차</b>가 함께 바뀌고, 성장 추적·숙달 추적이 다시 이어집니다.
      고치거나 지운 내용은 <b>구글 시트에도 함께 반영</b>됩니다(성적문자도 다시 만들어집니다).
      <b>학생 삭제</b>는 그 학생의 전 회차를 한꺼번에 없앱니다 — 되돌릴 수 없으니 먼저 백업을 내려받으세요.
      <br>기록은 이 브라우저에도 남아 있습니다. 브라우저 데이터를 지우면 함께 사라지니 가끔 백업을 내려받아 두세요.</div>
+   ${dupN?`<div class="sec">${secH('겹친 기록 '+dupN+'줄')}
+     <div class="sub">같은 시험에서 <b>이름과 답안이 같은</b> 기록이 여러 줄 쌓여 있습니다.
+       채점을 두 번 하면 그만큼 늘어나던 문제였는데, 지금은 다시 채점해도 안 늘어납니다.
+       이미 쌓인 것만 정리하면 됩니다 — 각 묶음에서 <b>학교·학년이 적힌 줄</b>을 남깁니다.</div>
+     ${dupG.slice(0,8).map(function(g){ return `<div class="barrow" style="gap:8px;margin:4px 0">
+       <span style="font-weight:600">${esc(g.name||'(이름 없음)')}</span>
+       <span class="muted" style="font-size:12.5px">${esc(g.exam.title)}</span>
+       <span class="pill">${g.extra+1}줄</span></div>`; }).join('')}
+     ${dupG.length>8?`<div class="muted" style="font-size:12px">…외 ${dupG.length-8}군데</div>`:''}
+     <button class="btn ghost sm" style="margin-top:8px" onclick="rosterDedupe()">한 줄로 정리</button></div>`:''}
    ${susHTML}
    ${rmKeys.length?`<div class="sec">${secH('고친 이름 '+rmKeys.length+'건')}
      <div class="sub">시트에는 옛 이름 행이 그대로 남아 있습니다. '시트에서 불러오기'를 할 때 이 표대로 바꿔서 받아옵니다 — 그래야 오타가 되살아나지 않습니다.</div>
@@ -2558,8 +2662,8 @@ function subSig(r){ return (r.name||'').trim()+'|'+((r.ans||[]).join('')); }
 function mergeSheetRows(exam,rows){
   if(!rows||!rows.length) return 0;
   var arr=subs(exam.id), seen={};
-  arr.forEach(function(r){ seen[subSig(r)]=1; });
-  var added=0;
+  arr.forEach(function(r,i){ if(seen[subSig(r)]==null) seen[subSig(r)]=i; });
+  var added=0, filled=0;
   rows.forEach(function(rec){
     if(!rec||!rec.answers) return;
     var digits=String(rec.answers).replace(/[^0-4]/g,'');
@@ -2567,13 +2671,22 @@ function mergeSheetRows(exam,rows){
     var ans=digits.split('').map(Number);
     var miss=new Set(exam.miss||[]), correct=0, total=0;
     for(var q=1;q<=exam.nQ;q++){ if(miss.has(q))continue; total++; if(okq(exam,q,ans[q-1]||0))correct++; }
-    var rowRec={name:applyRename(rec.name), school:'', grade:'',
+    var rowRec={name:applyRename(rec.name), school:String(rec.school||''), grade:String(rec.grade||''),
                 ts:rec.ts||0, correct:correct, total:total, wrong:total-correct, ans:ans};
     var sig=subSig(rowRec);
-    if(seen[sig]) return;
-    seen[sig]=1; arr.push(rowRec); added++;
+    if(seen[sig]!=null){
+      /* 이미 있는 기록이다. 예전에는 그냥 넘겼는데, 그때 시트가 학교·학년을
+         안 줘서 '-' 로 들어온 줄이 영영 '-' 로 남았다. 비어 있으면 채운다. */
+      var cur0=arr[seen[sig]];
+      if(cur0 && (rowRec.school||rowRec.grade)){
+        if(!cur0.school && rowRec.school){ cur0.school=rowRec.school; filled++; }
+        if(!cur0.grade && rowRec.grade){ cur0.grade=rowRec.grade; filled++; }
+      }
+      return;
+    }
+    seen[sig]=arr.length; arr.push(rowRec); added++;
   });
-  if(added){ arr.sort(function(a,b){ return (a.ts||0)-(b.ts||0); }); saveSubs(exam.id,arr); }
+  if(added||filled){ arr.sort(function(a,b){ return (a.ts||0)-(b.ts||0); }); saveSubs(exam.id,arr); }
   return added;
 }
 /* 모든 시험을 차례로 받는다. 한 번에 다 쏘면 Apps Script 가 동시 실행을 막는다. */
@@ -3216,7 +3329,22 @@ function scoreAuto(){
   const nm=(document.getElementById('nm').value||'').trim(), sch=(document.getElementById('sch').value||'').trim(), grd=(document.getElementById('grd').value||'').trim();
   window.__rpt={name:nm,school:sch,grade:grd};
   const ans=[]; for(let q=1;q<=cur.nQ;q++) ans.push(sel[q]||0);
-  const arr=subs(cur.id); arr.push({name:nm,school:sch,grade:grd,ts:Date.now(),correct,total,wrong:W,ans}); saveSubs(cur.id,arr);
+  /* 채점할 때마다 새 기록을 쌓고 있었다. 같은 학생을 두 번 채점하면 명단에
+     두 줄이 생기고, 또래 통계 인원도 그만큼 부풀었다. 실제로 한 학생이 같은
+     회차에 네 줄까지 쌓였다.
+
+     같은 시험에서 **이름과 답안이 같으면 같은 응시**로 본다. 새로 쌓지 않고
+     그 기록을 갱신한다 — 학교·학년이 비어 있었으면 이번 값으로 채운다.
+     답안이 다르면 다시 푼 것이므로 따로 남긴다. */
+  const arr=subs(cur.id);
+  const nowRec={name:nm,school:sch,grade:grd,ts:Date.now(),correct,total,wrong:W,ans};
+  const dup=arr.findIndex(function(r){ return subSig(r)===subSig(nowRec); });
+  if(dup>=0){
+    const old=arr[dup];
+    arr[dup]={name:nm, school:sch||old.school||'', grade:grd||old.grade||'',
+              ts:old.ts||nowRec.ts, correct, total, wrong:W, ans};
+  } else arr.push(nowRec);
+  saveSubs(cur.id,arr);
   const cs=cohortStats(cur); SNO=0; window.__fw=wrong;
   saveToSheetFinal(cur,sel,correct,total,W,cs,nm,sch,grd,pct);
   app.innerHTML=`<button class="back" onclick="renderList()">‹ 시험 목록</button>

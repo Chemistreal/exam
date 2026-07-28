@@ -17,6 +17,8 @@
    - 통째로 비우는 동작이 없다 — 지우려면 반드시 행을 지목해야 한다
    - 이름 일괄 고치기와 학생 삭제는 전 시험에 닿는다
    - 한 줄 고치기·지우기는 시험+이름+답안이 **다 맞는 행만** 건드린다
+   - 학교·학년을 함께 주면 동명이인 중 한쪽만 건드린다
+   - 겹친 줄 정리는 학교·학년이 적힌 쪽을 남긴다
    - 여러 줄을 지울 때 뒤에서부터 지운다(앞에서 지우면 행 번호가 밀린다)
    - 고친 뒤 성적문자 탭을 다시 만든다
 
@@ -220,6 +222,54 @@ console.log('\n── 학생 통째로 지우기 ──');
   chk('띄엄띄엄 있어도 다 지운다', out.changed, 2);
   chk('엉뚱한 줄이 안 날아간다', sh._grid.map(r => r[1] + '|' + String(r[16]).slice(1, 2)),
       ['남을사람|2', '남을사람|1']);
+}
+
+console.log('\n── 학교·학년으로 동명이인 가르기 ──');
+{
+  /* 이름·학교·학년이 모두 같아야 같은 학생이다. school·grade 를 함께 주면
+     그 사람의 행만 건드린다 — 안 주면 동명이인까지 같이 바뀐다. */
+  const sh = fakeSheet([
+    R(T6, '이서준', '과천중', '2', A1),
+    R(T6, '이서준', '분당중', '3', A2),
+    R(T7, '이서준', '과천중', '2', A3),
+  ]);
+  const gas = load(sh);
+  const out = JSON.parse(gas.doGet({ parameter: { action: 'rename', from: '이서준', to: '이서준A',
+    school: '과천중', grade: '2' } })._t);
+  chk('그 학교·학년만 바뀐다', out.changed, 2);
+  chk('동명이인은 그대로', sh._grid.map(r => r[1] + '|' + r[6]),
+      ['이서준A|과천중', '이서준|분당중', '이서준A|과천중']);
+}
+{
+  const sh = fakeSheet([
+    R(T6, '이서준', '과천중', '2', A1),
+    R(T6, '이서준', '분당중', '3', A2),
+  ]);
+  const gas = load(sh);
+  const out = JSON.parse(gas.doGet({ parameter: { action: 'deleteName', name: '이서준',
+    school: '분당중', grade: '3' } })._t);
+  chk('지정한 학생만 지운다', out.changed, 1);
+  chk('남는 쪽', sh._grid.map(r => r[6]), ['과천중']);
+}
+
+console.log('\n── 겹친 줄 정리 ──');
+{
+  /* 채점을 두 번 하면 같은 응시가 두 줄로 쌓였다. 시험+이름+답안이 같으면
+     같은 응시로 보고 한 줄만 남긴다 — 학교·학년이 적힌 쪽을 살린다. */
+  const sh = fakeSheet([
+    R(T6, '이서준', '', '', A1),          // 학교·학년이 빈 줄
+    R(T6, '이서준', '과천중', '2', A1),   // 같은 응시, 채워진 줄
+    R(T6, '이서준', '과천중', '2', A2),   // 답안이 다르다 → 다른 응시
+    R(T7, '이서준', '', '', A1),          // 시험이 다르다 → 다른 응시
+  ]);
+  const gas = load(sh);
+  const out = JSON.parse(gas.doGet({ parameter: { action: 'dedupe' } })._t);
+  chk('한 줄만 지운다', out.changed, 1);
+  chk('채워진 줄을 남긴다', sh._grid.map(r => r[0].slice(-2) + '|' + r[6] + '|' + String(r[16]).slice(1, 2)),
+      ['6회|과천중|1', '6회|과천중|2', '7회||1']);
+  chk('성적문자를 다시 만든다', sh._rebuilt(), 1);
+  const again = JSON.parse(gas.doGet({ parameter: { action: 'dedupe' } })._t);
+  chk('두 번 돌려도 더 안 지운다', again.changed, 0);
 }
 
 console.log('\n── 읽기 ──');

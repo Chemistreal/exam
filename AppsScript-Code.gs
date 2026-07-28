@@ -178,6 +178,11 @@ function doGet(e) {
             examno: r[4] || '',
             date: date,
             name: String(r[1] || ''),
+            // 학교·학년을 안 돌려주고 있었다. 그래서 시트에서 받아온 기록은
+            // 명단에서 학교·학년이 비어 '-' 로 뜨고, 같은 학생인데 다른 사람처럼
+            // 보였다. 시트에는 처음부터 들어 있던 값이다.
+            school: String(r[6] || ''),
+            grade: String(r[7] || ''),
             answers: ans,
             ts: (r[3] instanceof Date) ? r[3].getTime() : 0   // 저장시각
           });
@@ -196,8 +201,13 @@ function doGet(e) {
      시트가 계속 틀린 채로 있으면 성적문자도 옛 이름으로 나간다.
 
      그래서 시트를 직접 고칠 창구를 연다.
-       ?action=rename&from=..&to=..            이름 일괄(전 시험)
-       ?action=deleteName&name=..              그 학생의 전 회차 삭제
+       ?action=rename&from=..&to=..[&school=..&grade=..]   이름 일괄(전 시험)
+       ?action=deleteName&name=..[&school=..&grade=..]     그 학생의 전 회차 삭제
+       ?action=dedupe                                      겹친 줄 정리
+
+     school·grade 를 함께 주면 그 학교·학년인 행만 고른다. 동명이인이 있을 때
+     한쪽만 건드리기 위한 것이다(이름·학교·학년이 모두 같아야 같은 학생이다).
+     주지 않으면 이름만 보고 고른다.
        ?action=editRow&exam=..&name=..&answers=..&setName=..&setSchool=..&setGrade=..
        ?action=deleteRow&exam=..&name=..&answers=..
 
@@ -207,7 +217,7 @@ function doGet(e) {
      열쇠는 두지 않는다(선생님 요청). URL 을 아는 사람은 누구나 부를 수 있다.
      대신 행을 **정확히 지목**해야만 바뀐다 — 시험·이름·답안이 하나라도 어긋나면
      0건이다. 통째로 비우는 동작은 아예 만들지 않았다. */
-  if (p.action === 'rename' || p.action === 'editRow' || p.action === 'deleteRow' || p.action === 'deleteName') {
+  if (p.action === 'rename' || p.action === 'editRow' || p.action === 'deleteRow' || p.action === 'deleteName' || p.action === 'dedupe') {
     var body = JSON.stringify(_sheetEdit(p));
     return cb
       ? ContentService.createTextOutput(cb + '(' + body + ')').setMimeType(ContentService.MimeType.JAVASCRIPT)
@@ -232,19 +242,49 @@ function _sheetEdit(p) {
     /* 학생 한 명을 통째로 지운다. 전학·중복 등록처럼 그 사람의 기록 자체를
        없애야 할 때 쓴다. 이름만으로 고르므로 **동명이인이 있으면 함께 지워진다** —
        앱 쪽에서 몇 건이 지워지는지 미리 보여 주고, 이름을 다시 받아 확인한다. */
-    if (p.action === 'deleteName') {
+    /* 같은 사람인지 가리는 자리. school·grade 를 주면 함께 본다. */
+    var wantS = p.school == null ? null : String(p.school).trim();
+    var wantG = p.grade == null ? null : String(p.grade).trim();
+    var sameWho = function (row, nm) {
+      if (String(row[1] || '').trim() !== nm) return false;
+      if (wantS !== null && String(row[6] || '').trim() !== wantS) return false;
+      if (wantG !== null && String(row[7] || '').trim() !== wantG) return false;
+      return true;
+    };
+
+    /* 같은 응시가 여러 줄로 쌓인 것을 한 줄로 줄인다. 열쇠는 시험+이름+답안.
+       학교·학년이 적힌 줄을 살린다 — 그 줄이 누구인지 말해 주기 때문이다. */
+    if (p.action === 'dedupe') {
+      var all = sheet.getRange(2, 1, n, HEADER.length).getValues();
+      var seen = {}, drop = [];
+      var sig = function (r) {
+        return String(r[0]) + '\u0001' + String(r[1] || '').trim() + '\u0001' +
+               String(r[16] == null ? '' : r[16]).replace(/^'/, '').replace(/[^0-4]/g, '');
+      };
+      var score = function (r) { return ((r[6] ? 1 : 0) + (r[7] ? 1 : 0)); };
+      for (var d = 0; d < n; d++) {
+        var key = sig(all[d]);
+        if (seen[key] === undefined) { seen[key] = d; continue; }
+        // 더 잘 채워진 쪽을 남기고 나머지를 버린다
+        if (score(all[d]) > score(all[seen[key]])) { drop.push(seen[key] + 2); seen[key] = d; }
+        else drop.push(d + 2);
+        changed++;
+      }
+      drop.sort(function (x, y) { return x - y; });
+      for (var dd = drop.length - 1; dd >= 0; dd--) sheet.deleteRow(drop[dd]);
+    } else if (p.action === 'deleteName') {
       var who = String(p.name || '').trim();
       if (!who) return { ok: false, error: 'bad-args' };
-      var col2 = sheet.getRange(2, 2, n, 1).getValues(), gone = [];
-      for (var g = 0; g < n; g++) if (String(col2[g][0] || '').trim() === who) { gone.push(g + 2); changed++; }
+      var rowsD = sheet.getRange(2, 1, n, HEADER.length).getValues(), gone = [];
+      for (var g = 0; g < n; g++) if (sameWho(rowsD[g], who)) { gone.push(g + 2); changed++; }
       // 뒤에서부터. 앞에서 지우면 남은 행 번호가 밀린다.
       for (var gg = gone.length - 1; gg >= 0; gg--) sheet.deleteRow(gone[gg]);
     } else if (p.action === 'rename') {
       var from = String(p.from || '').trim(), to = String(p.to || '').trim();
       if (!from || !to || from === to) return { ok: false, error: 'bad-args' };
-      // 이름 열만 통째로 읽고 한 번에 쓴다. 한 칸씩 쓰면 행이 많을 때 느리다.
+      var rowsR = sheet.getRange(2, 1, n, HEADER.length).getValues();
       var col = sheet.getRange(2, 2, n, 1).getValues();
-      for (var i = 0; i < n; i++) if (String(col[i][0] || '').trim() === from) { col[i][0] = to; changed++; }
+      for (var i = 0; i < n; i++) if (sameWho(rowsR[i], from)) { col[i][0] = to; changed++; }
       if (changed) sheet.getRange(2, 2, n, 1).setValues(col);
     } else {
       var want = EXAM_TITLES[p.exam] || null;
