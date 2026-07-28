@@ -197,6 +197,7 @@ function doGet(e) {
 
      그래서 시트를 직접 고칠 창구를 연다.
        ?action=rename&from=..&to=..            이름 일괄(전 시험)
+       ?action=deleteName&name=..              그 학생의 전 회차 삭제
        ?action=editRow&exam=..&name=..&answers=..&setName=..&setSchool=..&setGrade=..
        ?action=deleteRow&exam=..&name=..&answers=..
 
@@ -206,7 +207,7 @@ function doGet(e) {
      열쇠는 두지 않는다(선생님 요청). URL 을 아는 사람은 누구나 부를 수 있다.
      대신 행을 **정확히 지목**해야만 바뀐다 — 시험·이름·답안이 하나라도 어긋나면
      0건이다. 통째로 비우는 동작은 아예 만들지 않았다. */
-  if (p.action === 'rename' || p.action === 'editRow' || p.action === 'deleteRow') {
+  if (p.action === 'rename' || p.action === 'editRow' || p.action === 'deleteRow' || p.action === 'deleteName') {
     var body = JSON.stringify(_sheetEdit(p));
     return cb
       ? ContentService.createTextOutput(cb + '(' + body + ')').setMimeType(ContentService.MimeType.JAVASCRIPT)
@@ -228,7 +229,17 @@ function _sheetEdit(p) {
     if (!sheet || sheet.getLastRow() < 2) return { ok: true, changed: 0 };
     var n = sheet.getLastRow() - 1, changed = 0;
 
-    if (p.action === 'rename') {
+    /* 학생 한 명을 통째로 지운다. 전학·중복 등록처럼 그 사람의 기록 자체를
+       없애야 할 때 쓴다. 이름만으로 고르므로 **동명이인이 있으면 함께 지워진다** —
+       앱 쪽에서 몇 건이 지워지는지 미리 보여 주고, 이름을 다시 받아 확인한다. */
+    if (p.action === 'deleteName') {
+      var who = String(p.name || '').trim();
+      if (!who) return { ok: false, error: 'bad-args' };
+      var col2 = sheet.getRange(2, 2, n, 1).getValues(), gone = [];
+      for (var g = 0; g < n; g++) if (String(col2[g][0] || '').trim() === who) { gone.push(g + 2); changed++; }
+      // 뒤에서부터. 앞에서 지우면 남은 행 번호가 밀린다.
+      for (var gg = gone.length - 1; gg >= 0; gg--) sheet.deleteRow(gone[gg]);
+    } else if (p.action === 'rename') {
       var from = String(p.from || '').trim(), to = String(p.to || '').trim();
       if (!from || !to || from === to) return { ok: false, error: 'bad-args' };
       // 이름 열만 통째로 읽고 한 번에 쓴다. 한 칸씩 쓰면 행이 많을 때 느리다.

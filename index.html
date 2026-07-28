@@ -874,6 +874,79 @@ body{background:radial-gradient(130% 90% at 50% -12%,#FCFAF4 0%,var(--paper-soft
 <style>.print-gloss{display:none}@media print{.print-gloss{display:block!important;margin-top:12px;font-size:11px;color:#555;line-height:1.65}}</style>
 </head>
 <body>
+<script>
+/* ── 첫 화면 잠금 ──────────────────────────────────────────────────────
+   이 페이지는 GitHub Pages 에 그대로 올라간다. 주소만 알면 아무나 들어와
+   학생 이름과 점수를 볼 수 있어서, 들어올 때 코드를 한 번 묻는다.
+
+   **이것은 암호가 아니다.** 소스 보기를 누르면 코드가 그대로 보인다. 지나가다
+   눌러 보는 사람을 막는 문고리이지, 잠그는 자물쇠가 아니다. 이 페이지에
+   진짜 비밀이 실려서는 안 된다는 뜻이다.
+
+   학부모에게 보낸 성적표 링크(#r=…)는 묻지 않고 통과시킨다. 그 링크는
+   주소 자체가 열쇠이고, 여기서 막으면 학부모가 못 본다.
+
+   한 번 맞히면 이 브라우저에 기억해 둔다(90일). 지우려면 콘솔에서
+   localStorage.removeItem('chemistreal:gate') 를 실행한다. */
+(function () {
+  var KEY = 'chemistreal:gate', CODE = '0000', DAYS = 90;
+  function passed() {
+    try {
+      var v = localStorage.getItem(KEY);
+      if (!v) return false;
+      return (Date.now() - Number(v)) < DAYS * 864e5;
+    } catch (e) { return false; }
+  }
+  // 학부모 성적표 링크는 그대로 열어 준다
+  if (/[#&]r=/.test(location.hash) || passed()) return;
+
+  var wrap = document.createElement('div');
+  wrap.id = 'gate';
+  wrap.innerHTML =
+    '<div class="gate__box">' +
+    '<div class="gate__logo">CHEMISTREAL</div>' +
+    '<div class="gate__t">조준모 화학</div>' +
+    '<div class="gate__s">이어서 보려면 코드를 입력하세요.</div>' +
+    '<input class="gate__i" id="gateIn" type="tel" inputmode="numeric" maxlength="12" ' +
+    'autocomplete="off" placeholder="････" aria-label="접속 코드">' +
+    '<button class="gate__b" id="gateGo">들어가기</button>' +
+    '<div class="gate__e" id="gateErr"></div></div>';
+  var css = document.createElement('style');
+  css.textContent =
+    '#gate{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;' +
+    'background:linear-gradient(160deg,#0E5A4C 0%,#0b3f36 55%,#08241f 100%);font-family:system-ui,-apple-system,"Malgun Gothic",sans-serif}' +
+    '.gate__box{width:min(320px,86vw);text-align:center;color:#F4F1E8}' +
+    '.gate__logo{font-size:11px;letter-spacing:3px;opacity:.72;margin-bottom:14px}' +
+    '.gate__t{font-size:25px;font-weight:800;letter-spacing:-.4px}' +
+    '.gate__s{font-size:13px;opacity:.75;margin:7px 0 20px}' +
+    '.gate__i{width:100%;box-sizing:border-box;padding:13px 14px;font-size:19px;text-align:center;' +
+    'letter-spacing:7px;border:1px solid rgba(255,255,255,.28);border-radius:11px;' +
+    'background:rgba(255,255,255,.08);color:#fff;outline:none}' +
+    '.gate__i:focus{border-color:rgba(255,255,255,.6);background:rgba(255,255,255,.13)}' +
+    '.gate__b{width:100%;margin-top:11px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;' +
+    'border:0;border-radius:11px;background:#F4F1E8;color:#0E5A4C}' +
+    '.gate__b:active{transform:translateY(1px)}' +
+    '.gate__e{min-height:19px;margin-top:11px;font-size:13px;color:#F3B8A4}';
+  document.head.appendChild(css);
+  document.body.appendChild(wrap);
+  document.documentElement.style.overflow = 'hidden';
+
+  var input = document.getElementById('gateIn'), err = document.getElementById('gateErr');
+  function open() {
+    try { localStorage.setItem(KEY, String(Date.now())); } catch (e) {}
+    wrap.remove(); document.documentElement.style.overflow = '';
+  }
+  function tryOpen() {
+    if (input.value.trim() === CODE) { open(); return; }
+    err.textContent = '코드가 맞지 않습니다.';
+    input.value = ''; input.focus();
+  }
+  document.getElementById('gateGo').addEventListener('click', tryOpen);
+  input.addEventListener('keydown', function (e) { if (e.key === 'Enter') tryOpen(); });
+  input.addEventListener('input', function () { err.textContent = ''; });
+  setTimeout(function () { try { input.focus(); } catch (e) {} }, 60);
+})();
+</script>
 
 <header class="top no-print">
   <div class="top__in">

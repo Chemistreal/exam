@@ -17,6 +17,7 @@
    - 합치면 전 회차가 한 사람으로 묶인다
    - 합친 뒤 시트에서 다시 받아도 옛 이름이 되살아나지 않는다
    - 회차별 기록을 고치고 지울 수 있다
+   - 학생을 통째로 지울 수 있다(이름을 다시 받아 확인한다)
    - 백업을 내보내고 다시 들여올 수 있다
 
    실행 (먼저 저장소 루트에서 `python3 -m http.server 8931`):
@@ -124,6 +125,45 @@ const SEED = () => {
   });
   chk('한 건만 지워진다', [del.before, del.after], [2, 1]);
 
+  console.log('\n── 학생 통째로 지우기 ──');
+  {
+    // 이 앱에서 가장 되돌리기 어려운 동작이라 이름을 다시 받아 확인한다.
+    // 확인창을 눌러 넘기는 것만으로는 지워지면 안 된다.
+    await page.evaluate(SEED);
+    await page.evaluate(() => { location.hash = ''; location.hash = '#roster'; });
+    await page.waitForTimeout(500);
+    const before = await page.evaluate(() => [subs('jmchc-6').length, subs('jmchc-7').length]);
+
+    // 1) 이름을 틀리게 적으면 아무것도 안 지운다
+    page.removeAllListeners('dialog');
+    page.on('dialog', d => d.accept('엉뚱한이름'));
+    await page.evaluate(() => rosterDelName('김지성'));
+    await page.waitForTimeout(400);
+    chk('이름이 다르면 안 지운다', await page.evaluate(() => [subs('jmchc-6').length, subs('jmchc-7').length]), before);
+
+    // 2) 취소하면 안 지운다
+    page.removeAllListeners('dialog');
+    page.on('dialog', d => d.dismiss());
+    await page.evaluate(() => rosterDelName('김지성'));
+    await page.waitForTimeout(400);
+    chk('취소하면 안 지운다', await page.evaluate(() => [subs('jmchc-6').length, subs('jmchc-7').length]), before);
+
+    // 3) 이름을 그대로 적으면 전 회차가 없어진다
+    page.removeAllListeners('dialog');
+    page.on('dialog', d => d.accept('김지성'));
+    await page.evaluate(() => rosterDelName('김지성'));
+    await page.waitForTimeout(600);
+    const after = await page.evaluate(() => ({
+      six: subs('jmchc-6').map(r => r.name), seven: subs('jmchc-7').map(r => r.name),
+      text: document.body.innerText }));
+    chk('jmchc-6 에서 없어졌다', after.six.indexOf('김지성'), -1);
+    chk('jmchc-7 에서도 없어졌다', after.seven.indexOf('김지성'), -1);
+    chk('남의 기록은 그대로', after.six, ['김지 성', '이도현', '이도헌']);
+    chk('학생 수가 줄었다', Number((after.text.match(/학생 (\d+)명/) || [])[1]), 3);
+    page.removeAllListeners('dialog');
+    page.on('dialog', d => d.accept(d.type() === 'prompt' ? '고친이름' : undefined));
+  }
+
   console.log('\n── 백업 ──');
   const backup = await page.evaluate(() => {
     const out = { version: 1, renames: JSON.parse(localStorage.getItem('final:renames') || '{}'), rosters: {} };
@@ -136,11 +176,15 @@ const SEED = () => {
     const empty = subs('jmchc-6').length;
     const data = JSON.parse(saved);
     Object.keys(data.rosters).forEach(id => saveSubs(id, data.rosters[id]));
-    return { ids: Object.keys(out.rosters).length, empty, back: subs('jmchc-6').length };
+    // 앞 단계들이 기록을 지우고 고쳤으므로 개수를 고정해 두면 안 된다.
+    // 백업 직전 상태로 돌아왔는지를 본다.
+    return { ids: Object.keys(out.rosters).length, empty,
+             was: (out.rosters['jmchc-6'] || []).length, back: subs('jmchc-6').length };
   });
   chk('백업에 시험이 담긴다', backup.ids >= 2, true);
   chk('지우면 비워진다', backup.empty, 0);
-  chk('되돌리면 돌아온다', backup.back, 4);
+  chk('되돌리면 그대로 돌아온다', backup.back, backup.was);
+  chk('되돌린 뒤 비어 있지 않다', backup.back > 0, true);
 
   console.log('\n── 목록에서 들어갈 수 있다 ──');
   await page.goto(BASE, { waitUntil: 'networkidle' });
