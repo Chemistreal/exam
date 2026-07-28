@@ -16,54 +16,18 @@
  * [중요] 열 순서를 바꿨다. 기존 '성적기록' 탭이 있으면 한 번 비우거나 삭제한 뒤
  *        새로 저장해야 새 머리글이 적용된다(안 그러면 옛 순서와 섞임).
  *
- * [보안] 이 파일은 공개 저장소(github.com/Chemistreal/exam)에 그대로 올라가고,
- *        머지되면 자동 배포까지 된다. 그래서 열쇠를 이 코드에 적으면 안 된다 —
- *        적는 순간 열쇠가 아니다. 스크립트 속성에 넣어 두고 여기서는 읽기만 한다.
+ * [접근] 열쇠(동기화 키)는 두지 않는다. 선생님 요청으로 없앴다.
+ *        **이 웹앱 URL 을 아는 사람은 누구나** 학생 이름·학교·점수를 읽고,
+ *        행을 고치거나 지울 수 있다. 아는 것이 곧 권한이다.
  *
- *        열쇠를 정하는 방법 (한 번만):
- *          1) Apps Script 편집기에서 아래 `열쇠설정` 함수의 따옴표 안에 원하는
- *             값을 넣고 한 번 실행한다. 실행이 끝나면 그 줄을 다시 비운다
- *             (저장소에 올라가지 않도록). 또는
- *          2) 편집기 왼쪽 ⚙ 프로젝트 설정 > 스크립트 속성 > 속성 추가에서
- *             이름 `SECRET`, 값에 원하는 열쇠를 직접 넣는다.
- *          3) 앱의 "동기화 키" 버튼에 같은 값을 1회 입력한다.
- *
- *        열쇠가 비어 있으면 **이 URL 을 아는 사람은 누구나 학생 이름·학교·점수를
- *        읽고 쓸 수 있다.** 그 상태에서는 응답에 warning 을 실어 알린다.
+ *        그래도 남는 울타리:
+ *          - URL 은 배포마다 달라지는 긴 무작위 문자열이고, 공개된 곳에 적혀 있지
+ *            않다. 이것 하나가 유일한 장벽이다.
+ *          - 고치기·지우기는 시험 + 이름 + 답안이 **다 맞는 행**만 건드린다.
+ *            지나가다 누른다고 통째로 날아가지는 않는다.
+ *          - 배포 URL 이 새 나갔다고 판단되면 Apps Script 편집기에서 **새로 배포**해
+ *            URL 을 바꾸고, 앱의 SHEET_ENDPOINT 를 그 값으로 고치면 된다.
  */
-
-/* 열쇠는 코드가 아니라 스크립트 속성에서 온다. 한 번 읽어 두고 재사용한다
-   (doPost 가 매번 부르는 자리라 속성 조회를 반복하지 않는다). */
-var _SECRET_CACHE = null;
-function _secret() {
-  if (_SECRET_CACHE === null) {
-    try {
-      _SECRET_CACHE = PropertiesService.getScriptProperties().getProperty('SECRET') || '';
-    } catch (e) {
-      _SECRET_CACHE = '';
-    }
-  }
-  return _SECRET_CACHE;
-}
-
-/* 편집기에서 한 번 실행해 열쇠를 정한다. 실행 뒤 따옴표 안을 다시 비운다. */
-function 열쇠설정() {
-  var value = '';           // ← 여기에 열쇠를 넣고 실행한 뒤, 다시 비운다
-  if (!value) {
-    Logger.log('따옴표 안에 열쇠를 넣고 다시 실행하세요. 지금 상태: ' +
-               (_secret() ? '열쇠 설정됨' : '열쇠 없음(누구나 접근 가능)'));
-    return;
-  }
-  PropertiesService.getScriptProperties().setProperty('SECRET', value);
-  _SECRET_CACHE = null;
-  Logger.log('열쇠를 저장했습니다. 이제 이 함수의 따옴표 안을 다시 비우고 저장하세요.');
-}
-
-/* 지금 열쇠가 걸려 있는지만 확인한다(값은 찍지 않는다). */
-function 열쇠확인() {
-  Logger.log(_secret() ? '열쇠 설정됨 — 키를 가진 요청만 통과합니다'
-                       : '열쇠 없음 — URL 을 아는 누구나 읽고 쓸 수 있습니다');
-}
 
 /* 동기화 시 '시험' 열로 거르기 위한 시험 id → 제목 매핑.
  * 저장(doPost)은 시험 제목을, 동기화(doGet)는 시험 id를 보내므로 이 표가 필요하다.
@@ -127,23 +91,6 @@ var HEADER = [
   '맞은개수', '영역별 득점', '답안(60)'
 ];
 
-function _keyOk(provided) {
-  var secret = _secret();
-  if (!secret) return true;          // 열쇠 미설정 — 통과시키되 응답에 warning 을 싣는다
-  return String(provided || '') === secret;
-}
-
-/* 열쇠가 없으면 응답에 경고를 얹는다. 조용히 열려 있는 것이 가장 나쁘다 —
-   열쇠를 안 걸었다는 사실 자체를 잊어버리기 때문이다. */
-function _warn(payload) {
-  if (!_secret()) {
-    payload.warning = '동기화 열쇠가 설정돼 있지 않습니다. 이 URL 을 아는 누구나 ' +
-                      '학생 이름·학교·점수를 읽고 쓸 수 있습니다. Apps Script 편집기에서 ' +
-                      '열쇠설정() 을 한 번 실행하세요.';
-  }
-  return payload;
-}
-
 function doPost(e) {
   var lock = null;
   try {
@@ -160,11 +107,6 @@ function doPost(e) {
     }
 
     var d = JSON.parse(e.postData.contents);
-    if (!_keyOk(d.key)) {
-      return ContentService
-        .createTextOutput(JSON.stringify({ ok: false, error: 'unauthorized' }))
-        .setMimeType(ContentService.MimeType.JSON);
-    }
     sheet.appendRow([
       d.exam, d.name, d.link || '', new Date(), d.examno, d.date, d.school, d.grade,
       d.total, d.max, d.pct100, d.percentile, d.rank, d.n,
@@ -184,7 +126,7 @@ function doPost(e) {
     try { fillReportMessages(); } catch (eM) { Logger.log('자동 문자 생성 실패(저장은 완료): ' + eM); }
 
     return ContentService
-      .createTextOutput(JSON.stringify(_warn({ ok: true })))
+      .createTextOutput(JSON.stringify({ ok: true }))
       .setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
     return ContentService
@@ -211,12 +153,6 @@ function doGet(e) {
   var p = (e && e.parameter) || {};
   var cb = p.callback;
   if (p.action === 'list') {
-    if (!_keyOk(p.key)) {
-      var deny = JSON.stringify({ ok: false, error: 'unauthorized' });
-      return cb
-        ? ContentService.createTextOutput(cb + '(' + deny + ')').setMimeType(ContentService.MimeType.JAVASCRIPT)
-        : ContentService.createTextOutput(deny).setMimeType(ContentService.MimeType.JSON);
-    }
     var students = [];
     try {
       // 제목은 바뀐다('화올 2018' → 'KMChC 2018'). 시트에 이미 쌓인 옛 이름을
@@ -248,7 +184,7 @@ function doGet(e) {
         }
       }
     } catch (err) {}
-    var out = JSON.stringify(_warn({ ok: true, students: students }));
+    var out = JSON.stringify({ ok: true, students: students });
     return cb
       ? ContentService.createTextOutput(cb + '(' + out + ')').setMimeType(ContentService.MimeType.JAVASCRIPT)
       : ContentService.createTextOutput(out).setMimeType(ContentService.MimeType.JSON);
@@ -267,25 +203,16 @@ function doGet(e) {
      행을 고르는 열쇠는 앱이 쓰는 것과 같다 — 시험 + 이름 + 답안.
      저장시각은 기기마다 달라 쓸 수 없다.
 
-     **행을 지우고 고치는 일이라 열쇠 없이는 받지 않는다.** 읽기는 열쇠가
-     없어도 경고만 얹고 통과시키지만(하위호환), 쓰기까지 열어 두면 URL 을
-     아는 누구나 남의 성적을 지울 수 있다. */
+     열쇠는 두지 않는다(선생님 요청). URL 을 아는 사람은 누구나 부를 수 있다.
+     대신 행을 **정확히 지목**해야만 바뀐다 — 시험·이름·답안이 하나라도 어긋나면
+     0건이다. 통째로 비우는 동작은 아예 만들지 않았다. */
   if (p.action === 'rename' || p.action === 'editRow' || p.action === 'deleteRow') {
-    var res;
-    if (!_secret()) {
-      res = { ok: false, error: 'no-secret',
-              message: '동기화 열쇠가 없어 시트 수정을 받지 않습니다. Apps Script 편집기에서 열쇠설정() 을 한 번 실행하세요.' };
-    } else if (!_keyOk(p.key)) {
-      res = { ok: false, error: 'unauthorized' };
-    } else {
-      res = _sheetEdit(p);
-    }
-    var body = JSON.stringify(res);
+    var body = JSON.stringify(_sheetEdit(p));
     return cb
       ? ContentService.createTextOutput(cb + '(' + body + ')').setMimeType(ContentService.MimeType.JAVASCRIPT)
       : ContentService.createTextOutput(body).setMimeType(ContentService.MimeType.JSON);
   }
-  var status = JSON.stringify(_warn({ ok: true, msg: 'Chemistreal endpoint live' }));
+  var status = JSON.stringify({ ok: true, msg: 'Chemistreal endpoint live' });
   return cb
     ? ContentService.createTextOutput(cb + '(' + status + ')').setMimeType(ContentService.MimeType.JAVASCRIPT)
     : ContentService.createTextOutput(status).setMimeType(ContentService.MimeType.JSON);

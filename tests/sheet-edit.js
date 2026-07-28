@@ -8,9 +8,13 @@
    그래서 시트를 직접 고치는 창구를 열었다. 행을 지우는 일이 섞이므로
    조심할 곳이 많다.
 
+   열쇠(동기화 키)는 선생님 요청으로 없앴다. **이 URL 을 아는 사람은 누구나**
+   읽고 쓴다. 그러면 남는 안전장치는 "행을 정확히 지목해야만 바뀐다" 하나뿐이라,
+   지목이 얼마나 정확한지가 훨씬 중요해졌다.
+
    여기서 지키는 것:
-   - **열쇠 없이는 아무것도 안 바꾼다.** 읽기는 열쇠가 없어도 통과시키지만
-     (하위호환), 쓰기까지 열면 URL 을 아는 누구나 남의 성적을 지울 수 있다.
+   - 열쇠 흔적이 남아 있지 않다(반만 지워 조용히 막히는 상태가 가장 나쁘다)
+   - 통째로 비우는 동작이 없다 — 지우려면 반드시 행을 지목해야 한다
    - 이름 일괄 고치기는 전 시험에 닿는다
    - 한 줄 고치기·지우기는 시험+이름+답안이 **다 맞는 행만** 건드린다
    - 여러 줄을 지울 때 뒤에서부터 지운다(앞에서 지우면 행 번호가 밀린다)
@@ -60,7 +64,7 @@ function fakeSheet(rows) {
   return sheet;
 }
 
-function load(sheet, secret) {
+function load(sheet) {
   const gas = {
     Logger: { log() {} },
     SpreadsheetApp: {
@@ -73,7 +77,7 @@ function load(sheet, secret) {
       createTextOutput: t => ({ _t: t, setMimeType() { return this; } }),
     },
     Utilities: {}, Session: { getScriptTimeZone: () => 'Asia/Seoul' },
-    PropertiesService: { getScriptProperties: () => ({ getProperty: () => secret }) },
+    PropertiesService: { getScriptProperties: () => ({ getProperty: () => '' }) },
   };
   vm.createContext(gas);
   vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'AppsScript-Code.gs'), 'utf8'), gas);
@@ -98,44 +102,63 @@ const seed = () => [
 ];
 const names = sh => sh._grid.map(r => r[1]);
 
-console.log('── 열쇠 없으면 아무것도 안 바꾼다 ──');
+console.log('── 열쇠 없이 통한다 ──');
 {
   const sh = fakeSheet(seed());
-  const gas = load(sh, '');                    // 열쇠 미설정
-  const out = JSON.parse(gas.doGet({ parameter: { action: 'deleteRow', exam: 'jmchc-6', name: '김지 성', answers: A1 } })._t);
-  chk('거부한다', out.error, 'no-secret');
-  chk('안내를 준다', /열쇠설정/.test(out.message || ''), true);
-  chk('행이 그대로', sh._grid.length, 4);
+  const gas = load(sh);
+  const out = JSON.parse(gas.doGet({ parameter: { action: 'rename', from: '김지 성', to: '김지성' } })._t);
+  chk('키 없이 고쳐진다', [out.ok, out.changed], [true, 3]);
 }
 {
+  // 열쇠를 반만 지우면 최악이다 — 앱은 키를 안 보내는데 시트만 요구해서
+  // 아무 반응 없이 실패한다. 코드에 흔적이 남았는지 본다.
+  const src = fs.readFileSync(path.join(__dirname, '..', 'AppsScript-Code.gs'), 'utf8');
+  chk('_keyOk 가 없다', /_keyOk/.test(src), false);
+  chk('SECRET 을 읽지 않는다', /getProperty\(\s*'SECRET'\s*\)/.test(src), false);
+  chk('unauthorized 응답이 없다', /'unauthorized'/.test(src), false);
+}
+
+console.log('\n── 지목하지 않으면 아무것도 안 지운다 ──');
+{
+  // 열쇠가 없어진 뒤로는 이것이 유일한 안전장치다.
   const sh = fakeSheet(seed());
-  const gas = load(sh, 'S3CRET');
-  const out = JSON.parse(gas.doGet({ parameter: { action: 'rename', from: '김지 성', to: '김지성', key: '틀린키' } })._t);
-  chk('키가 틀리면 거부', out.error, 'unauthorized');
-  chk('이름이 안 바뀐다', names(sh)[0], '김지 성');
+  const gas = load(sh);
+  const noName = JSON.parse(gas.doGet({ parameter: { action: 'deleteRow', exam: 'jmchc-6', answers: A1 } })._t);
+  chk('이름 없이는 못 지운다', noName.error, 'bad-args');
+  const noAns = JSON.parse(gas.doGet({ parameter: { action: 'deleteRow', exam: 'jmchc-6', name: '김지 성' } })._t);
+  chk('답안 없이는 못 지운다', noAns.error, 'bad-args');
+  const wrong = JSON.parse(gas.doGet({ parameter: { action: 'deleteRow', exam: 'jmchc-6', name: '김지 성',
+    answers: '4'.repeat(60) } })._t);
+  chk('답안이 어긋나면 0건', wrong.changed, 0);
+  chk('행이 하나도 안 없어졌다', sh._grid.length, 4);
+  // '전부 지우기' 같은 동작을 실수로도 만들지 않았는지
+  chk('시트를 통째로 비우는 동작이 없다',
+      /clearContents|deleteRows\(|clear\(\)/.test(
+        fs.readFileSync(path.join(__dirname, '..', 'AppsScript-Code.gs'), 'utf8')
+          .split('function _sheetEdit')[1].split('\nfunction ')[0]), false);
 }
 
 console.log('\n── 이름 일괄 고치기 ──');
 {
   const sh = fakeSheet(seed());
-  const gas = load(sh, 'S3CRET');
-  const out = JSON.parse(gas.doGet({ parameter: { action: 'rename', from: '김지 성', to: '김지성', key: 'S3CRET' } })._t);
+  const gas = load(sh);
+  const out = JSON.parse(gas.doGet({ parameter: { action: 'rename', from: '김지 성', to: '김지성' } })._t);
   chk('3건 고쳤다', [out.ok, out.changed], [true, 3]);
   chk('전 시험에 닿는다', names(sh), ['김지성', '이도현', '김지성', '김지성']);
   chk('남의 이름은 그대로', names(sh)[1], '이도현');
   chk('성적문자를 다시 만든다', sh._rebuilt(), 1);
-  const none = JSON.parse(gas.doGet({ parameter: { action: 'rename', from: '없는사람', to: 'X', key: 'S3CRET' } })._t);
+  const none = JSON.parse(gas.doGet({ parameter: { action: 'rename', from: '없는사람', to: 'X' } })._t);
   chk('없는 이름이면 0건', none.changed, 0);
-  const bad = JSON.parse(gas.doGet({ parameter: { action: 'rename', from: '김지성', to: '', key: 'S3CRET' } })._t);
+  const bad = JSON.parse(gas.doGet({ parameter: { action: 'rename', from: '김지성', to: '' } })._t);
   chk('빈 이름으로는 못 바꾼다', bad.error, 'bad-args');
 }
 
 console.log('\n── 한 줄 고치기 ──');
 {
   const sh = fakeSheet(seed());
-  const gas = load(sh, 'S3CRET');
+  const gas = load(sh);
   const out = JSON.parse(gas.doGet({ parameter: { action: 'editRow', exam: 'jmchc-6', name: '김지 성',
-    answers: A1, setName: '김지성', setSchool: '대원국제중', setGrade: '3', key: 'S3CRET' } })._t);
+    answers: A1, setName: '김지성', setSchool: '대원국제중', setGrade: '3' } })._t);
   chk('한 줄만 바뀐다', out.changed, 1);
   chk('그 줄이 바뀌었다', [sh._grid[0][1], sh._grid[0][6], sh._grid[0][7]], ['김지성', '대원국제중', '3']);
   chk('같은 이름·다른 답안은 그대로', sh._grid[2][1], '김지 성');
@@ -145,9 +168,9 @@ console.log('\n── 한 줄 고치기 ──');
 console.log('\n── 한 줄 지우기 ──');
 {
   const sh = fakeSheet(seed());
-  const gas = load(sh, 'S3CRET');
+  const gas = load(sh);
   const out = JSON.parse(gas.doGet({ parameter: { action: 'deleteRow', exam: 'jmchc-6', name: '김지 성',
-    answers: A1, key: 'S3CRET' } })._t);
+    answers: A1 } })._t);
   chk('한 줄만 지운다', [out.changed, sh._grid.length], [1, 3]);
   chk('남은 줄', names(sh), ['이도현', '김지 성', '김지 성']);
   chk('다른 시험 줄은 살아 있다', sh._grid[2][0], T7);
@@ -157,9 +180,9 @@ console.log('\n── 한 줄 지우기 ──');
   // 지워야 한다 — 앞에서 지우면 남은 행 번호가 밀려 엉뚱한 줄이 날아간다.
   const rows = seed(); rows.splice(2, 0, R(T6, '김지 성', 'X중', '2', A1));
   const sh = fakeSheet(rows);
-  const gas = load(sh, 'S3CRET');
+  const gas = load(sh);
   const out = JSON.parse(gas.doGet({ parameter: { action: 'deleteRow', exam: 'jmchc-6', name: '김지 성',
-    answers: A1, key: 'S3CRET' } })._t);
+    answers: A1 } })._t);
   chk('겹친 두 줄을 지운다', out.changed, 2);
   /* 이름만 보면 안 된다. 앞에서부터 지우면 남은 줄이 밀려 **다른 답안의
      같은 이름** 줄이 날아가는데, 이름 목록만 비교하면 그게 안 걸린다.
@@ -168,13 +191,13 @@ console.log('\n── 한 줄 지우기 ──');
       ['이도현|2', '김지 성|3', '김지 성|1']);
 }
 
-console.log('\n── 읽기는 예전 그대로 ──');
+console.log('\n── 읽기 ──');
 {
   const sh = fakeSheet(seed());
-  const gas = load(sh, '');                     // 열쇠 없어도 목록은 준다(하위호환)
+  const gas = load(sh);
   const out = JSON.parse(gas.doGet({ parameter: { action: 'list', exam: 'jmchc-6' } })._t);
-  chk('목록은 열쇠 없이도 나온다', out.ok, true);
-  chk('경고를 얹는다', /열쇠/.test(out.warning || ''), true);
+  chk('목록이 나온다', out.ok, true);
+  chk('열쇠 경고는 이제 없다', out.warning, undefined);
 }
 
 console.log(fail ? `\n실패 ${fail}건` : '\n전부 통과');

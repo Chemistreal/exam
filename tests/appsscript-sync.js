@@ -107,14 +107,20 @@ const COHORT_ALIAS = JSON.parse(
   chk('옛 시험 제목도 그대로 맞다', wrongTitle, []);
 }
 
-/* ── 5. 열쇠는 코드에 적혀 있으면 안 된다 ──
-   이 파일은 공개 저장소에 올라가고 머지되면 자동 배포된다. */
+/* ── 5. 열쇠는 없앴다 ──
+   선생님 요청으로 동기화 키를 없앴다. 이 URL 을 아는 사람은 누구나 읽고 쓴다.
+   그렇다면 **어중간하게 남은 흔적이 없어야** 한다 — 검사만 남고 실제로는 안
+   막는다거나, 반대로 앱은 키를 안 보내는데 시트만 요구해서 조용히 실패하는
+   상태가 가장 나쁘다. 양쪽이 함께 없는지 본다. */
 {
-  const hardcoded = /var\s+SECRET\s*=\s*['"][^'"]+['"]/.test(gs);
-  chk('SECRET 이 코드에 하드코딩돼 있지 않음', hardcoded, false);
-  chk('스크립트 속성에서 열쇠를 읽는다',
-    /getScriptProperties\(\)\.getProperty\(\s*'SECRET'\s*\)/.test(gs), true);
-  chk('열쇠가 없으면 응답에 경고를 싣는다', /payload\.warning\s*=/.test(gs), true);
+  chk('열쇠 검사 함수가 없다', /function\s+_keyOk/.test(gs), false);
+  chk('스크립트 속성 SECRET 을 읽지 않는다', /getProperty\(\s*'SECRET'\s*\)/.test(gs), false);
+  chk('열쇠 설정 함수가 없다', /function\s+열쇠설정/.test(gs), false);
+  chk('앱도 키를 보내지 않는다', /fSyncKey\s*\(/.test(html), false);
+  chk('앱에 동기화 키 버튼이 없다', /setSyncKey\(\)"/.test(html), false);
+  // 그래도 이 파일이 공개 저장소에 올라간다는 사실은 그대로다
+  chk('코드에 비밀값을 새로 박아 두지 않았다',
+    /(var|const)\s+(SECRET|TOKEN|PASSWORD)\s*=\s*['"][^'"]+['"]/.test(gs), false);
 }
 
 console.log('\n결과: ' + pass + ' pass / ' + fail + ' fail');
