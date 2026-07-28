@@ -15,7 +15,7 @@
    여기서 지키는 것:
    - 열쇠 흔적이 남아 있지 않다(반만 지워 조용히 막히는 상태가 가장 나쁘다)
    - 통째로 비우는 동작이 없다 — 지우려면 반드시 행을 지목해야 한다
-   - 이름 일괄 고치기는 전 시험에 닿는다
+   - 이름 일괄 고치기와 학생 삭제는 전 시험에 닿는다
    - 한 줄 고치기·지우기는 시험+이름+답안이 **다 맞는 행만** 건드린다
    - 여러 줄을 지울 때 뒤에서부터 지운다(앞에서 지우면 행 번호가 밀린다)
    - 고친 뒤 성적문자 탭을 다시 만든다
@@ -189,6 +189,37 @@ console.log('\n── 한 줄 지우기 ──');
      실제로 그렇게 짜 놓고 검사가 통과하는 것을 보았다. 답안까지 본다. */
   chk('엉뚱한 줄이 안 날아간다', sh._grid.map(r => r[1] + '|' + String(r[16]).slice(1, 2)),
       ['이도현|2', '김지 성|3', '김지 성|1']);
+}
+
+console.log('\n── 학생 통째로 지우기 ──');
+{
+  const sh = fakeSheet(seed());
+  const gas = load(sh);
+  const bad = JSON.parse(gas.doGet({ parameter: { action: 'deleteName' } })._t);
+  chk('이름 없이는 못 지운다', bad.error, 'bad-args');
+  chk('행이 그대로', sh._grid.length, 4);
+  const out = JSON.parse(gas.doGet({ parameter: { action: 'deleteName', name: '김지 성' } })._t);
+  // 시험을 가리지 않는다 — 그 사람의 기록을 전부 없애는 동작이다
+  chk('전 시험에서 지운다', out.changed, 3);
+  chk('남는 것은 남의 기록뿐', sh._grid.map(r => r[1]), ['이도현']);
+  chk('성적문자를 다시 만든다', sh._rebuilt(), 1);
+  const none = JSON.parse(gas.doGet({ parameter: { action: 'deleteName', name: '없는사람' } })._t);
+  chk('없는 이름이면 0건', none.changed, 0);
+  chk('0건일 때 행이 그대로', sh._grid.length, 1);
+}
+{
+  // 여기서도 뒤에서부터 지워야 한다. 앞에서 지우면 남은 행이 밀린다.
+  const sh = fakeSheet([
+    R(T6, '지울사람', 'X중', '2', A1),
+    R(T6, '남을사람', 'Y중', '3', A2),
+    R(T7, '지울사람', 'X중', '2', A3),
+    R(T7, '남을사람', 'Y중', '3', A1),
+  ]);
+  const gas = load(sh);
+  const out = JSON.parse(gas.doGet({ parameter: { action: 'deleteName', name: '지울사람' } })._t);
+  chk('띄엄띄엄 있어도 다 지운다', out.changed, 2);
+  chk('엉뚱한 줄이 안 날아간다', sh._grid.map(r => r[1] + '|' + String(r[16]).slice(1, 2)),
+      ['남을사람|2', '남을사람|1']);
 }
 
 console.log('\n── 읽기 ──');
