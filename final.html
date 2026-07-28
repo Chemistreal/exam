@@ -1054,7 +1054,6 @@ function renderRoster(){
    </div>
    <div class="note">이름을 고치면 그 학생의 <b>모든 회차</b>가 함께 바뀌고, 성장 추적·숙달 추적이 다시 이어집니다.
      고치거나 지운 내용은 <b>구글 시트에도 함께 반영</b>됩니다(성적문자도 다시 만들어집니다).
-     시트 수정은 <b>동기화 키가 있어야</b> 받습니다 — 키가 없으면 이 브라우저만 바뀌고 시트는 그대로입니다.
      <br>기록은 이 브라우저에도 남아 있습니다. 브라우저 데이터를 지우면 함께 사라지니 가끔 백업을 내려받아 두세요.</div>
    ${susHTML}
    ${rmKeys.length?`<div class="sec">${secH('고친 이름 '+rmKeys.length+'건')}
@@ -1103,7 +1102,7 @@ function renderList(){
   const groups={}; FINAL_EXAMS.forEach(e=>{(groups[e.group]=groups[e.group]||[]).push(e)});
   const order=['JMChC','동형','산과염기','2026','2025','2024','이전'];
   const GLAB={'JMChC':['JMChC 모의고사','60문항 · 영역·개념'],'동형':['기출동형 모의고사','영역·개념'],'산과염기':['산·염기 60제','영역·개념']};
-  let h=`<div style="display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap;margin:2px 0 8px"><button class="btn ghost sm" onclick="location.hash='#roster'">명단 관리 ⚙</button><button class="btn ghost sm" onclick="syncAllFromSheet()">시트에서 불러오기 ↓</button><button class="btn ghost sm" onclick="setSyncKey()">동기화 키</button><button class="btn ghost sm" onclick="toggleCsLink()" title="성적표 링크에 또래 통계를 실을지. 끄면 주소가 짧아지는 대신 학부모 쪽에서 백분위·문항 정답률이 빠집니다.">또래 통계 링크 ${csLinkOn()?'켬':'끔'}</button><button class="btn ghost sm" onclick="copyStudentLink()">학생 제출 링크 복사 ⧉</button></div><div class="note">기출을 답안 입력만 하면 자동 채점하고 <b>수상권 + 영역·개념 진단</b>으로 분석합니다. 만점 대상 · 4틀림까지 금상 · 9틀림까지 은상 · 13틀림까지 동상 · 18틀림까지 장려상, 다음 등급까지 2문제 이내면 '○○권'. 응시가 누적되면 백분위·문항 정답률·선택지 분석이 더해집니다.</div>`;
+  let h=`<div style="display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap;margin:2px 0 8px"><button class="btn ghost sm" onclick="location.hash='#roster'">명단 관리 ⚙</button><button class="btn ghost sm" onclick="syncAllFromSheet()">시트에서 불러오기 ↓</button><button class="btn ghost sm" onclick="toggleCsLink()" title="성적표 링크에 또래 통계를 실을지. 끄면 주소가 짧아지는 대신 학부모 쪽에서 백분위·문항 정답률이 빠집니다.">또래 통계 링크 ${csLinkOn()?'켬':'끔'}</button><button class="btn ghost sm" onclick="copyStudentLink()">학생 제출 링크 복사 ⧉</button></div><div class="note">기출을 답안 입력만 하면 자동 채점하고 <b>수상권 + 영역·개념 진단</b>으로 분석합니다. 만점 대상 · 4틀림까지 금상 · 9틀림까지 은상 · 13틀림까지 동상 · 18틀림까지 장려상, 다음 등급까지 2문제 이내면 '○○권'. 응시가 누적되면 백분위·문항 정답률·선택지 분석이 더해집니다.</div>`;
   order.forEach(g=>{ if(!groups[g])return;
     const gl=GLAB[g]||['KMChC '+(g==='이전'?'이전 연도':g+'년'),'자동 채점'];
     h+=`<div class="grp">${gl[0]}<span class="gt">${gl[1]}</span></div><div class="cards">`;
@@ -2393,14 +2392,10 @@ async function exportReportHTML(){
   setTimeout(function(){URL.revokeObjectURL(url);},1500);
 }
 const SHEET_ENDPOINT='https://script.google.com/macros/s/AKfycbxGmSCkip0cQCyOH_JA2SiAMSxri00XObLmHyXlyXwxhG7u7w-x0FH02VN4DQySiUsv9Q/exec';
-function fSyncKey(){ try{ return localStorage.getItem('chemistreal:synckey')||''; }catch(e){ return ''; } }
-function setSyncKey(){
-  var now=fSyncKey();
-  var v=prompt('동기화 키를 입력하세요.\nApps Script 의 스크립트 속성 SECRET 과 똑같이 맞춰야 합니다.\n(이 브라우저에만 저장되고 저장소에는 들어가지 않습니다)', now);
-  if(v===null) return;
-  try{ localStorage.setItem('chemistreal:synckey', v.trim()); }catch(e){}
-  fToast(v.trim()?'동기화 키를 저장했습니다':'동기화 키를 비웠습니다');
-}
+/* 동기화 키는 없앴다(선생님 요청). 시트는 이 주소를 아는 누구에게나 열려 있다.
+   유일한 울타리는 주소 자체가 길고 공개된 곳에 적혀 있지 않다는 것뿐이다.
+   새 나갔다고 판단되면 Apps Script 에서 새로 배포해 주소를 바꾸고
+   위 SHEET_ENDPOINT 를 그 값으로 고치면 된다. */
 /* ── 구글 시트에서 응시 기록 내려받기 ─────────────────────────────────────
    지금까지 시트는 **쓰기 전용**이었다(no-cors POST). 기록이 시트에 쌓여도 앱은
    그걸 다시 읽지 않으니, 또래 통계의 모집단은 늘 '이 브라우저에서 채점한
@@ -2423,7 +2418,6 @@ function sheetCall(params,onDone){
   window[cb]=function(res){ done=true; cleanup(); onDone(res||{}); };
   sc.onerror=function(){ if(!done){ cleanup(); onDone({error:'시트 연결 실패 — 배포·권한을 확인하세요'}); } };
   var qs=[]; for(var k in params) if(params[k]!=null) qs.push(k+'='+encodeURIComponent(params[k]));
-  qs.push('key='+encodeURIComponent(fSyncKey()));
   qs.push('callback='+cb);
   sc.src=SHEET_ENDPOINT+(SHEET_ENDPOINT.indexOf('?')>=0?'&':'?')+qs.join('&');
   document.body.appendChild(sc);
@@ -2433,9 +2427,7 @@ function sheetFetch(examId,onDone){ sheetCall({action:'list',exam:examId},onDone
 /* 시트 쪽 결과를 사람 말로. 열쇠가 없으면 시트는 수정을 아예 받지 않는다. */
 function sheetEditToast(res,what){
   if(!res||res.error){
-    if(res&&res.error==='no-secret') fToast('시트는 그대로입니다 — Apps Script 에서 열쇠설정() 을 한 번 실행하세요');
-    else if(res&&res.error==='unauthorized') fToast('시트 반영 실패 — 동기화 키가 시트와 다릅니다');
-    else fToast('시트 반영 실패 — '+((res&&res.error)||'응답 없음'));
+    fToast('시트 반영 실패 — '+((res&&res.error)||'응답 없음'));
     return false;
   }
   fToast(res.changed? ('시트에도 '+res.changed+'건 '+what) : '시트에는 해당 행이 없었습니다');
@@ -2677,7 +2669,7 @@ function saveToSheetFinal(cur,sel,correct,total,W,cs,nm,sch,grd,pct){
   const ans=[]; for(let q=1;q<=cur.nQ;q++) ans.push(sel[q]||0);
   let perc='', rnk=''; try{ const _rp=rankPool(cur,cs);
     if(_rp.ready){ perc=percentile(_rp.pool,correct); rnk=rankIn(_rp.pool,correct)+'/'+_rp.N; } }catch(e){}
-  const payload={ key:fSyncKey(), name:nm||'', examno:'', school:sch||'', grade:grd||'',
+  const payload={ name:nm||'', examno:'', school:sch||'', grade:grd||'',
     date:new Date().toISOString().slice(0,10), exam:cur.title,
     total:correct, max:total, pct100:pct,
     percentile: perc===''?'':+(+perc).toFixed(1), rank:rnk, n:(cs&&cs.N)||'',

@@ -173,7 +173,6 @@ function saveDraft(){ try{ if(!cur)return;
 }catch(e){} }
 function loadDraft(id){ try{ return JSON.parse(localStorage.getItem(draftKey(id))||'null'); }catch(e){ return null; } }
 function clearDraft(id){ try{ localStorage.removeItem(draftKey(id)); }catch(e){} }
-function fSyncKey(){ try{ return localStorage.getItem('chemistreal:synckey')||''; }catch(e){ return ''; } }
 function toast(m){ let t=document.getElementById('toast'); if(!t){t=document.createElement('div');t.id='toast';t.className='toast';document.body.appendChild(t);} t.textContent=m; t.classList.add('on'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('on'),2600); }
 function shareLink(cur,sel,nm,exno){ return location.origin+location.pathname.replace(/[^/]*$/,'final.html')+'#'+hashStrFinal(cur,sel,nm,exno); }
 
@@ -291,7 +290,7 @@ function submitAns(){
   const ans=[]; for(let q=1;q<=nQ;q++) ans.push(sel[q]||0);
 
   // ── 시트 payload (final.html saveToSheetFinal과 동일 형식 · 학교 채움) ──
-  const payload={ key:fSyncKey(), name:nm, examno:'', school:sch, grade:grd,
+  const payload={ name:nm, examno:'', school:sch, grade:grd,
     date:new Date().toISOString().slice(0,10), exam:cur.title,
     total:correct, max:total, pct100:pct,
     percentile:'', rank:'', n:'',
