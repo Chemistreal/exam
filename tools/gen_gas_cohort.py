@@ -13,18 +13,24 @@
 
 무엇이 들어가는가
 -----------------
-회차 **제목** → `{ q: 문항 수, base: [원점수…] }`
+회차 **제목** → `{ q: 문항 수, base: [맞은 문항 수…] }`
 
 시트는 시험을 제목으로 구분하므로(doPost 가 `d.exam = cur.title` 로 보낸다) 키가
 제목이다. 제목은 바뀌므로('화올 2018' → 'KMChC 2018') EXAM_TITLES 와 **같은
 별칭 목록**을 써서 옛 제목에도 같은 설정을 달아 둔다. 안 그러면 옛 이름으로
 쌓인 행이 있는 회차는 재계산이 통째로 건너뛴다.
 
-`base` 는 앱이 쓰는 것과 **같은 기준 응시 기록**이다(cohort/baseline.json).
-앱은 맞은 문항 수로 세고 시트는 원점수로 세므로 3을 곱해 둔다. JMChC 는
-오답 감점이 없어(finalPenalty=0) 원점수가 정확히 맞은 문항 수 × 3 이다.
-이게 어긋나면 화면의 석차와 문자의 석차가 서로 다른 말을 한다.
-감점이 있는 회차는 그 등식이 깨지므로 기준 기록을 싣지 않는다.
+`base` 는 앱이 쓰는 것과 **같은 기준 응시 기록**이고, 단위도 같아야 한다 —
+**맞은 문항 수**다.
+
+[한 번 틀렸던 곳] 시트의 9번째 열 이름이 '원점수' 라서 원점수(180점 만점)인
+줄 알고 3을 곱해 넣었다. 그런데 final.html 이 보내는 값은 `total: correct`,
+즉 **맞은 문항 수**다(열 이름만 '원점수'다). 3을 곱한 기준 기록과 맞은 문항
+수로 저장된 학생을 한 줄에 세우면 학생이 무조건 꼴찌가 된다 — 화면은 3/15,
+문자는 12/15 라고 말했다. 단위가 어긋나면 조용히 틀린 숫자가 나간다.
+
+'조준모의고사 0회'(J0_BASE_TOTALS)만 원점수 단위다. 그건 옛 index.html 이
+원점수를 보내던 시험이라 그대로 둔다 — 회차가 다르니 섞이지 않는다.
 
 기준 기록이 없는 회차도 `base: []` 로 표에 넣는다. 문항 수(q)가 필요하고,
 표에 없으면 재계산이 통째로 건너뛰기 때문이다(50문항 회차가 6개 있다).
@@ -37,7 +43,6 @@
 from __future__ import annotations
 
 import json
-import re
 import sys
 from pathlib import Path
 
@@ -49,39 +54,38 @@ GS = ROOT / "AppsScript-Code.gs"
 BEGIN = "var EXAM_COHORT = {"
 END = "};"
 
-PER_Q = 3          # 문항당 배점
+def check_unit() -> None:
+    """final.html 이 시트로 보내는 값이 아직도 '맞은 문항 수' 인지 확인한다.
 
-
-def no_penalty_groups() -> set[str]:
-    """final.html 의 finalPenalty 가 0 을 주는 그룹. 한쪽만 고치면 어긋나므로 읽어 온다."""
+    이 한 줄이 바뀌면(예: 감점 반영 원점수를 보내도록) 기준 기록의 단위도 같이
+    바꿔야 한다. 말없이 어긋나면 석차가 통째로 틀리므로 여기서 멈춘다."""
     source = (ROOT / "final.html").read_text(encoding="utf-8")
-    line = re.search(r"function finalPenalty\(exam\)\{[^}]*\}", source)
-    if not line:
-        raise SystemExit("final.html 에서 finalPenalty 를 찾지 못했다.")
-    groups = set(re.findall(r"g===?'([^']+)'", line.group(0)))
-    if not groups:
-        raise SystemExit("finalPenalty 에서 감점 없는 그룹을 읽지 못했다.")
-    return groups
+    if "total:correct,max:total" not in source.replace(" ", ""):
+        raise SystemExit(
+            "final.html 이 시트로 보내는 값의 형태가 바뀌었다.\n"
+            "  기준 기록(base)은 '맞은 문항 수' 단위다. payload 의 total 이 무엇인지\n"
+            "  확인하고 단위를 맞춘 뒤 이 검사를 갱신해야 한다.")
 
 
 def build() -> dict[str, dict]:
+    check_unit()
     exams = json.loads((ROOT / "exams.json").read_text(encoding="utf-8"))
     base_path = ROOT / "cohort" / "baseline.json"
     base = json.loads(base_path.read_text(encoding="utf-8"))["exams"] if base_path.exists() else {}
     titles = build_titles()
-    free = no_penalty_groups()
 
     out: dict[str, dict] = {}
     for exam in exams:
         scores: list[int] = []
         rec = base.get(exam["id"])
         if rec:
-            if exam.get("group") not in free:
-                # 감점이 있는 회차는 원점수 ≠ 맞은 문항 수 × 3 이라 그대로 못 쓴다.
-                print(f"  ! 기준 기록을 건너뜀(감점 있는 회차): {exam['id']}", file=sys.stderr)
+            # 채점 제외 문항이 있으면 앱은 그 문항을 빼고 세는데 기준 기록은 전
+            # 문항으로 셌다 — 단위가 어긋나므로 싣지 않는다.
+            if exam.get("miss"):
+                print(f"  ! 기준 기록을 건너뜀(채점 제외 문항 있음): {exam['id']}", file=sys.stderr)
             else:
                 for correct, count in sorted(rec["hist"].items(), key=lambda kv: int(kv[0])):
-                    scores += [int(correct) * PER_Q] * int(count)
+                    scores += [int(correct)] * int(count)
         for title in titles.get(exam["id"], [exam["title"]]):
             out[title] = {"q": exam["nQ"], "base": scores}
     return out

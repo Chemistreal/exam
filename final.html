@@ -1367,6 +1367,21 @@ function updateProg(){ if(!cur)return; const miss=new Set(cur.miss||[]); let tot
   const w=document.getElementById('progWarn'); if(w)w.textContent=done>=tot?'완료':(tot-done)+'문항 남음'; }
 function clearSel(){ sel={}; if(cur){ for(let q=1;q<=cur.nQ;q++){ const el=document.getElementById('ai_'+q); if(el){ el.value=''; el.classList.remove('filled'); } } } updateProg(); const f0=document.getElementById('ai_1'); if(f0)f0.focus(); }
 // ===== 누적 코호트 통계 =====
+/* 한 학생은 한 명으로 센다.
+   같은 학생을 두 번 채점하면(오타를 고치고 다시 채점하는 일이 흔하다) 답안이
+   조금이라도 다르면 기록이 두 줄 남는다. 통계가 그 둘을 각각 세면 또래 인원이
+   부풀고, 시트는 학생별 최신 1건만 세므로 **화면 14명 · 문자 13명**이 된다.
+   같은 학생인지는 이름·학교·학년으로 본다(rosterKey — 선생님이 정한 규칙,
+   시트의 _whoKey 와 같다). 여러 벌이면 가장 최근 것을 남긴다. */
+function latestPerStudent(arr){
+  var by={}, order=[];
+  arr.forEach(function(r){
+    var k=rosterKey(r);
+    if(!(k in by)){ by[k]=r; order.push(k); return; }
+    if((r.ts||0)>=(by[k].ts||0)) by[k]=r;
+  });
+  return order.map(function(k){ return by[k]; });
+}
 function cleanCohort(exam,arr){
   const clean=[], flagged=[]; const seen=new Set();
   arr.forEach(r=>{ const ans=r.ans; let bad=null;
@@ -1405,7 +1420,8 @@ async function loadBaseline(){
     if(r.ok){ var j=await r.json(); if(j&&j.exams) BASELINE=j.exams; } }catch(e){}
 }
 function baselineTotals(examId){
-  var e=BASELINE&&BASELINE[examId]; if(!e||!e.hist) return null;
+  // subs() 와 같은 키를 쓴다. 한쪽만 별칭을 따르면 같은 시험인데 모집단이 갈린다.
+  var e=BASELINE&&BASELINE[cohortKey(examId)]; if(!e||!e.hist) return null;
   var out=[]; for(var k in e.hist){ var s=+k, c=e.hist[k]|0; for(var i=0;i<c;i++) out.push(s); }
   return out.length?out:null;
 }
@@ -1436,7 +1452,7 @@ function rankIn(pool,my){ return pool.filter(function(t){return t>my;}).length+1
    온전한 892문항에서 그 회차의 채점과 앱의 채점 규칙이 같은 답을 내는지
    확인했고(tools/gen_cohort_baseline.py), 한 문항도 어긋나지 않았다. */
 function mergeBaselineQ(exam,cs){
-  var b=BASELINE&&BASELINE[exam&&exam.id];
+  var b=BASELINE&&BASELINE[cohortKey(exam&&exam.id)];
   if(!b||!b.qc||!cs||!cs.percReady||!cs.qcnt) return cs;
   var bn=b.n|0; if(!bn) return cs;
   var locN=cs.N|0, N=locN+bn, miss=new Set(exam.miss||[]);
@@ -1445,7 +1461,11 @@ function mergeBaselineQ(exam,cs){
     if(miss.has(q)){ qp.push(null); qopt.push(null); qcnt.push(null); continue; }
     var lc=cs.qcnt[q-1]||[0,0,0,0], bq=(b.q&&b.q[q-1])||null;
     var cnt=bq?[lc[0]+bq[0], lc[1]+bq[1], lc[2]+bq[2], lc[3]+bq[3]]:[lc[0],lc[1],lc[2],lc[3]];
-    var den=bq?N:locN;                       // 선택 분포가 없는 문항은 지금 응시자만
+    /* 분모는 그 문항의 분포에 실제로 들어간 사람 수다. 엑셀이 '모두정답' 등으로
+       덮어쓴 칸은 기준 기록에서 빠져 있어 bq 의 합이 b.n 보다 작을 수 있다.
+       b.n 으로 나누면 없는 사람을 분모에 넣는 셈이라 비율이 낮게 나온다.
+       분포가 통째로 없는 문항(bq=null)은 지금 응시자만 센다. */
+    var den=bq?(locN+bq[0]+bq[1]+bq[2]+bq[3]+(bq[4]|0)):locN;
     qcnt.push(cnt);
     qopt.push(den?cnt.map(function(x){ return Math.round(x/den*100); }):null);
     var acc=accSet(exam,q), lcorr=0;
@@ -1477,12 +1497,12 @@ function cohortStats(exam){
     // baseline.json 이 아직 안 왔을 때 합쳐진 결과가 굳어 버리면 안 된다.
     if(window.__csLink.parsed) return mergeBaselineQ(exam,window.__csLink.parsed);
   }
-  const _raw=subs(exam.id).filter(r=>r.ans&&r.ans.length===exam.nQ); const _cc=cleanCohort(exam,_raw); const arr=_cc.clean; const N=arr.length; const _flag=_cc.flagged.length;
+  const _raw=latestPerStudent(subs(exam.id).filter(r=>r.ans&&r.ans.length===exam.nQ)); const _cc=cleanCohort(exam,_raw); const arr=_cc.clean; const N=arr.length; const _flag=_cc.flagged.length;
   const miss=new Set(exam.miss||[]); const totals=arr.map(r=>r.correct);
   /* 기준 기록이 있으면 이 브라우저에 아무도 없어도 실측으로 간다 — 첫 학생을
      채점하기 전부터 또래 정답률이 나온다. N=0 이면 아래에서 나오는 비율은
      의미가 없지만, 그 값은 mergeBaselineQ 가 사람 수로 다시 계산해 덮는다. */
-  const _hasBQ=!!(BASELINE&&BASELINE[exam.id]&&BASELINE[exam.id].qc);
+  const _hasBQ=!!(BASELINE&&BASELINE[cohortKey(exam.id)]&&BASELINE[cohortKey(exam.id)].qc);
   if(N>=MINP||_hasBQ){
     const qp=[], qopt=[], qdisc=[], qcnt=[];   // qcnt: 반올림 전 원본 사람 수(공유 링크가 쓴다)
     const idxSorted=arr.map((r,i)=>({i,t:r.correct})).sort((a,b)=>b.t-a.t);
@@ -1534,7 +1554,7 @@ function legendHTML(W,cut){const a=award(W,cut);const r=cut.map((c,i)=>i===0?'0'
   let ch=TIERS.map((l,i)=>`<span class="lchip ${a.inA&&a.idx===i?'cur':''}">${l} ${r[i]}틀림</span>`).join('')+`<span class="lchip ${!a.inA?'cur':''}">수상권 밖 ${cut[4]+1}+</span>`;
   return `<div class="sec">${secH('수상 기준')}<div class="legend">${ch}</div></div>`;}
 
-const GLOSS={"백분위":"나보다 점수가 낮은 학생의 비율입니다. 백분위 90이면 전체의 90%보다 높습니다.","실측 정답률":"같은 회차를 실제로 응시한 학생들이 이 문항을 맞힌 비율입니다. 이전 회차 응시 기록과 이번 누적 응시를 합쳐 셉니다. 출제 정답률과 달리 입력이 쌓일수록 갱신됩니다.","변별도":"상위 27%와 하위 27% 집단의 정답률 차이입니다. 클수록 실력을 잘 가르는 문항입니다."};
+const GLOSS={"백분위":"나보다 점수가 낮은 학생의 비율입니다. 백분위 90이면 전체의 90%보다 높습니다.","실측 정답률":"같은 회차를 실제로 응시한 학생들이 이 문항을 맞힌 비율입니다. 이전 회차 응시 기록과 이번 누적 응시를 합쳐 셉니다. 출제 정답률과 달리 입력이 쌓일수록 갱신됩니다."};
 function glossHTML(){ return `<details style="margin:9px 0 2px"><summary class="muted" style="cursor:pointer;font-size:12.5px">용어 풀이</summary><div style="font-size:12.5px;line-height:1.7;color:var(--ink-2);margin-top:6px">${Object.keys(GLOSS).map(k=>`<div style="margin:4px 0"><b>${k}</b> · ${esc(GLOSS[k])}</div>`).join('')}</div></details>`; }
 function confidenceLine(cs){ const n=cs?cs.N:0;
   if(!(cs&&cs.percReady)) return '';
@@ -1546,7 +1566,7 @@ function methodSec(exam){
   const _fl=cleanCohort(exam,subs(exam.id).filter(r=>r.ans&&r.ans.length===exam.nQ)).flagged.length;
   /* 또래 숫자가 어디서 왔는지 밝힌다. "또래 정답률 41%"만 있고 몇 명인지
      안 밝히면 3명이 만든 41%와 57명이 만든 41%가 같아 보인다. */
-  const _bq=BASELINE&&BASELINE[exam.id];
+  const _bq=BASELINE&&BASELINE[cohortKey(exam.id)];
   let _cs=null; try{ _cs=cohortStats(exam); }catch(e){}
   const _coh=(_cs&&_cs.percReady&&_cs.N)
     ? `이 회차 또래 통계(정답률·선택 분포·백분위·석차)의 모집단은 <b>${_cs.N}명</b>이다`
@@ -3509,8 +3529,8 @@ function buildBook(exam, selv, cs, correct, total, W, wrong, dh, answers){
 
   // ── 01 진단 개요 ──
   var lead;
-  if(aw.inA){ lead='<b>'+esc2(nm||'학생')+'</b> 학생은 이번 「'+esc2(exam.title)+'」에서 60문항 중 <b>'+correct+'문항</b>을 맞혀 원점수 <b>'+rs.score+'점</b>을 기록했습니다. 틀린 문항 '+W+'개로 현재 <b>'+aw.name+'권</b>'+(aw.nextTier&&aw.reach?(', '+aw.nextTier+'권까지 '+aw.gap+'문항을 남겨두고 있습니다.'):'에 위치합니다.'); }
-  else { var need=Math.max(1,W-(cut[4]||18)); lead='<b>'+esc2(nm||'학생')+'</b> 학생은 이번 「'+esc2(exam.title)+'」에서 60문항 중 <b>'+correct+'문항</b>을 맞혀 원점수 <b>'+rs.score+'점</b>을 기록했습니다. 장려상까지 <b>'+need+'문항</b> — 아래에서 짚은 취약 개념을 회복하면 수상권 진입이 가능합니다.'; }
+  if(aw.inA){ lead='<b>'+esc2(nm||'학생')+'</b> 학생은 이번 「'+esc2(exam.title)+'」에서 '+total+'문항 중 <b>'+correct+'문항</b>을 맞혀 원점수 <b>'+rs.score+'점</b>을 기록했습니다. 틀린 문항 '+W+'개로 현재 <b>'+aw.name+'권</b>'+(aw.nextTier&&aw.reach?(', '+aw.nextTier+'권까지 '+aw.gap+'문항을 남겨두고 있습니다.'):'에 위치합니다.'); }
+  else { var need=Math.max(1,W-(cut[4]||18)); lead='<b>'+esc2(nm||'학생')+'</b> 학생은 이번 「'+esc2(exam.title)+'」에서 '+total+'문항 중 <b>'+correct+'문항</b>을 맞혀 원점수 <b>'+rs.score+'점</b>을 기록했습니다. 장려상까지 <b>'+need+'문항</b> — 아래에서 짚은 취약 개념을 회복하면 수상권 진입이 가능합니다.'; }
   H+='<div class="bk-sec"><div class="bk-kicker">Overview</div><div class="bk-h"><span class="no">'+no()+'</span><span class="tt">진단 개요</span></div>'
     +'<div class="bk-lead">'+lead+'</div>'
     +'<div class="bk-hero"><div class="tierwrap"><div class="tierlbl">현재 등급</div><div class="tier bk-serif">'+aw.name+'</div></div>'

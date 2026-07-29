@@ -99,13 +99,19 @@ function load(sheet) {
 }
 
 /* 열: [0시험 1이름 2링크 3저장시각 4수험번호 5응시일 6학교 7학년 8원점수 9만점
-        10백점환산 11백분위 12석차 13전체누적인원 14맞은개수 15영역별 16답안 17문자] */
+        10백점환산 11백분위 12석차 13전체누적인원 14맞은개수 15영역별 16답안 17문자]
+
+   [주의] 8열 이름은 '원점수' 지만 final.html 이 보내는 값은 `total: correct`,
+   즉 **맞은 문항 수**다(9열 '만점' 도 180이 아니라 문항 수). 이 하네스가
+   예전에 correct*3 을 넣는 바람에, 기준 기록이 3배로 들어간 진짜 버그를
+   테스트가 통과시켜 줬다 — 화면은 3/15, 문자는 12/15 였다.
+   아래 payloadRow() 는 앱이 보내는 형태를 그대로 쓴다. */
 function row(exam, name, school, correct, opts) {
   opts = opts || {};
   const r = new Array(18).fill('');
   r[0] = exam; r[1] = name; r[3] = new Date(2026, 0, 1 + (opts.day || 0));
   r[6] = school; r[7] = opts.grade || '2';
-  r[8] = correct * 3; r[9] = (opts.nQ || 60) * 3;
+  r[8] = correct; r[9] = (opts.nQ || 60);
   r[10] = Math.round(correct / (opts.nQ || 60) * 1000) / 10;
   r[11] = opts.pct != null ? opts.pct : 0;
   r[12] = opts.rank != null ? opts.rank : 1;   // 저장 순간에 박힌 옛 값
@@ -116,16 +122,25 @@ function row(exam, name, school, correct, opts) {
 }
 
 const T6 = 'JMChC 모의고사 6회';
-const BASE6 = (function () {           // 기준 기록 11명을 원점수로
+const BASE6 = (function () {           // 기준 기록 11명 · 단위는 맞은 문항 수
   const out = [];
   Object.keys(baseline['jmchc-6'].hist).sort((a, b) => a - b).forEach(k => {
-    for (let i = 0; i < baseline['jmchc-6'].hist[k]; i++) out.push(Number(k) * 3);
+    for (let i = 0; i < baseline['jmchc-6'].hist[k]; i++) out.push(Number(k));
   });
   return out;
 }());
 
 function post(gas, d) {
   return JSON.parse(gas.doPost({ postData: { contents: JSON.stringify(d) } })._t);
+}
+/* final.html 의 saveToSheetFinal 이 실제로 보내는 형태.
+   total = 맞은 문항 수 · max = 문항 수. 여기서 단위를 지어내면 안 된다. */
+function appPayload(exam, name, school, correct, nQ, answers) {
+  nQ = nQ || 60;
+  return { exam: exam, name: name, school: school, grade: '2',
+           total: correct, max: nQ, pct100: Math.round(correct / nQ * 1000) / 10,
+           percentile: 0, rank: '1/1', n: 1, correct: correct, areas: '',
+           answers: answers || String((correct % 4) + 1).repeat(nQ) };
 }
 const of = (sh, name) => sh._grid.filter(r => String(r[1]) === name);
 
@@ -140,9 +155,7 @@ console.log('── 나중에 채점한 학생이 앞사람의 인원을 늘린�
   chk('시작은 인원이 제각각', sh._grid.map(r => r[13]), [11, 12]);
 
   // 세 번째 학생을 채점해 저장한다.
-  post(gas, { exam: T6, name: '다학생', school: 'A중', grade: '2', total: 60,
-              max: 180, pct100: 33.3, percentile: 0, rank: 1, n: 1,
-              correct: 20, areas: '', answers: '4'.repeat(60) });
+  post(gas, appPayload(T6, '다학생', 'A중', 20, 60, '4'.repeat(60)));
 
   const n = BASE6.length + 3;                    // 기준 11명 + 학생 3명
   chk('모든 행이 같은 인원을 말한다', sh._grid.map(r => r[13]), [n, n, n]);
@@ -150,10 +163,10 @@ console.log('── 나중에 채점한 학생이 앞사람의 인원을 늘린�
 
   // 석차 = 나보다 높은 사람 수 + 1
   const higher = t => BASE6.filter(v => v > t).length
-    + [120, 90, 60].filter(v => v > t).length;
-  chk('가학생 석차', of(sh, '가학생')[0][12], higher(120) + 1);
-  chk('나학생 석차', of(sh, '나학생')[0][12], higher(90) + 1);
-  chk('다학생 석차', of(sh, '다학생')[0][12], higher(60) + 1);
+    + [40, 30, 20].filter(v => v > t).length;
+  chk('가학생 석차', of(sh, '가학생')[0][12], higher(40) + 1);
+  chk('나학생 석차', of(sh, '나학생')[0][12], higher(30) + 1);
+  chk('다학생 석차', of(sh, '다학생')[0][12], higher(20) + 1);
 
   // 문자도 같은 숫자를 말해야 한다 — 셀만 고치고 문자를 두면 학부모는 옛 숫자를 본다.
   const msgs = sh._grid.map(r => String(r[17]));
@@ -200,19 +213,24 @@ console.log('\n── 회차마다 설정이 붙어 있다 ──');
   chk('옛 제목에도 설정이 있다', !!gas._recomputeConfigFor('화올 2018'), true);
   chk('표에 없는 제목은 건너뛴다', gas._recomputeConfigFor('있지도 않은 시험'), null);
 
-  // 기준 기록이 화면(cohort/baseline.json)과 같아야 한다. 어긋나면 성적표와
-  // 문자가 서로 다른 석차를 말한다.
+  /* 기준 기록의 **단위**가 앱이 보내는 값과 같아야 한다.
+     시트 8열 이름은 '원점수' 지만 final.html 은 `total: correct`, 즉 맞은 문항
+     수를 보낸다. 여기에 3을 곱해 넣었던 적이 있는데, 학생이 전원 꼴찌가 되어
+     화면은 3/15, 문자는 12/15 라고 말했다. 곱셈이 조용히 섞이면 안 된다. */
   const drift = [];
   exams.forEach(e => {
     const want = [];
     const hist = (baseline[e.id] || {}).hist || {};
     Object.keys(hist).sort((a, b) => a - b).forEach(k => {
-      for (let i = 0; i < hist[k]; i++) want.push(Number(k) * 3);
+      for (let i = 0; i < hist[k]; i++) want.push(Number(k));
     });
     const got = gas.EXAM_COHORT[e.title].base.slice().sort((a, b) => a - b);
     if (JSON.stringify(got) !== JSON.stringify(want.sort((a, b) => a - b))) drift.push(e.id);
   });
-  chk('기준 기록이 화면과 같다(원점수 = 맞은 수 × 3)', drift, []);
+  chk('기준 기록이 화면과 같은 단위다(맞은 문항 수)', drift, []);
+  // 맞은 문항 수는 문항 수를 넘을 수 없다. 곱셈이 섞이면 여기서 걸린다.
+  const over = exams.filter(e => gas.EXAM_COHORT[e.title].base.some(v => v > e.nQ)).map(e => e.id);
+  chk('기준 점수가 문항 수를 넘지 않는다', over, []);
 
   const withBase = exams.filter(e => gas.EXAM_COHORT[e.title].base.length).length;
   chk('기준 기록이 실린 회차 수', withBase, Object.keys(baseline).length);
@@ -235,6 +253,39 @@ console.log('\n── 제출이 없는 회차도 훑는다 ──');
   chk('설정 없는 옛 시험은 손대지 않는다', sh._grid[2][13], 3);
 }
 
+console.log('\n── 시트가 앱과 같은 석차를 말한다 ──');
+{
+  /* 이 검사가 없어서 단위가 3배 어긋난 채 배포됐다. 화면은 3/15, 문자는
+     12/15 였고 두 숫자 모두 "정상으로 보이는" 값이라 아무도 못 알아챈다.
+     앱이 쓰는 규칙(기준 기록 ∪ 이 브라우저 학생, rankIn)으로 직접 세어
+     시트가 낸 값과 맞대 본다. */
+  const nQ = 60, sh = fakeSheet([]), gas = load(sh);
+  const students = [['가', 40], ['나', 13], ['다', 52], ['라', 25], ['마', 40]];
+  students.forEach(([nm, c], i) =>
+    post(gas, appPayload(T6, nm, 'A중', c, nQ, String((i % 4) + 1).repeat(nQ))));
+
+  // 앱의 셈: 모집단 = 기준 기록 + 이 브라우저 학생 · 석차 = 나보다 높은 사람 + 1
+  const pool = BASE6.concat(students.map(s => s[1]));
+  const rankIn = my => pool.filter(t => t > my).length + 1;
+  const pctOf = my => {
+    const b = pool.filter(t => t < my).length, e = pool.filter(t => t === my).length;
+    return Math.round((b + 0.5 * e) / pool.length * 1000) / 10;
+  };
+  const bad = [];
+  students.forEach(([nm, c]) => {
+    const r = of(sh, nm)[0];
+    if (r[12] !== rankIn(c)) bad.push(`${nm} 석차 시트 ${r[12]} ≠ 앱 ${rankIn(c)}`);
+    if (r[13] !== pool.length) bad.push(`${nm} 인원 시트 ${r[13]} ≠ 앱 ${pool.length}`);
+    if (r[11] !== pctOf(c)) bad.push(`${nm} 백분위 시트 ${r[11]} ≠ 앱 ${pctOf(c)}`);
+  });
+  chk('석차·인원·백분위가 앱과 한 자리도 안 어긋난다', bad, []);
+  // 동점자는 같은 석차여야 한다(가·마 둘 다 40)
+  chk('동점은 같은 석차', of(sh, '가')[0][12], of(sh, '마')[0][12]);
+  // 1등은 최고점, 꼴찌 석차는 인원을 넘지 않는다
+  chk('최고점이 1등 근처다', of(sh, '다')[0][12] <= 2, true);
+  chk('석차가 인원을 넘지 않는다', students.every(([nm]) => of(sh, nm)[0][12] <= pool.length), true);
+}
+
 console.log('\n── 저장하는 즉시 다른 회차까지 맞는다 ──');
 {
   // 한 회차만 맞추면 다른 회차의 옛 행은 다음 제출까지 굳은 채 남는다.
@@ -249,9 +300,7 @@ console.log('\n── 저장하는 즉시 다른 회차까지 맞는다 ──')
   sh._io.reads = 0; sh._io.writes = 0;
 
   // 6회 학생 한 명을 저장한다 — 14회는 건드리지도 않았다.
-  post(gas, { exam: T6, name: '나학생', school: 'A중', grade: '2', total: 90,
-              max: 180, pct100: 50, percentile: 0, rank: 1, n: 1,
-              correct: 30, areas: '', answers: '3'.repeat(60) });
+  post(gas, appPayload(T6, '나학생', 'A중', 30, 60, '3'.repeat(60)));
 
   chk('6회가 맞춰졌다', sh._grid.filter(r => r[0] === T6).map(r => r[13]),
       [BASE6.length + 2, BASE6.length + 2]);

@@ -104,5 +104,46 @@ console.log('\n── 성취 밴드별 마무리 ──');
 console.log('\n── 예시 (같은 회차 · 세 학생) ──');
 [0, 1, 2].forEach(i => console.log('  · ' + sameRound[i].split('\n').slice(-2)[0]));
 
+console.log('\n── 회차마다 문항 수와 범위가 맞는다 ──');
+{
+  /* 문항 수를 60으로 박아 놨었다. 50문항 회차 학생이 40/50 을 맞히고도
+     학부모는 "정답 40/60" 을 받았다 — 실제보다 못한 것처럼 읽힌다. */
+  const m50 = gas._buildReportMsg('KMChC 2026 제1차 · 일반', '홍길동', 40, 80, 72.5,
+                                  '산화환원 8/10', 'https://x', 0, 50);
+  chk('50문항 회차는 /50', /정답 40\/50문항/.test(m50), true);
+  chk('60이 새어 나오지 않는다', /\/60/.test(m50), false);
+  const m60 = gas._buildReportMsg('JMChC 모의고사 6회', '홍길동', 42, 70, 80,
+                                  '산화환원 8/10', 'https://x', 0, 60);
+  chk('60문항 회차는 /60', /정답 42\/60문항/.test(m60), true);
+
+  // 시트 9열(만점)에서 문항 수를 읽는다. 없으면 EXAM_COHORT 로 찾는다.
+  chk('만점 칸에서 문항 수를 읽는다', gas._qCountOf('KMChC 2026 제1차 · 일반', 50), 50);
+  chk('만점 칸이 비면 표에서 찾는다', gas._qCountOf('KMChC 2026 제1차 · 일반', ''), 50);
+  chk('표에도 없으면 60', gas._qCountOf('있지도 않은 시험', ''), 60);
+
+  /* 범위 문구. 38개 시험 중 2개만 표에 있어서 나머지는 전부
+     "화학 개념과 문제 해결" 이라는 빈 문구로 나갔다. */
+  const filler = Object.keys(gas.MSG_EXAMS)
+    .filter(t => /화학 개념과 문제 해결/.test(gas.MSG_EXAMS[t].topic));
+  chk('빈 문구로 나가는 회차가 없다', filler, []);
+  chk('시험 목록만큼 등록돼 있다', Object.keys(gas.MSG_EXAMS).length >= 38, true);
+  chk('범위가 실제 문구에 들어간다',
+      /쌍극자모멘트/.test(gas._buildReportMsg('JMChC 모의고사 6회', '홍', 42, 70, 80,
+                                             '', 'https://x', 0, 60)), true);
+  // 선생님이 손으로 적어 둔 문구는 지킨다
+  chk('손으로 적은 문구가 살아 있다',
+      /중등 화올 종합 진단/.test(gas.MSG_EXAMS['조준모의고사 0회'].topic), true);
+
+  /* 원점수를 지어내지 않는다. 시트에는 감점을 반영한 진짜 원점수가 없다
+     (앱이 맞은 문항 수만 보낸다). 예전에는 correct*3 을 원점수라고 적어,
+     성적문자 탭은 '원점수 126점', 성적기록 18열은 '원점수 42/60점' 이라고
+     같은 학생을 두고 서로 다른 말을 했다. */
+  chk('없는 원점수를 지어내지 않는다', /원점수/.test(m60), false);
+  const cell = gas._msgExam('KMChC 2026 제1차 · 일반', '홍길동', 40, 50, 80, 40, 50, 72.5, 4, 20, 'https://x');
+  chk('18열 문자도 원점수를 말하지 않는다', /원점수/.test(cell), false);
+  chk('두 문자가 같은 정답 수를 말한다',
+      /정답 40\/50문항/.test(cell) && /정답 40\/50문항/.test(m50), true);
+}
+
 console.log(fail ? `\n실패 ${fail}건` : '\n전부 통과');
 process.exit(fail ? 1 : 0);
