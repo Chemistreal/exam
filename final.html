@@ -2967,13 +2967,21 @@ function saveToSheetFinal(cur,sel,correct,total,W,cs,nm,sch,grd,pct){
   if(cur.area) for(let q=1;q<=cur.nQ;q++){ if(miss.has(q))continue; const bd=broad(cur.area[q-1]||''); if(!bd)continue; (ag[bd]=ag[bd]||{c:0,t:0}); ag[bd].t++; if(okq(cur,q,sel[q]||0))ag[bd].c++; }
   const areas=Object.keys(ag).map(d=>d+' '+ag[d].c+'/'+ag[d].t).join(', ');
   const ans=[]; for(let q=1;q<=cur.nQ;q++) ans.push(sel[q]||0);
+  /* 감점을 반영한 진짜 원점수. 시트의 '원점수' 열에는 맞은 문항 수가 들어가고
+     (석차의 기준이라 못 바꾼다) 이 값은 맨 뒤 열에 따로 실린다.
+     받는 쪽에서 correct*3 으로 지어내면 오답 감점이 있는 회차(KMChC·동형 등)는
+     그만큼 부풀려 나간다. 화면이 보여 주는 것과 같은 수를 보낸다. */
+  const _wr=[]; for(let q=1;q<=cur.nQ;q++){ if(miss.has(q))continue; const a=sel[q]||0;
+    if(!okq(cur,q,a)) _wr.push({q:q,a:a}); }
+  const _rs=finalRawScore(cur,correct,_wr);
   let perc='', rnk=''; try{ const _rp=rankPool(cur,cs);
     if(_rp.ready){ perc=percentile(_rp.pool,correct); rnk=rankIn(_rp.pool,correct)+'/'+_rp.N; } }catch(e){}
   const payload={ name:nm||'', examno:'', school:sch||'', grade:grd||'',
     date:new Date().toISOString().slice(0,10), exam:cur.title,
     total:correct, max:total, pct100:pct,
     percentile: perc===''?'':+(+perc).toFixed(1), rank:rnk, n:(cs&&cs.N)||'',
-    correct:correct, areas:areas, answers:ans.join(''), link:shareLinkFinal(cur,sel,nm) };
+    correct:correct, areas:areas, answers:ans.join(''), link:shareLinkFinal(cur,sel,nm),
+    raw:_rs.score, rawMax:total*3, pen:_rs.pen };
   try{
     fetch(SHEET_ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
     fToast('구글 시트로 전송했습니다 · '+(nm||sch));

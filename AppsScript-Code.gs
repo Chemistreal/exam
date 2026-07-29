@@ -107,10 +107,13 @@ function doPost(e) {
     }
 
     var d = JSON.parse(e.postData.contents);
+    // 9열(d.total)은 맞은 문항 수 — 석차의 기준이라 그대로 둔다.
+    // 감점을 반영한 진짜 원점수는 맨 뒤 열에 따로 받는다(옛 행은 비어 있다).
     sheet.appendRow([
       d.exam, d.name, d.link || '', new Date(), d.examno, d.date, d.school, d.grade,
       d.total, d.max, d.pct100, d.percentile, d.rank, d.n,
-      d.correct, d.areas, "'" + d.answers
+      d.correct, d.areas, "'" + d.answers, '',
+      (d.raw === 0 || d.raw) ? d.raw : ''
     ]);
 
     // [자동 재계산] 저장 직후 **시트에 쌓인 모든 회차**의 석차·백분위·인원·성적표
@@ -434,9 +437,17 @@ function _rankPct(value, arr) {
 
 function _fmtNum(x) { return Math.round(Number(x) * 10) / 10; }  // 소수 1자리, .0은 자동으로 사라짐
 
-function _msgExam(title, name, total, max, pct100, correct, qCount, percentile, rank, n, link) {
+/* 원점수 줄. 감점이 있는 회차는 앱이 보내 준 값이라야 맞다 — 여기서 correct*3
+   으로 지어내면 오답 감점만큼 부풀려 나간다. 값이 없는 옛 행은 줄을 통째로 뺀다. */
+function _rawLine(raw, qCount) {
+  if (raw === '' || raw == null || isNaN(Number(raw))) return '';
+  return '· 원점수 ' + Number(raw) + '/' + (qCount * 3) + '점\n';
+}
+
+function _msgExam(title, name, total, max, pct100, correct, qCount, percentile, rank, n, link, raw) {
   return '[다원교육 영재관 · 화학 조준모]\n'
     + name + ' 학생 ' + title + ' 성적표입니다.\n'
+    + _rawLine(raw, qCount)
     + '· 정답 ' + correct + '/' + qCount + '문항 · 백점환산 ' + pct100 + '점\n'
     + '· 백분위 ' + percentile + ' · 석차 ' + rank + '/' + n + '\n'
     + '아래 링크에서 영역별 정오와 취약 개념을 확인하세요.\n'
@@ -456,7 +467,7 @@ function recomputeJ0() { recomputeExam('조준모의고사 0회', J0_BASE_TOTALS
 function recomputeAllExams() {
   var sheet = _gradeSheet();
   if (!sheet) return;
-  var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, 18).getValues();
+  var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, WIDE).getValues();
 
   var titles = [], seen = {};
   data.forEach(function (r) {
@@ -480,11 +491,20 @@ function recomputeAllExams() {
 }
 
 /* 성적기록 시트 + 성적표 문자 머리글 보장. 없거나 비었으면 null. */
+/* 성적기록의 실제 열 폭. 17열까지가 HEADER 이고, 뒤의 둘은 나중에 붙였다.
+   [주의] 9번째 열 이름은 '원점수' 지만 그 안에 든 값은 **맞은 문항 수**다
+   (앱이 `total: correct` 로 보낸다). 석차·백분위가 그 값으로 매겨지므로
+   의미를 바꾸면 안 된다. 감점을 반영한 진짜 원점수는 RAW_COL 에 따로 받는다. */
+var MSG_COL = 18, RAW_COL = 19, WIDE = 19;
+
 function _gradeSheet() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('성적기록');
   if (!sheet || sheet.getLastRow() < 2) { Logger.log('성적기록 시트가 비어 있습니다.'); return null; }
-  if (String(sheet.getRange(1, 18).getValue() || '') !== '성적표 문자') {
-    sheet.getRange(1, 18).setValue('성적표 문자').setFontWeight('bold');
+  if (String(sheet.getRange(1, MSG_COL).getValue() || '') !== '성적표 문자') {
+    sheet.getRange(1, MSG_COL).setValue('성적표 문자').setFontWeight('bold');
+  }
+  if (String(sheet.getRange(1, RAW_COL).getValue() || '') !== '원점수(감점 반영)') {
+    sheet.getRange(1, RAW_COL).setValue('원점수(감점 반영)').setFontWeight('bold');
   }
   return sheet;
 }
@@ -492,7 +512,7 @@ function _gradeSheet() {
 /* 고친 값을 시트에 한 번에 반영하고, 지울 행은 아래→위로 지운다.
    위에서부터 지우면 그 아래 행 번호가 하나씩 밀려 엉뚱한 줄이 날아간다. */
 function _flushRows(sheet, data, dropRows) {
-  sheet.getRange(2, 1, data.length, 18).setValues(data);
+  sheet.getRange(2, 1, data.length, WIDE).setValues(data);
   dropRows.map(function (ri) { return ri + 2; }).sort(function (a, b) { return b - a; })
     .forEach(function (r) { sheet.deleteRow(r); });
 }
@@ -501,7 +521,7 @@ function _flushRows(sheet, data, dropRows) {
 function recomputeExam(title, baseTotals, qCount) {
   var sheet = _gradeSheet();
   if (!sheet) return;
-  var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, 18).getValues();
+  var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, WIDE).getValues();
   _flushRows(sheet, data, _recalcRows(data, title, baseTotals, qCount));
 }
 
@@ -560,8 +580,8 @@ function _recalcRows(data, title, baseTotals, qCount) {
     var name = String(data[ri][1] || '');
     var max = Number(data[ri][9]) || (qCount * 3);
     var correct = Number(data[ri][14]) || 0;
-    data[ri][17] = _msgExam(title, name, total, max, data[ri][10], correct, qCount,
-                            pct, rp.rank, rp.n, String(data[ri][2] || ''));
+    data[ri][MSG_COL - 1] = _msgExam(title, name, total, max, data[ri][10], correct, qCount,
+                            pct, rp.rank, rp.n, String(data[ri][2] || ''), data[ri][RAW_COL - 1]);
   });
 
   Logger.log(title + ' · 유지 ' + keep.length + '행 · 중복삭제 ' + dropRows.length
@@ -868,23 +888,24 @@ function _qCountOf(title, max) {
   return (cfg && cfg.qCount) || 60;
 }
 
-function _buildReportMsg(title, name, correct, pct100, perc, areasStr, link, qi, qCount) {
+function _buildReportMsg(title, name, correct, pct100, perc, areasStr, link, qi, qCount, raw) {
   var cfg = MSG_EXAMS[title] || { topic: '화학 개념과 문제 해결', mode: 'perc' };
   var nQ = qCount || 60;
   var nm = name || '학생', wrong = nQ - correct;
   var band = _band(pct100);
-  /* 원점수를 여기서 지어내지 않는다. 예전에는 correct*3 으로 계산했는데,
-     시트에는 감점을 반영한 진짜 원점수가 없다(앱이 맞은 문항 수만 보낸다).
-     그래서 성적문자 탭은 '원점수 126점', 성적기록 18열은 '원점수 42/60점' 이라고
-     같은 학생을 두고 서로 다른 말을 했다. 가진 숫자만 말한다. */
+  /* 원점수는 **앱이 보내 준 값만** 쓴다. 예전에는 correct*3 으로 계산했는데,
+     오답 감점이 있는 회차(KMChC·동형 등 23개)에서는 그만큼 부풀려 나간다.
+     값이 없는 옛 행은 원점수를 아예 말하지 않는다 — 지어내지 않는다. */
+  var rawTxt = (raw === '' || raw == null || isNaN(Number(raw)))
+    ? '' : '원점수 ' + Number(raw) + '/' + (nQ * 3) + '점, ';
   var analysis;
   if (cfg.mode === 'tier') {
     var aw = _award(wrong);
-    if (aw.inA) analysis = '정답 ' + correct + '/' + nQ + '문항, 틀린 문항 ' + wrong + '개로 현재 ' + aw.name + '권입니다'
+    if (aw.inA) analysis = rawTxt + '정답 ' + correct + '/' + nQ + '문항, 틀린 문항 ' + wrong + '개로 현재 ' + aw.name + '권입니다'
       + (aw.next && aw.gap <= 2 ? '. ' + aw.gap + '문항만 더 지키면 ' + aw.next + '권입니다.' : '.');
-    else analysis = '정답 ' + correct + '/' + nQ + '문항입니다. 장려상까지 ' + aw.need + '문항 — 오답 ' + aw.need + '개 유형만 회복하면 수상권에 진입합니다.';
+    else analysis = rawTxt + '정답 ' + correct + '/' + nQ + '문항입니다. 장려상까지 ' + aw.need + '문항 — 오답 ' + aw.need + '개 유형만 회복하면 수상권에 진입합니다.';
   } else {
-    analysis = '정답 ' + correct + '/' + nQ + '문항(백점환산 ' + pct100 + '점)으로'
+    analysis = rawTxt + '정답 ' + correct + '/' + nQ + '문항(백점환산 ' + pct100 + '점)으로'
       + ((perc !== '' && perc != null) ? ' 누적 응시자 기준 백분위 ' + perc + '입니다.' : ' 집계되었습니다.');
   }
   var areas = _parseAreas(areasStr), able = areas.filter(function (a) { return a.t >= 2; });
@@ -915,7 +936,7 @@ function fillReportMessages() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var src = ss.getSheetByName('성적기록');
   if (!src || src.getLastRow() < 2) { Logger.log('성적기록 시트가 비어 있습니다.'); return; }
-  var data = src.getRange(2, 1, src.getLastRow() - 1, 18).getValues();
+  var data = src.getRange(2, 1, src.getLastRow() - 1, WIDE).getValues();
   var out = ss.getSheetByName('성적문자') || ss.insertSheet('성적문자');
   out.clear();
   var head = ['성적표 문자(복사용)', '이름', '학교', '학년', '시험', '정답', '백점환산', '공유링크'];
@@ -930,7 +951,7 @@ function fillReportMessages() {
     // 밴드별 순차 배정 → 같은 성취 밴드 학생끼리도 명언이 겹치지 않음
     var bd = _band(pct100), qi = bandCtr[bd]++;
     var nQ = _qCountOf(title, r[9]);
-    var msg = _buildReportMsg(title, name, correct, pct100, perc, areasStr, link, qi, nQ);
+    var msg = _buildReportMsg(title, name, correct, pct100, perc, areasStr, link, qi, nQ, r[RAW_COL - 1]);
     rows.push([msg, name, school, grade, title, correct + '/' + nQ, pct100, link]);
     bands.push(bd);
   }
