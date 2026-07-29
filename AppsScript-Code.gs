@@ -137,10 +137,17 @@ function doPost(e) {
   }
 }
 
-/* 시험 제목 → 자동 재계산 설정. 기준분포가 있는 시험만 등록(없으면 저장만 하고 재계산 생략). */
+/* 시험 제목 → 자동 재계산 설정.
+ * 예전에는 '조준모의고사 0회' 하나만 돌려주고 나머지는 null 이었다. 그래서 다른
+ * 회차는 재계산이 아예 돌지 않았고, 먼저 채점한 학생은 43명 중 몇 등, 나중 학생은
+ * 44명 중 몇 등으로 저장 순간의 인원이 행에 굳은 채 남았다 — 그 숫자 그대로
+ * 성적표 문자가 나갔다. 이제 EXAM_COHORT 에 있는 모든 회차가 재계산된다.
+ * 표에 없는 제목(옛 kch* 시험 등)은 여전히 저장만 하고 넘어간다. */
 function _recomputeConfigFor(title) {
   if (String(title) === '조준모의고사 0회') return { base: J0_BASE_TOTALS, qCount: 60 };
-  return null;
+  var c = EXAM_COHORT[String(title)];
+  if (!c) return null;
+  return { base: c.base || [], qCount: c.q || 60 };
 }
 
 /**
@@ -330,23 +337,91 @@ function _sheetEdit(p) {
    무엇을 하나:
    1) 완전 중복 행(이름+답안 동일) 제거 — 저장시각이 가장 최신인 1건만 남김
    2) 학교명 오타 교정(_SCHOOL_FIX)
-   3) 코호트 = 기준분포(J0_BASE_TOTALS 40명) + 학생별 최신 1건(이름 기준)
+   3) 코호트 = 기준분포(EXAM_COHORT) + 학생별 최신 1건(이름·학교·학년 기준)
    4) 각 행의 백분위·석차·전체누적인원을 이 코호트로 재계산
    5) 성적표 문자(18열)도 새 수치로 다시 채움
 
    실행:
    - 평상시에는 실행할 필요 없음 — 학생이 제출할 때마다 doPost가 자동으로 재계산한다.
-   - 시트를 손으로 고쳤거나 상태가 의심될 때만: 편집기에서 recomputeJ0 선택 → 실행 (수동 복구용)
+   - 시트를 손으로 고쳤거나 상태가 의심될 때만: 편집기에서 recomputeAllExams 선택 → 실행 (수동 복구용)
    - setupAllTriggers()를 1회 실행하면 매일 새벽 5시 백업 재계산 트리거도 설치된다.
    ============================================================ */
 
 /* 조준모의고사 0회 기준 코호트 총점 분포(익명 40명) — index.html의 BASE_TOTALS['j0']와 동일 */
 var J0_BASE_TOTALS = [12,21,32,37,40,44,54,54,54,59,59,60,60,63,69,69,71,75,78,82,86,87,87,93,93,96,99,100,102,105,108,111,112,117,126,129,129,141,144,171];
 
+/* 시험 제목 → { q: 문항 수, base: 기준 코호트 원점수 }.
+ * 여기에 없는 제목은 재계산이 통째로 건너뛰어, 먼저 채점한 학생은 43명 기준·
+ * 나중 학생은 44명 기준으로 굳은 채 남는다. 그래서 기준 기록이 없는 회차도
+ * base: [] 로 넣어 둔다(문항 수는 회차마다 다르다 — 60문항 32개, 50문항 6개).
+ * base 는 final.html 이 화면에서 쓰는 cohort/baseline.json 과 같은 기록이다.
+ * 앱은 맞은 문항 수로, 시트는 원점수로 세므로 3을 곱해 둔 값이다.
+ * [중요] 손으로 고치지 말 것 — `python3 tools/gen_gas_cohort.py --write` 가 만든다. */
+var EXAM_COHORT = {
+  'JMChC 모의고사 1회': { q: 60, base: [33,36,39,48,48,51,54,57,57,57,57,60,63,66,66,69,69,72,72,75,75,78,78,81,84,84,87,87,87,93,99,111,111,114,114,114,114,114,117,123,126,129,132,132,138,141] },
+  'JMChC 모의고사 2회': { q: 60, base: [66,84,87,87,93,93,108,108,132,135,138,144] },
+  'JMChC 모의고사 3회': { q: 60, base: [27,30,45,45,48,51,57,57,57,57,60,60,63,63,66,69,69,72,72,72,72,78,81,84,84,84,84,84,87,90,102,102,108,111,114,120,123,123,123,126,126,135,138,141,141,144,147] },
+  'JMChC 모의고사 4회': { q: 60, base: [57,63,69,81,84,117,117,135,144,144,156] },
+  'JMChC 모의고사 5회': { q: 60, base: [24,33,36,39,39,42,45,51,51,54,54,57,57,60,60,63,66,66,69,69,69,69,72,72,78,78,81,84,87,87,99,102,105,108,111,111,114,117,123,123,126,126,129,132] },
+  'JMChC 모의고사 6회': { q: 60, base: [69,75,96,102,105,117,117,120,126,129,138] },
+  'JMChC 모의고사 7회': { q: 60, base: [27,36,42,45,48,54,57,57,60,63,69,69,72,72,78,81,81,90,90,90,93,96,99,99,99,99,102,105,108,111,111,117,120,120,120,123,123,126,132,132,144,147] },
+  'JMChC 모의고사 8회': { q: 60, base: [48,63,81,84,87,96,114,114,117,117,126,144,156] },
+  'JMChC 모의고사 9회': { q: 60, base: [21,27,36,39,42,42,45,45,45,51,54,54,54,54,57,60,63,66,72,78,78,81,84,84,87,87,87,90,90,90,90,93,93,96,96,96,102,102,102,108,120,132] },
+  'JMChC 모의고사 10회': { q: 60, base: [42,63,69,69,78,87,96,99,120,141,147] },
+  'JMChC 모의고사 11회': { q: 60, base: [42,42,45,51,51,60,69,78,78,87,90,90,93,96,99,117] },
+  'JMChC 모의고사 11-1회': { q: 60, base: [57,60,60,60,75,78,93,114,114,120,135] },
+  'JMChC 모의고사 12회': { q: 60, base: [54,66,78,81,96,99,120,123,144] },
+  'JMChC 모의고사 13회': { q: 60, base: [15,24,27,33,36,42,45,45,48,48,51,54,57,57,60,60,63,63,66,69,69,72,72,75,78,78,78,81,84,87,87,87,99,105,111,111,111,114,126,141] },
+  'JMChC 모의고사 14회': { q: 60, base: [48,48,69,72,75,81,81,102,120,132] },
+  '기출동형 1회 (2015)': { q: 60, base: [] },
+  '기출동형 2회 (2016)': { q: 60, base: [] },
+  '기출동형 3회 (2017)': { q: 60, base: [] },
+  '기출동형 4회 (2013)': { q: 60, base: [] },
+  '산과염기 60제': { q: 60, base: [] },
+  'KMChC 2026 제1차 · 일반': { q: 50, base: [] },
+  'KMChC 2026 제1차 · 심화': { q: 50, base: [] },
+  'KMChC 2025 제2차 · 일반': { q: 50, base: [] },
+  'KMChC 2025 제2차 · 심화': { q: 50, base: [] },
+  'KMChC 2025 제1차 · 일반': { q: 50, base: [] },
+  'KMChC 2025 제1차 · 심화': { q: 50, base: [] },
+  'KMChC 2024 제2차': { q: 60, base: [] },
+  'KMChC 2024 제1차': { q: 60, base: [] },
+  '화올 2024': { q: 60, base: [] },
+  'KMChC 2024 제1차 · 동형 2세트': { q: 60, base: [] },
+  'KMChC 2023': { q: 60, base: [] },
+  '화올 2023': { q: 60, base: [] },
+  'KMChC 2022': { q: 60, base: [] },
+  '화올 2022': { q: 60, base: [] },
+  'KMChC 2021': { q: 60, base: [] },
+  '화올 2021': { q: 60, base: [] },
+  'KMChC 2019': { q: 60, base: [] },
+  '화올 2019': { q: 60, base: [] },
+  'KMChC 2019 · 동형 2세트': { q: 60, base: [] },
+  'KMChC 2018': { q: 60, base: [] },
+  '화올 2018': { q: 60, base: [] },
+  'KMChC 2018 · 동형 2세트': { q: 60, base: [] },
+  'KMChC 2017': { q: 60, base: [] },
+  '화올 2017': { q: 60, base: [] },
+  'KMChC 2016': { q: 60, base: [] },
+  '화올 2016': { q: 60, base: [] },
+  'KMChC 2015': { q: 60, base: [] },
+  '화올 2015': { q: 60, base: [] },
+  'KMChC 2014': { q: 60, base: [] },
+  '화올 2014': { q: 60, base: [] },
+  'KMChC 2013': { q: 60, base: [] },
+  '화올 2013': { q: 60, base: [] },
+};
+
 /* 학교명 오타·표기 교정(필요 시 여기에 추가). 이름 기준으로 학생을 묶으므로 석차엔 영향 없지만 표시를 바로잡는다. */
 var _SCHOOL_FIX = { '휘뭉중': '휘문중' };
 
 function _normName(s) { return String(s == null ? '' : s).replace(/\s+/g, '').trim(); }
+
+/* 누가 같은 학생인가 — 이름·학교·학년이 **모두** 같아야 같은 사람이다.
+   final.html 의 rosterKey 와 같은 규칙. 이름만 있고 학교·학년이 비면 다른 사람으로 센다. */
+function _whoKey(row) {
+  return [_normName(row[1]), _normName(row[6]), _normName(row[7])].join('\u0001');
+}
 
 /* 클라이언트(grade-j0.html)의 rankPct와 동일한 규칙: 나보다 높은 사람 수+1 = 석차, 백분위=(미만+동점/2)/n */
 function _rankPct(value, arr) {
@@ -369,6 +444,35 @@ function _msgExam(title, name, total, max, pct100, correct, qCount, percentile, 
 
 /* 조준모의고사 0회 전용 진입점 */
 function recomputeJ0() { recomputeExam('조준모의고사 0회', J0_BASE_TOTALS, 60); }
+
+/* 시트에 쌓인 **모든 회차**를 다시 맞춘다(수동 복구 · 매일 새벽 백업 트리거).
+ * 제출 때마다 도는 재계산은 그 회차만 건드리므로, 오래전에 저장돼 인원이 굳은
+ * 다른 회차의 행은 그대로 남는다. 이 함수가 그것들까지 한 번에 훑는다.
+ * 설정이 없는 제목(EXAM_COHORT 에 없는 옛 시험)은 건너뛴다. */
+function recomputeAllExams() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('성적기록');
+  if (!sheet || sheet.getLastRow() < 2) { Logger.log('성적기록 시트가 비어 있습니다.'); return; }
+
+  var col = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues();
+  var titles = [], seen = {};
+  col.forEach(function (r) {
+    var t = String(r[0] || '').trim();
+    if (t && !seen[t]) { seen[t] = true; titles.push(t); }
+  });
+
+  var done = 0, skip = [];
+  titles.forEach(function (t) {
+    var cfg = _recomputeConfigFor(t);
+    if (!cfg) { skip.push(t); return; }
+    // 한 회차가 실패해도 나머지는 계속 맞춘다.
+    try { recomputeExam(t, cfg.base, cfg.qCount); done++; }
+    catch (e) { Logger.log('재계산 실패 · ' + t + ' : ' + e); }
+  });
+  try { fillReportMessages(); } catch (eM) { Logger.log('문자 생성 실패: ' + eM); }
+  Logger.log('recomputeAllExams 완료 · ' + done + '/' + titles.length + '개 회차'
+    + (skip.length ? ' · 설정 없어 건너뜀: ' + skip.join(', ') : ''));
+}
 
 function recomputeExam(title, baseTotals, qCount) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -402,12 +506,16 @@ function recomputeExam(title, baseTotals, qCount) {
   // 2) 학교명 오타 교정
   keep.forEach(function (ri) { var s = String(data[ri][6] || ''); if (_SCHOOL_FIX[s]) data[ri][6] = _SCHOOL_FIX[s]; });
 
-  // 3) 코호트 = 기준분포 + 학생별 최신 1건(이름 기준)
+  // 3) 코호트 = 기준분포 + 학생별 최신 1건
+  //    누가 같은 학생인가는 **이름·학교·학년이 모두 같을 때**다(선생님이 정한 규칙,
+  //    final.html 의 rosterKey 와 같다). 예전에는 이름만 봤다 — 동명이인 둘이
+  //    한 사람으로 합쳐져 인원이 한 명 모자랐다.
   var latest = {};
   keep.forEach(function (ri) {
     var nm = _normName(data[ri][1]); if (!nm) return;
+    var who = _whoKey(data[ri]);
     var t = ts(ri), tot = Number(data[ri][8]) || 0;
-    if (!latest[nm] || t >= latest[nm].ts) latest[nm] = { ts: t, total: tot };
+    if (!latest[who] || t >= latest[who].ts) latest[who] = { ts: t, total: tot };
   });
   var cohort = baseTotals.slice();
   for (var nm in latest) cohort.push(latest[nm].total);
@@ -440,18 +548,20 @@ function recomputeExam(title, baseTotals, qCount) {
    트리거 원클릭 설치 · 상태 확인
    ------------------------------------------------------------
    setupAllTriggers : 편집기에서 1회 실행 → 아래 트리거를 전부 설치(중복 자동 제거)
-     · recomputeJ0  매일 새벽 5시(KST) — 백업용 재계산.
+     · recomputeAllExams  매일 새벽 5시(KST) — 백업용 재계산(모든 회차).
        (평상시 재계산은 제출 즉시 doPost가 수행하므로, 이 트리거는
         손으로 시트를 고친 날 등을 대비한 안전망이다)
+       예전에는 조준모의고사 0회만 도는 recomputeJ0 가 걸려 있었다.
    triggerStatus   : 현재 설치된 트리거 목록을 로그로 출력(설치 여부 확인용)
    ============================================================ */
 function setupAllTriggers() {
   ScriptApp.getProjectTriggers().forEach(function (t) {
-    if (t.getHandlerFunction() === 'recomputeJ0') ScriptApp.deleteTrigger(t);
+    var h = t.getHandlerFunction();
+    if (h === 'recomputeJ0' || h === 'recomputeAllExams') ScriptApp.deleteTrigger(t);
   });
-  ScriptApp.newTrigger('recomputeJ0').timeBased()
+  ScriptApp.newTrigger('recomputeAllExams').timeBased()
     .everyDays(1).atHour(5).inTimezone('Asia/Seoul').create();
-  Logger.log('설치 완료: recomputeJ0 매일 05시(KST) 백업 재계산');
+  Logger.log('설치 완료: recomputeAllExams 매일 05시(KST) 백업 재계산');
   triggerStatus();
 }
 
