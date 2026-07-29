@@ -27,14 +27,19 @@
 총점은 180점 만점(문항당 3점)이라 3으로 나누면 맞은 문항 수가 된다.
 3의 배수가 아닌 값이 있으면 감점이 섞였다는 뜻이므로 세지 않고 알린다.
 
-`q` 가 null 인 문항이 있다
---------------------------
+`q` 의 합이 `n` 보다 작을 수 있다
+---------------------------------
 엑셀은 '모두정답'·'전원정답'·'1또는2' 처리된 문항의 **학생 답을 그 문자열로
-덮어썼다.** 누가 몇 번을 골랐는지가 원본에서 이미 사라졌다는 뜻이다. 그런
-문항은 선택 분포를 `null` 로 두고 앱이 건너뛰게 한다 — 없는 데이터를
-그럴듯하게 지어내는 것보다 한 문항을 비우는 편이 낫다. 정답자 수(`qc`)는
-채점 열에 남아 있으므로 그 문항도 또래 정답률에는 들어간다.
-15개 회차 900문항 중 7문항이 여기 해당한다.
+덮어썼다.** 누가 몇 번을 골랐는지가 원본에서 이미 사라졌다는 뜻이다.
+
+덮인 **칸만** 빼고 나머지는 그대로 센다. 처음에는 그런 칸이 하나라도 있으면
+문항 전체를 버렸는데, 7회 52번은 42명 중 딱 한 칸이 덮였을 뿐인데 멀쩡한
+41명을 함께 버리고 있었다. 그래서 `q` 의 합이 `n` 보다 작을 수 있고,
+그 문항의 선택 분포 분모는 `n` 이 아니라 **`q` 의 합**이다.
+
+한 칸도 안 남은 문항(전원정답처럼 전부 덮인 경우)만 `null` 이다. 그런
+문항은 어차피 모든 보기가 정답이라 분포를 따질 것이 없다.
+정답자 수(`qc`)는 채점 열에 남아 있으므로 그 문항도 또래 정답률에는 들어간다.
 
 정답 여부는 그 회차의 **채점 열**을 그대로 쓴다. 앱의 채점 규칙으로 다시
 세지 않는다 — 2020년에 실제로 매겨진 점수가 그 학생들의 사실이고, 답안이
@@ -141,7 +146,8 @@ def read_round(path: Path) -> Round | None:
     if not out.scores:
         return None
     out.qc = correct
-    out.qopt = [None if dirty.get(i) else opt[i] for i in range(nq)]
+    # 덮인 칸만 빠진다. 한 칸도 안 남았으면(전원정답 등) 그 문항만 null.
+    out.qopt = [None if sum(opt[i]) == 0 else opt[i] for i in range(nq)]
     out.dirty = {i + 1: c for i, c in sorted(dirty.items())}
     return out
 
@@ -159,8 +165,8 @@ def cross_check(exam_id: str, rnd: Round) -> list[str]:
     multi = exam.get("multi") or {}
     bad = []
     for i in range(rnd.nq):
-        if rnd.qopt[i] is None:
-            continue                                  # 답이 덮인 문항은 비교 못 한다
+        if rnd.qopt[i] is None or rnd.dirty.get(i + 1):
+            continue                                  # 답이 덮인 칸이 있으면 비교 못 한다
         acc = set(multi.get(str(i + 1)) or [int(exam["key"][i])])
         mine = sum(rnd.qopt[i][k] for k in range(4) if k + 1 in acc)
         if mine != rnd.qc[i]:
@@ -196,8 +202,9 @@ def build(folder: Path) -> dict:
         if sum(rnd.qc) != sum(rnd.scores):
             warn.append(f"{exam_id}: 정답자 합 {sum(rnd.qc)} ≠ 총점 합 {sum(rnd.scores)}")
         for i, o in enumerate(rnd.qopt):
-            if o is not None and sum(o) != n:
-                warn.append(f"{exam_id} {i+1}번: 선택 분포 합 {sum(o)} ≠ 응시 {n}")
+            lost = rnd.dirty.get(i + 1, 0)
+            if o is not None and sum(o) + lost != n:
+                warn.append(f"{exam_id} {i+1}번: 선택 분포 합 {sum(o)}+덮임 {lost} ≠ 응시 {n}")
         warn += cross_check(exam_id, rnd)
 
         exams[exam_id] = {
@@ -206,7 +213,10 @@ def build(folder: Path) -> dict:
             "qc": rnd.qc,
             "q": rnd.qopt,
         }
-        lost = f"  · 선택 분포 없음 {list(rnd.dirty)}" if rnd.dirty else ""
+        gone = [q for q in rnd.dirty if rnd.qopt[q - 1] is None]
+        part = [q for q in rnd.dirty if rnd.qopt[q - 1] is not None]
+        lost = ((f"  · 분포 없음 {gone}" if gone else "")
+                + (f"  · 일부 덮임 {part}" if part else ""))
         print(f"  {exam_id:12s} {n:3d}명  평균 {sum(rnd.scores)/n:4.1f}"
               f"  범위 {min(rnd.scores)}~{max(rnd.scores)}   ← {rnd.path.name}{lost}")
 
@@ -218,8 +228,9 @@ def build(folder: Path) -> dict:
     return {
         "note": ("회차별 익명 집계. n=응시 인원 · hist=맞은 문항 수별 사람 수 · "
                  "qc=문항별 정답자 수 · q=문항별 [①②③④,무응답] 사람 수. "
-                 "이름·학교는 담지 않는다. q 가 null 인 문항은 엑셀이 학생 답을 "
-                 "'모두정답' 등으로 덮어써 선택 분포가 남아 있지 않은 문항이다."),
+                 "이름·학교는 담지 않는다. 엑셀이 '모두정답' 등으로 학생 답을 덮어쓴 "
+                 "칸은 빠지므로 q 의 합이 n 보다 작을 수 있다 — 그 문항의 분포 분모는 "
+                 "n 이 아니라 q 의 합이다. 한 칸도 안 남은 문항만 null 이다."),
         "source": "조준모의고사 성적표 엑셀의 '성적입력' 시트",
         "exams": dict(sorted(exams.items(), key=lambda kv: _order(kv[0]))),
     }

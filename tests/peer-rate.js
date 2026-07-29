@@ -55,6 +55,8 @@ const ctx = { BASELINE: null, console, Buffer };
 vm.createContext(ctx);
 vm.runInContext([
   cut('accSet', 'const'),
+  cut('COHORT_ALIAS', 'const'), cut('cohortKey', 'const'),
+  cut('rosterKey'), cut('latestPerStudent'),
   cut('mergeBaselineQ'),
   cut('unpackCohort'),
   cut('packCohort'),
@@ -91,10 +93,16 @@ console.log('── 저장된 집계가 앞뒤가 맞는다 ──');
     if (b.q.length !== exam.nQ) bad.push(id + ': q 길이 ' + b.q.length);
     b.q.forEach((o, i) => { cells++;
       if (o === null) { holes++; return; }
-      if (o.reduce((a, x) => a + x, 0) !== b.n) bad.push(`${id} ${i + 1}번: 선택 분포 합 ≠ ${b.n}`);
+      /* 엑셀이 '모두정답' 등으로 덮어쓴 칸은 빠지므로 합이 n 보다 작을 수 있다.
+         하지만 넘을 수는 없다 — 넘으면 사람을 지어낸 것이다. */
+      const sum = o.reduce((a, x) => a + x, 0);
+      if (sum > b.n) bad.push(`${id} ${i + 1}번: 선택 분포 합 ${sum} > 응시 ${b.n}`);
+      if (sum === 0) bad.push(`${id} ${i + 1}번: 아무도 없는데 null 이 아니다`);
       // 정답 보기를 고른 사람 수 = 정답자 수. 어긋나면 정답 키가 어긋난 것이다.
+      // 칸이 덮이지 않은 문항에서만 견줄 수 있다(덮인 사람의 정답 여부는 채점 열에만 남았다)
       const mine = acc(exam, i + 1).reduce((a, k) => a + (o[k - 1] || 0), 0);
-      if (mine !== b.qc[i]) bad.push(`${id} ${i + 1}번: 정답자 ${b.qc[i]} ≠ 선택 합 ${mine}`);
+      if (sum === b.n && mine !== b.qc[i])
+        bad.push(`${id} ${i + 1}번: 정답자 ${b.qc[i]} ≠ 선택 합 ${mine}`);
     });
     if (b.qc.some(c => c < 0 || c > b.n)) bad.push(id + ': 정답자 수가 응시 인원을 벗어난다');
     // 히스토그램 인원과 응시 인원이 같아야 한다(석차의 분모)
@@ -103,8 +111,12 @@ console.log('── 저장된 집계가 앞뒤가 맞는다 ──');
   });
   chk('저장된 집계에 모순이 없다', bad.slice(0, 5), []);
   chk('문항 수', cells, 900);
-  // 엑셀이 '모두정답' 등으로 학생 답을 덮어쓴 문항. 늘어나면 원본이 바뀐 것이다.
-  chk('선택 분포가 없는 문항', holes, 8);
+  /* 한 칸도 안 남은 문항. 전부 전원정답·모두정답 처리된 문항이라 분포를 따질
+     것이 없다. 늘어나면 원본이 바뀌었거나 칸을 통째로 버리고 있다는 뜻이다. */
+  chk('선택 분포가 없는 문항', holes, 5);
+  // 일부만 덮인 문항은 남은 사람으로 센다. 통째로 버리면 이 수가 0이 된다.
+  chk('일부만 남은 문항', Object.keys(BASE).reduce((a, k) =>
+    a + BASE[k].q.filter(o => o && o.reduce((x, y) => x + y, 0) !== BASE[k].n).length, 0), 3);
   chk('기준 기록 인원', Object.keys(BASE).reduce((a, k) => a + BASE[k].n, 0), 365);
 }
 
@@ -146,12 +158,42 @@ console.log('\n── 답이 덮인 문항은 지어내지 않는다 ──');
   const cs = ctx.mergeBaselineQ(exam, localCS(exam, rows));
   chk('47번은 선택 분포가 없다', b.q[46], null);
   chk('그 문항은 이번 응시자만 센다', cs.qcnt[46], [0, 1, 1, 0]);
+  chk('분포가 100%를 넘지 않는다',
+      cs.qopt[46].reduce((a, x) => a + x, 0) <= 100, true);
   // 정답자 수는 채점 열에 남아 있으므로 정답률에는 들어간다.
   chk('그래도 정답률은 합쳐 센다', cs.qp[46], Math.round((b.qc[46] + 2) / cs.N * 100));
   chk('모두정답이라 100%', cs.qp[46], 100);
   // 답이 온전한 문항은 정상적으로 합쳐진다.
   // qcnt 는 ①②③④ 만 센다 — 무응답은 여기 없고 정답률의 분모에만 들어간다.
   chk('1번은 합쳐진다', cs.qcnt[0].reduce((a, x) => a + x, 0), b.n - b.q[0][4] + 2);
+}
+
+console.log('\n── 일부만 덮인 문항은 남은 사람으로 센다 ──');
+{
+  ctx.BASELINE = BASE;
+  const exam = examOf('jmchc-7'), b = BASE['jmchc-7'];   // 52번: 42명 중 1칸만 덮였다
+  const q52 = b.q[51], kept = q52.reduce((a, x) => a + x, 0);
+  chk('52번은 41명이 남아 있다', kept, b.n - 1);
+  chk('통째로 버리지 않았다', q52 !== null, true);
+  const rows = [Array.from({ length: 60 }, () => 2)];
+  const cs = ctx.mergeBaselineQ(exam, localCS(exam, rows));
+  // 분모는 b.n(42)이 아니라 남은 41 + 이번 1명 = 42
+  const den = kept + 1;
+  chk('네 보기 모두 남은 사람 수로 나눈다', cs.qopt[51],
+      [0, 1, 2, 3].map(k => Math.round((q52[k] + (k === 1 ? 1 : 0)) / den * 100)));
+  chk('선택 비율의 합이 100을 넘지 않는다',
+      cs.qopt[51].reduce((a, x) => a + x, 0) <= 100, true);
+
+  /* 분모를 어디서 가져오는지가 핵심이다. 덮인 칸까지 분모에 넣으면(b.n) 비율이
+     실제보다 낮게 나온다. 덮인 칸이 많은 59번(42명 중 26칸이 덮여 16명만 남음)
+     에서는 그 차이가 눈에 띄게 벌어진다. */
+  const q59 = b.q[58], kept59 = q59.reduce((a, x) => a + x, 0);
+  chk('59번은 16명만 남아 있다', kept59, 16);
+  const den59 = kept59 + 1;
+  chk('59번도 남은 사람 수로 나눈다', cs.qopt[58],
+      [0, 1, 2, 3].map(k => Math.round((q59[k] + (k === 1 ? 1 : 0)) / den59 * 100)));
+  chk('덮인 칸을 분모에 넣은 값과 다르다',
+      cs.qopt[58][3] !== Math.round(q59[3] / (b.n + 1) * 100), true);
 }
 
 console.log('\n── 공유 링크는 길어지지 않는다 ──');
@@ -174,6 +216,32 @@ console.log('\n── 공유 링크는 길어지지 않는다 ──');
   chk('받는 쪽 또래 수가 같다', rebuilt.N, cs.N);
   chk('받는 쪽 정답률이 같다', rebuilt.qp, cs.qp);
   chk('받는 쪽 선택 분포가 같다', rebuilt.qopt, cs.qopt);
+}
+
+console.log('\n── 한 학생은 한 명으로 센다 ──');
+{
+  /* 같은 학생을 두 번 채점하면(오타를 고치고 다시 채점하는 일이 흔하다) 답안이
+     조금이라도 다르면 기록이 두 줄 남는다. 통계가 둘을 각각 세면 또래 인원이
+     부풀어, 시트(학생별 최신 1건)와 어긋난다 — 화면 14명 · 문자 13명. */
+  const r = (name, school, ts, ans) => ({ name, school, grade: '2', ts, ans, correct: 0 });
+  const got = ctx.latestPerStudent([
+    r('김철수', 'A중', 1, [1, 1]), r('김철수', 'A중', 2, [2, 2]),   // 같은 학생, 다시 채점
+    r('김철수', 'B중', 1, [3, 3]),                                   // 동명이인 — 다른 사람
+    r('이영희', 'A중', 1, [4, 4]),
+  ]);
+  chk('네 줄이 세 사람이 된다', got.length, 3);
+  chk('같은 학생은 최신 것만 남는다',
+      got.filter(x => x.name === '김철수' && x.school === 'A중').map(x => x.ans), [[2, 2]]);
+  chk('동명이인은 살아남는다',
+      got.filter(x => x.name === '김철수').length, 2);
+  chk('순서가 뒤집히지 않는다', got.map(x => x.name), ['김철수', '김철수', '이영희']);
+  // 저장 시각이 없어도 죽지 않는다(옛 기록)
+  chk('ts 가 없어도 한 명으로 센다',
+      ctx.latestPerStudent([r('박', 'C중', undefined, [1]), r('박', 'C중', undefined, [2])]).length, 1);
+
+  // 성적표가 실제로 이 함수를 통하는지 — 안 통하면 화면만 예전 그대로다
+  chk('cohortStats 가 학생별로 묶는다',
+      /latestPerStudent\(subs\(exam\.id\)/.test(SRC), true);
 }
 
 console.log('\n── 성적표가 실제로 이 함수를 통한다 ──');
