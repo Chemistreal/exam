@@ -1418,6 +1418,47 @@ function rankPool(exam,cs){
           fromBaseline:!!base, ready:pool.length>=MINP};
 }
 function rankIn(pool,my){ return pool.filter(function(t){return t>my;}).length+1; }
+/* ── 또래 정답률의 모집단 ──────────────────────────────────────────────
+   석차는 기준 기록을 쓰는데 **정답률은 안 쓰고 있었다.** 그래서 "석차 12/57"
+   바로 옆에 "또래 정답률 33%(3명 중 1명)"가 나란히 찍혔다. 같은 또래를
+   말하면서 한쪽은 57명, 한쪽은 3명이었다.
+
+   엑셀에는 문항별 답안이 사람마다 다 들어 있다. 담아 둔 것은 집계뿐이다 —
+   문항별 정답자 수(qc)와 [①②③④·무응답] 사람 수(q). 누가 무엇을 골랐는지는
+   복원되지 않는다.
+
+   두 가지가 따로인 이유: 엑셀이 '모두정답'·'전원정답' 처리된 문항의 학생 답을
+   그 문자열로 **덮어썼다.** 정답자 수는 채점 열에 남아 있지만 선택 분포는
+   원본에서 사라졌다. 그래서 그런 문항(900개 중 8개)은 정답률만 합치고 선택
+   분포는 지금 응시자 것만 쓴다 — 없는 데이터를 지어내지 않는다.
+
+   정답 여부는 **저장된 정답자 수**를 그대로 쓴다. 다시 세지 않는다. 답이
+   온전한 892문항에서 그 회차의 채점과 앱의 채점 규칙이 같은 답을 내는지
+   확인했고(tools/gen_cohort_baseline.py), 한 문항도 어긋나지 않았다. */
+function mergeBaselineQ(exam,cs){
+  var b=BASELINE&&BASELINE[exam&&exam.id];
+  if(!b||!b.qc||!cs||!cs.percReady||!cs.qcnt) return cs;
+  var bn=b.n|0; if(!bn) return cs;
+  var locN=cs.N|0, N=locN+bn, miss=new Set(exam.miss||[]);
+  var qp=[], qopt=[], qcnt=[];
+  for(var q=1;q<=exam.nQ;q++){
+    if(miss.has(q)){ qp.push(null); qopt.push(null); qcnt.push(null); continue; }
+    var lc=cs.qcnt[q-1]||[0,0,0,0], bq=(b.q&&b.q[q-1])||null;
+    var cnt=bq?[lc[0]+bq[0], lc[1]+bq[1], lc[2]+bq[2], lc[3]+bq[3]]:[lc[0],lc[1],lc[2],lc[3]];
+    var den=bq?N:locN;                       // 선택 분포가 없는 문항은 지금 응시자만
+    qcnt.push(cnt);
+    qopt.push(den?cnt.map(function(x){ return Math.round(x/den*100); }):null);
+    var acc=accSet(exam,q), lcorr=0;
+    for(var k=0;k<4;k++) if(acc.indexOf(k+1)>=0) lcorr+=lc[k]|0;
+    qp.push(Math.round((lcorr+(b.qc[q-1]|0))/N*100));
+  }
+  /* local: 공유 링크에 싣는 것. 기준 기록은 받는 쪽도 같은 파일을 갖고 있으니
+     링크에 넣지 않는다 — 넣으면 주소만 길어지고 값은 똑같다. */
+  return {N:N, ready:true, estimated:false, percReady:true,
+          qp:qp, qopt:qopt, qdisc:cs.qdisc||null, qcnt:qcnt,
+          totals:cs.totals, flagged:cs.flagged|0, fromLink:!!cs.fromLink,
+          baseN:bn, local:cs.local||{N:locN, qcnt:cs.qcnt}};
+}
 function globalDomainPrior(excludeId){
   const ag={}; let aS=0,aN=0;
   FINAL_EXAMS.forEach(e=>{ if(e.id===excludeId||!e.area||e.area.length!==e.nQ)return; const a=cleanCohort(e,subs(e.id).filter(r=>r.ans&&r.ans.length===e.nQ)).clean; if(a.length<3)return; const miss=new Set(e.miss||[]);
@@ -1431,11 +1472,18 @@ function cohortStats(exam){
      링크에 든 것은 합계뿐이라(문항별 정답률·선택 분포·점수 분포) 개인은 드러나지 않는다. */
   if(window.__csLink && window.__csLink.id===exam.id){
     if(window.__csLink.parsed===undefined) window.__csLink.parsed=unpackCohort(exam,window.__csLink.raw);
-    if(window.__csLink.parsed) return window.__csLink.parsed;
+    // 기준 기록은 링크에 싣지 않고 여기서 얹는다. 받는 쪽도 baseline.json 을
+    // 갖고 있으니 주소를 늘릴 이유가 없다. 캐시는 링크에서 푼 것만 담는다 —
+    // baseline.json 이 아직 안 왔을 때 합쳐진 결과가 굳어 버리면 안 된다.
+    if(window.__csLink.parsed) return mergeBaselineQ(exam,window.__csLink.parsed);
   }
   const _raw=subs(exam.id).filter(r=>r.ans&&r.ans.length===exam.nQ); const _cc=cleanCohort(exam,_raw); const arr=_cc.clean; const N=arr.length; const _flag=_cc.flagged.length;
   const miss=new Set(exam.miss||[]); const totals=arr.map(r=>r.correct);
-  if(N>=MINP){
+  /* 기준 기록이 있으면 이 브라우저에 아무도 없어도 실측으로 간다 — 첫 학생을
+     채점하기 전부터 또래 정답률이 나온다. N=0 이면 아래에서 나오는 비율은
+     의미가 없지만, 그 값은 mergeBaselineQ 가 사람 수로 다시 계산해 덮는다. */
+  const _hasBQ=!!(BASELINE&&BASELINE[exam.id]&&BASELINE[exam.id].qc);
+  if(N>=MINP||_hasBQ){
     const qp=[], qopt=[], qdisc=[], qcnt=[];   // qcnt: 반올림 전 원본 사람 수(공유 링크가 쓴다)
     const idxSorted=arr.map((r,i)=>({i,t:r.correct})).sort((a,b)=>b.t-a.t);
     const g=Math.max(1,Math.floor(N*0.27)); const hi=idxSorted.slice(0,g).map(x=>x.i), lo=idxSorted.slice(-g).map(x=>x.i);
@@ -1445,7 +1493,7 @@ function cohortStats(exam){
       qp.push(Math.round(c/N*100)); qopt.push(opt.map(x=>Math.round(x/N*100))); qcnt.push(opt);
       const hc=hi.filter(i=>okq(exam,q,arr[i].ans[q-1])).length/g, lc=lo.filter(i=>okq(exam,q,arr[i].ans[q-1])).length/g;
       qdisc.push(+(hc-lc).toFixed(2)); }
-    return {N,ready:true,estimated:false,percReady:true,qp,qopt,qdisc,qcnt,totals,flagged:_flag};
+    return mergeBaselineQ(exam,{N,ready:true,estimated:false,percReady:true,qp,qopt,qdisc,qcnt,totals,flagged:_flag});
   }
   // 소표본: 글로벌 도메인 prior로 난이도 추정 (수축)
   const GP=globalDomainPrior(exam.id);
@@ -1486,16 +1534,24 @@ function legendHTML(W,cut){const a=award(W,cut);const r=cut.map((c,i)=>i===0?'0'
   let ch=TIERS.map((l,i)=>`<span class="lchip ${a.inA&&a.idx===i?'cur':''}">${l} ${r[i]}틀림</span>`).join('')+`<span class="lchip ${!a.inA?'cur':''}">수상권 밖 ${cut[4]+1}+</span>`;
   return `<div class="sec">${secH('수상 기준')}<div class="legend">${ch}</div></div>`;}
 
-const GLOSS={"백분위":"나보다 점수가 낮은 학생의 비율입니다. 백분위 90이면 전체의 90%보다 높습니다.","실측 정답률":"우리 반 누적 응시자들이 이 문항을 맞힌 비율입니다. 출제 정답률과 달리 입력이 쌓일수록 갱신됩니다.","변별도":"상위 27%와 하위 27% 집단의 정답률 차이입니다. 클수록 실력을 잘 가르는 문항입니다."};
+const GLOSS={"백분위":"나보다 점수가 낮은 학생의 비율입니다. 백분위 90이면 전체의 90%보다 높습니다.","실측 정답률":"같은 회차를 실제로 응시한 학생들이 이 문항을 맞힌 비율입니다. 이전 회차 응시 기록과 이번 누적 응시를 합쳐 셉니다. 출제 정답률과 달리 입력이 쌓일수록 갱신됩니다.","변별도":"상위 27%와 하위 27% 집단의 정답률 차이입니다. 클수록 실력을 잘 가르는 문항입니다."};
 function glossHTML(){ return `<details style="margin:9px 0 2px"><summary class="muted" style="cursor:pointer;font-size:12.5px">용어 풀이</summary><div style="font-size:12.5px;line-height:1.7;color:var(--ink-2);margin-top:6px">${Object.keys(GLOSS).map(k=>`<div style="margin:4px 0"><b>${k}</b> · ${esc(GLOSS[k])}</div>`).join('')}</div></details>`; }
 function confidenceLine(cs){ const n=cs?cs.N:0;
   if(!(cs&&cs.percReady)) return '';
   if(n>=100) return '';
-  return `<div class="note" style="font-size:12px;margin-top:8px">또래 대비 위치(백분위·분포)는 누적 ${n}명 기준의 잠정치이며, 데이터가 쌓일수록 정밀해집니다. 영역별 강·약점과 오답 개념은 이번 응답에서 바로 읽은 결과입니다.</div>`; }
+  return `<div class="note" style="font-size:12px;margin-top:8px">또래 대비 위치(백분위·분포)와 문항 정답률은 같은 회차 응시자 ${n}명 기준이며, 데이터가 쌓일수록 정밀해집니다. 영역별 강·약점과 오답 개념은 이번 응답에서 바로 읽은 결과입니다.</div>`; }
 function methodSec(exam){
   const hasArea=!!(exam.area&&exam.area.length===exam.nQ);
   const nA=hasArea?(new Set(exam.area)).size:0;
   const _fl=cleanCohort(exam,subs(exam.id).filter(r=>r.ans&&r.ans.length===exam.nQ)).flagged.length;
+  /* 또래 숫자가 어디서 왔는지 밝힌다. "또래 정답률 41%"만 있고 몇 명인지
+     안 밝히면 3명이 만든 41%와 57명이 만든 41%가 같아 보인다. */
+  const _bq=BASELINE&&BASELINE[exam.id];
+  let _cs=null; try{ _cs=cohortStats(exam); }catch(e){}
+  const _coh=(_cs&&_cs.percReady&&_cs.N)
+    ? `이 회차 또래 통계(정답률·선택 분포·백분위·석차)의 모집단은 <b>${_cs.N}명</b>이다`
+      + (_bq&&_bq.n?` — 같은 회차 이전 응시 기록 <b>${_bq.n}명</b>과 이번 누적 응시 <b>${_cs.N-_bq.n}명</b>을 합친 수다. 두 집단은 서로 다른 학생이다.`:`(이번 누적 응시).`)
+    : '';
   return `<div class="sec">${secH('진단 방법론 · 신뢰 근거')}
    <div class="note"><b>왜 총점이 아니라 영역으로 진단하는가.</b> 총점은 "얼마나 맞혔는가"만 말한다. 이 리포트는 모든 문항을 개념 영역으로 나눠 <b>"무엇을, 어떻게 고칠지"</b>를 약한 영역부터 제시한다. 같은 점수라도 약점의 위치가 다르면 다음 학습은 달라진다.</div>
    <details style="margin:9px 0 2px"><summary class="muted" style="cursor:pointer">진단 기준 · 채점 규칙 · 신뢰 근거 자세히 보기</summary>
@@ -1504,7 +1560,8 @@ function methodSec(exam){
      <p style="margin:7px 0"><b>② 채점 규칙.</b> 공식 정답표를 기준으로 하되 특수 문항을 명시적으로 처리해 공정성을 지킨다 — <b>복수정답</b>(둘 이상의 답을 모두 정답 인정), <b>전원정답</b>(문제 오류 시 모두 정답 처리), <b>채점 제외</b>(정답 미확정 문항은 분모에서 제외).</p>
      <p style="margin:7px 0"><b>③ 신뢰 근거.</b> 정답표는 공식 출처를 기준으로 하며, 모의 시험군은 공식 성적표 원본과 전수 대조해 검증했다. 검증 중 정답표 자체의 오류가 발견되면 화학적으로 옳은 답으로 정정하고 그 사유를 해설에 명시했다. 정답·풀이는 1,560문항 해설지로 교차 확인된다.</p>
      <p style="margin:7px 0"><b>④ 리포트 읽는 법.</b> <b>백분위</b> = 응시 집단 내 상대 위치 · <b>영역 막대</b> = 영역별 정답률(짧을수록 약점) · <b>오개념 분석</b> = 오답 선택지가 가리키는 개념 결손 · <b>처방</b> = 약점을 메우는 다음 학습.</p>
-     ${_fl>0?`<p style="margin:7px 0;color:var(--teal-d)"><b>⑤ 데이터 품질.</b> 또래 통계 산출 시 신뢰할 수 없는 응답(단일 보기 반복·답안 패턴 복제) <b>${_fl}건</b>을 자동 제외해 통계 오염을 막았다.</p>`:''}
+     ${_coh?`<p style="margin:7px 0"><b>⑤ 또래 모집단.</b> ${_coh}</p>`:''}
+     ${_fl>0?`<p style="margin:7px 0;color:var(--teal-d)"><b>⑥ 데이터 품질.</b> 또래 통계 산출 시 신뢰할 수 없는 응답(단일 보기 반복·답안 패턴 복제) <b>${_fl}건</b>을 자동 제외해 통계 오염을 막았다.</p>`:''}
    </div></details>
    ${glossHTML()}
   </div>`;
@@ -2793,15 +2850,20 @@ const clamp255=v=>Math.max(0,Math.min(255,Math.round(v||0)));
 
 function packCohort(exam,cs){
   if(!cs||!cs.percReady||!cs.qopt) return '';
-  var nQ=exam.nQ, N=Math.min(65535,cs.N||0); if(!N) return '';
+  /* 여기 싣는 것은 **이 브라우저에서 채점한 사람**뿐이다. 기준 기록(2020년
+     응시자)은 받는 쪽도 baseline.json 으로 갖고 있으므로 링크에 넣지 않는다 —
+     넣으면 사람 수가 커져 칸마다 비트가 늘고 주소만 길어진다. */
+  var L=cs.local||{N:cs.N,qcnt:cs.qcnt};
+  // 사람 수(비율 아님)가 있어야 한다. 비율에서 되돌리면 기준 기록이 섞인
+  // 백분율을 이 브라우저 인원으로 나눠 엉뚱한 수가 실린다.
+  if(!L.qcnt) return '';
+  var nQ=exam.nQ, N=Math.min(65535,L.N||0); if(!N) return '';
   var miss=new Set(exam.miss||[]), w=bitW();
   for(var q=1;q<=nQ;q++){
     if(miss.has(q)) continue;                      // 받는 쪽이 exam.miss 로 안다
-    // 사람 수. cohortStats 가 원본 카운트를 주면 그대로, 아니면 비율에서 되돌린다.
-    var c=(cs.qcnt&&cs.qcnt[q-1])||null, o=cs.qopt[q-1]||[0,0,0,0], rem=N;
+    var c=L.qcnt[q-1]||[0,0,0,0], rem=N;
     for(var k=0;k<4;k++){
-      var v=c?c[k]:Math.round((o[k]||0)*N/100);
-      v=Math.max(0,Math.min(rem,Math.round(v||0)));
+      var v=Math.max(0,Math.min(rem,Math.round(c[k]||0)));
       w.put(v,bitsFor(rem)); rem-=v;               // 남은 폭만큼만 비트를 쓴다
     }
   }
@@ -2819,9 +2881,9 @@ function unpackCohort(exam,str){
     if(b[0]===1) return unpackCohortV1(exam,b);    // 이미 나간 링크
     if(b[0]!==CS_VER) return null;
     var nQ=exam.nQ, N=(b[2]<<8)|b[3]; if(!N) return null;
-    var miss=new Set(exam.miss||[]), r=bitR(b.subarray(4)), qp=[], qopt=[];
+    var miss=new Set(exam.miss||[]), r=bitR(b.subarray(4)), qp=[], qopt=[], qcnt=[];
     for(var q=1;q<=nQ;q++){
-      if(miss.has(q)){ qp.push(null); qopt.push(null); continue; }
+      if(miss.has(q)){ qp.push(null); qopt.push(null); qcnt.push(null); continue; }
       var rem=N, c=[];
       for(var k=0;k<4;k++){ var v=Math.min(rem,r.get(bitsFor(rem))); c.push(v); rem-=v; }
       // 정답률은 담지 않는다. 정답 보기를 고른 사람 수를 더하면 그게 정답률이다.
@@ -2829,27 +2891,33 @@ function unpackCohort(exam,str){
       for(var j=0;j<4;j++) if(acc.indexOf(j+1)>=0) corr+=c[j];
       qp.push(Math.round(corr/N*100));
       qopt.push(c.map(function(x){ return Math.round(x/N*100); }));
+      qcnt.push(c);                                 // 기준 기록을 얹으려면 사람 수가 있어야 한다
     }
     var M=r.get(8), totals=[], hb=bitsFor(nQ), nb=bitsFor(N);
     for(var i=0;i<M;i++){ var sc=r.get(hb), cnt=r.get(nb); for(var t=0;t<cnt;t++) totals.push(sc); }
     if(!totals.length) return null;
     return {N:N,ready:true,estimated:false,percReady:true,
-            qp:qp,qopt:qopt,qdisc:null,totals:totals,flagged:0,fromLink:true};
+            qp:qp,qopt:qopt,qdisc:null,qcnt:qcnt,totals:totals,flagged:0,fromLink:true,
+            local:{N:N,qcnt:qcnt}};
   }catch(e){ return null; }
 }
 // 옛 형식(문항당 6바이트). 이미 학부모에게 나간 링크가 있으므로 계속 읽는다.
 function unpackCohortV1(exam,b){
-  var nQ=exam.nQ, N=(b[2]<<8)|b[3], qp=[], qopt=[], i=4;
+  var nQ=exam.nQ, N=(b[2]<<8)|b[3], qp=[], qopt=[], qcnt=[], i=4;
   for(var q=0;q<nQ;q++){
     var p=b[i++], o1=b[i++], o2=b[i++], o3=b[i++], o4=b[i++]; i++;   // 마지막은 변별도(안 쓴다)
-    if(p===255){ qp.push(null); qopt.push(null); continue; }
+    if(p===255){ qp.push(null); qopt.push(null); qcnt.push(null); continue; }
     qp.push(p); qopt.push([o1,o2,o3,o4]);
+    // 옛 형식은 비율만 담았다. 기준 기록을 얹으려면 사람 수가 필요해 되돌린다
+    // (반올림 오차가 한둘 섞일 수 있지만, 기준 기록을 통째로 버리는 것보다 낫다).
+    qcnt.push([o1,o2,o3,o4].map(function(x){ return Math.max(0,Math.min(N,Math.round(x*N/100))); }));
   }
   var totals=[];
   for(var t=0;t<=nQ;t++){ var c=b[i++]||0; for(var k=0;k<c;k++) totals.push(t); }
   if(!totals.length) return null;
   return {N:N,ready:true,estimated:false,percReady:true,
-          qp:qp,qopt:qopt,qdisc:null,totals:totals,flagged:0,fromLink:true};
+          qp:qp,qopt:qopt,qdisc:null,qcnt:qcnt,totals:totals,flagged:0,fromLink:true,
+          local:{N:N,qcnt:qcnt}};
 }
 function shareLinkFinal(cur,sel,nm,exno){
   /* 또래 통계 스냅숏은 `r=` **앞**에 붙인다. 뒤에 붙이면 이름을 끝까지 집어삼키는
