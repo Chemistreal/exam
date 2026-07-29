@@ -44,19 +44,21 @@ const baseline = JSON.parse(fs.readFileSync(path.join(ROOT, 'cohort', 'baseline.
    삭제 순서나 열 어긋남 같은 실수가 여기서 걸린다. */
 function fakeSheet(rows) {
   const grid = rows.map(r => r.slice());
+  const io = { reads: 0, writes: 0 };   // 회차마다 시트를 다시 읽고 쓰면 저장이 느려진다
   const sheet = {
     _grid: grid,
+    _io: io,
     getLastRow: () => grid.length + 1,
     getRange(row, col, nRow, nCol) {
       nRow = nRow || 1; nCol = nCol || 1;
       const range = {
         getValue: () => (grid[row - 2] || [])[col - 1],
-        getValues: () => { const out = [];
+        getValues: () => { if (nRow > 1 || nCol > 1) io.reads++; const out = [];
           for (let i = 0; i < nRow; i++) { const src = grid[row - 2 + i] || [], line = [];
             for (let j = 0; j < nCol; j++) line.push(src[col - 1 + j]);
             out.push(line); }
           return out; },
-        setValues(vals) { for (let i = 0; i < vals.length; i++) {
+        setValues(vals) { io.writes++; for (let i = 0; i < vals.length; i++) {
           if (!grid[row - 2 + i]) grid[row - 2 + i] = [];
           for (let j = 0; j < vals[i].length; j++) grid[row - 2 + i][col - 1 + j] = vals[i][j]; }
           return range; },
@@ -231,6 +233,34 @@ console.log('\n── 제출이 없는 회차도 훑는다 ──');
   chk('6회가 맞춰졌다', sh._grid[0][13], BASE6.length + 1);
   chk('14회도 맞춰졌다', sh._grid[1][13], baseline['jmchc-14'].n + 1);
   chk('설정 없는 옛 시험은 손대지 않는다', sh._grid[2][13], 3);
+}
+
+console.log('\n── 저장하는 즉시 다른 회차까지 맞는다 ──');
+{
+  // 한 회차만 맞추면 다른 회차의 옛 행은 다음 제출까지 굳은 채 남는다.
+  // 저장 한 번이 시트 전체를 맞춰야 하고, 그러면서 느려지면 안 된다.
+  const T14 = 'JMChC 모의고사 14회';
+  const sh = fakeSheet([
+    row(T6, '가학생', 'A중', 40, { day: 0, n: 11 }),
+    row(T14, '라학생', 'C중', 30, { day: 0, n: 5 }),
+    row(T14, '마학생', 'C중', 20, { day: 1, n: 6, ans: '2'.repeat(60) }),
+  ]);
+  const gas = load(sh);
+  sh._io.reads = 0; sh._io.writes = 0;
+
+  // 6회 학생 한 명을 저장한다 — 14회는 건드리지도 않았다.
+  post(gas, { exam: T6, name: '나학생', school: 'A중', grade: '2', total: 90,
+              max: 180, pct100: 50, percentile: 0, rank: 1, n: 1,
+              correct: 30, areas: '', answers: '3'.repeat(60) });
+
+  chk('6회가 맞춰졌다', sh._grid.filter(r => r[0] === T6).map(r => r[13]),
+      [BASE6.length + 2, BASE6.length + 2]);
+  chk('손대지 않은 14회도 같이 맞춰졌다',
+      sh._grid.filter(r => r[0] === T14).map(r => r[13]),
+      [baseline['jmchc-14'].n + 2, baseline['jmchc-14'].n + 2]);
+  // 38개 회차를 각각 읽고 쓰면 저장 한 번이 몇십 초가 된다.
+  chk('시트를 한 번만 읽는다', sh._io.reads, 1);
+  chk('시트에 한 번만 쓴다', sh._io.writes, 1);
 }
 
 console.log('\n── 표를 손으로 고치지 않았다 ──');

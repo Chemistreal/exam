@@ -113,17 +113,19 @@ function doPost(e) {
       d.correct, d.areas, "'" + d.answers
     ]);
 
-    // [자동 재계산] 저장 직후 이 시험의 전체 석차·백분위·인원·성적표 문자를 최종 코호트로 재정렬.
-    // 실패해도 저장 자체는 성공 처리(재계산은 일일 백업 트리거나 수동 recomputeJ0로 복구 가능).
+    // [자동 재계산] 저장 직후 **시트에 쌓인 모든 회차**의 석차·백분위·인원·성적표
+    // 문자를 최종 코호트로 다시 맞춘다. 방금 저장한 회차만 맞추면 다른 회차의
+    // 옛 행은 굳은 채 남아, 선생님은 그게 언제 풀릴지 알 수 없다.
+    // 시트를 한 번 읽고 한 번 쓰므로 회차가 늘어도 저장이 느려지지 않는다.
+    // 실패해도 저장 자체는 성공 처리(수동 recomputeAllExams 로 복구 가능).
     try {
       SpreadsheetApp.flush();
-      var cfg = _recomputeConfigFor(d.exam);
-      if (cfg) recomputeExam(d.exam, cfg.base, cfg.qCount);
-    } catch (eR) { Logger.log('자동 재계산 실패(저장은 완료): ' + eR); }
-
-    // [자동 문자 생성] 저장 직후 '성적문자' 탭을 최신 성적기록으로 통째로 다시 채운다.
-    // 실패해도 저장은 성공 처리(수동 fillReportMessages로 복구 가능).
-    try { fillReportMessages(); } catch (eM) { Logger.log('자동 문자 생성 실패(저장은 완료): ' + eM); }
+      recomputeAllExams();
+    } catch (eR) {
+      Logger.log('자동 재계산 실패(저장은 완료): ' + eR);
+      // 재계산이 엎어져도 '성적문자' 탭은 채워 둔다. 옛 수치일지언정 빈 탭보다 낫다.
+      try { fillReportMessages(); } catch (eM) { Logger.log('자동 문자 생성 실패: ' + eM); }
+    }
 
     return ContentService
       .createTextOutput(JSON.stringify({ ok: true }))
@@ -445,53 +447,81 @@ function _msgExam(title, name, total, max, pct100, correct, qCount, percentile, 
 /* 조준모의고사 0회 전용 진입점 */
 function recomputeJ0() { recomputeExam('조준모의고사 0회', J0_BASE_TOTALS, 60); }
 
-/* 시트에 쌓인 **모든 회차**를 다시 맞춘다(수동 복구 · 매일 새벽 백업 트리거).
- * 제출 때마다 도는 재계산은 그 회차만 건드리므로, 오래전에 저장돼 인원이 굳은
- * 다른 회차의 행은 그대로 남는다. 이 함수가 그것들까지 한 번에 훑는다.
- * 설정이 없는 제목(EXAM_COHORT 에 없는 옛 시험)은 건너뛴다. */
+/* 시트에 쌓인 **모든 회차**를 다시 맞춘다.
+ * 제출 때마다 이 함수가 돈다(doPost). 한 회차만 맞추면 다른 회차의 옛 행은
+ * 굳은 채 남고, 선생님은 그게 언제 풀릴지 알 수 없다.
+ *
+ * 시트를 **한 번 읽고 한 번 쓴다.** 회차마다 따로 읽고 쓰면 38회차 × (읽기+쓰기)
+ * 라 저장 한 번이 몇십 초가 되고, 학생이 기다리는 동안 실행 시간 제한에 걸린다.
+ * 설정이 없는 제목(EXAM_COHORT 에 없는 옛 시험)은 손대지 않고 지나간다. */
 function recomputeAllExams() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName('성적기록');
-  if (!sheet || sheet.getLastRow() < 2) { Logger.log('성적기록 시트가 비어 있습니다.'); return; }
+  var sheet = _gradeSheet();
+  if (!sheet) return;
+  var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, 18).getValues();
 
-  var col = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues();
   var titles = [], seen = {};
-  col.forEach(function (r) {
+  data.forEach(function (r) {
     var t = String(r[0] || '').trim();
     if (t && !seen[t]) { seen[t] = true; titles.push(t); }
   });
 
-  var done = 0, skip = [];
+  var drop = [], done = 0, skip = [];
   titles.forEach(function (t) {
     var cfg = _recomputeConfigFor(t);
     if (!cfg) { skip.push(t); return; }
     // 한 회차가 실패해도 나머지는 계속 맞춘다.
-    try { recomputeExam(t, cfg.base, cfg.qCount); done++; }
+    try { drop = drop.concat(_recalcRows(data, t, cfg.base, cfg.qCount)); done++; }
     catch (e) { Logger.log('재계산 실패 · ' + t + ' : ' + e); }
   });
+
+  _flushRows(sheet, data, drop);
   try { fillReportMessages(); } catch (eM) { Logger.log('문자 생성 실패: ' + eM); }
-  Logger.log('recomputeAllExams 완료 · ' + done + '/' + titles.length + '개 회차'
-    + (skip.length ? ' · 설정 없어 건너뜀: ' + skip.join(', ') : ''));
+  Logger.log('recomputeAllExams 완료 · ' + done + '/' + titles.length + '개 회차 · 중복삭제 '
+    + drop.length + '행' + (skip.length ? ' · 설정 없어 건너뜀: ' + skip.join(', ') : ''));
 }
 
-function recomputeExam(title, baseTotals, qCount) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName('성적기록');
-  if (!sheet || sheet.getLastRow() < 2) { Logger.log('성적기록 시트가 비어 있습니다.'); return; }
-
-  // 성적표 문자 헤더(18열) 보장
+/* 성적기록 시트 + 성적표 문자 머리글 보장. 없거나 비었으면 null. */
+function _gradeSheet() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('성적기록');
+  if (!sheet || sheet.getLastRow() < 2) { Logger.log('성적기록 시트가 비어 있습니다.'); return null; }
   if (String(sheet.getRange(1, 18).getValue() || '') !== '성적표 문자') {
     sheet.getRange(1, 18).setValue('성적표 문자').setFontWeight('bold');
   }
+  return sheet;
+}
 
-  var last = sheet.getLastRow();
-  var data = sheet.getRange(2, 1, last - 1, 18).getValues();
+/* 고친 값을 시트에 한 번에 반영하고, 지울 행은 아래→위로 지운다.
+   위에서부터 지우면 그 아래 행 번호가 하나씩 밀려 엉뚱한 줄이 날아간다. */
+function _flushRows(sheet, data, dropRows) {
+  sheet.getRange(2, 1, data.length, 18).setValues(data);
+  dropRows.map(function (ri) { return ri + 2; }).sort(function (a, b) { return b - a; })
+    .forEach(function (r) { sheet.deleteRow(r); });
+}
+
+/* 한 회차만 다시 맞춘다(수동 복구용). 평상시에는 recomputeAllExams 가 돈다. */
+function recomputeExam(title, baseTotals, qCount) {
+  var sheet = _gradeSheet();
+  if (!sheet) return;
+  var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, 18).getValues();
+  _flushRows(sheet, data, _recalcRows(data, title, baseTotals, qCount));
+}
+
+/* ------------------------------------------------------------------
+   한 회차의 행들을 **메모리 위에서** 다시 계산한다. 시트는 건드리지 않고,
+   지워야 할 행 번호(data 기준 0-based)만 돌려준다. 여러 회차를 한 번의
+   읽기·쓰기로 처리하려고 이렇게 갈라 놓았다.
+
+   백분위·석차·전체누적인원은 저장하는 그 순간의 인원으로 한 번 계산되어
+   행에 박제된다. 그래서 학생이 며칠에 걸쳐 응시하면 같은 점수인데도
+   먼저 본 학생과 나중에 본 학생의 인원이 제각각(40, 44, 48 …)이 된다.
+   여기서 모든 행을 "하나의 최종 코호트"에 대해 다시 계산해 맞춘다.
+   ------------------------------------------------------------------ */
+function _recalcRows(data, title, baseTotals, qCount) {
   // 열: [0]시험 [1]이름 [2]링크 [3]저장시각 [4]수험번호 [5]응시일 [6]학교 [7]학년
   //     [8]원점수 [9]만점 [10]백점환산 [11]백분위 [12]석차 [13]전체누적인원 [14]맞은개수 [15]영역별 [16]답안 [17]성적표문자
-
   var idx = [];
   for (var i = 0; i < data.length; i++) { if (String(data[i][0]) === title) idx.push(i); }
-  if (!idx.length) { Logger.log('해당 시험 행이 없습니다: ' + title); return; }
+  if (!idx.length) return [];
 
   // 1) 완전 중복(이름+답안) 제거 — 저장시각 최신 1건만 유지
   var ts = function (ri) { return (data[ri][3] instanceof Date) ? data[ri][3].getTime() : 0; };
@@ -517,8 +547,8 @@ function recomputeExam(title, baseTotals, qCount) {
     var t = ts(ri), tot = Number(data[ri][8]) || 0;
     if (!latest[who] || t >= latest[who].ts) latest[who] = { ts: t, total: tot };
   });
-  var cohort = baseTotals.slice();
-  for (var nm in latest) cohort.push(latest[nm].total);
+  var cohort = (baseTotals || []).slice();
+  for (var who in latest) cohort.push(latest[who].total);
 
   // 4)+5) 각 행 재계산 및 문자 재작성
   keep.forEach(function (ri) {
@@ -530,27 +560,25 @@ function recomputeExam(title, baseTotals, qCount) {
     data[ri][13] = rp.n;      // 전체누적인원
     var name = String(data[ri][1] || '');
     var max = Number(data[ri][9]) || (qCount * 3);
-    var pct100 = data[ri][10];
     var correct = Number(data[ri][14]) || 0;
-    var link = String(data[ri][2] || '');
-    data[ri][17] = _msgExam(title, name, total, max, pct100, correct, qCount, pct, rp.rank, rp.n, link);
+    data[ri][17] = _msgExam(title, name, total, max, data[ri][10], correct, qCount,
+                            pct, rp.rank, rp.n, String(data[ri][2] || ''));
   });
 
-  // 시트 일괄 반영 후 중복 행 삭제(아래→위)
-  sheet.getRange(2, 1, data.length, 18).setValues(data);
-  dropRows.map(function (ri) { return ri + 2; }).sort(function (a, b) { return b - a; })
-    .forEach(function (r) { sheet.deleteRow(r); });
-
-  Logger.log('recomputeExam 완료 · 유지 ' + keep.length + '행 · 중복삭제 ' + dropRows.length + '행 · 코호트 ' + cohort.length + '명(기준 ' + baseTotals.length + ' + 학생 ' + Object.keys(latest).length + ')');
+  Logger.log(title + ' · 유지 ' + keep.length + '행 · 중복삭제 ' + dropRows.length
+    + '행 · 코호트 ' + cohort.length + '명(기준 ' + (baseTotals || []).length
+    + ' + 학생 ' + Object.keys(latest).length + ')');
+  return dropRows;
 }
 
 /* ============================================================
    트리거 원클릭 설치 · 상태 확인
    ------------------------------------------------------------
    setupAllTriggers : 편집기에서 1회 실행 → 아래 트리거를 전부 설치(중복 자동 제거)
-     · recomputeAllExams  매일 새벽 5시(KST) — 백업용 재계산(모든 회차).
-       (평상시 재계산은 제출 즉시 doPost가 수행하므로, 이 트리거는
-        손으로 시트를 고친 날 등을 대비한 안전망이다)
+     · recomputeAllExams  매일 새벽 5시(KST) — 안전망.
+       평상시 재계산은 **저장하는 즉시** doPost 가 모든 회차를 맞춘다. 이 트리거를
+       기다릴 일은 없다. 남겨 두는 이유는 하나뿐이다 — 스프레드시트를 손으로 고치면
+       앱은 그걸 모르고, 다음 저장이 없으면 그 손질이 반영되지 않는다.
        예전에는 조준모의고사 0회만 도는 recomputeJ0 가 걸려 있었다.
    triggerStatus   : 현재 설치된 트리거 목록을 로그로 출력(설치 여부 확인용)
    ============================================================ */
