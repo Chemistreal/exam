@@ -2508,7 +2508,7 @@ function masterySec(exam){
    ${mastered.length?`<div class="note" style="margin:9px 0 0;border-left-color:var(--teal)"><b style="color:var(--teal)">숙달 영역 ${mastered.length}개</b> <span style="color:var(--muted);font-size:12px">최근 2회 연속 ${MAST}% 이상 — 유지되고 있습니다.</span><div style="margin-top:6px">${mastered.map(m=>`<span class="pill" style="margin:2px 5px 2px 0;display:inline-block">${esc(m.d)} ${seq(m.s)}</span>`).join('')}</div></div>`:''}
    ${retest.length?`<div class="note" style="margin:9px 0 0"><b>재출제 권장 ${retest.length}개</b> <span style="color:var(--muted);font-size:12px">아직 숙달이 확인되지 않았습니다 — 간격을 두고 다시 출제해 확인하세요.</span>
      <div style="margin-top:7px">${retest.map(r=>`<div class="barrow" style="font-size:13px"><span style="font-weight:600;min-width:92px">${esc(r.d)}</span><span style="color:${stCol[r.st]||'var(--muted)'};font-weight:600;font-size:12px;width:64px">${r.st}</span><span style="color:var(--muted);font-family:var(--mono);font-size:12px">${seq(r.s)}</span></div>`).join('')}</div></div>`:''}
-   ${rec?`<div class="note" style="margin:9px 0 0;border-left-color:var(--brass)"><b>다음 진단 추천</b> ${esc(rec.title)} <span style="color:var(--muted);font-size:12px">— 재출제 권장 영역 ${recN}개를 포함합니다.</span></div>`:''}
+   ${rec?`<div class="note no-docx" style="margin:9px 0 0;border-left-color:var(--brass)"><b>다음 진단 추천</b> ${esc(rec.title)} <span style="color:var(--muted);font-size:12px">— 재출제 권장 영역 ${recN}개를 포함합니다.</span></div>`:''}
   </div>`;
 }
 function trendSec(exam){
@@ -3868,7 +3868,10 @@ async function downloadReportDOCX(){
     try{ doc=new DOMParser().parseFromString('<div>'+(html||'')+'</div>','text/html'); }catch(e){ return out; }
     var root=doc.body.firstElementChild; if(!root) return out;
     // 그림과 화면에서만 뜻이 있는 것은 먼저 걷어 낸다(위 주석 참고).
-    ['svg','button','.svg-cap','.wb-more','.wb-loading','[data-wb-loading]'].forEach(function(q){
+    /* `.no-docx` 는 화면에서만 뜻이 있는 것. 지금은 '다음 진단 추천' —
+       선생님이 다음 회차를 고를 때 쓰는 안내라, 학부모가 받는 종이에는
+       할 일이 아니다. 화면에서는 그대로 둔다. */
+    ['svg','button','.svg-cap','.no-docx','.wb-more','.wb-loading','[data-wb-loading]'].forEach(function(q){
       try{ [].forEach.call(root.querySelectorAll(q),function(n){ if(n.parentNode) n.parentNode.removeChild(n); }); }catch(e){}
     });
     // 제목이 없는 섹션도 있다. 그럴 때는 불러 준 쪽이 준 제목을 쓴다.
