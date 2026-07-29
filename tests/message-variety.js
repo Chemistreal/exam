@@ -37,6 +37,7 @@ const gas = {
   Logger: { log() {} }, SpreadsheetApp: {}, ContentService: {}, Utilities: {},
   PropertiesService: { getScriptProperties: () => ({ getProperty: () => '' }) },
 };
+const SRC = fs.readFileSync(path.join(__dirname, '..', 'AppsScript-Code.gs'), 'utf8');
 vm.createContext(gas);
 vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'AppsScript-Code.gs'), 'utf8'), gas);
 
@@ -134,15 +135,35 @@ console.log('\n── 회차마다 문항 수와 범위가 맞는다 ──');
   chk('손으로 적은 문구가 살아 있다',
       /중등 화올 종합 진단/.test(gas.MSG_EXAMS['조준모의고사 0회'].topic), true);
 
-  /* 원점수를 지어내지 않는다. 시트에는 감점을 반영한 진짜 원점수가 없다
-     (앱이 맞은 문항 수만 보낸다). 예전에는 correct*3 을 원점수라고 적어,
-     성적문자 탭은 '원점수 126점', 성적기록 18열은 '원점수 42/60점' 이라고
-     같은 학생을 두고 서로 다른 말을 했다. */
-  chk('없는 원점수를 지어내지 않는다', /원점수/.test(m60), false);
-  const cell = gas._msgExam('KMChC 2026 제1차 · 일반', '홍길동', 40, 50, 80, 40, 50, 72.5, 4, 20, 'https://x');
-  chk('18열 문자도 원점수를 말하지 않는다', /원점수/.test(cell), false);
+  /* 원점수는 **앱이 보내 준 값만** 쓴다. 예전에는 correct*3 으로 계산했는데,
+     오답 감점이 있는 회차(KMChC·동형 등 23개)에서는 그만큼 부풀려 나간다.
+     50문항·40정답·오답 8개면 40*3−8 = 112 이지 120 이 아니다. */
+  const T50 = 'KMChC 2026 제1차 · 일반';
+  const m112 = gas._buildReportMsg(T50, '홍길동', 40, 80, 72.5, '', 'https://x', 0, 50, 112);
+  chk('감점 반영 원점수를 그대로 쓴다', /원점수 112\/150점/.test(m112), true);
+  chk('correct*3 으로 지어내지 않는다', /원점수 120/.test(m112), false);
+  const cell = gas._msgExam(T50, '홍길동', 40, 50, 80, 40, 50, 72.5, 4, 20, 'https://x', 112);
+  chk('18열 문자도 같은 원점수를 말한다', /원점수 112\/150점/.test(cell), true);
   chk('두 문자가 같은 정답 수를 말한다',
       /정답 40\/50문항/.test(cell) && /정답 40\/50문항/.test(m50), true);
+
+  /* 값이 없는 옛 행은 원점수를 아예 말하지 않는다 — 지어내는 것보다 낫다. */
+  [ '', null, undefined, '없음' ].forEach(v => {
+    chk('원점수 값이 없으면 말하지 않는다(' + JSON.stringify(v) + ')',
+        /원점수/.test(gas._buildReportMsg(T50, '홍', 40, 80, 72.5, '', 'x', 0, 50, v)), false);
+    chk('18열도 마찬가지(' + JSON.stringify(v) + ')',
+        /원점수/.test(gas._msgExam(T50, '홍', 40, 50, 80, 40, 50, 72.5, 4, 20, 'x', v)), false);
+  });
+  chk('0점도 말한다', /원점수 0\/150점/.test(
+      gas._buildReportMsg(T50, '홍', 0, 0, 1, '', 'x', 0, 50, 0)), true);
+
+  /* 앱이 그 값을 실제로 보내는지. 안 보내면 시트 19열이 늘 비어 화면에만 남는다. */
+  const APP = require('fs').readFileSync(require('path').join(__dirname, '..', 'final.html'), 'utf8');
+  chk('앱이 감점 반영 원점수를 보낸다', /raw:_rs\.score/.test(APP), true);
+  chk('화면과 같은 함수로 낸 값이다', /const _rs=finalRawScore\(cur,correct,_wr\)/.test(APP), true);
+  chk('시트가 그 값을 맨 뒤 열에 받는다',
+      /RAW_COL = 19/.test(SRC) && /d\.raw\) \? d\.raw/.test(SRC), true);
+  chk('9열(석차 기준)은 그대로 맞은 문항 수다', /total:correct, max:total/.test(APP), true);
 }
 
 console.log(fail ? `\n실패 ${fail}건` : '\n전부 통과');
