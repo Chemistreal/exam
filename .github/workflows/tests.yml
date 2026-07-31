@@ -85,6 +85,8 @@ jobs:
         run: node tests/exam-assets.js
       - name: 해설 유무 표시가 해설 데이터와 일치
         run: python3 tools/gen_exam_solflag.py
+      - name: 해설지가 해설 데이터와 일치
+        run: python3 tools/gen_sol_page.py --check
       - name: 시험 목록 예비본이 exams.json 과 일치
         run: python3 tools/gen_exam_fallback.py --check
       - name: 시험끼리 겹치는 문항 (기준 목록 대비 새로 생긴 것)

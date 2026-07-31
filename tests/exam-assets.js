@@ -61,10 +61,10 @@ console.log('\n── 이름이 내용과 맞는다 ──');
     if (!!e.solFull !== has) drift.push(`${e.id}: solFull=${!!e.solFull} · 실제 해설=${has}`);
   });
   chk('solFull 이 해설 데이터와 같다', drift, []);
-  chk('문항별 해설이 있는 회차 수', EXAMS.filter(e => e.solFull).length, 26);
-  // 산과염기 60제는 아직 정답·개념표까지다. 해설을 쓰면 이 값이 저절로 바뀐다.
-  chk('산과염기 60제는 아직 풀이가 없다',
-      EXAMS.find(e => e.id === 'sanyeom-60').solFull, false);
+  chk('문항별 해설이 있는 회차 수', EXAMS.filter(e => e.solFull).length, 27);
+  // 산과염기 60제에 풀이를 써 넣었다. 데이터에서 파생되므로 값이 저절로 따라온다.
+  chk('산과염기 60제에 풀이가 생겼다',
+      EXAMS.find(e => e.id === 'sanyeom-60').solFull, true);
 }
 
 console.log('\n── 앱이 그 이름과 다운로드를 붙인다 ──');
@@ -83,14 +83,14 @@ console.log('\n── 앱이 그 이름과 다운로드를 붙인다 ──');
   };
   vm.runInContext([cut('examSolLabel'), cut('examAssetsHTML')].join('\n'), ctx);
 
-  const thin = ctx.examAssetsHTML(EXAMS.find(e => e.id === 'sanyeom-60'));
+  const thin = ctx.examAssetsHTML(EXAMS.find(e => e.id === 'donghyung-1'));
   const full = ctx.examAssetsHTML(EXAMS.find(e => e.id === 'jmchc-6'));
   chk('풀이 없는 회차는 개념표라고 적는다', /정답 · 개념표/.test(thin), true);
   chk('풀이 없는 회차를 해설이라 하지 않는다', /문항별 해설/.test(thin), false);
   chk('풀이 있는 회차는 문항별 해설이라 적는다', /정답 · 문항별 해설/.test(full), true);
 
-  chk('문제지가 걸린다', /href="sanyeom-60-problem\.pdf" download/.test(thin), true);
-  chk('해설이 내려받아진다', /href="sol-final-sanyeom-60\.html" download/.test(thin), true);
+  chk('문제지가 걸린다', /href="donghyung-1-problem\.pdf" download/.test(thin), true);
+  chk('해설이 내려받아진다', /href="sol-final-donghyung-1\.html" download/.test(thin), true);
   chk('브라우저로 열어 볼 수도 있다', /target="_blank"/.test(thin), true);
   chk('새 창 링크에 rel=noopener 가 있다', /rel="noopener"/.test(thin), true);
 
@@ -99,6 +99,32 @@ console.log('\n── 앱이 그 이름과 다운로드를 붙인다 ──');
   chk('성적표 링크도 같은 이름을 쓴다', /\$\{examSolLabel\(cur\)\}/.test(SRC), true);
   // 인쇄물에는 넣지 않는다(종이에 찍힌 링크는 누를 수 없다)
   chk('인쇄할 때는 숨긴다', /@media print\{\.assets\{display:none\}\}/.test(SRC), true);
+}
+
+console.log('\n── 해설지가 데이터를 그대로 담는다 ──');
+{
+  /* 해설을 데이터에 써 넣어도 해설지 파일이 옛날 그대로면, 선생님이 내려받은
+     파일에는 아무것도 안 늘어난다. 생성기가 만든 페이지만 여기서 검사한다. */
+  const page = fs.readFileSync(path.join(ROOT, 'sol-final-sanyeom-60.html'), 'utf8');
+  const q = JSON.parse(fs.readFileSync(path.join(ROOT, 'answers', 'sanyeom-60.json'), 'utf8')).questions;
+  const withExp = Object.keys(q).filter(k => String(q[k].explanation || '').trim());
+  chk('60문항에 해설이 있다', withExp.length, 60);
+  chk('해설지에 사고과정이 실렸다', (page.match(/사고과정/g) || []).length >= 60, true);
+  chk('문항 블록이 60개다', (page.match(/문제 \d+<\/span>/g) || []).length, 60);
+
+  /* 문제 지문은 싣지 않는다 — 문제지가 따로 있고, 해설지에 옮겨 적으면
+     같은 것을 한 번 더 퍼뜨리는 셈이다. */
+  chk('문제 지문을 옮겨 적지 않았다', /class="stem"/.test(page), false);
+
+  /* 검수 전 해설을 검수된 것처럼 내보내면 읽는 쪽이 구분할 수 없다. */
+  const unreviewed = Object.keys(q).filter(k => !String(q[k].verificationStatus || '').startsWith('verified'));
+  if (unreviewed.length) {
+    chk('검수 전이라고 밝힌다', /검수 전 해설입니다/.test(page), true);
+    chk('몇 문항인지 적는다', new RegExp(unreviewed.length + '문항의 사고과정').test(page), true);
+  }
+  // 정답 키와 다르게 읽힌 문항은 해설지에도 표시가 남는다
+  chk('확인 필요 문항이 드러난다', /확인 필요/.test(page), true);
+  chk('1번에 검토 메모가 붙어 있다', !!q['1'].reviewNote, true);
 }
 
 console.log(fail ? `\n${fail}개 실패` : '\n모두 통과');
