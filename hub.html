@@ -356,7 +356,13 @@ function examLocal(){
       const lk = looseKey(r.name, r.school);
       let rec = byKey.get(lk);
       if(!rec){ rec = { name:r.name, school:r.school||'', grade:r.grade||'', count:0,
-                        rounds:[] }; byKey.set(lk, rec); out.push(rec); }
+                        rounds:[], names:[] }; byKey.set(lk, rec); out.push(rec); }
+      /* 셸은 공백을 지우고 묶으므로 '박하람' 과 '박 하람' 이 한 사람으로 온다.
+         파이널 성적표는 이름이 **정확히 같은** 것만 한 사람으로 보므로 저기서는
+         회차가 갈라진다. 어떤 이름표로 저장돼 있는지 들고 다녀야 그 차이를
+         짚어 줄 수 있다. */
+      var raw=String(r.name||'').trim();
+      if(raw && rec.names.indexOf(raw)<0) rec.names.push(raw);
       if(!rec.school && r.school) rec.school = r.school;
       if(!rec.grade && r.grade) rec.grade = r.grade;
       rec.count++;
@@ -662,6 +668,14 @@ function openStudent(r){
         return '<i style="height:'+h+'px" class="'+(pcts[i]<50?'low':'')+'" title="'+
                esc(examTitle(x.exam))+' · '+pcts[i]+'%"></i>'; }).join('')+'</div>'+
         '<div class="sparkx">'+pcts.map(function(v){ return '<span>'+v+'</span>'; }).join('')+'</div>';
+    }
+    /* 이름표가 둘 이상이면 파이널 성적표에서는 회차가 갈라져 보인다. 여기서는
+       합쳐 놓았으니, 두 화면의 숫자가 다른 이유를 여기서 짚어 준다. */
+    if(mine.names && mine.names.length>1){
+      html += '<div class="note err">이 학생의 기록이 <b>'+mine.names.length+'가지 이름</b>으로 저장돼 있습니다 — '+
+        mine.names.map(function(x){ return '<b>'+esc(x)+'</b>'; }).join(' · ')+
+        '. 이 화면은 합쳐서 세지만, <b>파이널 성적표는 이름이 정확히 같은 것만</b> 한 학생으로 봅니다. '+
+        '성적표의 회차 수가 여기보다 적게 나옵니다 — 파이널의 <b>명단 관리</b>에서 합쳐 주세요.</div>';
     }
     dlgRounds = mine.rounds.slice().sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
     html += '<div class="sub2">파이널 · '+dlgRounds.length+'회</div><div class="trk">';

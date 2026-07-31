@@ -2268,12 +2268,59 @@ function dashboardSec(exam){
    <div style="margin-top:10px"><div style="display:flex;gap:8px;font-size:10.5px;color:var(--muted);padding-bottom:3px;border-bottom:1.5px solid var(--line)"><span style="flex:0 0 38px">날짜</span><span style="flex:1">시험</span><span style="flex:0 0 40px;text-align:right">점수</span><span style="flex:0 0 54px;text-align:right">등급</span><span style="flex:0 0 46px;text-align:right">수상%</span></div>${table}</div>
   </div>`;
 }
+/* ── 이 학생의 기록이 다른 이름표로 갈라져 있지 않은가 ────────────────────
+   성적표는 이름이 **정확히 같은** 기록만 한 학생으로 본다(아홉 군데가 같은
+   규칙을 쓴다). 그래서 '박 하람' 처럼 공백 하나, 글자 하나가 어긋난 기록은
+   조용히 빠진다. 화면은 "진단 6회 누적" 이라고 단언하는데 실제로는 여덟 번을
+   봤다 — 읽는 쪽에는 빠졌다는 신호가 어디에도 없다. 학부모에게 나가는 종이에
+   "첫 진단입니다" 라고 적히는 일까지 생긴다.
+
+   빠진 것이 있으면 성적표가 **먼저 말한다.** 합치는 것은 명단 관리에서 한다. */
+function splitNameRecords(nm){
+  var key=String(nm||'').trim().replace(/\s+/g,''); if(!key) return [];
+  var seenKey={}, by={};
+  FINAL_EXAMS.forEach(function(e){
+    var k=cohortKey(e.id); if(seenKey[k]) return; seenKey[k]=1;   // 별칭은 한 번만 센다
+    subs(e.id).forEach(function(r){
+      var n=((r&&r.name)||'').trim(); if(!n||n===String(nm).trim()) return;
+      var x=n.replace(/\s+/g,'');
+      var same = (x===key);
+      var near = (!same && x.length>=2 && key.length>=2 && editDist(x,key)===1);
+      if(!same && !near) return;
+      var rec = by[n] || (by[n]={name:n, n:0, why:same?'띄어쓰기만 다름':'한 글자 다름'});
+      rec.n++;
+    });
+  });
+  return Object.keys(by).map(function(k){ return by[k]; }).sort(function(a,b){ return b.n-a.n; });
+}
+/* 성적표가 세는 것은 **이 브라우저에 채점해 둔 것**뿐이다. 다른 기기에서
+   채점한 회차는 시트에만 있다 — 그 사실을 성적표가 밝혀야, 빠진 회차를 보고
+   "안 봤나 보다" 로 넘어가지 않는다. */
+function historyScopeNote(){
+  return `<div style="font-size:11.5px;color:var(--muted);margin-top:7px">
+    이 브라우저에 채점해 둔 기록 기준입니다. 다른 기기·브라우저에서 채점한 회차가 있으면
+    시험 목록의 <b>시트에서 불러오기 ↓</b> 를 먼저 눌러 주세요.</div>`;
+}
+function splitNameNote(nm){
+  var sp=[]; try{ sp=splitNameRecords(nm); }catch(e){ return ''; }
+  if(!sp.length) return '';
+  var tot=sp.reduce(function(a,x){ return a+x.n; },0);
+  return `<div class="note" style="border-color:rgba(192,96,58,.38);background:#FBF0EA;color:#8a3a1d">
+    <b>빠진 회차가 있을 수 있습니다.</b> ${esc(nm)} 학생과 비슷한 이름으로 저장된 기록이
+    <b>${tot}건</b> 더 있습니다 —
+    ${sp.map(function(x){ return `<b>${esc(x.name)}</b>(${x.n}건 · ${x.why})`; }).join(' · ')}.
+    같은 학생이면 <b>명단 관리</b>에서 합치세요. 합쳐야 이 성적표의 회차 수와 성장 추적이 맞습니다.</div>`;
+}
+
 function growthSec(exam){
   const nm=curName(); if(!nm)return'';
   const hist=[];
   FINAL_EXAMS.forEach(e=>{const a=subs(e.id).filter(r=>r.name&&r.name.trim()===nm&&r.ans&&r.ans.length===e.nQ);if(a.length){const last=a[a.length-1];hist.push({e,r:last,ts:last.ts,pct:last.total?Math.round(last.correct/last.total*100):0});}});
   hist.sort((a,b)=>a.ts-b.ts);
-  if(hist.length<2)return `<div class="sec">${secH('성장 추적 · 기준선')}<div class="note">${esc(nm)} 학생의 <b>첫 진단</b>입니다. 이번 결과가 <b>기준선</b>이 되어, 다음 진단부터 영역별 <b>지난 진단 대비 성장</b>이 표시됩니다.</div></div>`;
+  /* '첫 진단입니다' 는 단언이다. 갈라진 기록이 있으면 그 단언이 틀린다 —
+     먼저 그것부터 말한다. */
+  const splitNote=splitNameNote(nm);
+  if(hist.length<2)return `<div class="sec">${secH('성장 추적 · 기준선')}${splitNote}<div class="note">${esc(nm)} 학생의 <b>${splitNote?'이 이름으로는 첫':'첫'} 진단</b>입니다. 이번 결과가 <b>기준선</b>이 되어, 다음 진단부터 영역별 <b>지난 진단 대비 성장</b>이 표시됩니다.</div>${historyScopeNote()}</div>`;
   const cur=hist[hist.length-1], prev=hist[hist.length-2];
   const dO=cur.pct-prev.pct;
   const cs=domScoresBroad(cur.e,cur.r.ans), ps=domScoresBroad(prev.e,prev.r.ans);
@@ -2295,7 +2342,9 @@ function growthSec(exam){
     summary=`<div class="note"><b>지난 진단 대비.</b> 전체 정답률 ${prev.pct}% → ${cur.pct}% (<b style="color:${col(dO)}">${fmt(dO)}%p</b>).${up.length?` 가장 성장한 영역은 <b style="color:var(--teal)">${esc(top.d)} ${fmt(top.delta)}%p</b>.`:''}${dn.length?` 주의가 필요한 영역은 <b style="color:var(--ms)">${esc(bot.d)} ${fmt(bot.delta)}%p</b>.`:''}</div>`;}
   return `<div class="sec">${secH('성장 추적 · 지난 진단 대비')}
    <div class="sub">${esc(nm)} 학생 · 진단 ${hist.length}회 누적 (지난 진단: ${esc(prev.e.title)})</div>
+   ${splitNote}
    ${summary}
+   ${historyScopeNote()}
    <div style="font-size:12px;color:var(--muted);margin:9px 0 4px">정답률 궤적 · 전체 + 현재 약점 2영역</div>
    ${lineChart}
    ${dl.length?`<details style="margin:9px 0 2px"><summary class="muted" style="cursor:pointer">영역별 지난 진단 대비 변화 (공통 영역 ${dl.length}개)</summary><div style="margin-top:8px">${deltaRows}</div></details>`:''}
