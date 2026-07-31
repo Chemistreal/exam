@@ -13,7 +13,8 @@
    생긴다. 그래서 고친 내역을 남겨 두고 받아올 때 바꿔 넣는다.
 
    여기서 지키는 것:
-   - 비슷한 이름(한 글자·띄어쓰기)을 찾아 준다
+   - 띄어쓰기 차이는 저절로 합쳐진다(nameKey) — 찾아 줄 것이 아니다
+   - 한 글자 다른 이름은 찾아 준다(동명이인일 수 있어 기계가 합치지 않는다)
    - 합치면 전 회차가 한 사람으로 묶인다
    - 합친 뒤 시트에서 다시 받아도 옛 이름이 되살아나지 않는다
    - 회차별 기록을 고치고 지울 수 있다
@@ -81,34 +82,45 @@ const SEED = () => {
   console.log('── 첫 화면 ──');
   let t = await txt();
   chk('명단 관리 화면이 뜬다', /명단 관리/.test(t), true);
-  chk('학생 수', num(t, /학생 (\d+)명/), 4);   // 오타 둘 때문에 넷으로 갈렸다
+  /* '김지 성' 은 이제 저장·비교 모두 공백을 지우므로 '김지성' 과 한 사람이다.
+     갈리는 것은 한 글자가 다른 '이도헌' 뿐이라 셋이 된다. */
+  chk('학생 수', num(t, /학생 (\d+)명/), 3);
+  chk('띄어쓰기는 저절로 합쳐졌다', /김지 성/.test(t), false);
   chk('기록 건수', num(t, /기록 (\d+)건/), 6);
-  chk('비슷한 이름을 찾아낸다', num(t, /비슷한 이름 (\d+)쌍/), 2);
-  chk('띄어쓰기 차이를 짚는다', /띄어쓰기만 다름/.test(t), true);
+  chk('비슷한 이름을 찾아낸다', num(t, /비슷한 이름 (\d+)쌍/), 1);
+  chk('띄어쓰기는 짚지 않는다(이미 합쳐졌다)', /띄어쓰기만 다름/.test(t), false);
   chk('한 글자 차이를 짚는다', /한 글자 다름/.test(t), true);
 
   console.log('\n── 합치기 ──');
-  await page.evaluate(() => rosterMergeAt(window.__rnames.findIndex(k => rosterLabel(k).name === '김지 성'), window.__rnames.findIndex(k => rosterLabel(k).name === '김지성')));
+  /* 한 글자 차이는 사람이 판단해 합친다 — 동명이인일 수 있어서 기계가
+     합치면 되돌릴 수 없다. */
+  await page.evaluate(() => rosterMergeAt(window.__rnames.findIndex(k => rosterLabel(k).name === '이도헌'), window.__rnames.findIndex(k => rosterLabel(k).name === '이도현')));
   await page.waitForTimeout(400);
   t = await txt();
-  chk('학생이 하나로 줄었다', num(t, /학생 (\d+)명/), 3);
+  chk('학생이 하나로 줄었다', num(t, /학생 (\d+)명/), 2);
   chk('기록은 하나도 안 없어졌다', num(t, /기록 (\d+)건/), 6);
   const merged = await page.evaluate(() => subs('jmchc-6').map(r => r.name));
-  chk('jmchc-6 이름들', merged, ['김지성', '김지성', '이도현', '이도헌']);
+  chk('jmchc-6 이름들', merged, ['김지성', '김지 성', '이도현', '이도현']);
   chk('고침 기록이 남는다', await page.evaluate(() => JSON.parse(localStorage.getItem('final:renames') || '{}')),
-      { '김지 성': '김지성' });
+      { '이도헌': '이도현' });
 
   /* 여기가 핵심이다. 시트에는 '김지 성' 행이 그대로 있다. 다시 받아오면
      중복 판정이 이름+답안이라 '다른 사람'으로 보고 새로 넣어 버린다. */
   console.log('\n── 시트에서 다시 받아오기 ──');
   const resync = await page.evaluate(() => {
     const ex = FINAL_EXAMS.find(e => e.id === 'jmchc-6');
-    const row = subs('jmchc-6').find(r => r.name === '김지성');
-    const added = mergeSheetRows(ex, [{ name: '김지 성', answers: row.ans.join(''), ts: 1 }]);
-    return { added, names: subs('jmchc-6').map(r => r.name) };
+    const row = subs('jmchc-6').find(r => r.name === '이도현');
+    const added = mergeSheetRows(ex, [{ name: '이도헌', answers: row.ans.join(''), ts: 1 }]);
+    /* 띄어쓰기가 든 행도 시트에 그대로 남아 있다. 받아올 때 다듬으므로
+       '김지 성' 이 새 사람으로 들어오지 않는다. */
+    const row2 = subs('jmchc-6').find(r => r.name === '김지성');
+    const added2 = mergeSheetRows(ex, [{ name: '김 지 성', answers: row2.ans.join(''), ts: 1 }]);
+    return { added, added2, names: subs('jmchc-6').map(r => r.name) };
   });
   chk('옛 이름 행이 새로 들어오지 않는다', resync.added, 0);
-  chk('오타가 되살아나지 않는다', resync.names.indexOf('김지 성'), -1);
+  chk('오타가 되살아나지 않는다', resync.names.indexOf('이도헌'), -1);
+  chk('띄어쓰기 행도 새로 안 들어온다', resync.added2, 0);
+  chk('띄어쓴 이름이 생기지 않는다', resync.names.indexOf('김 지 성'), -1);
 
   console.log('\n── 이름 일괄 고치기 ──');
   const renamed = await page.evaluate(() => {
@@ -116,7 +128,8 @@ const SEED = () => {
     const n = rosterApply(key, r => { r.name = '이도현2'; });
     return { n, six: subs('jmchc-6').map(r => r.name), seven: subs('jmchc-7').map(r => r.name) };
   });
-  chk('전 회차가 함께 바뀐다', renamed.n, 2);
+  // 앞에서 이도헌을 합쳤으므로 이도현 기록이 셋이다
+  chk('전 회차가 함께 바뀐다', renamed.n, 3);
   chk('jmchc-6 반영', renamed.six.indexOf('이도현2') >= 0, true);
   chk('jmchc-7 반영', renamed.seven.indexOf('이도현2') >= 0, true);
 
@@ -161,8 +174,10 @@ const SEED = () => {
       text: document.body.innerText }));
     chk('jmchc-6 에서 없어졌다', after.six.indexOf('김지성'), -1);
     chk('jmchc-7 에서도 없어졌다', after.seven.indexOf('김지성'), -1);
-    chk('남의 기록은 그대로', after.six, ['김지 성', '이도현', '이도헌']);
-    chk('학생 수가 줄었다', Number((after.text.match(/학생 (\d+)명/) || [])[1]), 3);
+    /* '김지 성' 도 '김지성' 과 한 사람이므로 함께 없어진다 */
+    chk('띄어쓴 표기도 함께 없어졌다', after.six.indexOf('김지 성'), -1);
+    chk('남의 기록은 그대로', after.six, ['이도현', '이도헌']);
+    chk('학생 수가 줄었다', Number((after.text.match(/학생 (\d+)명/) || [])[1]), 2);
     page.removeAllListeners('dialog');
     page.on('dialog', d => d.accept(d.type() === 'prompt' ? '고친이름' : undefined));
   }
