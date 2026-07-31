@@ -83,6 +83,8 @@ jobs:
       # 손으로 고치는 사본이 아니라 exams.json 에서 생성한 것이라, 어긋나면 빨간불.
       - name: 회차 자료 링크 (문제지·해설이 실제로 있다)
         run: node tests/exam-assets.js
+      - name: 통합 셸 (명단 합치기 · 남의 데이터를 안 건드린다)
+        run: node tests/hub.js
       - name: 해설 유무 표시가 해설 데이터와 일치
         run: python3 tools/gen_exam_solflag.py
       - name: 해설지가 해설 데이터와 일치

@@ -1,0 +1,508 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<title>Chemistreal · 통합관리</title>
+<link rel="icon" href="icon-192.png">
+<style>
+/* ══════════════════════════════════════════════════════════════════
+   통합 셸 — 흩어진 앱을 한 화면에서 본다.
+
+   [왜 이것부터인가]
+   파이널(exam)·DT·KMChC 가 각자 다른 주소, 다른 저장소, 다른 학생 식별
+   방식을 쓴다. 같은 학생의 1년치를 이어 보려면 사람이 세 곳을 오가며
+   이름을 눈으로 맞춰야 했다.
+
+   [백엔드 없이 오늘 되는 이유]
+   세 앱이 모두 chemistreal.github.io 아래에 있다 — **같은 오리진**이다.
+   그래서 (1) localStorage 를 서로 읽을 수 있고 (2) iframe 으로 얹어도
+   막히지 않는다. 이미 공유되고 있었는데 서로 안 읽고 있었을 뿐이다.
+   DT 는 읽기 API(action=names·pending)가 열려 있어 그대로 가져다 쓴다.
+
+   [이 파일이 하지 않는 것]
+   데이터를 새로 저장하지 않는다. 어느 앱의 기록도 고치지 않는다.
+   **읽어서 합쳐 보여 주기만 한다.** 그래서 이 파일을 지워도 아무것도
+   깨지지 않는다.
+   ══════════════════════════════════════════════════════════════════ */
+:root{
+  --bg:#FBFAF6; --paper:#fff; --sunk:#F4F1E9;
+  --ink:#23201b; --ink-2:#55504a; --muted:#8a8578;
+  --line:#E8E4DA; --line-2:#D8D2C4;
+  --teal:#0E5A4C; --teal-2:#3A7A6B; --wash:#EDF4F1;
+  --brass:#B08D57; --ms:#C0603A; --ok:#2F7A4F;
+  --sans:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --serif:'Iropke Batang','Nanum Myeongjo',Georgia,serif;
+  --mono:ui-monospace,SFMono-Regular,'JetBrains Mono','D2Coding',Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+  font-size:15px;line-height:1.7;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+
+/* ── 머리 + 탭 ─────────────────────────────────────── */
+header{background:var(--paper);border-bottom:1px solid var(--line);flex:0 0 auto}
+.brand{display:flex;align-items:baseline;gap:10px;padding:13px 20px 0;flex-wrap:wrap}
+.brand h1{font-family:var(--serif);font-size:19px;margin:0;font-weight:600}
+.brand .sub{font-size:12.5px;color:var(--muted)}
+.brand .spacer{flex:1}
+nav{display:flex;gap:0;padding:0 12px;overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{
+  appearance:none;background:none;border:none;border-bottom:2px solid transparent;
+  padding:11px 14px;font:inherit;font-size:14px;color:var(--ink-2);cursor:pointer;white-space:nowrap;
+}
+nav button:hover{color:var(--teal)}
+nav button[aria-selected="true"]{color:var(--teal);font-weight:700;border-bottom-color:var(--teal)}
+nav button:focus-visible{outline:2px solid var(--brass);outline-offset:-2px;border-radius:4px}
+
+main{flex:1 1 auto;min-height:0;overflow:auto}
+.pane{display:none;padding:22px 20px 60px;max-width:1120px;margin:0 auto}
+.pane.on{display:block}
+.pane.frame{display:none;padding:0;max-width:none;height:100%}
+.pane.frame.on{display:block}
+iframe{width:100%;height:100%;border:none;display:block;background:var(--bg)}
+
+h2{font-family:var(--serif);font-size:19px;margin:0 0 3px;font-weight:600}
+.hint{color:var(--muted);font-size:13px;margin:0 0 18px}
+section{margin-bottom:34px}
+
+/* ── 카드 · 지표 ───────────────────────────────────── */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.card{background:var(--paper);padding:14px 16px}
+.card b{display:block;font-family:var(--mono);font-size:24px;color:var(--teal);
+  font-variant-numeric:tabular-nums;line-height:1.25}
+.card span{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.card.warn b{color:var(--ms)}
+
+/* ── 목록 ─────────────────────────────────────────── */
+.list{border:1px solid var(--line);border-radius:10px;background:var(--paper);overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line);
+  font-size:14px;cursor:pointer;background:none;border-left:none;border-right:none;border-top:none;
+  width:100%;text-align:left;font-family:inherit;color:inherit}
+.row:last-child{border-bottom:none}
+.row:hover,.row:focus-visible{background:var(--wash);outline:none}
+.row .nm{font-weight:600;min-width:74px}
+.row .where{color:var(--muted);font-size:12.5px;flex:1}
+.row .tags{display:flex;gap:5px;flex-wrap:wrap}
+.tag{font-size:11px;font-weight:700;padding:1px 7px;border-radius:99px;
+  background:var(--wash);color:var(--teal);border:1px solid rgba(14,90,76,.22);white-space:nowrap}
+.tag.dt{background:#FBF3E9;color:#8a6520;border-color:rgba(176,141,87,.3)}
+.tag.km{background:#F1EEF7;color:#5B4B8A;border-color:rgba(91,75,138,.25)}
+.row .cnt{font-family:var(--mono);font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+.bar{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+input[type=search]{flex:1;min-width:180px;padding:8px 12px;border:1px solid var(--line-2);
+  border-radius:8px;font:inherit;font-size:14px;background:var(--paper);color:var(--ink)}
+input[type=search]:focus{outline:2px solid var(--teal);outline-offset:-1px;border-color:var(--teal)}
+.btn{appearance:none;border:1px solid var(--line-2);background:var(--paper);color:var(--ink-2);
+  border-radius:8px;padding:8px 13px;font:inherit;font-size:13.5px;cursor:pointer}
+.btn:hover{border-color:var(--teal);color:var(--teal)}
+.btn:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
+
+.note{background:var(--sunk);border:1px solid var(--line);border-radius:10px;
+  padding:13px 16px;font-size:13.5px;color:var(--ink-2);margin:14px 0}
+.note b{color:var(--ink)}
+.err{background:#FBF0EA;border-color:rgba(192,96,58,.3);color:#8a3a1d}
+
+/* ── 학생 상세 ────────────────────────────────────── */
+dialog{border:none;border-radius:14px;padding:0;max-width:660px;width:calc(100% - 32px);
+  background:var(--paper);color:var(--ink);box-shadow:0 18px 50px rgba(0,0,0,.18)}
+dialog::backdrop{background:rgba(20,18,14,.45)}
+.dlg__h{padding:18px 22px 12px;border-bottom:1px solid var(--line);display:flex;
+  align-items:baseline;gap:10px;flex-wrap:wrap}
+.dlg__h h3{margin:0;font-family:var(--serif);font-size:19px;font-weight:600}
+.dlg__h .where{color:var(--muted);font-size:13px}
+.dlg__h .x{margin-left:auto}
+.dlg__b{padding:16px 22px 22px;max-height:64vh;overflow:auto}
+.trk{border-left:2px solid var(--line);padding-left:16px;margin-left:6px}
+.trk__i{position:relative;padding:9px 0;border-bottom:1px solid var(--line)}
+.trk__i:last-child{border-bottom:none}
+.trk__i::before{content:'';position:absolute;left:-21px;top:16px;width:8px;height:8px;
+  border-radius:50%;background:var(--teal);border:2px solid var(--paper)}
+.trk__i.dt::before{background:var(--brass)}
+.trk__t{font-size:14px;font-weight:600}
+.trk__m{font-size:12.5px;color:var(--muted);font-family:var(--mono)}
+
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left}
+th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+.scroll{overflow-x:auto}
+.spin{color:var(--muted);font-size:13.5px;padding:16px 0}
+@media (max-width:560px){.brand h1{font-size:17px}.pane{padding:16px 14px 50px}}
+</style></head><body>
+
+<header>
+  <div class="brand">
+    <h1>Chemistreal 통합관리</h1>
+    <span class="sub">파이널 · DT · KMChC</span>
+    <span class="spacer"></span>
+    <span class="sub" id="stamp"></span>
+  </div>
+  <nav role="tablist" aria-label="영역">
+    <button role="tab" id="t-dash"  aria-selected="true"  aria-controls="p-dash">대시보드</button>
+    <button role="tab" id="t-stu"   aria-selected="false" aria-controls="p-stu">학생</button>
+    <button role="tab" id="t-exam"  aria-selected="false" aria-controls="p-exam">파이널 채점</button>
+    <button role="tab" id="t-dt"    aria-selected="false" aria-controls="p-dt">DT</button>
+    <button role="tab" id="t-km"    aria-selected="false" aria-controls="p-km">KMChC</button>
+    <button role="tab" id="t-mat"   aria-selected="false" aria-controls="p-mat">자료</button>
+  </nav>
+</header>
+
+<main>
+  <div class="pane on" id="p-dash" role="tabpanel" aria-labelledby="t-dash">
+    <section>
+      <h2>오늘 현황</h2>
+      <p class="hint">세 앱에서 읽어 옵니다. 이 화면은 아무것도 저장하지 않습니다.</p>
+      <div class="cards" id="dashCards"><div class="card"><b>—</b><span>불러오는 중</span></div></div>
+      <div id="dashNote"></div>
+    </section>
+    <section id="pendWrap" hidden>
+      <h2>손이 필요한 것</h2>
+      <p class="hint">DT 에서 재시가 밀렸거나 아직 마무리되지 않은 항목입니다.</p>
+      <div class="list" id="pendList"></div>
+    </section>
+  </div>
+
+  <div class="pane" id="p-stu" role="tabpanel" aria-labelledby="t-stu">
+    <section>
+      <h2>학생</h2>
+      <p class="hint">세 앱의 명단을 <b>이름 · 학교 · 학년</b>으로 합쳤습니다. 이름을 누르면 그 학생의 전 과목 기록이 열립니다.</p>
+      <div class="bar">
+        <input type="search" id="q" placeholder="이름 또는 학교로 찾기" autocomplete="off">
+        <button class="btn" id="reload">다시 불러오기</button>
+      </div>
+      <div id="stuNote"></div>
+      <div class="list" id="stuList"><div class="spin" style="padding:16px">불러오는 중…</div></div>
+    </section>
+  </div>
+
+  <div class="pane frame" id="p-exam" role="tabpanel" aria-labelledby="t-exam"></div>
+  <div class="pane frame" id="p-dt"   role="tabpanel" aria-labelledby="t-dt"></div>
+  <div class="pane frame" id="p-km"   role="tabpanel" aria-labelledby="t-km"></div>
+
+  <div class="pane" id="p-mat" role="tabpanel" aria-labelledby="t-mat">
+    <section>
+      <h2>자료</h2>
+      <p class="hint">회차별 문제지와 해설지입니다. 채점하지 않아도 바로 받을 수 있습니다.</p>
+      <div class="bar"><input type="search" id="mq" placeholder="회차 이름으로 찾기" autocomplete="off"></div>
+      <div class="scroll"><table id="matTable"><thead><tr>
+        <th>회차</th><th>문항</th><th>문제지</th><th>해설</th>
+      </tr></thead><tbody><tr><td colspan="4" class="spin">불러오는 중…</td></tr></tbody></table></div>
+    </section>
+  </div>
+</main>
+
+<dialog id="dlg"><div class="dlg__h">
+  <h3 id="dlgName"></h3><span class="where" id="dlgWhere"></span>
+  <button class="btn x" id="dlgX">닫기</button>
+</div><div class="dlg__b" id="dlgBody"></div></dialog>
+
+<script>
+/* ── 앱 등록 ────────────────────────────────────────────────────────
+   경로는 이 파일(/exam/hub.html) 기준 상대 경로다. GitHub Pages 에서
+   /exam/ 옆에 /DT/ 와 /KMChC/ 가 있다. 같은 오리진이라 iframe 이 통한다. */
+const APPS = {
+  exam: { name:'파이널', path:'final.html',
+          ep:'https://script.google.com/macros/s/AKfycbxGmSCkip0cQCyOH_JA2SiAMSxri00XObLmHyXlyXwxhG7u7w-x0FH02VN4DQySiUsv9Q/exec' },
+  dt:   { name:'DT',    path:'../DT/index.html',
+          ep:'https://script.google.com/macros/s/AKfycbzvFaPXgEgCBQ8HowtP8tPTtdiIVFtmZSUf0KFXUOVOh3ektrFMkz4KSR4I52LDBzB8rw/exec' },
+  km:   { name:'KMChC', path:'../KMChC/index.html', ep:'' },
+};
+
+/* ── 누가 같은 학생인가 ──────────────────────────────────────────────
+   세 앱이 서로 다르게 정하고 있다 — 파이널은 이름+학교+학년,
+   DT 는 studentKey·pubId, KMChC 는 자체 코드. 여기서는 **사람이 쓰는
+   이름표**로 맞춘다: 이름 + 학교 + 학년.
+
+   학교는 표기가 흔들린다('휘문중' / '휘문중학교' / 공백). 그래서 학교는
+   '중/고등학교' 꼬리와 공백을 떼고 견준다. 학년이 비어 있으면 학년은
+   따지지 않는다 — 한쪽에만 적혀 있다고 다른 사람으로 갈라놓으면
+   명단이 두 배가 된다. */
+function normName(s){ return String(s==null?'':s).replace(/\s+/g,'').trim(); }
+function normSchool(s){
+  return String(s==null?'':s).replace(/\s+/g,'')
+    .replace(/(중학교|고등학교|초등학교)$/,m=>m[0])   // 휘문중학교 → 휘문중
+    .trim();
+}
+function normGrade(s){ const m=String(s==null?'':s).match(/\d+/); return m?m[0]:''; }
+function unifyKey(name, school, grade){
+  return [normName(name), normSchool(school), normGrade(grade)].join('');
+}
+/* 학년이 한쪽만 비어 있으면 같은 학생으로 본다(느슨한 짝짓기). */
+function looseKey(name, school){ return normName(name)+''+normSchool(school); }
+
+/* 여러 앱의 명단을 하나로. 출처를 지우지 않고 함께 들고 다닌다 —
+   나중에 "이 학생이 DT 에도 있나"를 물을 수 있어야 한다. */
+function mergeRosters(sources){
+  const byLoose = new Map();
+  (sources||[]).forEach(function(src){
+    (src.students||[]).forEach(function(s){
+      const nm = normName(s.name); if(!nm) return;
+      const lk = looseKey(s.name, s.school);
+      let rec = byLoose.get(lk);
+      if(!rec){
+        rec = { name:String(s.name||'').trim(), school:String(s.school||'').trim(),
+                grade:normGrade(s.grade), apps:{}, n:0 };
+        byLoose.set(lk, rec);
+      }
+      // 학교·학년은 비어 있던 쪽을 채운다(정보가 더 많은 쪽을 남긴다)
+      if(!rec.school && s.school) rec.school = String(s.school).trim();
+      if(!rec.grade && s.grade)   rec.grade  = normGrade(s.grade);
+      rec.apps[src.app] = (rec.apps[src.app]||0) + (s.count||1);
+      rec.n += (s.count||1);
+    });
+  });
+  return Array.from(byLoose.values()).sort(function(a,b){
+    return a.name.localeCompare(b.name,'ko') || a.school.localeCompare(b.school,'ko');
+  });
+}
+
+/* ── JSONP ─────────────────────────────────────────────────────────
+   앱스크립트는 CORS 를 안 열어 준다. 기존 앱들이 쓰던 방식 그대로.
+   한 앱이 응답하지 않아도 나머지는 살아야 하므로 반드시 타임아웃을 건다. */
+function jsonp(url, params, ms){
+  return new Promise(function(resolve, reject){
+    const cb = '__hub'+Math.random().toString(36).slice(2,9);
+    const q = Object.keys(params||{}).map(function(k){
+      return encodeURIComponent(k)+'='+encodeURIComponent(params[k]);
+    }).concat('callback='+cb).join('&');
+    const s = document.createElement('script');
+    let done = false;
+    const clean = function(){ try{ delete window[cb]; }catch(e){ window[cb]=undefined; }
+      if(s.parentNode) s.parentNode.removeChild(s); };
+    const timer = setTimeout(function(){ if(done)return; done=true; clean(); reject(new Error('시간 초과')); }, ms||12000);
+    window[cb] = function(data){ if(done)return; done=true; clearTimeout(timer); clean(); resolve(data); };
+    s.onerror = function(){ if(done)return; done=true; clearTimeout(timer); clean(); reject(new Error('연결 실패')); };
+    s.src = url + (url.indexOf('?')<0?'?':'&') + q;
+    document.head.appendChild(s);
+  });
+}
+
+/* ── 파이널: 이 브라우저에 쌓인 기록 ────────────────────────────────
+   같은 오리진이라 hub 에서 그대로 읽힌다. 네트워크가 필요 없다. */
+const FIN_PFX = 'final:roster:';
+function examLocal(){
+  const out = [], byKey = new Map();
+  let keys = [];
+  try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i);
+        if(k && k.indexOf(FIN_PFX)===0) keys.push(k); } }catch(e){ return {students:[], rounds:0, records:0}; }
+  /* 브라우저가 키를 돌려주는 순서에 기대면 학교 표기가 열 때마다 달라진다
+     ('휘문중' / '휘문중학교' 중 먼저 걸린 쪽이 남는다). 순서를 고정한다. */
+  keys.sort();
+  let records = 0;
+  keys.forEach(function(k){
+    let arr = [];
+    try{ arr = JSON.parse(localStorage.getItem(k)||'[]'); }catch(e){ return; }
+    if(!Array.isArray(arr)) return;
+    arr.forEach(function(r){
+      if(!r || !r.name) return;
+      records++;
+      const lk = looseKey(r.name, r.school);
+      let rec = byKey.get(lk);
+      if(!rec){ rec = { name:r.name, school:r.school||'', grade:r.grade||'', count:0,
+                        rounds:[] }; byKey.set(lk, rec); out.push(rec); }
+      if(!rec.school && r.school) rec.school = r.school;
+      if(!rec.grade && r.grade) rec.grade = r.grade;
+      rec.count++;
+      rec.rounds.push({ exam:k.slice(FIN_PFX.length), correct:r.correct, total:r.total, ts:r.ts||0 });
+    });
+  });
+  return { students: out, rounds: keys.length, records: records };
+}
+
+/* ── DT: 반 명단(읽기 전용) ─────────────────────────────────────── */
+function dtRoster(){
+  return jsonp(APPS.dt.ep, { action:'names' }).then(function(d){
+    if(!d || !d.ok) throw new Error((d&&d.error)||'응답 오류');
+    const out = [];
+    (d.classes||[]).forEach(function(c){
+      (c.students||[]).forEach(function(s){
+        out.push({ name:s.name, school:s.school||'', grade:s.year||'', klass:c.label, course:c.course });
+      });
+    });
+    return out;
+  });
+}
+function dtPending(){
+  return jsonp(APPS.dt.ep, { action:'pending' }).then(function(d){
+    if(!d || !d.ok) throw new Error((d&&d.error)||'응답 오류');
+    return d.pending||[];
+  });
+}
+
+/* ── 탭 ─────────────────────────────────────────────────────────── */
+const TABS = ['dash','stu','exam','dt','km','mat'];
+function show(id){
+  TABS.forEach(function(t){
+    const b = document.getElementById('t-'+t), p = document.getElementById('p-'+t);
+    const on = (t===id);
+    b.setAttribute('aria-selected', on?'true':'false');
+    p.classList.toggle('on', on);
+  });
+  // 앱 화면은 처음 열 때만 붙인다 — 미리 셋을 다 띄우면 느리다
+  const app = {exam:'exam', dt:'dt', km:'km'}[id];
+  if(app){
+    const pane = document.getElementById('p-'+id);
+    if(!pane.firstChild){
+      const f = document.createElement('iframe');
+      f.src = APPS[app].path;
+      f.title = APPS[app].name;
+      pane.appendChild(f);
+    }
+  }
+  try{ location.hash = id==='dash' ? '' : id; }catch(e){}
+}
+TABS.forEach(function(t){
+  document.getElementById('t-'+t).addEventListener('click', function(){ show(t); });
+});
+
+/* ── 대시보드 ───────────────────────────────────────────────────── */
+function card(v, label, warn){
+  return '<div class="card'+(warn?' warn':'')+'"><b>'+v+'</b><span>'+label+'</span></div>';
+}
+function renderDash(){
+  const fin = examLocal();
+  const cards = [
+    card(fin.students.length, '파이널 누적 학생'),
+    card(fin.records, '파이널 채점 기록'),
+    card(fin.rounds, '기록이 있는 회차'),
+  ];
+  document.getElementById('dashCards').innerHTML = cards.join('') +
+    '<div class="card"><b id="dtCnt">…</b><span>DT 명단</span></div>' +
+    '<div class="card warn"><b id="pdCnt">…</b><span>DT 미완료</span></div>';
+
+  dtRoster().then(function(rows){
+    document.getElementById('dtCnt').textContent = rows.length;
+  }).catch(function(e){
+    document.getElementById('dtCnt').textContent = '—';
+    note('dashNote', 'DT 명단을 불러오지 못했습니다 — '+e.message+'. 나머지 숫자는 정상입니다.', true);
+  });
+
+  dtPending().then(function(rows){
+    document.getElementById('pdCnt').textContent = rows.length;
+    if(!rows.length) return;
+    const w = document.getElementById('pendWrap'); w.hidden = false;
+    document.getElementById('pendList').innerHTML = rows.slice(0,40).map(function(r){
+      const nm = esc(r.name||r.studentKey||'—');
+      const meta = [r.course, r.round?('· '+r.round+'회'):'', r.reason||''].filter(Boolean).join(' ');
+      return '<div class="row" style="cursor:default"><span class="nm">'+nm+'</span>'+
+             '<span class="where">'+esc(meta)+'</span></div>';
+    }).join('');
+  }).catch(function(){ document.getElementById('pdCnt').textContent = '—'; });
+}
+function note(id, msg, isErr){
+  document.getElementById(id).innerHTML =
+    '<div class="note'+(isErr?' err':'')+'">'+esc(msg)+'</div>';
+}
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+/* ── 학생 ──────────────────────────────────────────────────────── */
+let ROSTER = [], FIN = null;
+function renderStudents(){
+  const q = (document.getElementById('q').value||'').trim();
+  const nq = normName(q);
+  const rows = !nq ? ROSTER : ROSTER.filter(function(r){
+    return normName(r.name).indexOf(nq)>=0 || normSchool(r.school).indexOf(normSchool(q))>=0;
+  });
+  const el = document.getElementById('stuList');
+  if(!rows.length){ el.innerHTML = '<div class="spin" style="padding:16px">'+
+    (ROSTER.length? '찾는 학생이 없습니다.' : '명단이 비어 있습니다.')+'</div>'; return; }
+  el.innerHTML = rows.slice(0,300).map(function(r,i){
+    const where = [r.school, r.grade?r.grade+'학년':''].filter(Boolean).join(' ') || '—';
+    const tags = Object.keys(r.apps).map(function(a){
+      const cls = a==='dt'?'dt':(a==='km'?'km':'');
+      return '<span class="tag '+cls+'">'+esc({exam:'파이널',dt:'DT',km:'KMChC'}[a]||a)+'</span>';
+    }).join('');
+    return '<button class="row" data-i="'+i+'"><span class="nm">'+esc(r.name)+'</span>'+
+      '<span class="where">'+esc(where)+'</span><span class="tags">'+tags+'</span>'+
+      '<span class="cnt">'+(r.apps.exam||0)+'회</span></button>';
+  }).join('');
+  el.__rows = rows;
+  [].forEach.call(el.querySelectorAll('.row'), function(b){
+    b.addEventListener('click', function(){ openStudent(el.__rows[+b.dataset.i]); });
+  });
+}
+function openStudent(r){
+  document.getElementById('dlgName').textContent = r.name;
+  document.getElementById('dlgWhere').textContent =
+    [r.school, r.grade?r.grade+'학년':''].filter(Boolean).join(' ');
+  const mine = (FIN ? FIN.students : []).filter(function(s){
+    return looseKey(s.name,s.school)===looseKey(r.name,r.school); })[0];
+  let html = '';
+  if(mine && mine.rounds.length){
+    const rounds = mine.rounds.slice().sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
+    html += '<h4 style="margin:0 0 8px;font-size:14px">파이널 · '+rounds.length+'회</h4><div class="trk">';
+    html += rounds.map(function(x){
+      const when = x.ts ? new Date(x.ts).toLocaleDateString('ko-KR') : '';
+      return '<div class="trk__i"><div class="trk__t">'+esc(examTitle(x.exam))+'</div>'+
+             '<div class="trk__m">'+(x.correct!=null? x.correct+'/'+(x.total||'—')+'문항':'')+
+             (when? ' · '+when : '')+'</div></div>';
+    }).join('')+'</div>';
+  }
+  const others = Object.keys(r.apps).filter(function(a){ return a!=='exam'; });
+  if(others.length){
+    html += '<div class="note" style="margin-top:16px">이 학생은 '+
+      others.map(function(a){ return '<b>'+esc({dt:'DT',km:'KMChC'}[a]||a)+'</b>'; }).join(' · ')+
+      ' 명단에도 있습니다. 자세한 기록은 해당 탭에서 볼 수 있습니다.</div>';
+  }
+  if(!html) html = '<div class="spin">이 브라우저에 채점 기록이 없습니다.</div>';
+  document.getElementById('dlgBody').innerHTML = html;
+  document.getElementById('dlg').showModal();
+}
+let EXAMS = [];
+function examTitle(id){
+  const e = EXAMS.filter(function(x){ return x.id===id; })[0];
+  return e ? e.title : id;
+}
+const DLG = document.getElementById('dlg');
+document.getElementById('dlgX').addEventListener('click', function(){ DLG.close(); });
+/* 바깥을 눌러도 닫는다. showModal 은 Esc 로 닫히지만, 마우스로 쓰는 사람은
+   바깥을 누르고 안 닫히면 화면이 멈춘 줄 안다. */
+DLG.addEventListener('click', function(e){ if(e.target===DLG) DLG.close(); });
+document.getElementById('q').addEventListener('input', renderStudents);
+document.getElementById('reload').addEventListener('click', loadRoster);
+
+function loadRoster(){
+  document.getElementById('stuList').innerHTML = '<div class="spin" style="padding:16px">불러오는 중…</div>';
+  document.getElementById('stuNote').innerHTML = '';
+  FIN = examLocal();
+  const sources = [{ app:'exam', students: FIN.students }];
+  dtRoster().then(function(rows){
+    sources.push({ app:'dt', students: rows });
+  }).catch(function(e){
+    note('stuNote','DT 명단을 못 불러왔습니다 — '+e.message+'. 파이널 명단만 보여 줍니다.', true);
+  }).then(function(){
+    ROSTER = mergeRosters(sources);
+    renderStudents();
+  });
+}
+
+/* ── 자료 ──────────────────────────────────────────────────────── */
+function renderMaterials(){
+  const q = normName(document.getElementById('mq').value||'');
+  const body = document.querySelector('#matTable tbody');
+  const rows = EXAMS.filter(function(e){ return !q || normName(e.title).indexOf(q)>=0; });
+  if(!rows.length){ body.innerHTML = '<tr><td colspan="4" class="spin">찾는 회차가 없습니다.</td></tr>'; return; }
+  body.innerHTML = rows.map(function(e){
+    const sol = 'sol-final-'+e.id+'.html';
+    const label = e.solFull ? '문항별 해설' : '정답·개념표';
+    return '<tr><td>'+esc(e.title)+'</td><td class="num">'+e.nQ+'</td>'+
+      '<td>'+(e.pdf? '<a href="'+esc(e.pdf)+'" download>PDF ↓</a>' : '—')+'</td>'+
+      '<td><a href="'+esc(sol)+'" download>'+label+' ↓</a></td></tr>';
+  }).join('');
+}
+document.getElementById('mq').addEventListener('input', renderMaterials);
+
+/* ── 시작 ──────────────────────────────────────────────────────── */
+fetch('exams.json',{cache:'no-cache'}).then(function(r){ return r.ok? r.json() : []; })
+  .then(function(j){ EXAMS = Array.isArray(j)? j : []; renderMaterials(); })
+  .catch(function(){ EXAMS = []; renderMaterials(); });
+
+renderDash();
+loadRoster();
+document.getElementById('stamp').textContent = new Date().toLocaleDateString('ko-KR');
+const h = (location.hash||'').replace('#','');
+if(TABS.indexOf(h)>=0) show(h);
+</script>
+</body></html>
