@@ -2298,11 +2298,15 @@ function dashboardSec(exam){
   const hist=histOf(nm);
   if(hist.length<2) return '';
   const rows=hist.map(h=>{ const W=h.r.wrong!=null?h.r.wrong:(h.r.total-h.r.correct); const pct=h.r.total?Math.round(h.r.correct/h.r.total*100):0; const aw=award(W,h.e.cut); const wp=winProb(h.r.total,h.r.correct,h.e.cut); return {h,W,pct,tier:aw.name,tierIdx:aw.idx,pA:wp?Math.round(wp[4]*100):null,pSil:wp?Math.round(wp[2]*100):null}; });
-  const curR=rows[rows.length-1], first=rows[0];
+  /* '현재 등급' 은 지금 보고 있는 회차의 등급이다. 회차 순으로 늘어놓으면
+     맨 뒤가 이번 회차가 아닐 수 있다. */
+  const curR=rows[histAt(hist,exam)], first=rows[0];
   const bestA=Math.max(...rows.map(r=>r.pA||0));
   const dPA=(curR.pA||0)-(first.pA||0); const trend=dPA>=8?'상승':dPA<=-8?'하락':'유지';
   const trendC=trend==='상승'?'var(--teal)':trend==='하락'?'var(--ms)':'var(--ink-2)';
-  const xL=rows.map(r=>{const d=new Date(r.h.ts);return (d.getMonth()+1)+'/'+d.getDate();});
+  /* 축도 회차다. 하루에 몰아 채점하면 날짜 축은 '7/31 7/31 7/31' 이 되어
+     아무것도 말하지 않는다. 날짜는 아래 표에 그대로 남는다. */
+  const xL=rows.map(r=>shortExam(r.h.e));
   const series=[{name:'수상 확률',color:'var(--teal)',vals:rows.map(r=>r.pA),main:true},{name:'은상 이상',color:'var(--cobalt)',vals:rows.map(r=>r.pSil)}];
   const chart=lineChartSVG(series,xL);
   const table=rows.map((r,i)=>{const d=new Date(r.h.ts);const ds=(d.getMonth()+1)+'/'+d.getDate(); return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line);font-size:12.5px"><span style="flex:0 0 38px;color:var(--muted)">${ds}</span><span style="flex:1;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.h.e.title||r.h.e.id)}</span><span style="flex:0 0 40px;text-align:right;font-weight:700">${r.pct}%</span><span style="flex:0 0 54px;text-align:right;color:${r.tierIdx<=4?'var(--brass)':'var(--muted)'}">${r.tier}</span><span style="flex:0 0 46px;text-align:right;color:var(--teal);font-weight:700">${r.pA!=null?r.pA+'%':'-'}</span></div>`;}).join('');
@@ -2316,6 +2320,73 @@ function dashboardSec(exam){
    <div style="margin-top:10px"><div style="display:flex;gap:8px;font-size:10.5px;color:var(--muted);padding-bottom:3px;border-bottom:1.5px solid var(--line)"><span style="flex:0 0 38px">날짜</span><span style="flex:1">시험</span><span style="flex:0 0 40px;text-align:right">점수</span><span style="flex:0 0 54px;text-align:right">등급</span><span style="flex:0 0 46px;text-align:right">수상%</span></div>${table}</div>
   </div>`;
 }
+/* 이력에서 **지금 보고 있는 회차**가 몇 번째인지. 시각 순으로 늘어놓을 때는
+   맨 뒤가 곧 이번 회차였지만, 회차 순으로 늘어놓으면 아니다 — 9회 성적표를
+   여는데 이력의 끝은 10회일 수 있다. '지난 진단 대비' 가 엉뚱한 회차를
+   가리키면 학부모가 읽는 문장이 통째로 틀린다. */
+function histAt(hist,exam){
+  var id=exam&&exam.id;
+  for(var i=0;i<hist.length;i++) if(hist[i].e.id===id) return i;
+  return hist.length-1;               // 이력에 없으면(공유 링크 등) 맨 뒤
+}
+
+/* ── 회차 순서 ────────────────────────────────────────────────────
+   이력을 **채점한 시각**으로 늘어놓고 있었다. 그런데 선생님은 답안지를
+   모아 두었다가 하루에 몰아서 채점한다 — 7/31 에 3·8·9·10회를 넣으면
+   화면에는 9 → 10 → 8 → 3 회 순으로 뜬다. 시각은 채점한 순서일 뿐,
+   학생이 밟아 온 순서가 아니다. 회차 번호로 늘어놓는다.
+
+   순서는 제목에서 뽑는다. 목록(exams.json) 차례를 그대로 쓰면 KMChC 기출이
+   2026 → 2013 으로 거꾸로 간다(목록은 최신을 위에 두므로 그쪽이 맞다).
+   그렇다고 group 으로 묶을 수도 없다 — KMChC 는 group 이 연도별로 갈려 있다.
+   그래서 id 앞머리로 갈래를 잡고, 갈래 안에서는 제목의 숫자를 오름차순으로.
+
+       JMChC 모의고사 11-1회 → [11,1]   (11회 다음, 12회 앞)
+       KMChC 2024 제2차      → [2024,2] (제1차 다음)
+       기출동형 3회 (2017)    → [3,2017] (첫 숫자가 회차다)
+
+   숫자가 같으면 목록 차례로(2025 제1차 일반 → 심화). */
+function examFamily(id){
+  var s=String(id||'');
+  if(s.indexOf('jmchc-')===0) return 'jmchc';
+  if(s.indexOf('donghyung-')===0) return 'donghyung';
+  if(s.indexOf('sanyeom')===0) return 'sanyeom';
+  return 'kmchc';                      // kmchc-* · hwol-* 는 같은 갈래다
+}
+var _EXORD=null;
+function examOrder(e){
+  if(!_EXORD){
+    _EXORD={}; var fam={}, fi=0;
+    FINAL_EXAMS.forEach(function(x,i){
+      var f=examFamily(x.id);
+      if(fam[f]==null) fam[f]=fi++;
+      _EXORD[x.id]={f:fam[f], n:(String(x.title||'').match(/\d+/g)||[]).map(Number), i:i};
+    });
+  }
+  return (e&&_EXORD[e.id])||{f:999,n:[],i:999};
+}
+function cmpExam(a,b){
+  var A=examOrder(a), B=examOrder(b);
+  if(A.f!==B.f) return A.f-B.f;
+  var m=Math.max(A.n.length,B.n.length);
+  for(var k=0;k<m;k++){
+    var x=A.n[k], y=B.n[k];
+    if(x==null) return -1;             // 짧은 쪽이 앞(11회 < 11-1회)
+    if(y==null) return 1;
+    if(x!==y) return x-y;
+  }
+  return A.i-B.i;
+}
+/* 축에 붙일 짧은 이름. 'JMChC 모의고사 1회' → '1회', 'KMChC 2021' → '2021' */
+function shortExam(e){
+  var t=String((e&&e.title)||'');
+  var m=t.match(/(\d+(?:-\d+)?)\s*회/); if(m) return m[1]+'회';
+  m=t.match(/(20\d\d)(?:[^\d]*제(\d)차)?/);
+  if(m){ var x=m[1].slice(2)+'년'; if(m[2]) x+=' '+m[2]+'차'; if(/심화/.test(t)) x+='심';
+         return x; }                 // 25년 2차심 — 같은 해 일반·심화를 갈라 놓는다
+  return t.slice(0,6);
+}
+
 /* ══════════════════════════════════════════════════════════════════
    한 학생의 응시 이력을 한 곳에서 정한다
    ------------------------------------------------------------------
@@ -2358,7 +2429,7 @@ function histOf(nm){
   });
   return Object.keys(best).map(function(k){ const h=best[k];
       h.pct=h.r.total?Math.round(h.r.correct/h.r.total*100):0; return h; })
-    .sort(function(a,b){ return a.ts-b.ts; });
+    .sort(function(a,b){ return cmpExam(a.e,b.e); });
 }
 /* 시트에서 그 학생의 전 회차를 받아 온다. 받아 오면 성적표를 다시 그린다 —
    먼저 그려 둔 화면이 '2회 응시' 라고 적혀 있을 수 있으므로. */
@@ -2427,12 +2498,12 @@ function growthSec(exam){
   const nm=curName(); if(!nm)return'';
   const hist=[];
   hist.push.apply(hist, histOf(nm));
-  hist.sort((a,b)=>a.ts-b.ts);
   /* '첫 진단입니다' 는 단언이다. 갈라진 기록이 있으면 그 단언이 틀린다 —
      먼저 그것부터 말한다. */
   const splitNote=splitNameNote(nm);
   if(hist.length<2)return `<div class="sec">${secH('성장 추적 · 기준선')}${splitNote}<div class="note">${esc(nm)} 학생의 <b>${splitNote?'이 이름으로는 첫':'첫'} 진단</b>입니다. 이번 결과가 <b>기준선</b>이 되어, 다음 진단부터 영역별 <b>지난 진단 대비 성장</b>이 표시됩니다.</div>${historyScopeNote()}</div>`;
-  const cur=hist[hist.length-1], prev=hist[hist.length-2];
+  const _at=histAt(hist,exam);
+  const cur=hist[_at], prev=hist[_at>0?_at-1:1];
   const dO=cur.pct-prev.pct;
   const cs=domScoresBroad(cur.e,cur.r.ans), ps=domScoresBroad(prev.e,prev.r.ans);
   let dl=[]; if(cs&&ps){for(const d in cs){if(d in ps)dl.push({d,now:cs[d],was:ps[d],delta:cs[d]-ps[d]});}}
@@ -2611,7 +2682,6 @@ function narrativeSec(exam,sel){
   const s3=`${strong.length?`강점은 <b>${strong.join(', ')}</b> 영역`:`강점 영역은 아직 형성 중`}이고, ${weak.length?`보완이 필요한 영역은 <b style="color:var(--ms)">${weak.join(', ')}</b>`:`전 영역이 고르게 양호`}입니다.`;
   const hist=[];
   hist.push.apply(hist, histOf(nm));
-  hist.sort((a,b)=>a.ts-b.ts);
   let s4;
   if(nm&&hist.length>=2){const prev=hist[hist.length-2], dO=pct-prev.pct; const ps=domScoresBroad(prev.e,prev.r.ans); let best=null;
     if(ps)for(const d in ds){if(d in ps){const dl=ds[d]-ps[d];if(!best||dl>best.dl)best={d,dl};}}
@@ -2627,9 +2697,9 @@ function narrativeSec(exam,sel){
 function loopSec(exam,sel){
   const nm=curName(); if(!nm)return'';
   const hist=histOf(nm);
-  hist.sort((a,b)=>a.ts-b.ts);
   if(hist.length<2)return'';
-  const cur=hist[hist.length-1], prev=hist[hist.length-2];
+  const _at=histAt(hist,exam);
+  const cur=hist[_at], prev=hist[_at>0?_at-1:1];
   const psPrev=domScoresBroad(prev.e,prev.r.ans)||{}, csCur=domScoresBroad(cur.e,cur.r.ans)||{};
   const prevWeak=Object.entries(psPrev).filter(x=>x[1]<70).map(x=>x[0]);
   const checked=prevWeak.filter(d=>d in csCur).map(d=>({d,was:psPrev[d],now:csCur[d],dl:csCur[d]-psPrev[d]})).sort((a,b)=>b.dl-a.dl);
