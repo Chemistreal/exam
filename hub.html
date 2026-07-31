@@ -186,6 +186,11 @@ tr.pick:hover td{background:var(--wash)}
       <p class="hint">세 앱에서 읽어 옵니다. 이 화면은 아무것도 저장하지 않습니다.
         탭은 <span class="kbd">1</span>–<span class="kbd">7</span>, 찾기는 <span class="kbd">/</span>.</p>
       <div class="cards" id="dashCards"><div class="card"><b>—</b><span>불러오는 중</span></div></div>
+      <div id="syncBar" class="note" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span id="syncMsg">시트 상태를 확인하는 중…</span>
+        <span style="flex:1"></span>
+        <button class="btn" id="syncNow">지금 시트와 맞추기 ↓</button>
+      </div>
       <div id="dashNote"></div>
     </section>
     <section>
@@ -193,6 +198,12 @@ tr.pick:hover td{background:var(--wash)}
       <p class="hint">이름을 치면 그 학생의 기록이 바로 열립니다. <b>/</b> 를 누르면 여기로 옵니다.</p>
       <div class="bar"><input type="search" id="qq" placeholder="학생 이름" autocomplete="off"></div>
       <div class="list" id="qqList" hidden></div>
+    </section>
+    <section id="mergeWrap" hidden>
+      <h2>합쳐야 할 이름</h2>
+      <p class="hint">한 학생이 두 이름으로 저장돼 있습니다. 이대로 두면 <b>성적표에서 회차가 갈라져</b>
+        응시한 회차가 빠진 것처럼 보입니다. 파이널의 <b>명단 관리 ⚙</b> 에서 합치세요.</p>
+      <div class="list" id="mergeList"></div>
     </section>
     <section id="recentWrap" hidden>
       <h2>최근 채점</h2>
@@ -415,6 +426,9 @@ function show(id){
       pane.appendChild(f);
     }
   }
+  /* 앱 탭에서 채점하고 돌아오면 숫자가 달라져 있어야 한다. 셸 화면으로
+     올 때마다 다시 읽는다 — storage 이벤트를 놓친 경우의 그물이다. */
+  if(!app) refreshSoon();
   try{ location.hash = id==='dash' ? '' : id; }catch(e){}
 }
 TABS.forEach(function(t){
@@ -619,7 +633,7 @@ function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){
   return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 
 /* ── 학생 ──────────────────────────────────────────────────────── */
-let ROSTER = [], FIN = null;
+let ROSTER = [], FIN = null, DT_ROWS = null;
 function renderStudents(){
   const q = (document.getElementById('q').value||'').trim();
   const nq = normName(q);
@@ -713,20 +727,130 @@ document.getElementById('q').addEventListener('input', renderStudents);
 document.getElementById('reload').addEventListener('click', loadRoster);
 
 function loadRoster(){
-  document.getElementById('stuList').innerHTML = '<div class="spin" style="padding:16px">불러오는 중…</div>';
   document.getElementById('stuNote').innerHTML = '';
-  FIN = examLocal();
-  const sources = [{ app:'exam', students: FIN.students }];
+  /* 파이널 기록은 망 없이 곧바로 읽힌다. 그것부터 그린다 — 예전에는 DT 응답을
+     기다리느라 앱스크립트가 조용할 때 12초 동안 명단·회차·합칠 이름이 통째로
+     비어 있었다. 손에 쥔 것을 먼저 내주고, DT 는 오는 대로 얹는다. */
+  refreshLocal();
   dtRoster().then(function(rows){
-    sources.push({ app:'dt', students: rows });
+    DT_ROWS = rows;                     // 다시 읽을 때 또 부르지 않는다
   }).catch(function(e){
     note('stuNote','DT 명단을 못 불러왔습니다 — '+e.message+'. 파이널 명단만 보여 줍니다.', true);
   }).then(function(){
-    ROSTER = mergeRosters(sources);
-    renderStudents();
-    renderRounds();      // '안 본 학생'은 합친 명단이 있어야 셀 수 있다
-    renderQuick();
+    refreshLocal();                     // DT 가 왔든 안 왔든 지금 아는 것으로 다시
   });
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   스스로 따라오게 만든다
+   ------------------------------------------------------------------
+   [1] 채점하면 즉시 반영된다
+   셸은 열 때 한 번 읽고 캐시했다. 그래서 파이널 탭에서 학생을 채점하고
+   돌아와도 '오늘 채점' 이 그대로였다 — 새로고침해야 맞았다. 채점하는 날
+   셸을 띄워 두고 쓸 텐데, 그러면 셸의 숫자를 믿을 수 없다.
+
+   같은 오리진이라 **iframe 안에서 저장한 것이 부모에게 storage 이벤트로
+   온다.** 채점하는 순간 셸이 알아차린다. 화면으로 돌아올 때도 다시 읽는다.
+
+   [2] 시트와 스스로 맞춘다
+   진짜 원본은 구글 시트다. 이 브라우저 기록은 사본이라, 다른 기기에서
+   채점한 회차는 여기 없다 — 그런데 화면은 그 사실을 말하지 않으니
+   '안 봤나 보다' 로 넘어간다. 얼마나 묵었는지 늘 보여 주고, 반나절이
+   넘었으면 열 때 조용히 스스로 맞춘다.
+
+   **쓰기는 파이널 앱이 자기 데이터에 한다.** 셸은 시키기만 한다 — 셸이
+   직접 쓰기 시작하면 "지워도 안전한 파일" 이 아니게 된다.
+
+   [3] 갈라진 이름을 먼저 찾아 준다
+   셸은 공백을 지우고 묶으므로 '박하람'·'박 하람' 이 한 사람으로 온다.
+   파이널 성적표는 정확히 같은 이름만 한 사람으로 보므로 저기서는 회차가
+   갈라진다. 그 차이를 아는 것은 셸뿐이니, 셸이 매일 보여 준다.
+   합치는 것은 사람이 한다 — 동명이인을 기계가 합치면 되돌릴 수 없다.
+   ══════════════════════════════════════════════════════════════════ */
+const SYNC_KEY='chemistreal:final:lastsync';
+const SYNC_STALE = 12*3600*1000;          // 반나절
+function lastSyncAt(){ try{ return +(localStorage.getItem(SYNC_KEY)||0)||0; }catch(e){ return 0; } }
+function ago(ts){
+  if(!ts) return null;
+  const m=Math.floor((Date.now()-ts)/60000);
+  if(m<1) return '방금';
+  if(m<60) return m+'분 전';
+  const h=Math.floor(m/60); if(h<24) return h+'시간 전';
+  return Math.floor(h/24)+'일 전';
+}
+let SYNCING=false;
+function renderSyncBar(){
+  const at=lastSyncAt(), msg=document.getElementById('syncMsg');
+  const btn=document.getElementById('syncNow'); if(!msg||!btn) return;
+  if(SYNCING){ msg.textContent='시트에서 불러오는 중… 끝나면 숫자가 저절로 바뀝니다.'; btn.disabled=true; return; }
+  btn.disabled=false;
+  const stale = !at || (Date.now()-at) > SYNC_STALE;
+  document.getElementById('syncBar').classList.toggle('err', stale);
+  msg.innerHTML = at
+    ? ('시트와 마지막으로 맞춘 때 <b>'+ago(at)+'</b>'+(stale?' — 그 뒤 다른 기기에서 채점했다면 여기 없습니다.':''))
+    : '<b>아직 시트와 맞춘 적이 없습니다.</b> 다른 기기에서 채점한 회차는 여기 없습니다.';
+}
+/* 쓰기는 파이널 앱에게 시킨다. 셸은 끝난 뒤 다시 읽기만 한다. */
+function syncSheet(){
+  if(SYNCING) return Promise.resolve(null);
+  SYNCING=true; renderSyncBar();
+  return finalWindow().then(function(w){
+    if(typeof w.syncAllFromSheet!=='function') throw new Error('파이널 화면이 아직 안 떴습니다');
+    return new Promise(function(res){ w.syncAllFromSheet(res, true); });
+  }).then(function(r){
+    SYNCING=false;
+    refreshLocal();
+    note('dashNote', r
+      ? (r.failed
+          ? ('시트와 맞췄습니다 · 새 기록 '+r.added+'건 · '+r.failed+'개 회차는 못 받았습니다')
+          : (r.added? ('시트에서 '+r.added+'건을 새로 받았습니다') : '시트와 이미 같습니다'))
+      : '시트와 맞췄습니다', !!(r&&r.failed));
+    return r;
+  }).catch(function(e){
+    SYNCING=false; renderSyncBar();
+    note('dashNote','시트와 맞추지 못했습니다 — '+e.message+'. 화면의 숫자는 이 브라우저 기록만입니다.', true);
+    return null;
+  });
+}
+
+/* ── 이 브라우저 기록을 다시 읽고 화면을 맞춘다 ─────────────────────── */
+let refreshTimer=null;
+function refreshLocal(){
+  FIN = examLocal();
+  const sources = [{ app:'exam', students: FIN.students }];
+  if(DT_ROWS) sources.push({ app:'dt', students: DT_ROWS });
+  ROSTER = mergeRosters(sources);
+  renderStudents(); renderRounds(); renderQuick(); renderDash(); renderMerge(); renderSyncBar();
+}
+function refreshSoon(){ clearTimeout(refreshTimer); refreshTimer=setTimeout(refreshLocal, 250); }
+
+/* 채점은 iframe 안에서 일어난다. 같은 오리진이라 그 저장이 여기로 온다. */
+window.addEventListener('storage', function(e){
+  if(!e.key || e.key.indexOf(FIN_PFX)!==0 && e.key!==SYNC_KEY) return;
+  refreshSoon();
+});
+/* 다른 창에서 채점하다 돌아온 경우 — storage 이벤트를 놓쳤을 수 있다. */
+document.addEventListener('visibilitychange', function(){ if(!document.hidden) refreshSoon(); });
+window.addEventListener('focus', refreshSoon);
+
+/* ── 합쳐야 할 이름 ─────────────────────────────────────────────── */
+function mergeCandidates(){
+  const out=[];
+  (FIN? FIN.students : []).forEach(function(s){
+    if(s.names && s.names.length>1) out.push({ name:s.name, school:s.school, names:s.names, n:s.count });
+  });
+  return out.sort(function(a,b){ return b.n-a.n; });
+}
+function renderMerge(){
+  const rows=mergeCandidates(), w=document.getElementById('mergeWrap');
+  if(!w) return;
+  w.hidden = !rows.length;
+  if(!rows.length) return;
+  document.getElementById('mergeList').innerHTML = rows.map(function(r){
+    return '<div class="row" style="cursor:default"><span class="nm">'+esc(r.name)+'</span>'+
+      '<span class="where">'+esc(r.school||'')+' · '+r.names.map(function(x){ return esc(x); }).join(' / ')+'</span>'+
+      '<span class="cnt">'+r.n+'회</span></div>';
+  }).join('');
 }
 
 /* ── 회차 ──────────────────────────────────────────────────────────
@@ -866,9 +990,19 @@ document.addEventListener('keydown', function(e){
   if(n>=0 && n<TABS.length){ e.preventDefault(); show(TABS[n]); }
 });
 
+document.getElementById('syncNow').addEventListener('click', function(){ syncSheet(); });
+
 renderDash();
 loadRoster();
 renderRounds();
+renderSyncBar();
+/* 반나절이 넘었으면 스스로 맞춘다. 화면은 먼저 그려 두고 뒤에서 돈다 —
+   기다리게 하지 않는다. 실패해도 남는 것은 이 브라우저 기록뿐이라 화면은
+   그대로 산다. */
+setTimeout(function(){
+  var at=lastSyncAt();
+  if(!at || (Date.now()-at) > SYNC_STALE) syncSheet();
+}, 1200);
 document.getElementById('stamp').textContent = new Date().toLocaleDateString('ko-KR');
 const h = (location.hash||'').replace('#','');
 if(TABS.indexOf(h)>=0) show(h);

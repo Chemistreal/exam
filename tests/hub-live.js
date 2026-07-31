@@ -16,6 +16,7 @@
    - 회차 표가 실제 기록과 맞는다
    - 링크 복사가 파이널이 만든 그 주소를 준다
    - 셸이 파이널의 저장 기록을 고치지 않는다
+   - 채점하는 순간 숫자가 스스로 따라온다(코드로는 확인할 수 없다)
 
    실행 (먼저 저장소 루트에서 `python3 -m http.server 8931`):
        PLAYWRIGHT_MODULE=<경로> CHROMIUM_PATH=<경로> node tests/hub-live.js
@@ -66,7 +67,8 @@ const chk = (n, got, want) => {
     };
   });
 
-  await p.goto(`http://localhost:${PORT}/hub.html`, { waitUntil: 'networkidle' });
+  /* networkidle 은 쓰지 않는다 — 셸이 시트·DT 를 부르므로 영영 조용해지지 않는다. */
+  await p.goto(`http://localhost:${PORT}/hub.html`, { waitUntil: 'domcontentloaded' });
   await p.waitForFunction(() => typeof EXAMS !== 'undefined' && EXAMS.length, null, { timeout: 20000 });
   await p.waitForTimeout(1500);
 
@@ -173,6 +175,65 @@ const chk = (n, got, want) => {
   await p.waitForTimeout(300);
   chk('바로 찾기에 뜬다', await p.evaluate(() =>
     (document.querySelector('#qqList .row .nm') || { textContent: '' }).textContent), '김지성');
+
+  console.log('\n── 채점하는 순간 스스로 따라온다 ──');
+  {
+    /* 여기가 이 파일의 존재 이유다. iframe 안에서 저장한 것이 부모에게
+       storage 이벤트로 오는지는 띄워 봐야만 안다. 안 오면 셸의 숫자는
+       새로고침 전까지 거짓말을 한다 — 채점하는 날 내내. */
+    await p.evaluate(() => show('dash'));
+    await p.waitForTimeout(500);
+    const before = await p.evaluate(() =>
+      document.querySelector('#dashCards .card b').textContent);
+
+    await p.evaluate(() => show('exam'));
+    await p.waitForTimeout(4500);
+    await p.evaluate(() => {
+      const f = document.querySelector('#p-exam iframe'), w = f.contentWindow, d = f.contentDocument;
+      w.openExam('jmchc-5');
+      d.getElementById('nm').value = '새학생'; d.getElementById('sch').value = 'Z중';
+      for (let q = 1; q <= 60; q++) w.setAns(q, 1);
+      w.scoreAuto();
+    });
+    await p.waitForTimeout(1500);
+    /* 대시보드 탭으로 가지도 않았는데 이미 바뀌어 있어야 한다 */
+    const after = await p.evaluate(() =>
+      document.querySelector('#dashCards .card b').textContent);
+    chk('대시보드로 가지 않아도 숫자가 바뀐다', Number(after) > Number(before), true);
+
+    await p.evaluate(() => show('rnd'));
+    await p.waitForTimeout(400);
+    chk('회차 표에도 새 회차가 늘었다', await p.evaluate(() =>
+      [].some.call(document.querySelectorAll('#rndTable tbody tr td:first-child'),
+        td => /5회/.test(td.textContent))), true);
+  }
+
+  console.log('\n── 갈라진 이름을 셸이 짚어 준다 ──');
+  {
+    await p.evaluate(() => {
+      // 같은 학생을 '김 지성' 으로 한 번 더 저장한다(파이널 앱이 쓰는 형식 그대로)
+      const arr = JSON.parse(localStorage.getItem('final:roster:jmchc-2'));
+      const r = arr[0];
+      arr.push(Object.assign({}, r, { name: '김 지성', ts: r.ts + 1000 }));
+      localStorage.setItem('final:roster:jmchc-2', JSON.stringify(arr));
+      refreshLocal();
+    });
+    await p.waitForTimeout(400);
+    chk('합쳐야 할 이름에 뜬다', await p.evaluate(() =>
+      !document.getElementById('mergeWrap').hidden), true);
+    chk('두 이름표를 다 적는다', await p.evaluate(() => {
+      const t = (document.querySelector('#mergeList .row') || { textContent: '' }).textContent;
+      return /김지성/.test(t) && /김 지성/.test(t);
+    }), true);
+  }
+
+  console.log('\n── 시트 상태를 늘 보여 준다 ──');
+  {
+    const bar = await p.evaluate(() =>
+      document.getElementById('syncMsg').textContent.replace(/\s+/g, ' ').trim());
+    chk('맞춘 적 없으면 그렇게 말한다', /아직 시트와 맞춘 적이 없습니다|시트에서 불러오는 중|마지막으로 맞춘/.test(bar), true);
+    chk('지금 맞추기 단추가 있다', await p.evaluate(() => !!document.getElementById('syncNow')), true);
+  }
 
   chk('콘솔에 예외가 없다', errs.filter(e => !/Failed to fetch|ERR_/.test(e)), []);
   await b.close();

@@ -2894,25 +2894,51 @@ function mergeSheetRows(exam,rows){
   return added;
 }
 /* 모든 시험을 차례로 받는다. 한 번에 다 쏘면 Apps Script 가 동시 실행을 막는다. */
-function syncAllFromSheet(){
+/* ── 마지막으로 시트와 맞춘 시각 ────────────────────────────────────────
+   시트가 진짜 원본이다. 이 브라우저 기록은 사본일 뿐이라, 다른 기기에서
+   채점한 회차는 여기 없다 — 그런데 화면은 그 사실을 말하지 않으니 "안 봤나
+   보다" 로 넘어간다. 언제 맞췄는지를 남겨야 얼마나 묵었는지 말할 수 있다.
+   통합관리 화면이 이 값을 읽어 오래됐으면 스스로 맞춘다. */
+const SYNC_KEY='chemistreal:final:lastsync';
+function lastSyncAt(){ try{ return +(localStorage.getItem(SYNC_KEY)||0)||0; }catch(e){ return 0; } }
+function markSynced(){ try{ localStorage.setItem(SYNC_KEY, String(Date.now())); }catch(e){} }
+
+/* onDone 을 받는다 — 부르는 쪽(통합관리)이 끝난 뒤에 화면을 다시 그려야 한다.
+   quiet 면 진행 토스트를 띄우지 않는다(자동으로 도는 경우). */
+function syncAllFromSheet(onDone, quiet){
   var list=FINAL_EXAMS.slice(), i=0, total=0, failed=0, warned=false;
-  fToast('시트에서 불러오는 중… (0/'+list.length+')');
+  /* 한 번 부를 때마다 최대 12초를 기다린다. 망이 끊긴 채로 서른여덟 번을
+     차례로 부르면 7분 반을 붙잡는다 — 자동으로 도는 자리에서는 그동안
+     '불러오는 중' 에 갇힌다. 연달아 세 번 실패하고 받은 것도 없으면
+     시트가 아니라 망이 문제다. 그만둔다. */
+  var consec=0, gaveUp=false;
+  if(!quiet) fToast('시트에서 불러오는 중… (0/'+list.length+')');
   (function step(){
     if(i>=list.length){
+      /* 한 회차도 못 받았으면 맞췄다고 할 수 없다. 그때 시각을 찍으면
+         망이 끊긴 채로 '방금 맞춤' 이 되어 다음에도 안 맞춘다. */
+      if(failed<list.length) markSynced();
       renderList();
-      fToast(failed
-        ? ('불러오기 완료 · 새 기록 '+total+'건 · 실패 '+failed+'개 시험')
-        : (total? ('시트에서 '+total+'건을 새로 받았습니다') : '시트와 이미 같습니다'));
+      if(!quiet) fToast(gaveUp
+        ? '시트에 닿지 못했습니다 — 연결을 확인하고 다시 시도하세요'
+        : (failed
+          ? ('불러오기 완료 · 새 기록 '+total+'건 · 실패 '+failed+'개 시험')
+          : (total? ('시트에서 '+total+'건을 새로 받았습니다') : '시트와 이미 같습니다')));
+      if(typeof onDone==='function') onDone({added:total, failed:failed, exams:list.length, gaveUp:gaveUp});
       return;
     }
     var exam=list[i++];
     sheetFetch(exam.id,function(res){
-      if(res.error||res.ok===false){ failed++; }
+      if(res.error||res.ok===false){ failed++; consec++; }
       else{
+        consec=0;
         if(res.warning && !warned){ warned=true; console.warn('[시트] '+res.warning); }
         try{ total+=mergeSheetRows(exam,res.students||[]); }catch(e){ failed++; }
       }
-      if(i%5===0) fToast('시트에서 불러오는 중… ('+i+'/'+list.length+')');
+      if(consec>=3 && total===0){       // 망이 끊긴 것이다 — 남은 회차는 부르지 않는다
+        gaveUp=true; failed+=(list.length-i); i=list.length; step(); return;
+      }
+      if(i%5===0 && !quiet) fToast('시트에서 불러오는 중… ('+i+'/'+list.length+')');
       setTimeout(step,120);   // 연속 호출 간격을 조금 둔다
     });
   })();
