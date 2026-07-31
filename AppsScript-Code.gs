@@ -437,6 +437,22 @@ function _rankPct(value, arr) {
 
 function _fmtNum(x) { return Math.round(Number(x) * 10) / 10; }  // 소수 1자리, .0은 자동으로 사라짐
 
+/* 저장시각에서 연도만. 값이 없거나 날짜가 아니면 0 — 모르는 것을 올해로 세지 않는다. */
+function _yearOf(t) {
+  if (!t) return 0;
+  var d = (t instanceof Date) ? t : new Date(Number(t));
+  var y = d.getFullYear();
+  return (isNaN(y) || y < 2000 || y > 2100) ? 0 : y;
+}
+
+/* 그 해에 채점한 학생 안에서의 등수. 누적 석차 한 줄만 보내면 "우리 반에서는
+   몇 등이냐" 를 반드시 되묻는다. 한 해치가 한 명뿐이면 적지 않는다 — 1/1 은
+   등수가 아니라 아직 아무도 없다는 뜻이다. */
+function _yearRankLine(year, yrp) {
+  if (!year || !yrp || yrp.n < 2) return '';
+  return '· ' + year + '년 반석차 ' + yrp.rank + '/' + yrp.n + '\n';
+}
+
 /* 원점수 줄. 감점이 있는 회차는 앱이 보내 준 값이라야 맞다 — 여기서 correct*3
    으로 지어내면 오답 감점만큼 부풀려 나간다. 값이 없는 옛 행은 줄을 통째로 뺀다. */
 function _rawLine(raw, qCount) {
@@ -444,12 +460,13 @@ function _rawLine(raw, qCount) {
   return '· 원점수 ' + Number(raw) + '/' + (qCount * 3) + '점\n';
 }
 
-function _msgExam(title, name, total, max, pct100, correct, qCount, percentile, rank, n, link, raw) {
+function _msgExam(title, name, total, max, pct100, correct, qCount, percentile, rank, n, link, raw, year, yrp) {
   return '[다원교육 영재관 · 화학 조준모]\n'
     + name + ' 학생 ' + title + ' 성적표입니다.\n'
     + _rawLine(raw, qCount)
     + '· 정답 ' + correct + '/' + qCount + '문항 · 백점환산 ' + pct100 + '점\n'
-    + '· 백분위 ' + percentile + ' · 석차 ' + rank + '/' + n + '\n'
+    + '· 백분위 ' + percentile + ' · 연도누적 총석차 ' + rank + '/' + n + '\n'
+    + _yearRankLine(year, yrp)
     + '아래 링크에서 영역별 정오와 취약 개념을 확인하세요.\n'
     + link;
 }
@@ -569,6 +586,17 @@ function _recalcRows(data, title, baseTotals, qCount) {
   var cohort = (baseTotals || []).slice();
   for (var who in latest) cohort.push(latest[who].total);
 
+  /* 연도별 코호트. 누적 석차는 몇 해치가 섞여 있어서 "올해 우리 학생들
+     안에서는 몇 등이냐" 를 답하지 못한다. 저장한 해로 갈라 따로 센다.
+     기준분포(baseTotals)는 지난 회차의 응시 결과라 여기 넣지 않는다.
+     저장시각이 없는 옛 행은 어느 해인지 알 수 없으니 뺀다 — 모르는 것을
+     올해로 세면 반 석차가 소리 없이 부풀어 오른다. */
+  var byYear = {};
+  for (var who2 in latest) {
+    var y2 = _yearOf(latest[who2].ts); if (!y2) continue;
+    (byYear[y2] = byYear[y2] || []).push(latest[who2].total);
+  }
+
   // 4)+5) 각 행 재계산 및 문자 재작성
   keep.forEach(function (ri) {
     var total = Number(data[ri][8]) || 0;
@@ -580,8 +608,11 @@ function _recalcRows(data, title, baseTotals, qCount) {
     var name = String(data[ri][1] || '');
     var max = Number(data[ri][9]) || (qCount * 3);
     var correct = Number(data[ri][14]) || 0;
+    var yr = _yearOf(ts(ri)), yp = yr ? byYear[yr] : null;
+    var yrp = yp ? _rankPct(total, yp) : null;
     data[ri][MSG_COL - 1] = _msgExam(title, name, total, max, data[ri][10], correct, qCount,
-                            pct, rp.rank, rp.n, String(data[ri][2] || ''), data[ri][RAW_COL - 1]);
+                            pct, rp.rank, rp.n, String(data[ri][2] || ''), data[ri][RAW_COL - 1],
+                            yr, yrp);
   });
 
   Logger.log(title + ' · 유지 ' + keep.length + '행 · 중복삭제 ' + dropRows.length

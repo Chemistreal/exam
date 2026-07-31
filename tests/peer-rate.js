@@ -38,7 +38,7 @@ const BASE = JSON.parse(fs.readFileSync(path.join(ROOT, 'cohort', 'baseline.json
 /* final.html 은 브라우저용 한 덩어리라 통째로 못 돌린다. 통계에 쓰이는 함수만
    이름으로 오려 낸다 — 원본이 바뀌면 여기서 못 찾아 바로 빨간불이 된다. */
 function cut(name, kind) {
-  const head = kind === 'const' ? new RegExp(`^const ${name}=`, 'm')
+  const head = (kind === 'const' || kind === 'block') ? new RegExp(`^const ${name}=`, 'm')
                                 : new RegExp(`^function ${name}\\(`, 'm');
   const at = SRC.search(head);
   if (at < 0) throw new Error(`final.html 에서 ${name} 을 못 찾았다`);
@@ -54,7 +54,7 @@ function cut(name, kind) {
 const ctx = { BASELINE: null, console, Buffer };
 vm.createContext(ctx);
 vm.runInContext([
-  cut('accSet', 'const'),
+  cut('accSet', 'const'), cut('allc', 'block'), cut('allcSet', 'block'),
   cut('COHORT_ALIAS', 'const'), cut('cohortKey', 'const'),
   cut('rosterKey'), cut('latestPerStudent'),
   cut('mergeBaselineQ'),

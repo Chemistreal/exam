@@ -58,7 +58,11 @@ let fail=0; const chk=(n,g,w)=>{const ok=JSON.stringify(g)===JSON.stringify(w);
     const miss=new Set(ex.miss||[]), arr=[];
     for(let s=1;s<=12;s++){const a=mk(s);let cc=0,tt=0;
       for(let q=1;q<=nQ;q++){if(miss.has(q))continue;tt++;if(okq(ex,q,a[q-1]))cc++;}
-      arr.push({name:'학생'+s,school:'X중',grade:'3',ts:1000+s,correct:cc,total:tt,wrong:tt-cc,ans:a});}
+      /* 셋은 작년에 채점한 기록으로 둔다 — 누적 석차와 반석차의 모집단이
+         실제로 갈라져야 두 줄을 적는 의미가 생긴다. */
+      const _y=new Date(); _y.setFullYear(_y.getFullYear()-1);
+      arr.push({name:'학생'+s,school:'X중',grade:'3',ts:(s<=3?_y.getTime():Date.now())-s*1000,
+                correct:cc,total:tt,wrong:tt-cc,ans:a});}
     saveSubs('hwol-2018',arr);
     openExam('hwol-2018'); document.getElementById('nm').value='전체본';
     document.getElementById('sch').value='X중';
@@ -73,13 +77,27 @@ let fail=0; const chk=(n,g,w)=>{const ok=JSON.stringify(g)===JSON.stringify(w);
   await p.waitForTimeout(1200);
   const pre=await p.evaluate(()=>({rec:dhRecovery(cur).length, rep:repeatedMisses(cur).length,
     // 화면이 말하는 석차를 **모두** 모은다. 맨 위 요약(숫자 뒤에 '석차')과
-    // '점수 분포 속 나의 위치'('석차' 뒤에 숫자) 두 곳이다. 아래에서 서로
-    // 같은지, 그리고 Word 도 같은 숫자를 말하는지 대조한다.
-    ranks:(function(){ var t=document.body.innerText.replace(/\s+/g,' '), out=[];
-      (t.match(/석차\s*\d+\s*\/\s*\d+/g)||[]).forEach(function(m){ out.push(m.replace(/[^\d/]/g,'')); });
-      (t.match(/\d+\s*\/\s*\d+\s*석차/g)||[]).forEach(function(m){ out.push(m.replace(/[^\d/]/g,'')); });
+    /* 석차는 두 종류다 — 이 회차를 여태 본 사람 전부(연도누적 총석차)와
+       올해 채점한 학생만(반석차). 각각 화면 두 곳(맨 위 핵심 진단, '점수 분포
+       속 나의 위치')에 나온다. 종류끼리 같은지, Word 도 같은 말을 하는지 본다.
+
+       innerText 로 한 번에 긁으면 안 된다 — 맨 위 상자는 숫자가 이름보다
+       **앞**에 오므로 '연도누적 총석차' 뒤에서 반석차 숫자를 집어 온다. */
+    ranks:(function(){ var out={tot:[],yr:[]};
+      [].forEach.call(document.querySelectorAll('.fhds'),function(d){
+        var v=((d.querySelector('b')||{}).textContent||'').trim();
+        var L=((d.querySelector('span')||{}).textContent||'');
+        if(/연도누적 총석차/.test(L)) out.tot.push(v);
+        else if(/년 반석차/.test(L)) out.yr.push(v);
+      });
+      var sec=[].filter.call(document.querySelectorAll('.sec'),function(x){
+        return /점수 분포 속 나의 위치/.test(x.textContent); })[0];
+      if(sec){ var st=(sec.innerText||'').replace(/\s+/g,' ');
+        var m1=st.match(/연도누적 총석차 (\d+\/\d+)/); if(m1) out.tot.push(m1[1]);
+        var m2=st.match(/년 반석차 (\d+\/\d+)/); if(m2) out.yr.push(m2[1]); }
       return out; })()}));
-  console.log('사전 상태: 회복 문항',pre.rec,'· 반복 유형',pre.rep,'· 화면 석차',pre.ranks.join(', ')||'(없음)');
+  console.log('사전 상태: 회복 문항',pre.rec,'· 반복 유형',pre.rep,
+    '· 누적 석차',pre.ranks.tot.join(', ')||'(없음)','· 반석차',pre.ranks.yr.join(', ')||'(없음)');
 
   const [dl]=await Promise.all([p.waitForEvent('download',{timeout:300000}),p.evaluate(()=>downloadReportDOCX())]);
   const f=path.join(OUT,'r.docx'); await dl.saveAs(f);
@@ -134,11 +152,22 @@ let fail=0; const chk=(n,g,w)=>{const ok=JSON.stringify(g)===JSON.stringify(w);
      Word·인쇄 책자에는 처음부터 있었는데 화면에만 빠져 있었다. 백분위만
      적어 두면 "그래서 몇 등이냐"를 반드시 되묻는다. 두 곳이 같은 식으로
      세는지가 핵심이다 — 화면과 종이가 다른 등수를 말하면 안 된다. */
-  chk('화면 두 곳에 석차가 나온다',pre.ranks.length>=2,true);
-  chk('화면끼리 석차가 어긋나지 않는다',Array.from(new Set(pre.ranks)),pre.ranks.slice(0,1));
+  chk('화면 두 곳에 누적 석차가 나온다',pre.ranks.tot.length>=2,true);
+  chk('누적 석차끼리 어긋나지 않는다',Array.from(new Set(pre.ranks.tot)),pre.ranks.tot.slice(0,1));
+  chk('화면 두 곳에 반석차가 나온다',pre.ranks.yr.length>=2,true);
+  chk('반석차끼리 어긋나지 않는다',Array.from(new Set(pre.ranks.yr)),pre.ranks.yr.slice(0,1));
+  /* 두 숫자는 모집단이 다르므로 대개 다르다. 늘 같게 나오면 한쪽이 다른 쪽을
+     그대로 베끼고 있다는 뜻이라, 두 줄을 적는 의미가 없다. */
+  chk('모집단이 다르다',pre.ranks.tot[0].split('/')[1]!==pre.ranks.yr[0].split('/')[1],true);
+  chk('올해 쪽이 더 작다',
+      Number(pre.ranks.yr[0].split('/')[1])<Number(pre.ranks.tot[0].split('/')[1]),true);
+  chk('작년 셋이 빠진 만큼이다',
+      Number(pre.ranks.tot[0].split('/')[1])-Number(pre.ranks.yr[0].split('/')[1]),3);
   chk('Word 에도 석차가 있다',/석차/.test(txt),true);
-  chk('화면과 Word 의 석차가 같다',
-      new RegExp('석차\\s*'+(pre.ranks[0]||'x').replace('/','\\s*/\\s*')).test(txt.replace(/\s+/g,' ')),true);
+  chk('화면과 Word 의 누적 석차가 같다',
+      new RegExp('연도누적 총석차\\s*'+(pre.ranks.tot[0]||'x').replace('/','\\s*/\\s*')).test(txt.replace(/\s+/g,' ')),true);
+  chk('화면과 Word 의 반석차가 같다',
+      new RegExp('년 반석차\\s*'+(pre.ranks.yr[0]||'x').replace('/','\\s*/\\s*')).test(txt.replace(/\s+/g,' ')),true);
 
   // ── 뺀 것 (선생님 요청) ──
   chk('학습 유형 진단은 Word 에 없다',/학습 유형/.test(txt),false);
