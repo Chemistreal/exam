@@ -239,6 +239,18 @@ console.log('\n── 링크 규칙을 베끼지 않는다 ──');
   chk('주소가 그대로면 직접 부른다', /w\.boot\(\)/.test(nav), true);
 }
 
+console.log('\n── 갈라진 이름표를 짚어 준다 ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  /* 셸은 공백을 지우고 묶으므로 '박하람'·'박 하람' 이 한 사람으로 온다. 파이널
+     성적표는 정확히 같은 이름만 한 사람으로 보므로 저기서는 회차가 갈라진다.
+     두 화면의 숫자가 다른 이유를 셸이 말해 줘야 선생님이 합칠 수 있다. */
+  chk('저장된 이름표를 모아 둔다', /rec\.names\.indexOf\(raw\)<0/.test(body), true);
+  chk('둘 이상이면 알려 준다', /mine\.names\.length>1/.test(body), true);
+  chk('무엇을 해야 하는지 적는다', /명단 관리<\/b>에서 합쳐 주세요/.test(body), true);
+  chk('눈에 띄게 그린다', /class="note err"/.test(body), true);
+}
+
 console.log('\n── 단축키가 글자 입력을 가로채지 않는다 ──');
 {
   const body = SRC.split('<script>')[1] || '';
