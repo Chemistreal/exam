@@ -45,10 +45,23 @@ const chk = (n, got, want) => {
   if (!ok) fail++;
 };
 
-// 화면에 뜬 석차를 모두 긁는다(요약은 '4/11 석차', 분포는 '석차 4/11').
-const RANKS = `(function(){ var t=document.body.innerText.replace(/\\s+/g,' '), out=[];
-  (t.match(/석차\\s*\\d+\\s*\\/\\s*\\d+/g)||[]).forEach(function(m){ out.push(m.replace(/[^\\d/]/g,'')); });
-  (t.match(/\\d+\\s*\\/\\s*\\d+\\s*석차/g)||[]).forEach(function(m){ out.push(m.replace(/[^\\d/]/g,'')); });
+/* 화면에 뜬 **연도누적 총석차**만 긁는다. 2026년 반석차는 모집단이 다르다
+   (기준 기록을 안 쓰고 올해 채점한 학생만) — 그것까지 섞어 세면 이 파일이
+   보려는 '기준 기록이 분모에 들어갔나' 가 흐려진다.
+
+   innerText 로 한 번에 긁으면 안 된다: 맨 위 상자는 숫자가 이름보다 **앞**에
+   오므로 '연도누적 총석차' 뒤에서 반석차 숫자를 집어 온다. 상자는 DOM 으로,
+   '점수 분포 속 나의 위치' 는 그 섹션 안에서만 찾는다. */
+const RANKS = `(function(){ var out=[];
+  [].forEach.call(document.querySelectorAll('.fhds'),function(d){
+    var v=((d.querySelector('b')||{}).textContent||'').trim();
+    var L=((d.querySelector('span')||{}).textContent||'');
+    if(/연도누적 총석차/.test(L)) out.push(v);
+  });
+  var sec=[].filter.call(document.querySelectorAll('.sec'),function(x){
+    return /점수 분포 속 나의 위치/.test(x.textContent); })[0];
+  if(sec){ var m=(sec.innerText||'').replace(/\\s+/g,' ').match(/연도누적 총석차 (\\d+\\/\\d+)/);
+    if(m) out.push(m[1]); }
   return out; })()`;
 
 (async () => {

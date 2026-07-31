@@ -142,5 +142,33 @@ console.log('\n── 성적표가 실제로 말하는가 ──');
   chk('없으면 아무것도 안 그린다', /if\(!sp\.length\) return '';/.test(note), true);
 }
 
+console.log('\n── 시트와 언제 맞췄는지 남긴다 ──');
+{
+  /* 시트가 진짜 원본이다. 언제 맞췄는지를 남겨야 얼마나 묵었는지 말할 수 있고,
+     통합관리 화면이 오래됐을 때 스스로 맞출 수 있다. */
+  const fn = cut('syncAllFromSheet');
+  chk('끝나면 시각을 남긴다', /markSynced\(\);/.test(fn), true);
+  /* 한 회차도 못 받았으면 맞췄다고 할 수 없다. 그때 시각을 찍으면 망이 끊긴
+     채로 '방금 맞춤' 이 되어 다음에도 안 맞춘다. */
+  chk('전부 실패했으면 안 남긴다', /if\(failed<list\.length\) markSynced\(\);/.test(fn), true);
+  chk('끝난 것을 부르는 쪽에 알린다', /if\(typeof onDone==='function'\) onDone\(/.test(fn), true);
+  chk('조용히 돌 수 있다', /function syncAllFromSheet\(onDone, quiet\)/.test(fn), true);
+  chk('조용할 때는 진행을 안 띄운다', /if\(!quiet\) fToast/.test(fn), true);
+
+  /* 한 번에 최대 12초를 기다린다. 망이 끊긴 채로 서른여덟 번을 차례로 부르면
+     7분 반을 붙잡는다 — 자동으로 도는 자리에서는 그동안 갇힌다. */
+  chk('연달아 실패하면 그만둔다', /if\(consec>=3 && total===0\)/.test(fn), true);
+  chk('그만둔 것을 말한다', /gaveUp/.test(fn), true);
+  chk('한 번이라도 받았으면 계속한다', /total===0/.test(fn), true);
+  chk('성공하면 실패 횟수를 되돌린다', /consec=0;/.test(fn), true);
+
+  const SRC2 = SRC;
+  chk('통합관리가 읽을 수 있게 같은 열쇠를 쓴다',
+      /const SYNC_KEY='chemistreal:final:lastsync';/.test(SRC2), true);
+  chk('통합관리도 같은 열쇠를 본다',
+      /const SYNC_KEY='chemistreal:final:lastsync';/.test(
+        fs.readFileSync(path.join(ROOT, 'hub.html'), 'utf8')), true);
+}
+
 console.log(fail ? `\n${fail}개 실패` : '\n모두 통과');
 process.exit(fail ? 1 : 0);

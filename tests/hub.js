@@ -19,6 +19,9 @@
    - 셸이 기존 앱의 데이터를 건드리지 않는다
    - 회차 집계(인원·평균·안 본 학생)가 맞는다
    - 성적표 링크 규칙을 베끼지 않고 파이널 앱에서 빌린다
+   - 채점하면 스스로 따라온다(다시 읽는다)
+   - 시트와 얼마나 묵었는지 늘 보여 주고, 오래되면 스스로 맞춘다
+   - 망을 기다리느라 손에 쥔 것을 못 내주지 않는다
 
    실행:  node tests/hub.js
    ============================================================ */
@@ -249,6 +252,63 @@ console.log('\n── 갈라진 이름표를 짚어 준다 ──');
   chk('둘 이상이면 알려 준다', /mine\.names\.length>1/.test(body), true);
   chk('무엇을 해야 하는지 적는다', /명단 관리<\/b>에서 합쳐 주세요/.test(body), true);
   chk('눈에 띄게 그린다', /class="note err"/.test(body), true);
+}
+
+console.log('\n── 채점하면 스스로 따라온다 ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  /* 셸은 열 때 한 번 읽고 캐시했다. 채점하고 돌아와도 '오늘 채점' 이 그대로라
+     새로고침해야 맞았다 — 그러면 셸의 숫자를 믿을 수 없다.
+     채점은 iframe 안에서 일어나고, 같은 오리진이라 그 저장이 부모에게 온다. */
+  chk('저장이 바뀌면 알아차린다', /addEventListener\('storage'/.test(body), true);
+  chk('파이널 기록이 바뀔 때만 움직인다', /e\.key\.indexOf\(FIN_PFX\)!==0/.test(body), true);
+  chk('연달아 오면 한 번만 그린다', /function refreshSoon\(\)\{ clearTimeout/.test(body), true);
+  chk('화면으로 돌아올 때도 다시 읽는다', /visibilitychange/.test(body), true);
+  chk('셸 탭으로 올 때도 다시 읽는다', /if\(!app\) refreshSoon\(\);/.test(body), true);
+  chk('다시 읽으면 모든 화면을 맞춘다',
+      /renderStudents\(\); renderRounds\(\); renderQuick\(\); renderDash\(\); renderMerge\(\); renderSyncBar\(\);/.test(body), true);
+  // 다시 읽을 때마다 앱스크립트를 또 부르면 채점할 때마다 DT 를 두드린다
+  chk('DT 명단은 기억해 두고 다시 안 부른다', /if\(DT_ROWS\) sources\.push/.test(body), true);
+}
+
+console.log('\n── 시트와 스스로 맞춘다 ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  /* 진짜 원본은 시트다. 이 브라우저 기록은 사본이라 다른 기기에서 채점한
+     회차는 여기 없는데, 화면이 그 말을 안 하면 '안 봤나 보다' 로 넘어간다. */
+  chk('언제 맞췄는지 보여 준다', /function renderSyncBar\(\)/.test(body), true);
+  chk('맞춘 적 없으면 그렇게 말한다', /아직 시트와 맞춘 적이 없습니다/.test(body), true);
+  chk('오래되면 눈에 띄게 한다', /classList\.toggle\('err', stale\)/.test(body), true);
+  chk('반나절 넘으면 스스로 맞춘다',
+      /if\(!at \|\| \(Date\.now\(\)-at\) > SYNC_STALE\) syncSheet\(\);/.test(body), true);
+  chk('맞춘 뒤 화면을 다시 그린다', /SYNCING=false;\s*\n\s*refreshLocal\(\);/.test(body), true);
+  chk('겹쳐서 돌지 않는다', /if\(SYNCING\) return Promise\.resolve\(null\);/.test(body), true);
+
+  /* 쓰기는 파이널 앱이 자기 데이터에 한다. 셸이 직접 쓰기 시작하면
+     "지워도 안전한 파일" 이 아니게 된다 — 위의 '남의 데이터' 검사와 한 쌍이다. */
+  chk('셸은 시키기만 한다', /w\.syncAllFromSheet\(res, true\)/.test(body), true);
+  chk('셸이 직접 쓰지 않는다', /localStorage\.setItem/.test(body), false);
+}
+
+console.log('\n── 망을 기다리느라 화면을 비워 두지 않는다 ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  /* 앱스크립트가 조용하면 12초를 기다린다. 그동안 파이널 기록은 손에 있는데도
+     명단·회차·합칠 이름이 통째로 비어 있었다. */
+  const lr = cut('loadRoster');
+  chk('DT 를 부르기 전에 먼저 그린다',
+      lr.indexOf('refreshLocal();') < lr.indexOf('dtRoster()'), true);
+  chk('DT 가 실패해도 다시 그린다', /\}\).then\(function\(\)\{\s*\n\s*refreshLocal\(\);/.test(lr), true);
+}
+
+console.log('\n── 갈라진 이름을 매일 보여 준다 ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  chk('후보를 골라낸다', /function mergeCandidates\(\)/.test(body), true);
+  chk('이름표가 둘 이상인 학생만', /s\.names && s\.names\.length>1/.test(body), true);
+  chk('많이 본 학생부터', /return b\.n-a\.n;/.test(body), true);
+  /* 기계가 합치면 동명이인을 되돌릴 수 없게 묶는다. 찾아만 준다. */
+  chk('셸이 스스로 합치지 않는다', /rosterMerge|mergeNames\(/.test(body), false);
 }
 
 console.log('\n── 단축키가 글자 입력을 가로채지 않는다 ──');
