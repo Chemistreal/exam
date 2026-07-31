@@ -116,15 +116,29 @@ console.log('\n── 해설지가 데이터를 그대로 담는다 ──');
      같은 것을 한 번 더 퍼뜨리는 셈이다. */
   chk('문제 지문을 옮겨 적지 않았다', /class="stem"/.test(page), false);
 
-  /* 검수 전 해설을 검수된 것처럼 내보내면 읽는 쪽이 구분할 수 없다. */
+  /* 검수 전 해설을 검수된 것처럼 내보내면 읽는 쪽이 구분할 수 없다.
+     지금은 전 문항이 검수를 마쳤으므로 안내가 없어야 한다 — 다만 규칙 자체는
+     살아 있어야 한다. '검수 전 문항이 있을 때만 안내가 뜬다'로 검사한다. */
   const unreviewed = Object.keys(q).filter(k => !String(q[k].verificationStatus || '').startsWith('verified'));
-  if (unreviewed.length) {
-    chk('검수 전이라고 밝힌다', /검수 전 해설입니다/.test(page), true);
-    chk('몇 문항인지 적는다', new RegExp(unreviewed.length + '문항의 사고과정').test(page), true);
-  }
-  // 정답 키와 다르게 읽힌 문항은 해설지에도 표시가 남는다
-  chk('확인 필요 문항이 드러난다', /확인 필요/.test(page), true);
-  chk('1번에 검토 메모가 붙어 있다', !!q['1'].reviewNote, true);
+  chk('전 문항이 검수를 마쳤다', unreviewed, []);
+  chk('검수 전 안내가 뜨는지는 데이터가 정한다',
+      /검수 전 해설입니다/.test(page), unreviewed.length > 0);
+  chk('생성기에 안내 규칙이 살아 있다',
+      /검수 전 해설입니다/.test(fs.readFileSync(path.join(ROOT, 'tools', 'gen_sol_page.py'), 'utf8')), true);
+
+  /* 해설은 정답 키에 맞춰 쓴다. 답을 되묻는 메모가 남아 있으면
+     학생·학부모가 보는 해설지에 '확인 필요'가 찍힌다. */
+  chk('되묻는 메모가 남아 있지 않다',
+      Object.keys(q).filter(k => q[k].reviewNote), []);
+  chk('해설지에 확인 필요 표시가 없다', /확인 필요/.test(page), false);
+
+  // 해설이 실제로 정답 키를 가리키는지 — 화살표 뒤 기호가 정답과 같아야 한다
+  const CIRC = { 1: '①', 2: '②', 3: '③', 4: '④' };
+  const mismatch = Object.keys(q).filter(k => {
+    const m = String(q[k].explanation || '').match(/→ ([①②③④])/);
+    return !m || m[1] !== CIRC[Number(q[k].answer)];
+  });
+  chk('60문항 해설이 모두 정답 키를 가리킨다', mismatch, []);
 }
 
 console.log(fail ? `\n${fail}개 실패` : '\n모두 통과');
