@@ -3814,6 +3814,174 @@ function _pngDims(u8){ try{ if(u8&&u8[0]===0x89&&u8[1]===0x50){ var w=((u8[16]<<
 async function _fetchImg(url){ try{ var r=await fetch(url,{cache:'no-store'}); if(!r.ok) return null; var b=new Uint8Array(await r.arrayBuffer()); if(!(b[0]===0x89&&b[1]===0x50)) return null; return b; }catch(e){ return null; } }
 async function _fetchBin(url){ try{ var r=await fetch(url,{cache:'no-store'}); if(!r.ok) return null; return new Uint8Array(await r.arrayBuffer()); }catch(e){ return null; } }
 
+/* ============================================================
+   .docx → .pdf — 만들어진 Word 파일 자체를 변환한다
+   ------------------------------------------------------------
+   PDF 를 따로 조판하면 두 벌을 각각 손봐야 하고, 언젠가 반드시 어긋난다.
+   그래서 여기서는 성적표를 다시 만들지 않는다. Packer 가 뱉은 그 .docx
+   바이트를 docx-preview 로 펼친 다음, 펼쳐진 그림을 PDF 로 굳힌다.
+   PDF 는 Word 파일의 사본이지 형제가 아니다.
+
+   docx-preview 는 전역 이름이 docx 라서 생성 라이브러리(docx.iife.js)와
+   부딪힌다. 실어 온 뒤 곧바로 원래 주인에게 이름을 돌려준다.
+   ============================================================ */
+async function ensureDocxPreview(){
+  if(window.__docxPreview) return window.__docxPreview;
+  if(!window.JSZip) await loadScriptOnce('vendor/jszip.min.js');
+  var mine=window.docx;                       // 성적표를 만든 쪽
+  await loadScriptOnce('vendor/docx-preview.min.js');
+  window.__docxPreview=window.docx;           // 펼치는 쪽
+  if(mine) window.docx=mine; else try{ delete window.docx; }catch(e){ window.docx=undefined; }
+  return window.__docxPreview;
+}
+async function ensureJsPDF(){ if(!window.jspdf) await loadScriptOnce('vendor/jspdf.umd.min.js'); if(!window.html2canvas) await loadScriptOnce('vendor/html2canvas.min.js'); return window.jspdf; }
+/* 배율과 화질. 성적표는 60쪽이 넘을 때가 있어서, 올릴수록 문자로 보내기 어려운
+   덩치가 된다. 1.25 배 = 120dpi — 91쪽짜리가 14MB 안쪽으로 떨어진다.
+   (같은 성적표에서 1.5 배는 20MB, 1 배는 10MB 였다) */
+var PDF_SCALE=1.25, PDF_QUALITY=0.78;
+
+/* 이미지가 다 뜨기 전에 찍으면 빈 자리가 그대로 PDF 에 남는다. */
+function _imgsReady(host){
+  var imgs=[].slice.call(host.querySelectorAll('img'));
+  return Promise.all(imgs.map(function(im){
+    if(im.complete && im.naturalWidth) return null;
+    return new Promise(function(res){ var done=function(){res();}; im.addEventListener('load',done,{once:true}); im.addEventListener('error',done,{once:true}); setTimeout(done,4000); });
+  }));
+}
+function _cssPx(v){ v=String(v||''); var n=parseFloat(v)||0; return /pt$/.test(v)?n*4/3:n; }
+
+/* ── 종이에 붙박인 그림을 제자리에 앉힌다 ──
+   프레임·표지 배경은 .docx 안에서 '용지 왼쪽 위에서 얼마' 로 적혀 있다.
+   펼치는 쪽은 그것을 글 흐름 위치에 놓아 버려서, 배경이 여백만큼 밀린다.
+   붙박이 그림은 폭·높이가 0 인 껍데기 div 에 담겨 오므로 그것만 골라
+   쪽 상자 기준으로 다시 앉힌다. 절대 위치의 기준은 안쪽 여백을 포함한
+   패딩 상자라서, 적혀 있는 좌표를 그대로 쓰면 용지 왼쪽 위에 맞는다. */
+function _anchorPageFloats(sec){
+  [].slice.call(sec.querySelectorAll('header div, footer div')).forEach(function(w){
+    var st=w.style;
+    if(st.position!=='relative'||st.display!=='block') return;
+    if(_cssPx(st.width)!==0||_cssPx(st.height)!==0) return;
+    st.position='absolute';
+    st.left=_cssPx(st.left)+'px';
+    st.top=_cssPx(st.top)+'px';
+    st.zIndex='0';                                   // 글자 뒤로(behindDocument)
+  });
+}
+
+/* ── 쪽 번호를 되살린다 ──
+   꼬리말의 '3 / 91' 은 .docx 안에서 PAGE·NUMPAGES 필드로 적혀 있다. 값은
+   문서를 조판해 봐야 정해지므로 펼치는 쪽은 그 자리를 통째로 비우고, 남은
+   가운뎃점만 '  /  ' 로 떠 버린다. 우리는 몇 째 장인지 알고 있으니 채워 넣는다.
+   지어내는 것이 아니라 Word 가 열릴 때 채울 그 값을 미리 적는 것이다. */
+function _pageNums(sec,i,n){
+  var sep=null;
+  [].slice.call(sec.querySelectorAll('footer span')).forEach(function(s){
+    if(!sep && !s.children.length && /^\s*\/\s*$/.test(s.textContent||'')) sep=s;
+  });
+  if(!sep||!sep.parentNode) return;                 // 꼬리말 모양이 바뀌었으면 손대지 않는다
+  var mk=function(t,gold){ var e=sep.cloneNode(false); e.textContent=t;
+    if(gold){ e.style.color='#B8912E'; e.style.fontWeight='bold'; } return e; };
+  sep.parentNode.insertBefore(mk(String(i),true),sep);
+  sep.parentNode.insertBefore(mk(String(n),false),sep.nextSibling);
+}
+
+/* ── 넘치는 쪽을 실제 쪽수대로 나눈다 ──
+   펼치는 쪽은 명시적 쪽 나눔에서만 자른다. Word 가 저절로 넘기는 자리는
+   자르지 않아서, 한 상자에 서른 쪽 분량이 쌓인 채로 나온다. 그대로 찍으면
+   글줄 한가운데가 잘리고 둘째 장부터는 프레임이 없다. 문단 경계에서 나눈다. */
+function _repaginate(host,pageH){
+  [].slice.call(host.querySelectorAll('section.rptdocx')).forEach(function(sec){
+    var art=sec.querySelector('article'); if(!art) return;
+    var budget=pageH-(sec.offsetHeight-art.offsetHeight);   // 여백·머리말·꼬리말이 먹는 만큼 뺀다
+    if(budget<80||art.offsetHeight<=budget+1) return;
+    var kids=[].slice.call(art.children); if(kids.length<2) return;
+    var box=kids.map(function(k){ return {el:k,top:k.offsetTop,bot:k.offsetTop+k.offsetHeight}; });
+    var cuts=[], start=0, y0=box[0].top;
+    for(var i=1;i<box.length;i++){
+      if(box[i].bot-y0>budget && i>start){ cuts.push([start,i]); start=i; y0=box[i].top; }
+    }
+    cuts.push([start,box.length]);
+    if(cuts.length<2) return;
+    var hdr=sec.querySelector('header'), ftr=sec.querySelector('footer'), frag=document.createDocumentFragment();
+    cuts.forEach(function(r){
+      var pg=sec.cloneNode(false), a=document.createElement('article');
+      if(hdr) pg.appendChild(hdr.cloneNode(true));
+      pg.appendChild(a);
+      for(var j=r[0];j<r[1];j++) a.appendChild(box[j].el);   // 옮긴다 — 복사하면 두 벌이 된다
+      if(ftr) pg.appendChild(ftr.cloneNode(true));
+      frag.appendChild(pg);
+    });
+    sec.parentNode.replaceChild(frag,sec);
+  });
+}
+
+/* 만들어진 .docx 블롭 하나를 받아 PDF 블롭을 돌려준다.
+   성적표를 다시 조판하지 않는다 — 받은 바이트를 펼쳐서 찍을 뿐이다. */
+async function docxBlobToPDFBlob(blob,onStep){
+  var dp=await ensureDocxPreview(), jp=await ensureJsPDF();
+  var host=document.createElement('div');
+  /* 화면 밖에 두되 display:none 은 쓰지 않는다 — 크기가 0 이면 아무것도 못 찍는다. */
+  host.setAttribute('aria-hidden','true');
+  host.style.cssText='position:fixed;left:-20000px;top:0;width:210mm;background:#fff;z-index:-1;pointer-events:none';
+  document.body.appendChild(host);
+  try{
+    await dp.renderAsync(blob,host,null,{
+      className:'rptdocx', inWrapper:true, breakPages:true, ignoreLastRenderedPageBreak:false,
+      renderHeaders:true, renderFooters:true, renderFootnotes:true, useBase64URL:true, experimental:true,
+    });
+    await _imgsReady(host);
+    var one=host.querySelector('section.rptdocx');
+    if(!one) throw new Error('펼친 문서에 페이지가 없다');
+    var pageH=one.offsetHeight, pageW=one.offsetWidth;
+    _repaginate(host,pageH);
+    var pages=[].slice.call(host.querySelectorAll('section.rptdocx'));
+    pages.forEach(function(s){ s.style.height=pageH+'px'; _anchorPageFloats(s); });
+    await _imgsReady(host);
+
+    /* 찍는 쪽은 문서 전체를 한 번 복제한 다음에야 한 쪽을 그린다. 아흔 장을
+       매달아 둔 채로 아흔 번 부르면 복제 비용이 장수의 제곱으로 는다.
+       그래서 전부 떼어 두고 찍을 한 장만 붙인다. */
+    var stage=document.createElement('div');
+    stage.style.cssText='width:'+pageW+'px';
+    pages.forEach(function(s){ s.remove(); });
+    host.appendChild(stage);   // host 는 비우지 않는다 — 펼치는 쪽이 넣어 둔 스타일이 여기 산다
+
+    var PW=210, PH=297;                                   // A4 mm — Word 쪽 용지와 같다
+    var pdf=new jp.jsPDF({unit:'mm',format:'a4',orientation:'portrait',compress:true});
+    var first=true;
+    for(var i=0;i<pages.length;i++){
+      if(onStep) onStep(i+1,pages.length);
+      var el=pages[i];
+      _pageNums(el,i+1,pages.length);
+      stage.textContent=''; stage.appendChild(el);
+      /* 나눠 놓고도 한 쪽에 안 들어간 것이 있으면(표 한 칸이 통째로 클 때)
+         잘라 버리지 않고 다음 장으로 넘긴다. 조용히 잘리면 받은 쪽에서만 사라진다. */
+      var full=Math.max(el.offsetHeight,el.scrollHeight);
+      var canvas=await window.html2canvas(el,{scale:PDF_SCALE,backgroundColor:'#ffffff',useCORS:true,logging:false,
+        width:pageW,height:full,windowWidth:pageW,windowHeight:full,scrollX:0,scrollY:0});
+      var mmPerPx=PW/canvas.width;                        // 폭을 A4 폭에 맞춘다
+      var sliceH=Math.floor(PH/mmPerPx);                  // 한 장에 담기는 캔버스 높이(px)
+      for(var y=0;y<canvas.height;y+=sliceH){
+        var h=Math.min(sliceH,canvas.height-y);
+        if(h<8) break;                                    // 반올림으로 생기는 빈 조각은 버린다
+        var cut=document.createElement('canvas'); cut.width=canvas.width; cut.height=h;
+        var cx=cut.getContext('2d'); cx.fillStyle='#ffffff'; cx.fillRect(0,0,cut.width,h);
+        cx.drawImage(canvas,0,y,canvas.width,h,0,0,canvas.width,h);
+        if(!first) pdf.addPage(); first=false;
+        pdf.addImage(cut.toDataURL('image/jpeg',PDF_QUALITY),'JPEG',0,0,PW,h*mmPerPx,undefined,'FAST');
+      }
+      await new Promise(function(r){ setTimeout(r,0); });  // 화면이 얼어붙지 않게 한 번 놓아 준다
+    }
+    return pdf.output('blob');
+  } finally { host.remove(); }
+}
+
+function _saveBlob(blob,fn){
+  var url=URL.createObjectURL(blob), a=document.createElement('a');
+  a.href=url; a.download=fn; document.body.appendChild(a); a.click();
+  setTimeout(function(){ try{URL.revokeObjectURL(url); a.remove();}catch(e){} },1500);
+}
+
 async function downloadReportDOCX(){
   if(!cur){ fToast('먼저 채점을 해주세요'); return; }
   fToast('Word 성적표 만드는 중… 잠시만요');
@@ -3950,7 +4118,10 @@ async function downloadReportDOCX(){
     var d=_pngDims(u8)||{w:1100,h:589}, w=260, h=Math.round(w*(d.h||1)/(d.w||1));
     return new Paragraph({spacing:{after:0,before:0,line:1,lineRule:LineRule.AUTO},
       children:[new ImageRun({type:'png',data:u8,transformation:{width:w,height:h},
-        floating:{horizontalPosition:{relative:HPos.PAGE,align:HAlign.CENTER},
+        /* 가로는 align:CENTER 대신 좌표로 적는다. Word 에서는 결과가 같고,
+           .docx 를 다시 펼쳐 PDF 로 만들 때 align 은 읽는 쪽마다 해석이 갈린다.
+           A4 폭 11906twip = 7,562,088EMU, 그림 폭 w px = w×9525EMU. */
+        floating:{horizontalPosition:{relative:HPos.PAGE,offset:Math.round((7562088-w*9525)/2)},
                   // A4 세로 297mm ≈ 10,690,000 EMU. 프레임의 化 인장이 가운데(45~55%)를
                   // 차지하므로 로고는 그 아래(약 70%)에 앉힌다.
                   verticalPosition:{relative:VPos.PAGE,offset:7500000},
@@ -4678,10 +4849,16 @@ async function downloadReportDOCX(){
   });
   try{
     var blob=await Packer.toBlob(doc);
-    var fn=((nm?nm+'_':'')+(cur.title||'성적표')+'_성적표').replace(/[\\/:*?"<>|]+/g,'')+'.docx';
-    var url=URL.createObjectURL(blob); var a=document.createElement('a'); a.href=url; a.download=fn; document.body.appendChild(a); a.click();
-    setTimeout(function(){ try{URL.revokeObjectURL(url); a.remove();}catch(e){} },1500);
-    fToast('Word 저장 완료 · '+fn);
+    var base=((nm?nm+'_':'')+(cur.title||'성적표')+'_성적표').replace(/[\\/:*?"<>|]+/g,'');
+    _saveBlob(blob,base+'.docx');
+    fToast('Word 저장 완료 · PDF 변환 중…');
+    /* PDF 는 방금 저장한 그 .docx 를 변환한 것이다. 변환이 실패해도 Word 는
+       이미 손에 있다 — 여기서 넘어져도 사용자가 잃는 것은 없어야 한다. */
+    try{
+      var pdfBlob=await docxBlobToPDFBlob(blob,function(i,n){ if(i===1||i===n||i%5===0) fToast('Word 저장 완료 · PDF 변환 중… '+i+'/'+n+'쪽'); });
+      _saveBlob(pdfBlob,base+'.pdf');
+      fToast('저장 완료 · '+base+'.docx + .pdf');
+    }catch(pe){ console.error(pe); fToast('Word 저장 완료 · PDF 변환은 실패했습니다'); }
   }catch(err){ console.error(err); fToast('Word 생성 실패'); }
 }
 function boot(){
