@@ -158,12 +158,76 @@ function _recomputeConfigFor(title) {
 /**
  * doGet: 앱의 "시트 동기화" 버튼(JSONP)이 호출.
  *   ?action=list&exam=<시험ID>&callback=<함수명>  →  callback({students:[...]})
+ *   ?action=history&name=<이름>&callback=<함수명>  →  callback({rows:[...]})
+ *     한 학생의 전 회차. 어느 기기에서 채점했든 시트에 다 있다.
  * 요청 시험 id를 제목으로 바꿔, '시험' 열이 일치하는 행만 돌려준다(시험 섞임 방지).
  * 매핑에 없는 id면 거르지 않고 전체를 돌려준다(하위호환). 브라우저로 열면 상태만 표시.
  */
+/* ── 한 학생의 전 회차 이력 ────────────────────────────────────────────
+   ?action=history&name=<이름>&callback=<함수명>
+
+   성적표의 '성장 대시보드·성장 추적' 은 그동안 **그 브라우저에 채점해 둔
+   기록**만 세었다. 그래서 학부모 휴대폰에서 공유 링크를 열면 그 폰이 우연히
+   열어 본 회차만 잡혀 "지금까지 2회 응시" 가 됐다 — 실제로는 여섯 번을 봤는데.
+   선생님이 학원 PC 를 바꿔도 마찬가지였다.
+
+   시트에는 어느 기기에서 채점했든 다 들어 있다. 학생 하나를 이름으로 물으면
+   전 회차를 한 번에 돌려준다(회차마다 부르면 서른여덟 번이 된다).
+
+   이름은 **공백을 지우고** 견준다. '박하람' 과 '박 하람' 은 한 사람이다 —
+   시트에도 그렇게 갈려 들어가 있다. */
+function _histKey_(s) { return String(s == null ? '' : s).replace(/\s+/g, ''); }
+/* 시트에는 **그때 쓰던 제목**이 적혀 있다('화올 2018' → 'KMChC 2018').
+   앱은 id 로 회차를 찾으므로 제목을 id 로 되돌려 준다 — 안 그러면 이름이
+   바뀐 회차의 옛 기록이 통째로 빠진다. EXAM_TITLES 는 id 하나에 제목을
+   여러 개 달고 있으니 그걸 뒤집으면 된다. */
+var _TITLE2ID_ = null;
+function _idOfTitle_(title) {
+  if (!_TITLE2ID_) {
+    _TITLE2ID_ = {};
+    for (var id in EXAM_TITLES) {
+      var ts = EXAM_TITLES[id];
+      if (!(ts instanceof Array)) ts = [ts];
+      for (var i = 0; i < ts.length; i++) _TITLE2ID_[String(ts[i])] = id;
+    }
+  }
+  return _TITLE2ID_[String(title || '')] || '';
+}
+function historyFor_(name, cb) {
+  var key = _histKey_(name), out = [];
+  if (key) try {
+    var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('성적기록');
+    if (sh && sh.getLastRow() > 1) {
+      var rows = sh.getRange(2, 1, sh.getLastRow() - 1, HEADER.length).getValues();
+      for (var i = 0; i < rows.length; i++) {
+        var r = rows[i];
+        if (_histKey_(r[1]) !== key) continue;
+        var ans = String(r[16] || '').replace(/^'/, '').replace(/[^0-4]/g, '');
+        if (!ans) continue;
+        var eid = _idOfTitle_(r[0]);
+        if (!eid) continue;                    // 표에 없는 제목은 앱이 못 찾는다
+        out.push({
+          examId: eid,
+          exam: String(r[0] || ''),
+          name: String(r[1] || ''),
+          school: String(r[6] || ''),
+          grade: String(r[7] || ''),
+          answers: ans,
+          ts: (r[3] instanceof Date) ? r[3].getTime() : 0
+        });
+      }
+    }
+  } catch (err) {}
+  var body = JSON.stringify({ ok: true, rows: out });
+  return cb
+    ? ContentService.createTextOutput(cb + '(' + body + ')').setMimeType(ContentService.MimeType.JAVASCRIPT)
+    : ContentService.createTextOutput(body).setMimeType(ContentService.MimeType.JSON);
+}
+
 function doGet(e) {
   var p = (e && e.parameter) || {};
   var cb = p.callback;
+  if (p.action === 'history') return historyFor_(p.name, cb);
   if (p.action === 'list') {
     var students = [];
     try {

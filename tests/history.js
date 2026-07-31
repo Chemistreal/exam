@@ -1,0 +1,213 @@
+/* ============================================================
+   응시 이력은 브라우저가 아니라 학생에게 붙는다 — 회귀 테스트
+   ------------------------------------------------------------
+   성장 대시보드·성장 추적·숙달 추적은 **그 브라우저에 채점해 둔 기록**만
+   세고 있었다. 아홉 군데가 각자 같은 규칙을 베껴 쓰면서.
+
+   그래서 학부모 휴대폰에서 공유 링크를 열면, 그 폰이 우연히 열어 본 회차만
+   잡혀 "지금까지 2회 응시" 라고 나왔다 — 실제로는 여섯 번을 봤는데.
+   `#r=` 링크를 열면 그 브라우저에 기록이 하나 생기므로, 링크를 두 개 열어
+   본 폰은 2회가 된다. 학부모가 보는 화면이 아이의 응시 이력을 **틀리게**
+   말하고 있었다. 선생님이 학원 PC 를 바꿔도 같은 일이 난다.
+
+   시트에는 어느 기기에서 채점했든 다 들어 있다. 학생 하나를 이름으로 물어
+   전 회차를 받아 두고, 이 브라우저 기록과 합쳐 한 곳에서 낸다(histOf).
+
+   여기서 지키는 것:
+   - 시트 기록과 이 브라우저 기록을 합친다
+   - 이름은 공백을 지우고 견준다('박하람' = '박 하람')
+   - 한 회차에 여러 번이면 가장 최근 것 하나만
+   - 문항 수가 안 맞는 기록은 넣지 않는다(다른 시험이다)
+   - 시트 기록을 localStorage 에 쓰지 않는다(학부모 폰에 남길 이유가 없다)
+   - 다시 그릴 때 저장·시트 전송을 되풀이하지 않는다
+   - 아홉 군데가 모두 이 한 곳을 쓴다
+
+   실행:  node tests/history.js
+   ============================================================ */
+'use strict';
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
+
+const ROOT = path.join(__dirname, '..');
+const SRC = fs.readFileSync(path.join(ROOT, 'final.html'), 'utf8');
+const GAS = fs.readFileSync(path.join(ROOT, 'AppsScript-Code.gs'), 'utf8');
+
+let fail = 0;
+const chk = (n, got, want) => {
+  const ok = JSON.stringify(got) === JSON.stringify(want);
+  console.log((ok ? '  PASS  ' : '  FAIL  ') + n +
+    (ok ? '' : `  → ${JSON.stringify(got)} (기대 ${JSON.stringify(want)})`));
+  if (!ok) fail++;
+};
+function cut(src, name) {
+  const at = src.search(new RegExp(`^(?:async )?function ${name}\\(`, 'm'));
+  if (at < 0) throw new Error(`${name} 을 못 찾았다`);
+  let d = 0;
+  for (let j = src.indexOf('{', at); j < src.length; j++) {
+    if (src[j] === '{') d++;
+    else if (src[j] === '}') { d--; if (!d) return src.slice(at, j + 1); }
+  }
+  throw new Error(`${name} 의 끝을 못 찾았다`);
+}
+
+/* 시험 셋 · 저장소는 여기서 세운다. 채점 규칙(okq)·이력 규칙(histOf)은
+   final.html 원본을 그대로 오려 쓴다 — 규칙이 바뀌면 여기서 걸린다. */
+const ctx = { console, STORE: {}, FINAL_EXAMS: [] };
+vm.createContext(ctx);
+// accSet·allc·okq 는 const 화살표라 따로 오려 낸다
+function cutConst(name) {
+  const at = SRC.search(new RegExp(`^const ${name}=`, 'm'));
+  const i = SRC.indexOf('{', at), eol = SRC.indexOf('\n', at);
+  if (i < 0 || i > eol) return SRC.slice(at, eol);
+  let d = 0;
+  for (let j = i; j < SRC.length; j++) {
+    if (SRC[j] === '{') d++;
+    else if (SRC[j] === '}') { d--; if (!d) return SRC.slice(at, j + 1); }
+  }
+}
+vm.runInContext([
+  cutConst('accSet'), cutConst('allc'), cutConst('okq'),
+  SRC.match(/^const COHORT_ALIAS=.*$/m)[0],
+  SRC.match(/^const cohortKey=.*$/m)[0],
+  SRC.match(/^const histKey=.*$/m)[0],
+  'var HIST_ROWS=null, HIST_FOR="", HIST_TRIED="";',
+  'function subs(id){ return STORE[cohortKey(id)] || []; }',
+  cut(SRC, 'histOf'),
+  'Object.assign(globalThis,{histOf, histKey, setHist:function(r,f){HIST_ROWS=r;HIST_FOR=f;}});',
+].join('\n'), ctx);
+
+/* 시험 둘: 60문항짜리와 50문항짜리 */
+const E = [
+  { id: 'a', title: 'A회', nQ: 3, key: [1, 2, 3] },
+  { id: 'b', title: 'B회', nQ: 3, key: [1, 1, 1] },
+  { id: 'c', title: 'C회', nQ: 2, key: [4, 4] },
+];
+const rec = (name, ans, ts, correct) =>
+  ({ name, school: 'X중', grade: '2', ans, ts, correct, total: ans.length, wrong: ans.length - correct });
+
+const reset = () => { ctx.FINAL_EXAMS = E; ctx.STORE = {}; ctx.setHist(null, ''); };
+
+console.log('── 이 브라우저 기록만 있을 때 ──');
+{
+  reset();
+  ctx.STORE.a = [rec('박하람', [1, 2, 3], 100, 3)];
+  ctx.STORE.b = [rec('박하람', [1, 1, 1], 200, 3)];
+  const h = ctx.histOf('박하람');
+  chk('두 회차', h.map(x => x.e.id), ['a', 'b']);
+  chk('오래된 것이 먼저', h.map(x => x.ts), [100, 200]);
+  chk('정답률을 함께 낸다', h.map(x => x.pct), [100, 100]);
+  chk('없는 학생은 빈 목록', ctx.histOf('없는사람'), []);
+  chk('이름이 없으면 빈 목록', ctx.histOf(''), []);
+}
+
+console.log('\n── 시트 기록이 더해진다 ──');
+{
+  reset();
+  ctx.STORE.a = [rec('박하람', [1, 2, 3], 500, 3)];      // 이 폰에는 A회 하나뿐
+  ctx.setHist([
+    { examId: 'b', name: '박하람', answers: '111', ts: 200 },
+    { examId: 'c', name: '박하람', answers: '44', ts: 300 },
+  ], '박하람');
+  const h = ctx.histOf('박하람');
+  chk('시트 것까지 세 회차', h.map(x => x.e.id), ['b', 'c', 'a']);
+  chk('시트 기록도 채점된다', h.map(x => x.r.correct), [3, 2, 3]);
+  /* 학부모 폰에서 링크 하나를 연 상황: 그 폰 기록은 1회지만 실제는 3회다 */
+  chk('그 폰 기록만 세면 1회', Object.keys(ctx.STORE).length, 1);
+}
+{
+  reset();
+  /* 이름이 갈려 있어도 한 사람이다. 시트에도 그렇게 갈려 들어가 있다. */
+  ctx.STORE.a = [rec('박하람', [1, 2, 3], 100, 3)];
+  ctx.setHist([{ examId: 'b', name: '박 하람', answers: '111', ts: 200 }], '박하람');
+  chk('공백이 달라도 같은 학생', ctx.histOf('박하람').map(x => x.e.id), ['a', 'b']);
+  chk('반대로 물어도 같다', ctx.histOf('박 하람').length, 2);
+}
+{
+  reset();
+  ctx.STORE.a = [rec('박하람', [1, 2, 3], 100, 3)];
+  ctx.setHist([{ examId: 'b', name: '박하람', answers: '111', ts: 200 }], '이도현');
+  chk('다른 학생 것을 받아 왔으면 안 쓴다', ctx.histOf('박하람').map(x => x.e.id), ['a']);
+}
+
+console.log('\n── 한 회차는 한 번만 ──');
+{
+  reset();
+  // 같은 회차를 두 번 채점(다시 풀었다) — 가장 최근 것만
+  ctx.STORE.a = [rec('박하람', [1, 2, 3], 100, 3), rec('박하람', [1, 1, 1], 900, 1)];
+  chk('가장 최근 응시', ctx.histOf('박하람').map(x => x.r.correct), [1]);
+
+  reset();
+  ctx.STORE.a = [rec('박하람', [1, 1, 1], 900, 1)];
+  ctx.setHist([{ examId: 'a', name: '박하람', answers: '123', ts: 100 }], '박하람');
+  chk('시트에 더 옛것이 있어도 최근 것', ctx.histOf('박하람').map(x => x.r.correct), [1]);
+  chk('회차 수가 늘지 않는다', ctx.histOf('박하람').length, 1);
+}
+
+console.log('\n── 문항 수가 다르면 다른 시험이다 ──');
+{
+  reset();
+  ctx.STORE.a = [rec('박하람', [1, 2], 100, 1)];                 // A회는 3문항인데 2개
+  ctx.setHist([{ examId: 'c', name: '박하람', answers: '444', ts: 200 }], '박하람');  // C회는 2문항
+  chk('길이가 어긋난 기록은 안 넣는다', ctx.histOf('박하람'), []);
+  reset();
+  ctx.setHist([{ examId: '없는회차', name: '박하람', answers: '123', ts: 1 }], '박하람');
+  chk('모르는 회차는 넘긴다', ctx.histOf('박하람'), []);
+  chk('답안이 없어도 안 죽는다',
+      (ctx.setHist([{ examId: 'a', name: '박하람', ts: 1 }], '박하람'), ctx.histOf('박하람')), []);
+}
+
+console.log('\n── 아홉 군데가 모두 한 곳을 쓴다 ──');
+{
+  /* 규칙을 베껴 쓰면 한 곳만 고쳐지고 나머지가 어긋난다. 실제로 그랬다.
+     주석에는 옛 규칙이 설명으로 남아 있으므로 주석을 걷고 본다. */
+  const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, '');
+  chk('베낀 규칙이 남아 있지 않다',
+      (CODE.match(/subs\(e\.id\)\.filter\([^\n]*r\.name/g) || []).length, 0);
+  chk('여러 곳이 histOf 를 쓴다', (SRC.match(/histOf\(nm\)/g) || []).length >= 8, true);
+}
+
+console.log('\n── 시트 기록을 이 브라우저에 남기지 않는다 ──');
+{
+  /* 학부모 폰에 아이의 전 회차 답안을 남길 이유가 없다. 화면에 보여 줄 뿐이다. */
+  const fn = cut(SRC, 'histOf');
+  chk('histOf 가 저장하지 않는다', /saveSubs|localStorage\.setItem/.test(fn), false);
+  const lh = cut(SRC, 'loadHist');
+  chk('loadHist 도 저장하지 않는다', /saveSubs|localStorage\.setItem/.test(lh), false);
+  chk('이름당 한 번만 묻는다', /if\(HIST_TRIED===key\) return;/.test(lh), true);
+  chk('받으면 다시 그린다', /rerenderReport\(\)/.test(lh), true);
+  chk('조용히 삼키지 않는다', /console\.error\('\[이력\]/.test(lh), true);
+}
+
+console.log('\n── 다시 그릴 때 되풀이하지 않는다 ──');
+{
+  const fn = cut(SRC, 'scoreAuto');
+  chk('다시 그릴 때 저장하지 않는다', /if\(!again\) saveSubs\(cur\.id,arr\);/.test(fn), true);
+  chk('다시 그릴 때 시트로 보내지 않는다', /if\(!again\) saveToSheetFinal\(/.test(fn), true);
+  chk('다시 그릴 때 또 묻지 않는다', /if\(!again\) loadHist\(nm\);/.test(fn), true);
+  /* 다시 그릴 때는 답안 입력칸이 이미 사라지고 성적표가 그 자리에 있다.
+     칸을 그대로 읽으면 여기서 조용히 죽는다 — 실제로 그래서 화면이
+     '2회 응시' 인 채로 남았다. */
+  chk('칸이 없으면 성적표가 든 값을 쓴다',
+      /el\? el\.value : \(\(window\.__rpt\|\|\{\}\)\[f\]\|\|''\)/.test(fn), true);
+}
+
+console.log('\n── 시트 쪽 창구 ──');
+{
+  chk('학생 단위 조회가 있다', /if \(p\.action === 'history'\) return historyFor_\(p\.name, cb\);/.test(GAS), true);
+  const fn = cut(GAS, 'historyFor_');
+  chk('이름의 공백을 지우고 견준다', /_histKey_\(r\[1\]\) !== key/.test(fn), true);
+  chk('답안이 없는 행은 넘긴다', /if \(!ans\) continue;/.test(fn), true);
+  chk('앞에 붙은 따옴표를 뗀다', /replace\(\/\^'\/, ''\)/.test(fn), true);
+  chk('저장시각을 함께 준다', /ts: \(r\[3\] instanceof Date\)/.test(fn), true);
+  /* 시트에는 그때 쓰던 제목이 적혀 있다('화올 2018' → 'KMChC 2018').
+     제목을 id 로 되돌리지 않으면 이름이 바뀐 회차의 옛 기록이 통째로 빠진다. */
+  chk('제목을 회차 id 로 되돌린다', /var eid = _idOfTitle_\(r\[0\]\);/.test(fn), true);
+  chk('못 되돌리면 넘긴다', /if \(!eid\) continue;/.test(fn), true);
+  const rev = cut(GAS, '_idOfTitle_');
+  chk('옛 제목도 표에서 찾는다', /if \(!\(ts instanceof Array\)\) ts = \[ts\];/.test(rev), true);
+  chk('한 번만 뒤집어 둔다', /if \(!_TITLE2ID_\)/.test(rev), true);
+}
+
+console.log(fail ? `\n${fail}개 실패` : '\n모두 통과');
+process.exit(fail ? 1 : 0);
