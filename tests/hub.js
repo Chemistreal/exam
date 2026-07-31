@@ -17,6 +17,8 @@
    - 어느 앱에서 왔는지가 지워지지 않는다
    - 한 앱이 죽어도 나머지 명단은 나온다
    - 셸이 기존 앱의 데이터를 건드리지 않는다
+   - 회차 집계(인원·평균·안 본 학생)가 맞는다
+   - 성적표 링크 규칙을 베끼지 않고 파이널 앱에서 빌린다
 
    실행:  node tests/hub.js
    ============================================================ */
@@ -52,6 +54,8 @@ vm.createContext(ctx);
 vm.runInContext([
   cut('normName'), cut('normSchool'), cut('normGrade'),
   cut('unifyKey'), cut('looseKey'), cut('mergeRosters'),
+  cut('allRounds'), cut('roundStats'),
+  'var FIN=null, ROSTER=[];',
 ].join('\n'), ctx);
 
 console.log('── 이름표를 다듬는다 ──');
@@ -163,6 +167,86 @@ console.log('\n── 셸이 남의 데이터를 건드리지 않는다 ──')
   chk('모달 바깥을 눌러도 닫힌다', /e\.target===DLG\) DLG\.close\(\)/.test(body), true);
   // 저장 키 순서에 기대면 학교 표기가 열 때마다 달라진다
   chk('저장 키 순서를 고정한다', /keys\.sort\(\)/.test(body), true);
+}
+
+console.log('\n── 회차 집계 ──');
+{
+  /* 채점하는 날 가장 자주 묻는 둘: "이 회차 몇 명 했지", "누가 아직 안 봤지". */
+  const st = ts => ts;
+  const mk = (name, school, rounds) => {
+    const rec = { name, school, grade:'2', count:rounds.length, rounds:[] };
+    rounds.forEach(r => rec.rounds.push({ exam:r[0], correct:r[1], total:60, ts:st(r[2]), ans:null, who:rec }));
+    return rec;
+  };
+  const a = mk('김지성','휘문중',[['jmchc-1',48,300],['jmchc-2',54,400]]);
+  const b = mk('이도현','대원국제중',[['jmchc-1',30,200]]);
+  ctx.FIN = { students:[a,b] };
+  // 명단에는 셋이 있다 — 박서준은 아무 회차도 안 봤다. 학교 표기는 흔들린다.
+  ctx.ROSTER = [
+    { name:'김지성', school:'휘문중학교', grade:'2', apps:{} },
+    { name:'이도현', school:'대원국제중', grade:'2', apps:{} },
+    { name:'박서준', school:'휘문중', grade:'1', apps:{} },
+  ];
+  const rs = ctx.roundStats();
+  chk('회차 수', rs.length, 2);
+  chk('최근 채점한 회차가 위에', rs.map(g => g.id), ['jmchc-2','jmchc-1']);
+
+  const r1 = rs.filter(g => g.id==='jmchc-1')[0];
+  chk('1회 채점 인원', r1.n, 2);
+  chk('1회 평균 정답률', r1.avg, 65);          // (80+50)/2
+  chk('1회 최고', r1.best, 80);
+  chk('점수 높은 순으로 선다', r1.rows.map(r => r.who.name), ['김지성','이도현']);
+  /* 학교 표기가 '휘문중' / '휘문중학교' 로 갈려도 같은 사람이다. 여기서
+     갈라지면 이미 본 학생이 '안 본 학생'에 뜬다 — 헛걸음을 시킨다. */
+  chk('1회 안 본 학생', r1.missing.map(r => r.name), ['박서준']);
+
+  const r2 = rs.filter(g => g.id==='jmchc-2')[0];
+  chk('2회는 한 명만 봤다', r2.n, 1);
+  chk('2회 안 본 학생 둘', r2.missing.map(r => r.name).sort(), ['박서준','이도현']);
+
+  ctx.ROSTER = [];
+  chk('명단이 없으면 안 본 학생도 없다', ctx.roundStats()[0].missing, []);
+  ctx.FIN = { students:[] };
+  chk('기록이 없으면 빈 목록', ctx.roundStats(), []);
+}
+
+console.log('\n── 최근 채점 ──');
+{
+  const who = { name:'가', school:'X중' };
+  ctx.FIN = { students:[{ rounds:[
+    { exam:'a', ts:100, who }, { exam:'b', ts:300, who }, { exam:'c', ts:200, who }] }] };
+  chk('최근 것이 먼저', ctx.allRounds(ctx.FIN).map(r => r.exam), ['b','c','a']);
+  chk('빈 것에도 안 죽는다', ctx.allRounds({}), []);
+}
+
+console.log('\n── 링크 규칙을 베끼지 않는다 ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  /* #r= 링크를 만드는 규칙을 여기에 옮겨 적으면, 저쪽이 규칙을 바꾸는 날
+     학부모가 받은 주소가 조용히 깨진다. 같은 오리진이니 원본을 부른다. */
+  chk('해시를 직접 조립하지 않는다', /'r='|"r="|`r=`/.test(body), false);
+  chk('encName 을 베끼지 않았다', /function encName/.test(body), false);
+  chk('파이널의 함수를 빌린다',
+      /w\.hashStrFinal\(/.test(body) && /w\.shareLinkFinal\(/.test(body), true);
+  chk('빌릴 창을 기다린다', /typeof w\.hashStrFinal==='function'/.test(body), true);
+  chk('안 뜨면 포기한다(영영 기다리지 않는다)', /n > 80/.test(body), true);
+
+  /* 파이널은 hashchange 로 화면을 다시 그린다. 주소를 바꾸자마자 무엇을 열면
+     뒤늦게 온 hashchange 가 그것을 덮는다. */
+  const nav = cut('finalNav');
+  chk('해시를 바꾸면 한 번 기다린다', /addEventListener\('hashchange'/.test(nav), true);
+  chk('기다린 뒤 리스너를 뗀다', /removeEventListener\('hashchange'/.test(nav), true);
+  chk('주소가 그대로면 직접 부른다', /w\.boot\(\)/.test(nav), true);
+}
+
+console.log('\n── 단축키가 글자 입력을 가로채지 않는다 ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  // 주석으로 죽여 놓아도 통과하지 않도록 줄 첫머리에서 본다
+  chk('입력 중에는 비켜선다', /^\s*if\(typing\) return;/m.test(body), true);
+  chk('조합키는 건드리지 않는다', /if\(e\.metaKey\|\|e\.ctrlKey\|\|e\.altKey\) return;/.test(body), true);
+  chk('탭 수와 숫자키 수가 맞는다',
+      (SRC.match(/'1234567'/)||[]).length===1 && /const TABS = \['dash','stu','rnd','exam','dt','km','mat'\]/.test(body), true);
 }
 
 console.log(fail ? `\n${fail}개 실패` : '\n모두 통과');
