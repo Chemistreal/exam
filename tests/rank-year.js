@@ -127,6 +127,30 @@ console.log('\n── 같은 학생을 두 번 세지 않는다 ──');
       /latestPerStudent\(subs\(exam\.id\)/.test(SRC), true);
 }
 
+console.log('\n── 링크로 받은 것이면 그때 그 해를 쓴다 ──');
+{
+  /* 선생님 화면에는 반석차가 나오는데 보내 준 링크에는 안 나왔다. 점수 분포는
+     실었지만 **몇 해 것인지**를 안 실어서, 받는 쪽이 올해 것을 골라낼 수가
+     없었다. 이제 링크가 연도를 함께 나른다. */
+  chk('링크에 적힌 해를 그대로 쓴다',
+      ctx.rankPoolYear(ex, { yearTotals: [50, 40, 30], yearOf: 2025 }).year, 2025);
+  chk('해가 없으면 올해로 본다',
+      ctx.rankPoolYear(ex, { yearTotals: [50, 40, 30] }).year, YEAR);
+  // 혼자면 1/1 이 되는데 그건 등수가 아니라 아직 아무도 없다는 뜻이다(시트도 같다)
+  chk('올해 한 명뿐이면 등수로 안 친다',
+      ctx.rankPoolYear(ex, { yearTotals: [30], yearOf: YEAR }).ready, false);
+
+  chk('링크가 올해 분포를 함께 싣는다', /putHist\(cs\.yearTotals\)/.test(SRC), true);
+  chk('링크가 연도도 싣는다', /cs\.yearOf\|\|CUR_YEAR\)-2000/.test(SRC), true);
+  chk('푸는 쪽도 연도를 읽는다', /yearOf=2000\+r\.get\(8\)/.test(SRC), true);
+  // 이미 학부모에게 나간 링크가 빈 성적표가 되면 안 된다
+  chk('예전 판 링크를 계속 읽는다', /b\[0\]!==2 && b\[0\]!==CS_VER/.test(SRC), true);
+  /* 라벨을 이 브라우저의 올해로 붙이면, 해가 바뀐 뒤 학부모가 링크를 열었을 때
+     선생님 화면과 다른 해가 적힌다. 링크가 나른 해로만 적는다. */
+  chk('라벨에 이 브라우저의 올해를 쓰지 않는다',
+      /CUR_YEAR[^\n]{0,16}년 반석차/.test(SRC.replace(/\/\*[\s\S]*?\*\//g, '')), false);
+}
+
 console.log('\n── 화면·인쇄·Word 가 같은 말을 한다 ──');
 {
   ['연도누적 총석차', '년 반석차'].forEach(w => {

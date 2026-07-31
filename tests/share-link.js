@@ -141,6 +141,102 @@ async function legacySnapshot(browser, errs) {
   await page.close();
 }
 
+/* ── 1.7부. 반석차도 링크에 실린다 ────────────────────────────────────
+   선생님 화면에는 「2026년 반석차 3/5」가 나오는데, 보내 준 링크를 학부모가
+   열면 그 줄만 통째로 없었다. 링크에 점수 분포는 실었지만 **몇 해에 낸
+   점수인지**를 안 실어서, 받는 쪽에서는 올해 것을 골라낼 수가 없었다.
+   같은 성적표를 두고 서로 다른 숫자를 이야기하게 된다.
+
+   그래서 v3 는 올해 점수 분포와 연도를 함께 싣는다. 이미 나간 v2 링크는
+   반석차만 빠진 채 나머지가 그대로 읽혀야 한다. */
+async function yearRankSnapshot(browser, errs) {
+  console.log('\n── 반석차가 링크를 타고 간다 ──');
+  const YEAR = new Date().getFullYear();
+
+  const teacher = await browser.newPage();
+  teacher.on('pageerror', e => errs.push('교사(반석차): ' + e.message));
+  await teacher.goto(U, { waitUntil: 'networkidle' });
+  const made = await teacher.evaluate(yr => {
+    const ex = FINAL_EXAMS.find(e => e.id === 'hwol-2018'), nQ = ex.nQ;
+    const mk = s => { let x = (s * 2654435761) >>> 0, a = [];
+      for (let i = 0; i < nQ; i++) { x = (x * 1664525 + 1013904223) >>> 0; a.push((x >>> 16) % 4 + 1); }
+      return a; };
+    const miss = new Set(ex.miss || []), arr = [];
+    // 12명 중 앞 7명만 올해 채점했다. 나머지는 작년 학생 — 반석차에서 빠져야 한다.
+    for (let s = 1; s <= 12; s++) {
+      const ans = mk(s); let c = 0, tot = 0;
+      for (let q = 1; q <= nQ; q++) { if (miss.has(q)) continue; tot++; if (okq(ex, q, ans[q - 1])) c++; }
+      arr.push({ name: '학생' + s, school: 'X중', grade: '3',
+                 ts: Date.UTC(s <= 7 ? yr : yr - 1, 5, 1) + s * 1000,
+                 correct: c, total: tot, wrong: tot - c, ans: ans });
+    }
+    saveSubs('hwol-2018', arr);
+    const cs = cohortStats(ex), ry = rankPoolYear(ex, cs);
+    const sel2 = {}; mk(3).forEach((v, i) => { sel2[i + 1] = v; });
+    const link = shareLinkFinal(ex, sel2, '홍길동', '');
+    // 이미 나간 v2 링크: 앞부분 형식이 v3 와 같아서 판 번호만 되돌리면 그대로다
+    const raw = unb64url((link.match(/#s=([^&]+)&/) || [, ''])[1]);
+    raw[0] = 2;
+    const v2 = unpackCohort(ex, b64url(raw));
+    /* 기준 기록(cohort/baseline.json)이 있는 회차는 통계가 mergeBaselineQ 를
+       한 번 더 지난다. 거기서 연도를 흘리면 링크로 잘 받아 놓고도 반석차가
+       사라진다 — 실제로 그 자리가 통계를 통째로 새로 만든다. */
+    const bex = FINAL_EXAMS.find(e => BASELINE && BASELINE[cohortKey(e.id)] && BASELINE[cohortKey(e.id)].qc);
+    const kept = bex ? mergeBaselineQ(bex, { N: 3, ready: true, estimated: false, percReady: true,
+        qp: [], qopt: [], qcnt: new Array(bex.nQ).fill([0, 0, 0, 0]),
+        totals: [10, 20, 30], yearTotals: [10, 20], yearOf: 2025, fromLink: true }) : null;
+    return { N: cs.N, totals: cs.totals.slice().sort((a, b) => a - b),
+             baseEx: bex && bex.id, keptYear: kept && kept.yearOf,
+             keptYearTotals: kept && (kept.yearTotals || []).length,
+             yearTotals: (cs.yearTotals || []).slice().sort((a, b) => a - b),
+             yready: ry.ready, yN: ry.N, yyear: ry.year, link,
+             v2ok: !!v2, v2N: v2 && v2.N,
+             v2totals: v2 && v2.totals.slice().sort((a, b) => a - b),
+             v2year: v2 && (v2.yearTotals || []).length };
+  }, YEAR);
+  console.log(`  교사 쪽: 누적 ${made.N}명 · 올해 ${made.yN}명 (${made.yyear}년)`);
+  chk('교사 쪽 올해 인원', made.yN, 7);
+  chk('교사 쪽 반석차가 켜진다', made.yready, true);
+  chk('작년 학생은 올해에서 빠진다', made.yearTotals.length < made.totals.length, true);
+  chk('기준 기록을 얹어도 연도가 남는다', made.keptYear, 2025);
+  chk('기준 기록을 얹어도 올해 분포가 남는다', made.keptYearTotals, 2);
+
+  const parent = await browser.newPage();
+  parent.on('pageerror', e => errs.push('학부모(반석차): ' + e.message));
+  await parent.goto(made.link, { waitUntil: 'networkidle' });
+  await parent.waitForTimeout(2500);
+  const seen = await parent.evaluate(() => {
+    const ex = FINAL_EXAMS.find(e => e.id === 'hwol-2018');
+    const cs = cohortStats(ex), ry = rankPoolYear(ex, cs);
+    return { mine: (subs('hwol-2018') || []).length,
+             totals: cs.totals.slice().sort((a, b) => a - b),
+             yearTotals: (cs.yearTotals || []).slice().sort((a, b) => a - b),
+             yearOf: cs.yearOf, yready: ry.ready, yN: ry.N, yyear: ry.year,
+             text: document.body.innerText };
+  });
+  /* 학부모 브라우저에 남는 기록은 방금 다시 채점한 이 학생 하나뿐이다.
+     나머지 숫자는 전부 링크에서 온 것이라야 한다. */
+  chk('학부모 브라우저 기록은 이 학생 하나뿐', seen.mine, 1);
+  chk('그런데도 올해 인원이 여럿', seen.yearTotals.length > 1, true);
+  chk('올해 점수 분포가 링크를 타고 왔다', seen.yearTotals, made.yearTotals);
+  chk('누적 점수 분포는 그대로', seen.totals, made.totals);
+  chk('링크에 적힌 연도를 읽었다', seen.yearOf, YEAR);
+  chk('학부모 쪽에서도 반석차가 켜진다', seen.yready, true);
+  chk('올해 인원 그대로', seen.yN, made.yN);
+  chk('연도 라벨이 교사 화면과 같다', seen.yyear, made.yyear);
+  // 여기가 이 검사의 이유다. 숫자가 맞아도 화면에 안 나오면 없는 것과 같다.
+  chk('성적표에 반석차 줄이 보인다', seen.text.includes(YEAR + '년 반석차'), true);
+  chk('총석차도 그대로 보인다', seen.text.includes('연도누적 총석차'), true);
+  await parent.close();
+  await teacher.close();
+
+  // 이미 나간 v2 링크 — 반석차만 빠지고 나머지는 살아 있어야 한다
+  chk('v2 링크가 계속 읽힌다', made.v2ok, true);
+  chk('v2 인원수 그대로', made.v2N, made.N);
+  chk('v2 점수 분포 그대로', made.v2totals, made.totals);
+  chk('v2 에는 올해 분포가 없다', made.v2year, 0);
+}
+
 /* ── 2부. 이름 감싸기 ────────────────────────────────────────────── */
 async function nameEncoding(browser, errs) {
   console.log('\n── 이름 감싸기 ──');
@@ -245,6 +341,7 @@ async function radarAndSharedUI(browser, errs) {
   const errs = [];
   await cohortSnapshot(browser, errs);
   await legacySnapshot(browser, errs);
+  await yearRankSnapshot(browser, errs);
   await nameEncoding(browser, errs);
   await radarAndSharedUI(browser, errs);
   chk('JS 오류 없음', errs, []);
