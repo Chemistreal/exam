@@ -70,11 +70,11 @@ vm.runInContext([
   cutConst('accSet'), cutConst('allc'), cutConst('okq'),
   SRC.match(/^const COHORT_ALIAS=.*$/m)[0],
   SRC.match(/^const cohortKey=.*$/m)[0],
-  SRC.match(/^const histKey=.*$/m)[0],
+  SRC.match(/^const nameKey=.*$/m)[0],
   'var HIST_ROWS=null, HIST_FOR="", HIST_TRIED="";',
   'function subs(id){ return STORE[cohortKey(id)] || []; }',
   cut(SRC, 'histOf'),
-  'Object.assign(globalThis,{histOf, histKey, setHist:function(r,f){HIST_ROWS=r;HIST_FOR=f;}});',
+  'Object.assign(globalThis,{histOf, nameKey, setHist:function(r,f){HIST_ROWS=r;HIST_FOR=f;}});',
 ].join('\n'), ctx);
 
 /* 시험 둘: 60문항짜리와 50문항짜리 */

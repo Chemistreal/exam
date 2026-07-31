@@ -131,6 +131,10 @@ const RX={
 '배위화학':{k:'착이온 명명·배위수·기하(사면체·정사각평면·팔면체), 이성질체(기하·광학), 결정장(Δ·스핀·자기성), 분광화학 계열·색.',t:'사각평면 cis/trans, en 킬레이트 광학이성질체, 약한장 고스핀·강한장 저스핀, Δ 작을수록 긴 파장 흡수.',rx:'착이온 이성질체 개수, 결정장 자기성·홀전자, 분광화학 계열로 흡수 파장 비교를 반복하세요.'}
 };
 const TIERS=['대상','금상','은상','동상','장려상'];
+/* 이름의 띄어쓰기는 붙여 저장한다. '박 하람' 과 '박하람' 이 두 사람으로
+   갈리면 성적표 회차가 나뉘고 또래 인원이 한 명 더 는다. 교사용(final.html)
+   의 nameKey 와 같은 규칙이다 — 한쪽만 다듬으면 다시 갈라진다. */
+const nameKey=s=>String(s==null?'':s).replace(/\s+/g,'').trim();
 const accSet=(e,q)=>(e.multi&&e.multi[q])?e.multi[q]:[e.key[q-1]];
 /* 전원정답 문항 — 삭제·취소되었거나 보기 넷을 모두 인정하는 문항.
    답을 쓰지 않아도 맞은 것으로 센다. 답안지에 아무것도 없으니 답을 요구하면
@@ -291,7 +295,7 @@ function updateProg(){ const nQ=cur.nQ||cur.key.length; const ac=allcSet(cur); l
 
 function submitAns(){
   if(SUBMITTING) return; // 이미 제출 진행/완료 — 중복 호출 무시(제출 후 DOM 교체 전 연타 방지)
-  const nm=(document.getElementById('nm').value||'').trim();
+  const nm=nameKey(document.getElementById('nm').value);
   const sch=(document.getElementById('sch').value||'').trim();
   const grd=(document.getElementById('grd').value||'').trim();
   if(!nm){ toast('이름을 입력하세요'); document.getElementById('nm').focus(); return; }

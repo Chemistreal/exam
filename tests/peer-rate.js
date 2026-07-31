@@ -54,7 +54,7 @@ function cut(name, kind) {
 const ctx = { BASELINE: null, console, Buffer };
 vm.createContext(ctx);
 vm.runInContext([
-  cut('accSet', 'const'), cut('allc', 'block'), cut('allcSet', 'block'),
+  cut('accSet', 'const'), cut('nameKey', 'const'), cut('allc', 'block'), cut('allcSet', 'block'),
   cut('COHORT_ALIAS', 'const'), cut('cohortKey', 'const'),
   cut('rosterKey'), cut('latestPerStudent'),
   cut('mergeBaselineQ'),

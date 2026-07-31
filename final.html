@@ -852,6 +852,18 @@ const MINP=1, PFX='final:roster:';
 const app=document.getElementById('app');
 let cur=null, sel={};
 const CIRC=['','①','②','③','④'];
+/* ── 이름을 다듬는 한 곳 ────────────────────────────────────────────
+   '박 하람' 과 '박하람' 은 한 사람이다. 그런데 앱은 이름을 **적힌 그대로**
+   열쇠로 써서 둘을 남남으로 봤다 — 명단이 두 줄이 되고, 성적표 회차가
+   갈라지고, 또래 인원이 한 명 더 늘었다. 시트 쪽은 이미 공백을 지우고
+   견주고 있었으니(_normName) 앱만 다르게 세고 있었던 셈이다.
+
+   이제 **저장할 때 공백을 지운다.** 견줄 때도 지우고 견준다. 한글 이름에
+   띄어쓰기가 뜻을 갖는 경우는 없다 — 붙여 쓰는 것이 표준 표기다.
+
+   아래 tidyNames 가 이 함수를 쓰므로 **그보다 먼저** 있어야 한다. const 는
+   끌어올려지지 않아서, 뒤에 두면 그 정리가 조용히 아무것도 안 한다. */
+const nameKey=s=>String(s==null?'':s).replace(/\s+/g,'').trim();
 const accSet=(e,q)=>(e.multi&&e.multi[q])?e.multi[q]:[e.key[q-1]];
 /* ── 전원정답 문항 ────────────────────────────────────────────────────
    삭제·취소된 문항, 그리고 보기 넷을 모두 인정하는 문항이다. 이런 문항은
@@ -914,6 +926,43 @@ function saveSubs(id,a){try{localStorage.setItem(PFX+cohortKey(id),JSON.stringif
     }
   }catch(e){}
 })();
+
+/* ── 이미 쌓여 있는 이름을 한 번 다듬는다 ───────────────────────────────
+   규칙만 바꾸면 앞으로 저장되는 것만 합쳐진다. 지금까지 '박 하람' 으로
+   쌓인 회차는 그대로 갈라져 있다. 한 번 돌면서 이름을 다듬고, 그 바람에
+   같아진 기록(이름+답안이 같다)은 최근 것만 남긴다.
+
+   답안이 다르면 다시 푼 것이므로 따로 둔다 — 채점 규칙(subSig)과 같다.
+
+   별칭 이관(mergeAliasRosters) **뒤에** 돈다. 옮겨 온 기록도 함께 다듬어야
+   한다 — 앞에 두면 옮겨 온 것만 옛 이름으로 남는다. */
+(function tidyNames(){
+  try{
+    for(var i=0;i<localStorage.length;i++){
+      var k=localStorage.key(i); if(!k||k.indexOf(PFX)!==0) continue;
+      var arr; try{ arr=JSON.parse(localStorage.getItem(k)||'[]'); }catch(e){ continue; }
+      if(!Array.isArray(arr)||!arr.length) continue;
+      var changed=false, keep=[], seen={};
+      arr.forEach(function(r){
+        if(!r) return;
+        var fixed=nameKey(r.name);
+        if(fixed!==String(r.name||'')){ r.name=fixed; changed=true; }
+        var sig=subSig(r), at=seen[sig];
+        if(at==null){ seen[sig]=keep.length; keep.push(r); return; }
+        changed=true;
+        var old=keep[at];
+        /* 같은 응시가 둘로 있었다. 최근 것을 남기되 학교·학년은 채워 둔다. */
+        var win=((r.ts||0)>=(old.ts||0))?r:old, lose=(win===r)?old:r;
+        if(!win.school&&lose.school) win.school=lose.school;
+        if(!win.grade&&lose.grade) win.grade=lose.grade;
+        keep[at]=win;
+      });
+      if(changed){ keep.sort(function(x,y){ return (x.ts||0)-(y.ts||0); });
+        try{ localStorage.setItem(k,JSON.stringify(keep)); }catch(e){} }
+    }
+  }catch(e){}
+})();
+
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function award(W,cut){let idx=cut.findIndex(c=>W<=c);const inA=idx!==-1;if(!inA)idx=5;const name=inA?TIERS[idx]:'수상권 밖';
   let nextTier=null,gap=null,reach=false;if(idx>0){const n=inA?idx-1:4;nextTier=TIERS[n];gap=W-cut[n];reach=gap>=1&&gap<=2;}return{name,idx,inA,nextTier,gap,reach};}
@@ -979,7 +1028,7 @@ function showExamQ(id){
    이름만 있고 학교·학년이 비어 있으면 다른 사람으로 센다 — 실제로 동명이인이
    있고, 학교·학년이 그 둘을 가르는 유일한 단서다. */
 function rosterKey(r){
-  return [(r.name||'').trim()||'(이름 없음)', (r.school||'').trim(), (r.grade||'').trim()].join('\u0001');
+  return [nameKey(r.name)||'(이름 없음)', (r.school||'').trim(), (r.grade||'').trim()].join('\u0001');
 }
 function rosterLabel(key){
   var p=String(key).split('\u0001');
@@ -2282,12 +2331,10 @@ function dashboardSec(exam){
    시트에는 어느 기기에서 채점했든 다 들어 있다. 학생 하나를 이름으로 물어
    전 회차를 받아 두고(loadHist), 이 브라우저 기록과 합쳐 여기서 낸다.
 
-   이름은 **공백을 지우고** 견준다 — '박하람' 과 '박 하람' 은 한 사람이다.
-   예전 규칙은 정확히 같아야 해서 저 둘이 갈라졌다. */
+   이름은 nameKey 로 견준다 — 공백을 지우므로 '박 하람' 도 같은 사람이다. */
 var HIST_ROWS=null, HIST_FOR='', HIST_TRIED='';
-const histKey=s=>String(s==null?'':s).replace(/\s+/g,'').trim();
 function histOf(nm){
-  const key=histKey(nm); if(!key) return [];
+  const key=nameKey(nm); if(!key) return [];
   const best={};
   const take=function(e,r){
     if(!e||!r||!r.ans||r.ans.length!==e.nQ) return;
@@ -2295,11 +2342,11 @@ function histOf(nm){
     if(!p||(r.ts||0)>=(p.ts||0)) best[e.id]={e:e, r:r, ts:r.ts||0};
   };
   FINAL_EXAMS.forEach(function(e){
-    subs(e.id).forEach(function(r){ if(histKey(r&&r.name)===key) take(e,r); });
+    subs(e.id).forEach(function(r){ if(nameKey(r&&r.name)===key) take(e,r); });
   });
   /* 시트에서 받아 온 것. 이 브라우저에 없던 회차가 여기서 채워진다.
      localStorage 에 쓰지는 않는다 — 학부모 폰에 남길 이유가 없다. */
-  if(HIST_ROWS && histKey(HIST_FOR)===key) HIST_ROWS.forEach(function(row){
+  if(HIST_ROWS && nameKey(HIST_FOR)===key) HIST_ROWS.forEach(function(row){
     const e=FINAL_EXAMS.filter(function(x){ return x.id===row.examId; })[0];
     if(!e) return;
     const digits=String(row.answers||'').replace(/[^0-4]/g,'');
@@ -2316,7 +2363,7 @@ function histOf(nm){
 /* 시트에서 그 학생의 전 회차를 받아 온다. 받아 오면 성적표를 다시 그린다 —
    먼저 그려 둔 화면이 '2회 응시' 라고 적혀 있을 수 있으므로. */
 function loadHist(nm){
-  const key=histKey(nm);
+  const key=nameKey(nm);
   if(!key || !SHEET_ENDPOINT) return;
   if(HIST_TRIED===key) return;          // 이름당 한 번만 묻는다
   HIST_TRIED=key;
@@ -2339,17 +2386,19 @@ function loadHist(nm){
 
    빠진 것이 있으면 성적표가 **먼저 말한다.** 합치는 것은 명단 관리에서 한다. */
 function splitNameRecords(nm){
-  var key=String(nm||'').trim().replace(/\s+/g,''); if(!key) return [];
+  var key=nameKey(nm); if(!key) return [];
   var seenKey={}, by={};
   FINAL_EXAMS.forEach(function(e){
     var k=cohortKey(e.id); if(seenKey[k]) return; seenKey[k]=1;   // 별칭은 한 번만 센다
     subs(e.id).forEach(function(r){
-      var n=((r&&r.name)||'').trim(); if(!n||n===String(nm).trim()) return;
-      var x=n.replace(/\s+/g,'');
-      var same = (x===key);
-      var near = (!same && x.length>=2 && key.length>=2 && editDist(x,key)===1);
-      if(!same && !near) return;
-      var rec = by[n] || (by[n]={name:n, n:0, why:same?'띄어쓰기만 다름':'한 글자 다름'});
+      var n=((r&&r.name)||'').trim(); if(!n) return;
+      /* 띄어쓰기 차이는 이제 저장할 때 저절로 붙는다(nameKey). 여기서 경고할
+         것은 **사람이 봐야 하는** 것만 남긴다 — 한 글자가 다른 이름. 기계가
+         합치면 동명이인을 되돌릴 수 없게 묶으므로 합치지는 않는다. */
+      var x=nameKey(n);
+      if(x===key) return;                    // 이미 같은 사람으로 센다
+      if(!(x.length>=2 && key.length>=2 && editDist(x,key)===1)) return;
+      var rec = by[n] || (by[n]={name:n, n:0, why:'한 글자 다름'});
       rec.n++;
     });
   });
@@ -2917,7 +2966,7 @@ function noteRename(from,to){
   try{ localStorage.setItem(RENAME_KEY,JSON.stringify(m)); }catch(e){}
 }
 function applyRename(n){ var s=String(n||'').trim(); var m=renameMap(); return m[s]||s; }
-function subSig(r){ return (r.name||'').trim()+'|'+((r.ans||[]).join('')); }
+function subSig(r){ return nameKey(r.name)+'|'+((r.ans||[]).join('')); }
 /* 시트 한 시험분을 로컬 풀에 합친다. 반환값은 새로 들어온 건수. */
 function mergeSheetRows(exam,rows){
   if(!rows||!rows.length) return 0;
@@ -2931,7 +2980,7 @@ function mergeSheetRows(exam,rows){
     var ans=digits.split('').map(Number);
     var correct=0, total=0;
     for(var q=1;q<=exam.nQ;q++){ total++; if(okq(exam,q,ans[q-1]||0))correct++; }
-    var rowRec={name:applyRename(rec.name), school:String(rec.school||''), grade:String(rec.grade||''),
+    var rowRec={name:nameKey(applyRename(rec.name)), school:String(rec.school||''), grade:String(rec.grade||''),
                 ts:rec.ts||0, correct:correct, total:total, wrong:total-correct, ans:ans};
     var sig=subSig(rowRec);
     if(seen[sig]!=null){
@@ -3647,7 +3696,9 @@ function scoreAuto(again){
      칸이 없으면 방금 그린 성적표가 들고 있던 값을 쓴다. */
   const _v=function(id,f){ const el=document.getElementById(id);
     return ((el? el.value : ((window.__rpt||{})[f]||''))||'').trim(); };
-  const nm=_v('nm','name'), sch=_v('sch','school'), grd=_v('grd','grade');
+  /* 여기서 한 번 다듬으면 그 뒤로는 갈라지지 않는다 — 저장·시트·문자·링크가
+     모두 이 값을 쓴다. */
+  const nm=nameKey(_v('nm','name')), sch=_v('sch','school'), grd=_v('grd','grade');
   window.__rpt={name:nm,school:sch,grade:grd};
   const ans=[]; for(let q=1;q<=cur.nQ;q++) ans.push(sel[q]||0);
   /* 채점할 때마다 새 기록을 쌓고 있었다. 같은 학생을 두 번 채점하면 명단에
