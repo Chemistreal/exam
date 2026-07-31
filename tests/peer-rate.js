@@ -61,7 +61,11 @@ vm.runInContext([
   cut('unpackCohort'),
   cut('packCohort'),
   cut('bitsFor'), cut('bitW'), cut('bitR'), cut('b64url'), cut('unb64url'),
-  'const CS_VER=2;',
+  /* 판 번호는 소스에서 그대로 읽는다. 여기에 손으로 적어 두면 링크 형식이
+     바뀌어도 이 검사만 옛 판을 만들고 있게 된다 — 실제로 v3 로 올릴 때
+     여기가 2 인 채로 남아 있었다. */
+  cut('CS_VER', 'const'),
+  'var CUR_YEAR=' + new Date().getFullYear() + ';',
   'function btoa(s){return Buffer.from(s,"binary").toString("base64");}',
   'function atob(s){return Buffer.from(s,"base64").toString("binary");}',
 ].join('\n'), ctx);

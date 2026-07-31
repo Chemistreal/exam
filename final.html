@@ -1552,9 +1552,12 @@ function rankIn(pool,my){ return pool.filter(function(t){return t>my;}).length+1
 var CUR_YEAR=(function(){ try{ return new Date().getFullYear(); }catch(e){ return 0; } })();
 function rankPoolYear(exam,cs){
   var p=(cs&&cs.yearTotals)||null;
+  /* 링크로 받은 것이면 그때 그 해를 쓴다 — 해가 바뀐 뒤 학부모가 열어도
+     '2026년 반석차' 그대로여야 선생님 화면과 같은 말이 된다. */
+  var yr=(cs&&cs.yearOf)||CUR_YEAR;
   /* 올해 채점한 사람이 자기 혼자면 1/1 이 된다. 그건 등수가 아니라 아직
      아무도 없다는 뜻이라, 적지 않는다(시트 문자도 같은 규칙이다). */
-  return {pool:p||[], N:p?p.length:0, year:CUR_YEAR, ready:!!(p&&p.length>=2)};
+  return {pool:p||[], N:p?p.length:0, year:yr, ready:!!(p&&p.length>=2)};
 }
 /* ── 또래 정답률의 모집단 ──────────────────────────────────────────────
    석차는 기준 기록을 쓰는데 **정답률은 안 쓰고 있었다.** 그래서 "석차 12/57"
@@ -1601,7 +1604,8 @@ function mergeBaselineQ(exam,cs){
      링크에 넣지 않는다 — 넣으면 주소만 길어지고 값은 똑같다. */
   return {N:N, ready:true, estimated:false, percReady:true,
           qp:qp, qopt:qopt, qdisc:cs.qdisc||null, qcnt:qcnt,
-          totals:cs.totals, yearTotals:cs.yearTotals, flagged:cs.flagged|0, fromLink:!!cs.fromLink,
+          totals:cs.totals, yearTotals:cs.yearTotals, yearOf:cs.yearOf||0,
+          flagged:cs.flagged|0, fromLink:!!cs.fromLink,
           baseN:bn, local:cs.local||{N:locN, qcnt:cs.qcnt}};
 }
 function globalDomainPrior(excludeId){
@@ -3181,7 +3185,7 @@ function hashStrFinal(cur,sel,nm,exno){ let num=0n; for(let q=cur.nQ;q>=1;q--){ 
    합계뿐이다. 그것만으로 또래 통계가 전부 그려진다.
 
    v1 링크는 이미 학부모에게 나갔으므로 계속 읽는다. */
-const CS_VER=2;
+const CS_VER=3;   // 3: 올해 점수 분포를 함께 싣는다(반석차)
 // 0~m 을 담는 데 필요한 비트 수. m 이 0이면 값이 0 뿐이라 한 비트도 필요 없다.
 function bitsFor(m){ return m<=0?0:(32-Math.clz32(m)); }
 function bitW(){ var out=[],acc=0,n=0; return {
@@ -3218,10 +3222,19 @@ function packCohort(exam,cs){
     }
   }
   // 점수 분포. 백분위를 정확히 되살리는 데 이것만 있으면 된다. 0 인 칸은 뺀다.
-  var hist={}; (cs.totals||[]).forEach(function(t){ if(t>=0&&t<=nQ) hist[t]=(hist[t]||0)+1; });
-  var keys=Object.keys(hist).map(Number).sort(function(a,b){return a-b;});
-  w.put(Math.min(255,keys.length),8);
-  keys.slice(0,255).forEach(function(t){ w.put(t,bitsFor(nQ)); w.put(Math.min(N,hist[t]),bitsFor(N)); });
+  var putHist=function(arr){
+    var h={}; (arr||[]).forEach(function(t){ if(t>=0&&t<=nQ) h[t]=(h[t]||0)+1; });
+    var ks=Object.keys(h).map(Number).sort(function(a,b){return a-b;});
+    w.put(Math.min(255,ks.length),8);
+    ks.slice(0,255).forEach(function(t){ w.put(t,bitsFor(nQ)); w.put(Math.min(N,h[t]),bitsFor(N)); });
+  };
+  putHist(cs.totals);
+  /* 올해 채점한 학생들의 점수 분포도 함께 싣는다. 안 실으면 학부모 폰에서
+     '2026년 반석차' 가 통째로 빠진다 — 선생님 화면에는 있는데 보내 준 링크에는
+     없는 셈이라, 같은 성적표를 보고 서로 다른 숫자를 이야기하게 된다.
+     연도도 적어 둔다: 해가 바뀐 뒤에 열어도 그때 그 반의 숫자여야 한다. */
+  w.put(Math.max(0,Math.min(255,(cs.yearOf||CUR_YEAR)-2000)),8);
+  putHist(cs.yearTotals);
   try{ return b64url(Uint8Array.from([CS_VER,nQ,N>>8,N&255].concat(w.done()))); }catch(e){ return ''; }
 }
 function unpackCohort(exam,str){
@@ -3229,7 +3242,7 @@ function unpackCohort(exam,str){
     var b=unb64url(str);
     if(b[1]!==exam.nQ) return null;
     if(b[0]===1) return unpackCohortV1(exam,b);    // 이미 나간 링크
-    if(b[0]!==CS_VER) return null;
+    if(b[0]!==2 && b[0]!==CS_VER) return null;    // v2 도 계속 읽는다
     var nQ=exam.nQ, N=(b[2]<<8)|b[3]; if(!N) return null;
     var miss=new Set(exam.miss||[]), r=bitR(b.subarray(4)), qp=[], qopt=[], qcnt=[];
     for(var q=1;q<=nQ;q++){
@@ -3245,11 +3258,19 @@ function unpackCohort(exam,str){
       qopt.push(c.map(function(x){ return Math.round(x/N*100); }));
       qcnt.push(c);                                 // 기준 기록을 얹으려면 사람 수가 있어야 한다
     }
-    var M=r.get(8), totals=[], hb=bitsFor(nQ), nb=bitsFor(N);
-    for(var i=0;i<M;i++){ var sc=r.get(hb), cnt=r.get(nb); for(var t=0;t<cnt;t++) totals.push(sc); }
+    var hb=bitsFor(nQ), nb=bitsFor(N);
+    var getHist=function(){ var M=r.get(8), out=[];
+      for(var i=0;i<M;i++){ var sc=r.get(hb), cnt=r.get(nb); for(var t=0;t<cnt;t++) out.push(sc); }
+      return out; };
+    var totals=getHist();
     if(!totals.length) return null;
+    /* v2 링크(이미 나간 것)에는 올해 분포가 없다. 없으면 반석차를 안 그릴 뿐,
+       나머지는 그대로 읽힌다. */
+    var yearOf=0, yearTotals=null;
+    if(b[0]>=3){ yearOf=2000+r.get(8); yearTotals=getHist(); }
     return {N:N,ready:true,estimated:false,percReady:true,
-            qp:qp,qopt:qopt,qdisc:null,qcnt:qcnt,totals:totals,flagged:0,fromLink:true,
+            qp:qp,qopt:qopt,qdisc:null,qcnt:qcnt,totals:totals,
+            yearTotals:yearTotals,yearOf:yearOf,flagged:0,fromLink:true,
             local:{N:N,qcnt:qcnt}};
   }catch(e){ return null; }
 }
@@ -3854,10 +3875,10 @@ function buildBook(exam, selv, cs, correct, total, W, wrong, dh, answers){
   var rs=finalRawScore(exam, correct, wrong||[]), rawMax=total*3;
   var aw=award(W, cut);
   var pct=total?Math.round(correct/total*100):0;
-  var perc=null, rank=null, Nn=null, yrank=null, yN=null;
+  var perc=null, rank=null, Nn=null, yrank=null, yN=null, yYear=CUR_YEAR;
   var _rp=rankPool(exam,cs), _ry=rankPoolYear(exam,cs);
   if(_rp.ready){ perc=percentile(_rp.pool, correct); Nn=_rp.N; rank=rankIn(_rp.pool, correct); }
-  if(_ry.ready){ yN=_ry.N; yrank=rankIn(_ry.pool, correct); }
+  if(_ry.ready){ yN=_ry.N; yrank=rankIn(_ry.pool, correct); yYear=_ry.year; }
   // 영역 집계
   var ag={};
   if(exam.area) for(var q=1;q<=exam.nQ;q++){ var bd=bkBroad(exam.area[q-1]||''); if(!bd)continue; (ag[bd]=ag[bd]||{c:0,t:0}); ag[bd].t++; if(okq(exam,q,selv[q]||0))ag[bd].c++; }
@@ -3899,14 +3920,14 @@ function buildBook(exam, selv, cs, correct, total, W, wrong, dh, answers){
     +'<div class="st"><b>'+W+'</b><span>틀린 문항</span></div>'
     +(perc!=null?'<div class="st"><b>'+perc+'</b><span>백분위</span></div>':'')
     +(rank!=null?'<div class="st"><b>'+rank+'/'+Nn+'</b><span>연도누적 총석차</span></div>':'')
-    +(yrank!=null?'<div class="st"><b>'+yrank+'/'+yN+'</b><span>'+CUR_YEAR+'년 반석차</span></div>':'')
+    +(yrank!=null?'<div class="st"><b>'+yrank+'/'+yN+'</b><span>'+yYear+'년 반석차</span></div>':'')
     +'</div></div>';
 
   // ── 02 백분위 위치 ──
   if(perc!=null){
     H+='<div class="bk-sec"><div class="bk-kicker">Percentile</div><div class="bk-h"><span class="no">'+no()+'</span><span class="tt">누적 응시자 내 위치</span></div>'
       +'<div class="bk-p">누적 응시 <b>'+Nn+'명</b> 기준, '+esc2(nm||'학생')+' 학생은 상위 <b>'+(100-perc)+'%</b> 구간(백분위 '+perc+', 연도누적 총석차 '+rank+'/'+Nn+')에 있습니다.'
-        +(yrank!=null?' 올해 채점한 <b>'+yN+'명</b> 안에서는 '+CUR_YEAR+'년 반석차 <b>'+yrank+'/'+yN+'</b> 입니다.':'')+'</div>'
+        +(yrank!=null?' 올해 채점한 <b>'+yN+'명</b> 안에서는 '+yYear+'년 반석차 <b>'+yrank+'/'+yN+'</b> 입니다.':'')+'</div>'
       +'<div class="bk-posline"><div class="bk-postrack"><div class="bk-posdot" style="left:'+perc+'%"></div><div class="bk-posflag" style="left:'+perc+'%">'+esc2(nm||'나')+' · 백분위 '+perc+'</div></div>'
       +'<div class="bk-posends"><span>하위</span><span>상위</span></div></div></div>';
   }
@@ -4175,10 +4196,10 @@ async function downloadReportDOCX(){
   var cut=cur.cut||[0,4,9,13,18];
   var rs=finalRawScore(cur, correct, wrong||[]), rawMax=total*3;
   var aw=award(W, cut), pct=total?Math.round(correct/total*100):0;
-  var perc=null, rank=null, Nn=null, yrank=null, yN=null;
+  var perc=null, rank=null, Nn=null, yrank=null, yN=null, yYear=CUR_YEAR;
   var _rp=rankPool(cur,cs), _ry=rankPoolYear(cur,cs);
   if(_rp.ready){ perc=percentile(_rp.pool, correct); Nn=_rp.N; rank=rankIn(_rp.pool, correct); }
-  if(_ry.ready){ yN=_ry.N; yrank=rankIn(_ry.pool, correct); }
+  if(_ry.ready){ yN=_ry.N; yrank=rankIn(_ry.pool, correct); yYear=_ry.year; }
   var ag={}; if(cur.area) for(var q2=1;q2<=cur.nQ;q2++){ var bd0=bkBroad(cur.area[q2-1]||''); if(!bd0)continue; (ag[bd0]=ag[bd0]||{c:0,t:0}); ag[bd0].t++; if(okq(cur,q2,sel[q2]||0))ag[bd0].c++; }
   var areas=Object.keys(ag).map(function(k){return {name:k,c:ag[k].c,t:ag[k].t,r:ag[k].t?ag[k].c/ag[k].t:0};}).sort(function(a,b){return a.r-b.r||b.t-a.t;});
   var strong=areas.filter(function(a){return a.t>=2&&a.r>=0.8;}).sort(function(a,b){return b.r-a.r;});
@@ -4512,7 +4533,7 @@ async function downloadReportDOCX(){
     if(sumWp) rows.push(kv('수상 확률', Math.round((sumWp[4]||0)*100)+'%   (장려상 이상)',{color:'2E7D5B'}));
     var _rp2=rankPool(cur,cs);
     if(_rp2.ready) rows.push(kv('또래 중 위치', '상위 '+(100-percentile(_rp2.pool,correct))+'%   ·   연도누적 총석차 '+rankIn(_rp2.pool,correct)+'/'+_rp2.N));
-    if(yrank!=null) rows.push(kv(CUR_YEAR+'년 반석차', yrank+' / '+yN+'   (올해 채점한 학생 안에서)'));
+    if(yrank!=null) rows.push(kv(yYear+'년 반석차', yrank+' / '+yN+'   (올해 채점한 학생 안에서)'));
     if(aw.nextTier&&aw.gap!=null) rows.push(kv('다음 등급까지', aw.nextTier+'  ·  '+aw.gap+'문항'));
 
     body.push(kicker('❖  SUMMARY  ❖'),
@@ -4577,12 +4598,12 @@ async function downloadReportDOCX(){
   var stat=[['맞은 문항',correct+' / '+total],['정답률',pct+'%'],['틀린 문항',''+W]];
   if(perc!=null) stat.push(['백분위',''+perc]);
   if(rank!=null) stat.push(['연도누적 총석차',rank+' / '+Nn]);
-  if(yrank!=null) stat.push([CUR_YEAR+'년 반석차',yrank+' / '+yN]);
+  if(yrank!=null) stat.push([yYear+'년 반석차',yrank+' / '+yN]);
   var sn=stat.length, sw=Math.floor(CW/sn), swArr=[]; for(var si=0;si<sn;si++) swArr.push(si===sn-1?(CW-sw*(sn-1)):sw);
   var stCells=stat.map(function(s,i){ return C([txt(s[1],{align:AlignmentType.CENTER,bold:true,size:30,color:EM}),txt(s[0],{align:AlignmentType.CENTER,size:15,color:MUT})],{w:swArr[i],fill:'FBF6E8',mt:140,mb:140}); });
   body.push(TBL(swArr,[ROW(stCells)],{top:bdr(GOLDL,6),bottom:bdr(GOLDL,6),left:bdr(GOLDL,6),right:bdr(GOLDL,6),insideVertical:bdr(GOLDL,6),insideHorizontal:NB}));
   if(perc!=null) body.push(P([run('누적 응시 '+Nn+'명 중 상위 '+(100-perc)+'%  ·  백분위 '+perc+'  ·  연도누적 총석차 '+rank+'/'+Nn
-    +(yrank!=null?'  ·  '+CUR_YEAR+'년 반석차 '+yrank+'/'+yN:''),{color:MUT,size:16})],{align:AlignmentType.CENTER,before:110}));
+    +(yrank!=null?'  ·  '+yYear+'년 반석차 '+yrank+'/'+yN:''),{color:MUT,size:16})],{align:AlignmentType.CENTER,before:110}));
   // 수상권 로드맵 — 등급 컷(허용 오답 수)과 현재 위치를 한 줄 밴드로 시각화
   body.push(P([run('수상권 로드맵',{bold:true,color:EM,size:20,serif:true}),run('   틀린 문항 수 기준 등급 컷',{color:MUT,size:15})],{before:210,after:70}));
   var rmW=Math.floor(CW/TIERS.length), rmWArr=[]; for(var ri=0;ri<TIERS.length;ri++) rmWArr.push(ri===TIERS.length-1?(CW-rmW*(TIERS.length-1)):rmW);
