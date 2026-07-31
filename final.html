@@ -2246,8 +2246,7 @@ function adaptiveSec(exam, sel, cs, correct, total){
 }
 function dashboardSec(exam){
   const nm=curName(); if(!nm)return'';
-  const hist=[]; FINAL_EXAMS.forEach(e=>{const a=subs(e.id).filter(r=>r.name&&r.name.trim()===nm&&r.ans&&r.ans.length===e.nQ);if(a.length){const last=a[a.length-1];hist.push({e,r:last,ts:last.ts});}});
-  hist.sort((a,b)=>a.ts-b.ts);
+  const hist=histOf(nm);
   if(hist.length<2) return '';
   const rows=hist.map(h=>{ const W=h.r.wrong!=null?h.r.wrong:(h.r.total-h.r.correct); const pct=h.r.total?Math.round(h.r.correct/h.r.total*100):0; const aw=award(W,h.e.cut); const wp=winProb(h.r.total,h.r.correct,h.e.cut); return {h,W,pct,tier:aw.name,tierIdx:aw.idx,pA:wp?Math.round(wp[4]*100):null,pSil:wp?Math.round(wp[2]*100):null}; });
   const curR=rows[rows.length-1], first=rows[0];
@@ -2268,6 +2267,69 @@ function dashboardSec(exam){
    <div style="margin-top:10px"><div style="display:flex;gap:8px;font-size:10.5px;color:var(--muted);padding-bottom:3px;border-bottom:1.5px solid var(--line)"><span style="flex:0 0 38px">날짜</span><span style="flex:1">시험</span><span style="flex:0 0 40px;text-align:right">점수</span><span style="flex:0 0 54px;text-align:right">등급</span><span style="flex:0 0 46px;text-align:right">수상%</span></div>${table}</div>
   </div>`;
 }
+/* ══════════════════════════════════════════════════════════════════
+   한 학생의 응시 이력을 한 곳에서 정한다
+   ------------------------------------------------------------------
+   아홉 군데가 각자 같은 규칙을 베껴 쓰고 있었다:
+
+       subs(e.id).filter(r => r.name.trim()===nm && r.ans.length===e.nQ)
+
+   한 곳만 고치면 나머지 여덟이 어긋난다. 그리고 그 규칙이 보던 것은
+   **이 브라우저에 채점해 둔 기록**뿐이었다. 학부모 휴대폰에서 공유 링크를
+   열면 그 폰이 우연히 열어 본 회차만 잡혀서 "지금까지 2회 응시" 가 됐다 —
+   실제로는 여섯 번을 봤는데. 선생님이 학원 PC 를 바꿔도 마찬가지였다.
+
+   시트에는 어느 기기에서 채점했든 다 들어 있다. 학생 하나를 이름으로 물어
+   전 회차를 받아 두고(loadHist), 이 브라우저 기록과 합쳐 여기서 낸다.
+
+   이름은 **공백을 지우고** 견준다 — '박하람' 과 '박 하람' 은 한 사람이다.
+   예전 규칙은 정확히 같아야 해서 저 둘이 갈라졌다. */
+var HIST_ROWS=null, HIST_FOR='', HIST_TRIED='';
+const histKey=s=>String(s==null?'':s).replace(/\s+/g,'').trim();
+function histOf(nm){
+  const key=histKey(nm); if(!key) return [];
+  const best={};
+  const take=function(e,r){
+    if(!e||!r||!r.ans||r.ans.length!==e.nQ) return;
+    const p=best[e.id];
+    if(!p||(r.ts||0)>=(p.ts||0)) best[e.id]={e:e, r:r, ts:r.ts||0};
+  };
+  FINAL_EXAMS.forEach(function(e){
+    subs(e.id).forEach(function(r){ if(histKey(r&&r.name)===key) take(e,r); });
+  });
+  /* 시트에서 받아 온 것. 이 브라우저에 없던 회차가 여기서 채워진다.
+     localStorage 에 쓰지는 않는다 — 학부모 폰에 남길 이유가 없다. */
+  if(HIST_ROWS && histKey(HIST_FOR)===key) HIST_ROWS.forEach(function(row){
+    const e=FINAL_EXAMS.filter(function(x){ return x.id===row.examId; })[0];
+    if(!e) return;
+    const digits=String(row.answers||'').replace(/[^0-4]/g,'');
+    if(digits.length!==e.nQ) return;
+    const ans=digits.split('').map(Number);
+    let c=0; for(let q=1;q<=e.nQ;q++) if(okq(e,q,ans[q-1]||0)) c++;
+    take(e,{name:row.name||nm, school:row.school||'', grade:row.grade||'',
+            ts:row.ts||0, correct:c, total:e.nQ, wrong:e.nQ-c, ans:ans});
+  });
+  return Object.keys(best).map(function(k){ const h=best[k];
+      h.pct=h.r.total?Math.round(h.r.correct/h.r.total*100):0; return h; })
+    .sort(function(a,b){ return a.ts-b.ts; });
+}
+/* 시트에서 그 학생의 전 회차를 받아 온다. 받아 오면 성적표를 다시 그린다 —
+   먼저 그려 둔 화면이 '2회 응시' 라고 적혀 있을 수 있으므로. */
+function loadHist(nm){
+  const key=histKey(nm);
+  if(!key || !SHEET_ENDPOINT) return;
+  if(HIST_TRIED===key) return;          // 이름당 한 번만 묻는다
+  HIST_TRIED=key;
+  sheetCall({action:'history', name:nm}, function(res){
+    if(!res || res.ok===false || !res.rows){ return; }
+    HIST_ROWS=res.rows; HIST_FOR=nm;
+    /* 넘어져도 화면은 그대로 살아야 한다. 다만 조용히 삼키지는 않는다 —
+       이 자리에서 한 번 조용히 죽어서 '2회 응시' 가 그대로 남았었다. */
+    try{ if(typeof rerenderReport==='function') rerenderReport(); }
+    catch(e){ console.error('[이력] 성적표를 다시 그리지 못했습니다', e); }
+  });
+}
+
 /* ── 이 학생의 기록이 다른 이름표로 갈라져 있지 않은가 ────────────────────
    성적표는 이름이 **정확히 같은** 기록만 한 학생으로 본다(아홉 군데가 같은
    규칙을 쓴다). 그래서 '박 하람' 처럼 공백 하나, 글자 하나가 어긋난 기록은
@@ -2315,7 +2377,7 @@ function splitNameNote(nm){
 function growthSec(exam){
   const nm=curName(); if(!nm)return'';
   const hist=[];
-  FINAL_EXAMS.forEach(e=>{const a=subs(e.id).filter(r=>r.name&&r.name.trim()===nm&&r.ans&&r.ans.length===e.nQ);if(a.length){const last=a[a.length-1];hist.push({e,r:last,ts:last.ts,pct:last.total?Math.round(last.correct/last.total*100):0});}});
+  hist.push.apply(hist, histOf(nm));
   hist.sort((a,b)=>a.ts-b.ts);
   /* '첫 진단입니다' 는 단언이다. 갈라진 기록이 있으면 그 단언이 틀린다 —
      먼저 그것부터 말한다. */
@@ -2459,7 +2521,7 @@ function motivationSec(exam,sel){
   else goal=`<div style="font-weight:700;font-size:14px">한 문항씩, 수상권을 향해</div><div style="font-size:13px;margin-top:4px">약점 영역을 좁혀 가면 다음 진단에서 등급이 보입니다.</div>`;
   const conq=`<div style="margin-top:11px"><b>정복 현황</b> <span style="color:var(--muted);font-size:12px">${totalD}개 영역 중 <b style="color:var(--teal)">${conquered.length}개</b> 정복 (80%↑)</span>${conquered.length?`<div style="margin-top:5px">${conquered.map(d=>`<span class="pill" style="margin:2px 5px 2px 0;display:inline-block;border-color:var(--teal-d);color:var(--teal)">${esc(d)}</span>`).join('')}</div>`:`<div style="font-size:12px;color:var(--muted);margin-top:4px">가장 자신 있는 영역부터 80%를 넘겨 첫 정복을 만들어 보세요.</div>`}</div>`;
   let step=''; if(room.length){const top=room[0]; step=`<div style="margin-top:11px"><b>다음 한 걸음</b> <span style="font-size:13px">가장 많이 틀린 <b>${esc(top[0])}</b>(${top[1]}문항)부터 잡으면${aw.nextTier?` <b>${esc(aw.nextTier)}</b>에`:''} 가장 빠르게 닿습니다.</span></div>`;}
-  let grow=''; if(nm){const hist=[];FINAL_EXAMS.forEach(e=>{const a=subs(e.id).filter(r=>r.name&&r.name.trim()===nm&&r.ans&&r.ans.length===e.nQ);if(a.length){const last=a[a.length-1];hist.push({ts:last.ts,pct:last.total?Math.round(last.correct/last.total*100):0});}});hist.sort((a,b)=>a.ts-b.ts);
+  let grow=''; if(nm){const hist=histOf(nm);
     if(hist.length>=2){const prev=hist[hist.length-2], d=Math.round(c/t*100)-prev.pct; if(d>0)grow=`<div class="note" style="margin:11px 0 0;border-left-color:var(--teal)"><span style="color:var(--teal);font-weight:600">지난 진단보다 ${d}%p 올랐어요.</span> 이 속도를 유지하면 목표가 더 가까워집니다.</div>`; else if(d<0)grow=`<div class="note" style="margin:11px 0 0">잠깐 주춤했지만 괜찮아요. 약점 영역을 다시 좁히면 회복은 빠릅니다.</div>`;}}
   return `<div class="sec" style="border-left:3px solid var(--brass)">${secH('학생을 위한 다음 목표')}
    ${goal}${conq}${step}${grow}</div>`;
@@ -2499,7 +2561,7 @@ function narrativeSec(exam,sel){
   else s2=`아직 수상권에는 못 들었으나, 약점 보완으로 진입을 노릴 수 있는 단계입니다.`;
   const s3=`${strong.length?`강점은 <b>${strong.join(', ')}</b> 영역`:`강점 영역은 아직 형성 중`}이고, ${weak.length?`보완이 필요한 영역은 <b style="color:var(--ms)">${weak.join(', ')}</b>`:`전 영역이 고르게 양호`}입니다.`;
   const hist=[];
-  FINAL_EXAMS.forEach(e=>{const a=subs(e.id).filter(r=>r.name&&r.name.trim()===nm&&r.ans&&r.ans.length===e.nQ);if(a.length){const last=a[a.length-1];hist.push({e,r:last,ts:last.ts,pct:last.total?Math.round(last.correct/last.total*100):0});}});
+  hist.push.apply(hist, histOf(nm));
   hist.sort((a,b)=>a.ts-b.ts);
   let s4;
   if(nm&&hist.length>=2){const prev=hist[hist.length-2], dO=pct-prev.pct; const ps=domScoresBroad(prev.e,prev.r.ans); let best=null;
@@ -2515,7 +2577,7 @@ function narrativeSec(exam,sel){
 }
 function loopSec(exam,sel){
   const nm=curName(); if(!nm)return'';
-  const hist=[]; FINAL_EXAMS.forEach(e=>{const a=subs(e.id).filter(r=>r.name&&r.name.trim()===nm&&r.ans&&r.ans.length===e.nQ);if(a.length){const last=a[a.length-1];hist.push({e,r:last,ts:last.ts,pct:last.total?Math.round(last.correct/last.total*100):0});}});
+  const hist=histOf(nm);
   hist.sort((a,b)=>a.ts-b.ts);
   if(hist.length<2)return'';
   const cur=hist[hist.length-1], prev=hist[hist.length-2];
@@ -2572,11 +2634,7 @@ function missWhy(exam,ty){
 function repeatedMisses(exam){
   var nm=curName();
   if(!nm) return [];
-  var takes=[];
-  FINAL_EXAMS.forEach(function(e){
-    var a=subs(e.id).filter(function(r){ return r.name&&r.name.trim()===nm&&r.ans&&r.ans.length===e.nQ; });
-    if(a.length) takes.push({e:e,ans:a[a.length-1].ans});
-  });
+  var takes=histOf(nm).map(function(h){ return {e:h.e, ans:h.r.ans}; });
   if(takes.length<2) return [];
   var stat={};
   takes.forEach(function(t){
@@ -2686,9 +2744,7 @@ function recoverySec(exam){
 }
 function masterySec(exam){
   const nm=curName(); if(!nm)return'';
-  const hist=[];
-  FINAL_EXAMS.forEach(e=>{const a=subs(e.id).filter(r=>r.name&&r.name.trim()===nm&&r.ans&&r.ans.length===e.nQ);if(a.length){const last=a[a.length-1];hist.push({e,r:last,ts:last.ts});}});
-  hist.sort((a,b)=>a.ts-b.ts);
+  const hist=histOf(nm);
   if(hist.length<2)return'';
   const series={};
   hist.forEach(h=>{const ds=domScoresBroad(h.e,h.r.ans); if(ds)for(const d in ds){(series[d]=series[d]||[]).push(ds[d]);}});
@@ -2718,8 +2774,8 @@ function masterySec(exam){
 function trendSec(exam){
   // 같은 학생(이름)으로 다른 파이널 시험 점수 추이
   const nm=curName(); if(!nm)return'';
-  const rows=[]; FINAL_EXAMS.forEach(e=>{const a=subs(e.id).filter(r=>r.name&&r.name.trim()===nm);if(a.length){const last=a[a.length-1];rows.push({t:e.title,pct:last.total?Math.round(last.correct/last.total*100):0,ts:last.ts});}});
-  if(rows.length<2)return''; rows.sort((a,b)=>a.ts-b.ts);
+  const rows=histOf(nm).map(function(h){ return {t:h.e.title, pct:h.pct, ts:h.ts}; });
+  if(rows.length<2)return'';
   return `<div class="sec">${secH('여러 시험에 걸친 성취 추이')}<div class="sub">${esc(nm)} 학생의 파이널 응시 추이입니다.</div>
    ${rows.map(r=>`<div class="barrow"><span class="ba" style="width:150px">${esc(r.t)}</span><span class="bar"><i style="width:${r.pct}%;background:var(--teal)"></i></span><span class="bp">${r.pct}%</span></div>`).join('')}</div>`;
 }
@@ -3579,11 +3635,19 @@ function warmOffline(exam,wrong){
     sw.controller.postMessage({type:'warm',urls:urls});
   }catch(e){}
 }
-function scoreAuto(){
+/* 성적표를 다시 그린다. 시트에서 그 학생의 전 회차가 도착하면 부른다 —
+   먼저 그려 둔 화면에 '2회 응시' 라고 적혀 있을 수 있다.
+   다시 그릴 때는 저장도, 시트 전송도 하지 않는다(같은 채점을 두 번 보내지 않는다). */
+function rerenderReport(){ if(cur && !document.getElementById('rerender-lock')) scoreAuto(true); }
+function scoreAuto(again){
   const key=cur.key; let correct=0,total=0; const wrong=[];
   for(let q=1;q<=cur.nQ;q++){ total++; const a=sel[q]||0,k=key[q-1]; if(okq(cur,q,a))correct++; else wrong.push({q,a,k}); }
   const W=wrong.length, pct=total?Math.round(correct/total*100):0;
-  const nm=(document.getElementById('nm').value||'').trim(), sch=(document.getElementById('sch').value||'').trim(), grd=(document.getElementById('grd').value||'').trim();
+  /* 다시 그릴 때는 답안 입력칸이 이미 사라지고 성적표가 그 자리에 있다.
+     칸이 없으면 방금 그린 성적표가 들고 있던 값을 쓴다. */
+  const _v=function(id,f){ const el=document.getElementById(id);
+    return ((el? el.value : ((window.__rpt||{})[f]||''))||'').trim(); };
+  const nm=_v('nm','name'), sch=_v('sch','school'), grd=_v('grd','grade');
   window.__rpt={name:nm,school:sch,grade:grd};
   const ans=[]; for(let q=1;q<=cur.nQ;q++) ans.push(sel[q]||0);
   /* 채점할 때마다 새 기록을 쌓고 있었다. 같은 학생을 두 번 채점하면 명단에
@@ -3601,9 +3665,13 @@ function scoreAuto(){
     arr[dup]={name:nm, school:sch||old.school||'', grade:grd||old.grade||'',
               ts:old.ts||nowRec.ts, correct, total, wrong:W, ans};
   } else arr.push(nowRec);
-  saveSubs(cur.id,arr);
+  if(!again) saveSubs(cur.id,arr);
   const cs=cohortStats(cur); SNO=0; window.__fw=wrong;
-  saveToSheetFinal(cur,sel,correct,total,W,cs,nm,sch,grd,pct);
+  if(!again) saveToSheetFinal(cur,sel,correct,total,W,cs,nm,sch,grd,pct);
+  /* 이 학생의 전 회차를 시트에서 받아 둔다. 어느 기기에서 채점했든 시트에
+     들어 있다 — 이 브라우저 기록만 세면 학부모 폰에서 '2회 응시' 가 된다.
+     도착하면 rerenderReport 가 화면을 다시 그린다. */
+  if(!again) loadHist(nm);
   app.innerHTML=`<button class="back" onclick="renderList()">‹ 시험 목록</button>
    <div id="repPDF">
    <h2 class="serif" style="margin:6px 0 2px;font-size:20px">${esc(cur.title)} · 성적표</h2>
@@ -4012,12 +4080,7 @@ async function downloadReportDOCX(){
   var growth=null;
   try{
     if(nm){
-      var hist=[];
-      FINAL_EXAMS.forEach(function(e){
-        var hs=subs(e.id).filter(function(r){return r.name&&r.name.trim()===nm&&r.ans&&r.ans.length===e.nQ;});
-        if(hs.length){ var lastR=hs[hs.length-1]; hist.push({e:e,r:lastR,ts:lastR.ts,pct:lastR.total?Math.round(lastR.correct/lastR.total*100):0}); }
-      });
-      hist.sort(function(x,y){return x.ts-y.ts;});
+      var hist=histOf(nm);
       if(hist.length>=2){
         var gCur=hist[hist.length-1], gPrev=hist[hist.length-2];
         var dsNow=domScoresBroad(gCur.e,gCur.r.ans), dsWas=domScoresBroad(gPrev.e,gPrev.r.ans), dl=[];
