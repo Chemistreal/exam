@@ -84,6 +84,21 @@ function localCS(exam, rows) {
 }
 
 console.log('── 저장된 집계가 앞뒤가 맞는다 ──');
+/* ── 나중에 전원정답이 된 문항 ──────────────────────────────────────
+   기준 기록은 그 회차를 채점하던 **당시의 규칙**으로 세어 둔 것이다. 뒤늦게
+   전원정답으로 바꾼 문항은 정답자 수가 그때 그대로라 지금 규칙과 어긋난다.
+   그건 데이터가 깨진 것이 아니라 시점이 다른 것이므로, 어느 문항인지 적어
+   두고 넘어간다. 적어 두지 않은 새 어긋남은 그대로 빨간불이다.
+
+   화면 정답률은 이 값을 쓰지 않는다 — 전원정답은 100% 로 덮는다
+   (final.html mergeBaselineQ). 남는 것은 **점수 분포**뿐이다. 기준 기록의
+   응시자들은 이 문항 점수를 못 받은 채로 들어 있어서, 그만큼 지금 채점하는
+   학생이 석차에서 유리하다. 바로잡으려면 엑셀 원본에서 그 회차 기준 기록을
+   다시 만들어야 한다(tools/gen_cohort_baseline.py) — 원본은 저장소에 없다. */
+const LATER_ALLC = {
+  'jmchc-9:50': '2026-07 전원정답 처리(선생님 지시) · 기준 기록 30명은 당시 규칙으로 채점됨',
+};
+
 {
   let holes = 0, cells = 0, bad = [];
   Object.keys(BASE).forEach(id => {
@@ -101,7 +116,7 @@ console.log('── 저장된 집계가 앞뒤가 맞는다 ──');
       // 정답 보기를 고른 사람 수 = 정답자 수. 어긋나면 정답 키가 어긋난 것이다.
       // 칸이 덮이지 않은 문항에서만 견줄 수 있다(덮인 사람의 정답 여부는 채점 열에만 남았다)
       const mine = acc(exam, i + 1).reduce((a, k) => a + (o[k - 1] || 0), 0);
-      if (sum === b.n && mine !== b.qc[i])
+      if (sum === b.n && mine !== b.qc[i] && !LATER_ALLC[id + ':' + (i + 1)])
         bad.push(`${id} ${i + 1}번: 정답자 ${b.qc[i]} ≠ 선택 합 ${mine}`);
     });
     if (b.qc.some(c => c < 0 || c > b.n)) bad.push(id + ': 정답자 수가 응시 인원을 벗어난다');
@@ -110,6 +125,16 @@ console.log('── 저장된 집계가 앞뒤가 맞는다 ──');
     if (hn !== b.n) bad.push(`${id}: hist 합 ${hn} ≠ n ${b.n}`);
   });
   chk('저장된 집계에 모순이 없다', bad.slice(0, 5), []);
+  /* 적어 둔 예외가 실제로 어긋나 있는지도 본다. 어긋남이 사라졌는데 예외만
+     남아 있으면(엑셀에서 다시 만든 뒤) 그 줄은 지워야 한다. */
+  const stale = Object.keys(LATER_ALLC).filter(k => {
+    const [id, qs] = k.split(':'), b = BASE[id], exam = examOf(id);
+    if (!b || !exam) return true;
+    const o = b.q[+qs - 1]; if (!o) return true;
+    const sum = o.reduce((a, x) => a + x, 0);
+    return !(sum === b.n && acc(exam, +qs).reduce((a, kk) => a + (o[kk - 1] || 0), 0) !== b.qc[+qs - 1]);
+  });
+  chk('쓸모없어진 예외가 남아 있지 않다', stale, []);
   chk('문항 수', cells, 900);
   /* 한 칸도 안 남은 문항. 전부 전원정답·모두정답 처리된 문항이라 분포를 따질
      것이 없다. 늘어나면 원본이 바뀌었거나 칸을 통째로 버리고 있다는 뜻이다. */
@@ -119,6 +144,19 @@ console.log('── 저장된 집계가 앞뒤가 맞는다 ──');
     a + BASE[k].q.filter(o => o && o.reduce((x, y) => x + y, 0) !== BASE[k].n).length, 0), 3);
   chk('기준 기록 인원', Object.keys(BASE).reduce((a, k) => a + BASE[k].n, 0), 365);
 }
+
+console.log('\n── 나중에 전원정답이 된 문항의 또래 정답률 ──');
+{
+  /* 기준 기록의 정답자 수는 그때 규칙으로 센 것이라 실제보다 적다. 그 수를
+     그대로 나누면 아무도 틀릴 수 없는 문항이 "또래 정답률 21%" 로 나온다.
+     학부모가 받는 성적표에 그대로 찍히는 숫자다. */
+  ctx.BASELINE = BASE;
+  const exam = examOf('jmchc-9');
+  const qcnt = Array.from({ length: exam.nQ }, () => [0, 0, 0, 0]);
+  qcnt[49] = [1, 0, 0, 0];                       // 이번 학생은 ①을 골랐다(예전 규칙이면 오답)
+  const cs = ctx.mergeBaselineQ(exam, { N: 1, percReady: true, qcnt, qp: [], qopt: [], totals: [30] });
+  chk('50번은 100% 다', cs.qp[49], 100);
+  chk('보통 문항은 기준 기록 그대로 센다', cs.qp[0] < 100, true);}
 
 console.log('\n── 기준 기록이 정답률에 들어간다 ──');
 {

@@ -93,6 +93,25 @@ console.log('── 답이 없어도 맞은 것이다 ──');
       [...F.allcSet({ nQ: 5, miss: [5], multi: { 2: [1, 2, 3, 4], 4: [1, 3] } })].sort(), [2, 5]);
 }
 
+console.log('\n── 정답이 X 인 문항도 전원정답 ──');
+{
+  /* 정답키 자리가 비어 있으면(0 · '' · X) 답이 정해지지 않은 문항이다.
+     정해지지 않은 답을 틀렸다고 할 수는 없다. */
+  const e = { nQ: 4, key: [1, 0, 'X', ''] };
+  chk('0 은 전원정답', [F.allc(e, 2), F.okq(e, 2, 0), F.okq(e, 2, 3)], [true, true, true]);
+  chk("'X' 도 전원정답", F.okq(e, 3, 0), true);
+  chk('빈칸도 전원정답', F.okq(e, 4, 0), true);
+  chk('정답이 있는 문항은 그대로', [F.okq(e, 1, 1), F.okq(e, 1, 2)], [true, false]);
+  chk('목록에도 들어간다', [...F.allcSet(e)].sort(), [2, 3, 4]);
+
+  /* 정답키 배열이 통째로 없는 것은 다른 이야기다. 아직 안 들어온 데이터이지
+     전원정답이 아니다 — 그렇게 세면 회차 하나가 통째로 만점이 된다. */
+  chk('정답키가 없으면 전원정답이 아니다',
+      [F.allc({ nQ: 3 }, 1), F.allc({ nQ: 3, key: [] }, 1)], [false, false]);
+  chk('범위 밖은 전원정답이 아니다', F.allc(e, 9), false);
+  chk('학생 화면도 같다', [...load(SUB).allcSet(e)].sort(), [2, 3, 4]);
+}
+
 console.log('\n── 분모에서 빠지지 않는다 ──');
 {
   /* 앱이 실제로 세는 방식과 같은 식으로 센다 — 문항 수 그대로 돌면서 okq 를 묻는다. */
@@ -167,6 +186,21 @@ console.log('\n── 실제 회차 데이터로 ──');
   // 한 회차가 통째로 전원정답이면 채점이 뜻을 잃는다 — 데이터 실수를 잡는다
   const allGiven = EXAMS.filter(e => F.allcSet(e).size >= e.nQ).map(e => e.id);
   chk('통째로 전원정답인 회차는 없다', allGiven, []);
+
+  /* 어느 문항이 전원정답인지를 통째로 못 박아 둔다.
+     이 규칙은 miss·multi·정답키 세 곳에서 파생되므로, 어느 하나를 손볼 때
+     엉뚱한 문항이 딸려 들어오기 쉽다. 선생님이 지목하지 않은 문항이 조용히
+     만점 처리되면 아무도 눈치채지 못한 채 성적이 바뀐다.
+     회차를 새로 넣거나 전원정답을 지정할 때는 이 표를 **의도해서** 고친다. */
+  const PINNED = {
+    'jmchc-4': [36], 'jmchc-7': [33], 'jmchc-9': [47, 50, 60], 'jmchc-10': [50],
+    'donghyung-2': [19], 'kmchc-2025-1-simhwa': [38, 41],
+    'hwol-2021': [60], 'hwol-2019': [23, 42], 'hwol-2018': [34],
+    'hwol-2017': [60], 'hwol-2015': [20], 'hwol-2014': [57],
+  };
+  const actual = {};
+  EXAMS.forEach(e => { const s = [...F.allcSet(e)].sort((a, b) => a - b); if (s.length) actual[e.id] = s; });
+  chk('전원정답 문항 목록이 그대로다', actual, PINNED);
 }
 
 console.log(fail ? `\n${fail}개 실패` : '\n모두 통과');
