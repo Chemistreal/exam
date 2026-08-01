@@ -179,6 +179,16 @@ def verify(items):
         issues.append(('[배치]', f"G3c 정답 길이순위 편중 {dict(sorted(rr.items()))} "
                                  f"— 한 순위 {max(rr.values())}/{len(items)}", '', ''))
 
+    # ★G3d 배치 수준 — 정답 ★차례★ 가 되풀이되면 개수가 아무리 고르게 맞아도 새어 나간다.
+    #   T12 P14 가 ③①④② ③①④② ③① 로 나와 네 문항만 풀면 나머지 여섯이 예측됐다.
+    #   개수 균형(위치 분포)과 배열 무작위는 다른 문제다 — 주기 2·3·4·5 를 모두 본다.
+    seq = [it['answer'] for it in items]
+    for p in (2, 3, 4, 5):
+        if len(seq) >= 2 * p and all(seq[k] == seq[k % p] for k in range(len(seq))):
+            issues.append(('[배치]', f"G3d 정답 차례가 주기 {p} 로 되풀이됨 "
+                                     f"{'-'.join(str(a+1) for a in seq)} — 차례를 흩을 것", '', ''))
+            break
+
     pp = Counter(it['answer'] for it in items)
     print(f"위치: ①{pp[0]} ②{pp[1]} ③{pp[2]} ④{pp[3]}"
           f" | 길이순위: " + " ".join(f"{r}위{rr.get(r,0)}" for r in (1, 2, 3, 4))
