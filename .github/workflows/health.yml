@@ -1,0 +1,24 @@
+# 세 앱의 창구가 실제로 대답하는지 매일 확인한다.
+#
+# DT 는 **한 해 내내 대답하지 않고 있었다.** 통합 셸이 JSONP 로 부르는데 저쪽이
+# 콜백을 무시하고 순수 JSON 을 줘서, 받는 쪽 브라우저가 그걸 자바스크립트로
+# 실행하려다 죽었다. 화면에는 '…' 와 '—' 만 남았고, 그게 '아직 불러오는 중'
+# 인지 '고장' 인지 알 길이 없어 아무도 눈치채지 못했다.
+#
+# 사람이 화면을 봐야 아는 고장은 안 고쳐진다. 기계가 매일 본다.
+# 실패하면 깃허브가 저장소 주인에게 메일을 보낸다(별도 설정 필요 없음).
+name: 앱 창구 점검
+
+on:
+  schedule:
+    - cron: '0 22 * * *'      # 매일 07:00 KST (UTC 22:00)
+  workflow_dispatch:
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: 창구가 대답하는지
+        run: node tools/health_check.js

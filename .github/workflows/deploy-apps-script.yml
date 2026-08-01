@@ -23,7 +23,11 @@ jobs:
         run: |
           if [ -z "$CLASPRC_JSON" ] || [ -z "$GAS_SCRIPT_ID" ] || [ -z "$GAS_DEPLOYMENT_ID" ]; then
             echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::자동배포 미설정 — AUTODEPLOY.md의 시크릿 3개(CLASPRC_JSON, GAS_SCRIPT_ID, GAS_DEPLOYMENT_ID)를 등록하면 활성화됩니다. (이번 실행은 건너뜀)"
+            # 건너뛰고도 초록불이면 "배포됐다" 로 읽힌다. 실제로 KMChC 가 그랬다 —
+            # 창구를 새로 열고 병합했는데 배포가 안 돼서, 통합 셸의 그 칸이 계속 비어 있었다.
+            echo "::warning title=배포 안 됨::자동배포 미설정 — 이 커밋은 Apps Script 에 반영되지 않았습니다. AUTODEPLOY.md 의 시크릿 3개(CLASPRC_JSON, GAS_SCRIPT_ID, GAS_DEPLOYMENT_ID)를 등록해야 합니다."
+            echo "### ⚠ 배포 안 됨 — 시크릿 미설정" >> "$GITHUB_STEP_SUMMARY"
+            echo "이 커밋의 .gs 변경은 **아직 Apps Script 에 반영되지 않았습니다.**" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "ready=true" >> "$GITHUB_OUTPUT"
           fi

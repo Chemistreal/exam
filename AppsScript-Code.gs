@@ -1116,3 +1116,237 @@ function fillReportMessages() {
   out.setColumnWidth(10, 100);
   Logger.log('성적문자 작성 완료 · ' + rows.length + '명 (탭: 성적문자, A열=문자, 밴드별 색상 적용)');
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   깃허브 자동 저장 · 자동 점검
+   ----------------------------------------------------------------------
+   여태 학생 응시 기록은 **이 시트에만** 있었다. 코드·문항·해설은 깃허브에
+   있지만 기록은 사본이 없다. 잘못 지우거나 덮어써도 되돌릴 방법이 없었다.
+
+   매일 한 번 시트를 통째로 깃허브에 커밋한다. 커밋 이력 자체가 "언제 무엇이
+   바뀌었나" 가 되고, 잘못 건드린 날 이전으로 되돌릴 수 있다.
+
+   ── 이름은 싣지 않는다 ────────────────────────────────────────────────
+   저장소는 공개다. 학생 이름·학교가 그대로 올라가면 검색에 걸린다.
+   이름 대신 **코드**를 싣는다(s7k3m2… 12자). 같은 학생은 늘 같은 코드라
+   날짜별 백업끼리 견줄 수 있고, 코드만으로는 누구인지 알 수 없다.
+
+   이름↔코드 표는 이 시트의 '_이름코드' 탭에만 둔다. 그래서:
+     · 행을 잘못 지웠다 → 깃허브에서 되살리고 표로 이름을 붙인다 (완전 복구)
+     · 시트를 통째로 잃었다 → 기록은 다 남지만 누구 것인지는 모른다
+   구글 시트에는 버전 기록과 휴지통이 있어 통째로 잃는 일은 드물다. 이 백업이
+   막으려는 것은 **잘못된 수정·삭제** 쪽이고, 거기에는 코드로 충분하다.
+
+   ── 설치 (한 번만) ────────────────────────────────────────────────────
+   1) 깃허브에서 토큰 발급 (Fine-grained, 이 저장소 Contents: Read and write)
+   2) Apps Script 편집기 > 프로젝트 설정 > 스크립트 속성에 GITHUB_TOKEN 추가
+   3) 편집기에서 setupBackupTriggers() 를 한 번 실행
+   토큰이 없으면 아무것도 안 하고 조용히 넘어간다(채점은 그대로 돌아간다).
+   ══════════════════════════════════════════════════════════════════════ */
+
+var GH_OWNER = 'Chemistreal', GH_REPO = 'exam', GH_BRANCH = 'main';
+/* 기록 탭 이름. 위쪽 코드는 문자열을 그대로 쓰고 있어 여기서만 이름을 둔다. */
+var REC_TAB = '성적기록';
+var CODE_TAB = '_이름코드';
+
+function _ghToken_() {
+  try { return (PropertiesService.getScriptProperties().getProperty('GITHUB_TOKEN') || '').trim(); }
+  catch (e) { return ''; }
+}
+
+/* 깃허브에 파일 하나를 쓴다(있으면 덮어쓴다). 실패는 예외로 올린다 —
+   조용히 넘어가면 백업이 안 되고 있는 줄도 모른다. */
+function _ghPut_(path, text, message) {
+  var token = _ghToken_();
+  if (!token) throw new Error('GITHUB_TOKEN 스크립트 속성이 없습니다');
+  var api = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + path;
+  var sha = '';
+  try {
+    var got = UrlFetchApp.fetch(api + '?ref=' + GH_BRANCH, {
+      method: 'get', muteHttpExceptions: true,
+      headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' } });
+    if (got.getResponseCode() === 200) sha = JSON.parse(got.getContentText()).sha || '';
+  } catch (e) {}
+  var body = { message: message || ('자동 저장: ' + path), branch: GH_BRANCH,
+               content: Utilities.base64Encode(text, Utilities.Charset.UTF_8) };
+  if (sha) body.sha = sha;
+  var res = UrlFetchApp.fetch(api, {
+    method: 'put', contentType: 'application/json', muteHttpExceptions: true,
+    headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' },
+    payload: JSON.stringify(body) });
+  var code = res.getResponseCode();
+  if (code >= 300) throw new Error('깃허브 저장 실패 ' + code + ': ' + res.getContentText().slice(0, 200));
+  return true;
+}
+
+/* ── 이름 → 코드 ──────────────────────────────────────────────────────
+   같은 학생은 늘 같은 코드여야 한다(날짜별 백업을 견주려면). 이름을 그냥
+   해시하면 이름만 알면 코드를 만들어 볼 수 있으므로, 이 프로젝트에만 있는
+   소금을 섞는다. 소금은 스크립트 속성에 두고 한 번 만들면 안 바꾼다 —
+   바꾸면 예전 백업의 코드와 이어지지 않는다. */
+function _codeSalt_() {
+  var p = PropertiesService.getScriptProperties();
+  var s = p.getProperty('CODE_SALT');
+  if (!s) { s = Utilities.getUuid(); p.setProperty('CODE_SALT', s); }
+  return s;
+}
+function _codeOf_(name, school) {
+  var key = _normName(name) + '|' + String(school || '').trim();
+  if (!_normName(name)) return '';
+  var raw = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, key + '|' + _codeSalt_(),
+                                    Utilities.Charset.UTF_8);
+  var s = '';
+  for (var i = 0; i < raw.length && s.length < 12; i++) {
+    s += ('0' + (raw[i] & 255).toString(36)).slice(-2);
+  }
+  return 's' + s.slice(0, 11);
+}
+/* 이름↔코드 표를 시트에 쌓아 둔다. 되살릴 때 이것으로 이름을 붙인다. */
+function _rememberCode_(ss, map) {
+  var sh = ss.getSheetByName(CODE_TAB);
+  if (!sh) { sh = ss.insertSheet(CODE_TAB); sh.appendRow(['코드', '이름', '학교', '처음 본 날']);
+             sh.getRange(1, 1, 1, 4).setFontWeight('bold'); sh.setFrozenRows(1); }
+  var have = {};
+  if (sh.getLastRow() > 1) {
+    sh.getRange(2, 1, sh.getLastRow() - 1, 1).getValues().forEach(function (r) { have[String(r[0])] = 1; });
+  }
+  var add = [];
+  for (var code in map) if (!have[code]) add.push([code, map[code].name, map[code].school, new Date()]);
+  if (add.length) sh.getRange(sh.getLastRow() + 1, 1, add.length, 4).setValues(add);
+  return add.length;
+}
+
+/* ── ① 응시 기록 일일 백업 ────────────────────────────────────────────
+   시트 전체를 하루 한 벌 깃허브에. 이름은 코드로 바꿔 싣는다.
+   같은 날 두 번 돌면 그날 파일을 덮어쓴다(하루 한 장). */
+function dailyBackup() {
+  if (!_ghToken_()) { Logger.log('[백업] GITHUB_TOKEN 없음 — 건너뜀'); return; }
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(REC_TAB);
+  if (!sh || sh.getLastRow() < 2) { Logger.log('[백업] 기록 없음'); return; }
+
+  /* HEADER 는 17열까지지만 시트는 19열이다(성적표문자·감점 반영 원점수가 뒤에
+     붙었다). HEADER.length 로 읽으면 그 둘이 백업에서 조용히 빠진다. */
+  var rows = sh.getRange(2, 1, sh.getLastRow() - 1, WIDE).getValues();
+  var map = {}, out = [];
+  rows.forEach(function (r) {
+    var code = _codeOf_(r[1], r[6]);
+    if (!code) return;                                   // 이름 없는 줄은 싣지 않는다
+    map[code] = { name: String(r[1] || ''), school: String(r[6] || '') };
+    out.push({
+      code: code, exam: String(r[0] || ''),
+      saved: (r[3] instanceof Date) ? r[3].toISOString() : String(r[3] || ''),
+      date: (r[5] instanceof Date) ? Utilities.formatDate(r[5], 'Asia/Seoul', 'yyyy-MM-dd') : String(r[5] || ''),
+      grade: String(r[7] || ''), correct: r[8], max: r[9], pct100: r[10],
+      percentile: r[11], rank: String(r[12] || ''), n: r[13],
+      areas: String(r[15] || ''),
+      answers: String(r[16] || '').replace(/^'/, ''),
+      raw: r[18]
+      /* 이름·학교·공유링크는 싣지 않는다. 링크에는 이름이 들어 있다. */
+    });
+  });
+  _rememberCode_(ss, map);
+
+  var day = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd');
+  var text = JSON.stringify({ savedAt: new Date().toISOString(), n: out.length,
+                              note: '이름은 코드로 바꿔 저장. 이름↔코드 표는 시트의 ' + CODE_TAB + ' 탭에만 있다.',
+                              rows: out }, null, 1);
+  _ghPut_('backup/' + day + '.json', text, '자동 백업 ' + day + ' · ' + out.length + '건');
+  Logger.log('[백업] ' + day + ' · ' + out.length + '건');
+}
+
+/* ── ② 기준 기록 자동 갱신 ────────────────────────────────────────────
+   석차·또래 정답률의 모집단이다. 여태 사람이 엑셀로 만들어 넣었다. 시트가
+   원본이니 여기서 만든다 — 이름은 애초에 안 들어간다(점수 분포와 정답자 수뿐).
+
+   손으로 넣어 둔 회차는 건드리지 않는다. 엑셀에는 이 시트에 없는 옛 응시자가
+   들어 있어서, 시트만으로 덮으면 모집단이 확 줄어든다. */
+function rebuildBaseline() {
+  if (!_ghToken_()) { Logger.log('[기준] GITHUB_TOKEN 없음 — 건너뜀'); return; }
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(REC_TAB);
+  if (!sh || sh.getLastRow() < 2) return;
+
+  var cur = {};
+  try {
+    var got = UrlFetchApp.fetch('https://raw.githubusercontent.com/' + GH_OWNER + '/' + GH_REPO +
+                                '/' + GH_BRANCH + '/cohort/baseline.json', { muteHttpExceptions: true });
+    if (got.getResponseCode() === 200) cur = JSON.parse(got.getContentText()) || {};
+  } catch (e) {}
+  var exams = (cur && cur.exams) || {};
+  var handmade = {};
+  for (var k in exams) if (exams[k] && exams[k].byHand) handmade[k] = 1;
+
+  var rows = sh.getRange(2, 1, sh.getLastRow() - 1, WIDE).getValues();
+  var by = {};                                            // 시험 id → {코드: 맞은수}
+  rows.forEach(function (r) {
+    var id = _idOfTitle_(r[0]); if (!id) return;
+    var code = _codeOf_(r[1], r[6]); if (!code) return;
+    var c = Number(r[8]); if (!isFinite(c)) return;
+    (by[id] || (by[id] = {}))[code] = c;                  // 같은 학생은 최신 한 번만
+  });
+  var made = 0;
+  for (var id in by) {
+    if (handmade[id]) continue;                           // 엑셀로 넣은 회차는 그대로 둔다
+    var hist = {}, n = 0;
+    for (var code in by[id]) { var s = by[id][code]; hist[s] = (hist[s] || 0) + 1; n++; }
+    if (n < 2) continue;                                  // 한 명뿐이면 모집단이 아니다
+    exams[id] = { n: n, hist: hist, from: 'sheet',
+                  at: Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd') };
+    made++;
+  }
+  if (!made) { Logger.log('[기준] 새로 만들 회차 없음'); return; }
+  _ghPut_('cohort/baseline.json', JSON.stringify({ exams: exams }, null, 1),
+          '기준 기록 자동 갱신 · ' + made + '회차');
+  Logger.log('[기준] ' + made + '회차 갱신');
+}
+
+/* ── ③ 주간 리포트 ────────────────────────────────────────────────────
+   한 주에 무슨 일이 있었나를 한 장으로. 학기말에 되짚을 수 있게 남긴다.
+   이름은 안 적는다 — 숫자와 회차뿐이다. */
+function weeklyReport() {
+  if (!_ghToken_()) return;
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(REC_TAB);
+  if (!sh || sh.getLastRow() < 2) return;
+  var rows = sh.getRange(2, 1, sh.getLastRow() - 1, WIDE).getValues();
+  var now = new Date(), from = new Date(now.getTime() - 7 * 86400000);
+  var byExam = {}, people = {}, tot = 0;
+  rows.forEach(function (r) {
+    var t = (r[3] instanceof Date) ? r[3] : null; if (!t || t < from) return;
+    var title = String(r[0] || '(제목 없음)');
+    var g = byExam[title] || (byExam[title] = { n: 0, sum: 0, best: 0 });
+    var pct = Number(r[10]); if (!isFinite(pct)) pct = 0;
+    g.n++; g.sum += pct; if (pct > g.best) g.best = pct;
+    people[_codeOf_(r[1], r[6])] = 1; tot++;
+  });
+  if (!tot) { Logger.log('[주간] 이번 주 채점 없음'); return; }
+  var wk = Utilities.formatDate(now, 'Asia/Seoul', 'yyyy-\'W\'ww');
+  var L = ['# 주간 리포트 · ' + wk, '',
+           '- 채점 ' + tot + '건 · 학생 ' + Object.keys(people).length + '명', '',
+           '| 회차 | 채점 | 평균 | 최고 |', '|---|---:|---:|---:|'];
+  Object.keys(byExam).sort().forEach(function (t) {
+    var g = byExam[t];
+    L.push('| ' + t + ' | ' + g.n + ' | ' + Math.round(g.sum / g.n) + ' | ' + Math.round(g.best) + ' |');
+  });
+  L.push('', '<sub>자동 생성 · 이름은 싣지 않는다</sub>');
+  _ghPut_('report/' + wk + '.md', L.join('\n'), '주간 리포트 ' + wk);
+  Logger.log('[주간] ' + wk + ' · ' + tot + '건');
+}
+
+/* ── 설치 ─────────────────────────────────────────────────────────────
+   편집기에서 한 번 실행한다. 두 번 실행해도 겹치지 않게 먼저 지운다. */
+function setupBackupTriggers() {
+  var want = { dailyBackup: 1, rebuildBaseline: 1, weeklyReport: 1 };
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (want[t.getHandlerFunction()]) ScriptApp.deleteTrigger(t);
+  });
+  ScriptApp.newTrigger('dailyBackup').timeBased()
+    .everyDays(1).atHour(3).inTimezone('Asia/Seoul').create();
+  ScriptApp.newTrigger('rebuildBaseline').timeBased()
+    .everyDays(1).atHour(4).inTimezone('Asia/Seoul').create();
+  ScriptApp.newTrigger('weeklyReport').timeBased()
+    .onWeekDay(ScriptApp.WeekDay.SUNDAY).atHour(20).inTimezone('Asia/Seoul').create();
+  Logger.log('설치 완료 · 백업 매일 03시 · 기준 기록 04시 · 주간 리포트 일 20시 (KST)');
+  if (!_ghToken_()) Logger.log('⚠ GITHUB_TOKEN 스크립트 속성이 아직 없습니다 — 넣어야 실제로 올라갑니다');
+}
