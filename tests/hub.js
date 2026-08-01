@@ -161,7 +161,7 @@ console.log('\n── 셸이 남의 데이터를 건드리지 않는다 ──')
   chk('남의 앱을 부르는 곳은 한 곳뿐', (body.match(/jsonp\(APPS\[?\w*\]?\.?\w*\.ep/g) || []), ['jsonp(APPS[app].ep']);
   chk('읽기 액션만 부른다',
       (body.match(/readOnce\('\w+', '(\w+)'|dtOnce\('(\w+)'/g) || []).sort(),
-      ["dtOnce('names'", "dtOnce('pending'",
+      ["dtOnce('names'", "dtOnce('pending'", "readOnce('dt', 'absentees'",
        "readOnce('dt', 'cohortmis'", "readOnce('dt', 'passed'", "readOnce('km', 'names'"]);
 
   /* 한 앱이 응답하지 않아도 화면이 비면 안 된다. 앱스크립트는 그냥 안 돌아올
@@ -477,6 +477,33 @@ console.log('\n── DT 문자를 셸에서 바로 복사한다 ──');
   const dOnce = cut('dtOnce');
   chk('미완료는 active 만 센다', /\(p && p\.active\) \|\| \[\]/.test(dOnce), true);
   chk('배열로 와도 받는다', /Array\.isArray\(p\)/.test(dOnce), true);
+}
+
+console.log('\n── 하루 일을 셸 안에서 끝낸다 ──');
+{
+  /* 시험 미응시만 셸에 없어서, 채점하다 말고 DT 화면으로 넘어가야 했다.
+     하루 흐름에서 거기만 끊겼다. */
+  const body = SRC.split('<script>')[1] || '';
+  chk('미응시를 읽는 길이 있다', /function dtAbsentees\(force\)/.test(body), true);
+  chk('같은 캐시를 쓴다', /readOnce\('dt', 'absentees'/.test(cut('dtAbsentees')), true);
+  chk('미응시 자리가 화면에 있다', /id="absWrap"/.test(SRC) && /id="absList"/.test(SRC), true);
+  chk('반 전체 공지와 개별 안내가 다 있다',
+      /data-stage="bc"/.test(body) && /data-stage="1"/.test(body) && /data-stage="2"/.test(body), true);
+  /* 응시 링크를 셸이 지어내면 저쪽이 경로를 바꿀 때 조용히 어긋난다.
+     문구도 주소도 DT 에서 빌린다. */
+  chk('응시 주소도 DT 에서 빌린다', /w\.examLink\(c\.course, c\.round\)/.test(body), true);
+  chk('미응시 문구도 빌린다', /w\.absentMsg\(\{/.test(body), true);
+  chk('셸이 exam.html 주소를 짜지 않는다', /exam\.html\?c=/.test(body), false);
+
+  /* 화면 차례가 하루 흐름이어야 한다: 급한 것 → 챙길 것 → 방금 한 것 → 참고.
+     예전에는 '합쳐야 할 이름'(거의 빌 일) 이 맨 위였다. */
+  const order = ['absWrap','pendWrap','passWrap','recentWrap','misWrap','mergeWrap']
+    .map(id => SRC.indexOf('id="' + id + '"'));
+  chk('모든 자리가 있다', order.every(i => i > 0), true);
+  chk('급한 것부터 선다', order.slice().sort((a,b) => a-b), order);
+
+  // 채점하는 날 제일 급한 숫자
+  chk('미응시가 숫자 칸에도 뜬다', /id="abCnt"/.test(body), true);
 }
 
 console.log('\n── 어느 앱이 대답하는지 보여 준다 ──');
