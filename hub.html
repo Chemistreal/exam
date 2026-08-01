@@ -150,6 +150,7 @@ td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:righ
 .mini:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .mini.done{border-color:var(--ok);color:var(--ok)}
 .mini.msg{margin-left:8px;white-space:nowrap}
+.row.sub{padding-left:20px;background:rgba(0,0,0,.012)}
 .connbar{display:flex;flex-wrap:wrap;gap:6px;margin:-2px 0 12px}
 .conn{display:inline-flex;align-items:baseline;gap:5px;font-size:11.5px;font-weight:700;
   border:1px solid var(--line-2);border-radius:999px;padding:3px 10px;color:var(--ink-2);background:var(--paper)}
@@ -212,11 +213,24 @@ tr.pick:hover td{background:var(--wash)}
       <div class="bar"><input type="search" id="qq" placeholder="학생 이름" autocomplete="off"></div>
       <div class="list" id="qqList" hidden></div>
     </section>
-    <section id="mergeWrap" hidden>
-      <h2>합쳐야 할 이름</h2>
-      <p class="hint">한 학생이 두 이름으로 저장돼 있습니다. 이대로 두면 <b>성적표에서 회차가 갈라져</b>
-        응시한 회차가 빠진 것처럼 보입니다. 파이널의 <b>명단 관리 ⚙</b> 에서 합치세요.</p>
-      <div class="list" id="mergeList"></div>
+    <section id="absWrap" hidden>
+      <h2>시험 미응시</h2>
+      <p class="hint">반 명단에는 있는데 이번 회차 시험 기록이 없는 학생입니다.
+        대개 <b>반 전체 공지</b> 한 번이면 끝납니다.
+        <span class="dim">(OX 워밍업이 아니라 정식 60문항 시험입니다)</span></p>
+      <div class="list" id="absList"></div>
+    </section>
+    <section id="pendWrap" hidden>
+      <h2>손이 필요한 것</h2>
+      <p class="hint">DT 에서 재시가 밀렸거나 아직 마무리되지 않은 항목입니다.</p>
+      <div class="list" id="pendList"></div>
+    </section>
+    <section id="passWrap" hidden>
+      <h2>통과한 학생</h2>
+      <p class="hint">DT 에서 최근 2주 안에 통과선(80점)을 넘긴 학생입니다.
+        <b>통과 문자</b>를 누르면 보낼 문구가 복사됩니다 —
+        <span class="dim">한 번에 통과한 학생과 재시로 마무리한 학생은 문구가 다릅니다.</span></p>
+      <div class="list" id="passList"></div>
     </section>
     <section id="recentWrap" hidden>
       <h2>최근 채점</h2>
@@ -230,17 +244,11 @@ tr.pick:hover td{background:var(--wash)}
         <span class="dim">(개인은 드러나지 않습니다 — DT 가 학생을 s1·s2… 로 바꿔 줍니다)</span></p>
       <div class="list" id="misList"></div>
     </section>
-    <section id="passWrap" hidden>
-      <h2>통과한 학생</h2>
-      <p class="hint">DT 에서 최근 2주 안에 통과선(80점)을 넘긴 학생입니다.
-        <b>통과 문자</b>를 누르면 보낼 문구가 복사됩니다 —
-        <span class="dim">한 번에 통과한 학생과 재시로 마무리한 학생은 문구가 다릅니다.</span></p>
-      <div class="list" id="passList"></div>
-    </section>
-    <section id="pendWrap" hidden>
-      <h2>손이 필요한 것</h2>
-      <p class="hint">DT 에서 재시가 밀렸거나 아직 마무리되지 않은 항목입니다.</p>
-      <div class="list" id="pendList"></div>
+    <section id="mergeWrap" hidden>
+      <h2>합쳐야 할 이름</h2>
+      <p class="hint">한 학생이 두 이름으로 저장돼 있습니다. 이대로 두면 <b>성적표에서 회차가 갈라져</b>
+        응시한 회차가 빠진 것처럼 보입니다. 파이널의 <b>명단 관리 ⚙</b> 에서 합치세요.</p>
+      <div class="list" id="mergeList"></div>
     </section>
   </div>
 
@@ -516,6 +524,16 @@ function dtPending(force){ return dtOnce('pending', force); }
 function dtMisRows(force){
   return readOnce('dt', 'cohortmis', function(d){ return d.rows||[]; }, force);
 }
+/* ── 시험 미응시 ────────────────────────────────────────────────────
+   반 명단에는 있는데 이번 회차 시험 기록이 없는 학생이다. 이것만 셸에 없어서,
+   채점하다 말고 DT 의 미응시 화면으로 넘어가야 했다 — 하루 흐름에서 여기만
+   끊겼다. 반 단위라 '반 전체 공지' 한 번이면 끝나는 일이 대부분이다. */
+function dtAbsentees(force){
+  return readOnce('dt', 'absentees', function(d){
+    const a = d.absentees;
+    return (a && a.classes) || [];
+  }, force);
+}
 /* ── 통과한 학생 ────────────────────────────────────────────────────
    셸이 보여 주던 것은 전부 **안 한 학생**이었다 — 미응시, 재시 필요. 그래서
    잘한 아이가 가장 조용했다. 통과 기록은 이미 시트에 있으니 나란히 보여 준다. */
@@ -572,6 +590,7 @@ const CONN = [
   { key:'sheet', name:'파이널 시트' },
   { key:'dt:names', name:'DT 명단' },
   { key:'dt:pending', name:'DT 미완료' },
+  { key:'dt:absentees', name:'DT 미응시' },
   { key:'dt:passed', name:'DT 통과' },
   { key:'km:names', name:'KMChC 명단' },
 ];
@@ -789,6 +808,16 @@ document.addEventListener('click', function(e){
                           att:r.lastAttempt, score:r.score, next:r.nextNeeded,
                           link:r.reportLink||'' }, '1');
     });
+  }else if(b.dataset.abs != null){
+    const c = ABS_ROWS[+b.dataset.abs]; if(!c) return;
+    const stage = b.dataset.stage || '1';
+    const who = (b.dataset.who != null) ? c.absent[+b.dataset.who] : '';
+    copyMsg(b, function(w){
+      /* 응시 링크도 DT 에서 만든다 — 셸이 주소를 지어내면 저쪽이 경로를 바꿀 때
+         조용히 어긋난다. */
+      return w.absentMsg({ name:who, course:c.course, round:c.round,
+                           link:w.examLink(c.course, c.round) }, stage);
+    });
   }else if(b.dataset.pass != null){
     const r = PASS_ROWS[+b.dataset.pass]; if(!r) return;
     copyMsg(b, function(w){
@@ -836,9 +865,12 @@ function renderDash(){
   ];
   /* 이미 아는 숫자를 '…' 로 되돌리지 않는다. 다시 그릴 때마다 물음표로
      바뀌었다가 응답을 기다리면, 채점하는 날 내내 '…' 만 보인다. */
-  const dtKnown = dtCached('names'), pdKnown = dtCached('pending');
+  const dtKnown = dtCached('names'), pdKnown = dtCached('pending'), abKnown = dtCached('absentees');
+  const abN = abKnown ? abKnown.reduce(function(t,c){ return t + ((c.absent||[]).length); }, 0) : null;
   document.getElementById('dashCards').innerHTML = cards.join('') +
     '<div class="card"><b id="dtCnt">'+(dtKnown? dtKnown.length : '…')+'</b><span>DT 명단</span></div>' +
+    /* 채점하는 날 제일 급한 숫자다 — 아직 시험 자체를 안 본 학생. */
+    '<div class="card warn"><b id="abCnt">'+(abN!=null? abN : '…')+'</b><span>시험 미응시</span></div>' +
     '<div class="card warn"><b id="pdCnt">'+(pdKnown? pdKnown.length : '…')+'</b><span>DT 미완료</span></div>';
 
   dtRoster().then(function(rows){
@@ -864,6 +896,31 @@ function renderDash(){
              '<button class="mini msg" data-pend="'+i+'" data-orig="문자 복사">문자 복사</button></div>';
     }).join('');
   }).catch(function(){ document.getElementById('pdCnt').textContent = '—'; });
+
+  /* 시험 미응시. 반 단위라 '반 전체 공지' 한 번이면 끝나는 일이 대부분이다. */
+  dtAbsentees().then(function(classes){
+    const w = document.getElementById('absWrap'); if(!w) return;
+    ABS_ROWS = (classes||[]).filter(function(c){ return c.absent && c.absent.length; });
+    const ac = document.getElementById('abCnt');
+    if(ac) ac.textContent = ABS_ROWS.reduce(function(t,c){ return t + c.absent.length; }, 0);
+    w.hidden = !ABS_ROWS.length;
+    if(!ABS_ROWS.length) return;
+    document.getElementById('absList').innerHTML = ABS_ROWS.map(function(c,i){
+      const head = '<div class="row" style="cursor:default"><span class="nm">'+esc(c.label)+'</span>'
+        +'<span class="where">'+esc((DT_COURSE[c.course]||c.course)+' '+c.round+'회')+'</span>'
+        +'<span class="cnt">미응시 '+c.absent.length+'/'+c.total+'</span>'
+        +'<button class="mini msg" data-abs="'+i+'" data-stage="bc" data-orig="반 전체 공지">반 전체 공지</button></div>';
+      const stus = c.absent.map(function(nm,j){
+        return '<div class="row sub" style="cursor:default"><span class="nm">'+esc(nm)+'</span>'
+          +'<button class="mini msg" data-abs="'+i+'" data-who="'+j+'" data-stage="1" data-orig="1차 안내">1차 안내</button>'
+          +'<button class="mini msg" data-abs="'+i+'" data-who="'+j+'" data-stage="2" data-orig="리마인드">리마인드</button></div>';
+      }).join('');
+      return head + stus;
+    }).join('');
+  }).catch(function(){
+    const w=document.getElementById('absWrap'); if(w) w.hidden=true;
+    const ac=document.getElementById('abCnt'); if(ac) ac.textContent='—';
+  });
 
   /* 통과한 학생. 여태 셸이 보여 준 것은 안 한 학생뿐이라, 잘한 아이가 가장
      조용했다. 문자도 여기서 바로 복사한다. */
@@ -953,7 +1010,7 @@ function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){
 /* ── 학생 ──────────────────────────────────────────────────────── */
 let ROSTER = [], FIN = null, DT_ROWS = null, KM_ROWS = null;
 /* 화면에 그린 줄을 그대로 들고 있다가 문자 만들 때 쓴다(속성에 다 싣지 않는다). */
-let PEND_ROWS = [], PASS_ROWS = [];
+let PEND_ROWS = [], PASS_ROWS = [], ABS_ROWS = [];
 function renderStudents(){
   const q = (document.getElementById('q').value||'').trim();
   const nq = normName(q);

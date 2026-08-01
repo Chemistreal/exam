@@ -70,6 +70,9 @@ const chk = (n, got, want) => {
                : act === 'passed' ? { ok: true, passed: { days: 14, generatedAt: 'T', passed: [
                    { name: '김서준', school: '휘문중', year: '2', course: 'ch2', round: 7, attempt: '정시',
                      tries: 1, score: 96, date: '6/19', days: 1, reportLink: 'https://x/report.html?student=b' } ] } }
+               : act === 'absentees' ? { ok: true, absentees: { generatedAt: 'T', classes: [
+                   { label: '화학1 토1:30-5:30', course: 'ch1', round: 12, total: 8, present: 6, absent: ['김도윤', '최예린'] },
+                   { label: '화학2 일6-10', course: 'ch2', round: 7, total: 6, present: 6, absent: [] } ] } }
                : act === 'cohortmis' ? { ok: true, rows: [
                    { studentKey: 's1', date: new Date(now - 2 * D).toISOString(), wrongMis: ['몰농도', '완충'] },
                    { studentKey: 's2', date: new Date(now - 3 * D).toISOString(), wrongMis: ['몰농도'] },
@@ -308,6 +311,8 @@ const chk = (n, got, want) => {
       body: '<!doctype html><meta charset="utf-8"><script>'
           + 'function shareMsg(d,stage){ return "빌린재시:"+d.name+"/"+d.course+"/"+d.round+"/"+d.next+"/"+stage; }'
           + 'function passMsg(d){ return "빌린통과:"+d.name+"/"+d.course+"/"+d.round+"/"+d.att+"/"+d.tries+"/"+d.score; }'
+          + 'function examLink(c,r){ return "빌린주소/"+c+"/"+r; }'
+          + 'function absentMsg(d,stage){ return "빌린미응시:"+(d.name||"반전체")+"/"+d.course+"/"+d.round+"/"+d.link+"/"+stage; }'
           + '</script>',
     }));
     await p.evaluate(() => show('dash'));
@@ -318,13 +323,16 @@ const chk = (n, got, want) => {
       pend: document.querySelectorAll('#pendList .row').length,
       pass: document.querySelectorAll('#passList .row').length,
       passShown: !document.getElementById('passWrap').hidden,
-      btns: document.querySelectorAll('.mini.msg').length,
+      btnPend: document.querySelectorAll('#pendList .mini.msg').length,
+      btnPass: document.querySelectorAll('#passList .mini.msg').length,
+      btnAbs: document.querySelectorAll('#absList .mini.msg').length,
     }));
     // 예전에는 여기가 undefined 였다(DT 가 객체로 주는데 배열로 알고 있었다)
     chk('DT 미완료 칸에 숫자가 찍힌다', seen.dtCnt, '1');
     chk('손이 필요한 것에 줄이 선다', seen.pend, 1);
     chk('통과한 학생이 보인다', [seen.passShown, seen.pass], [true, 1]);
-    chk('두 목록에 문자 단추가 있다', seen.btns, 2);
+    // 목록마다 세야 뜻이 있다. 통째로 세면 한 목록이 통째로 빠져도 안 걸린다.
+    chk('세 목록에 문자 단추가 있다', [seen.btnPend, seen.btnPass, seen.btnAbs > 0], [1, 1, true]);
 
     const grab = async sel => {
       await p.click(sel);
@@ -337,6 +345,21 @@ const chk = (n, got, want) => {
     chk('재시 문자를 DT 에서 빌려 온다', one, '빌린재시:최예린/ch1/12/재시/1');
     const two = await grab('#passList .mini.msg');
     chk('통과 문자도 빌려 온다', two, '빌린통과:김서준/ch2/7/정시/1/96');
+
+    /* 시험 미응시만 셸에 없어서 채점하다 말고 DT 로 넘어가야 했다.
+       응시 주소까지 저쪽에서 빌린다 — 셸이 지어내면 경로가 바뀔 때 어긋난다. */
+    const seenAbs = await p.evaluate(() => ({
+      shown: !document.getElementById('absWrap').hidden,
+      rows: document.querySelectorAll('#absList .row').length,
+      cnt: (document.getElementById('abCnt') || {}).textContent,
+    }));
+    // 반 한 줄 + 학생 두 줄. 미응시 0명인 반은 아예 안 나온다
+    chk('미응시 반과 학생이 선다', [seenAbs.shown, seenAbs.rows], [true, 3]);
+    chk('미응시가 숫자 칸에도 뜬다', seenAbs.cnt, '2');
+    const bc = await grab('#absList .mini.msg[data-stage="bc"]');
+    chk('반 전체 공지를 빌려 온다', bc, '빌린미응시:반전체/ch1/12/빌린주소/ch1/12/bc');
+    const one1 = await grab('#absList .mini.msg[data-stage="1"]');
+    chk('개별 안내도 빌려 온다', one1, '빌린미응시:김도윤/ch1/12/빌린주소/ch1/12/1');
   }
 
   console.log('\n── 대답 안 하는 앱을 짚어 준다 ──');
@@ -345,7 +368,9 @@ const chk = (n, got, want) => {
       [].map.call(document.querySelectorAll('#connBar .conn'),
                   e => e.className.replace('conn ', '') + ':' + (e.querySelector('small') || {}).textContent));
     console.log('  ' + JSON.stringify(chips));
-    chk('앱마다 한 칸씩 뜬다', chips.length, 5);
+    // 창구를 늘리면 칸도 늘어야 한다. 숫자를 손으로 적어 두면 어긋난다.
+    const want = await p.evaluate(() => CONN.length);
+    chk('앱마다 한 칸씩 뜬다', chips.length, want);
     chk('다 정상이면 전부 ✓', chips.every(c => c.startsWith('ok')), true);
 
     /* 여기가 이 줄의 존재 이유다. DT 가 콜백을 무시하고 순수 JSON 을 주면
