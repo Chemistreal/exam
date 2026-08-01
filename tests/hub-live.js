@@ -42,6 +42,20 @@ const chk = (n, got, want) => {
   const errs = [];
   p.on('pageerror', e => errs.push(String(e)));
 
+  /* 앱스크립트를 가로챈다. DT 는 **빈 명단**으로 답한다 — 여기서 학생을 보태면
+     아래 명단 검사가 흔들린다. 목적은 하나, 셸이 DT 를 몇 번 두드리는지 세는 것. */
+  const dtHits = [];
+  await p.route('**/macros/s/**', route => {
+    const u = new URL(route.request().url());
+    const cb = u.searchParams.get('callback'), act = u.searchParams.get('action');
+    if (act === 'names' || act === 'pending') dtHits.push(act);
+    const body = act === 'names' ? { ok: true, classes: [] }
+               : act === 'pending' ? { ok: true, pending: [] }
+               : { ok: true, rows: [] };
+    return route.fulfill({ status: 200, contentType: 'application/javascript',
+                           body: cb + '(' + JSON.stringify(body) + ')' });
+  });
+
   /* ── 기록을 만든다 ── 파이널 앱이 쓰는 그대로 넣는다(형식이 바뀌면 여기서 걸린다) */
   await p.goto(`http://localhost:${PORT}/final.html`, { waitUntil: 'networkidle' });
   await p.waitForFunction(() => typeof FINAL_EXAMS !== 'undefined' && FINAL_EXAMS.length, null, { timeout: 20000 });
@@ -233,6 +247,31 @@ const chk = (n, got, want) => {
       document.getElementById('syncMsg').textContent.replace(/\s+/g, ' ').trim());
     chk('맞춘 적 없으면 그렇게 말한다', /아직 시트와 맞춘 적이 없습니다|시트에서 불러오는 중|마지막으로 맞춘/.test(bar), true);
     chk('지금 맞추기 단추가 있다', await p.evaluate(() => !!document.getElementById('syncNow')), true);
+  }
+
+  console.log('\n── DT 를 다시 그릴 때마다 두드리지 않는다 ──');
+  {
+    /* 재어 보니 셸을 여는 것만으로 13번이 나갔다. 앱스크립트는 실행을 한 줄로
+       세우니 뒤엣것은 한참을 기다리고, 그동안 DT 숫자는 '…' 로 돌아가 있다. */
+    console.log('  연 뒤까지 DT 호출 ' + dtHits.length + '회 · ' + JSON.stringify(dtHits));
+    chk('여는 데 명단·미완료 한 번씩이면 된다', dtHits.length <= 2, true);
+    dtHits.length = 0;
+    for (const t of ['stu', 'rnd', 'dash', 'stu', 'dash']) {
+      await p.evaluate(id => show(id), t);
+      await p.waitForTimeout(350);
+    }
+    chk('탭을 오가도 다시 묻지 않는다', dtHits, []);
+    // 이미 아는 숫자를 물음표로 되돌리면 채점하는 날 내내 '…' 만 보인다
+    const shown = await p.evaluate(() => (document.getElementById('dtCnt') || {}).textContent);
+    chk('DT 숫자가 …로 돌아가지 않는다', shown, '0');
+  }
+
+  console.log('\n── 이 숫자가 어디까지의 숫자인지 적는다 ──');
+  {
+    const src = await p.evaluate(() => (document.getElementById('srcNote') || {}).textContent || '');
+    console.log('  ' + src);
+    chk('숫자 밑에 출처가 적힌다',
+        /이 브라우저 기록만|시트까지 반영된|받아오는 중/.test(src), true);
   }
 
   chk('콘솔에 예외가 없다', errs.filter(e => !/Failed to fetch|ERR_/.test(e)), []);
