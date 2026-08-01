@@ -186,6 +186,7 @@ tr.pick:hover td{background:var(--wash)}
       <p class="hint">세 앱에서 읽어 옵니다. 이 화면은 아무것도 저장하지 않습니다.
         탭은 <span class="kbd">1</span>–<span class="kbd">7</span>, 찾기는 <span class="kbd">/</span>.</p>
       <div class="cards" id="dashCards"><div class="card"><b>—</b><span>불러오는 중</span></div></div>
+      <p class="hint" id="srcNote"></p>
       <div id="syncBar" class="note" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <span id="syncMsg">시트 상태를 확인하는 중…</span>
         <span style="flex:1"></span>
@@ -220,8 +221,10 @@ tr.pick:hover td{background:var(--wash)}
   <div class="pane" id="p-rnd" role="tabpanel" aria-labelledby="t-rnd">
     <section>
       <h2>회차</h2>
-      <p class="hint">이 브라우저에 채점 기록이 있는 회차입니다. 회차를 누르면 <b>본 학생</b>과
-        <b>아직 안 본 학생</b>이 나뉘어 보입니다.</p>
+      <p class="hint">채점 기록이 있는 회차입니다. 회차를 누르면 <b>본 학생</b>과
+        <b>아직 안 본 학생</b>이 나뉘어 보입니다.
+        '안 본 학생'은 <b>최근 한 달 안에 채점한 회차</b>에서만 셉니다 —
+        옛 회차에 지금 반 학생을 견주면 그 해에 있지도 않던 아이들이 뜹니다.</p>
       <div class="bar"><input type="search" id="rq" placeholder="회차 이름으로 찾기" autocomplete="off"></div>
       <div id="rndNote"></div>
       <div class="scroll"><table id="rndTable"><thead><tr>
@@ -386,25 +389,46 @@ function examLocal(){
   return { students: out, rounds: keys.length, records: records };
 }
 
-/* ── DT: 반 명단(읽기 전용) ─────────────────────────────────────── */
-function dtRoster(){
-  return jsonp(APPS.dt.ep, { action:'names' }).then(function(d){
+/* ── DT: 반 명단(읽기 전용) ───────────────────────────────────────
+   ⚠ 여기를 그냥 부르면 안 된다. dtOnce() 를 거쳐라.
+
+   화면을 다시 그릴 때마다 이 둘을 새로 불렀다. 그런데 다시 그리는 일은
+   채점할 때마다·창을 볼 때마다·탭을 옮길 때마다 일어난다. 재어 보니
+   **셸을 여는 것만으로 13번**, 탭 다섯 번 오가면 10번이 더 나갔다.
+
+   앱스크립트는 실행을 한 줄로 세운다. 열세 번이 줄을 서면 뒤엣것은 한참을
+   기다리고, 그동안 화면의 DT 숫자는 '…' 로 돌아가 있다. 채점하는 날 내내
+   '…' 만 보게 되는 이유가 이것이었다.
+
+   한 번 받아 두고 쓴다. 같은 것을 동시에 물으면 하나로 합치고, 5분이 지나야
+   다시 묻는다. 실패한 것은 담아 두지 않는다(다음에 다시 묻는다). */
+const DT_TTL = 5*60*1000;
+const DT_CACHE = {};                       // action → {at, val, inflight}
+function dtOnce(action, force){
+  const c = DT_CACHE[action] || (DT_CACHE[action] = {at:0, val:null, inflight:null});
+  if(c.inflight) return c.inflight;                                  // 이미 묻고 있다
+  if(!force && c.val && (Date.now()-c.at) < DT_TTL) return Promise.resolve(c.val);
+  c.inflight = jsonp(APPS.dt.ep, { action:action }).then(function(d){
     if(!d || !d.ok) throw new Error((d&&d.error)||'응답 오류');
-    const out = [];
-    (d.classes||[]).forEach(function(c){
-      (c.students||[]).forEach(function(s){
-        out.push({ name:s.name, school:s.school||'', grade:s.year||'', klass:c.label, course:c.course });
-      });
+    c.val = (action==='names') ? flatClasses(d.classes) : (d.pending||[]);
+    c.at = Date.now(); c.inflight = null;
+    return c.val;
+  }).catch(function(e){ c.inflight = null; throw e; });
+  return c.inflight;
+}
+function flatClasses(classes){
+  const out = [];
+  (classes||[]).forEach(function(c){
+    (c.students||[]).forEach(function(s){
+      out.push({ name:s.name, school:s.school||'', grade:s.year||'', klass:c.label, course:c.course });
     });
-    return out;
   });
+  return out;
 }
-function dtPending(){
-  return jsonp(APPS.dt.ep, { action:'pending' }).then(function(d){
-    if(!d || !d.ok) throw new Error((d&&d.error)||'응답 오류');
-    return d.pending||[];
-  });
-}
+function dtRoster(force){ return dtOnce('names', force); }
+function dtPending(force){ return dtOnce('pending', force); }
+/* 이미 받아 둔 값. 없으면 null — 화면은 그때만 '…' 를 쓴다. */
+function dtCached(action){ const c=DT_CACHE[action]; return c && c.val; }
 
 /* ── 탭 ─────────────────────────────────────────────────────────── */
 const TABS = ['dash','stu','rnd','exam','dt','km','mat'];
@@ -559,9 +583,12 @@ function renderDash(){
     card(fin.records, '파이널 채점 기록'),
     card(fin.rounds, '기록이 있는 회차'),
   ];
+  /* 이미 아는 숫자를 '…' 로 되돌리지 않는다. 다시 그릴 때마다 물음표로
+     바뀌었다가 응답을 기다리면, 채점하는 날 내내 '…' 만 보인다. */
+  const dtKnown = dtCached('names'), pdKnown = dtCached('pending');
   document.getElementById('dashCards').innerHTML = cards.join('') +
-    '<div class="card"><b id="dtCnt">…</b><span>DT 명단</span></div>' +
-    '<div class="card warn"><b id="pdCnt">…</b><span>DT 미완료</span></div>';
+    '<div class="card"><b id="dtCnt">'+(dtKnown? dtKnown.length : '…')+'</b><span>DT 명단</span></div>' +
+    '<div class="card warn"><b id="pdCnt">'+(pdKnown? pdKnown.length : '…')+'</b><span>DT 미완료</span></div>';
 
   dtRoster().then(function(rows){
     document.getElementById('dtCnt').textContent = rows.length;
@@ -572,7 +599,7 @@ function renderDash(){
 
   dtPending().then(function(rows){
     document.getElementById('pdCnt').textContent = rows.length;
-    if(!rows.length) return;
+    if(!rows.length){ const w0=document.getElementById('pendWrap'); if(w0) w0.hidden=true; return; }
     const w = document.getElementById('pendWrap'); w.hidden = false;
     document.getElementById('pendList').innerHTML = rows.slice(0,40).map(function(r){
       const nm = esc(r.name||r.studentKey||'—');
@@ -782,7 +809,30 @@ function ago(ts){
   return Math.floor(h/24)+'일 전';
 }
 let SYNCING=false;
+/* ── 이 숫자가 어디까지의 숫자인가 ───────────────────────────────────
+   "파이널 누적 학생 42" 를 보면 42명이 전부라고 읽는다. 그런데 시트와 맞추기
+   전이라면 그것은 **이 브라우저에서 채점한 42명**일 뿐이다. 다른 기기에서
+   채점한 학생은 빠져 있는데, 화면은 그 말을 안 했다.
+
+   숫자 바로 밑에 적는다. 아래 동기화 줄에도 같은 말이 있지만, 카드에서 눈이
+   떨어지기 전에 읽혀야 한다. */
+function sourceLine(){
+  const at=lastSyncAt();
+  if(SYNCING) return {warn:false, html:'시트에서 받아오는 중입니다 — 끝나면 숫자가 저절로 바뀝니다.'};
+  if(!at) return {warn:true, html:'<b>이 브라우저 기록만</b>입니다. 다른 기기에서 채점한 학생은 아직 빠져 있습니다.'};
+  const stale=(Date.now()-at) > SYNC_STALE;
+  return stale
+    ? {warn:true, html:'<b>이 브라우저 기록만</b>일 수 있습니다 — 시트와 맞춘 지 '+ago(at)+'입니다.'}
+    : {warn:false, html:'시트까지 반영된 숫자입니다 <span class="dim">· '+ago(at)+' 맞춤</span>'};
+}
+function renderSourceNote(){
+  const el=document.getElementById('srcNote'); if(!el) return;
+  const s=sourceLine();
+  el.innerHTML=s.html;
+  el.style.color = s.warn ? '#8a2f1d' : '';
+}
 function renderSyncBar(){
+  renderSourceNote();
   const at=lastSyncAt(), msg=document.getElementById('syncMsg');
   const btn=document.getElementById('syncNow'); if(!msg||!btn) return;
   if(SYNCING){ msg.textContent='시트에서 불러오는 중… 끝나면 숫자가 저절로 바뀝니다.'; btn.disabled=true; return; }
@@ -863,8 +913,23 @@ function renderMerge(){
    '안 본 학생'의 기준은 **합친 명단**이다(파이널 기록 + DT 반 명단). DT 반
    학생이 모든 파이널 회차를 봐야 하는 것은 아니므로 숫자 자체가 할 일 목록은
    아니다 — 빠진 사람이 있는지 눈으로 훑는 용도다. */
+/* 지금 채점 중인 회차로 볼 기간 · 지금 배우는 학생으로 볼 기간 */
+const RECENT_ROUND = 30*DAY, ACTIVE_WINDOW = 60*DAY;
 function roundStats(){
   const fin = FIN || (FIN = examLocal());
+  const now = Date.now();
+  /* 지금 배우는 학생: DT 반 명단에 있거나, 최근에 채점 기록이 있는 사람.
+     DT 를 못 불러왔으면 채점 기록만으로 판단한다(빈 목록보다 낫다). */
+  const lastSeen = new Map();
+  (fin.students||[]).forEach(function(s){
+    const lk = looseKey(s.name, s.school); let mx = lastSeen.get(lk)||0;
+    (s.rounds||[]).forEach(function(r){ if((r.ts||0) > mx) mx = r.ts||0; });
+    lastSeen.set(lk, mx);
+  });
+  const ACTIVE = ROSTER.filter(function(r){
+    if(r.apps && r.apps.dt) return true;                       // 지금 반에 있는 학생
+    return (lastSeen.get(looseKey(r.name, r.school))||0) >= now-ACTIVE_WINDOW;
+  });
   const by = new Map();
   (fin.students||[]).forEach(function(s){
     (s.rounds||[]).forEach(function(r){
@@ -884,7 +949,16 @@ function roundStats(){
     /* 명단에 있는데 이 회차 기록이 없는 사람. 학교 표기가 흔들려도 같은
        사람으로 붙도록 명단과 같은 열쇠(looseKey)를 쓴다. */
     const took = new Set(g.rows.map(function(r){ return looseKey(r.who.name, r.who.school); }));
-    g.missing = ROSTER.filter(function(r){ return !took.has(looseKey(r.name, r.school)); });
+    /* 예전에는 **합친 명단 전체**를 견줬다. 그래서 2018년 회차를 열면 올해 반
+       학생 120명이 통째로 '안 본 학생' 으로 떴다 — 그 해에는 있지도 않던
+       아이들이다. 숫자가 크기만 하고 아무 뜻이 없으니 아무도 안 봤다.
+
+       이 물음이 실제로 나오는 때는 하나다: **지금 채점하는 회차**에서 누가
+       아직 안 왔나. 그래서 최근에 채점한 회차에서만, 지금 배우는 학생만 센다.
+       옛 회차는 아예 세지 않는다(모른다고 하는 편이 맞다). */
+    g.missing = (g.last && g.last >= now-RECENT_ROUND)
+      ? ACTIVE.filter(function(r){ return !took.has(looseKey(r.name, r.school)); })
+      : null;
     out.push(g);
   });
   return out.sort(function(a,b){ return b.last - a.last; });
@@ -904,7 +978,8 @@ function renderRounds(){
     return '<tr class="pick" data-id="'+esc(g.id)+'"><td>'+esc(examTitle(g.id))+'</td>'+
       '<td class="num">'+g.n+'</td><td class="num">'+g.avg+'%</td><td class="num">'+g.best+'%</td>'+
       '<td class="num">'+when(g.last)+'</td>'+
-      '<td class="num">'+(g.missing.length||'—')+'</td></tr>';
+      // 안 센 회차(옛 회차)와 '한 명도 없다' 를 구분하지 않는다 — 둘 다 볼 것이 없다
+      '<td class="num">'+((g.missing && g.missing.length)||'—')+'</td></tr>';
   }).join('');
   [].forEach.call(body.querySelectorAll('tr.pick'), function(tr){
     tr.addEventListener('click', function(){ openRound(tr.dataset.id); });
@@ -922,10 +997,11 @@ function openRound(id){
       '<span class="where">'+esc(r.who.school||'')+'</span>'+
       '<span class="cnt">'+r.correct+'/'+r.total+' · '+pct+'%</span>'+actBtns(i)+'</div>';
   }).join('')+'</div>';
-  if(g.missing.length){
+  if(g.missing && g.missing.length){
     html += '<div class="sub2">아직 안 본 학생 · '+g.missing.length+'명</div>'+
-      '<div class="note">합친 명단(파이널 기록 + DT 반 명단)에 있는데 이 회차 기록이 없는 학생입니다. ' +
-      '모든 학생이 모든 회차를 보는 것은 아니므로 참고용으로만 보세요.</div><div class="list">' +
+      '<div class="note"><b>지금 배우는 학생</b> 중 이 회차 기록이 없는 사람입니다 ' +
+      '(DT 반 명단에 있거나 최근 두 달 안에 채점한 학생). 모든 학생이 모든 회차를 ' +
+      '보는 것은 아니므로 참고용으로만 보세요.</div><div class="list">' +
       g.missing.slice(0,120).map(function(r){
         const where = [r.school, r.grade?r.grade+'학년':''].filter(Boolean).join(' ') || '—';
         return '<div class="row" style="cursor:default"><span class="nm">'+esc(r.name)+'</span>'+
