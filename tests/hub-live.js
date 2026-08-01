@@ -339,6 +339,42 @@ const chk = (n, got, want) => {
     chk('통과 문자도 빌려 온다', two, '빌린통과:김서준/ch2/7/정시/1/96');
   }
 
+  console.log('\n── 대답 안 하는 앱을 짚어 준다 ──');
+  {
+    const chips = await p.evaluate(() =>
+      [].map.call(document.querySelectorAll('#connBar .conn'),
+                  e => e.className.replace('conn ', '') + ':' + (e.querySelector('small') || {}).textContent));
+    console.log('  ' + JSON.stringify(chips));
+    chk('앱마다 한 칸씩 뜬다', chips.length, 5);
+    chk('다 정상이면 전부 ✓', chips.every(c => c.startsWith('ok')), true);
+
+    /* 여기가 이 줄의 존재 이유다. DT 가 콜백을 무시하고 순수 JSON 을 주면
+       — 실제로 한 해 내내 그랬다 — 화면에 '고장' 이라고 적혀야 한다. */
+    const p2 = await ctx.newPage();
+    await p2.route('**/macros/s/**', route => {
+      const u = new URL(route.request().url());
+      const cb = u.searchParams.get('callback'), act = u.searchParams.get('action');
+      if (u.pathname.includes(DT_EP))            // DT: 콜백을 무시한다(옛 버그 재현)
+        return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, rows: [] }) });
+      return route.fulfill({ status: 200, contentType: 'application/javascript',
+        body: cb + '(' + JSON.stringify(act === 'all' ? { ok: true, n: 0, rows: [] } : { ok: true, students: [] }) + ')' });
+    });
+    await p2.goto(`http://localhost:${PORT}/hub.html`, { waitUntil: 'domcontentloaded' });
+    await p2.waitForFunction(() => typeof EXAMS !== 'undefined' && EXAMS.length, null, { timeout: 20000 });
+    /* 안 뜨면 그냥 실패로 적는다. 여기서 예외로 죽으면 남은 검사가 통째로
+       안 돌고, 무엇이 문제인지도 안 보인다. */
+    await p2.waitForFunction(() =>
+      [].some.call(document.querySelectorAll('#connBar .conn'), e => e.classList.contains('bad')),
+      null, { timeout: 30000 }).catch(() => {});
+    const bad = await p2.evaluate(() =>
+      [].filter.call(document.querySelectorAll('#connBar .conn'), e => e.classList.contains('bad'))
+        .map(e => e.textContent.replace(/\s+/g, ' ')));
+    console.log('  ' + JSON.stringify(bad));
+    chk('대답 없는 DT 를 고장으로 적는다', bad.length > 0, true);
+    chk('무엇이 안 되는지 이름을 적는다', bad.every(t => /DT/.test(t)), true);
+    await p2.close();
+  }
+
   console.log('\n── 요즘 반이 어려워하는 개념 ──');
   {
     await p.evaluate(() => show('dash'));
