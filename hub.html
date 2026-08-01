@@ -276,7 +276,8 @@ const APPS = {
           ep:'https://script.google.com/macros/s/AKfycbxGmSCkip0cQCyOH_JA2SiAMSxri00XObLmHyXlyXwxhG7u7w-x0FH02VN4DQySiUsv9Q/exec' },
   dt:   { name:'DT',    path:'../DT/index.html',
           ep:'https://script.google.com/macros/s/AKfycbzvFaPXgEgCBQ8HowtP8tPTtdiIVFtmZSUf0KFXUOVOh3ektrFMkz4KSR4I52LDBzB8rw/exec' },
-  km:   { name:'KMChC', path:'../KMChC/index.html', ep:'' },
+  km:   { name:'KMChC', path:'../KMChC/index.html',
+          ep:'https://script.google.com/macros/s/AKfycbxdD_pKlNZaHyce2mUsDcmTspMW4uh--wOr3MggvDABEDs7n64re6DLYEVOlh8ANE9-/exec' },
 };
 
 /* ── 누가 같은 학생인가 ──────────────────────────────────────────────
@@ -312,9 +313,13 @@ function mergeRosters(sources){
       let rec = byLoose.get(lk);
       if(!rec){
         rec = { name:String(s.name||'').trim(), school:String(s.school||'').trim(),
-                grade:normGrade(s.grade), apps:{}, n:0 };
+                grade:normGrade(s.grade), apps:{}, n:0, noSch:true };
         byLoose.set(lk, rec);
       }
+      /* 학교 열이 **아예 없는 앱**에서만 온 줄인지 표시해 둔다. 파이널에서
+         선생님이 학교를 안 적은 줄과는 다르다 — 그건 모르는 것이지, 그 앱이
+         학교라는 것을 갖고 있지 않은 것이 아니다. */
+      if(!src.noSchool) rec.noSch = false;
       // 학교·학년은 비어 있던 쪽을 채운다(정보가 더 많은 쪽을 남긴다)
       if(!rec.school && s.school) rec.school = String(s.school).trim();
       if(!rec.grade && s.grade)   rec.grade  = normGrade(s.grade);
@@ -322,9 +327,40 @@ function mergeRosters(sources){
       rec.n += (s.count||1);
     });
   });
-  return Array.from(byLoose.values()).sort(function(a,b){
-    return a.name.localeCompare(b.name,'ko') || a.school.localeCompare(b.school,'ko');
+  /* ── 학교 열이 없는 앱을 붙여 준다 ────────────────────────────────
+     KMChC 시트에는 학교 열이 **아예 없다.** 열쇠가 이름+학교라, 그대로 두면
+     '홍길동' 과 '홍길동(휘문중)' 이 두 사람이 된다 — 셸에서 같은 아이가 두
+     줄로 보이고, 어느 줄을 눌러도 기록이 반쪽이다.
+
+     두 가지를 다 지켜야 한다.
+     - 파이널에서 **선생님이 학교를 안 적은** 줄은 예전대로 따로 둔다. 그건
+       모르는 것이지, 그 앱에 학교가 없는 것이 아니다.
+     - 같은 이름이 **하나뿐일 때만** 붙인다. 둘이면 동명이인일 수 있는데,
+       기계가 골라 붙이면 남의 성적이 남의 이름 밑에 들어간다. 되돌릴 수
+       없으므로 따로 둔다(합칠 이름 목록에 뜬다). */
+  const byName = new Map();
+  byLoose.forEach(function(rec, lk){
+    const nm = normName(rec.name);
+    if(!byName.has(nm)) byName.set(nm, []);
+    byName.get(nm).push({lk:lk, rec:rec});
   });
+  byName.forEach(function(list){
+    if(list.length !== 2) return;
+    const blank = list.filter(function(x){ return !normSchool(x.rec.school); });
+    const known = list.filter(function(x){ return normSchool(x.rec.school); });
+    if(blank.length !== 1 || known.length !== 1) return;
+    const b = blank[0], k = known[0];
+    if(!b.rec.noSch) return;            // 학교를 안 적은 것뿐이면 붙이지 않는다
+    for(const app in b.rec.apps) k.rec.apps[app] = (k.rec.apps[app]||0) + b.rec.apps[app];
+    k.rec.n += b.rec.n;
+    if(!k.rec.grade && b.rec.grade) k.rec.grade = b.rec.grade;
+    byLoose.delete(b.lk);
+  });
+
+  return Array.from(byLoose.values()).map(function(r){ delete r.noSch; return r; })
+    .sort(function(a,b){
+      return a.name.localeCompare(b.name,'ko') || a.school.localeCompare(b.school,'ko');
+    });
 }
 
 /* ── JSONP ─────────────────────────────────────────────────────────
@@ -403,18 +439,23 @@ function examLocal(){
    한 번 받아 두고 쓴다. 같은 것을 동시에 물으면 하나로 합치고, 5분이 지나야
    다시 묻는다. 실패한 것은 담아 두지 않는다(다음에 다시 묻는다). */
 const DT_TTL = 5*60*1000;
-const DT_CACHE = {};                       // action → {at, val, inflight}
-function dtOnce(action, force){
-  const c = DT_CACHE[action] || (DT_CACHE[action] = {at:0, val:null, inflight:null});
+const DT_CACHE = {};                       // app:action → {at, val, inflight}
+function readOnce(app, action, shape, force){
+  const key = app+':'+action;
+  const c = DT_CACHE[key] || (DT_CACHE[key] = {at:0, val:null, inflight:null});
   if(c.inflight) return c.inflight;                                  // 이미 묻고 있다
   if(!force && c.val && (Date.now()-c.at) < DT_TTL) return Promise.resolve(c.val);
-  c.inflight = jsonp(APPS.dt.ep, { action:action }).then(function(d){
+  c.inflight = jsonp(APPS[app].ep, { action:action }).then(function(d){
     if(!d || !d.ok) throw new Error((d&&d.error)||'응답 오류');
-    c.val = (action==='names') ? flatClasses(d.classes) : (d.pending||[]);
+    c.val = shape(d);
     c.at = Date.now(); c.inflight = null;
     return c.val;
   }).catch(function(e){ c.inflight = null; throw e; });
   return c.inflight;
+}
+function dtOnce(action, force){
+  return readOnce('dt', action,
+    function(d){ return (action==='names') ? flatClasses(d.classes) : (d.pending||[]); }, force);
 }
 function flatClasses(classes){
   const out = [];
@@ -427,8 +468,23 @@ function flatClasses(classes){
 }
 function dtRoster(force){ return dtOnce('names', force); }
 function dtPending(force){ return dtOnce('pending', force); }
+/* ── KMChC 명단 ─────────────────────────────────────────────────────
+   여기만 읽을 창구가 없어서, KMChC 를 본 학생은 셸에 아예 안 나왔다. 같은
+   학생인데 파이널·DT 에서만 보이니 '이 학생의 전 과목 기록' 이 반쪽이었다.
+
+   이 시트에는 **학교 열이 없다.** 그래서 그대로 합치면 '홍길동' 과
+   '홍길동(휘문중)' 이 두 사람이 된다 — mergeRosters 가 학교 없는 쪽을
+   이름만으로 붙여 준다(같은 이름이 하나뿐일 때만). */
+function kmRoster(force){
+  return readOnce('km', 'names', function(d){
+    return (d.students||[]).map(function(s){
+      return { name:s.name, school:'', grade:s.grade||'', count:1,
+               kmId:s.id||'', kmLink:s.link||'', ts:s.ts||0 };
+    });
+  }, force);
+}
 /* 이미 받아 둔 값. 없으면 null — 화면은 그때만 '…' 를 쓴다. */
-function dtCached(action){ const c=DT_CACHE[action]; return c && c.val; }
+function dtCached(action){ const c=DT_CACHE['dt:'+action]; return c && c.val; }
 
 /* ── 탭 ─────────────────────────────────────────────────────────── */
 const TABS = ['dash','stu','rnd','exam','dt','km','mat'];
@@ -660,7 +716,7 @@ function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){
   return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 
 /* ── 학생 ──────────────────────────────────────────────────────── */
-let ROSTER = [], FIN = null, DT_ROWS = null;
+let ROSTER = [], FIN = null, DT_ROWS = null, KM_ROWS = null;
 function renderStudents(){
   const q = (document.getElementById('q').value||'').trim();
   const nq = normName(q);
@@ -759,12 +815,17 @@ function loadRoster(){
      기다리느라 앱스크립트가 조용할 때 12초 동안 명단·회차·합칠 이름이 통째로
      비어 있었다. 손에 쥔 것을 먼저 내주고, DT 는 오는 대로 얹는다. */
   refreshLocal();
-  dtRoster().then(function(rows){
-    DT_ROWS = rows;                     // 다시 읽을 때 또 부르지 않는다
-  }).catch(function(e){
-    note('stuNote','DT 명단을 못 불러왔습니다 — '+e.message+'. 파이널 명단만 보여 줍니다.', true);
-  }).then(function(){
-    refreshLocal();                     // DT 가 왔든 안 왔든 지금 아는 것으로 다시
+  /* 두 앱을 함께 부른다. 한쪽이 조용해도 다른 쪽은 얹힌다 — 하나를 기다리다
+     둘 다 못 보여 주는 일이 없어야 한다. */
+  const miss = [];
+  Promise.all([
+    dtRoster().then(function(rows){ DT_ROWS = rows; })
+              .catch(function(e){ miss.push('DT 명단('+e.message+')'); }),
+    kmRoster().then(function(rows){ KM_ROWS = rows; })
+              .catch(function(e){ miss.push('KMChC 명단('+e.message+')'); }),
+  ]).then(function(){
+    if(miss.length) note('stuNote', miss.join(' · ')+'을 못 불러왔습니다. 나머지는 정상입니다.', true);
+    refreshLocal();                     // 왔든 안 왔든 지금 아는 것으로 다시
   });
 }
 
@@ -872,6 +933,7 @@ function refreshLocal(){
   FIN = examLocal();
   const sources = [{ app:'exam', students: FIN.students }];
   if(DT_ROWS) sources.push({ app:'dt', students: DT_ROWS });
+  if(KM_ROWS) sources.push({ app:'km', students: KM_ROWS });
   ROSTER = mergeRosters(sources);
   renderStudents(); renderRounds(); renderQuick(); renderDash(); renderMerge(); renderSyncBar();
 }
