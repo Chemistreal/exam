@@ -3041,10 +3041,23 @@ function noteRename(from,to){
 }
 function applyRename(n){ var s=String(n||'').trim(); var m=renameMap(); return m[s]||s; }
 function subSig(r){ return nameKey(r.name)+'|'+((r.ans||[]).join('')); }
-/* 시트 한 시험분을 로컬 풀에 합친다. 반환값은 새로 들어온 건수. */
-function mergeSheetRows(exam,rows){
+/* 시트 한 시험분을 로컬 풀에 합친다. 반환값은 새로 들어온 건수.
+
+   prune 을 주면 **시트에서 사라진 줄을 여기서도 지운다.** 시트 전체를 한 번에
+   받았을 때만 줄 수 있다(회차별로 받은 것으로 지우면, 안 물어본 회차가 통째로
+   날아간다).
+
+   왜 필요한가: 여태 이 사본은 **더하기만** 했다. 선생님이 학원 PC 에서 학생을
+   지우거나 이름을 고치면 시트는 고쳐지는데, 노트북에는 옛 줄이 그대로 남았다.
+   지운 학생이 계속 보이고, 이름을 고친 학생은 **두 명으로 늘어난다** — 옛
+   이름 줄은 남아 있고 새 이름 줄이 시트에서 새로 들어오기 때문이다.
+
+   지우는 것은 up:1(시트에서 왔거나, 시트에 있는 것을 확인한) 줄뿐이다.
+   아직 못 올린 줄(up:0/2)과 출처를 모르는 옛 줄(up 없음)은 건드리지 않는다 —
+   시트가 한 번도 가진 적 없는 기록을 지우면 되돌릴 수 없다. */
+function mergeSheetRows(exam,rows,prune){
   if(!rows||!rows.length) return 0;
-  var arr=subs(exam.id), seen={};
+  var arr=subs(exam.id), seen={}, inSheet={};
   arr.forEach(function(r,i){ if(seen[subSig(r)]==null) seen[subSig(r)]=i; });
   var added=0, filled=0;
   rows.forEach(function(rec){
@@ -3066,14 +3079,27 @@ function mergeSheetRows(exam,rows){
         if(!cur0.grade && rowRec.grade){ cur0.grade=rowRec.grade; filled++; }
       }
       /* 시트에 있다는 것이 확인됐다. 보내 놓고 답을 못 받았던(up:0) 기록의
-         표를 여기서 지운다 — no-cors 라 이 방법 말고는 확인할 길이 없다. */
-      if(cur0 && cur0.up===0){ cur0.up=1; filled++; }
+         표를 여기서 지운다 — no-cors 라 이 방법 말고는 확인할 길이 없다.
+         출처를 모르던 옛 줄(up 없음)도 여기서 '시트에 있음' 이 된다. */
+      if(cur0 && cur0.up!==1){ cur0.up=1; filled++; }
+      inSheet[sig]=1;
       return;
     }
     rowRec.up=1;                                   // 시트에서 왔으니 올릴 것이 없다
+    inSheet[sig]=1;
     seen[sig]=arr.length; arr.push(rowRec); added++;
   });
-  if(added||filled){ arr.sort(function(a,b){ return (a.ts||0)-(b.ts||0); }); saveSubs(exam.id,arr); }
+  var dropped=0;
+  if(prune){
+    var left=arr.filter(function(r){
+      if(r.up!==1) return true;                    // 못 올린 줄·출처 모르는 줄은 그대로
+      if(inSheet[subSig(r)]) return true;
+      dropped++; return false;                     // 시트에서 사라졌다 — 여기서도 지운다
+    });
+    if(dropped) arr=left;
+  }
+  if(added||filled||dropped){ arr.sort(function(a,b){ return (a.ts||0)-(b.ts||0); }); saveSubs(exam.id,arr); }
+  mergeSheetRows.dropped=(mergeSheetRows.dropped|0)+dropped;
   return added;
 }
 /* 모든 시험을 차례로 받는다. 한 번에 다 쏘면 Apps Script 가 동시 실행을 막는다. */
@@ -3104,13 +3130,24 @@ function syncOneShot(onDone){
       if(!r||!r.examId) return; (byId[r.examId]=byId[r.examId]||[]).push(r);
     });
     var added=0, touched=0;
+    mergeSheetRows.dropped=0;
     FINAL_EXAMS.forEach(function(exam){
       var rows=byId[cohortKey(exam.id)]||byId[exam.id]||null;
+      /* 그 회차 줄이 응답에 아예 없으면 **손대지 않는다.** 시트 읽기가 엎어져도
+         {ok:true, rows:[]} 로 오는데, 없는 것을 '전부 지워졌다' 로 읽으면 이
+         브라우저 기록이 통째로 날아간다.
+
+         대신 그 회차의 마지막 학생을 시트에서 지운 경우는 여기서 안 지워진다.
+         드문 일이고, 지우는 쪽 화면에서는 이미 지워져 있다 — 통째로 날리는
+         쪽보다 남기는 쪽이 낫다. */
       if(!rows) return;
       touched++;
-      try{ added+=mergeSheetRows(exam,rows); }catch(e){}
+      /* 시트 전체를 한 번에 받았을 때만 지운다. 회차별로 받은 것으로 지우면
+         안 물어본 회차가 통째로 날아간다. */
+      try{ added+=mergeSheetRows(exam,rows,true); }catch(e){}
     });
-    onDone({added:added, exams:touched, rows:(res.rows||[]).length});
+    onDone({added:added, exams:touched, rows:(res.rows||[]).length,
+            dropped:mergeSheetRows.dropped|0});
   });
 }
 /* ── 아직 시트가 못 받은 기록 ───────────────────────────────────────────
@@ -3166,10 +3203,17 @@ function syncAllFromSheet(onDone, quiet){
       markSynced();
       var resent=resendPending();
       refreshScreen();
-      if(!quiet) fToast(one.added
-        ? ('시트에서 '+one.added+'건을 새로 받았습니다'+(resent?(' · '+resent+'건은 다시 올렸습니다'):''))
-        : (resent? (resent+'건을 시트로 다시 올렸습니다') : '시트와 이미 같습니다'));
-      if(typeof onDone==='function') onDone({added:one.added, failed:0, exams:one.exams, gaveUp:false, resent:resent});
+      if(!quiet){
+        var bits=[];
+        if(one.added) bits.push('새 기록 '+one.added+'건');
+        /* 다른 기기에서 지우거나 이름을 고친 것이 여기까지 온 것이다.
+           말없이 사라지면 "내 기록이 없어졌다" 가 되므로 반드시 적는다. */
+        if(one.dropped) bits.push('시트에서 없어진 '+one.dropped+'건 정리');
+        if(resent) bits.push('다시 올린 '+resent+'건');
+        fToast(bits.length? ('시트와 맞췄습니다 · '+bits.join(' · ')) : '시트와 이미 같습니다');
+      }
+      if(typeof onDone==='function') onDone({added:one.added, failed:0, exams:one.exams,
+                                             gaveUp:false, resent:resent, dropped:one.dropped|0});
       return;
     }
     syncPerExam(onDone, quiet);      // 시트 쪽이 아직 옛 판이다

@@ -16,6 +16,9 @@
      시트를 다시 읽어 그 줄이 보이는지로 확인한다
    - 다만 한없이 다시 보내지는 않는다(같은 줄이 시트에 쌓인다)
    - 시트에서 온 기록은 되돌려 보내지 않는다(지운 줄이 되살아난다)
+   - 시트에서 없어진 줄은 여기서도 없앤다. 안 그러면 다른 기기에서 지운 학생이
+     계속 보이고, 이름을 고친 학생은 두 명이 된다
+   - 그래도 시트가 한 번도 가진 적 없는 줄은 지키다(되돌릴 수 없다)
    - 학부모가 연 공유 링크에서는 아무것도 받지도 보내지도 않는다
 
    실행 (먼저 저장소 루트에서 `python3 -m http.server 8931`):
@@ -235,6 +238,85 @@ async function confirmed(browser, errs) {
   await p.close();
 }
 
+/* ── 다른 기기에서 지우거나 고친 것이 여기까지 온다 ──────────────────────
+   사본이 **더하기만** 하고 있었다. 학원 PC 에서 학생을 지우면 시트는 고쳐지는데
+   노트북에는 옛 줄이 그대로 남았고, 이름을 고치면 옛 이름 줄이 남은 채 새 이름
+   줄이 시트에서 들어와 **한 학생이 두 명**이 됐다. */
+async function pruneGone(browser, errs) {
+  console.log('\n── 시트에서 없어진 줄은 여기서도 없어진다 ──');
+  const st = { calls: [], posts: [],
+               rows: [row('김서준', A60(1)), row('이하윤', A60(2)), row('박민준', A60(3))] };
+  const p = await browser.newPage();
+  p.on('pageerror', e => errs.push('정리: ' + e.message));
+  await stubSheet(p, st);
+  await p.goto(U, { waitUntil: 'networkidle' });
+  await p.waitForTimeout(2500);
+  const first = await p.evaluate(() => subs('jmchc-1').map(r => r.name));
+  chk('셋 다 받았다', first, ['김서준', '이하윤', '박민준']);
+
+  const resync = () => p.evaluate(() => new Promise(res => {
+    localStorage.setItem('chemistreal:final:lastsync', '0');
+    syncAllFromSheet(r => setTimeout(() => res({ r: r, names: subs('jmchc-1').map(x => x.name) }), 500), true);
+  }));
+
+  // 다른 기기에서 박민준을 지웠다
+  st.rows = st.rows.filter(r => r.name !== '박민준');
+  const del = await resync();
+  chk('지운 학생이 여기서도 사라진다', del.names, ['김서준', '이하윤']);
+  chk('몇 건을 정리했는지 알린다', del.r.dropped, 1);
+
+  // 다른 기기에서 이하윤 → 이하윤(고침) 으로 이름을 고쳤다
+  st.rows = st.rows.map(r => r.name === '이하윤' ? Object.assign({}, r, { name: '이하윤고침' }) : r);
+  const ren = await resync();
+  // 여기가 뒤집히면 한 학생이 두 명이 된다 — 옛 이름 줄이 안 없어지기 때문이다
+  chk('이름을 고치면 한 명 그대로', ren.names, ['김서준', '이하윤고침']);
+
+  // 시트 읽기가 엎어져도 {ok:true, rows:[]} 로 온다. 그걸 '전부 지워졌다' 로
+  // 읽으면 이 브라우저 기록이 통째로 날아간다.
+  st.rows = [];
+  const empty = await resync();
+  chk('빈 응답에 기록을 지우지 않는다', empty.names, ['김서준', '이하윤고침']);
+  chk('그때는 정리했다고 하지 않는다', empty.r.dropped, 0);
+
+  /* 다른 회차 줄만 왔을 때도 마찬가지다. 응답에 그 회차가 없는 것은
+     '그 회차가 비었다' 가 아니라 '모른다' 다. */
+  st.rows = [row('남의회차학생', A60(1), { examId: 'jmchc-2', exam: 'JMChC 2회' })];
+  const other = await resync();
+  chk('다른 회차만 왔을 때도 안 지운다', other.names, ['김서준', '이하윤고침']);
+  chk('그때도 정리하지 않는다', other.r.dropped, 0);
+  await p.close();
+}
+
+/* 아직 못 올린 줄과 출처를 모르는 옛 줄은 시트에 없어도 지우지 않는다.
+   시트가 한 번도 가진 적 없는 기록을 지우면 되돌릴 수 없다. */
+async function keepUnconfirmed(browser, errs) {
+  console.log('\n── 시트가 가진 적 없는 줄은 지키다 ──');
+  const st = { calls: [], posts: [], rows: [row('김서준', A60(1))] };
+  const p = await browser.newPage();
+  p.on('pageerror', e => errs.push('지키기: ' + e.message));
+  await stubSheet(p, st);
+  await p.goto(U, { waitUntil: 'networkidle' });
+  await p.waitForTimeout(2000);
+
+  const got = await p.evaluate(() => {
+    // 출처를 모르는 옛 줄(up 없음) 하나를 손으로 끼워 넣는다
+    const arr = subs('jmchc-1');
+    arr.push({ name: '옛기록', school: 'Z중', grade: '1', ts: 1,
+               correct: 0, total: 60, wrong: 60, ans: new Array(60).fill(4) });
+    saveSubs('jmchc-1', arr);
+    return new Promise(res => {
+      localStorage.setItem('chemistreal:final:lastsync', '0');
+      syncAllFromSheet(r => setTimeout(() => res({
+        r: r, names: subs('jmchc-1').map(x => x.name + ':' + (x.up === undefined ? '-' : x.up)),
+      }), 500), true);
+    });
+  });
+  chk('출처를 모르는 옛 줄은 남는다', got.names.indexOf('옛기록:-') >= 0, true);
+  chk('시트에서 온 줄은 확인 표시', got.names.indexOf('김서준:1') >= 0, true);
+  chk('지운 것이 없다', got.r.dropped, 0);
+  await p.close();
+}
+
 async function neverClobber(browser, errs) {
   console.log('\n── 입력 중인 화면을 갈아엎지 않는다 ──');
   const st = { calls: [], posts: [], rows: [row('김서준', A60(1))] };
@@ -329,6 +411,8 @@ async function oldSheetFallback(browser, errs) {
   await oneCall(browser, errs);
   await pendingUpload(browser, errs);
   await confirmed(browser, errs);
+  await pruneGone(browser, errs);
+  await keepUnconfirmed(browser, errs);
   await neverClobber(browser, errs);
   await sharedLinkQuiet(browser, errs);
   await oldSheetFallback(browser, errs);
