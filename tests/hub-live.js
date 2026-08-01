@@ -45,11 +45,15 @@ const chk = (n, got, want) => {
   /* 앱스크립트를 가로챈다. DT 는 **빈 명단**으로 답한다 — 여기서 학생을 보태면
      아래 명단 검사가 흔들린다. 목적은 하나, 셸이 DT 를 몇 번 두드리는지 세는 것. */
   const dtHits = [];
+  const DT_EP = 'AKfycbzvFaPXgEgCBQ8HowtP8tPTtdiIVFtmZSUf0KFXUOVOh3ektrFMkz4KSR4I52LDBzB8rw';
   await p.route('**/macros/s/**', route => {
     const u = new URL(route.request().url());
     const cb = u.searchParams.get('callback'), act = u.searchParams.get('action');
-    if (act === 'names' || act === 'pending') dtHits.push(act);
-    const body = act === 'names' ? { ok: true, classes: [] }
+    const isDT = u.pathname.includes(DT_EP);
+    // KMChC 도 'names' 를 쓴다. 앱을 가려 세지 않으면 이 검사가 뭘 세는지 모른다.
+    if (isDT && (act === 'names' || act === 'pending')) dtHits.push(act);
+    const body = (isDT && act === 'names') ? { ok: true, classes: [] }
+               : act === 'names' ? { ok: true, students: [] }      // KMChC
                : act === 'pending' ? { ok: true, pending: [] }
                : { ok: true, rows: [] };
     return route.fulfill({ status: 200, contentType: 'application/javascript',

@@ -155,13 +155,13 @@ console.log('\n── 셸이 남의 데이터를 건드리지 않는다 ──')
   chk('localStorage 에 쓰지 않는다', /localStorage\.setItem/.test(body), false);
   chk('localStorage 를 비우지 않는다', /localStorage\.(clear|removeItem)/.test(body), false);
   chk('앱스크립트에 POST 하지 않는다', /method\s*:\s*['"]POST/i.test(body), false);
-  /* DT 를 부르는 곳은 dtOnce 한 곳뿐이고, 거기 넘기는 것은 읽기 액션 둘뿐이다.
-     한 곳으로 모으기 전에는 action 문자열을 그대로 세면 됐는데, 이제는 부르는
-     쪽을 세야 같은 것을 지킨다 — 지키는 것은 그대로다. */
-  chk('DT 를 부르는 곳은 한 곳뿐', (body.match(/jsonp\(APPS\.\w+\.ep/g) || []), ["jsonp(APPS.dt.ep"]);
+  /* 남의 앱스크립트를 부르는 곳은 readOnce 한 곳뿐이고, 거기 넘기는 것은 읽기
+     액션뿐이다. 한 곳으로 모으기 전에는 action 문자열을 그대로 세면 됐는데,
+     이제는 부르는 쪽을 세야 같은 것을 지킨다 — 지키는 것은 그대로다. */
+  chk('남의 앱을 부르는 곳은 한 곳뿐', (body.match(/jsonp\(APPS\[?\w*\]?\.?\w*\.ep/g) || []), ['jsonp(APPS[app].ep']);
   chk('읽기 액션만 부른다',
-      (body.match(/dtOnce\('(\w+)'/g) || []).sort(),
-      ["dtOnce('names'", "dtOnce('pending'"]);
+      (body.match(/readOnce\('\w+', '(\w+)'|dtOnce\('(\w+)'/g) || []).sort(),
+      ["dtOnce('names'", "dtOnce('pending'", "readOnce('km', 'names'"]);
 
   /* 한 앱이 응답하지 않아도 화면이 비면 안 된다. 앱스크립트는 그냥 안 돌아올
      때가 있어서, 타임아웃이 없으면 셸이 영원히 '불러오는 중'에 멈춘다. */
@@ -339,7 +339,13 @@ console.log('\n── 망을 기다리느라 화면을 비워 두지 않는다 �
   const lr = cut('loadRoster');
   chk('DT 를 부르기 전에 먼저 그린다',
       lr.indexOf('refreshLocal();') < lr.indexOf('dtRoster()'), true);
-  chk('DT 가 실패해도 다시 그린다', /\}\).then\(function\(\)\{\s*\n\s*refreshLocal\(\);/.test(lr), true);
+  chk('실패해도 다시 그린다', /\]\)\.then\(function\(\)\{[\s\S]{0,200}refreshLocal\(\);/.test(lr), true);
+  /* 한쪽이 조용해도 다른 쪽은 얹혀야 한다. 하나를 기다리다 둘 다 못 보여 주면
+     앱스크립트가 느린 날 명단이 통째로 빈다. */
+  chk('두 앱을 함께 부른다', /Promise\.all\(\[/.test(lr), true);
+  chk('한쪽이 죽어도 나머지는 얹는다',
+      (lr.match(/\.catch\(function\(e\)\{ miss\.push\(/g) || []).length, 2);
+  chk('못 받은 것을 말해 준다', /note\('stuNote', miss\.join/.test(lr), true);
 }
 
 console.log('\n── DT 를 다시 그릴 때마다 두드리지 않는다 ──');
@@ -349,20 +355,63 @@ console.log('\n── DT 를 다시 그릴 때마다 두드리지 않는다 ─�
      13번, 탭 다섯 번 오가면 10번이 더 나갔다. 앱스크립트는 실행을 한 줄로 세우니
      뒤엣것은 한참을 기다리고, 그동안 화면의 DT 숫자는 '…' 로 돌아가 있다. */
   const body = SRC.split('<script>')[1] || '';
-  const once = cut('dtOnce');
-  chk('한 창구로만 부른다', /function dtOnce\(action, force\)/.test(body), true);
+  const once = cut('readOnce');
+  chk('한 창구로만 부른다', /function readOnce\(app, action, shape, force\)/.test(body), true);
   chk('받아 둔 것을 쓴다', /if\(!force && c\.val && \(Date\.now\(\)-c\.at\) < DT_TTL\)/.test(once), true);
   chk('동시에 물으면 하나로 합친다', /if\(c\.inflight\) return c\.inflight;/.test(once), true);
   // 실패한 것을 담아 두면 다음에도 계속 틀린 값을 쓴다
   chk('실패는 담아 두지 않는다', /catch\(function\(e\)\{ c\.inflight = null; throw e; \}\)/.test(once), true);
+  // 앱마다 열쇠가 갈려야 한다 — 'names' 하나로 묶으면 DT 명단이 KMChC 를 덮는다
+  chk('앱별로 따로 담는다', /const key = app\+':'\+action;/.test(once), true);
   chk('명단·미완료 모두 그 창구를 쓴다',
       /function dtRoster\(force\)\{ return dtOnce\('names', force\); \}/.test(body) &&
       /function dtPending\(force\)\{ return dtOnce\('pending', force\); \}/.test(body), true);
   // 이미 아는 숫자를 물음표로 되돌리면 채점하는 날 내내 '…' 만 보인다
   const rd = cut('renderDash');
   chk('아는 숫자를 …로 되돌리지 않는다', /dtKnown\? dtKnown\.length : '…'/.test(rd), true);
-  chk('직접 jsonp 로 DT 를 부르는 곳이 없다',
-      (body.match(/jsonp\(APPS\.dt\.ep/g) || []).length, 1);
+}
+
+console.log('\n── KMChC 도 명단에 합친다 ──');
+{
+  /* 여기만 읽을 창구가 없어서, KMChC 를 본 학생은 셸에 아예 안 나왔다.
+     같은 학생인데 파이널·DT 에서만 보이니 '전 과목 기록' 이 반쪽이었다. */
+  const body = SRC.split('<script>')[1] || '';
+  chk('KMChC 주소가 채워졌다', /km:\s*\{[\s\S]{0,160}ep:'https:\/\/script\.google\.com/.test(body), true);
+  chk('KMChC 명단을 읽는 길이 있다', /function kmRoster\(force\)/.test(body), true);
+  const km = cut('kmRoster');
+  chk('같은 캐시를 쓴다', /readOnce\('km', 'names'/.test(km), true);
+  // 이 시트에는 학교 열이 없다. 없는 것을 지어내면 안 된다
+  chk('학교는 빈칸으로 둔다', /school:''/.test(km), true);
+  chk('리포트 주소를 들고 온다', /kmLink:s\.link/.test(km), true);
+  chk('명단에 얹는다', /if\(KM_ROWS\) sources\.push\(\{ app:'km', students: KM_ROWS \}\)/.test(body), true);
+
+  /* 학교 열이 없는 앱은 이름만으로 붙여 준다 — 안 그러면 같은 아이가 두 줄이다. */
+  const merged = ctx.mergeRosters([
+    { app:'exam', students:[{ name:'홍길동', school:'휘문중', grade:'2', count:3 }] },
+    { app:'km',   students:[{ name:'홍길동', school:'', grade:'2', count:1 }], noSchool:true },
+  ]);
+  chk('학교 없는 앱은 한 사람으로 붙는다', merged.length, 1);
+  chk('붙으면 학교가 남는다', merged[0].school, '휘문중');
+  chk('두 앱에서 왔다고 남는다', Object.keys(merged[0].apps).sort(), ['exam','km']);
+  chk('횟수가 더해진다', merged[0].n, 4);
+
+  /* 그래도 동명이인이면 붙이지 않는다. 기계가 골라 붙이면 남의 성적이 남의
+     이름 밑에 들어가고, 그건 되돌릴 수 없다. */
+  const two = ctx.mergeRosters([
+    { app:'exam', students:[{ name:'김민준', school:'휘문중', grade:'2' },
+                            { name:'김민준', school:'대원국제중', grade:'2' }] },
+    { app:'km',   students:[{ name:'김민준', school:'', grade:'2' }], noSchool:true },
+  ]);
+  chk('동명이인이면 그냥 둔다', two.length, 3);
+
+  // 파이널에서 학교를 안 적은 줄은 예전대로 따로 둔다(모르는 것이지 없는 것이 아니다)
+  const blank = ctx.mergeRosters([
+    { app:'exam', students:[{ name:'박서준', school:'', grade:'' }] },
+    { app:'dt',   students:[{ name:'박서준', school:'B중', grade:'1' }] },
+  ]);
+  chk('학교를 안 적은 줄은 그대로 따로', blank.length, 2);
+
+  chk('임시 표시가 명단에 새지 않는다', merged[0].noSch, undefined);
 }
 
 console.log('\n── 이 숫자가 어디까지의 숫자인지 적는다 ──');
