@@ -130,9 +130,13 @@ for it in bank:
     # G10 평문 위반 — 은행은 평문이다. 마크다운 강조가 그대로 학생에게 노출된다.
     #   ★T12 P1 2차·P3 2차·P3 4차에서 세 번 발생★ 전부 '수정하면서' 들어갔다.
     #   설계 문서를 쓰던 손으로 해설을 고치면 강조 표기가 딸려 온다 — 기계로 막는다.
+    #   ★감사36 확장★ '★' 도 막는다. 이 표시는 설계 문서의 내부 강조인데 M01812 자가진단에
+    #   "★핵이 아직 없다★" 가 그대로 남아 학생 화면으로 샜다. 은행 전체에서 그 한 건뿐이었으니
+    #   관례가 아니라 유출이다. ★검사가 '**' 만 보고 있어서 게이트를 통과했다.★
     for field in ('stem', 'solution'):
-        if '**' in str(it.get(field, '')):
-            errs.append(f"G10 {field} 에 마크다운 강조(**) — 은행은 평문")
+        for mark in ('**', '★'):
+            if mark in str(it.get(field, '')):
+                errs.append(f"G10 {field} 에 강조 표기({mark}) — 은행은 평문")
     # 필수 의도서
     if not it.get('answer_proof'): errs.append("G1 증명 없음")
     if not it.get('device'): errs.append("G4 장치 없음")

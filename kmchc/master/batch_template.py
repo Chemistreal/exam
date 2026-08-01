@@ -48,8 +48,13 @@ except ImportError:
 
 # ─────────────────────────── 헬퍼 ───────────────────────────
 def mk(id, skill, track, dok, diff, esr, stem, choices, ans, proof, wrongs,
-       device, calc, scen, aexpr=None):
-    """문항 1개 생성. wrongs = [(오답텍스트, 오류사유, 'proc|sign|surface'[, expr]), ...]"""
+       device, calc, scen, aexpr=None, obj=None):
+    """문항 1개 생성. wrongs = [(오답텍스트, 오류사유, 'proc|sign|surface'[, expr]), ...]
+
+    obj = objective(출제 의도). ★감사36 에서 mk 가 이 칸을 아예 안 넣는 것이 드러났다★ —
+    스키마 확장 때 기존 1,816제에는 자리를 만들었는데 도구를 고치지 않아
+    그 뒤에 만든 M01817~M01886 70제가 통째로 결손이었다.
+    비워 두면 verify 가 경고한다. skill 의 되풀이가 아니라 '무엇을 재려는가' 를 적을 것."""
     ds = []
     for w in wrongs:
         dd = {"opt": choices.index(w[0]), "error": w[1], "type": w[2]}
@@ -61,7 +66,8 @@ def mk(id, skill, track, dok, diff, esr, stem, choices, ans, proof, wrongs,
           "stem": stem, "choices": choices, "answer": ans, "answer_proof": proof,
           "distractors": sorted(ds, key=lambda x: x['opt']),
           "device": device, "calc_check": calc, "scenario": scen,
-          "linked_concepts": [THEME], "source": "hand-crafted"}
+          "linked_concepts": [THEME], "source": "hand-crafted",
+          "objective": obj or ""}
     if aexpr:                      # ★G1: 정답 보기가 순수 수치일 때만★
         it["answer_expr"] = aexpr
     return it
@@ -135,6 +141,11 @@ def verify(items):
     """G1/G3/G3b/G6 + 해설 길이·구조 + expr 검산 + 위치·길이순위 분포. 문제 목록 반환."""
     issues = []
     for it in items:
+        # ★감사36 신설★ objective(출제 의도) 결손 검사.
+        #   mk 가 이 칸을 안 넣어 M01817~M01886 70제가 통째로 비어 있었다.
+        #   도구가 안 보면 사람은 잊는다 — 배치 검증에서 막는다.
+        if not it.get('objective'):
+            issues.append((it['id'], 'objective 없음 — mk(..., obj=) 로 출제 의도를 적을 것', [], 0))
         ln, a = [len(x) for x in it['choices']], it['answer']
         if (ln[a] == max(ln) and ln.count(max(ln)) == 1):
             issues.append((it['id'], 'G3 정답 유일최장', ln, a))
