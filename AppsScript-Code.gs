@@ -160,6 +160,8 @@ function _recomputeConfigFor(title) {
  *   ?action=list&exam=<시험ID>&callback=<함수명>  →  callback({students:[...]})
  *   ?action=history&name=<이름>&callback=<함수명>  →  callback({rows:[...]})
  *     한 학생의 전 회차. 어느 기기에서 채점했든 시트에 다 있다.
+ *   ?action=all&callback=<함수명>                 →  callback({rows:[...],n:N})
+ *     시트 전체를 한 번에. 회차마다 묻던 것을 대신한다.
  * 요청 시험 id를 제목으로 바꿔, '시험' 열이 일치하는 행만 돌려준다(시험 섞임 방지).
  * 매핑에 없는 id면 거르지 않고 전체를 돌려준다(하위호환). 브라우저로 열면 상태만 표시.
  */
@@ -193,41 +195,66 @@ function _idOfTitle_(title) {
   }
   return _TITLE2ID_[String(title || '')] || '';
 }
-function historyFor_(name, cb) {
-  var key = _histKey_(name), out = [];
-  if (key) try {
+/* ── 시트의 응시 기록을 앱이 쓰는 모양으로 ─────────────────────────────
+   한 학생만 뽑을 때(history)와 전부 뽑을 때(all)가 같은 자리를 읽는다.
+   두 벌로 두면 한쪽만 고쳐져 어긋난다 — 실제로 '학교·학년을 안 돌려준다' 는
+   버그가 list 쪽에만 있었다.
+
+   key 를 주면 그 학생만, 안 주면 전부. */
+function _recordRows_(key) {
+  var out = [];
+  try {
     var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('성적기록');
-    if (sh && sh.getLastRow() > 1) {
-      var rows = sh.getRange(2, 1, sh.getLastRow() - 1, HEADER.length).getValues();
-      for (var i = 0; i < rows.length; i++) {
-        var r = rows[i];
-        if (_histKey_(r[1]) !== key) continue;
-        var ans = String(r[16] || '').replace(/^'/, '').replace(/[^0-4]/g, '');
-        if (!ans) continue;
-        var eid = _idOfTitle_(r[0]);
-        if (!eid) continue;                    // 표에 없는 제목은 앱이 못 찾는다
-        out.push({
-          examId: eid,
-          exam: String(r[0] || ''),
-          name: String(r[1] || ''),
-          school: String(r[6] || ''),
-          grade: String(r[7] || ''),
-          answers: ans,
-          ts: (r[3] instanceof Date) ? r[3].getTime() : 0
-        });
-      }
+    if (!sh || sh.getLastRow() <= 1) return out;
+    var rows = sh.getRange(2, 1, sh.getLastRow() - 1, HEADER.length).getValues();
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i];
+      if (key && _histKey_(r[1]) !== key) continue;
+      var ans = String(r[16] || '').replace(/^'/, '').replace(/[^0-4]/g, '');
+      if (!ans) continue;
+      var eid = _idOfTitle_(r[0]);
+      if (!eid) continue;                    // 표에 없는 제목은 앱이 못 찾는다
+      out.push({
+        examId: eid,
+        exam: String(r[0] || ''),
+        name: String(r[1] || ''),
+        school: String(r[6] || ''),
+        grade: String(r[7] || ''),
+        answers: ans,
+        ts: (r[3] instanceof Date) ? r[3].getTime() : 0
+      });
     }
   } catch (err) {}
-  var body = JSON.stringify({ ok: true, rows: out });
+  return out;
+}
+function _jsonOut_(body, cb) {
   return cb
     ? ContentService.createTextOutput(cb + '(' + body + ')').setMimeType(ContentService.MimeType.JAVASCRIPT)
     : ContentService.createTextOutput(body).setMimeType(ContentService.MimeType.JSON);
+}
+function historyFor_(name, cb) {
+  var key = _histKey_(name);
+  return _jsonOut_(JSON.stringify({ ok: true, rows: key ? _recordRows_(key) : [] }), cb);
+}
+/* ── 시트 전체를 한 번에 ────────────────────────────────────────────────
+   ?action=all&callback=<함수명>  →  callback({ok:true, rows:[...]})
+
+   예전에는 회차마다 한 번씩 물었다. 서른여덟 번이다. 한 번에 12초를 기다리니
+   최악이면 7분 반이 걸렸고, 그래서 '시트에서 불러오기' 는 아무도 안 누르는
+   버튼이 됐다 — 결국 화면에 뜨는 것은 늘 이 브라우저에 남은 것뿐이었다.
+
+   한 번에 다 준다. 회차 수와 무관하게 한 번이라, 페이지를 열 때마다 조용히
+   맞출 수 있다. 그래야 어느 기기에서 열어도 같은 것이 보인다. */
+function allRows_(cb) {
+  var rows = _recordRows_('');
+  return _jsonOut_(JSON.stringify({ ok: true, rows: rows, n: rows.length }), cb);
 }
 
 function doGet(e) {
   var p = (e && e.parameter) || {};
   var cb = p.callback;
   if (p.action === 'history') return historyFor_(p.name, cb);
+  if (p.action === 'all') return allRows_(cb);
   if (p.action === 'list') {
     var students = [];
     try {

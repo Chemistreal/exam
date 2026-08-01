@@ -266,8 +266,15 @@ console.log('\n── 다시 그릴 때 되풀이하지 않는다 ──');
 console.log('\n── 시트 쪽 창구 ──');
 {
   chk('학생 단위 조회가 있다', /if \(p\.action === 'history'\) return historyFor_\(p\.name, cb\);/.test(GAS), true);
-  const fn = cut(GAS, 'historyFor_');
+  /* 행을 읽는 자리는 한 학생만 뽑을 때(history)와 전부 뽑을 때(all)가 같다.
+     두 벌로 두면 한쪽만 고쳐져 어긋난다 — 실제로 '학교·학년을 안 준다' 는
+     버그가 list 쪽에만 있었다. 아래 규칙들은 그 한 자리를 본다. */
+  chk('한 학생만 뽑을 때도 그 자리를 쓴다',
+      /function historyFor_[\s\S]{0,300}_recordRows_\(key\)/.test(GAS), true);
+  const fn = cut(GAS, '_recordRows_');
   chk('이름의 공백을 지우고 견준다', /_histKey_\(r\[1\]\) !== key/.test(fn), true);
+  // 이름을 안 주면(all) 거르지 않는다. 여기가 뒤집히면 전체 조회가 빈 배열이다
+  chk('이름을 안 주면 전부 준다', /if \(key && _histKey_/.test(fn), true);
   chk('답안이 없는 행은 넘긴다', /if \(!ans\) continue;/.test(fn), true);
   chk('앞에 붙은 따옴표를 뗀다', /replace\(\/\^'\/, ''\)/.test(fn), true);
   chk('저장시각을 함께 준다', /ts: \(r\[3\] instanceof Date\)/.test(fn), true);

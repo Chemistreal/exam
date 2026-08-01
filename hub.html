@@ -768,7 +768,10 @@ function loadRoster(){
    합치는 것은 사람이 한다 — 동명이인을 기계가 합치면 되돌릴 수 없다.
    ══════════════════════════════════════════════════════════════════ */
 const SYNC_KEY='chemistreal:final:lastsync';
-const SYNC_STALE = 12*3600*1000;          // 반나절
+/* 반나절이었다. 회차마다 한 번씩 서른여덟 번을 물어야 해서 자주 돌릴 수가
+   없었는데, 이제 한 번에 받는다(action=all). 열 때마다 사실상 맞는다 —
+   어느 기기에서 어떻게 들어와도 같은 숫자가 나와야 한다. */
+const SYNC_STALE = 10*60*1000;            // 10분
 function lastSyncAt(){ try{ return +(localStorage.getItem(SYNC_KEY)||0)||0; }catch(e){ return 0; } }
 function ago(ts){
   if(!ts) return null;
