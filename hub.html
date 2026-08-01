@@ -150,6 +150,14 @@ td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:righ
 .mini:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .mini.done{border-color:var(--ok);color:var(--ok)}
 .mini.msg{margin-left:8px;white-space:nowrap}
+.connbar{display:flex;flex-wrap:wrap;gap:6px;margin:-2px 0 12px}
+.conn{display:inline-flex;align-items:baseline;gap:5px;font-size:11.5px;font-weight:700;
+  border:1px solid var(--line-2);border-radius:999px;padding:3px 10px;color:var(--ink-2);background:var(--paper)}
+.conn small{font-weight:600;font-size:10.5px;opacity:.75}
+.conn.ok{border-color:rgba(47,122,90,.4);color:var(--ok)}
+.conn.bad{border-color:rgba(176,81,47,.45);color:#8a2f1d;background:rgba(176,81,47,.05)}
+.conn.warn{border-color:rgba(176,135,58,.45);color:#7a5d20}
+.conn.wait{opacity:.7}
 .mini.copied{border-color:var(--ok);color:var(--ok);background:rgba(47,122,90,.06)}
 .mini[disabled]{opacity:.55;cursor:progress}
 .trk__i{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -190,6 +198,7 @@ tr.pick:hover td{background:var(--wash)}
         탭은 <span class="kbd">1</span>–<span class="kbd">7</span>, 찾기는 <span class="kbd">/</span>.</p>
       <div class="cards" id="dashCards"><div class="card"><b>—</b><span>불러오는 중</span></div></div>
       <p class="hint" id="srcNote"></p>
+      <div id="connBar" class="connbar"></div>
       <div id="syncBar" class="note" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <span id="syncMsg">시트 상태를 확인하는 중…</span>
         <span style="flex:1"></span>
@@ -465,9 +474,14 @@ function readOnce(app, action, shape, force){
   c.inflight = jsonp(APPS[app].ep, { action:action }).then(function(d){
     if(!d || !d.ok) throw new Error((d&&d.error)||'응답 오류');
     c.val = shape(d);
-    c.at = Date.now(); c.inflight = null;
+    c.at = Date.now(); c.inflight = null; c.err = '';
+    renderConn();
     return c.val;
-  }).catch(function(e){ c.inflight = null; throw e; });
+  }).catch(function(e){
+    c.inflight = null; c.err = e.message || '실패';
+    renderConn();
+    throw e;
+  });
   return c.inflight;
 }
 function dtOnce(action, force){
@@ -546,6 +560,44 @@ function kmRoster(force){
 }
 /* 이미 받아 둔 값. 없으면 null — 화면은 그때만 '…' 를 쓴다. */
 function dtCached(action){ const c=DT_CACHE['dt:'+action]; return c && c.val; }
+
+/* ── 어느 앱이 대답하고 있나 ──────────────────────────────────────────
+   DT 는 **한 해 내내 대답하지 않고 있었다.** 셸이 JSONP 로 부르는데 저쪽이
+   콜백을 무시하고 순수 JSON 을 줘서, 받는 쪽 브라우저가 그걸 자바스크립트로
+   실행하려다 죽었다. 화면에는 '…' 와 '—' 만 남았고, 그게 '아직 불러오는 중'
+   인지 '고장' 인지 구별할 길이 없었다.
+
+   숫자가 비어 있을 때 **왜 비었는지**를 말해 준다. 고장은 눈에 보여야 고쳐진다. */
+const CONN = [
+  { key:'sheet', name:'파이널 시트' },
+  { key:'dt:names', name:'DT 명단' },
+  { key:'dt:pending', name:'DT 미완료' },
+  { key:'dt:passed', name:'DT 통과' },
+  { key:'km:names', name:'KMChC 명단' },
+];
+function renderConn(){
+  const el = document.getElementById('connBar'); if(!el) return;
+  const bits = CONN.map(function(c){
+    if(c.key === 'sheet'){
+      const at = lastSyncAt();
+      if(SYNCING) return chip(c.name, 'wait', '맞추는 중');
+      if(!at) return chip(c.name, 'bad', '맞춘 적 없음');
+      return chip(c.name, 'ok', ago(at));
+    }
+    const s = DT_CACHE[c.key];
+    if(!s || (!s.val && !s.err && !s.inflight)) return chip(c.name, 'wait', '아직');
+    if(s.inflight && !s.val) return chip(c.name, 'wait', '부르는 중');
+    if(s.err && !s.val) return chip(c.name, 'bad', s.err);
+    if(s.err) return chip(c.name, 'warn', '옛 값 · '+s.err);
+    return chip(c.name, 'ok', (s.val.length!=null? s.val.length+'건' : '정상'));
+  });
+  el.innerHTML = bits.join('');
+  function chip(name, state, why){
+    const mark = state==='ok' ? '✓' : state==='bad' ? '✗' : '…';
+    return '<span class="conn '+state+'" title="'+esc(name+' · '+why)+'">'+
+           mark+' '+esc(name)+'<small>'+esc(why)+'</small></span>';
+  }
+}
 
 /* ── 탭 ─────────────────────────────────────────────────────────── */
 const TABS = ['dash','stu','rnd','exam','dt','km','mat'];
@@ -1079,6 +1131,7 @@ function renderSourceNote(){
 }
 function renderSyncBar(){
   renderSourceNote();
+  renderConn();
   const at=lastSyncAt(), msg=document.getElementById('syncMsg');
   const btn=document.getElementById('syncNow'); if(!msg||!btn) return;
   if(SYNCING){ msg.textContent='시트에서 불러오는 중… 끝나면 숫자가 저절로 바뀝니다.'; btn.disabled=true; return; }

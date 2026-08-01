@@ -361,7 +361,10 @@ console.log('\n── DT 를 다시 그릴 때마다 두드리지 않는다 ─�
   chk('받아 둔 것을 쓴다', /if\(!force && c\.val && \(Date\.now\(\)-c\.at\) < DT_TTL\)/.test(once), true);
   chk('동시에 물으면 하나로 합친다', /if\(c\.inflight\) return c\.inflight;/.test(once), true);
   // 실패한 것을 담아 두면 다음에도 계속 틀린 값을 쓴다
-  chk('실패는 담아 두지 않는다', /catch\(function\(e\)\{ c\.inflight = null; throw e; \}\)/.test(once), true);
+  // 실패한 것을 val 에 담아 두면 다음에도 계속 틀린 값을 쓴다(다시 물어야 한다)
+  chk('실패는 담아 두지 않는다',
+      /catch\(function\(e\)\{[\s\S]{0,160}c\.inflight = null;[\s\S]{0,160}throw e;/.test(once) &&
+      !/c\.val = /.test(once.split('catch(function(e){')[1] || ''), true);
   // 앱마다 열쇠가 갈려야 한다 — 'names' 하나로 묶으면 DT 명단이 KMChC 를 덮는다
   chk('앱별로 따로 담는다', /const key = app\+':'\+action;/.test(once), true);
   chk('명단·미완료 모두 그 창구를 쓴다',
@@ -474,6 +477,31 @@ console.log('\n── DT 문자를 셸에서 바로 복사한다 ──');
   const dOnce = cut('dtOnce');
   chk('미완료는 active 만 센다', /\(p && p\.active\) \|\| \[\]/.test(dOnce), true);
   chk('배열로 와도 받는다', /Array\.isArray\(p\)/.test(dOnce), true);
+}
+
+console.log('\n── 어느 앱이 대답하는지 보여 준다 ──');
+{
+  /* DT 는 **한 해 내내 대답하지 않고 있었다.** 셸이 JSONP 로 부르는데 저쪽이
+     콜백을 무시하고 순수 JSON 을 줘서, 받는 쪽이 그걸 자바스크립트로 실행하려다
+     죽었다. 화면에는 '…' 와 '—' 만 남았고, '아직 불러오는 중' 인지 '고장' 인지
+     구별할 길이 없어 아무도 눈치채지 못했다. */
+  const body = SRC.split('<script>')[1] || '';
+  chk('연결 줄 자리가 있다', /id="connBar"/.test(SRC), true);
+  chk('연결 줄을 그린다', /function renderConn\(\)/.test(body), true);
+  const conn = cut('renderConn');
+  chk('앱마다 한 칸씩', /const CONN = \[/.test(body), true);
+  chk('시트·DT·KMChC 를 다 본다',
+      /'sheet'[\s\S]{0,400}'dt:names'[\s\S]{0,200}'dt:pending'[\s\S]{0,200}'dt:passed'[\s\S]{0,200}'km:names'/.test(body), true);
+  // '아직' 과 '고장' 을 구별해야 눈치챌 수 있다
+  chk('부르는 중과 실패를 가른다',
+      /inflight && !s\.val\) return chip\(c\.name, 'wait'/.test(conn) &&
+      /s\.err && !s\.val\) return chip\(c\.name, 'bad'/.test(conn), true);
+  chk('왜 안 되는지 적는다', /chip\(c\.name, 'bad', s\.err\)/.test(conn), true);
+  // 읽기가 끝나거나 엎어질 때마다 다시 그려야 실시간으로 보인다
+  const once = cut('readOnce');
+  chk('성공해도 실패해도 다시 그린다',
+      (once.match(/renderConn\(\);/g) || []).length, 2);
+  chk('실패 사유를 남긴다', /c\.err = e\.message/.test(once), true);
 }
 
 console.log('\n── 이 숫자가 어디까지의 숫자인지 적는다 ──');
