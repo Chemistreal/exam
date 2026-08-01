@@ -189,6 +189,15 @@ def verify(items):
                                      f"{'-'.join(str(a+1) for a in seq)} — 차례를 흩을 것", '', ''))
             break
 
+    # ★G3e — 한 번호가 세 번 넘게 나오면서 ★간격이 모두 같으면★ 그 번호는 예측된다.
+    #   전체 차례가 주기적이지 않아도 걸린다. T12 P14 는 ① 이 2·6·10 으로 정확히 4 간격이었다.
+    for v in set(seq):
+        pos = [k for k, a in enumerate(seq) if a == v]
+        if len(pos) >= 3 and len({pos[k + 1] - pos[k] for k in range(len(pos) - 1)}) == 1:
+            issues.append(('[배치]', f"G3e 정답 {CIR[v]} 이 {[p+1 for p in pos]} 번으로 "
+                                     f"간격 {pos[1]-pos[0]} 씩 고르게 놓임 — 한 자리를 옮길 것",
+                           '', ''))
+
     pp = Counter(it['answer'] for it in items)
     print(f"위치: ①{pp[0]} ②{pp[1]} ③{pp[2]} ④{pp[3]}"
           f" | 길이순위: " + " ".join(f"{r}위{rr.get(r,0)}" for r in (1, 2, 3, 4))
