@@ -54,9 +54,9 @@ import json, os
 
 BANK = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'master_bank.json')
 
-LAYER5 = ('F1~F7 통과 · 에이전트 10차 순회에서 solver·defender·factchecker 동시 0건 '
-          '(조치 12→12→7→4→3→7→7→7→3→0). defender 는 8·9차에 잇달아 0건이었고 '
-          '9차 조치가 해설만 건드려 입력(발문·선지·정답)이 그대로여서 10차에는 돌리지 않았다')
+LAYER5 = ('F1~F7 통과 · 에이전트 13차 순회에서 solver·defender·factchecker 동시 0건 '
+          '(조치 12→12→7→4→3→7→7→7→3→4→3→1→0). solver 는 10차에, defender 는 8·9차에 '
+          '0건이었고 그 뒤 조치가 해설만 건드려 두 검증자의 입력(발문·선지·정답)이 그대로여서 11~13차에는 factchecker 만 돌렸다')
 AT = '층5-P13'
 
 WATCH = {
