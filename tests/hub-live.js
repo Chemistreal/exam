@@ -52,9 +52,14 @@ const chk = (n, got, want) => {
     const isDT = u.pathname.includes(DT_EP);
     // KMChC 도 'names' 를 쓴다. 앱을 가려 세지 않으면 이 검사가 뭘 세는지 모른다.
     if (isDT && (act === 'names' || act === 'pending')) dtHits.push(act);
+    const D = 86400000, now = Date.now();
     const body = (isDT && act === 'names') ? { ok: true, classes: [] }
                : act === 'names' ? { ok: true, students: [] }      // KMChC
                : act === 'pending' ? { ok: true, pending: [] }
+               : act === 'cohortmis' ? { ok: true, rows: [
+                   { studentKey: 's1', date: new Date(now - 2 * D).toISOString(), wrongMis: ['몰농도', '완충'] },
+                   { studentKey: 's2', date: new Date(now - 3 * D).toISOString(), wrongMis: ['몰농도'] },
+                 ] }
                : { ok: true, rows: [] };
     return route.fulfill({ status: 200, contentType: 'application/javascript',
                            body: cb + '(' + JSON.stringify(body) + ')' });
@@ -276,6 +281,20 @@ const chk = (n, got, want) => {
     console.log('  ' + src);
     chk('숫자 밑에 출처가 적힌다',
         /이 브라우저 기록만|시트까지 반영된|받아오는 중/.test(src), true);
+  }
+
+  console.log('\n── 요즘 반이 어려워하는 개념 ──');
+  {
+    await p.evaluate(() => show('dash'));
+    await p.waitForTimeout(600);
+    const mis = await p.evaluate(() => ({
+      shown: !document.getElementById('misWrap').hidden,
+      rows: [].map.call(document.querySelectorAll('#misList .row'),
+        r => r.querySelector('.nm').textContent + ':' + r.querySelector('.cnt').textContent),
+    }));
+    chk('집계가 화면에 뜬다', mis.shown, true);
+    // 두 학생이 걸린 것이 위, 한 명짜리가 아래
+    chk('많이 걸린 것부터', mis.rows, ['몰농도:2명', '완충:1명']);
   }
 
   chk('콘솔에 예외가 없다', errs.filter(e => !/Failed to fetch|ERR_/.test(e)), []);
