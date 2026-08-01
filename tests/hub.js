@@ -162,7 +162,7 @@ console.log('\n── 셸이 남의 데이터를 건드리지 않는다 ──')
   chk('읽기 액션만 부른다',
       (body.match(/readOnce\('\w+', '(\w+)'|dtOnce\('(\w+)'/g) || []).sort(),
       ["dtOnce('names'", "dtOnce('pending'",
-       "readOnce('dt', 'cohortmis'", "readOnce('km', 'names'"]);
+       "readOnce('dt', 'cohortmis'", "readOnce('dt', 'passed'", "readOnce('km', 'names'"]);
 
   /* 한 앱이 응답하지 않아도 화면이 비면 안 된다. 앱스크립트는 그냥 안 돌아올
      때가 있어서, 타임아웃이 없으면 셸이 영원히 '불러오는 중'에 멈춘다. */
@@ -442,6 +442,38 @@ console.log('\n── DT 오개념을 셸로 끌어온다 ──');
   chk('날짜 없는 줄은 뺀다', top.map(t => t.tag).indexOf('날짜없음'), -1);
   chk('빈 태그는 세지 않는다', top.length, 2);
   chk('빈 입력에도 안 죽는다', [ctx.misTally(null), ctx.misTally([])], [[], []]);
+}
+
+console.log('\n── DT 문자를 셸에서 바로 복사한다 ──');
+{
+  /* 문자를 복사하려면 DT 의 pending.html 로 넘어가야 했다. 채점하다 말고
+     페이지를 옮기는 일이라, 셸에서 다 볼 수 있는데도 거기서 끝나지 않았다. */
+  const body = SRC.split('<script>')[1] || '';
+  chk('통과 목록을 읽는 길이 있다', /function dtPassed\(force\)/.test(body), true);
+  chk('같은 캐시를 쓴다', /readOnce\('dt', 'passed'/.test(cut('dtPassed')), true);
+  chk('통과 자리가 화면에 있다', /id="passWrap"/.test(SRC) && /id="passList"/.test(SRC), true);
+  chk('문자 단추가 두 목록에 다 있다',
+      /data-pend="/.test(body) && /data-pass="/.test(body), true);
+
+  /* 문구를 여기에 베껴 두면 언젠가 두 벌이 갈라지고, 학부모는 같은 상황에서
+     서로 다른 문자를 받는다. 성적표 링크를 파이널에서 빌리는 것과 같은 규칙. */
+  // 주석에 '재시 안내' 를 적어 두는 것은 베낀 것이 아니다. 코드만 본다.
+  const code = body.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+  chk('문구를 베끼지 않는다',
+      /안녕하세요, 화학 조준모입니다|조준모 드림|통과선\(80점\)/.test(code), false);
+  chk('DT 화면에서 빌린다', /function dtPendWindow\(\)/.test(body), true);
+  const dw = cut('dtPendWindow');
+  chk('빌릴 창을 기다린다', /setInterval\(/.test(dw), true);
+  chk('안 뜨면 포기한다(영영 기다리지 않는다)', /n > 80[\s\S]{0,80}rej\(/.test(dw), true);
+  chk('화면에는 안 보이게 띄운다', /left:-9999px/.test(dw), true);
+  chk('빌린 함수를 그대로 부른다',
+      /w\.shareMsg\(\{/.test(body) && /w\.passMsg\(\{/.test(body), true);
+
+  /* DT 는 {active, stale, …} 객체로 준다. 배열로 알고 .length 를 읽어서
+     'DT 미완료' 칸에 undefined 가 찍히고 있었다. */
+  const dOnce = cut('dtOnce');
+  chk('미완료는 active 만 센다', /\(p && p\.active\) \|\| \[\]/.test(dOnce), true);
+  chk('배열로 와도 받는다', /Array\.isArray\(p\)/.test(dOnce), true);
 }
 
 console.log('\n── 이 숫자가 어디까지의 숫자인지 적는다 ──');

@@ -37,7 +37,13 @@ const chk = (n, got, want) => {
 
 (async () => {
   const b = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH, args: ['--no-sandbox'] });
-  const ctx = await b.newContext({ viewport: { width: 1200, height: 900 } });
+  /* 서비스 워커를 막는다. 여기서는 오프라인 캐시를 보지 않는데(그건 offline.js),
+     로컬 서버는 저장소 루트를 그대로 서빙해서 워커 범위가 '/' 가 된다. 그러면
+     워커가 ../DT/ 요청까지 가로채 검사용 흉내 화면이 안 뜬다.
+     실제 배포에서는 워커 범위가 /exam/ 이라 ../DT/ 는 애초에 안 걸린다. */
+  const ctx = await b.newContext({ viewport: { width: 1200, height: 900 },
+                                   permissions: ['clipboard-read', 'clipboard-write'],
+                                   serviceWorkers: 'block' });
   const p = await ctx.newPage();
   const errs = [];
   p.on('pageerror', e => errs.push(String(e)));
@@ -55,7 +61,15 @@ const chk = (n, got, want) => {
     const D = 86400000, now = Date.now();
     const body = (isDT && act === 'names') ? { ok: true, classes: [] }
                : act === 'names' ? { ok: true, students: [] }      // KMChC
-               : act === 'pending' ? { ok: true, pending: [] }
+               /* DT 가 실제로 주는 모양이다 — {active, stale, …} 객체. 배열로
+                  흉내 내면 'DT 미완료' 가 undefined 로 찍히던 버그를 못 잡는다. */
+               : act === 'pending' ? { ok: true, pending: { activeDays: 14, generatedAt: 'T', stale: [], active: [
+                   { studentKey: 's1', name: '최예린', school: '역삼중', year: '2', course: 'ch1', round: 12,
+                     lastAttempt: '정시', nextNeeded: '재시', score: 68, days: 3, lastDate: '6/17',
+                     reportLink: 'https://x/report.html?student=a', active: true } ] } }
+               : act === 'passed' ? { ok: true, passed: { days: 14, generatedAt: 'T', passed: [
+                   { name: '김서준', school: '휘문중', year: '2', course: 'ch2', round: 7, attempt: '정시',
+                     tries: 1, score: 96, date: '6/19', days: 1, reportLink: 'https://x/report.html?student=b' } ] } }
                : act === 'cohortmis' ? { ok: true, rows: [
                    { studentKey: 's1', date: new Date(now - 2 * D).toISOString(), wrongMis: ['몰농도', '완충'] },
                    { studentKey: 's2', date: new Date(now - 3 * D).toISOString(), wrongMis: ['몰농도'] },
@@ -281,6 +295,48 @@ const chk = (n, got, want) => {
     console.log('  ' + src);
     chk('숫자 밑에 출처가 적힌다',
         /이 브라우저 기록만|시트까지 반영된|받아오는 중/.test(src), true);
+  }
+
+  console.log('\n── DT 문자를 셸에서 바로 복사한다 ──');
+  {
+    /* 문구는 DT 의 pending.html 이 갖고 있고 셸은 **빌려 쓴다.** 이 저장소에는
+       DT 가 없으므로(다른 저장소다) 그 화면을 흉내 내 세워 둔다. 여기서 볼 것은
+       문구의 내용이 아니라 **빌리는 길이 실제로 이어지는가** 다 —
+       문구 자체는 DT 저장소의 검사가 본다. */
+    await p.route('**/DT/pending.html', route => route.fulfill({
+      status: 200, contentType: 'text/html; charset=utf-8',
+      body: '<!doctype html><meta charset="utf-8"><script>'
+          + 'function shareMsg(d,stage){ return "빌린재시:"+d.name+"/"+d.course+"/"+d.round+"/"+d.next+"/"+stage; }'
+          + 'function passMsg(d){ return "빌린통과:"+d.name+"/"+d.course+"/"+d.round+"/"+d.att+"/"+d.tries+"/"+d.score; }'
+          + '</script>',
+    }));
+    await p.evaluate(() => show('dash'));
+    await p.waitForTimeout(600);
+
+    const seen = await p.evaluate(() => ({
+      dtCnt: (document.getElementById('pdCnt') || {}).textContent,
+      pend: document.querySelectorAll('#pendList .row').length,
+      pass: document.querySelectorAll('#passList .row').length,
+      passShown: !document.getElementById('passWrap').hidden,
+      btns: document.querySelectorAll('.mini.msg').length,
+    }));
+    // 예전에는 여기가 undefined 였다(DT 가 객체로 주는데 배열로 알고 있었다)
+    chk('DT 미완료 칸에 숫자가 찍힌다', seen.dtCnt, '1');
+    chk('손이 필요한 것에 줄이 선다', seen.pend, 1);
+    chk('통과한 학생이 보인다', [seen.passShown, seen.pass], [true, 1]);
+    chk('두 목록에 문자 단추가 있다', seen.btns, 2);
+
+    const grab = async sel => {
+      await p.click(sel);
+      await p.waitForFunction(s => { const b = document.querySelector(s); return b && !b.disabled; },
+                              sel, { timeout: 30000 });
+      await p.waitForTimeout(200);
+      return p.evaluate(() => navigator.clipboard.readText());
+    };
+    const one = await grab('#pendList .mini.msg');
+    chk('재시 문자를 DT 에서 빌려 온다', one, '빌린재시:최예린/ch1/12/재시/1');
+    const two = await grab('#passList .mini.msg');
+    chk('통과 문자도 빌려 온다', two, '빌린통과:김서준/ch2/7/정시/1/96');
   }
 
   console.log('\n── 요즘 반이 어려워하는 개념 ──');
