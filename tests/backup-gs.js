@@ -271,5 +271,46 @@ console.log('\n── 깃허브에 쓰는 방식 ──');
   chk('실패하면 조용히 넘어가지 않는다', threw, true);
 }
 
+console.log('\n── 설정 점검이 무엇이 빠졌는지 말해 준다 ──');
+{
+  /* 토큰 발급·붙여넣기는 선생님이 직접 해야 한다. 그러면 "제대로 됐나" 를
+     확인할 길이 있어야 한다 — 없으면 며칠 뒤 백업이 안 되고 있는 것을
+     알게 된다. 이 함수는 무엇이 빠졌는지 그 자리에서 말한다. */
+  const say = ctx => { const out = []; ctx.Logger = { log: m => out.push(m) }; return out; };
+
+  let c = makeCtx(ROWS, { props: { GITHUB_TOKEN: '' } });
+  let out = say(c); c.checkBackupSetup();
+  chk('토큰이 없으면 그렇게 말한다', /✗ GITHUB_TOKEN 없음/.test(out.join('')), true);
+  chk('어디서 만드는지 알려 준다', /Fine-grained/.test(out.join('')), true);
+  chk('무슨 권한이 필요한지 알려 준다', /Contents: Read and write/.test(out.join('')), true);
+
+  c = makeCtx(ROWS, { onFetch: (url, o) => (/api\.github\.com\/repos/.test(url) && !(o||{}).method
+      ? { getResponseCode: () => 401, getContentText: () => '{}' } : null) });
+  out = say(c); c.checkBackupSetup();
+  chk('토큰이 틀리면 그렇게 말한다', /유효하지 않습니다\(401\)/.test(out.join('')), true);
+
+  c = makeCtx(ROWS, { onFetch: (url, o) => (/api\.github\.com\/repos/.test(url) && !(o||{}).method
+      ? { getResponseCode: () => 404, getContentText: () => '{}' } : null) });
+  out = say(c); c.checkBackupSetup();
+  chk('저장소를 못 찾으면 그렇게 말한다', /못 찾습니다\(404\)/.test(out.join('')), true);
+
+  // 쓰기 권한이 없으면 읽기는 되고 저장만 안 된다 — 제일 헷갈리는 경우다
+  c = makeCtx(ROWS, { onFetch: (url, o) => (/api\.github\.com\/repos/.test(url) && !(o||{}).method
+      ? { getResponseCode: () => 200, getContentText: () => JSON.stringify(
+          { full_name: 'Chemistreal/exam', private: false, permissions: { push: false } }) } : null) });
+  out = say(c); c.checkBackupSetup();
+  chk('읽기만 되면 그렇게 말한다', /✗ 쓰기 권한 없음/.test(out.join('')), true);
+  chk('공개 저장소라고 짚어 준다', /공개 저장소입니다/.test(out.join('')), true);
+
+  // 자동 실행이 안 걸려 있으면 백업은 영영 안 돈다
+  chk('트리거가 없으면 그렇게 말한다', /자동 실행 안 걸림 · dailyBackup/.test(out.join('')), true);
+
+  /* 실행 기록도 남는 곳이다. 여기에 이름을 찍으면 코드로 바꾼 뜻이 없다. */
+  const all = out.join('');
+  ['김서준', '이하윤', '박하람', '휘문중', '대원국제중'].forEach(w =>
+    chk("점검 기록에 '" + w + "' 이 안 찍힌다", all.indexOf(w), -1));
+  chk('점검이 파일을 쓰지는 않는다', c._puts.length, 0);
+}
+
 console.log(fail ? `\n${fail}개 실패` : '\n모두 통과');
 process.exit(fail ? 1 : 0);

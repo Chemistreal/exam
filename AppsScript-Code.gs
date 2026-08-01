@@ -1350,3 +1350,74 @@ function setupBackupTriggers() {
   Logger.log('설치 완료 · 백업 매일 03시 · 기준 기록 04시 · 주간 리포트 일 20시 (KST)');
   if (!_ghToken_()) Logger.log('⚠ GITHUB_TOKEN 스크립트 속성이 아직 없습니다 — 넣어야 실제로 올라갑니다');
 }
+
+/* ── 설정이 맞았는지 한 번에 확인 ─────────────────────────────────────
+   토큰을 넣고 이 함수를 실행하면 무엇이 되고 무엇이 안 되는지 한 번에 알려
+   준다. 안 되면 무엇을 고쳐야 하는지까지 적는다 — 실행 기록만 보고 되돌아갈
+   수 있어야 한다.
+
+   실제로 파일을 쓰지는 않는다. 무엇이 올라갈지만 세어 본다.
+   개인 정보는 찍지 않는다(실행 기록도 남는 곳이다). */
+function checkBackupSetup() {
+  var L = ['── 깃허브 자동 저장 설정 점검 ──'], bad = 0;
+
+  var token = _ghToken_();
+  if (!token) {
+    L.push('✗ GITHUB_TOKEN 없음');
+    L.push('   → 프로젝트 설정 › 스크립트 속성에 GITHUB_TOKEN 을 추가하세요.');
+    L.push('   → 토큰은 github.com › Settings › Developer settings ›');
+    L.push('      Personal access tokens › Fine-grained 에서 만듭니다.');
+    L.push('      Repository access: ' + GH_OWNER + '/' + GH_REPO);
+    L.push('      Permissions › Repository › Contents: Read and write');
+    Logger.log(L.join('\n')); return;
+  }
+  L.push('✓ GITHUB_TOKEN 있음 (' + token.length + '자)');
+
+  var api = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO;
+  var res;
+  try {
+    res = UrlFetchApp.fetch(api, { muteHttpExceptions: true,
+      headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' } });
+  } catch (e) {
+    L.push('✗ 깃허브에 닿지 못함: ' + e); Logger.log(L.join('\n')); return;
+  }
+  var code = res.getResponseCode();
+  if (code === 401) { L.push('✗ 토큰이 유효하지 않습니다(401) — 만료됐거나 잘못 붙여넣었습니다'); bad++; }
+  else if (code === 404) {
+    L.push('✗ 저장소를 못 찾습니다(404) — 토큰의 Repository access 에');
+    L.push('   ' + GH_OWNER + '/' + GH_REPO + ' 이 들어 있는지 확인하세요'); bad++;
+  } else if (code !== 200) { L.push('✗ 깃허브 응답 ' + code); bad++; }
+  else {
+    var repo = JSON.parse(res.getContentText());
+    var perm = repo.permissions || {};
+    L.push('✓ 저장소 확인 · ' + repo.full_name + (repo['private'] ? ' (비공개)' : ' (공개)'));
+    if (perm.push) L.push('✓ 쓰기 권한 있음');
+    else { L.push('✗ 쓰기 권한 없음 — 토큰 Permissions › Contents 를 Read and write 로'); bad++; }
+    if (!repo['private']) L.push('  ※ 공개 저장소입니다 — 그래서 이름 대신 코드를 싣습니다');
+  }
+
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(REC_TAB);
+  if (!sh || sh.getLastRow() < 2) { L.push('✗ 기록 탭(' + REC_TAB + ')이 비어 있습니다'); bad++; }
+  else {
+    var n = sh.getLastRow() - 1;
+    L.push('✓ 기록 ' + n + '줄 읽힘 (백업하면 이만큼 올라갑니다)');
+    var first = sh.getRange(2, 1, 1, WIDE).getValues()[0];
+    var c = _codeOf_(first[1], first[6]);
+    // 코드만 찍는다. 이름은 안 찍는다 — 실행 기록도 남는 곳이다.
+    L.push(c ? ('✓ 이름 → 코드 됨 (예: ' + c + ')') : '✗ 코드가 안 만들어집니다');
+    if (!c) bad++;
+  }
+
+  var have = {};
+  ScriptApp.getProjectTriggers().forEach(function (t) { have[t.getHandlerFunction()] = 1; });
+  ['dailyBackup', 'rebuildBaseline', 'weeklyReport'].forEach(function (f) {
+    if (have[f]) L.push('✓ 자동 실행 걸림 · ' + f);
+    else { L.push('✗ 자동 실행 안 걸림 · ' + f + ' → setupBackupTriggers() 를 실행하세요'); bad++; }
+  });
+
+  L.push(bad ? ('\n▲ ' + bad + '가지를 고쳐야 합니다.')
+             : '\n● 모두 정상입니다. 오늘 밤부터 저절로 올라갑니다.');
+  L.push('   지금 바로 한 번 올려 보려면 dailyBackup() 을 실행하세요.');
+  Logger.log(L.join('\n'));
+}
