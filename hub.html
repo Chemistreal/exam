@@ -149,6 +149,9 @@ td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:righ
 .mini:hover{border-color:var(--teal);color:var(--teal)}
 .mini:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .mini.done{border-color:var(--ok);color:var(--ok)}
+.mini.msg{margin-left:8px;white-space:nowrap}
+.mini.copied{border-color:var(--ok);color:var(--ok);background:rgba(47,122,90,.06)}
+.mini[disabled]{opacity:.55;cursor:progress}
 .trk__i{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .trk__i>div{flex:1;min-width:150px}
 .acts{display:flex;gap:6px}
@@ -217,6 +220,13 @@ tr.pick:hover td{background:var(--wash)}
         같은 학생이 여러 번 걸려도 한 명으로 셉니다. 다음 회차를 짤 때 쓰세요.
         <span class="dim">(개인은 드러나지 않습니다 — DT 가 학생을 s1·s2… 로 바꿔 줍니다)</span></p>
       <div class="list" id="misList"></div>
+    </section>
+    <section id="passWrap" hidden>
+      <h2>통과한 학생</h2>
+      <p class="hint">DT 에서 최근 2주 안에 통과선(80점)을 넘긴 학생입니다.
+        <b>통과 문자</b>를 누르면 보낼 문구가 복사됩니다 —
+        <span class="dim">한 번에 통과한 학생과 재시로 마무리한 학생은 문구가 다릅니다.</span></p>
+      <div class="list" id="passList"></div>
     </section>
     <section id="pendWrap" hidden>
       <h2>손이 필요한 것</h2>
@@ -461,8 +471,15 @@ function readOnce(app, action, shape, force){
   return c.inflight;
 }
 function dtOnce(action, force){
-  return readOnce('dt', action,
-    function(d){ return (action==='names') ? flatClasses(d.classes) : (d.pending||[]); }, force);
+  return readOnce('dt', action, function(d){
+    if(action==='names') return flatClasses(d.classes);
+    /* DT 는 {active, stale, …} 객체로 준다. 배열로 알고 .length 를 읽고 있어서
+       'DT 미완료' 칸에 undefined 가 찍혔다. 실제로 챙겨야 하는 것은 active 다
+       — stale 은 2주 넘게 소식이 없어 이탈로 보는 쪽이라 알림에서 뺀다. */
+    const p = d.pending;
+    if(Array.isArray(p)) return p;                    // 옛 형식(혹시 모를 대비)
+    return (p && p.active) || [];
+  }, force);
 }
 function flatClasses(classes){
   const out = [];
@@ -485,6 +502,16 @@ function dtPending(force){ return dtOnce('pending', force); }
 function dtMisRows(force){
   return readOnce('dt', 'cohortmis', function(d){ return d.rows||[]; }, force);
 }
+/* ── 통과한 학생 ────────────────────────────────────────────────────
+   셸이 보여 주던 것은 전부 **안 한 학생**이었다 — 미응시, 재시 필요. 그래서
+   잘한 아이가 가장 조용했다. 통과 기록은 이미 시트에 있으니 나란히 보여 준다. */
+function dtPassed(force){
+  return readOnce('dt', 'passed', function(d){
+    const p = d.passed;
+    return Array.isArray(p) ? p : ((p && p.passed) || []);
+  }, force);
+}
+const DT_COURSE = { ch1:'화학Ⅰ', ch2:'화학Ⅱ', gc:'일반화학' };
 /* 태그마다 '몇 명이 걸렸나'. 한 학생이 같은 태그를 여러 번 틀려도 한 번으로
    센다 — 안 그러면 한 아이가 되풀이해 틀린 것이 반 전체의 어려움처럼 보인다. */
 function misTally(rows, days){
@@ -556,6 +583,65 @@ TABS.forEach(function(t){
 
    window 에 붙는 것은 function 선언뿐이다(let/const 는 안 붙는다). 그래서
    시험 정보는 이쪽이 읽은 exams.json 을 넘겨 준다. */
+/* ── DT 문자 문구도 베끼지 않고 빌린다 ────────────────────────────────
+   재시 안내·시험 안내·통과 안내 문구는 DT 의 pending.html 이 갖고 있다.
+   여기에 베껴 두면 언젠가 두 문구가 갈라지고, 학부모는 같은 상황에서 서로
+   다른 문자를 받는다. 성적표 링크 규칙을 파이널에서 빌리는 것과 같은 이유다.
+
+   pending.html 을 안 보이게 한 장 띄워 놓고 그 함수를 부른다. 같은 오리진이라
+   된다. 화면에는 안 나오므로 셸의 탭 구성은 그대로다. */
+let DTP_W = null;
+function dtPendWindow(){
+  if(DTP_W && DTP_W.shareMsg && DTP_W.passMsg) return Promise.resolve(DTP_W);
+  let f = document.getElementById('dtpFrame');
+  if(!f){
+    f = document.createElement('iframe');
+    f.id = 'dtpFrame'; f.src = '../DT/pending.html'; f.title = 'DT 문자 문구';
+    f.setAttribute('aria-hidden','true');
+    f.style.cssText = 'position:absolute;width:1px;height:1px;left:-9999px;top:0;border:0';
+    document.body.appendChild(f);
+  }
+  return new Promise(function(res, rej){
+    let n = 0;
+    const tick = function(){
+      let w = null; try{ w = f.contentWindow; }catch(e){ w = null; }
+      if(w && typeof w.shareMsg === 'function' && typeof w.passMsg === 'function'){ DTP_W = w; res(w); return true; }
+      return false;
+    };
+    if(tick()) return;
+    const t = setInterval(function(){
+      if(tick()){ clearInterval(t); return; }
+      if(++n > 80){ clearInterval(t); rej(new Error('DT 문구 화면이 아직 안 떴습니다')); }
+    }, 250);
+  });
+}
+/* 문자를 클립보드로. 버튼은 눌린 티가 나야 한다 — 복사됐는지 모르면 두 번 누른다. */
+function copyMsg(btn, make){
+  const orig = btn.getAttribute('data-orig') || btn.textContent;
+  btn.disabled = true; btn.textContent = '준비 중…';
+  dtPendWindow().then(function(w){
+    const msg = make(w);
+    if(!msg) throw new Error('문구를 만들지 못했습니다');
+    const done = function(){
+      btn.disabled = false; btn.textContent = '복사됨 ✓'; btn.classList.add('copied');
+      setTimeout(function(){ btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText)
+      return navigator.clipboard.writeText(msg).then(done, function(){ fallback(msg, done); });
+    fallback(msg, done);
+  }).catch(function(e){
+    btn.disabled = false; btn.textContent = orig;
+    note('dashNote', '문자를 복사하지 못했습니다 — ' + e.message, true);
+  });
+  function fallback(msg, done){
+    try{
+      const ta = document.createElement('textarea');
+      ta.value = msg; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+      document.body.removeChild(ta); done();
+    }catch(e){ prompt('메시지 복사', msg); done(); }
+  }
+}
 let FIN_W = null;
 function finalWindow(){
   if(FIN_W && FIN_W.hashStrFinal) return Promise.resolve(FIN_W);
@@ -638,6 +724,29 @@ function actBtns(idx){
   return '<span class="acts"><button class="mini" data-act="copy" data-r="'+idx+'">링크 복사</button>'+
          '<button class="mini" data-act="open" data-r="'+idx+'">열기</button></span>';
 }
+/* 문자 복사 단추. 줄마다 리스너를 달지 않고 한 곳에서 받는다.
+   문구는 DT 의 pending.html 에서 빌린다 — 여기에 베껴 두면 언젠가 갈라지고,
+   학부모는 같은 상황에서 서로 다른 문자를 받는다. */
+document.addEventListener('click', function(e){
+  const b = e.target.closest ? e.target.closest('.mini.msg') : null;
+  if(!b) return;
+  if(b.dataset.pend != null){
+    const r = PEND_ROWS[+b.dataset.pend]; if(!r) return;
+    copyMsg(b, function(w){
+      return w.shareMsg({ name:r.name, course:r.course, round:r.round,
+                          att:r.lastAttempt, score:r.score, next:r.nextNeeded,
+                          link:r.reportLink||'' }, '1');
+    });
+  }else if(b.dataset.pass != null){
+    const r = PASS_ROWS[+b.dataset.pass]; if(!r) return;
+    copyMsg(b, function(w){
+      return w.passMsg({ name:r.name, course:r.course, round:r.round,
+                         att:r.attempt, score:r.score, tries:r.tries,
+                         link:r.reportLink||'' });
+    });
+  }
+});
+
 /* 목록 안의 작은 단추들을 한 곳에서 묶는다(줄마다 리스너를 달지 않는다). */
 function wireActs(root, rounds){
   root.addEventListener('click', function(e){
@@ -691,13 +800,36 @@ function renderDash(){
     document.getElementById('pdCnt').textContent = rows.length;
     if(!rows.length){ const w0=document.getElementById('pendWrap'); if(w0) w0.hidden=true; return; }
     const w = document.getElementById('pendWrap'); w.hidden = false;
-    document.getElementById('pendList').innerHTML = rows.slice(0,40).map(function(r){
+    PEND_ROWS = rows.slice(0,40);
+    document.getElementById('pendList').innerHTML = PEND_ROWS.map(function(r,i){
       const nm = esc(r.name||r.studentKey||'—');
-      const meta = [r.course, r.round?('· '+r.round+'회'):'', r.reason||''].filter(Boolean).join(' ');
+      const meta = [DT_COURSE[r.course]||r.course, r.round?(r.round+'회'):'',
+                    r.lastAttempt?(r.lastAttempt+' '+r.score+'점'):'',
+                    r.nextNeeded?('→ '+r.nextNeeded+' 미응시'):'',
+                    (r.days!=null)?(r.days+'일'):''].filter(Boolean).join(' · ');
       return '<div class="row" style="cursor:default"><span class="nm">'+nm+'</span>'+
-             '<span class="where">'+esc(meta)+'</span></div>';
+             '<span class="where">'+esc(meta)+'</span>'+
+             '<button class="mini msg" data-pend="'+i+'" data-orig="문자 복사">문자 복사</button></div>';
     }).join('');
   }).catch(function(){ document.getElementById('pdCnt').textContent = '—'; });
+
+  /* 통과한 학생. 여태 셸이 보여 준 것은 안 한 학생뿐이라, 잘한 아이가 가장
+     조용했다. 문자도 여기서 바로 복사한다. */
+  dtPassed().then(function(rows){
+    const w = document.getElementById('passWrap'); if(!w) return;
+    PASS_ROWS = (rows||[]).slice(0,40);
+    w.hidden = !PASS_ROWS.length;
+    if(!PASS_ROWS.length) return;
+    document.getElementById('passList').innerHTML = PASS_ROWS.map(function(r,i){
+      const meta = [DT_COURSE[r.course]||r.course, r.round?(r.round+'회'):'',
+                    r.attempt||'', (Number(r.tries)||1)>1?'재시로 마무리':'한 번에',
+                    r.date||''].filter(Boolean).join(' · ');
+      return '<div class="row" style="cursor:default"><span class="nm">'+esc(r.name||'—')+'</span>'+
+             '<span class="where">'+esc(meta)+'</span>'+
+             '<span class="cnt">'+esc(r.score)+'점</span>'+
+             '<button class="mini msg" data-pass="'+i+'" data-orig="통과 문자">통과 문자</button></div>';
+    }).join('');
+  }).catch(function(){ const w=document.getElementById('passWrap'); if(w) w.hidden=true; });
 
   /* 요즘 반이 어려워하는 개념. 못 받아도 조용히 접는다 — 이건 참고 자료라
      안 보인다고 채점하는 날 일이 막히지는 않는다. */
@@ -768,6 +900,8 @@ function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){
 
 /* ── 학생 ──────────────────────────────────────────────────────── */
 let ROSTER = [], FIN = null, DT_ROWS = null, KM_ROWS = null;
+/* 화면에 그린 줄을 그대로 들고 있다가 문자 만들 때 쓴다(속성에 다 싣지 않는다). */
+let PEND_ROWS = [], PASS_ROWS = [];
 function renderStudents(){
   const q = (document.getElementById('q').value||'').trim();
   const nq = normName(q);
