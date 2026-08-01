@@ -199,19 +199,21 @@ console.log('\n── 시트와 언제 맞췄는지 남긴다 ──');
      통합관리 화면이 오래됐을 때 스스로 맞출 수 있다. */
   const fn = cut('syncAllFromSheet');
   chk('끝나면 시각을 남긴다', /markSynced\(\);/.test(fn), true);
-  /* 한 회차도 못 받았으면 맞췄다고 할 수 없다. 그때 시각을 찍으면 망이 끊긴
-     채로 '방금 맞춤' 이 되어 다음에도 안 맞춘다. */
-  chk('전부 실패했으면 안 남긴다', /if\(failed<list\.length\) markSynced\(\);/.test(fn), true);
   chk('끝난 것을 부르는 쪽에 알린다', /if\(typeof onDone==='function'\) onDone\(/.test(fn), true);
   chk('조용히 돌 수 있다', /function syncAllFromSheet\(onDone, quiet\)/.test(fn), true);
   chk('조용할 때는 진행을 안 띄운다', /if\(!quiet\) fToast/.test(fn), true);
 
-  /* 한 번에 최대 12초를 기다린다. 망이 끊긴 채로 서른여덟 번을 차례로 부르면
-     7분 반을 붙잡는다 — 자동으로 도는 자리에서는 그동안 갇힌다. */
-  chk('연달아 실패하면 그만둔다', /if\(consec>=3 && total===0\)/.test(fn), true);
-  chk('그만둔 것을 말한다', /gaveUp/.test(fn), true);
-  chk('한 번이라도 받았으면 계속한다', /total===0/.test(fn), true);
-  chk('성공하면 실패 횟수를 되돌린다', /consec=0;/.test(fn), true);
+  /* 이제는 한 번에 받는다(action=all). 그래도 시트 쪽이 아직 옛 판이면
+     회차별로 되돌아가는데, 그 길은 예전 그대로여야 한다 — 망이 끊긴 채로
+     서른여덟 번을 차례로 부르면 7분 반을 붙잡는다. */
+  const per = cut('syncPerExam');
+  /* 한 회차도 못 받았으면 맞췄다고 할 수 없다. 그때 시각을 찍으면 망이 끊긴
+     채로 '방금 맞춤' 이 되어 다음에도 안 맞춘다. */
+  chk('전부 실패했으면 안 남긴다', /if\(failed<list\.length\) markSynced\(\);/.test(per), true);
+  chk('연달아 실패하면 그만둔다', /if\(consec>=3 && total===0\)/.test(per), true);
+  chk('그만둔 것을 말한다', /gaveUp/.test(per), true);
+  chk('한 번이라도 받았으면 계속한다', /total===0/.test(per), true);
+  chk('성공하면 실패 횟수를 되돌린다', /consec=0;/.test(per), true);
 
   const SRC2 = SRC;
   chk('통합관리가 읽을 수 있게 같은 열쇠를 쓴다',

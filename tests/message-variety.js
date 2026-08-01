@@ -160,7 +160,12 @@ console.log('\n── 회차마다 문항 수와 범위가 맞는다 ──');
   /* 앱이 그 값을 실제로 보내는지. 안 보내면 시트 19열이 늘 비어 화면에만 남는다. */
   const APP = require('fs').readFileSync(require('path').join(__dirname, '..', 'final.html'), 'utf8');
   chk('앱이 감점 반영 원점수를 보낸다', /raw:_rs\.score/.test(APP), true);
-  chk('화면과 같은 함수로 낸 값이다', /const _rs=finalRawScore\(cur,correct,_wr\)/.test(APP), true);
+  /* 화면이 쓰는 함수를 그대로 써야 한다. correct*3 으로 지어내면 오답 감점이
+     있는 회차(KMChC·동형 등)는 그만큼 부풀려 나간다.
+     채점 직후에 보내는 것과 못 보낸 것을 다시 보내는 것이 한 자리에서 나온다. */
+  chk('화면과 같은 함수로 낸 값이다', /const _rs=finalRawScore\(exam,correct,_wr\)/.test(APP), true);
+  chk('시트로 보낼 줄을 만드는 그 한 자리에서 낸다',
+      /function sheetPayloadFor\([\s\S]{0,1200}const _rs=finalRawScore\(/.test(APP), true);
   chk('시트가 그 값을 맨 뒤 열에 받는다',
       /RAW_COL = 19/.test(SRC) && /d\.raw\) \? d\.raw/.test(SRC), true);
   chk('9열(석차 기준)은 그대로 맞은 문항 수다', /total:correct, max:total/.test(APP), true);
