@@ -211,6 +211,13 @@ tr.pick:hover td{background:var(--wash)}
       <p class="hint">이 브라우저에서 마지막으로 채점한 기록입니다.</p>
       <div class="list" id="recentList"></div>
     </section>
+    <section id="misWrap" hidden>
+      <h2>요즘 반이 어려워하는 개념</h2>
+      <p class="hint">DT 에서 최근 한 달 사이 <b>틀린 문항의 오개념 태그</b>를 모았습니다.
+        같은 학생이 여러 번 걸려도 한 명으로 셉니다. 다음 회차를 짤 때 쓰세요.
+        <span class="dim">(개인은 드러나지 않습니다 — DT 가 학생을 s1·s2… 로 바꿔 줍니다)</span></p>
+      <div class="list" id="misList"></div>
+    </section>
     <section id="pendWrap" hidden>
       <h2>손이 필요한 것</h2>
       <p class="hint">DT 에서 재시가 밀렸거나 아직 마무리되지 않은 항목입니다.</p>
@@ -468,6 +475,33 @@ function flatClasses(classes){
 }
 function dtRoster(force){ return dtOnce('names', force); }
 function dtPending(force){ return dtOnce('pending', force); }
+/* ── DT 오개념 집계 ─────────────────────────────────────────────────
+   DT 는 채점할 때마다 틀린 문항의 **오개념 태그**를 남긴다. 그런데 그 집계는
+   DT 안에서만 보여서, 셸에서는 "요즘 반이 뭘 어려워하나" 를 볼 수 없었다 —
+   다음 파이널 회차를 짤 때 제일 알고 싶은 것이 그건데.
+
+   cohortmis 는 학생키를 s1·s2… 로 바꿔 준다(이름·학교·링크 없음). 셸이 개인을
+   되짚을 수 없고, 되짚을 이유도 없다 — 여기 필요한 것은 **몇 명이 걸렸나**뿐이다. */
+function dtMisRows(force){
+  return readOnce('dt', 'cohortmis', function(d){ return d.rows||[]; }, force);
+}
+/* 태그마다 '몇 명이 걸렸나'. 한 학생이 같은 태그를 여러 번 틀려도 한 번으로
+   센다 — 안 그러면 한 아이가 되풀이해 틀린 것이 반 전체의 어려움처럼 보인다. */
+function misTally(rows, days){
+  const cut = Date.now() - (days||30)*DAY, by = new Map();
+  (rows||[]).forEach(function(r){
+    const t = r.date ? new Date(r.date).getTime() : 0;
+    if(!t || t < cut) return;
+    (r.wrongMis||[]).forEach(function(m){
+      const tag = String(m||'').trim(); if(!tag) return;
+      if(!by.has(tag)) by.set(tag, new Set());
+      by.get(tag).add(r.studentKey);
+    });
+  });
+  return Array.from(by.entries())
+    .map(function(e){ return { tag:e[0], n:e[1].size }; })
+    .sort(function(a,b){ return b.n-a.n || a.tag.localeCompare(b.tag,'ko'); });
+}
 /* ── KMChC 명단 ─────────────────────────────────────────────────────
    여기만 읽을 창구가 없어서, KMChC 를 본 학생은 셸에 아예 안 나왔다. 같은
    학생인데 파이널·DT 에서만 보이니 '이 학생의 전 과목 기록' 이 반쪽이었다.
@@ -664,6 +698,23 @@ function renderDash(){
              '<span class="where">'+esc(meta)+'</span></div>';
     }).join('');
   }).catch(function(){ document.getElementById('pdCnt').textContent = '—'; });
+
+  /* 요즘 반이 어려워하는 개념. 못 받아도 조용히 접는다 — 이건 참고 자료라
+     안 보인다고 채점하는 날 일이 막히지는 않는다. */
+  dtMisRows().then(function(rows){
+    const top = misTally(rows, 30), w = document.getElementById('misWrap');
+    if(!w) return;
+    w.hidden = !top.length;
+    if(!top.length) return;
+    const max = top[0].n;
+    document.getElementById('misList').innerHTML = top.slice(0,12).map(function(m){
+      const pct = max? Math.round(m.n/max*100) : 0;
+      return '<div class="row" style="cursor:default"><span class="nm">'+esc(m.tag)+'</span>'+
+             '<span class="where"><span style="display:inline-block;height:6px;border-radius:3px;'+
+             'background:#B0873A;opacity:.55;width:'+Math.max(6,pct)+'px"></span></span>'+
+             '<span class="cnt">'+m.n+'명</span></div>';
+    }).join('');
+  }).catch(function(){ const w=document.getElementById('misWrap'); if(w) w.hidden=true; });
 
   /* 최근 채점 — 방금 한 학생의 성적표를 다시 열 일이 가장 잦다. */
   const recent = rounds.filter(function(r){ return r.ts; }).slice(0,12);

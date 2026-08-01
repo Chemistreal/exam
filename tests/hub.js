@@ -57,7 +57,7 @@ vm.createContext(ctx);
 vm.runInContext([
   cut('normName'), cut('normSchool'), cut('normGrade'),
   cut('unifyKey'), cut('looseKey'), cut('mergeRosters'),
-  cut('allRounds'),
+  cut('allRounds'), cut('misTally'),
   /* 기간 기준은 소스에서 그대로 읽는다. 여기 손으로 적어 두면 소스만 바뀌었을 때
      검사가 옛 기준으로 통과한다. */
   'const DAY = 86400000;',
@@ -161,7 +161,8 @@ console.log('\n── 셸이 남의 데이터를 건드리지 않는다 ──')
   chk('남의 앱을 부르는 곳은 한 곳뿐', (body.match(/jsonp\(APPS\[?\w*\]?\.?\w*\.ep/g) || []), ['jsonp(APPS[app].ep']);
   chk('읽기 액션만 부른다',
       (body.match(/readOnce\('\w+', '(\w+)'|dtOnce\('(\w+)'/g) || []).sort(),
-      ["dtOnce('names'", "dtOnce('pending'", "readOnce('km', 'names'"]);
+      ["dtOnce('names'", "dtOnce('pending'",
+       "readOnce('dt', 'cohortmis'", "readOnce('km', 'names'"]);
 
   /* 한 앱이 응답하지 않아도 화면이 비면 안 된다. 앱스크립트는 그냥 안 돌아올
      때가 있어서, 타임아웃이 없으면 셸이 영원히 '불러오는 중'에 멈춘다. */
@@ -412,6 +413,35 @@ console.log('\n── KMChC 도 명단에 합친다 ──');
   chk('학교를 안 적은 줄은 그대로 따로', blank.length, 2);
 
   chk('임시 표시가 명단에 새지 않는다', merged[0].noSch, undefined);
+}
+
+console.log('\n── DT 오개념을 셸로 끌어온다 ──');
+{
+  /* DT 는 틀린 문항의 오개념 태그를 남기는데 그 집계가 DT 안에서만 보였다.
+     다음 회차를 짤 때 제일 알고 싶은 것이 "요즘 반이 뭘 어려워하나" 인데. */
+  const body = SRC.split('<script>')[1] || '';
+  chk('집계를 읽는 길이 있다', /function dtMisRows\(force\)/.test(body), true);
+  chk('같은 캐시를 쓴다', /readOnce\('dt', 'cohortmis'/.test(cut('dtMisRows')), true);
+  chk('화면에 자리가 있다', /id="misWrap"/.test(SRC) && /id="misList"/.test(SRC), true);
+
+  const D = 86400000, now = Date.now();
+  const rows = [
+    { studentKey:'s1', date:new Date(now-2*D).toISOString(), wrongMis:['몰농도','완충'] },
+    { studentKey:'s2', date:new Date(now-3*D).toISOString(), wrongMis:['몰농도'] },
+    // 같은 학생이 같은 태그를 또 틀렸다 — 두 명으로 세면 안 된다
+    { studentKey:'s1', date:new Date(now-1*D).toISOString(), wrongMis:['몰농도'] },
+    // 한 달이 넘은 것은 '요즘' 이 아니다
+    { studentKey:'s3', date:new Date(now-90*D).toISOString(), wrongMis:['몰농도','산화수'] },
+    { studentKey:'s4', date:'', wrongMis:['날짜없음'] },
+    { studentKey:'s5', date:new Date(now-4*D).toISOString(), wrongMis:['', '  '] },
+  ];
+  const top = ctx.misTally(rows, 30);
+  chk('많이 걸린 것부터', top.map(t => t.tag), ['몰농도','완충']);
+  chk('한 학생을 두 번 세지 않는다', top[0].n, 2);
+  chk('오래된 것은 빼고 센다', top.map(t => t.tag).indexOf('산화수'), -1);
+  chk('날짜 없는 줄은 뺀다', top.map(t => t.tag).indexOf('날짜없음'), -1);
+  chk('빈 태그는 세지 않는다', top.length, 2);
+  chk('빈 입력에도 안 죽는다', [ctx.misTally(null), ctx.misTally([])], [[], []]);
 }
 
 console.log('\n── 이 숫자가 어디까지의 숫자인지 적는다 ──');
