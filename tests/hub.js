@@ -1106,8 +1106,14 @@ console.log('\n── 보낸 것은 눈에서 내려간다 ──');
       /w\.unmarkSent\(/.test(body), true);
   chk('보낸 줄에만 무르기가 뜬다',
       /return SENT\.has\(k\) \? '<button class="mini undo"/.test(body), true);
-  chk('못 받아도 화면은 산다',
-      /dtSentLog\(\)\.then\(function\(rows\)\{ seedSent\(rows\); refreshSoon\(\); \}\)\.catch/.test(body), true);
+  /* ⚠ 앱스크립트는 실행을 한 줄로 세운다. 꾸미는 창구까지 한꺼번에 부르면
+     줄이 30초까지 길어지고 그동안 **다른 화면이 실패한다** — 실제로 명단
+     화면이 기본 명단으로 되돌아가 덮어쓸 뻔했다. 뒤에 하나씩 세운다. */
+  chk('꾸미는 창구는 줄 뒤에', /function laterOnce\(\)/.test(body) &&
+      /dtSentLog\(\)\.then\(function\(rows\)\{ seedSent\(rows\); refreshSoon\(\); \}/.test(body), true);
+  chk('한꺼번에 안 부른다', /steps\.reduce\(function\(p, f\)\{/.test(body), true);
+  chk('한 번만 건다', /if\(LATER_DONE\) return;/.test(body), true);
+  chk('못 받아도 화면은 산다', /f\(\)\.catch\(function\(\)\{\}\)/.test(body), true);
 }
 
 console.log('\n── 안 한 것이 떠오르게 (넛지) ──');
@@ -1173,8 +1179,12 @@ console.log('\n── 안 한 것이 떠오르게 (넛지) ──');
   /* 이 창구는 진작 열려 있었는데 셸이 안 읽고 있었다 — 아침 메일만 쓰고 있었다. */
   chk('열람 창구를 읽는다', /function dtViews\(force\)/.test(body) &&
       /readOnce\('dt', 'views'/.test(body), true);
-  chk('못 받아도 나머지는 뜬다',
-      /dtViews\(\)\.then\(function\(\)\{ renderNudge\(\); \}\)\.catch/.test(body), true);
+  chk('못 받아도 나머지는 뜬다', /dtViews\(\)\.then\(function\(\)\{ renderNudge\(\); \}\)/.test(body) &&
+      /f\(\)\.catch\(function\(\)\{\}\)/.test(body), true);
+  /* 급한 것이 실패해도 기다림은 끝나야 한다 — 여기서 멈추면 보낸 표시가
+     영영 안 붙는다. */
+  chk('급한 것이 실패해도 이어 간다',
+      /dtRoster\(\)\.catch\(function\(\)\{\}\), dtPending\(\)\.catch/.test(body), true);
   ctx.SNZ.clear(); ctx.SENT.clear(); ctx.DT_CACHE = {}; ctx.PEND_ROWS = [];
 }
 
