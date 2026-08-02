@@ -1888,6 +1888,51 @@ function capNote(rows){
 function dtViews(force){
   return readOnce('dt', 'views', function(d){ return d.views || []; }, force);
 }
+/* ── 또래 대비 크게 벗어난 점수 ────────────────────────────────────
+   "60점 밑" 같은 고정 기준은 **늘 같은 아이만** 부른다 — 그 아이가 이번에 잘
+   봤는지 못 봤는지는 말해 주지 않는다. 알고 싶은 것은 "이번 회차에 평소와 다른
+   일이 있었나" 다.
+
+   그래서 같은 (과목·회차)를 본 또래와 견준다. 평균·표준편차는 한 명이 크게
+   낮으면 그 한 명 때문에 기준선이 같이 내려가 자기 자신을 못 잡는다. 중앙값과
+   MAD(중앙값 절대편차)는 그렇지 않다 — Datadog 이 outlier 감시에 쓰는 것과
+   같은 이유다.
+
+   1.4826 은 MAD 를 표준편차와 같은 자로 만드는 상수다(정규분포 기준).
+   [안 부르는 자리]
+   - 사람이 적으면(5명 미만) 중앙값 자체가 흔들린다
+   - MAD 가 0 이면(다 같은 점수) 나눌 수가 없다 — 한 명만 달라도 무한대가 된다
+   - 위로 벗어난 것은 안 부른다. 잘 본 것은 챙길 일이 아니다 */
+function median(a){
+  const v = (a||[]).slice().sort(function(x,y){ return x-y; });
+  if(!v.length) return null;
+  const h = Math.floor(v.length/2);
+  return v.length % 2 ? v[h] : (v[h-1]+v[h])/2;
+}
+const MAD_N = 5, MAD_Z = 3;
+function madOutliers(rows){
+  const by = new Map();
+  (rows||[]).forEach(function(r){
+    const sc = Number(r.score); if(!isFinite(sc)) return;
+    const k = String(r.course)+'#'+String(r.round);
+    if(!by.has(k)) by.set(k, []);
+    by.get(k).push({ name:r.name, score:sc, course:r.course, round:r.round });
+  });
+  const out = [];
+  by.forEach(function(list){
+    if(list.length < MAD_N) return;
+    const vals = list.map(function(x){ return x.score; });
+    const m = median(vals);
+    const mad = median(vals.map(function(v){ return Math.abs(v-m); }));
+    if(!mad) return;
+    list.forEach(function(x){
+      const z = (x.score - m) / (1.4826 * mad);
+      if(z <= -MAD_Z) out.push({ name:x.name, score:x.score, course:x.course, round:x.round,
+                                 mid:m, z:Math.round(z*10)/10, n:list.length });
+    });
+  });
+  return out;
+}
 const NDG_SENT_DAYS = 3;    // 보내고 이만큼 지나도 안 열었으면
 const NDG_PEND_DAYS = 7;    // 재시가 이만큼 밀렸는데 아직 안 보냈으면
 const NDG_MAX = 5;          // 여섯 줄이 넘으면 그것도 훑고 만다
@@ -1925,6 +1970,16 @@ function nudges(){
       name: r.name, days: days,
       why: (DT_COURSE[r.course]||r.course)+' '+r.round+'회 재시가 '+days+'일째인데 안내를 아직 안 보냈습니다',
       msg: i });
+  });
+
+  /* 3) 또래와 크게 벗어난 점수. 고정 기준(60점 밑)은 늘 같은 아이만 부르고,
+        "이번에 무슨 일이 있었나" 는 말해 주지 않는다. */
+  madOutliers(PASS_ROWS.concat(PEND_ROWS)).forEach(function(x){
+    out.push({ key: ndgKey('mad', x.name, x.course, x.round), kind: '또래 대비',
+      name: x.name, days: 0,
+      why: (DT_COURSE[x.course]||x.course)+' '+x.round+'회 · 같이 본 '+x.n+'명 중앙값 '+
+           x.mid+'점인데 '+x.score+'점입니다',
+      go: { tab:'stu', name:x.name } });
   });
 
   return out.filter(function(n){ return !isSnoozed(n.key); })

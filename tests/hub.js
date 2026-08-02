@@ -80,12 +80,13 @@ vm.runInContext([
   cut('sentKey'), cut('bulkBar'), cut('readHash'), cut('deltaOf'), cut('dayCounts'),
   cut('rosterCount'), cut('wonOf'),
   cut('dayKey'), cut('snoozedTill'), cut('isSnoozed'), cut('snzCls'), cut('snzBtn'),
-  cut('viewName'), cut('ndgKey'), cut('nudges'), cut('snzBar'), cut('conEntry'), cut('conPut'), cut('conHits'), cut('conTags'),
+  cut('viewName'), cut('median'), cut('madOutliers'), cut('ndgKey'), cut('nudges'), cut('snzBar'), cut('conEntry'), cut('conPut'), cut('conHits'), cut('conTags'),
   cut('conFor'), cut('conClassOf'), cut('conByClass'), cut('conRounds'),
   ((SRC.match(/^const FEE_PER = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
   ((SRC.match(/^const DT_COURSE = \{[^}]*\};?$/m) || [''])[0]).replace(/^const /, 'var '),
   ((SRC.match(/^const NDG_SENT_DAYS = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
   ((SRC.match(/^const NDG_MAX = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
+  ((SRC.match(/^const MAD_N = \d+, MAD_Z = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
   ((SRC.match(/^const SNZ_DAYS = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
   ((SRC.match(/^const NDG_PEND_DAYS = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
   'var SNZ=new Map(), SNZ_SHOW=false;',
@@ -1175,6 +1176,49 @@ console.log('\n── 안 한 것이 떠오르게 (넛지) ──');
   chk('못 받아도 나머지는 뜬다',
       /dtViews\(\)\.then\(function\(\)\{ renderNudge\(\); \}\)\.catch/.test(body), true);
   ctx.SNZ.clear(); ctx.SENT.clear(); ctx.DT_CACHE = {}; ctx.PEND_ROWS = [];
+}
+
+console.log('\n── 또래 대비 크게 벗어난 점수 (MAD) ──');
+{
+  /* "60점 밑" 같은 고정 기준은 늘 같은 아이만 부른다 — 그 아이가 이번에
+     잘 봤는지 못 봤는지는 말해 주지 않는다. */
+  chk('가운데 값', [ctx.median([1,2,3]), ctx.median([1,2,3,4]), ctx.median([])], [2, 2.5, null]);
+  const cls = [88,90,86,92,89,41].map(function(v,i){
+    return { name:'학생'+i, score:v, course:'ch1', round:5 }; });
+  const o = ctx.madOutliers(cls);
+  console.log('  ' + JSON.stringify(o.map(function(x){ return [x.name, x.score, x.mid, x.z]; })));
+  chk('또래에서 크게 벗어난 사람을 짚는다', o.map(function(x){ return x.name; }), ['학생5']);
+  chk('중앙값도 같이 말해 준다', o[0].mid, 88.5);
+  chk('몇 명과 견줬는지 말해 준다', o[0].n, 6);
+
+  /* 평균·표준편차로 재면 크게 낮은 한 명이 기준선을 같이 끌어내려 **자기
+     자신을 못 잡는다.** 중앙값·MAD 는 그렇지 않다 — 그게 이 방법을 쓰는 이유다. */
+  chk('한 명 때문에 기준이 흔들리지 않는다', (function(){
+    const avg = cls.reduce(function(t,x){ return t+x.score; },0)/cls.length;
+    const sd = Math.sqrt(cls.reduce(function(t,x){ return t+(x.score-avg)*(x.score-avg); },0)/cls.length);
+    return Math.abs((41-avg)/sd) < 3;      // 평균 기준으로는 3을 못 넘는다
+  })(), true);
+
+  /* 사람이 적으면 중앙값 자체가 흔들린다. */
+  chk('사람이 적으면 안 부른다', ctx.madOutliers([
+    { name:'ㄱ', score:90, course:'ch1', round:9 }, { name:'ㄴ', score:20, course:'ch1', round:9 },
+  ]), []);
+  /* MAD 가 0 이면(다 같은 점수) 나눌 수가 없다 — 한 명만 달라도 무한대가 된다. */
+  chk('다 같은 점수면 안 부른다', ctx.madOutliers(
+    [90,90,90,90,90,30].map(function(v,i){ return { name:'x'+i, score:v, course:'ch1', round:9 }; })), []);
+  /* 잘 본 것은 챙길 일이 아니다. */
+  chk('위로 벗어난 것은 안 부른다', ctx.madOutliers(
+    [40,42,38,41,39,99].map(function(v,i){ return { name:'y'+i, score:v, course:'ch1', round:9 }; })), []);
+  /* 회차가 다르면 다른 시험이다 — 섞어서 재면 아무 뜻이 없다. */
+  chk('회차를 섞지 않는다', ctx.madOutliers(
+    [90,91,89,92,88].map(function(v,i){ return { name:'a'+i, score:v, course:'ch1', round:1 }; })
+    .concat([30,31,29].map(function(v,i){ return { name:'b'+i, score:v, course:'ch1', round:2 }; }))), []);
+  chk('점수가 없는 줄은 건너뛴다', ctx.madOutliers(
+    [{ name:'ㄱ', course:'ch1', round:3 }, { name:'ㄴ', score:'', course:'ch1', round:3 }]), []);
+
+  /* 넛지 자리에 함께 선다 — '무시' 도 그대로 쓴다. */
+  const body = SRC.split('<script>')[1] || '';
+  chk('넛지로 함께 세운다', /kind: '또래 대비'/.test(body), true);
 }
 
 console.log('\n── 막대에서 목록으로 파고든다 ──');
