@@ -79,7 +79,11 @@ vm.runInContext([
   cut('dtClassList'), cut('finFor'), cut('classRows'), cut('clsCounts'),
   cut('sentKey'), cut('bulkBar'), cut('readHash'), cut('deltaOf'), cut('dayCounts'),
   cut('rosterCount'), cut('wonOf'),
+  cut('dayKey'), cut('snoozedTill'), cut('isSnoozed'), cut('snzCls'), cut('snzBtn'),
+  cut('snzBar'),
   ((SRC.match(/^const FEE_PER = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
+  'var SNZ=new Map(), SNZ_SHOW=false;',
+  ((SRC.match(/^const SNZ_DAYS = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
   'var SENT=new Set(), TABS=["dash","stu","cls","rnd","mat","inc","exam","dt","dtp","dtr","km"], location={hash:""};',
   'var FIN=null, ROSTER=[];',
   'var PASS_ROWS=[], PEND_ROWS=[], ABS_ROWS=[], MIS_TOP=[], KM_ROWS=null, DT_CACHE={};',
@@ -190,7 +194,8 @@ console.log('\n── 셸이 남의 데이터를 건드리지 않는다 ──')
       (body.match(/readOnce\('\w+', '(\w+)'|dtOnce\('(\w+)'/g) || []).sort(),
       ["dtOnce('names'", "dtOnce('pending'", "readOnce('dt', 'absentees'",
        "readOnce('dt', 'cohortmis'", "readOnce('dt', 'income'", "readOnce('dt', 'passed'",
-       "readOnce('dt', 'sentlog'", "readOnce('km', 'names'"]);
+       "readOnce('dt', 'sentlog'", "readOnce('dt', 'snoozelog'",
+       "readOnce('km', 'names'"]);
 
   /* 한 앱이 응답하지 않아도 화면이 비면 안 된다. 앱스크립트는 그냥 안 돌아올
      때가 있어서, 타임아웃이 없으면 셸이 영원히 '불러오는 중'에 멈춘다. */
@@ -878,8 +883,12 @@ console.log('\n── 그림은 한 벌의 어휘를 쓴다 ──');
       [/(\d+)%<\/span>/.exec(ctx.donut(-5))[1], /(\d+)%<\/span>/.exec(ctx.donut(140))[1]], ['0','100']);
   const body = SRC.split('<script>')[1] || '';
   chk('대시보드에도 그림 자리가 있다', /id="dashFig"/.test(SRC), true);
-  // 칩과 그림이 따로 그려지면 두 숫자가 어긋난다
-  chk('칩과 그림이 같은 숫자를 본다', /function renderJump\(\)\{\s*\n\s*renderFig\(\);/.test(body), true);
+  /* 칩과 그림이 따로 그려지면 두 숫자가 어긋난다. 같은 배열을 같은 순간에 본다.
+     다른 것은 하나뿐이다 — 칩은 미룬 것을 빼고(오늘 할 일), 그림은 넣는다(반 상태).
+     그래서 그림 쪽에 미룬 수를 적는다. 안 적으면 둘이 틀린 것처럼 보인다. */
+  chk('칩과 그림이 같은 순간에 그려진다',
+      /function renderJump\(\)\{[\s\S]{0,400}?renderFig\(\);/.test(body), true);
+  chk('그림은 미룬 것도 세고, 몇 명인지 적는다', /미룬 '\+snz\+'명 포함/.test(body), true);
 }
 
 console.log('\n── 자료는 실제로 있는 것만 건다 ──');
@@ -1079,11 +1088,77 @@ console.log('\n── 보낸 것은 눈에서 내려간다 ──');
       /dtSentLog\(\)\.then\(function\(rows\)\{ seedSent\(rows\); refreshSoon\(\); \}\)\.catch/.test(body), true);
 }
 
+console.log('\n── 오늘 못 하는 줄은 미룬다 ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  /* 지운 것은 돌아오지 않는다. 미룬 것은 날짜가 지나면 저절로 돌아와야 한다 —
+     그래야 잊어버려도 된다. 그 '저절로' 가 이 검사의 전부다. */
+  ctx.SNZ.clear(); ctx.SNZ_SHOW = false;
+  const k = ctx.sentKey('pend', '김지성', 'ch1', 12);
+  chk('아직 안 미뤘으면 비어 있다', ctx.snoozedTill(k), '');
+  ctx.SNZ.set(k, ctx.dayKey(7));
+  chk('미루면 날짜가 잡힌다', ctx.isSnoozed(k), true);
+  chk('오늘까지는 아직 미룬 것', (ctx.SNZ.set(k, ctx.dayKey(0)), ctx.isSnoozed(k)), true);
+  /* 어제까지였던 것은 오늘 목록에 **다시 올라와야** 한다. 안 돌아오면 미루기가
+     아니라 삭제다 — 그 학생은 영영 안 보인다. */
+  chk('어제까지였으면 오늘 돌아온다', (ctx.SNZ.set(k, ctx.dayKey(-1)), ctx.isSnoozed(k)), false);
+  chk('돌아온 줄은 접히지 않는다', ctx.snzCls(k), '');
+  chk('빈 날짜는 미룬 것이 아니다', (ctx.SNZ.set(k, ''), ctx.isSnoozed(k)), false);
+  chk('날짜는 글자 차례로 비교한다', ctx.dayKey(0).length === 10 && /^\d{4}-\d{2}-\d{2}$/.test(ctx.dayKey(0)), true);
+
+  ctx.SNZ.set(k, ctx.dayKey(7));
+  chk('미룬 줄은 접는다', ctx.snzCls(k), ' snz');
+  chk('단추가 언제까지인지 말해 준다', /지금 보기<\/button>$/.test(ctx.snzBtn(k)), true);
+  chk('안 미룬 줄에는 미루기가 뜬다', (ctx.SNZ.clear(), /">미루기<\/button>/.test(ctx.snzBtn(k))), true);
+
+  /* 몇이 사라졌는지 안 보이면 "아까보다 왜 줄었지" 가 된다. */
+  ctx.SNZ.set(k, ctx.dayKey(7));
+  chk('미룬 수를 세어 보여 준다', /미룬 것 <b>1명/.test(ctx.snzBar([{key:k},{key:'x'}])), true);
+  chk('미룬 것이 없으면 줄도 없다', ctx.snzBar([{key:'x'}]), '');
+  chk('펼칠 수 있다', /data-snzshow="1"/.test(ctx.snzBar([{key:k}])), true);
+  chk('접혀 있을 땐 "보기"', />보기</.test(ctx.snzBar([{key:k}])), true);
+  chk('펼쳐 있을 땐 "다시 접기"',
+      (ctx.SNZ_SHOW = true, />다시 접기</.test(ctx.snzBar([{key:k}]))), true);
+  ctx.SNZ_SHOW = false;
+
+  /* 오늘 안 할 사람 문구를 같이 만들면 붙여 넣고 손으로 지워야 한다. */
+  chk('일괄에서도 미룬 사람은 뺀다',
+      /!SENT\.has\(r\.key\) && !isSnoozed\(r\.key\)/.test(body), true);
+  chk('남은 수에서도 뺀다',
+      ctx.bulkBar('pend', [{key:k},{key:'x'}], 'y').indexOf('남은 <b>1명') >= 0, true);
+  ctx.SNZ.clear();
+
+  /* 열쇠는 보낸 표시와 **같은 규칙**이다. 다르면 같은 줄을 두 이름으로 부르게 된다. */
+  chk('열쇠 규칙은 보낸 표시와 같다', /function snzBtn\(k\)/.test(body) &&
+      /SNZ\.set\(k, until\)/.test(body), true);
+  chk('시트에서 읽어 온다', /function dtSnoozeLog\(force\)/.test(body) &&
+      /readOnce\('dt', 'snoozelog'/.test(body), true);
+  /* 보낸 표시와 같은 이유로 더한다 — 늦게 온 시트가 방금 미룬 것을 되살리면 안 된다. */
+  chk('늦게 온 시트가 방금 미룬 것을 되살리지 않는다',
+      /function seedSnooze\(rows\)\{\s*\n\s*\(rows\|\|\[\]\)\.forEach/.test(body), true);
+  chk('셸이 직접 쓰지 않는다 — DT 에 시킨다', /w\.snoozeStu\(\{ kind:p\[0\]/.test(body), true);
+  chk('앱스크립트에 POST 하지 않는다', /method\s*:\s*['"]POST/i.test(body), false);
+  chk('브라우저에 남기지 않는다', /localStorage[\s\S]{0,40}SNZ/.test(CODE_ONLY), false);
+  /* 오늘 할 일 칩에서는 빼고, 반 상태 그림에는 넣는다(빼면 학생이 사라진 것처럼
+     보인다). 대신 그림 쪽에 몇 명을 미뤘는지 적는다. */
+  chk('오늘 할 일에서는 뺀다', /isSnoozed\(sentKey\('pend'/.test(body) &&
+      /isSnoozed\(sentKey\('abs'/.test(body), true);
+  chk('반 상태 그림에는 넣고 몇 명인지 적는다', /미룬 '\+snz\+'명 포함/.test(body), true);
+  /* 색과 투명도만 쓰면 색을 못 가리는 눈에는 아무 차이가 없다. */
+  chk('빗금과 글자로도 알린다', /\.row\.snz \.nm::after\{content:' 미룸'/.test(SRC) &&
+      /repeating-linear-gradient\(45deg,rgba\(0,0,0,\.045\)/.test(SRC), true);
+  /* 카드는 "이 학생 전부" 를 보는 자리다. 접으면 한 건뿐인 학생의 카드가 빈다. */
+  chk('학생 카드에서는 접지 않는다',
+      /body:not\(\.snzshow\) \.row\.snz\{display:none\}/.test(SRC) &&
+      !/body:not\(\.snzshow\)[^\n]*\.trk__i\.snz\{display:none\}/.test(SRC), true);
+  chk('통과한 학생은 미루지 않는다', /st !== 'ok'/.test(body), true);
+}
+
 console.log('\n── 여덟 명이면 여덟 번 눌렀다 ──');
 {
   const body = SRC.split('<script>')[1] || '';
   chk('한 번에 만드는 길이 있다', /function copyBulk\(btn, kind, rows\)/.test(body), true);
-  chk('이미 보낸 사람은 뺀다', /rows\.filter\(function\(r\)\{ return !SENT\.has\(r\.key\); \}\)/.test(body), true);
+  chk('이미 보낸 사람은 뺀다', /!SENT\.has\(r\.key\) && !isSnoozed\(r\.key\)/.test(body), true);
   chk('누구 것인지 머리를 붙인다', /'── ' \+ r\.name \+ ' ──/.test(body), true);
   /* 문구 규칙이 낱개와 일괄 두 곳에 흩어지면 갈라지고, 학부모는 같은 상황에서
      서로 다른 문자를 받는다. */

@@ -539,6 +539,74 @@ const chk = (n, got, want) => {
     chk('누르면 그 자리를 짚어 준다', jumped, true);
   }
 
+  console.log('\n── 오늘 못 하는 줄은 미룬다 ──');
+  {
+    /* 재시·미응시 목록에 오늘 손댈 수 없는 학생이 섞여 있으면 목록 전체를
+       흘려보게 되고, 정말 오늘 해야 하는 줄까지 같이 흘러간다.
+       지우면 안 된다 — 지운 것은 돌아오지 않는다. */
+    await p.evaluate(() => { const d = document.getElementById('dlg'); if (d.open) d.close(); show('dash'); });
+    await p.waitForTimeout(500);
+    const before = await p.evaluate(() =>
+      [].map.call(document.querySelectorAll('#absList .row.sub'), e => e.querySelector('.nm').textContent));
+    chk('미응시 두 명이 서 있다', before, ['김도윤', '김지성']);
+
+    const clicked = await p.evaluate(() => {
+      const b = document.querySelector('#absList .row.sub .mini.snzb');
+      if (!b) return false;
+      b.click(); return true;
+    });
+    chk('미루기 단추가 있다', clicked, true);
+    await p.waitForTimeout(900);
+
+    const after = await p.evaluate(() => ({
+      /* offsetParent 가 null 이면 화면에서 접힌 것이다. innerHTML 로 세면
+         '지웠다' 와 '접었다' 를 구분하지 못한다 — 미루기는 지우는 것이 아니다. */
+      seen: [].filter.call(document.querySelectorAll('#absList .row.sub'), e => e.offsetParent)
+              .map(e => e.querySelector('.nm').textContent),
+      kept: document.querySelectorAll('#absList .row.sub').length,
+      bar:  (document.querySelector('#absList .snzbar') || { textContent: '' }).textContent.replace(/\s+/g, ' ').trim(),
+      chip: (document.querySelector('#jump .chip[data-jump="absWrap"]') || { textContent: '' }).textContent,
+      /* 숫자 카드는 반 상태다. 미뤘다고 미응시가 한 명 줄어드는 것은 아니다 —
+         줄이면 "학생이 시험을 봤다" 로 읽힌다. */
+      card: (document.getElementById('abCnt') || { textContent: '' }).textContent,
+    }));
+    console.log('  ' + JSON.stringify(after.seen) + ' · ' + after.bar);
+    chk('미룬 줄은 눈에서 내려간다', after.seen, ['김지성']);
+    chk('지운 것이 아니라 접은 것이다', after.kept, 2);
+    chk('몇을 미뤘는지 말해 준다', /미룬 것 1명/.test(after.bar), true);
+    /* 오늘 할 일에서는 빠져야 한다 — 그게 미루기의 전부다. */
+    chk('오늘 할 일에서 빠진다', after.chip, '시험 미응시1');
+    /* 반 상태에서까지 빼면 학생이 사라진 것처럼 보인다. 넣되 적는다
+       (그림 쪽 '미룬 N명 포함' 은 명단이 있어야 그려지므로 tests/hub.js 가 본다). */
+    chk('반 상태 숫자는 그대로다', after.card, '2');
+
+    const shown = await p.evaluate(() => {
+      document.querySelector('#absList .snzbar .mini[data-snzshow]').click();
+      return [].filter.call(document.querySelectorAll('#absList .row.sub'), e => e.offsetParent)
+               .map(e => e.querySelector('.nm').textContent);
+    });
+    chk('펼치면 다시 보인다', shown, ['김도윤', '김지성']);
+
+    /* 잘못 눌렀으면 그 자리에서 무를 수 있어야 한다. 미루기는 되돌릴 수 있는
+       일이라 확인창을 세우는 것보다 이쪽이 낫다. */
+    const undone = await p.evaluate(() => {
+      const b = document.querySelector('#absList .row.sub .mini[data-snz][data-off]');
+      if (!b) return null;
+      b.click(); return true;
+    });
+    chk('지금 보기 단추가 있다', undone, true);
+    await p.waitForTimeout(900);
+    const back = await p.evaluate(() => ({
+      seen: [].filter.call(document.querySelectorAll('#absList .row.sub'), e => e.offsetParent)
+              .map(e => e.querySelector('.nm').textContent),
+      chip: (document.querySelector('#jump .chip[data-jump="absWrap"]') || { textContent: '' }).textContent,
+      bar:  !!document.querySelector('#absList .snzbar'),
+    }));
+    chk('무르면 도로 올라온다', back.seen, ['김도윤', '김지성']);
+    chk('오늘 할 일에도 도로 잡힌다', back.chip, '시험 미응시2');
+    chk('미룬 것이 없으면 줄도 사라진다', back.bar, false);
+  }
+
   console.log('\n── 학생을 걸러 본다 ──');
   {
     await p.evaluate(() => show('stu'));

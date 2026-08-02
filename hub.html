@@ -280,12 +280,28 @@ tr.pick:hover td{background:var(--wash)}
 /* ── 처리한 것은 가라앉는다 ─────────────────────────
    문자를 보내도 그 줄이 그대로 남아 있으면, 잠깐 다른 일을 하고 돌아와서
    누구에게 보냈는지 다시 세야 한다. 누른 줄은 눈에서 내려간다.
-   ⚠ 이 표시는 **이 화면에서만** 산다(셸은 아무것도 저장하지 않는다).
-   기기를 넘어 남기려면 DT 시트에 적어야 하고, 그건 DT 쪽 일이다. */
+   표시는 DT 시트(_안내기록)에 남는다 — 셸은 여전히 쓰지 않고, DT 의 재시·문자
+   화면에 시킨다. 흐리게만 두지 않고 글자('보냄')를 같이 붙인다: 색과 투명도만
+   쓰면 색을 못 가리는 눈에는 아무 차이도 없다. */
 .row.sent,.trk__i.sent{opacity:.5}
 .trk__i.sent .trk__t::after{content:' · 보냄';font-size:11px;color:var(--ok);font-weight:700}
 .row.sent .nm::after{content:' 보냄';font-size:11px;font-weight:700;color:var(--ok);
   letter-spacing:.02em}
+
+/* ── 미룬 줄 ─────────────────────────────────────────
+   기본은 접는다. 접어 두는 것이 미루기의 전부다 — 목록에 남아 있으면 미룬 뜻이
+   없다. 펼치면 빗금으로 표시한다(흐리기만 하면 '아직 안 읽은 줄'과 헷갈린다). */
+body:not(.snzshow) .row.snz{display:none}
+/* 학생 카드 안에서는 접지 않는다. 카드는 "이 학생 전부" 를 보는 자리라, 접으면
+   챙길 것이 한 건뿐인 학생의 카드가 통째로 비어 "DT 를 안 봤나" 로 읽힌다. */
+.row.snz,.trk__i.snz{opacity:.62;
+  background-image:repeating-linear-gradient(45deg,rgba(0,0,0,.045) 0 3px,transparent 3px 8px)}
+.row.snz .nm::after{content:' 미룸';font-size:11px;font-weight:700;color:var(--warnG);
+  letter-spacing:.02em}
+.trk__i.snz .trk__t::after{content:' · 미룸';font-size:11px;font-weight:700;color:var(--warnG)}
+.snzbar{border-top:1px dashed var(--line)}
+.mini.snzb{border-style:dashed;color:var(--muted)}
+.mini.snzb:hover{border-color:var(--warnG);color:var(--warnG);border-style:solid}
 
 /* ── 모든 반 한눈에(스몰 멀티플) ─────────────────────
    반이 여덟이면 칩을 여덟 번 눌러야 전체가 보인다. 같은 막대를 반마다 한 줄씩
@@ -1146,6 +1162,83 @@ function sentKey(kind, name, course, round){
 }
 function sentAttr(k){ return ' data-sk="'+esc(k)+'"'; }
 function sentCls(k){ return SENT.has(k) ? ' sent' : ''; }
+
+/* ── 오늘 못 하는 줄은 미룬다 ───────────────────────────────────────
+   재시 목록에 오늘 손댈 수 없는 학생이 섞여 있다. 이번 주 내내 결석이거나,
+   이미 따로 얘기해 두었거나, 다음 주에 연락 달라고 한 집이거나. 그런 줄도
+   매일 똑같이 올라오니 목록 전체를 흘려보게 되고, **정말 오늘 해야 하는
+   줄까지 같이 흘러간다.**
+
+   [지우지 않는다]
+   지운 것은 돌아오지 않는다. 미룬 것은 날짜가 지나면 저절로 돌아온다 —
+   잊어버려도 되게 하는 것이 목적이다. 치우는 트리거도 없다(지난 것은
+   시트에 남되 목록에 안 뜬다). 열쇠는 보낸 표시와 같은 규칙을 쓴다. */
+const SNZ = new Map();          // 열쇠 → 'YYYY-MM-DD'
+let SNZ_SHOW = false;           // 미룬 것도 펼쳐 보는 중인가
+const SNZ_DAYS = 7;             // "다음 주에 다시"
+function dtSnoozeLog(force){
+  return readOnce('dt', 'snoozelog', function(d){ return d.snoozed || []; }, force);
+}
+/* 보낸 표시와 같은 이유로 **더한다**. 시트 응답은 늦게 오고, 그 사이에
+   미룬 것이 있으면 갈아 끼우는 순간 그 줄이 도로 올라온다. */
+function seedSnooze(rows){
+  (rows||[]).forEach(function(r){
+    SNZ.set(sentKey(r.kind, r.name, r.course, r.round), String(r.until||''));
+  });
+}
+function dayKey(off){
+  const d = new Date(); if(off) d.setDate(d.getDate() + off);
+  return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+}
+/* 날짜는 글자로 비교한다. ISO 차례가 곧 사전 차례라 크기 비교가 그대로 맞고,
+   시간대 때문에 하루 밀릴 일이 없다. */
+function snoozedTill(k){
+  const u = SNZ.get(k) || '';
+  return (u && u >= dayKey(0)) ? u : '';
+}
+function isSnoozed(k){ return !!snoozedTill(k); }
+function snzCls(k){ return isSnoozed(k) ? ' snz' : ''; }
+function snzBtn(k){
+  const u = snoozedTill(k);
+  if(u) return '<button class="mini undo" data-snz="'+esc(k)+'" data-off="1">'+
+    esc(u.slice(5).replace('-','/'))+'까지 · 지금 보기</button>';
+  return '<button class="mini snzb" data-snz="'+esc(k)+'">미루기</button>';
+}
+/* 미룬 것이 몇인지 안 보이면 "왜 아까보다 줄었지" 가 된다. 세어서 보여 주고,
+   한 번 눌러 펼칠 수 있게 한다. */
+function snzBar(rows){
+  const n = (rows||[]).filter(function(r){ return isSnoozed(r.key); }).length;
+  if(!n) return '';
+  return '<div class="selbar snzbar"><span>미룬 것 <b>'+n+'명</b>'+
+    '<span class="dim"> · 날짜가 지나면 저절로 돌아옵니다</span></span>'+
+    '<span style="flex:1"></span><button class="mini" data-snzshow="1">'+
+    (SNZ_SHOW ? '다시 접기' : '보기')+'</button></div>';
+}
+document.addEventListener('click', function(e){
+  const t = e.target.closest ? e.target.closest('.mini[data-snzshow]') : null;
+  if(t){
+    SNZ_SHOW = !SNZ_SHOW;
+    document.body.classList.toggle('snzshow', SNZ_SHOW);
+    [].forEach.call(document.querySelectorAll('.mini[data-snzshow]'), function(el){
+      el.textContent = SNZ_SHOW ? '다시 접기' : '보기'; });
+    return;
+  }
+  const b = e.target.closest ? e.target.closest('.mini[data-snz]') : null;
+  if(!b) return;
+  const k = b.dataset.snz, p = k.split('|'), off = b.dataset.off === '1';
+  const until = off ? '' : dayKey(SNZ_DAYS);
+  if(off) SNZ.delete(k); else SNZ.set(k, until);
+  const row = b.closest('.row,.trk__i');
+  if(row) row.classList.toggle('snz', !off);
+  b.outerHTML = snzBtn(k);
+  /* 셸은 쓰지 않는다 — DT 의 재시·문자 화면이 대신 적는다. 못 적혀도 잃는
+     것은 없다: 다음에 열면 그 줄이 그대로 목록에 있을 뿐이다. */
+  dtPendWindow().then(function(w){
+    if(typeof w.snoozeStu === 'function')
+      w.snoozeStu({ kind:p[0], name:p[1], course:p[2], round:p[3], until:until, off:off });
+  }).catch(function(){});
+  refreshSoon();
+});
 /* 문구 만드는 규칙이 낱개 단추와 일괄 단추 두 곳에 흩어지면 언젠가 갈라진다.
    한 곳에서만 만든다 — 문구 자체는 여기서도 DT 에서 빌린다. */
 function makerFor(kind, i, j){
@@ -1172,7 +1265,9 @@ function makerFor(kind, i, j){
    잇되 누구 것인지 머리를 붙인다 — 붙여 넣고 잘라 쓰면 된다. */
 function copyBulk(btn, kind, rows){
   const orig = btn.getAttribute('data-orig') || btn.textContent;
-  const left = rows.filter(function(r){ return !SENT.has(r.key); });
+  /* 미룬 사람은 빼고 만든다 — 오늘 안 할 사람에게 보낼 문구를 같이 만들면
+     붙여 넣고 나서 손으로 지워야 한다. */
+  const left = rows.filter(function(r){ return !SENT.has(r.key) && !isSnoozed(r.key); });
   if(!left.length){ flash(btn, '모두 보냈습니다', true); return; }
   btn.disabled = true; btn.textContent = '준비 중…';
   dtPendWindow().then(function(w){
@@ -1206,7 +1301,7 @@ function copyBulk(btn, kind, rows){
   });
 }
 function bulkBar(kind, rows, label){
-  const left = rows.filter(function(r){ return !SENT.has(r.key); }).length;
+  const left = rows.filter(function(r){ return !SENT.has(r.key) && !isSnoozed(r.key); }).length;
   if(rows.length < 2) return '';
   return '<div class="selbar"><span>모두 <b>'+rows.length+'명</b>'+
     (left<rows.length ? ' · 남은 <b>'+left+'명</b>' : '')+'</span><span style="flex:1"></span>'+
@@ -1499,9 +1594,14 @@ function capNote(rows){
    스크롤하며 세야 했고, 그래서 아래쪽 섹션은 잘 안 보게 된다.
    몇 건인지와 어디인지를 숫자 카드 바로 밑에 세운다. 빈 것은 안 세운다. */
 const JUMPS = [
+  /* 미룬 것은 세지 않는다 — 이 줄은 "오늘 할 일" 이고, 미룬 것은 오늘 일이
+     아니다. 아래 그림(renderFig)은 반 상태라 미룬 것까지 그대로 센다. */
   { id:'absWrap',   label:'시험 미응시', urgent:true,
-    n:function(){ return ABS_ROWS.reduce(function(t,c){ return t+c.absent.length; }, 0); } },
-  { id:'pendWrap',  label:'재시 대기',   urgent:true,  n:function(){ return PEND_ROWS.length; } },
+    n:function(){ return ABS_ROWS.reduce(function(t,c){ return t + c.absent.filter(function(nm){
+        return !isSnoozed(sentKey('abs', nm, c.course, c.round)); }).length; }, 0); } },
+  { id:'pendWrap',  label:'재시 대기',   urgent:true,
+    n:function(){ return PEND_ROWS.filter(function(r){
+        return !isSnoozed(sentKey('pend', r.name, r.course, r.round)); }).length; } },
   { id:'passWrap',  label:'통과',        urgent:false, n:function(){ return PASS_ROWS.length; } },
   { id:'misWrap',   label:'어려워하는 개념', urgent:false, n:function(){ return MIS_TOP.length; } },
   { id:'mergeWrap', label:'합쳐야 할 이름', urgent:true, n:function(){ return mergeCandidates().length; } },
@@ -1518,6 +1618,9 @@ function renderFig(){
   const total = roster.length;
   const miss = ABS_ROWS.reduce(function(t,c){ return t + c.absent.length; }, 0);
   const wait = PEND_ROWS.length, ok = PASS_ROWS.length;
+  let snz = PEND_ROWS.filter(function(r){ return isSnoozed(sentKey('pend', r.name, r.course, r.round)); }).length;
+  ABS_ROWS.forEach(function(c){ (c.absent||[]).forEach(function(nm){
+    if(isSnoozed(sentKey('abs', nm, c.course, c.round))) snz++; }); });
   const parts = [{ n:miss, tone:'bad',  label:'미응시' },
                  { n:wait, tone:'warn', label:'재시 대기' },
                  { n:ok,   tone:'ok',   label:'통과' },
@@ -1525,11 +1628,14 @@ function renderFig(){
   el.innerHTML = '<div class="note figrow">'+
     donut(total ? ok/total*100 : 0, '통과 '+ok+'/'+total)+
     '<div class="fill"><b>반 명단 '+total+'명 기준</b> '+
-    '<span class="dim">· 재시·통과는 최근 2주</span>'+
+    '<span class="dim">· 재시·통과는 최근 2주'+(snz ? ' · 미룬 '+snz+'명 포함' : '')+'</span>'+
     stackBar(parts)+legendOf(parts)+'</div></div>';
 }
 function renderJump(){
-  renderFig();          // 칩과 그림은 같은 숫자를 본다 — 따로 그리면 어긋난다
+  /* 칩과 그림은 **같은 배열**을 본다(따로 세면 어긋난다). 다만 칩은 미룬 것을
+     빼고, 그림은 넣는다 — 칩은 오늘 할 일이고 그림은 반 상태다. 그래서 그림
+     쪽에 미룬 수를 적어 둔다. 안 적으면 둘이 안 맞는 것처럼 보인다. */
+  renderFig();
   const el = document.getElementById('jump'); if(!el) return;
   const on = JUMPS.filter(function(j){ return j.n() > 0; });
   el.hidden = !on.length;
@@ -1588,6 +1694,7 @@ function renderDash(){
   /* 보낸 기록을 시트에서 받아 화면에 입힌다. 못 받아도 화면은 그대로 산다 —
      표시가 없을 뿐이고, 문자는 여전히 복사된다. */
   dtSentLog().then(function(rows){ seedSent(rows); refreshSoon(); }).catch(function(){});
+  dtSnoozeLog().then(function(rows){ seedSnooze(rows); refreshSoon(); }).catch(function(){});
 
   dtRoster().then(function(rows){
     document.getElementById('dtCnt').textContent = rows.length;
@@ -1602,9 +1709,10 @@ function renderDash(){
     syncWorkRows(); renderJump(); renderClassTab();
     if(!rows.length){ const w0=document.getElementById('pendWrap'); if(w0) w0.hidden=true; return; }
     const w = document.getElementById('pendWrap'); w.hidden = false;
-    document.getElementById('pendList').innerHTML = bulkBar('pend',
-      PEND_ROWS.map(function(r,i){ return { i:i, name:r.name||'',
-        key:sentKey('pend', r.name, r.course, r.round) }; }), '안 보낸 사람 한 번에') +
+    const pendKeys = PEND_ROWS.map(function(r,i){ return { i:i, name:r.name||'',
+      key:sentKey('pend', r.name, r.course, r.round) }; });
+    document.getElementById('pendList').innerHTML =
+      bulkBar('pend', pendKeys, '안 보낸 사람 한 번에') + snzBar(pendKeys) +
       capNote(PEND_ROWS) + PEND_ROWS.slice(0,DASH_MAX).map(function(r,i){
       const nm = esc(r.name||r.studentKey||'—');
       const sk = sentKey('pend', r.name, r.course, r.round);
@@ -1612,10 +1720,10 @@ function renderDash(){
                     r.lastAttempt?(r.lastAttempt+' '+r.score+'점'):'',
                     r.nextNeeded?('→ '+r.nextNeeded+' 미응시'):'',
                     (r.days!=null)?(r.days+'일'):''].filter(Boolean).join(' · ');
-      return '<div class="row'+sentCls(sk)+'" style="cursor:default"'+sentAttr(sk)+'><span class="nm">'+nm+'</span>'+
+      return '<div class="row'+sentCls(sk)+snzCls(sk)+'" style="cursor:default"'+sentAttr(sk)+'><span class="nm">'+nm+'</span>'+
              '<span class="where">'+esc(meta)+'</span>'+
              '<button class="mini msg" data-pend="'+i+'" data-orig="문자 복사">문자 복사</button>'+
-             sentUndo(sk)+'</div>';
+             sentUndo(sk)+snzBtn(sk)+'</div>';
     }).join('');
   }).catch(function(){ document.getElementById('pdCnt').textContent = '—'; });
 
@@ -1627,20 +1735,20 @@ function renderDash(){
     if(ac) ac.textContent = ABS_ROWS.reduce(function(t,c){ return t + c.absent.length; }, 0);
     w.hidden = !ABS_ROWS.length;
     if(!ABS_ROWS.length) return;
-    document.getElementById('absList').innerHTML = bulkBar('abs',
-      (function(){ const out=[]; ABS_ROWS.forEach(function(c,i){ (c.absent||[]).forEach(function(nm,j){
-        out.push({ i:i, j:j, name:nm, key:sentKey('abs', nm, c.course, c.round) }); }); }); return out; })(),
-      '개별 안내 한 번에') + ABS_ROWS.map(function(c,i){
+    const absKeys = (function(){ const out=[]; ABS_ROWS.forEach(function(c,i){ (c.absent||[]).forEach(function(nm,j){
+      out.push({ i:i, j:j, name:nm, key:sentKey('abs', nm, c.course, c.round) }); }); }); return out; })();
+    document.getElementById('absList').innerHTML =
+      bulkBar('abs', absKeys, '개별 안내 한 번에') + snzBar(absKeys) + ABS_ROWS.map(function(c,i){
       const head = '<div class="row" style="cursor:default"><span class="nm">'+esc(c.label)+'</span>'
         +'<span class="where">'+esc((DT_COURSE[c.course]||c.course)+' '+c.round+'회')+'</span>'
         +'<span class="cnt">미응시 '+c.absent.length+'/'+c.total+'</span>'
         +'<button class="mini msg" data-abs="'+i+'" data-stage="bc" data-orig="반 전체 공지">반 전체 공지</button></div>';
       const stus = c.absent.map(function(nm,j){
         const sk = sentKey('abs', nm, c.course, c.round);
-        return '<div class="row sub'+sentCls(sk)+'" style="cursor:default"'+sentAttr(sk)+'><span class="nm">'+esc(nm)+'</span>'
+        return '<div class="row sub'+sentCls(sk)+snzCls(sk)+'" style="cursor:default"'+sentAttr(sk)+'><span class="nm">'+esc(nm)+'</span>'
           +'<button class="mini msg" data-abs="'+i+'" data-who="'+j+'" data-stage="1" data-orig="1차 안내">1차 안내</button>'
           +'<button class="mini msg" data-abs="'+i+'" data-who="'+j+'" data-stage="2" data-orig="리마인드">리마인드</button>'
-          +sentUndo(sk)+'</div>';
+          +sentUndo(sk)+snzBtn(sk)+'</div>';
       }).join('');
       return head + stus;
     }).join('');
@@ -1928,12 +2036,12 @@ function renderStuOther(){
   d.absent.forEach(function(a){
     const c = ABS_ROWS[a.i]; if(!c) return;
     const sk = sentKey('abs', r.name, c.course, c.round);
-    rows.push('<div class="trk__i miss'+sentCls(sk)+'"'+sentAttr(sk)+'><div><div class="trk__t">DT 시험 미응시</div>'+
+    rows.push('<div class="trk__i miss'+sentCls(sk)+snzCls(sk)+'"'+sentAttr(sk)+'><div><div class="trk__t">DT 시험 미응시</div>'+
       '<div class="trk__m">'+esc(c.label+' · '+(DT_COURSE[c.course]||c.course)+' '+c.round+'회')+'</div></div>'+
       '<span class="acts">'+
       '<button class="mini msg" data-abs="'+a.i+'" data-who="'+a.j+'" data-stage="1" data-orig="1차 안내">1차 안내</button>'+
       '<button class="mini msg" data-abs="'+a.i+'" data-who="'+a.j+'" data-stage="2" data-orig="리마인드">리마인드</button>'+
-      '</span></div>');
+      snzBtn(sk)+'</span></div>');
   });
   d.pending.forEach(function(i){
     const x = PEND_ROWS[i];
@@ -1941,10 +2049,10 @@ function renderStuOther(){
                   x.nextNeeded?('→ '+x.nextNeeded+' 미응시'):'',
                   (x.days!=null)?(x.days+'일째'):''].filter(Boolean).join(' · ');
     const sk = sentKey('pend', x.name, x.course, x.round);
-    rows.push('<div class="trk__i dt'+sentCls(sk)+'"'+sentAttr(sk)+'><div><div class="trk__t">DT 재시 대기 · '+esc(String(x.score))+'점</div>'+
+    rows.push('<div class="trk__i dt'+sentCls(sk)+snzCls(sk)+'"'+sentAttr(sk)+'><div><div class="trk__t">DT 재시 대기 · '+esc(String(x.score))+'점</div>'+
       '<div class="trk__m">'+esc(meta)+'</div></div><span class="acts">'+
       '<button class="mini msg" data-pend="'+i+'" data-orig="재시 안내">재시 안내</button>'+
-      linkBtns(x.reportLink, 'DT 성적표')+'</span></div>');
+      snzBtn(sk)+linkBtns(x.reportLink, 'DT 성적표')+'</span></div>');
   });
   d.passed.forEach(function(i){
     const x = PASS_ROWS[i];
@@ -2277,13 +2385,15 @@ function renderClassTab(){
              : st==='wait' ? sentKey('pend', r.who.name, PEND_ROWS[r.pend[0]].course, PEND_ROWS[r.pend[0]].round)
              : st==='ok'   ? sentKey('pass', r.who.name, PASS_ROWS[r.pass[0]].course, PASS_ROWS[r.pass[0]].round)
              : '';
-    return '<div class="row'+(sk?sentCls(sk):'')+'" style="cursor:default"'+(sk?sentAttr(sk):'')+'>'+
+    const canSnz = sk && st !== 'ok';   // 통과한 학생을 미룰 일은 없다
+    return '<div class="row'+(sk?sentCls(sk):'')+(canSnz?snzCls(sk):'')+'" style="cursor:default"'+(sk?sentAttr(sk):'')+'>'+
       '<span class="nm">'+esc(r.who.name)+'</span>'+
       '<span class="where">'+esc([r.who.school, r.who.grade?r.who.grade+'학년':''].filter(Boolean).join(' '))+'</span>'+
       '<span class="tags"><span class="tag '+CLS_TONE[st]+'">'+CLS_LABEL[st]+'</span></span>'+
       '<span class="cnt">'+esc(score)+'</span>'+
       '<span class="cnt">'+(pcts.length? ('파이널 '+pcts.length+'회'+(last!=null?' · '+last+'%':'')) : '')+'</span>'+
-      '<span class="acts">'+msg+(sk?sentUndo(sk):'')+'<button class="mini" data-clsrow="'+i+'">카드</button></span>'+
+      '<span class="acts">'+msg+(sk?sentUndo(sk):'')+(canSnz?snzBtn(sk):'')+
+      '<button class="mini" data-clsrow="'+i+'">카드</button></span>'+
       '</div>';
   }).join('');
 }
