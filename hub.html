@@ -175,7 +175,12 @@ section{margin-bottom:34px}
   font-size:14px;cursor:pointer;background:none;border-left:none;border-right:none;border-top:none;
   width:100%;text-align:left;font-family:inherit;color:inherit}
 .row:last-child{border-bottom:none}
-.row:hover,.row:focus-visible{background:var(--wash);outline:none}
+.row:hover{background:var(--wash)}
+/* 키보드로 줄을 훑을 때 어디에 서 있는지 보여야 한다. 예전에는 여기서
+   outline 을 지우고 옅은 옥색 배경(--wash #EDF4F1)만 남겼는데, 종이색과
+   1.13:1 이라 **사실상 아무 표시도 없었다.** 마우스로 쓰면 안 보이는 결함이다.
+   놋쇠색은 종이 위 3.02:1 로 테두리 기준(3:1)을 넘긴다. */
+.row:focus-visible{background:var(--wash);outline:2px solid var(--brass);outline-offset:-2px}
 .row .nm{font-weight:600;min-width:74px}
 .row .where{color:var(--muted);font-size:12.5px;flex:1}
 .row .tags{display:flex;gap:5px;flex-wrap:wrap}
@@ -412,6 +417,9 @@ body:not(.snzshow) .row.snz{display:none}
 #pal::backdrop{background:rgba(20,18,14,.4)}
 #palIn{width:100%;box-sizing:border-box;border:none;border-bottom:1px solid var(--line);
   padding:15px 18px;font:inherit;font-size:16px;background:none;color:var(--ink);outline:none}
+/* 창을 열면 여기로 초점이 온다. 아무 표시가 없으면 타자가 어디로 들어가는지
+   모른다 — 밑줄을 놋쇠색으로 굵게 바꿔서 알린다. */
+#palIn:focus{border-bottom:2px solid var(--brass);padding-bottom:14px}
 #palList{max-height:52vh;overflow:auto}
 #palList .row{cursor:pointer}
 #palList .row[aria-selected="true"]{background:var(--wash)}
