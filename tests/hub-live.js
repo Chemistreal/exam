@@ -22,6 +22,8 @@
        PLAYWRIGHT_MODULE=<경로> CHROMIUM_PATH=<경로> node tests/hub-live.js
    ============================================================ */
 'use strict';
+/* 멈추는 검사는 실패하는 검사보다 나쁘다 — tests/_watchdog.js 주석 참고. */
+require('./_watchdog.js')(240);
 let chromium;
 try { ({ chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright')); }
 catch (e) {
@@ -137,7 +139,10 @@ const chk = (n, got, want) => {
                    { studentKey:'s9', name:'다른학생', school:'X중', ts: now - 1 * D, at:'', n:1 } ] }
                : act === 'mistags' ? { ok: true, mis: { days: 21, rows: [
                    { name: '김지성', school: '휘문중', course: 'ch2', round: 12, attempt: '재시',
-                     pass: true, score: 96, days: 1, tags: ['몰농도', '완충'],
+                     /* ⚠ days 5 는 일부러다. 최예린(3일)보다 **덜 최근**이라,
+                        최근 순으로만 세우면 김지성이 아래로 내려간다.
+                        되풀이(2회차)를 먼저 세우는지 여기서 갈린다. */
+                     pass: true, score: 96, days: 5, tags: ['몰농도', '완충'],
                      reportLink: 'https://x/report.html?student=b' },
                    /* 7회는 위 자료 목록에 **없다.** 주소를 지어내면 404 로 끝난다. */
                    { name: '김지성', school: '휘문', course: 'ch2', round: 7, attempt: '정시',
@@ -800,7 +805,9 @@ const chk = (n, got, want) => {
        3명으로 세고, 보충 자리를 하나 더 잡게 된다. */
     chk('많이 걸린 개념이 앞에 선다', con.chips[0], '몰농도2');
     chk('한 사람은 한 줄', con.names, ['김지성', '최예린']);
-    chk('급한 것이 위에 선다', con.names[0], '김지성');
+    /* 세 회차 내리 걸린 아이가 이번 주에 한 번 걸린 아이 아래로 내려가면,
+       보충 자리는 위에서부터 차는 탓에 정작 필요한 쪽이 빠진다. */
+    chk('되풀이해 걸린 아이가 위에 선다', con.names[0], '김지성');
     chk('몇 명인지 적는다', /몰농도.*2명|아직 못 잡은 학생 2명/.test(con.head), true);
     /* 통과했는데 여기 있으면 "얘는 통과했는데 왜" 가 되고, 목록 전체를 못 믿게 된다. */
     chk('통과했지만 이 개념은 틀림을 적는다',
@@ -816,7 +823,9 @@ const chk = (n, got, want) => {
       return { names: [].map.call(document.querySelectorAll('#conList .row .nm'), e => e.textContent),
                hash: location.hash };
     });
-    chk('개념을 바꾸면 그 사람들이 선다', (other || {}).names, ['김지성', '김도윤']);
+    /* 완충은 둘 다 한 회차씩이라 되풀이로 갈리지 않는다 — 최근 순이다
+       (김도윤 2일 · 김지성 5일). 여기서 보는 것은 **누가 서는가**다. */
+    chk('개념을 바꾸면 그 사람들이 선다', (other || {}).names, ['김도윤', '김지성']);
     chk('바꾼 것도 주소에 남는다', /tag=%EC%99%84%EC%B6%A9/.test((other || {}).hash || ''), true);
 
     /* 한 번 틀린 아이와 두 회차 내리 걸린 아이는 다른 아이다. 김지성은
