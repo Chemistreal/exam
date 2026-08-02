@@ -3339,9 +3339,25 @@ function openRound(id){
   /* 평균 하나로는 이 회차가 쉬웠는지 갈렸는지 안 보인다. 다음 회차를 짤 때
      필요한 것은 어디에 몰렸나다. */
   const pcts = g.rows.map(function(r){ return r.total? Math.round(r.correct/r.total*100):0; });
+  /* ── 어느 오답으로 쏠렸나 ──────────────────────────────────────
+     화학은 **오답 선택지가 곧 오개념**이다(몰 vs 질량, 산화수 부호). 정답률은
+     '틀렸다' 를 말하지만 어느 오답을 골랐는지는 '왜' 를 말한다.
+
+     그런데 그 계산은 **파이널 앱이 이미 하고 있다** — 성적표의 '누적 정답률 ·
+     선택지 분석' 이 정답률 낮은 여섯 문항의 보기별 분포를 그린다. 여기에 다시
+     만들면 두 벌이 갈라지고, 어느 쪽이 맞는지 물어야 한다.
+     없는 것은 계산이 아니라 **들어가는 길**이었다: 그 분석은 학생 성적표 안에
+     있어서, 회차를 보다가 열려면 아무 학생이나 하나 골라 열어야 했다.
+     그 길을 여기 낸다(분석 자체는 반 전체 기록으로 그린다 — 누구 것을 열든
+     같은 그림이다). */
+  const anaOK = g.rows.some(function(r){ return r.ans; });
   let html = '<div class="sub2">점수 분포</div>'+histo(pcts)+
     '<div class="hint" style="margin:2px 0 0">가로: 정답률 0~100% · 세로: 인원 '+
     '<span class="dim">(붉은 쪽이 50% 미만)</span></div>'+
+    (anaOK ? '<div class="note2"><button class="mini" data-rnd="ana">문항 분석 열기</button>'+
+      '<span class="dim">정답률 낮은 문항의 <b>보기별 응답 분포</b>를 파이널 성적표에서 엽니다 — '+
+      '많이 고른 오답이 핵심 오개념입니다. 분석은 <b>반 전체 기록</b>으로 그리므로 '+
+      '누구 성적표로 열든 같습니다.</span></div>' : '')+
     '<div class="sub2">본 학생 · '+g.n+'명'+
     ' <button class="mini" data-rnd="table">표 복사</button></div><div class="list">';
   html += g.rows.map(function(r,i){
@@ -3370,6 +3386,15 @@ function openRound(id){
   wireActs(body, g.rows);
   document.getElementById('dlg').showModal();
 }
+/* 분석은 반 전체 기록으로 그리므로 누구 것을 열든 같다 — 답안이 있는 첫 줄을
+   쓴다. 여기서 새 창을 짓지 않고 이미 있는 길(openReport)을 그대로 탄다. */
+document.addEventListener('click', function(e){
+  const b = e.target.closest ? e.target.closest('.mini[data-rnd="ana"]') : null;
+  if(!b || !RND_OPEN) return;
+  const r = RND_OPEN.rows.filter(function(x){ return x.ans; })[0];
+  if(!r){ flash(b, '답안 없음'); return; }
+  openReport(r, b);
+});
 document.getElementById('rq').addEventListener('input', function(){ renderRounds(); writeHash(); });
 
 /* ── 자료 ──────────────────────────────────────────────────────────
