@@ -193,6 +193,9 @@ td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:righ
 .conn.warn{border-color:rgba(176,135,58,.45);color:#7a5d20}
 .conn.wait{opacity:.7}
 .mini.copied{border-color:var(--ok);color:var(--ok);background:rgba(47,122,90,.06)}
+/* 무르는 단추는 눈에 덜 띄어야 한다 — 자주 쓸 것이 아니다. */
+.mini.undo{border-style:dashed;color:var(--muted)}
+.mini.undo:hover{border-color:var(--ms);color:var(--ms);border-style:solid}
 .mini[disabled]{opacity:.55;cursor:progress}
 .trk__i{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .trk__i>div{flex:1;min-width:150px}
@@ -1101,6 +1104,43 @@ function dtPendWindow(){
    (브라우저에 적어 두면 다른 기기에서는 안 보이고, 그건 이 시스템이 피하려는
    바로 그 모양이다). 기기를 넘어 남기려면 DT 시트에 적어야 하고 그건 DT 쪽 일이다. */
 const SENT = new Set();
+/* ── 보낸 기록은 시트가 갖는다 ──────────────────────────────────────
+   예전에는 이 표시가 화면에서만 살았다. 새로고침하면 사라지고 다른 기기에서는
+   안 보였다 — 여덟 명 중 다섯에게 보낸 뒤 잠깐 다른 일을 하면 누구에게
+   보냈는지 다시 세야 했다.
+   브라우저에 적으면 기기마다 답이 달라진다(이 시스템이 피하려는 바로 그 모양).
+   그래서 시트다. **셸은 여전히 쓰지 않는다** — DT 의 재시·문자 화면이 대신
+   쓰고, 셸은 문구를 빌리듯 그 함수를 빌린다. */
+function dtSentLog(force){
+  return readOnce('dt', 'sentlog', function(d){ return d.sent || []; }, force);
+}
+/* 시트에서 온 것을 **더한다**(비우지 않는다). 시트 응답은 늦게 오는데, 그
+   사이에 선생님이 누른 것이 있으면 비우는 순간 그 표시가 사라진다 — 방금
+   보낸 사람이 안 보낸 것처럼 되돌아온다.
+   무르는 것은 그 자리에서 지우므로(sentUndo) 여기서 지울 일이 없다. */
+function seedSent(rows){
+  (rows||[]).forEach(function(r){
+    SENT.add(sentKey(r.kind, r.name, r.course, r.round));
+  });
+}
+/* 잘못 눌렀으면 무를 수 있다. 보낸 표시는 로그라 언제든 지울 수 있으므로,
+   5초 기다리게 하는 것보다 되돌릴 수 있게 두는 편이 낫다 — 5초는 잘못 누른
+   것을 알아채기엔 짧고, 제대로 누른 사람에게는 매번 걸리적거린다. */
+function sentUndo(k){
+  return SENT.has(k) ? '<button class="mini undo" data-unsent="'+esc(k)+'">보냄 취소</button>' : '';
+}
+document.addEventListener('click', function(e){
+  const b = e.target.closest ? e.target.closest('.mini[data-unsent]') : null;
+  if(!b) return;
+  const k = b.dataset.unsent, p = k.split('|');
+  SENT.delete(k);
+  const row = b.closest('.row,.trk__i'); if(row) row.classList.remove('sent');
+  b.remove();
+  dtPendWindow().then(function(w){
+    if(typeof w.unmarkSent === 'function')
+      w.unmarkSent({ kind:p[0], name:p[1], course:p[2], round:p[3] });
+  }).catch(function(){});
+});
 function sentKey(kind, name, course, round){
   return [kind, normName(name), course||'', round||''].join('|');
 }
@@ -1145,7 +1185,12 @@ function copyBulk(btn, kind, rows){
     if(!parts.length) throw new Error('문구를 만들지 못했습니다');
     const text = parts.join('\n\n');
     const done = function(){
-      left.forEach(function(r){ SENT.add(r.key); });
+      left.forEach(function(r){
+        SENT.add(r.key);
+        const p = r.key.split('|');
+        if(typeof w.markSent === 'function')
+          w.markSent({ kind:p[0], name:p[1], course:p[2], round:p[3] });
+      });
       btn.disabled = false; btn.textContent = parts.length + '명 복사됨 ✓'; btn.classList.add('copied');
       [].forEach.call(document.querySelectorAll('.row[data-sk]'), function(el){
         if(SENT.has(el.dataset.sk)) el.classList.add('sent'); });
@@ -1196,7 +1241,14 @@ function copyMsg(btn, make, noteId){
       btn.disabled = false; btn.textContent = '복사됨 ✓'; btn.classList.add('copied');
       /* 누른 줄을 가라앉힌다. 다시 그려도 남도록 열쇠를 따로 기억해 둔다. */
       const row = btn.closest && btn.closest('.row,.trk__i');
-      if(row && row.dataset && row.dataset.sk){ SENT.add(row.dataset.sk); row.classList.add('sent'); }
+      if(row && row.dataset && row.dataset.sk){
+        SENT.add(row.dataset.sk); row.classList.add('sent');
+        /* 시트에도 적어 둔다 — 기기를 넘어 남아야 뜻이 있다. 셸이 직접 쓰지
+           않고 DT 화면에 시킨다. 못 적혀도 문자는 이미 복사돼 있다. */
+        const p = row.dataset.sk.split('|');
+        if(typeof w.markSent === 'function')
+          w.markSent({ kind:p[0], name:p[1], course:p[2], round:p[3] });
+      }
       setTimeout(function(){ btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
     };
     if(navigator.clipboard && navigator.clipboard.writeText)
@@ -1533,6 +1585,10 @@ function renderDash(){
     '<div class="card warn"><b id="abCnt">'+(abN!=null? abN : '…')+'</b><span>시험 미응시</span></div>' +
     '<div class="card warn"><b id="pdCnt">'+(pdKnown? pdKnown.length : '…')+'</b><span>DT 미완료</span></div>';
 
+  /* 보낸 기록을 시트에서 받아 화면에 입힌다. 못 받아도 화면은 그대로 산다 —
+     표시가 없을 뿐이고, 문자는 여전히 복사된다. */
+  dtSentLog().then(function(rows){ seedSent(rows); refreshSoon(); }).catch(function(){});
+
   dtRoster().then(function(rows){
     document.getElementById('dtCnt').textContent = rows.length;
     renderClassTab(); renderRosterCount(); renderIncome();
@@ -1558,7 +1614,8 @@ function renderDash(){
                     (r.days!=null)?(r.days+'일'):''].filter(Boolean).join(' · ');
       return '<div class="row'+sentCls(sk)+'" style="cursor:default"'+sentAttr(sk)+'><span class="nm">'+nm+'</span>'+
              '<span class="where">'+esc(meta)+'</span>'+
-             '<button class="mini msg" data-pend="'+i+'" data-orig="문자 복사">문자 복사</button></div>';
+             '<button class="mini msg" data-pend="'+i+'" data-orig="문자 복사">문자 복사</button>'+
+             sentUndo(sk)+'</div>';
     }).join('');
   }).catch(function(){ document.getElementById('pdCnt').textContent = '—'; });
 
@@ -1582,7 +1639,8 @@ function renderDash(){
         const sk = sentKey('abs', nm, c.course, c.round);
         return '<div class="row sub'+sentCls(sk)+'" style="cursor:default"'+sentAttr(sk)+'><span class="nm">'+esc(nm)+'</span>'
           +'<button class="mini msg" data-abs="'+i+'" data-who="'+j+'" data-stage="1" data-orig="1차 안내">1차 안내</button>'
-          +'<button class="mini msg" data-abs="'+i+'" data-who="'+j+'" data-stage="2" data-orig="리마인드">리마인드</button></div>';
+          +'<button class="mini msg" data-abs="'+i+'" data-who="'+j+'" data-stage="2" data-orig="리마인드">리마인드</button>'
+          +sentUndo(sk)+'</div>';
       }).join('');
       return head + stus;
     }).join('');
@@ -1609,7 +1667,8 @@ function renderDash(){
       return '<div class="row'+sentCls(sk)+'" style="cursor:default"'+sentAttr(sk)+'><span class="nm">'+esc(r.name||'—')+'</span>'+
              '<span class="where">'+esc(meta)+'</span>'+
              '<span class="cnt">'+esc(r.score)+'점</span>'+
-             '<button class="mini msg" data-pass="'+i+'" data-orig="통과 문자">통과 문자</button></div>';
+             '<button class="mini msg" data-pass="'+i+'" data-orig="통과 문자">통과 문자</button>'+
+             sentUndo(sk)+'</div>';
     }).join('');
   }).catch(function(){ const w=document.getElementById('passWrap'); if(w) w.hidden=true; });
 
@@ -2224,7 +2283,7 @@ function renderClassTab(){
       '<span class="tags"><span class="tag '+CLS_TONE[st]+'">'+CLS_LABEL[st]+'</span></span>'+
       '<span class="cnt">'+esc(score)+'</span>'+
       '<span class="cnt">'+(pcts.length? ('파이널 '+pcts.length+'회'+(last!=null?' · '+last+'%':'')) : '')+'</span>'+
-      '<span class="acts">'+msg+'<button class="mini" data-clsrow="'+i+'">카드</button></span>'+
+      '<span class="acts">'+msg+(sk?sentUndo(sk):'')+'<button class="mini" data-clsrow="'+i+'">카드</button></span>'+
       '</div>';
   }).join('');
 }
