@@ -71,11 +71,18 @@ def audit(path):
                     '가장 작은 %.1fpx (바닥 %.1fpx)' % (min(small), MIN_FONT)))
 
     # ── 팔레트 대비 ───────────────────────────────────────
+    # ⚠ 이 자가 세 번째로 거짓말을 한 자리. 예전에는 **밝은** 바탕만 골랐고,
+    # 못 고르면 흰색으로 쳤다. 그래서 어두운 화면(minimalism/index.html:
+    # --bg #060817 위 흰 글씨)에서 흰 글씨를 흰 바탕에 얹어 재고 1.04:1 이라고
+    # 했다 — 실제로는 가장 잘 읽히는 화면이다.
+    # 그 장이 밝은 화면인지 어두운 화면인지 먼저 정하고, **그 쪽 바탕**으로 잰다.
     vs = dict(VAR.findall(s))
-    bgs = [v for k, v in vs.items()
-           if re.search(r'paper|bg|cream|surface|white|card', k, re.I) and lum(v) > .5]
+    allbg = [v for k, v in vs.items()
+             if re.search(r'paper|bg|cream|surface|white|card', k, re.I)]
+    dark_page = bool(allbg) and sum(1 for v in allbg if lum(v) <= .5) > len(allbg) / 2
+    bgs = [v for v in allbg if (lum(v) <= .5) == dark_page]
     if not bgs:
-        bgs = ['#FFFFFF']
+        bgs = ['#000000'] if dark_page else ['#FFFFFF']
     fgs = [(k, v) for k, v in vs.items()
            if re.search(r'ink|text|sub|muted|faint|fg', k, re.I)]
     for k, v in fgs:
