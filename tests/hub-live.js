@@ -52,6 +52,39 @@ const chk = (n, got, want) => {
      아래 명단 검사가 흔들린다. 목적은 하나, 셸이 DT 를 몇 번 두드리는지 세는 것. */
   const dtHits = [];
   const DT_EP = 'AKfycbzvFaPXgEgCBQ8HowtP8tPTtdiIVFtmZSUf0KFXUOVOh3ektrFMkz4KSR4I52LDBzB8rw';
+  /* 셸은 이제 DT 의 자료 목록을 읽어 자료 탭을 그린다(다른 저장소라 여기엔 없다).
+     실제 규칙 그대로 흉내 낸다 — 화학Ⅱ 12회는 **해설 HTML 이 없고 PDF 만** 있다. */
+  await p.route('**/DT/materials.json', route => route.fulfill({
+    status: 200, contentType: 'application/json',
+    body: JSON.stringify({ kinds: [], extra: [], courses: [
+      { key:'ch1', name:'화학Ⅰ', rounds:[
+        { round:1, files:{ munje:{html:'munje_ch1_round01.html'}, haeseol:{html:'haeseol_ch1_round01.html'},
+                           omr:{html:'omr_ch1_round01.html'} } }] },
+      { key:'ch2', name:'화학Ⅱ', rounds:[
+        { round:1,  files:{ munje:{html:'munje_ch2_round01.html'}, haeseol:{html:'haeseol_ch2_round01.html'} } },
+        { round:12, files:{ munje:{html:'munje_ch2_round12.html'}, haeseol:{pdf:'haeseol_ch2_round12.pdf'} } }] },
+      { key:'gc', name:'일반화학', rounds:[] },
+    ] }),
+  }));
+  /* 문구는 DT 의 pending.html 이 갖고 있고 셸은 **빌려 쓴다.** 이 저장소에는 DT 가
+     없으므로(다른 저장소다) 그 화면을 흉내 내 세워 둔다. 볼 것은 문구의 내용이
+     아니라 **빌리는 길이 실제로 이어지는가** 다 — 문구 자체는 DT 저장소가 본다.
+     ⚠ 반드시 **첫 화면을 열기 전에** 걸어 둔다. 셸은 이 화면을 탭으로도 얹으므로
+     탭을 한 번 지나가면 그때 붙은 iframe 이 그대로 남는다. 뒤늦게 걸면 이미 404 를
+     문 창을 빌리게 되어 문자가 통째로 안 만들어진다(실제로 그렇게 깨졌다). */
+  await p.route('**/DT/pending.html', route => route.fulfill({
+    status: 200, contentType: 'text/html; charset=utf-8',
+    body: '<!doctype html><meta charset="utf-8"><script>'
+        + 'function shareMsg(d,stage){ return "빌린재시:"+d.name+"/"+d.course+"/"+d.round+"/"+d.next+"/"+stage; }'
+        + 'function passMsg(d){ return "빌린통과:"+d.name+"/"+d.course+"/"+d.round+"/"+d.att+"/"+d.tries+"/"+d.score; }'
+        + 'function examLink(c,r){ return "빌린주소/"+c+"/"+r; }'
+        + 'function absentMsg(d,stage){ return "빌린미응시:"+(d.name||"반전체")+"/"+d.course+"/"+d.round+"/"+d.link+"/"+stage; }'
+        + '</script>',
+    }));
+  await p.route('**/DT/roster.html', route => route.fulfill({
+    status: 200, contentType: 'text/html; charset=utf-8',
+    body: '<!doctype html><meta charset="utf-8"><title>반 명단</title><h1>반 명단</h1>',
+  }));
   await p.route('**/macros/s/**', route => {
     const u = new URL(route.request().url());
     const cb = u.searchParams.get('callback'), act = u.searchParams.get('action');
@@ -95,6 +128,9 @@ const chk = (n, got, want) => {
   await p.waitForFunction(() => typeof FINAL_EXAMS !== 'undefined' && FINAL_EXAMS.length, null, { timeout: 20000 });
   const seeded = await p.evaluate(() => {
     localStorage.clear();
+    /* 셸도 파이널과 **같은 열쇠칸**을 쓴다. 여기서 한 번 넣어 두면 셸이 다시
+       묻지 않는다 — 갈라져 있으면 이 줄이 안 먹고 셸이 잠긴 채로 남는다. */
+    localStorage.setItem('chemistreal:gate', String(Date.now()));
     const put = (id, name, school, right, ts) => {
       const e = FINAL_EXAMS.find(x => x.id === id), ans = [];
       let c = 0, t = 0;
@@ -188,7 +224,7 @@ const chk = (n, got, want) => {
   console.log('\n── 자료에서 채점으로 바로 ──');
   await p.evaluate(() => show('mat'));
   await p.waitForTimeout(400);
-  await p.evaluate(() => document.querySelector('#matTable .mini[data-grade]').click());
+  await p.evaluate(() => document.querySelector('#matBody .mini[data-grade]').click());
   await p.waitForTimeout(3000);
   const graded = await p.evaluate(() => {
     const f = document.querySelector('#p-exam iframe');
@@ -207,8 +243,26 @@ const chk = (n, got, want) => {
   await p.click('h1');
   await p.keyboard.press('3');
   await p.waitForTimeout(200);
-  chk('3 은 회차 탭', await p.evaluate(() =>
+  chk('3 은 반 탭', await p.evaluate(() =>
+    TABS.filter(t => document.getElementById('t-' + t).getAttribute('aria-selected') === 'true')[0]), 'cls');
+  await p.keyboard.press('4');
+  await p.waitForTimeout(200);
+  chk('4 는 회차 탭', await p.evaluate(() =>
     TABS.filter(t => document.getElementById('t-' + t).getAttribute('aria-selected') === 'true')[0]), 'rnd');
+  /* 머리가 두 줄이 되면서 탭이 열 개다. 하나만 켜지고 하나만 보여야 한다 —
+     두 줄에서 각각 하나씩 켜지면 어느 화면을 보고 있는지 알 수 없다. */
+  const only = await p.evaluate(() => {
+    const out = [];
+    for(const id of TABS){
+      show(id);
+      out.push([TABS.filter(t => document.getElementById('t-'+t).getAttribute('aria-selected')==='true').length,
+                TABS.filter(t => document.getElementById('p-'+t).classList.contains('on')).length]);
+    }
+    show('dash');
+    return out;
+  });
+  chk('언제나 한 탭만 켜진다', only.every(x => x[0]===1 && x[1]===1), true);
+  chk('열 탭을 다 봤다', only.length, 10);
   await p.keyboard.press('/');
   await p.waitForTimeout(200);
   chk('/ 는 바로 찾기', await p.evaluate(() => document.activeElement.id), 'qq');
@@ -314,15 +368,6 @@ const chk = (n, got, want) => {
        DT 가 없으므로(다른 저장소다) 그 화면을 흉내 내 세워 둔다. 여기서 볼 것은
        문구의 내용이 아니라 **빌리는 길이 실제로 이어지는가** 다 —
        문구 자체는 DT 저장소의 검사가 본다. */
-    await p.route('**/DT/pending.html', route => route.fulfill({
-      status: 200, contentType: 'text/html; charset=utf-8',
-      body: '<!doctype html><meta charset="utf-8"><script>'
-          + 'function shareMsg(d,stage){ return "빌린재시:"+d.name+"/"+d.course+"/"+d.round+"/"+d.next+"/"+stage; }'
-          + 'function passMsg(d){ return "빌린통과:"+d.name+"/"+d.course+"/"+d.round+"/"+d.att+"/"+d.tries+"/"+d.score; }'
-          + 'function examLink(c,r){ return "빌린주소/"+c+"/"+r; }'
-          + 'function absentMsg(d,stage){ return "빌린미응시:"+(d.name||"반전체")+"/"+d.course+"/"+d.round+"/"+d.link+"/"+stage; }'
-          + '</script>',
-    }));
     await p.evaluate(() => show('dash'));
     await p.waitForTimeout(600);
 
@@ -533,6 +578,179 @@ const chk = (n, got, want) => {
     chk('안 본 학생 이름이 공지에 붙는 모양으로', names, '새학생, 이도현');
     await p.evaluate(() => document.getElementById('dlg').close());
     chk('닫으면 회차를 놓는다', await p.evaluate(() => RND_OPEN), null);
+  }
+
+  console.log('\n── 자료는 실제로 있는 것만 건다 ──');
+  {
+    /* 화학Ⅱ 는 문제지·OMR 이 18회까지 있는데 해설 HTML 은 7회까지뿐이다.
+       회차 번호로 주소를 지어내면 눌러 본 뒤에야 404 를 만난다. */
+    await p.evaluate(() => show('mat'));
+    await p.waitForTimeout(500);
+    const chips = await p.evaluate(() =>
+      [].map.call(document.querySelectorAll('#matTabs .chip'), e => e.textContent));
+    console.log('  ' + JSON.stringify(chips));
+    chk('갈래가 여섯', chips.length, 6);
+    chk('파이널이 먼저', /^파이널 모의고사/.test(chips[0]), true);
+
+    const ch2 = await p.evaluate(async () => {
+      document.querySelector('#matTabs .chip[data-mat="ch2"]').click();
+      await new Promise(r => setTimeout(r, 400));
+      const rows = [].map.call(document.querySelectorAll('#matBody tbody tr'), tr => {
+        const td = tr.querySelectorAll('td');
+        return { name: td[0].textContent,
+                 dots: [].map.call(td[1].querySelectorAll('.dot'), d => d.className.replace('dot', '').trim()),
+                 haeseol: td[3].textContent.trim(),
+                 links: [].map.call(td[3].querySelectorAll('a'), a => a.getAttribute('href')) };
+      });
+      return rows;
+    });
+    console.log('  ' + JSON.stringify(ch2));
+    chk('화학Ⅱ 두 회차', ch2.map(r => r.name), ['화학Ⅱ 1회', '화학Ⅱ 12회']);
+    /* 12회는 해설 HTML 이 없다. 점은 '반쯤' 이고, 링크는 PDF 하나뿐이며,
+       있지도 않은 haeseol_ch2_round12.html 은 어디에도 없어야 한다. */
+    chk('해설이 PDF 뿐이면 점을 반만 켠다', ch2[1].dots[1], 'half');
+    chk('있는 것만 건다', ch2[1].links, ['../DT/haeseol_ch2_round12.pdf']);
+    chk('없는 주소를 지어내지 않는다',
+        /haeseol_ch2_round12\.html/.test(await p.content()), false);
+
+    /* 강의 목차는 목차 페이지가 원본이다. 베껴 두면 강의가 늘 때 갈라진다. */
+    const lec = await p.evaluate(async () => {
+      document.querySelector('#matTabs .chip[data-mat="lec"]').click();
+      await new Promise(r => setTimeout(r, 900));
+      return { n: document.querySelectorAll('#matBody tbody tr').length,
+               first: (document.querySelector('#matBody tbody tr td:nth-child(2)') || {}).textContent };
+    });
+    console.log('  강의 ' + lec.n + '개 · 첫 강의 ' + JSON.stringify(lec.first));
+    chk('강의를 목차에서 읽어 온다', lec.n > 100, true);
+    const tool = await p.evaluate(async () => {
+      document.querySelector('#matTabs .chip[data-mat="tool"]').click();
+      await new Promise(r => setTimeout(r, 300));
+      return [].map.call(document.querySelectorAll('#matBody .row .mini'), a => a.getAttribute('href'));
+    });
+    chk('도구가 열린다', tool.length >= 15, true);
+    chk('도구는 모두 주소가 있다', tool.every(h => !!h), true);
+    await p.evaluate(() => document.querySelector('#matTabs .chip[data-mat="final"]').click());
+  }
+
+  /* ── 반 탭과 잠금은 상태가 달라야 보인다 ────────────────────────────
+     앞 검사들은 DT 반 명단을 **비워** 두고 돈다(학생을 보태면 명단·회차 검사가
+     흔들린다). 반 탭은 반이 있어야 보이므로 창을 따로 연다. */
+  console.log('\n── 반으로도 물을 수 있다 ──');
+  {
+    const p3 = await ctx.newPage();
+    const errs3 = [];
+    p3.on('pageerror', e => errs3.push(String(e)));
+    await p3.route('**/DT/pending.html', route => route.fulfill({
+      status: 200, contentType: 'text/html; charset=utf-8',
+      body: '<!doctype html><meta charset="utf-8"><script>'
+          + 'function shareMsg(d,s){ return "재시:"+d.name; }'
+          + 'function passMsg(d){ return "통과:"+d.name; }'
+          + 'function examLink(c,r){ return "L/"+c+"/"+r; }'
+          + 'function absentMsg(d,s){ return "미응시:"+(d.name||"반전체")+"/"+s; }'
+          + '</script>',
+    }));
+    await p3.route('**/macros/s/**', route => {
+      const u = new URL(route.request().url());
+      const cb = u.searchParams.get('callback'), act = u.searchParams.get('action');
+      const isDT = u.pathname.includes(DT_EP);
+      const body = (isDT && act === 'names') ? { ok: true, classes: [
+            { label:'화학1 토1:30', course:'ch1', students:[
+              {name:'가',school:'A중',year:'2'},{name:'나',school:'A중',year:'2'},
+              {name:'다',school:'A중',year:'2'},{name:'라',school:'A중',year:'2'}] },
+            { label:'화학2 일6-10', course:'ch2', students:[{name:'마',school:'B중',year:'3'}] }] }
+        : act === 'names' ? { ok: true, students: [] }
+        : act === 'pending' ? { ok: true, pending: { stale: [], active: [
+            { studentKey:'k', name:'나', school:'A중', course:'ch1', round:12,
+              lastAttempt:'정시', nextNeeded:'재시', score:55, days:3 }] } }
+        : act === 'passed' ? { ok: true, passed: { passed: [
+            { name:'다', school:'A중', course:'ch1', round:12, attempt:'정시', tries:1, score:92, date:'8/1' }] } }
+        : act === 'absentees' ? { ok: true, absentees: { classes: [
+            { label:'화학1 토1:30', course:'ch1', round:12, total:4, present:2, absent:['가','나'] }] } }
+        : { ok: true, rows: [] };
+      return route.fulfill({ status: 200, contentType: 'application/javascript',
+                             body: cb + '(' + JSON.stringify(body) + ')' });
+    });
+    /* 열쇠칸은 오리진 하나에 하나뿐이라, 앞에서 넣어 둔 것이 이 창에도 남아
+       있다. 잠금을 보려면 먼저 비운다(같은 오리진의 아무 화면에서나 지운다). */
+    await p3.goto(`http://localhost:${PORT}/final.html`, { waitUntil: 'domcontentloaded' });
+    await p3.evaluate(() => localStorage.removeItem('chemistreal:gate'));
+    await p3.goto(`http://localhost:${PORT}/hub.html`, { waitUntil: 'domcontentloaded' });
+    await p3.waitForTimeout(400);
+    /* 이 창은 열쇠칸이 비어 있다 — 먼저 잠금이 뜨는지 본다. */
+    chk('처음 들어오면 코드를 묻는다', await p3.evaluate(() => !!document.getElementById('gate')), true);
+    chk('잠긴 동안에는 창구를 안 부른다',
+        await p3.evaluate(() => document.querySelectorAll('#connBar .conn').length), 0);
+    await p3.fill('#gateIn', '1234');
+    await p3.click('#gateGo');
+    chk('틀린 코드로는 안 열린다', await p3.evaluate(() => !!document.getElementById('gate')), true);
+    await p3.fill('#gateIn', '0000');
+    await p3.click('#gateGo');
+    await p3.waitForTimeout(2200);
+    chk('맞히면 열린다', await p3.evaluate(() => !!document.getElementById('gate')), false);
+    chk('열리면 그제야 부른다',
+        await p3.evaluate(() => document.querySelectorAll('#connBar .conn').length > 0), true);
+
+    await p3.evaluate(() => show('cls'));
+    await p3.waitForTimeout(600);
+    const cls = await p3.evaluate(() => ({
+      tabs: [].map.call(document.querySelectorAll('#clsTabs .chip'), e => e.textContent),
+      rows: [].map.call(document.querySelectorAll('#clsList .row'), r => [
+        r.querySelector('.nm').textContent, r.querySelector('.tag').textContent]),
+      legend: [].map.call(document.querySelectorAll('#clsHead .legend span'), e => e.textContent),
+      donut: (document.querySelector('#clsHead .donut span') || {}).textContent,
+      bars: document.querySelectorAll('#clsHead .stack i').length,
+    }));
+    console.log('  ' + JSON.stringify(cls.tabs) + ' ' + JSON.stringify(cls.rows));
+    chk('반마다 칩 하나', cls.tabs.length, 2);
+    /* '나' 는 미응시이면서 재시 대기다. 상태는 하나로 정해지므로 **한 명으로**
+       센다 — 두 번 세면 반 인원보다 큰 숫자가 나와 아무 뜻이 없다. */
+    chk('손이 필요한 사람을 한 번만 센다', /손 2/.test(cls.tabs[0]), true);
+    /* '나' 는 미응시이면서 재시 대기다. 지금 손이 필요한 쪽을 말해야 한다. */
+    chk('상태는 급한 것이 이긴다', cls.rows,
+        [['가','미응시'],['나','미응시'],['다','통과'],['라','아직']]);
+    chk('막대는 있는 칸만 그린다', cls.bars, 3);
+    chk('범례가 색마다 이름을 붙인다', cls.legend, ['미응시 2','통과 1','아직 1']);
+    chk('통과 비율을 도넛으로', cls.donut, '25%');
+
+    /* 반에서 바로 문자. 문구는 여기서도 DT 에서 빌린다. */
+    await p3.click('#clsList .row .mini.msg');
+    await p3.waitForFunction(() => {
+      const b = document.querySelector('#clsList .row .mini.msg'); return b && !b.disabled; },
+      null, { timeout: 30000 });
+    await p3.waitForTimeout(250);
+    chk('반에서 문자를 바로 복사한다',
+        await p3.evaluate(() => navigator.clipboard.readText()), '미응시:가/1');
+    const names = await p3.evaluate(async () => {
+      document.querySelector('#clsHead .mini[data-clsact="names"]').click();
+      await new Promise(r => setTimeout(r, 250));
+      return navigator.clipboard.readText();
+    });
+    chk('반 명단을 그대로 복사한다', names, '가, 나, 다, 라');
+
+    const other = await p3.evaluate(async () => {
+      [].filter.call(document.querySelectorAll('#clsTabs .chip'),
+                     c => /화학2/.test(c.textContent))[0].click();
+      await new Promise(r => setTimeout(r, 300));
+      return [].map.call(document.querySelectorAll('#clsList .row .nm'), e => e.textContent);
+    });
+    chk('반을 바꾸면 그 반이 나온다', other, ['마']);
+
+    /* DT 의 두 화면을 탭으로 얹는다. 재시·문자 화면은 어차피 문구를 빌리려고
+       띄우던 것이라, 두 장이 뜨면 앱스크립트를 두 번 두드린다. */
+    await p3.evaluate(() => { show('dtp'); show('dtr'); });
+    await p3.waitForTimeout(1200);
+    const frames = await p3.evaluate(() => ({
+      dtp: document.querySelectorAll('#p-dtp iframe').length,
+      dtr: document.querySelectorAll('#p-dtr iframe').length,
+      stray: document.querySelectorAll('body > iframe').length,
+      src: (document.querySelector('#p-dtr iframe') || {}).getAttribute
+        ? document.querySelector('#p-dtr iframe').getAttribute('src') : '',
+    }));
+    chk('두 화면이 탭으로 뜬다', [frames.dtp, frames.dtr], [1, 1]);
+    chk('몰래 한 장 더 뜨지 않는다', frames.stray, 0);
+    chk('명단 화면은 DT 것을 그대로', frames.src, '../DT/roster.html');
+    chk('반 창에도 예외가 없다', errs3.filter(e => !/Failed to fetch|ERR_/.test(e)), []);
+    await p3.close();
   }
 
   chk('콘솔에 예외가 없다', errs.filter(e => !/Failed to fetch|ERR_/.test(e)), []);

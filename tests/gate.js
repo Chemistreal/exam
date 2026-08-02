@@ -10,7 +10,9 @@
    를 본다. 후자가 더 위험하다 — 학부모가 성적표를 못 열면 바로 사고다.
 
    여기서 지키는 것:
-   - 교사용 두 페이지(index.html · final.html)는 코드를 묻는다
+   - 교사용 세 페이지(index.html · final.html · hub.html)는 코드를 묻는다
+   - 셋은 **같은 열쇠칸**을 쓴다(한 곳에서 맞히면 나머지도 열린다) — 셸은
+     파이널을 iframe 으로 얹으므로, 갈라져 있으면 화면이 두 겹으로 잠긴다
    - 틀린 코드로는 안 열린다
    - 맞히면 열리고, 새로고침해도 다시 묻지 않는다
    - **학부모 성적표 링크(#r=…)는 묻지 않는다**
@@ -55,9 +57,24 @@ const chk = (n, got, want) => {
   const locked = page => page.evaluate(() => !!document.getElementById('gate'));
 
   console.log('── 교사용 페이지는 묻는다 ──');
-  for (const path of ['index.html', 'final.html']) {
+  // 통합 셸도 반 명단·점수를 그대로 보여 준다 — 같이 묻는다
+  for (const path of ['index.html', 'final.html', 'hub.html']) {
     const page = await visit(path);
     chk(`${path} 잠긴다`, await locked(page), true);
+    await page.close();
+  }
+
+  console.log('\n── 열쇠칸을 나눠 쓴다 ──');
+  {
+    /* 셸은 파이널을 iframe 으로 얹는다. 열쇠칸이 갈라져 있으면 셸에서 한 번
+       넣고, 그 안의 파이널이 또 물어 화면이 두 겹으로 잠긴다. */
+    const page = await visit('final.html');
+    await page.fill('#gateIn', CODE);
+    await page.click('#gateGo');
+    await page.waitForTimeout(900);
+    await page.goto(AT('hub.html'), { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(900);
+    chk('파이널에서 맞히면 셸도 열린다', await locked(page), false);
     await page.close();
   }
 

@@ -45,6 +45,10 @@ const chk = (n, got, want) => {
 
 const ROOT = path.join(__dirname, '..');
 const SRC = fs.readFileSync(path.join(ROOT, 'hub.html'), 'utf8');
+/* 주석에 적어 둔 말이 검사를 속인 적이 여러 번 있었다('재시 안내' 라고 설명해
+   놓은 주석이 "문구를 베꼈다"로 잡혔다). 코드만 보는 사본을 한 곳에서 만든다. */
+const CODE_ONLY = (SRC.split('<script>')[1] || '')
+  .replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
 
 /* 브라우저용 한 덩어리라 통째로 못 돌린다. 명단 합치는 함수만 오려 낸다. */
 function cut(name) {
@@ -71,6 +75,8 @@ vm.runInContext([
   cut('schoolCore'), cut('schoolType'), cut('schoolAkin'),
   cut('sameStudent'), cut('nameIsUnique'), cut('dtForStudent'), cut('kmForStudent'),
   cut('dtCached'), cut('syncWorkRows'), cut('mergeCandidates'),
+  cut('esc'), cut('stackBar'), cut('legendOf'), cut('donut'), cut('histo'), cut('dotsOf'),
+  cut('dtClassList'), cut('finFor'), cut('classRows'), cut('clsCounts'),
   'var FIN=null, ROSTER=[];',
   'var PASS_ROWS=[], PEND_ROWS=[], ABS_ROWS=[], MIS_TOP=[], KM_ROWS=null, DT_CACHE={};',
 ].join('\n'), ctx);
@@ -161,8 +167,16 @@ console.log('\n── 셸이 남의 데이터를 건드리지 않는다 ──')
   /* 이 파일은 읽어서 보여 주기만 한다. 쓰기가 섞이면 앱 하나가 깨질 때
      원인을 셸에서도 찾아야 한다 — 그 순간 "지워도 안전한 파일"이 아니게 된다. */
   const body = SRC.split('<script>')[1] || '';
-  chk('localStorage 에 쓰지 않는다', /localStorage\.setItem/.test(body), false);
-  chk('localStorage 를 비우지 않는다', /localStorage\.(clear|removeItem)/.test(body), false);
+  /* 딱 하나 예외가 있다: 첫 화면 잠금의 열쇠칸. 그건 남의 데이터가 아니라
+     파이널·홈과 **나눠 쓰는 문고리**다 — 따로 두면 셸에서 넣고 iframe 안의
+     파이널에서 또 물어 화면이 두 겹으로 잠긴다. 그 한 곳만 허용한다. */
+  chk('저장하는 곳은 잠금 열쇠칸 하나뿐',
+      (CODE_ONLY.match(/localStorage\.setItem\(\s*([A-Za-z_$][\w$]*)/g) || []),
+      ['localStorage.setItem(KEY']);
+  chk('그 칸은 파이널과 같은 칸', /var KEY = 'chemistreal:gate'/.test(body), true);
+  chk('파이널 기록은 건드리지 않는다',
+      /localStorage\.setItem\(\s*(FIN_PFX|['"]final:)/.test(CODE_ONLY), false);
+  chk('localStorage 를 비우지 않는다', /localStorage\.(clear|removeItem)/.test(CODE_ONLY), false);
   chk('앱스크립트에 POST 하지 않는다', /method\s*:\s*['"]POST/i.test(body), false);
   /* 남의 앱스크립트를 부르는 곳은 readOnce 한 곳뿐이고, 거기 넘기는 것은 읽기
      액션뿐이다. 한 곳으로 모으기 전에는 action 문자열을 그대로 세면 됐는데,
@@ -338,7 +352,8 @@ console.log('\n── 시트와 스스로 맞춘다 ──');
   /* 쓰기는 파이널 앱이 자기 데이터에 한다. 셸이 직접 쓰기 시작하면
      "지워도 안전한 파일" 이 아니게 된다 — 위의 '남의 데이터' 검사와 한 쌍이다. */
   chk('셸은 시키기만 한다', /w\.syncAllFromSheet\(res, true\)/.test(body), true);
-  chk('셸이 직접 쓰지 않는다', /localStorage\.setItem/.test(body), false);
+  chk('셸이 파이널 기록을 직접 쓰지 않는다',
+      /localStorage\.setItem\(\s*(FIN_PFX|['"]final:)/.test(CODE_ONLY), false);
 }
 
 console.log('\n── 망을 기다리느라 화면을 비워 두지 않는다 ──');
@@ -483,7 +498,20 @@ console.log('\n── DT 문자를 셸에서 바로 복사한다 ──');
   const dw = cut('dtPendWindow');
   chk('빌릴 창을 기다린다', /setInterval\(/.test(dw), true);
   chk('안 뜨면 포기한다(영영 기다리지 않는다)', /n > 80[\s\S]{0,80}rej\(/.test(dw), true);
-  chk('화면에는 안 보이게 띄운다', /left:-9999px/.test(dw), true);
+  /* 이 화면은 탭으로도 얹힌다. 문자를 만들기 전에 그 탭을 먼저 지나갔는데 그때
+     망이 끊겨 빈 화면을 물었다면, 그 창을 아무리 빌려도 함수가 안 생긴다. */
+  chk('빈 화면을 물었으면 한 번 다시 띄운다', /if\(n === 40\)\{ try\{ f\.src = f\.src; \}/.test(dw), true);
+  /* 예전에는 화면 밖(left:-9999px)에 숨겨 띄웠다. 어차피 띄우는 화면이니
+     **탭으로 내놓는다** — 선생님이 그 화면을 그대로 쓰고, 한 장만 뜬다.
+     따로 만들면 같은 화면이 두 번 떠서 앱스크립트를 두 번 두드린다. */
+  chk('탭의 그 창을 빌린다', /mountFrame\('dtp'\)/.test(dw), true);
+  chk('몰래 한 장 더 만들지 않는다', /left:-9999px/.test(dw), false);
+  chk('재시·문자 화면에 탭 자리가 있다',
+      /id="t-dtp"/.test(SRC) && /id="p-dtp"/.test(SRC), true);
+  chk('명단 화면에도 탭 자리가 있다',
+      /id="t-dtr"/.test(SRC) && /id="p-dtr"/.test(SRC), true);
+  chk('두 화면 모두 DT 의 상대 경로', /'\.\.\/DT\/pending\.html'/.test(body) &&
+      /'\.\.\/DT\/roster\.html'/.test(body), true);
   chk('빌린 함수를 그대로 부른다',
       /w\.shareMsg\(\{/.test(body) && /w\.passMsg\(\{/.test(body), true);
 
@@ -577,8 +605,16 @@ console.log('\n── 단축키가 글자 입력을 가로채지 않는다 ─�
   // 주석으로 죽여 놓아도 통과하지 않도록 줄 첫머리에서 본다
   chk('입력 중에는 비켜선다', /^\s*if\(typing\) return;/m.test(body), true);
   chk('조합키는 건드리지 않는다', /if\(e\.metaKey\|\|e\.ctrlKey\|\|e\.altKey\) return;/.test(body), true);
-  chk('탭 수와 숫자키 수가 맞는다',
-      (SRC.match(/'1234567'/)||[]).length===1 && /const TABS = \['dash','stu','rnd','exam','dt','km','mat'\]/.test(body), true);
+  /* 숫자를 손으로 적어 두면 탭을 늘릴 때마다 여기가 낡는다. 둘 다 소스에서
+     읽어 길이를 견준다 — 탭이 늘었는데 키가 그대로면 마지막 탭에 못 간다. */
+  const nTabs = ((body.match(/const TABS = \[([^\]]+)\]/) || ['',''])[1].match(/'/g) || []).length / 2;
+  const nKeys = ((body.match(/const n = '(\d+)'\.indexOf/) || ['',''])[1] || '').length;
+  chk('탭이 열 개', nTabs, 10);
+  chk('탭 수와 숫자키 수가 맞는다', nKeys, nTabs);
+  /* 앞 다섯은 셸이 그리는 화면, 뒤 다섯은 앱을 얹은 화면. 머리의 두 줄과
+     같은 차례여야 숫자키가 눈에 보이는 차례와 맞는다. */
+  chk('보는 화면이 앞, 앱이 뒤',
+      /const TABS = \['dash','stu','cls','rnd','mat','exam','dt','dtp','dtr','km'\]/.test(body), true);
 }
 
 console.log('\n── 학교 표기가 앱마다 흔들린다 ──');
@@ -745,6 +781,138 @@ console.log('\n── 회차에서 바로 들고 나간다 ──');
      DT·KMChC 가 준 주소를 그대로 연다. */
   chk('주소를 지어내지 않는다', /data-url="'\+esc\(url\)\+'"/.test(body), true);
   chk('report\\.html 주소를 짜지 않는다', /['"`]report\.html\?/.test(body), false);
+}
+
+console.log('\n── 반으로도 물을 수 있다 ──');
+{
+  /* 셸은 사람(학생 탭)과 시험(회차 탭)으로만 물을 수 있었다. 그런데 수업은
+     반으로 돈다 — "오늘 이 반, 누가 안 왔고 누가 재시가 밀렸나". 그걸 보려면
+     DT 의 미응시·재시·통과 화면을 따로 열어 이름을 눈으로 맞춰야 했다. */
+  const body = SRC.split('<script>')[1] || '';
+  chk('반 탭 자리가 있다',
+      /id="t-cls"/.test(SRC) && /id="clsTabs"/.test(SRC) && /id="clsList"/.test(SRC), true);
+  /* 반 구조를 잃지 않아야 반째로 물을 수 있다. 창구를 한 번 더 두드리지
+     않으려고 펴 놓은 줄에 원본을 달아 둔다. */
+  chk('반 구조를 들고 있다', /rows\.classes = d\.classes \|\| \[\]/.test(body), true);
+  chk('그 원본을 읽는 길이 있다', /function dtClassList\(\)/.test(body), true);
+
+  ctx.ROSTER = [
+    { name:'가', school:'A중', apps:{dt:1} }, { name:'나', school:'A중', apps:{dt:1} },
+    { name:'다', school:'A중', apps:{dt:1} }, { name:'라', school:'A중', apps:{dt:1} },
+  ];
+  ctx.ABS_ROWS = [
+    { label:'화학1 토', course:'ch1', round:12, absent:['가'], total:4 },
+    // 같은 아이('라')가 다른 반에서도 미응시다. 이 줄이 이 반에 새면 안 된다.
+    { label:'화학2 일', course:'ch2', round:7,  absent:['라'], total:4 },
+  ];
+  ctx.PEND_ROWS = [
+    { name:'나', school:'A중', course:'ch1', round:12, score:55 },
+    { name:'라', school:'A중', course:'ch2', round:7,  score:60 },   // 다른 과목
+  ];
+  ctx.PASS_ROWS = [
+    { name:'다', school:'A중', course:'ch1', round:12, score:91 },
+    { name:'가', school:'A중', course:'ch1', round:11, score:88 },   // 지난 회차 통과
+  ];
+  ctx.FIN = { students:[{ name:'다', school:'A중', rounds:[{correct:40,total:60,ts:1}] }] };
+  const cls = { label:'화학1 토', course:'ch1', students:[
+    {name:'가',school:'A중',year:'2'},{name:'나',school:'A중',year:'2'},
+    {name:'다',school:'A중',year:'2'},{name:'라',school:'A중',year:'2'}] };
+  const rows = ctx.classRows(cls);
+  /* 급한 것이 이긴다. '가' 는 지난 회차를 통과했지만 이번 회차를 안 봤다 —
+     지금 손이 필요한 쪽을 말해야 한다. */
+  chk('상태는 급한 것이 이긴다', rows.map(r => r.st), ['miss','wait','ok','none']);
+  /* '라' 는 화학2 반에서 미응시이고 화학2 재시도 밀렸다. 그 줄들이 이 반으로
+     새면 '아직' 이어야 할 아이가 '미응시'·'재시 대기' 로 뜨고, 이 반에 없는
+     일이 할 일 목록에 오른다. */
+  chk('다른 반 미응시를 끌어오지 않는다', rows[3].abs.length, 0);
+  chk('다른 과목 재시를 끌어오지 않는다', rows[3].pend.length, 0);
+  chk('사람 수와 줄 수가 같다', rows.length, cls.students.length);
+  const cnt = ctx.clsCounts(rows);
+  chk('센 것의 합이 반 인원', cnt.reduce((t,p) => t + p.n, 0), 4);
+  chk('미응시·재시·통과·아직 한 명씩', cnt.map(p => p.n), [1,1,1,1]);
+  /* 파이널 기록은 이름이 하나뿐일 때만 붙인다(학교 표기가 흔들려도 붙는다). */
+  chk('파이널 기록이 붙는다', !!rows[2].fin, true);
+  chk('없는 사람은 안 붙는다', rows[3].fin, null);
+  chk('빈 반에도 안 죽는다', ctx.classRows({label:'X',course:'ch1'}), []);
+
+  chk('반에서도 문자를 바로 복사한다',
+      /data-abs="'\+r\.abs\[0\]\.i\+'"/.test(body) &&
+      /data-pend="'\+r\.pend\[0\]\+'"/.test(body) &&
+      /data-pass="'\+r\.pass\[0\]\+'"/.test(body), true);
+  chk('반에서 학생 카드로 넘어간다', /openStudent\(hit\.length===1/.test(body), true);
+}
+
+console.log('\n── 그림은 한 벌의 어휘를 쓴다 ──');
+{
+  /* 화면마다 다른 그림을 쓰면 그림마다 읽는 법을 새로 배워야 한다.
+     넷만 쓰고, 색도 한 벌이다(초록 끝남 · 주황 진행 · 빨강 손이 필요). */
+  const parts = [{n:2,tone:'bad',label:'미응시'},{n:0,tone:'warn',label:'재시'},
+                 {n:6,tone:'ok',label:'통과'},{n:2,tone:'none',label:'아직'}];
+  const bar = ctx.stackBar(parts);
+  // 0 인 칸이 1px 로 남으면 없는 것을 있다고 읽는다
+  chk('0 인 칸은 그리지 않는다', (bar.match(/<i /g)||[]).length, 3);
+  const w = (bar.match(/width:([\d.]+)%/g)||[]).map(x => parseFloat(x.slice(6)));
+  chk('너비의 합이 100%', Math.round(w.reduce((a,b) => a+b, 0)), 100);
+  chk('빈 것에도 안 죽는다', /class="stack"><\/div>/.test(ctx.stackBar([])), true);
+  // 색만 있고 이름이 없으면 무슨 색이 무엇인지 물어야 한다
+  const lg = ctx.legendOf(parts);
+  chk('범례가 색마다 이름을 붙인다',
+      /미응시 2/.test(lg) && /통과 6/.test(lg) && !/재시/.test(lg), true);
+  const h = ctx.histo([5, 15, 55, 95, 95]);
+  chk('분포는 열 칸', (h.match(/<i /g)||[]).length, 10);
+  chk('50% 미만은 붉게', (h.match(/class="hot"/g)||[]).length, 5);
+  chk('점은 있는 것만 켠다',
+      (ctx.dotsOf([{on:true,label:'ㄱ'},{on:false,label:'ㄴ'},{on:'half',label:'ㄷ'}])
+        .match(/dot (on|half)/g)||[]).length, 2);
+  chk('비율은 0~100 을 벗어나지 않는다',
+      [/(\d+)%<\/span>/.exec(ctx.donut(-5))[1], /(\d+)%<\/span>/.exec(ctx.donut(140))[1]], ['0','100']);
+  const body = SRC.split('<script>')[1] || '';
+  chk('대시보드에도 그림 자리가 있다', /id="dashFig"/.test(SRC), true);
+  // 칩과 그림이 따로 그려지면 두 숫자가 어긋난다
+  chk('칩과 그림이 같은 숫자를 본다', /function renderJump\(\)\{\s*\n\s*renderFig\(\);/.test(body), true);
+}
+
+console.log('\n── 자료는 실제로 있는 것만 건다 ──');
+{
+  /* 화학Ⅱ 는 문제지·OMR 이 18회까지 있는데 해설 HTML 은 7회까지뿐이다.
+     회차 번호로 주소를 지어내면 눌러 본 뒤에야 404 를 만난다. */
+  const body = SRC.split('<script>')[1] || '';
+  chk('DT 가 만든 목록을 읽는다', /fetch\('\.\.\/DT\/materials\.json'/.test(body), true);
+  chk('주소를 지어내지 않는다',
+      /['"](munje|haeseol|omr)_['"]?\s*\+|['"](munje|haeseol|omr)_\$\{/.test(CODE_ONLY), false);
+  chk('못 읽으면 이유를 적는다', /materials\.json\)을 못 읽었습니다/.test(body), true);
+  chk('강의 목차도 베끼지 않고 읽는다', /fetch\('lecture-index\.html'/.test(body), true);
+  chk('갈래가 여섯', ((body.match(/const MAT_GROUPS = \[([\s\S]*?)\];/)||['',''])[1]
+      .match(/key:'/g)||[]).length, 6);
+
+  /* 도구 목록은 손으로 적은 유일한 곳이다. 그 파일이 실제로 있는지 본다 —
+     페이지 이름이 바뀌거나 지워지면 셸에서 404 로 이어진다. */
+  const tools = ((SRC.match(/const MAT_TOOLS = \[([\s\S]*?)\n\];/)||['',''])[1]
+    .match(/path:'([^']+)'/g)||[]).map(x => x.slice(6, -1));
+  chk('도구를 스무 개쯤 걸어 뒀다', tools.length >= 15, true);
+  const gone = tools.filter(t => !fs.existsSync(path.join(ROOT, t)));
+  chk('거는 파일이 실제로 있다', gone, []);
+}
+
+console.log('\n── 첫 화면 잠금 ──');
+{
+  /* 주소만 알면 아무나 들어와 반 명단과 점수를 볼 수 있다. 지나가다 눌러 보는
+     사람을 막는 문고리다 — 암호가 아니다(소스에 코드가 그대로 있다). */
+  const body = SRC.split('<script>')[1] || '';
+  const FIN_SRC = fs.readFileSync(path.join(ROOT, 'final.html'), 'utf8');
+  chk('셸도 코드를 묻는다', /function hubGate\(then\)/.test(body), true);
+  const key = (body.match(/var KEY = '([^']+)', CODE = '([^']+)'/) || []).slice(1, 3);
+  const fkey = (FIN_SRC.match(/var KEY = '([^']+)', CODE = '([^']+)'/) || []).slice(1, 3);
+  /* 열쇠칸과 코드가 갈라지면 셸에서 넣고 iframe 안의 파이널에서 또 묻는다 —
+     화면이 두 겹으로 잠겨 아무것도 못 한다. */
+  chk('열쇠칸과 코드가 파이널과 같다', key, fkey);
+  chk('코드는 0000', key[1], '0000');
+  /* 못 들어올 사람 때문에 앱스크립트를 두드릴 이유가 없고, 잠긴 화면에 반
+     명단이 잠깐 스치는 것도 안 된다. */
+  chk('맞히기 전에는 아무것도 안 부른다', /hubGate\(boot\);/.test(body), true);
+  chk('부르는 것은 모두 boot 안에 있다',
+      /function boot\(\)\{[\s\S]*?loadRoster\(\);[\s\S]*?\n\}/.test(body), true);
+  chk('시험 목록이 늦게 와도 잠금을 넘지 않는다', /if\(!BOOTED\) return;/.test(body), true);
 }
 
 console.log(fail ? `\n${fail}개 실패` : '\n모두 통과');
