@@ -14,7 +14,7 @@
     실행:  python3 tools/audit_pages.py [경로...]     # 기본: 이 저장소
            python3 tools/audit_pages.py --tier a      # 매일 여는 화면만
 """
-import os, re, sys, json, math, collections
+import os, re, sys, json, math, collections, urllib.parse
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -43,6 +43,7 @@ def ratio(a, b):
 HEX = re.compile(r'#[0-9A-Fa-f]{6}\b|#[0-9A-Fa-f]{3}\b')
 VAR = re.compile(r'--([a-zA-Z0-9-]+)\s*:\s*(#[0-9A-Fa-f]{3,6})')
 FONT = re.compile(r'font-size:\s*(\d+(?:\.\d+)?)px')
+LINK = re.compile(r'(?:href|src)\s*=\s*["\']([^"\'#?][^"\']*)["\']')
 
 
 def audit(path):
@@ -116,6 +117,32 @@ def audit(path):
     RAW = re.compile(r"<[^'\"]{0,80}['\"]\s*\+\s*(?!esc\()[A-Za-z_$][\w$.]*\.(?:name|school)\s*\+")
     if RAW.search(s):
         out.append(('이름을 그대로 붙임', "esc() 없이 '…'+이름+'…' 로 잇는 자리가 있다"))
+
+    # ── 없는 곳으로 가는 링크 ─────────────────────────────
+    # 눌러 보고 나서야 안다. 네 저장소를 훑어 보니 지금은 하나도 없는데,
+    # 없을 때 걸어 두어야 새로 생기는 것을 잡는다.
+    # ⚠ 만들어 넣는 주소(`'sol-final-'+esc(id)+'.html'`)는 정적으로 확인할 수
+    #   없다. 정규식이 앞토막만 잘라 오므로 **뒤에 + 가 붙었는지**로 가른다 —
+    #   이걸 안 가르면 멀쩡한 자리를 두 개 잡는다(실제로 그랬다).
+    here = os.path.dirname(os.path.abspath(path))
+    dead = []
+    for m in LINK.finditer(s):
+        u = m.group(1).strip()
+        if u.startswith(('http://', 'https://', 'data:', 'mailto:', 'tel:',
+                         'javascript:', '//', 'blob:')):
+            continue
+        if '${' in u or '{{' in u:
+            continue
+        if s[m.end():m.end() + 3].lstrip().startswith('+'):
+            continue
+        rel = urllib.parse.unquote(u.split('?')[0].split('#')[0])
+        if not rel:
+            continue
+        if not os.path.exists(os.path.normpath(os.path.join(here, rel))):
+            dead.append(u)
+    if dead:
+        out.append(('없는 곳으로 가는 링크 %d개' % len(dead),
+                    '눌러 보고 나서야 안다 — ' + ', '.join(sorted(set(dead))[:3])))
     return out
 
 
