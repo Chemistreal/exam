@@ -410,7 +410,7 @@ function renderAudit(){let rows='';
    if(EDIT)addsel=`<select class="addp" data-id="${id}"><option value="">+ 선수 추가</option>`+IDS.filter(x=>x!==id&&!N[id].p.includes(x)).map(x=>`<option value="${x}">${x} ${esc(N[x].l)}</option>`).join('')+`</select>`;
    rows+=`<tr><td class="nn">${id}</td><td>${esc(N[id].l)}<br><span style="font-size:11.5px;color:${AREAS[a].c}">${a}</span></td><td class="pq">${pq} ${addsel}</td></tr>`;
  });});
- document.getElementById('audit').innerHTML=`<table><tr><th>강</th><th>개념</th><th>선수 개념 (← 먼저 필요)</th></tr>${rows}</table>`;
+ document.getElementById('audit').innerHTML=`<table><tr><th scope="col">강</th><th scope="col">개념</th><th scope="col">선수 개념 (← 먼저 필요)</th></tr>${rows}</table>`;
  updateBar();}
 function reaches(from,to){const seen=new Set(),st=[from];while(st.length){const u=st.pop();for(const v of DEP[u]){if(v===to)return true;if(!seen.has(v)){seen.add(v);st.push(v);}}}return false;}
 document.getElementById('audit').addEventListener('click',e=>{const b=e.target;if(!b.dataset||!b.dataset.id)return;const id=b.dataset.id,pp=b.dataset.p;

@@ -102,7 +102,7 @@ function render(){const A=analyze();const S=document.getElementById('summary');
  let its=A.items.map(it=>({...it,fl:flagsOf(it)}));
  if(SORT==='p')its.sort((a,b)=>a.p-b.p);else if(SORT==='disc')its.sort((a,b)=>a.disc-b.disc);
  else if(SORT==='flag')its.sort((a,b)=>b.fl.length-a.fl.length);else its.sort((a,b)=>a.i-b.i);
- let h='<table class="tbl"><tr><th onclick="setSort(\'i\')">문항</th><th>개념</th><th onclick="setSort(\'p\')">난이도 p</th><th onclick="setSort(\'disc\')">변별도</th><th onclick="setSort(\'flag\')">검토</th></tr>';
+ let h='<table class="tbl"><tr><th scope="col" onclick="setSort(\'i\')">문항</th><th scope="col">개념</th><th scope="col" onclick="setSort(\'p\')">난이도 p</th><th scope="col" onclick="setSort(\'disc\')">변별도</th><th scope="col" onclick="setSort(\'flag\')">검토</th></tr>';
  its.forEach(it=>{const c=EXAM.concepts[it.i];const col=c?AC[N[c].a]:'#999';const cls=it.fl.some(f=>f[1]==='crit')?'crit':(it.fl.length?'bad':'');
    h+='<tr class="'+cls+'" onclick="toggleItem('+it.i+')"><td class="qn">'+(it.i+1)+'</td>'+
      '<td class="cc">'+(c?'<span class="ci">'+c+'</span> '+esc(N[c].l):'<span class="ci">미매핑</span>')+'</td>'+

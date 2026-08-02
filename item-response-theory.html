@@ -120,7 +120,7 @@ function renderTheta(){const {D,m2}=FIT;const idx=[...D.sids.keys()].sort((a,b)=
  document.getElementById('thetalist').innerHTML=idx.map(p=>{const t=m2.theta[p],se=m2.seT[p];
    return '<div class="tr2"><span class="sid">'+D.sids[p]+'</span><div class="thb"><div class="se" style="left:'+sc(t-se)+'%;width:'+(sc(t+se)-sc(t-se))+'%"></div><div class="dot" style="left:'+sc(t)+'%"></div></div><span class="tv">θ='+t.toFixed(2)+'±'+se.toFixed(2)+'</span></div>';}).join('');}
 function renderItemParm(){const {m2}=FIT;const idx=[...Array(m2.nI).keys()];
- let h='<table class="tbl"><tr><th>문항</th><th>개념</th><th>변별도 a</th><th>난이도 b</th></tr>';
+ let h='<table class="tbl"><tr><th scope="col">문항</th><th scope="col">개념</th><th scope="col">변별도 a</th><th scope="col">난이도 b</th></tr>';
  idx.forEach(i=>{const c=EXAM.concepts[i];
    h+='<tr class="'+(selItem===i?'sel':'')+'" onclick="selItem='+i+';renderItemParm();renderICC()"><td class="mono">'+(i+1)+'</td>'+
      '<td style="font-size:11.5px">'+(c?esc(N[c].l):'<span style="color:#999">미매핑</span>')+'</td>'+

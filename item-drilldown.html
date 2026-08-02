@@ -89,7 +89,7 @@ function renderItem(O){const exs=loadedExams();if(!selEx||!exs.find(e=>e.id===se
  const e=EXAMS.find(z=>z.id===selEx);const sids=DB.roster.map(r=>r.sid);
  let h='<div class="bar"><select id="exsel" onchange="selEx=this.value;render()">'+exs.map(x=>'<option value="'+x.id+'"'+(x.id===selEx?' selected':'')+'>'+esc(x.title)+'</option>').join('')+'</select></div>';
  h+='<div class="panel"><h2>문항별 응답 분포 · '+esc(e.title)+'</h2><div class="hint" style="margin-bottom:6px">막대=선택 비율(1~5). 초록 테두리=정답, 빨강 테두리=가장 많이 고른 오답(매력적 오답).</div>'+
-   '<table class="tbl"><tr><th>문항</th><th>개념</th><th>정답</th><th>정답률</th><th>응답 분포</th><th>매력적 오답</th></tr>';
+   '<table class="tbl"><tr><th scope="col">문항</th><th scope="col">개념</th><th scope="col">정답</th><th scope="col">정답률</th><th scope="col">응답 분포</th><th scope="col">매력적 오답</th></tr>';
  e.key.forEach((k,i)=>{const cnt=[0,0,0,0,0];let n=0;sids.forEach(sid=>{const r=DB.resp[e.id]&&DB.resp[e.id][sid];if(r&&r[i]){cnt[r[i]-1]++;n++;}});
    const pcor=n?Math.round(cnt[k-1]/n*100):0;
    // 매력적 오답: 정답 제외 최다

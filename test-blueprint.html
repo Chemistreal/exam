@@ -95,7 +95,7 @@ function calcBp(){const B=document.getElementById('bpout');if(!B)return;
    rows+='<tr><td class="area"><span class="dot" style="background:'+AC[a]+'"></span>'+esc(a)+'</td><td>'+q+'</td><td class="'+(short?'short':'ok')+'">'+bank+(short?' (부족)':'')+'</td></tr>';});
  let h='<div class="sum"><div class="sumc"><div class="v">'+total+'</div><div class="k">총 문항</div></div><div class="sumc"><div class="v">'+nE+'</div><div class="k">쉬움</div></div><div class="sumc"><div class="v">'+nM+'</div><div class="k">보통</div></div><div class="sumc"><div class="v">'+nH+'</div><div class="k">어려움</div></div></div>';
  h+='<div class="hint" style="margin-bottom:6px">영역별 문항 배분 (가중치 비례):</div>';
- h+='<table class="tbl"><tr><th>영역</th><th>문항</th><th>bank 가용</th></tr>'+rows+
+ h+='<table class="tbl"><tr><th scope="col">영역</th><th scope="col">문항</th><th scope="col">bank 가용</th></tr>'+rows+
    '<tr class="tot"><td class="area">합계</td><td>'+total+'</td><td>-</td></tr></table>';
  if(Math.abs(ds-100)>0.5)h+='<div class="hint" style="margin-top:6px">난이도 합이 '+ds+'%입니다(100%로 맞추면 정확).</div>';
  if(tBankShort)h+='<div class="gap" style="margin-top:8px">'+tBankShort+'개 영역에서 계획 문항 수가 보유 bank를 초과합니다. 그만큼 새로 출제하거나 배분을 조정하세요.</div>';

@@ -90,7 +90,7 @@ function parseAdd(){const e=curExam();const txt=document.getElementById('paste')
  else h+='<div class="ok-msg">검증 통과 · '+roster.length+'명 추가됨</div>';
  // 미리보기 표 (처음 5명, 처음 12문항)
  const sids=roster.slice(0,5).map(r=>r.sid);const showQ=Math.min(12,e.nQ);
- h+='<table class="tbl"><tr><th>학생</th>'+Array.from({length:showQ},(_,i)=>'<th>Q'+(i+1)+'</th>').join('')+(e.nQ>showQ?'<th>…</th>':'')+'</tr>';
+ h+='<table class="tbl"><tr><th scope="col">학생</th>'+Array.from({length:showQ},(_,i)=>'<th scope="col">Q'+(i+1)+'</th>').join('')+(e.nQ>showQ?'<th scope="col">…</th>':'')+'</tr>';
  h+=sids.map(sid=>'<tr><td>'+esc(sid)+'</td>'+responses[sid].slice(0,showQ).map(a=>'<td style="color:'+(a===0?'#c33':'#23201b')+'">'+(a||'·')+'</td>').join('')+(e.nQ>showQ?'<td>…</td>':'')+'</tr>').join('');
  h+='</table>';
  document.getElementById('preview').innerHTML=h;

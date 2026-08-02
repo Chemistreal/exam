@@ -126,7 +126,7 @@ function renderSched(q){const horizon=14;const days={};q.forEach(r=>{if(r.d>hori
  document.getElementById('sched').innerHTML='<div style="font-size:11.5px;font-weight:700;margin:6px 0 2px">향후 14일 복습 일정 ('+selStud+')</div>'+
   (keys.length?keys.map(d=>'<div class="sd"><span class="day">'+(d===0?'오늘':'+'+d+'일')+'</span><span class="cs">'+days[d].slice(0,8).map(c=>'<span>'+esc(N[c].l)+'</span>').join('')+(days[d].length>8?' +'+(days[d].length-8):'')+'</span></div>').join(''):'<div class="hint">14일 내 복습 예정 개념이 없습니다(모두 안정적).</div>');}
 function renderFrag(){let arr=STATE.concepts.map(c=>({c,F:STATE.params[c].F,H:halflife(STATE.params[c].F,6)}));arr.sort((a,b)=>a.H-b.H);
- let h='<table class="tbl"><tr><th>개념</th><th>망각률 F</th><th>반감기(일)</th><th>휘발성</th></tr>';
+ let h='<table class="tbl"><tr><th scope="col">개념</th><th scope="col">망각률 F</th><th scope="col">반감기(일)</th><th scope="col">휘발성</th></tr>';
  arr.forEach(x=>{const vol=x.H<HBASE*0.6?'높음':x.H<HBASE*1.2?'보통':'낮음';const col=vol==='높음'?'#C0603A':vol==='보통'?'#B08D57':'#2E7D6B';
    h+='<tr><td style="font-size:11.5px"><span class="mono" style="color:#999;font-size:11.5px">'+x.c+'</span> '+esc(N[x.c].l)+'</td><td class="mono">'+x.F.toFixed(2)+'</td><td class="mono">'+x.H.toFixed(1)+'</td><td><span style="font-size:11.5px;font-weight:700;color:'+col+'">'+vol+'</span></td></tr>';});
  document.getElementById('frag').innerHTML=h+'</table><div class="hint">반감기 짧은(휘발성 높은) 개념은 복습 간격을 좁혀야 합니다. 망각률 F는 S12 BKT에서 추정.</div>';}

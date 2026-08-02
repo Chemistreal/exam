@@ -93,7 +93,8 @@ def build(exam_id: str) -> str:
                    "아직 선생님 검수를 거치지 않았습니다. 배포 전에 확인해 주세요.</div>")
 
     out.append("<main><h3>정답 · 영역 · 개념</h3><table><thead><tr>"
-               "<th>문항</th><th>정답</th><th>영역</th><th>개념(유형)</th></tr></thead><tbody>")
+               "<th scope=\"col\">문항</th><th scope=\"col\">정답</th>"
+               "<th scope=\"col\">영역</th><th scope=\"col\">개념(유형)</th></tr></thead><tbody>")
     for k in sorted(q, key=int):
         r = q[k]
         out.append(f"<tr><td>{k}</td><td>{CIRC.get(int(r['answer']), r['answer'])}</td>"

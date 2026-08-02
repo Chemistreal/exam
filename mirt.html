@@ -98,8 +98,8 @@ function render(){const R=document.getElementById('results');
  const ss=document.getElementById('ssel');ss.innerHTML=FIT.sids.map(s=>'<option value="'+s+'" '+(s===selStud?'selected':'')+'>'+s+'</option>').join('');
  renderProfile();}
 function heatColor(v){if(v==null)return '#f3f0e8';const t=Math.max(0,Math.min(1,v));return 'rgba(14,90,76,'+(0.12+t*0.78)+')';}
-function renderHeat(){const {areas,M}=FIT;let h='<table class="heat"><tr><th></th>'+areas.map(a=>'<th title="'+esc(a)+'">'+esc(SHORT[a])+'</th>').join('')+'</tr>';
- areas.forEach(a=>{h+='<tr><th class="row" title="'+esc(a)+'">'+esc(SHORT[a])+'</th>'+areas.map(b=>{const v=M[a][b];const c=heatColor(v);const tc=(v!=null&&v>0.5)?'#fff':'#666';return '<td style="background:'+c+';color:'+tc+'" title="'+esc(a)+' vs '+esc(b)+': '+(v!=null?v.toFixed(2):'-')+'">'+(v!=null?Math.round(v*100):'')+'</td>';}).join('')+'</tr>';});
+function renderHeat(){const {areas,M}=FIT;let h='<table class="heat"><tr><th scope="col"></th>'+areas.map(a=>'<th scope="col" title="'+esc(a)+'">'+esc(SHORT[a])+'</th>').join('')+'</tr>';
+ areas.forEach(a=>{h+='<tr><th scope="row" class="row" title="'+esc(a)+'">'+esc(SHORT[a])+'</th>'+areas.map(b=>{const v=M[a][b];const c=heatColor(v);const tc=(v!=null&&v>0.5)?'#fff':'#666';return '<td style="background:'+c+';color:'+tc+'" title="'+esc(a)+' vs '+esc(b)+': '+(v!=null?v.toFixed(2):'-')+'">'+(v!=null?Math.round(v*100):'')+'</td>';}).join('')+'</tr>';});
  document.getElementById('heat').innerHTML=h+'</table>';}
 function renderProfile(){const {res,areas}=FIT;const sid=selStud;if(!sid){document.getElementById('profile').innerHTML='';return;}
  const vals=areas.map(a=>({a,t:res[a].map[sid]?res[a].map[sid].theta:null,se:res[a].map[sid]?res[a].map[sid].se:null})).filter(x=>x.t!=null);

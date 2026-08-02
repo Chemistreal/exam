@@ -1015,7 +1015,7 @@ function showExamQ(id){
   let rows='';
   for(let q=1;q<=e.nQ;q++){ const flag=ac.has(q)?'<span class="pill">전원정답</span>':((q in multi)?'<span class="pill">복수 '+multi[q].join('')+'</span>':'');
     rows+=`<tr><td class="mono">${q}</td><td class="mono">${e.key?e.key[q-1]:'?'}</td><td>${e.area?esc(e.area[q-1]||''):'<span class="muted">·</span>'}</td><td>${e.type?esc(e.type[q-1]||''):'<span class="muted">·</span>'}</td><td>${flag}</td></tr>`; }
-  const el=document.getElementById('qbdetail'); if(el) el.innerHTML=`<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="gtbl"><thead><tr><th>문항</th><th>정답</th><th>area</th><th>type</th><th>비고</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  const el=document.getElementById('qbdetail'); if(el) el.innerHTML=`<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="gtbl"><thead><tr><th scope="col">문항</th><th scope="col">정답</th><th scope="col">area</th><th scope="col">type</th><th scope="col">비고</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 /* ══════════════════════════════════════════════════════════════════════
    명단 관리 (#roster)
@@ -1317,7 +1317,7 @@ function renderRoster(){
         <button class="btn ghost sm" onclick="event.preventDefault();event.stopPropagation();rosterDelNameAt(${ni})">학생 삭제</button>
       </summary>
       <div style="overflow-x:auto;margin-top:7px"><table class="gtbl"><thead><tr>
-        <th>시험</th><th>점수</th><th>날짜</th><th>학교·학년</th><th>수정</th></tr></thead>
+        <th scope="col">시험</th><th scope="col">점수</th><th scope="col">날짜</th><th scope="col">학교·학년</th><th scope="col">수정</th></tr></thead>
         <tbody>${inner}</tbody></table></div></details>`;
   }).join('');
 
@@ -1378,7 +1378,7 @@ function renderQbank(){
    </div>
    <div class="sec">${secH('무결성 점검')}<div style="margin-top:2px">${issHTML}</div></div>
    <div class="sec">${secH('시험별 개요')}
-     <div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="gtbl"><thead><tr><th>ID</th><th>제목</th><th>그룹</th><th>문항</th><th>area</th><th>type</th><th>PDF</th><th>상태</th></tr></thead><tbody>${exRows}</tbody></table></div>
+     <div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="gtbl"><thead><tr><th scope="col">ID</th><th scope="col">제목</th><th scope="col">그룹</th><th scope="col">문항</th><th scope="col">area</th><th scope="col">type</th><th scope="col">PDF</th><th scope="col">상태</th></tr></thead><tbody>${exRows}</tbody></table></div>
    </div>
    <div class="sec">${secH('문항 열람')}
      <select id="qbsel" onchange="showExamQ(this.value)" style="padding:7px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px;max-width:100%;background:#fff;color:var(--ink)">${opts}</select>
@@ -2267,7 +2267,7 @@ function prereqSec(exam, sel, cs){
   /* 지도는 SVG 라 Word 로 넘어가지 못한다(넘기면 좌표 글자만 쏟아진다).
      같은 내용을 표로도 적어 두고 화면에서는 감춘다 — Word 쪽 변환기는
      표를 알아본다. 화면과 종이가 갈라지지 않게 하려는 장치다. */
-  const docxTbl=`<table class="docx-tbl" hidden><thead><tr><th>영역</th><th>층</th><th>숙달도</th><th>먼저 알아야 할 것</th></tr></thead><tbody>${
+  const docxTbl=`<table class="docx-tbl" hidden><thead><tr><th scope="col">영역</th><th scope="col">층</th><th scope="col">숙달도</th><th scope="col">먼저 알아야 할 것</th></tr></thead><tbody>${
     N.slice().sort((a,b)=>lv[a]-lv[b]||a.localeCompare(b)).map(d=>{
       const ps=(PREREQ[d]||[]).filter(p=>nodes.has(p));
       const st=!reliable(d)?'표본 부족':(sb[d]>=75?'안정':sb[d]>=60?'보통':'약함');
@@ -2915,7 +2915,7 @@ function tableSec(exam,selv){
   for(let q=1;q<=exam.nQ;q++){const m=ac.has(q);const my=selv[q]||0;const k=exam.key[q-1];const ok=okq(exam,q,my);
     rows+=`<tr><td class="mono">${q}</td><td class="mono">${m?'-':ansLabel(exam,q)}</td><td class="mono">${my?CIRC[my]:'·'}</td><td>${m?'<span class="muted">제외</span>':`<span class="ox ${ok?'o':'x'}">${ok?'O':'X'}</span>`}</td><td><span class="pill">${exam.area?esc(exam.area[q-1]):''}</span></td></tr>`;}
   return `<div class="sec">${secH('문항별 정오표')}<details><summary class="muted" style="cursor:pointer;margin-bottom:6px">전체 ${exam.nQ}문항 펼치기</summary>
-   <div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="gtbl"><thead><tr><th>문항</th><th>정답</th><th>내 답</th><th>정오</th><th>영역</th></tr></thead><tbody>${rows}</tbody></table></div></details></div>`;
+   <div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="gtbl"><thead><tr><th scope="col">문항</th><th scope="col">정답</th><th scope="col">내 답</th><th scope="col">정오</th><th scope="col">영역</th></tr></thead><tbody>${rows}</tbody></table></div></details></div>`;
 }
 
 function sharedReportRuntime(){
@@ -4104,7 +4104,7 @@ function buildBook(exam, selv, cs, correct, total, W, wrong, dh, answers){
     var weakTxt = weak.length? '보완이 필요한 영역은 '+weak.slice(0,3).map(function(a){return a.name;}).join(', ')+'입니다.':'뚜렷한 취약 영역 없이 고르게 응답했습니다.';
     H+='<div class="bk-sec"><div class="bk-kicker">By Area</div><div class="bk-h"><span class="no">'+no()+'</span><span class="tt">영역별 성취</span></div>'
       +'<div class="bk-lead">'+strTxt+weakTxt+'</div>'
-      +'<table class="bk-areatbl"><thead><tr><th>영역</th><th>성취도</th><th class="r">정답률</th><th class="r">정오</th><th class="r">판정</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+      +'<table class="bk-areatbl"><thead><tr><th scope="col">영역</th><th scope="col">성취도</th><th scope="col" class="r">정답률</th><th scope="col" class="r">정오</th><th scope="col" class="r">판정</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
   }
 
   // ── 04 오답 정밀 분석 ──
@@ -4289,7 +4289,7 @@ function retestHTML(exam, items){
     +'<span class="rt-name">이름 '+(nm?esc(nm):'________')+'</span></div></div>'
     +body
     +'<div class="rt-key"><div class="rt-keyh">정답 · 해설 <span>(잘라 내면 앞장이 학생용입니다)</span></div>'
-    +'<table class="rt-keyt"><thead><tr><th>번호</th><th>정답</th><th>원문</th><th>개념</th></tr></thead>'
+    +'<table class="rt-keyt"><thead><tr><th scope="col">번호</th><th scope="col">정답</th><th scope="col">원문</th><th scope="col">개념</th></tr></thead>'
     +'<tbody>'+keyRows+'</tbody></table>'+sols+'</div></div>';
 }
 async function printRetest(){

@@ -89,7 +89,7 @@ function renderConcept(O){const cc=commonConcepts();
  const rows=cc.map(c=>({c,bef:RB.cohortC[c],aft:RA.cohortC[c],d:RA.cohortC[c]-RB.cohortC[c]})).sort((a,b)=>a.d-b.d);
  // 퇴행·정체 먼저(주의 필요), 그다음 향상
  let h='<div class="panel"><h2>개념별 변화 (주의 필요 → 향상 순)</h2><div class="hint" style="margin-bottom:6px">퇴행/정체 개념이 위에. 정체=수업이 닿지 않은 지점.</div>'+
-   '<table class="tbl"><tr><th>개념</th><th>영역</th><th>전</th><th>후</th><th>변화</th><th></th></tr>'+
+   '<table class="tbl"><tr><th scope="col">개념</th><th scope="col">영역</th><th scope="col">전</th><th scope="col">후</th><th scope="col">변화</th><th scope="col"></th></tr>'+
    rows.map(x=>{const fl=x.d<-0.02?'<span class="flag re">퇴행</span>':(Math.abs(x.d)<=0.02?'<span class="flag no">정체</span>':'');
      return '<tr><td class="l">'+esc(N[x.c].l)+'</td><td><span class="dot" style="background:'+AC[N[x.c].a]+'"></span>'+esc(N[x.c].a)+'</td><td>'+Math.round(x.bef*100)+'%</td><td>'+Math.round(x.aft*100)+'%</td><td class="delta '+dcol(x.d)+'">'+dstr(x.d)+'</td><td>'+fl+'</td></tr>';}).join('')+'</table></div>';
  O.innerHTML=h;}
@@ -100,8 +100,8 @@ function renderStudent(O){const common=commonStudents();if(!selS||!common.includ
  // 개념 변화 (이 학생)
  const cc=commonConcepts().map(c=>{const b=RB.mastery[selS][c],a=RA.mastery[selS][c];return (b!=null&&a!=null)?{c,b,a,d:a-b}:null;}).filter(Boolean).sort((a,b)=>b.d-a.d);
  const gains=cc.filter(x=>x.d>0.02).slice(0,6),losses=cc.filter(x=>x.d<-0.02).slice(0,6);
- h+='<div class="panel"><h2>가장 향상된 개념</h2>'+(gains.length?'<table class="tbl"><tr><th>개념</th><th>전</th><th>후</th><th>변화</th></tr>'+gains.map(x=>'<tr><td class="l"><span class="dot" style="background:'+AC[N[x.c].a]+'"></span>'+esc(N[x.c].l)+'</td><td>'+Math.round(x.b*100)+'%</td><td>'+Math.round(x.a*100)+'%</td><td class="delta up">'+dstr(x.d)+'</td></tr>').join('')+'</table>':'<div class="hint">뚜렷한 향상 개념이 없습니다.</div>')+'</div>';
- if(losses.length)h+='<div class="panel"><h2>퇴행 개념 (점검 필요)</h2><table class="tbl"><tr><th>개념</th><th>전</th><th>후</th><th>변화</th></tr>'+losses.map(x=>'<tr><td class="l"><span class="dot" style="background:'+AC[N[x.c].a]+'"></span>'+esc(N[x.c].l)+'</td><td>'+Math.round(x.b*100)+'%</td><td>'+Math.round(x.a*100)+'%</td><td class="delta down">'+dstr(x.d)+'</td></tr>').join('')+'</table></div>';
+ h+='<div class="panel"><h2>가장 향상된 개념</h2>'+(gains.length?'<table class="tbl"><tr><th scope="col">개념</th><th scope="col">전</th><th scope="col">후</th><th scope="col">변화</th></tr>'+gains.map(x=>'<tr><td class="l"><span class="dot" style="background:'+AC[N[x.c].a]+'"></span>'+esc(N[x.c].l)+'</td><td>'+Math.round(x.b*100)+'%</td><td>'+Math.round(x.a*100)+'%</td><td class="delta up">'+dstr(x.d)+'</td></tr>').join('')+'</table>':'<div class="hint">뚜렷한 향상 개념이 없습니다.</div>')+'</div>';
+ if(losses.length)h+='<div class="panel"><h2>퇴행 개념 (점검 필요)</h2><table class="tbl"><tr><th scope="col">개념</th><th scope="col">전</th><th scope="col">후</th><th scope="col">변화</th></tr>'+losses.map(x=>'<tr><td class="l"><span class="dot" style="background:'+AC[N[x.c].a]+'"></span>'+esc(N[x.c].l)+'</td><td>'+Math.round(x.b*100)+'%</td><td>'+Math.round(x.a*100)+'%</td><td class="delta down">'+dstr(x.d)+'</td></tr>').join('')+'</table></div>';
  O.innerHTML=h;}
 function nextSid(roster){let n=1;const u=new Set(roster.map(r=>r.sid));while(u.has('S'+String(n).padStart(2,'0')))n++;return 'S'+String(n).padStart(2,'0');}
 function genCohort(group,improve){const DB={roster:[],resp:{}};const ux=EXAMS.filter(e=>e.group===group);const useEx=ux.length?ux:EXAMS.slice(0,12);

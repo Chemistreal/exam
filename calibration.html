@@ -115,7 +115,7 @@ function render(){const R=document.getElementById('results');
    '<div class="legend"><span><i style="background:#bbb"></i>완벽 보정(대각선)</span><span>● 구간(크기=표본수)</span><span><i style="background:#C0603A"></i>오차(세로선)</span></div></div>'+
    '<div class="panel"><h2>신뢰도 곡선 (등위회귀 보정 후) <span class="c">대각선에 근접</span></h2>'+reliabilitySVG(Bcal,N)+'<div class="hint">보정 후 점들이 대각선에 더 붙으면 확률이 교정된 것입니다.</div></div></div>';
  // 신뢰 등급 표
- h+='<div class="panel"><h2>진단 신뢰 등급 <span class="c">보정 후 확률 구간별 실제 정확도</span></h2><table class="tbl"><tr><th>예측 확률 구간</th><th>실제 정답률</th><th>표본</th><th>신뢰 등급</th></tr>';
+ h+='<div class="panel"><h2>진단 신뢰 등급 <span class="c">보정 후 확률 구간별 실제 정확도</span></h2><table class="tbl"><tr><th scope="col">예측 확률 구간</th><th scope="col">실제 정답률</th><th scope="col">표본</th><th scope="col">신뢰 등급</th></tr>';
  Bcal.forEach(b=>{if(!b.n)return;const dev=Math.abs(b.my-b.mp);const gr=b.n>=15&&dev<0.08?['hi','높음']:b.n>=8&&dev<0.15?['mid','중간']:['lo','낮음'];
    h+='<tr><td class="mono">'+(b.lo*100).toFixed(0)+'~'+(b.hi*100).toFixed(0)+'%</td><td class="mono">'+(b.my*100).toFixed(0)+'%</td><td class="mono">'+b.n+'</td><td><span class="grade '+gr[0]+'">'+gr[1]+'</span></td></tr>';});
  h+='</table><div class="hint">확신도가 높은(0.8+) 진단이 실제로도 그만큼 맞으면 신뢰 등급이 높습니다. 표본이 적거나 예측·실제 괴리가 크면 낮음 · 그 구간 진단은 신중히 다뤄야 합니다.</div></div>';

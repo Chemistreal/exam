@@ -357,7 +357,7 @@ document.querySelectorAll('[data-pre]').forEach(b=>b.addEventListener('click',()
  order.forEach(a=>{IDS.filter(id=>N[id].a===a).forEach(id=>{
    const pq=N[id].p.length?N[id].p.map(pp=>`${esc(N[pp].l)}(${pp}) <span class="ek ${isSoft(id,pp)?'soft':'hard'}">${isSoft(id,pp)?'도움':'필수'}</span>`).join('   '):'<span class="root0">뿌리 개념</span>';
    rows+=`<tr><td class="nn">${id}</td><td>${esc(N[id].l)}<br><span style="font-size:11.5px;color:${AREAS[a].c}">${a}</span></td><td class="pq">${pq}</td></tr>`;});});
- document.getElementById('audit').innerHTML=`<table><tr><th>강</th><th>개념</th><th>선수 개념 (← 먼저 필요)</th></tr>${rows}</table>`;
+ document.getElementById('audit').innerHTML=`<table><tr><th scope="col">강</th><th scope="col">개념</th><th scope="col">선수 개념 (← 먼저 필요)</th></tr>${rows}</table>`;
 })();
 render();
 </script>

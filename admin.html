@@ -39,7 +39,7 @@ body{margin:0;font-family:var(--sans);color:var(--ink);background:radial-gradien
 .bw__mark{width:38px;height:38px;border-radius:10px;background:linear-gradient(140deg,var(--teal-d),var(--teal));position:relative;flex:0 0 auto;box-shadow:0 6px 16px -9px rgba(10,92,83,.7)}
 .bw__mark::after{content:"";position:absolute;left:9px;top:9px;right:9px;bottom:9px;border:1.5px solid var(--gold-2);border-radius:4px;opacity:.9}
 .bw__mark span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--serif);font-weight:700;font-size:15px}
-.bw__name{font-family:var(--serif);font-weight:600;font-size:16px;letter-spacing:.005em}
+.bw__name{font-family:var(--serif);font-weight:600;font-size:16px;letter-spacing:.005em;margin:0}
 .bw__sub{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;color:var(--ink-3)}
 .teal-rule{height:2px;background:linear-gradient(90deg,var(--teal-d) 0%,var(--teal) 32%,var(--gold-2) 68%,var(--brass-d) 100%)}
 
@@ -126,7 +126,7 @@ tr:last-child td{border-bottom:none}
     <div class="bw">
       <div class="bw__mark"><span>C</span></div>
       <div>
-        <div class="bw__name">교사 콘솔</div>
+        <h1 class="bw__name">교사 콘솔</h1>
         <div class="bw__sub">Chemistreal · 성적 분석 · 조준모 화학</div>
       </div>
     </div>
@@ -857,15 +857,15 @@ const App={
   if(!rows.length){ tbl.innerHTML='<tr><td><div class="empty">데이터 없음</div></td></tr>'; return; }
   const arr=(k)=> sk===k? `<span class="arr">${dir<0?'▼':'▲'}</span>`:'';
   const head=`<thead><tr>
-    <th class="sortable" data-k="name">이름${arr('name')}</th>
-    <th class="sortable" data-k="examno">수험번호${arr('examno')}</th>
-    <th class="sortable" data-k="date">응시일${arr('date')}</th>
-    <th class="sortable" data-k="total">원점수${arr('total')}</th>
-    <th class="sortable" data-k="pct100">백점${arr('pct100')}</th>
-    <th class="sortable" data-k="pct">백분위${arr('pct')}</th>
-    <th class="sortable" data-k="rank">석차${arr('rank')}</th>
-    <th class="sortable" data-k="correct">맞은개수${arr('correct')}</th>
-    <th style="cursor:default">링크 / 리포트</th>
+    <th scope="col" class="sortable" data-k="name">이름${arr('name')}</th>
+    <th scope="col" class="sortable" data-k="examno">수험번호${arr('examno')}</th>
+    <th scope="col" class="sortable" data-k="date">응시일${arr('date')}</th>
+    <th scope="col" class="sortable" data-k="total">원점수${arr('total')}</th>
+    <th scope="col" class="sortable" data-k="pct100">백점${arr('pct100')}</th>
+    <th scope="col" class="sortable" data-k="pct">백분위${arr('pct')}</th>
+    <th scope="col" class="sortable" data-k="rank">석차${arr('rank')}</th>
+    <th scope="col" class="sortable" data-k="correct">맞은개수${arr('correct')}</th>
+    <th scope="col" style="cursor:default">링크 / 리포트</th>
   </tr></thead>`;
   const body=view.map((r,i)=>`<tr>
     <td class="nm" data-link="${esc(this.linkFor(r))}" title="리포트 열기">${esc(r.name||'(이름없음)')}</td>
@@ -896,7 +896,7 @@ const App={
   if(!rows.length){ tbl.innerHTML='<tr><td><div class="empty">데이터 없음</div></td></tr>'; return; }
   const items=this.itemAnalysis(rows);
   const heat=(a)=>{ const c= a>=80?'var(--emerald)': a>=60?'var(--teal-d)': a>=40?'var(--amber)':'var(--rose)'; const bg= a>=80?'var(--teal-t)': a>=60?'var(--teal-t)': a>=40?'#F6ECD8':'#F7E6EE'; return `<span class="heat" style="color:${c};background:${bg}">${a.toFixed(0)}%</span>`; };
-  const head=`<thead><tr><th>문항</th><th style="text-align:left">영역 · 유형</th><th>정답</th><th>정답률</th><th>변별도</th><th style="text-align:left">선택지 분포 ①②③④</th><th>난이도</th></tr></thead>`;
+  const head=`<thead><tr><th scope="col">문항</th><th scope="col" style="text-align:left">영역 · 유형</th><th scope="col">정답</th><th scope="col">정답률</th><th scope="col">변별도</th><th scope="col" style="text-align:left">선택지 분포 ①②③④</th><th scope="col">난이도</th></tr></thead>`;
   const band=(a)=> a>=80?'평이': a>=60?'중하': a>=40?'중상': a>=20?'고난도':'최고난도';
   const body=items.map(it=>{
    const omax=Math.max(...it.opt,1);

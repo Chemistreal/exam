@@ -115,7 +115,7 @@ function renderProfile(){const {params,concepts}=FIT;const sid=selStud;if(!sid)r
 function renderCparams(){const {params,concepts}=FIT;let SORTKEY=window.__csort||'topo';
  let arr=concepts.map(c=>({c,...params[c],fit:params[c].s+params[c].g}));
  if(SORTKEY==='fit')arr.sort((a,b)=>b.fit-a.fit);
- let h='<table class="tbl"><tr><th onclick="window.__csort=\'topo\';renderCparams()">개념</th><th onclick="window.__csort=\'fit\';renderCparams()">슬립 s</th><th>추측 g</th><th>숙달률 π</th><th>문항</th></tr>';
+ let h='<table class="tbl"><tr><th scope="col" onclick="window.__csort=\'topo\';renderCparams()">개념</th><th scope="col" onclick="window.__csort=\'fit\';renderCparams()">슬립 s</th><th scope="col">추측 g</th><th scope="col">숙달률 π</th><th scope="col">문항</th></tr>';
  arr.forEach(x=>{const bad=x.fit>0.55;h+='<tr class="'+(bad?'bad':'')+'"><td style="font-size:11.5px"><span class="mono" style="color:#999;font-size:11.5px">'+x.c+'</span> '+esc(N[x.c].l)+'</td>'+
    '<td class="mono">'+x.s.toFixed(2)+'</td><td class="mono">'+x.g.toFixed(2)+'</td><td class="mono">'+Math.round(x.pi*100)+'%</td><td class="mono">'+x.nitems+'</td></tr>';});
  document.getElementById('cparams').innerHTML=h+'</table><div class="hint">슬립+추측이 높은 문항군(연노랑)은 그 개념 매핑(Q-행렬)이 부정확하거나 문항이 단일 개념이 아닐 수 있습니다 · Q-행렬 적합도 신호.</div>';}

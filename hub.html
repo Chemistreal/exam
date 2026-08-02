@@ -568,7 +568,7 @@ body:not(.snzshow) .row.snz{display:none}
       <div class="bar"><input type="search" id="rq" placeholder="회차 이름으로 찾기" autocomplete="off"></div>
       <div id="rndNote"></div>
       <div class="scroll"><table id="rndTable"><thead><tr>
-        <th>회차</th><th>채점</th><th>평균</th><th>최고</th><th>마지막 채점</th><th>안 본 학생</th><th>비율</th>
+        <th scope="col">회차</th><th scope="col">채점</th><th scope="col">평균</th><th scope="col">최고</th><th scope="col">마지막 채점</th><th scope="col">안 본 학생</th><th scope="col">비율</th>
       </tr></thead><tbody><tr><td colspan="6" class="spin">불러오는 중…</td></tr></tbody></table></div>
     </section>
   </div>
@@ -2588,7 +2588,7 @@ function printSheet(r){
   }
 
   if(mis.length){
-    h += '<h2>아직 못 잡은 개념</h2><table><tr><th>개념</th><th style="width:22%">걸린 횟수</th></tr>'+
+    h += '<h2>아직 못 잡은 개념</h2><table><tr><th scope="col">개념</th><th scope="col" style="width:22%">걸린 횟수</th></tr>'+
       mis.slice(0,6).map(function(m){
         return '<tr><td>'+esc(m.tag)+'</td><td>'+m.n+'회</td></tr>'; }).join('')+'</table>';
   }
@@ -2596,8 +2596,8 @@ function printSheet(r){
   if(asc.length){
     /* 최근 것이 위. 종이에서는 위에서부터 읽는다. */
     const desc = asc.slice().reverse().slice(0,8);
-    h += '<h2>파이널 회차</h2><table><tr><th>회차</th><th style="width:20%">정답</th>'+
-      '<th style="width:16%">정답률</th><th style="width:22%">본 날</th></tr>'+
+    h += '<h2>파이널 회차</h2><table><tr><th scope="col">회차</th><th scope="col" style="width:20%">정답</th>'+
+      '<th scope="col" style="width:16%">정답률</th><th scope="col" style="width:22%">본 날</th></tr>'+
       desc.map(function(x){
         const pct = x.total ? Math.round(x.correct/x.total*100) : 0;
         return '<tr><td>'+esc(examTitle(x.exam))+'</td><td>'+(x.correct!=null?x.correct+'/'+(x.total||'—'):'—')+
@@ -3522,8 +3522,8 @@ function renderMaterials(){
   if(MAT_PICK === 'final'){
     const rows = EXAMS.filter(function(e){ return !q || normName(e.title).indexOf(q)>=0; });
     if(!rows.length){ body.innerHTML = '<div class="spin" style="padding:16px">찾는 회차가 없습니다.</div>'; return; }
-    body.innerHTML = '<table><thead><tr><th>회차</th><th>구분</th><th>문항</th>'+
-      '<th>가진 자료</th><th>문제지</th><th>해설</th><th>채점</th></tr></thead><tbody>'+
+    body.innerHTML = '<table><thead><tr><th scope="col">회차</th><th scope="col">구분</th><th scope="col">문항</th>'+
+      '<th scope="col">가진 자료</th><th scope="col">문제지</th><th scope="col">해설</th><th scope="col">채점</th></tr></thead><tbody>'+
       rows.map(function(e){
         const sol = 'sol-final-'+e.id+'.html';
         return '<tr><td>'+esc(e.title)+'</td><td class="dim">'+esc(e.group||'')+'</td>'+
@@ -3547,7 +3547,7 @@ function renderMaterials(){
     }
     const rows = LECS.filter(function(l){ return !q || normName(l.title).indexOf(q)>=0; });
     if(!rows.length){ body.innerHTML = '<div class="spin" style="padding:16px">찾는 강의가 없습니다.</div>'; return; }
-    body.innerHTML = '<table><thead><tr><th>번호</th><th>강의</th><th>열기</th></tr></thead><tbody>'+
+    body.innerHTML = '<table><thead><tr><th scope="col">번호</th><th scope="col">강의</th><th scope="col">열기</th></tr></thead><tbody>'+
       rows.map(function(l){
         const no = (l.href.match(/lec-(\d+)/)||['',''])[1];
         return '<tr><td class="num">'+esc(no)+'</td><td>'+esc(l.title||l.href)+'</td>'+
@@ -3592,8 +3592,8 @@ function renderMaterials(){
     if(f.pdf)  out.push('<a href="'+esc(P+f.pdf)+'" download>PDF ↓</a>');
     return out.join(' · ');
   };
-  body.innerHTML = '<table><thead><tr><th>회차</th><th>가진 자료</th>'+
-    '<th>문제지</th><th>해설</th><th>OMR</th><th>오답노트</th></tr></thead><tbody>'+
+  body.innerHTML = '<table><thead><tr><th scope="col">회차</th><th scope="col">가진 자료</th>'+
+    '<th scope="col">문제지</th><th scope="col">해설</th><th scope="col">OMR</th><th scope="col">오답노트</th></tr></thead><tbody>'+
     rows.map(function(r){
       const f = r.files||{};
       return '<tr><td>'+esc(course.name)+' '+r.round+'회</td>'+
@@ -3760,7 +3760,7 @@ function renderIncome(){
   const body = document.getElementById('incBody');
   body.innerHTML = !d.rows.length
     ? '<div class="spin" style="padding:16px">반 명단을 아직 못 불러왔습니다.</div>'
-    : '<table><thead><tr><th>반</th><th>과목</th><th>인원</th><th>월 금액</th></tr></thead><tbody>'+
+    : '<table><thead><tr><th scope="col">반</th><th scope="col">과목</th><th scope="col">인원</th><th scope="col">월 금액</th></tr></thead><tbody>'+
       d.rows.map(function(r){
         return '<tr><td>'+esc(r.label)+'</td><td class="dim">'+esc(DT_COURSE[r.course]||r.course)+'</td>'+
           '<td class="num">'+r.n+'</td><td class="num">'+wonOf(r.n*FEE_PER)+'</td></tr>';
@@ -3789,8 +3789,8 @@ function renderIncome(){
     return;
   }
   const mx = Math.max.apply(null, INC_HIST.map(function(r){ return r.monthly; })) || 1;
-  h.innerHTML = '<div class="scroll"><table><thead><tr><th>달</th><th>자리</th><th>사람</th>'+
-    '<th>단가</th><th>월 수입</th><th>추이</th></tr></thead><tbody>'+
+  h.innerHTML = '<div class="scroll"><table><thead><tr><th scope="col">달</th><th scope="col">자리</th><th scope="col">사람</th>'+
+    '<th scope="col">단가</th><th scope="col">월 수입</th><th scope="col">추이</th></tr></thead><tbody>'+
     INC_HIST.slice().reverse().map(function(r){
       return '<tr><td>'+esc(r.ym)+'</td><td class="num">'+r.seats+'</td><td class="num">'+r.heads+'</td>'+
         '<td class="num">'+wonOf(r.per)+'</td><td class="num">'+wonOf(r.monthly)+'</td>'+

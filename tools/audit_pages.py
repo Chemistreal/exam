@@ -63,6 +63,17 @@ def audit(path):
         out.append(('charset 없음', '한글이 깨질 수 있다'))
     if not re.search(r'<title>\s*\S', s):
         out.append(('title 없음', '탭·즐겨찾기·공유에 이름이 안 뜬다'))
+    # 낭독기는 "이 화면이 무엇인가" 를 제목 단계로 읽는다. h3 부터 시작하면
+    # 위에 뭔가 더 있다고 착각한다. 눈에 보이는 제목은 있는데 <h1> 만 없던
+    # 화면이 DT 에 134장 있었다(해설지·문제지·OMR 전부).
+    if not re.search(r'<h1[\s>]', s):
+        out.append(('h1 없음', '화면 낭독기가 무엇에 관한 화면인지 못 읽는다'))
+    # <th>과목</th><td>화학</td> 같은 줄에서 scope 가 없으면, 낭독기가 값을
+    # 읽을 때 어느 머리에 딸린 값인지 말해 주지 못한다.
+    noscope = re.findall(r'<th\b(?![^>]*\bscope=)', s)
+    if noscope:
+        out.append(('표 머리에 scope 없음 %d곳' % len(noscope),
+                    '낭독기가 어느 칸의 머리인지 모른다'))
 
     # ── 글자 크기 ─────────────────────────────────────────
     small = [float(x) for x in FONT.findall(s) if float(x) < MIN_FONT]
