@@ -112,7 +112,7 @@ const chk = (n, got, want) => {
                   흉내 내면 'DT 미완료' 가 undefined 로 찍히던 버그를 못 잡는다. */
                : act === 'pending' ? { ok: true, pending: { activeDays: 14, generatedAt: 'T', stale: [], active: [
                    { studentKey: 's1', name: '최예린', school: '역삼중', year: '2', course: 'ch1', round: 12,
-                     lastAttempt: '정시', nextNeeded: '재시', score: 68, days: 3, lastDate: '6/17',
+                     lastAttempt: '정시', nextNeeded: '재시', score: 68, days: 9, lastDate: '6/17',
                      reportLink: 'https://x/report.html?student=a', active: true } ] } }
                /* 통과·미응시를 **파이널에도 있는 학생**(김지성)으로 둔다. 학생 카드가
                   세 앱을 한 장에 모으는지 보려면 같은 아이여야 한다. 학교는 일부러
@@ -127,6 +127,14 @@ const chk = (n, got, want) => {
                   이쪽은 사람이 보인다 — '몰농도 7명' 다음에 할 일이 있으려면
                   누구인지가 있어야 한다. 김지성은 **두 줄**로 준다(회차가 다름):
                   한 사람이 둘로 서면 보충 인원이 부푼다. */
+               /* 넛지가 서려면 '보냈다' 와 '열어 봤다' 가 둘 다 있어야 한다.
+                  김지성은 닷새 전에 보냈는데 그 뒤로 안 열었고, 최예린은
+                  아예 안 보낸 채 오래 밀렸다. */
+               : act === 'sentlog' ? { ok: true, sent: [
+                   { kind:'pass', name:'김지성', course:'ch2', round:7,
+                     ts: now - 5 * D, at:'6/19 10:00' } ] }
+               : act === 'views' ? { ok: true, views: [
+                   { studentKey:'s9', name:'다른학생', school:'X중', ts: now - 1 * D, at:'', n:1 } ] }
                : act === 'mistags' ? { ok: true, mis: { days: 21, rows: [
                    { name: '김지성', school: '휘문중', course: 'ch2', round: 12, attempt: '재시',
                      pass: true, score: 96, days: 1, tags: ['몰농도', '완충'],
@@ -386,6 +394,45 @@ const chk = (n, got, want) => {
     console.log('  ' + src);
     chk('숫자 밑에 출처가 적힌다',
         /이 브라우저 기록만|시트까지 반영된|받아오는 중/.test(src), true);
+  }
+
+  console.log('\n── 안 한 것이 떠오르게 (넛지) ──');
+  {
+    /* 미루기는 선생님이 **누른** 것만 미룬다. 잊은 것은 대개 누른 적이 없다. */
+    await p.evaluate(() => { const d = document.getElementById('dlg'); if (d.open) d.close(); show('dash'); });
+    await p.waitForTimeout(900);
+    const n0 = await p.evaluate(() => ({
+      shown: !document.getElementById('nudge').hidden,
+      rows: [].map.call(document.querySelectorAll('#nudge .ndg'), e => [
+        e.querySelector('.kindl').textContent, e.querySelector('.who').textContent]),
+      why: [].map.call(document.querySelectorAll('#nudge .why'), e => e.textContent),
+    }));
+    console.log('  ' + JSON.stringify(n0.rows));
+    chk('넛지가 뜬다', n0.shown, true);
+    /* 닷새 전에 통과 문자를 보냈는데 그 학생은 성적표를 안 열었다. 다른 학생만
+       열었다 — 이름으로 맞추지 않으면 '누군가 열었으니 됐다' 가 된다. */
+    chk('보냈는데 안 열어 본 사람을 짚는다',
+        n0.rows.some(r => r[0] === '안 열어 봄' && r[1] === '김지성'), true);
+    /* 재시가 아흐레째인데 아직 안 보냈다 — 목록에는 있지만 눈에 안 걸린다. */
+    chk('오래 밀린 재시를 짚는다',
+        n0.rows.some(r => r[0] === '아직 안 보냄' && r[1] === '최예린'), true);
+    chk('며칠째인지 말해 준다', n0.why.some(t => /9일째/.test(t)), true);
+
+    /* '무시' 는 미루기를 그대로 쓴다 — 새로 저장할 곳을 만들지 않는다. */
+    const off = await p.evaluate(async () => {
+      const b = [].filter.call(document.querySelectorAll('#nudge .ndg'),
+                               e => /최예린/.test(e.textContent))[0]
+                  .querySelector('[data-ndgoff]');
+      b.click();
+      await new Promise(r => setTimeout(r, 300));
+      return [].map.call(document.querySelectorAll('#nudge .who'), e => e.textContent);
+    });
+    chk('무시하면 내려간다', off.indexOf('최예린') < 0, true);
+    /* 넛지를 무시했다고 재시 목록의 그 사람까지 미뤄지면 안 된다 —
+       열쇠가 겹치면 그렇게 된다. */
+    chk('재시 목록은 그대로 있다', await p.evaluate(() =>
+      [].filter.call(document.querySelectorAll('#pendList .row'), e => e.offsetParent)
+        .some(e => /최예린/.test(e.textContent))), true);
   }
 
   console.log('\n── DT 문자를 셸에서 바로 복사한다 ──');

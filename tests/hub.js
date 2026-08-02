@@ -80,9 +80,14 @@ vm.runInContext([
   cut('sentKey'), cut('bulkBar'), cut('readHash'), cut('deltaOf'), cut('dayCounts'),
   cut('rosterCount'), cut('wonOf'),
   cut('dayKey'), cut('snoozedTill'), cut('isSnoozed'), cut('snzCls'), cut('snzBtn'),
-  cut('viewName'), cut('snzBar'), cut('conEntry'), cut('conPut'), cut('conHits'), cut('conTags'),
+  cut('viewName'), cut('ndgKey'), cut('nudges'), cut('snzBar'), cut('conEntry'), cut('conPut'), cut('conHits'), cut('conTags'),
   cut('conFor'), cut('conClassOf'), cut('conByClass'), cut('conRounds'),
   ((SRC.match(/^const FEE_PER = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
+  ((SRC.match(/^const DT_COURSE = \{[^}]*\};?$/m) || [''])[0]).replace(/^const /, 'var '),
+  ((SRC.match(/^const NDG_SENT_DAYS = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
+  ((SRC.match(/^const NDG_MAX = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
+  ((SRC.match(/^const SNZ_DAYS = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
+  ((SRC.match(/^const NDG_PEND_DAYS = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
   'var SNZ=new Map(), SNZ_SHOW=false;',
   ((SRC.match(/^const TAB_NAME = \{[^}]*\};?$/m) || [''])[0]).replace(/^const /, 'var '),
   ((SRC.match(/^const CLS_LABEL = \{[^}]*\};?$/m) || [''])[0]).replace(/^const /, 'var '),
@@ -211,7 +216,7 @@ console.log('\n── 셸이 남의 데이터를 건드리지 않는다 ──')
       ["dtOnce('names'", "dtOnce('pending'", "readOnce('dt', 'absentees'",
        "readOnce('dt', 'cohortmis'", "readOnce('dt', 'income'", "readOnce('dt', 'mistags'",
        "readOnce('dt', 'passed'", "readOnce('dt', 'sentlog'", "readOnce('dt', 'snoozelog'",
-       "readOnce('km', 'names'"]);
+       "readOnce('dt', 'views'", "readOnce('km', 'names'"]);
 
   /* 한 앱이 응답하지 않아도 화면이 비면 안 된다. 앱스크립트는 그냥 안 돌아올
      때가 있어서, 타임아웃이 없으면 셸이 영원히 '불러오는 중'에 멈춘다. */
@@ -1102,6 +1107,74 @@ console.log('\n── 보낸 것은 눈에서 내려간다 ──');
       /return SENT\.has\(k\) \? '<button class="mini undo"/.test(body), true);
   chk('못 받아도 화면은 산다',
       /dtSentLog\(\)\.then\(function\(rows\)\{ seedSent\(rows\); refreshSoon\(\); \}\)\.catch/.test(body), true);
+}
+
+console.log('\n── 안 한 것이 떠오르게 (넛지) ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  const D = 86400000, now = Date.now();
+  /* 미루기는 선생님이 **누른** 것만 미룬다. 그런데 잊은 것은 대개 누른 적이
+     없다 — 아무도 안 누른 것을 짚는 자리가 없었다. */
+  chk('자리가 있다', /id="nudge"/.test(SRC), true);
+
+  ctx.SENT.clear(); ctx.SNZ.clear();
+  ctx.PEND_ROWS = [
+    { name:'최예린', course:'ch1', round:12, days:9, score:68 },   // 오래됐고 안 보냄
+    { name:'박서준', course:'ch1', round:12, days:2, score:70 },   // 아직 이르다
+    { name:'김도윤', course:'ch1', round:11, days:20, score:55 },  // 오래됐지만 보냈다
+  ];
+  ctx.SENT.add(ctx.sentKey('pend', '김도윤', 'ch1', 11));
+  ctx.DT_CACHE = {
+    'dt:sentlog': { val: [
+      /* 보낸 지 오래인데 아직 안 열어 봤다 */
+      { kind:'pass', name:'김지성', course:'ch2', round:7, ts: now - 5*D },
+      /* 보내고 나서 열어 봤다 — 짚을 것이 없다 */
+      { kind:'pend', name:'한지우', course:'ch1', round:9, ts: now - 6*D },
+      /* 어제 보냈다 — 아직 기다릴 때다 */
+      { kind:'pend', name:'오승민', course:'ch1', round:9, ts: now - 1*D },
+    ] },
+    'dt:views': { val: [ { name:'한지우', ts: now - 2*D } ] },
+  };
+  const n = ctx.nudges();
+  console.log('  ' + JSON.stringify(n.map(function(x){ return [x.kind, x.name, x.days]; })));
+  chk('보냈는데 안 열어 본 사람을 짚는다',
+      n.some(function(x){ return x.name==='김지성' && x.kind==='안 열어 봄'; }), true);
+  /* 보낸 **뒤에** 열었어야 한다 — 지난달에 한 번 열어 본 것으로 이번 문자를
+     읽었다고 칠 수는 없다. 여기서는 보낸 뒤에 열었으니 짚지 않는다. */
+  chk('열어 본 사람은 안 짚는다', n.some(function(x){ return x.name==='한지우'; }), false);
+  chk('어제 보낸 것은 아직 안 짚는다', n.some(function(x){ return x.name==='오승민'; }), false);
+  chk('오래 밀린 재시를 짚는다',
+      n.some(function(x){ return x.name==='최예린' && x.kind==='아직 안 보냄'; }), true);
+  chk('며칠 안 된 것은 안 짚는다', n.some(function(x){ return x.name==='박서준'; }), false);
+  /* 이미 보낸 것을 다시 짚으면 넛지를 안 믿게 된다. */
+  chk('이미 보낸 것은 안 짚는다', n.some(function(x){ return x.name==='김도윤'; }), false);
+  chk('오래된 것이 위에 선다', n.map(function(x){ return x.days; }),
+      n.map(function(x){ return x.days; }).slice().sort(function(a,b){ return b-a; }));
+
+  /* 보낸 **뒤에** 열었는지로 가린다. 이 규칙이 없으면 "지난달에 열어 봤으니
+     됐다" 가 되어 이번 문자를 안 읽은 집을 놓친다. */
+  ctx.DT_CACHE['dt:views'] = { val: [ { name:'김지성', ts: now - 9*D } ] };
+  chk('보내기 전에 열어 본 것은 안 친다',
+      ctx.nudges().some(function(x){ return x.name==='김지성'; }), true);
+
+  /* '무시' 는 미루기를 그대로 쓴다 — 새로 저장할 곳을 만들지 않는다. */
+  chk('무시는 미루기를 쓴다', /w\.snoozeStu\(\{ kind:p\[0\], name:p\[1\], course:p\[2\], round:p\[3\], until:until \}\)/.test(body), true);
+  chk('무시한 것은 내려간다', (function(){
+    const k = ctx.ndgKey('pend', '최예린', 'ch1', 12);
+    ctx.SNZ.set(k, ctx.dayKey(7));
+    return ctx.nudges().some(function(x){ return x.name==='최예린'; }); })(), false);
+  /* 열쇠가 보낸 표시와 겹치면, 넛지를 무시했다고 문자까지 미룬 것이 된다. */
+  chk('열쇠가 보낸 표시와 겹치지 않는다',
+      ctx.ndgKey('pend','최예린','ch1',12) !== ctx.sentKey('pend','최예린','ch1',12), true);
+  /* 여섯 줄이 넘으면 그것도 훑고 만다. */
+  chk('너무 많으면 줄이고 몇 건인지 적는다',
+      /all\.slice\(0, NDG_MAX\)/.test(body) && /외 '\+\(all\.length-NDG_MAX\)\+'건/.test(body), true);
+  /* 이 창구는 진작 열려 있었는데 셸이 안 읽고 있었다 — 아침 메일만 쓰고 있었다. */
+  chk('열람 창구를 읽는다', /function dtViews\(force\)/.test(body) &&
+      /readOnce\('dt', 'views'/.test(body), true);
+  chk('못 받아도 나머지는 뜬다',
+      /dtViews\(\)\.then\(function\(\)\{ renderNudge\(\); \}\)\.catch/.test(body), true);
+  ctx.SNZ.clear(); ctx.SENT.clear(); ctx.DT_CACHE = {}; ctx.PEND_ROWS = [];
 }
 
 console.log('\n── 막대에서 목록으로 파고든다 ──');
