@@ -128,16 +128,17 @@ const chk = (n, got, want) => {
                   누구인지가 있어야 한다. 김지성은 **두 줄**로 준다(회차가 다름):
                   한 사람이 둘로 서면 보충 인원이 부푼다. */
                : act === 'mistags' ? { ok: true, mis: { days: 21, rows: [
-                   { name: '김지성', school: '휘문중', course: 'ch2', round: 7, attempt: '재시',
+                   { name: '김지성', school: '휘문중', course: 'ch2', round: 12, attempt: '재시',
                      pass: true, score: 96, days: 1, tags: ['몰농도', '완충'],
                      reportLink: 'https://x/report.html?student=b' },
-                   { name: '김지성', school: '휘문', course: 'ch1', round: 4, attempt: '정시',
+                   /* 7회는 위 자료 목록에 **없다.** 주소를 지어내면 404 로 끝난다. */
+                   { name: '김지성', school: '휘문', course: 'ch2', round: 7, attempt: '정시',
                      pass: false, score: 61, days: 9, tags: ['몰농도'],
                      reportLink: 'https://x/report.html?student=b2' },
-                   { name: '최예린', school: '역삼중', course: 'ch1', round: 12, attempt: '정시',
+                   { name: '최예린', school: '역삼중', course: 'ch1', round: 1, attempt: '정시',
                      pass: false, score: 68, days: 3, tags: ['몰농도'],
                      reportLink: 'https://x/report.html?student=a' },
-                   { name: '김도윤', school: '', course: 'ch1', round: 12, attempt: '정시',
+                   { name: '김도윤', school: '', course: 'ch1', round: 1, attempt: '정시',
                      pass: false, score: 40, days: 2, tags: ['완충'], reportLink: '' } ] } }
                : act === 'cohortmis' ? { ok: true, rows: [
                    { studentKey: 's1', date: new Date(now - 2 * D).toISOString(), wrongMis: ['몰농도', '완충'] },
@@ -564,6 +565,58 @@ const chk = (n, got, want) => {
     chk('누르면 그 자리를 짚어 준다', jumped, true);
   }
 
+  console.log('\n── 휴대폰에서도 탭이 다 보인다 ──');
+  {
+    /* 390px 에서 재어 보니 열두 탭 중 여섯만 보였다. 밀 수는 있는데 막대를
+       숨겨 놔서 더 있다는 표시가 없었다 — 있는 줄도 모르고 지나간다. */
+    const before = await p.viewportSize();
+    await p.setViewportSize({ width: 390, height: 844 });
+    await p.evaluate(() => { const d = document.getElementById('dlg'); if (d.open) d.close(); show('dash'); });
+    await p.waitForTimeout(400);
+
+    const m0 = await p.evaluate(() => {
+      const navs = [].slice.call(document.querySelectorAll('header nav'));
+      return { cut: navs.map(n => n.scrollWidth > n.clientWidth + 2),
+               cls: navs.map(n => n.className),
+               headH: Math.round(document.querySelector('header').getBoundingClientRect().height) };
+    });
+    chk('탭 줄이 잘린다', m0.cut, [true, true]);
+    chk('잘린 쪽을 흐린다', m0.cls.every(c => /scr-r/.test(c)), true);
+    /* 머리가 163px 이면 세로의 5분의 1을 숫자 하나 보기 전에 쓴다. */
+    console.log('  머리 높이 ' + m0.headH + 'px');
+    chk('머리가 화면을 덜 먹는다', m0.headH <= 130, true);
+
+    /* Cmd+K 로 '수입' 에 가면 화면은 바뀌는데 밑줄 그어진 탭이 화면 밖이라
+       아무 일도 안 일어난 것처럼 보인다. */
+    const wasOff = await p.evaluate(() => {
+      const b = document.getElementById('t-inc');
+      return b.getBoundingClientRect().right > document.documentElement.clientWidth + 1;
+    });
+    chk('그 탭은 원래 화면 밖이었다', wasOff, true);
+    await p.evaluate(() => show('inc'));
+    await p.waitForTimeout(250);
+    const far = await p.evaluate(() => {
+      const b = document.getElementById('t-inc'), w = document.documentElement.clientWidth;
+      const now = b.getBoundingClientRect();
+      return { nowIn: now.left >= -1 && now.right <= w + 1,
+               scrolled: window.scrollY + document.querySelector('main').scrollTop };
+    });
+    chk('고르면 보이는 자리로 온다', far.nowIn, true);
+    /* 페이지까지 같이 밀면 보고 있던 자리를 잃는다. */
+    chk('페이지는 안 밀린다', far.scrolled, 0);
+
+    const back = await p.evaluate(() => {
+      show('dash');
+      const n = document.querySelector('header nav');
+      return { left: n.scrollLeft, cls: n.className };
+    });
+    chk('첫 탭이면 처음으로 붙는다', back.left, 0);
+    chk('처음이면 왼쪽은 안 흐린다', /scr-l/.test(back.cls), false);
+
+    await p.setViewportSize(before);
+    await p.waitForTimeout(300);
+  }
+
   console.log('\n── 개념 하나로 아이들을 부른다 ──');
   {
     /* 대시보드의 '어려워하는 개념' 은 익명본이라 숫자까지만 말해 준다. 그걸
@@ -596,9 +649,10 @@ const chk = (n, got, want) => {
     chk('급한 것이 위에 선다', con.names[0], '김지성');
     chk('몇 명인지 적는다', /몰농도.*2명|아직 못 잡은 학생 2명/.test(con.head), true);
     /* 통과했는데 여기 있으면 "얘는 통과했는데 왜" 가 되고, 목록 전체를 못 믿게 된다. */
-    chk('통과했지만 이 개념은 틀림을 적는다', con.tags, ['통과 · 이 개념은 틀림']);
+    chk('통과했지만 이 개념은 틀림을 적는다',
+        con.tags.filter(t => /통과/.test(t)), ['통과 · 이 개념은 틀림']);
     /* 오래된 회차를 보여 주면 "이거 벌써 했는데" 가 된다 — 최근 것으로 선다. */
-    chk('같은 사람은 최근 회차로', /화학Ⅱ · 7회/.test(con.metas.join(' | ')), true);
+    chk('같은 사람은 최근 회차로', /화학Ⅱ · 12회/.test(con.metas.join(' | ')), true);
 
     const other = await p.evaluate(() => {
       const c = [].filter.call(document.querySelectorAll('#conTabs .chip'),
@@ -611,13 +665,52 @@ const chk = (n, got, want) => {
     chk('개념을 바꾸면 그 사람들이 선다', (other || {}).names, ['김지성', '김도윤']);
     chk('바꾼 것도 주소에 남는다', /tag=%EC%99%84%EC%B6%A9/.test((other || {}).hash || ''), true);
 
+    /* 한 번 틀린 아이와 두 회차 내리 걸린 아이는 다른 아이다. 김지성은
+       ch2#7 · ch1#4 두 회차에서 몰농도에 걸렸다. */
+    const back = await p.evaluate(() => {
+      const c = [].filter.call(document.querySelectorAll('#conTabs .chip'),
+                               e => /^몰농도/.test(e.textContent))[0];
+      c.click();
+      return {
+        marks: [].map.call(document.querySelectorAll('#conList .row .tag'), e => e.textContent),
+        head:  (document.getElementById('conHead') || { textContent: '' }).textContent.replace(/\s+/g, ' '),
+        mats:  [].map.call(document.querySelectorAll('#conHead a'), e => e.getAttribute('href')),
+      };
+    });
+    chk('되풀이를 줄에 적는다', back.marks.filter(m => /회차 걸림/.test(m)), ['2회차 걸림']);
+    chk('머리에도 몇 명인지 적는다', /두 회차 이상 걸린 1명/.test(back.head), true);
+    /* 명단만 뽑고 자료를 다시 찾아 헤매면 보충 준비가 두 번 일이 된다.
+       주소는 지어내지 않는다 — 검사용 자료 목록에 있는 것만 걸려야 한다. */
+    console.log('  ' + JSON.stringify(back.mats));
+    chk('있는 자료를 건다', back.mats.sort(),
+        ['../DT/haeseol_ch1_round01.html', '../DT/haeseol_ch2_round12.pdf',
+         '../DT/munje_ch1_round01.html', '../DT/munje_ch2_round12.html']);
+    /* 7회는 자료 목록에 없다. 회차 이름은 적되 **주소는 안 짓는다** —
+       지어내면 눌러 보고 나서야 404 를 안다. */
+    chk('없는 회차도 적기는 한다', /화학Ⅱ 7회/.test(back.head), true);
+    chk('없는 회차 주소를 지어내지 않는다',
+        back.mats.some(h => /round0?7/.test(h)), false);
+
+    const only = await p.evaluate(async () => {
+      const b = document.querySelector('#conHead .mini[data-conact="repeat"]');
+      if (!b) return null;
+      const label = b.textContent;
+      b.click();
+      await new Promise(r => setTimeout(r, 200));
+      return { label: label,
+               names: [].map.call(document.querySelectorAll('#conList .row .nm'), e => e.textContent) };
+    });
+    chk('되풀이만 보는 단추가 있다', (only || {}).label, '되풀이만 1명');
+    chk('누르면 그 아이만 선다', (only || {}).names, ['김지성']);
+    await p.evaluate(() => document.querySelector('#conHead .mini[data-conact="repeat"]').click());
+
     /* 보충을 앉히려면 이름 목록이 있어야 한다. */
     const copied = await p.evaluate(async () => {
       document.querySelector('#conHead .mini[data-conact="names"]').click();
       await new Promise(r => setTimeout(r, 300));
       return navigator.clipboard.readText();
     });
-    chk('이름을 한 번에 복사한다', copied, '김지성, 김도윤');
+    chk('이름을 한 번에 복사한다', copied, '김지성, 최예린');
   }
 
   console.log('\n── 오늘 못 하는 줄은 미룬다 ──');

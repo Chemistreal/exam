@@ -57,12 +57,13 @@ const chk = (n, got, want) => {
 
 (async () => {
   const browser = await chromium.launch({ executablePath: CHROMIUM, args: ['--no-sandbox'] });
+  /* ⚠ 브라우저에 건다 — 화면 하나에 걸면 나중에 여는 화면이 샌다. */
+  await noSheet(browser);
   const errs = [];
   // 방문마다 새 컨텍스트 — localStorage 가 남으면 두 번째부터 안 묻는다
   const visit = async (path, wait) => {
     const page = await (await browser.newContext()).newPage();
     page.on('pageerror', e => errs.push(path + ': ' + e.message));
-    await noSheet(page);
     await page.goto(AT(path), { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(wait || 900);
     return page;

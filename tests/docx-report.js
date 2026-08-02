@@ -46,9 +46,10 @@ let fail=0; const chk=(n,g,w)=>{const ok=JSON.stringify(g)===JSON.stringify(w);
 (async()=>{
   fs.mkdirSync(OUT,{recursive:true});
   const b=await chromium.launch({executablePath:CHROMIUM,args:['--no-sandbox']});
+  /* ⚠ 브라우저에 건다 — 화면 하나에 걸면 나중에 여는 화면이 샌다. */
+  await noSheet(b);
   const ctx=await b.newContext({acceptDownloads:true}); const p=await ctx.newPage();
   const errs=[]; p.on('pageerror',e=>errs.push(e.message));
-  await noSheet(p);
   await p.goto(`http://localhost:${PORT}/final.html`,{waitUntil:'networkidle'});
   await p.waitForTimeout(700);
 

@@ -41,9 +41,10 @@ let fail=0; const chk=(n,g,w)=>{const ok=JSON.stringify(g)===JSON.stringify(w);
   console.log((ok?'  PASS  ':'  FAIL  ')+n+(ok?'':`  got=${JSON.stringify(g)} want=${JSON.stringify(w)}`));if(!ok)fail++;};
 (async()=>{
   const b=await chromium.launch({executablePath:CHROMIUM,args:['--no-sandbox']});
+  /* ⚠ 브라우저에 건다 — 화면 하나에 걸면 나중에 여는 화면이 샌다. */
+  await noSheet(b);
   const p=await b.newPage(); await p.setViewportSize({width:900,height:1200});
   const errs=[]; p.on('pageerror',e=>errs.push(e.message));
-  await noSheet(p);
   await p.goto(`http://localhost:${PORT}/final.html`,{waitUntil:'networkidle'});
   await p.waitForTimeout(700);
 

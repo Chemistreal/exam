@@ -55,7 +55,6 @@ async function cohortSnapshot(browser, errs) {
   // 선생님 브라우저: 12명 누적(MINP=8 을 넘겨야 통계가 켜진다) → 공유 링크
   const teacher = await browser.newPage();
   teacher.on('pageerror', e => errs.push('교사: ' + e.message));
-  await noSheet(teacher);
   await teacher.goto(U, { waitUntil: 'networkidle' });
   const made = await teacher.evaluate(() => {
     const ex = FINAL_EXAMS.find(e => e.id === 'hwol-2018'), nQ = ex.nQ;
@@ -351,12 +350,20 @@ async function radarAndSharedUI(browser, errs) {
 
 (async () => {
   const browser = await chromium.launch({ executablePath: CHROMIUM, args: ['--no-sandbox'] });
+  /* ⚠ 브라우저에 건다 — 화면 하나에 걸면 나중에 여는 화면이 샌다. */
+  await noSheet(browser);
   const errs = [];
   await cohortSnapshot(browser, errs);
   await legacySnapshot(browser, errs);
   await yearRankSnapshot(browser, errs);
   await nameEncoding(browser, errs);
   await radarAndSharedUI(browser, errs);
+  /* ⚠ 화면 하나에만 막으면 샌다. 이 검사는 화면을 여섯 장 여는데(선생님·학부모·
+     공유…), 처음 한 장에만 걸었더니 나머지가 그대로 운영 시트로 나갔다 —
+     CI 가 "__fsheet… is not defined" 로 죽었다(콜백을 지운 뒤에 진짜 응답이
+     도착한 것이다). 가로챈 횟수가 0 이면 아무것도 안 막힌 것이다. */
+  console.log('  가로챈 시트 요청 ' + noSheet.seen.n + '건 · ' + JSON.stringify(noSheet.seen.hosts));
+  chk('운영 시트로 안 나간다', noSheet.seen.n > 0, true);
   chk('JS 오류 없음', errs, []);
   await browser.close();
   console.log(fail ? `\n결과: 실패 ${fail}건` : '\n결과: 전부 통과');

@@ -54,12 +54,13 @@ const chk = (n, got, want) => {
 
 (async () => {
   const browser = await chromium.launch({ executablePath: CHROMIUM, args: ['--no-sandbox'] });
+  /* ⚠ 브라우저에 건다 — 화면 하나에 걸면 나중에 여는 화면이 샌다. */
+  await noSheet(browser);
   const page = await browser.newPage();
   await page.setViewportSize({ width: 900, height: 1200 });
   const errs = [];
   page.on('pageerror', e => errs.push(e.message));
 
-  await noSheet(page);
 
   await page.goto(U, { waitUntil: 'networkidle' });
   await page.waitForTimeout(700);

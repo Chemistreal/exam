@@ -50,6 +50,8 @@ const chk = (n, got, want) => {
 
 (async () => {
   const browser = await chromium.launch({ executablePath: CHROMIUM, args: ['--no-sandbox'] });
+  /* ⚠ 브라우저에 건다 — 화면 하나에 걸면 나중에 여는 화면이 샌다. */
+  await noSheet(browser);
   const page = await browser.newPage();
   await page.setViewportSize({ width: 900, height: 1200 });
   const errs = [];
@@ -57,7 +59,6 @@ const chk = (n, got, want) => {
   // window.print() 는 헤드리스에서 멈춰 있을 수 있으므로 갈아 끼운다
   await page.addInitScript(() => { window.__printed = 0; window.print = () => { window.__printed++; }; });
 
-  await noSheet(page);
 
   await page.goto(U, { waitUntil: 'networkidle' });
   await page.waitForTimeout(700);

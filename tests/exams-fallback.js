@@ -64,13 +64,14 @@ async function blockExams(page) {
 
 (async () => {
   const browser = await chromium.launch({ executablePath: CHROMIUM, args: ['--no-sandbox'] });
+  /* ⚠ 브라우저에 건다 — 화면 하나에 걸면 나중에 여는 화면이 샌다. */
+  await noSheet(browser);
 
   // ── 1. 시험 목록 화면 ──
   {
     const page = await browser.newPage();
     const errs = []; page.on('pageerror', e => errs.push(e.message));
     await blockExams(page);
-    await noSheet(page);
     await page.goto(`${BASE}/final.html`, { waitUntil: 'networkidle' });
     await page.waitForTimeout(2500);   // 재시도 600ms + 여유
     const r = await page.evaluate(() => ({
