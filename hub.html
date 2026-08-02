@@ -52,6 +52,14 @@ nav button{
 nav button:hover{color:var(--teal)}
 nav button[aria-selected="true"]{color:var(--teal);font-weight:700;border-bottom-color:var(--teal)}
 nav button:focus-visible{outline:2px solid var(--brass);outline-offset:-2px;border-radius:4px}
+/* ── 두 줄로 가른다 ────────────────────────────────
+   윗줄은 **셸이 그리는 화면**(읽고 고르는 곳), 아랫줄은 **앱을 그대로 얹은
+   화면**(실제로 손을 쓰는 곳)이다. 한 줄에 열 개를 세워 두면 어느 것이 셸의
+   화면이고 어느 것이 앱인지 구별이 안 된다 — 뒤로가기가 어디로 갈지 모른다. */
+nav.nav2{background:var(--sunk);border-top:1px solid var(--line);padding:0 12px}
+nav.nav2 button{padding:8px 13px;font-size:13px}
+nav .navlab{align-self:center;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);padding:0 10px 0 2px;white-space:nowrap;font-weight:700}
 
 main{flex:1 1 auto;min-height:0;overflow:auto}
 .pane{display:none;padding:22px 20px 60px;max-width:1120px;margin:0 auto}
@@ -67,7 +75,7 @@ section{margin-bottom:34px}
 /* ── 카드 · 지표 ───────────────────────────────────── */
 /* 칸 수가 줄 수로 안 나누어떨어지면 빈 칸이 남는다. 바탕을 선 색으로 깔면
    그 자리가 회색 덩어리로 보인다 — 칸마다 테두리를 그려 빈 자리는 비워 둔다. */
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:1px;
   background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:hidden}
 .card{background:var(--paper);padding:14px 16px;box-shadow:0 0 0 1px var(--line)}
 .card b{display:block;font-family:var(--mono);font-size:24px;color:var(--teal);
@@ -89,6 +97,11 @@ section{margin-bottom:34px}
   background:var(--wash);color:var(--teal);border:1px solid rgba(14,90,76,.22);white-space:nowrap}
 .tag.dt{background:#FBF3E9;color:#8a6520;border-color:rgba(176,141,87,.3)}
 .tag.km{background:#F1EEF7;color:#5B4B8A;border-color:rgba(91,75,138,.25)}
+/* 상태 배지 — 그림 어휘와 같은 색을 쓴다(초록 끝남 · 주황 진행 · 빨강 손이 필요) */
+.tag.ok{background:rgba(47,122,90,.09);color:var(--ok);border-color:rgba(47,122,90,.3)}
+.tag.warn{background:#FBF3E9;color:#7a5d20;border-color:rgba(176,135,58,.35)}
+.tag.bad{background:#FBF0EA;color:#8a3a1d;border-color:rgba(192,96,58,.32)}
+.tag.none{background:var(--sunk);color:var(--muted);border-color:var(--line-2)}
 .row .cnt{font-family:var(--mono);font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
 
 .bar{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
@@ -184,9 +197,51 @@ tr.pick:hover td{background:var(--wash)}
 .chip small{font-weight:600;opacity:.7;margin-left:4px;font-size:11px}
 .chip.urgent{border-color:rgba(192,96,58,.45);color:#8a3a1d}
 .chip.urgent:hover{border-color:var(--ms);color:var(--ms)}
+/* 고른 칩은 바탕이 짙다. '급함' 색이 그 위에 남으면 흰 바탕 글자가 안 읽힌다. */
+.chip.urgent[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:#fff}
 /* 방금 눌러 열린 섹션이 어디인지 눈으로 잡아 준다 */
 @keyframes hubFlash{from{background:rgba(176,141,87,.20)}to{background:transparent}}
 .flashed{animation:hubFlash 1.4s ease-out}
+
+/* ── 눈으로 먼저 읽히게 ─────────────────────────────
+   숫자만 늘어놓으면 무엇이 급한지 세어 봐야 안다. 셸 전체가 한 벌의 어휘를
+   쓴다 — 화면마다 다른 그림을 쓰면 그림마다 읽는 법을 새로 배워야 한다.
+
+     stack  가로 누적 막대 — 무엇이 얼마나 남았나(반 진행 · 회차 응시)
+     donut  하나의 비율 — 끝난 비율
+     hist   점수 분포 — 이 회차가 쉬웠나 어려웠나
+     dots   있다/없다 — 자료 보유
+
+   색도 한 벌이다: 초록=끝남 · 주황=진행 중 · 빨강=손이 필요 · 회색=없음 */
+.stack{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--sunk);
+  border:1px solid var(--line);min-width:110px}
+.stack i{display:block;height:100%}
+.stack i.ok{background:var(--ok)}
+.stack i.warn{background:var(--brass)}
+.stack i.bad{background:var(--ms)}
+.stack i.none{background:var(--line-2)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin:8px 0 0;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend b{width:9px;height:9px;border-radius:2px;display:inline-block}
+.legend b.ok{background:var(--ok)} .legend b.warn{background:var(--brass)}
+.legend b.bad{background:var(--ms)} .legend b.none{background:var(--line-2)}
+.donut{position:relative;width:64px;height:64px;border-radius:50%;display:grid;place-items:center;
+  flex:0 0 auto;font-family:var(--mono);font-size:14px;font-weight:700;color:var(--teal)}
+.donut::before{content:'';position:absolute;width:44px;height:44px;border-radius:50%;background:var(--paper)}
+.donut span{position:relative;z-index:1}
+.dwrap{position:relative;display:grid;place-items:center}
+.hist{display:flex;align-items:flex-end;gap:2px;height:38px;margin:6px 0 2px}
+.hist i{flex:1;min-width:3px;background:var(--teal);opacity:.6;border-radius:2px 2px 0 0;display:block}
+.hist i.hot{background:var(--ms);opacity:.75}
+.histx{display:flex;gap:2px;font-family:var(--mono);font-size:9.5px;color:var(--muted)}
+.histx span{flex:1;min-width:3px;text-align:center}
+.dots{display:inline-flex;gap:3px}
+.dot{width:9px;height:9px;border-radius:2px;background:var(--line-2);display:inline-block}
+.dot.on{background:var(--ok)}
+.dot.half{background:var(--brass)}
+/* 그림 옆에 숫자를 붙이는 줄 */
+.figrow{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.figrow>.fill{flex:1;min-width:140px}
 
 /* ── 학생 카드 안의 다른 앱 기록 ───────────────────── */
 .trk__i.pass::before{background:var(--ok)}
@@ -204,14 +259,21 @@ tr.pick:hover td{background:var(--wash)}
     <span class="spacer"></span>
     <span class="sub" id="stamp"></span>
   </div>
-  <nav role="tablist" aria-label="영역">
+  <nav role="tablist" aria-label="셸 화면">
+    <span class="navlab">보기</span>
     <button role="tab" id="t-dash"  aria-selected="true"  aria-controls="p-dash">대시보드</button>
     <button role="tab" id="t-stu"   aria-selected="false" aria-controls="p-stu">학생</button>
+    <button role="tab" id="t-cls"   aria-selected="false" aria-controls="p-cls">반</button>
     <button role="tab" id="t-rnd"   aria-selected="false" aria-controls="p-rnd">회차</button>
-    <button role="tab" id="t-exam"  aria-selected="false" aria-controls="p-exam">파이널 채점</button>
-    <button role="tab" id="t-dt"    aria-selected="false" aria-controls="p-dt">DT</button>
-    <button role="tab" id="t-km"    aria-selected="false" aria-controls="p-km">KMChC</button>
     <button role="tab" id="t-mat"   aria-selected="false" aria-controls="p-mat">자료</button>
+  </nav>
+  <nav role="tablist" aria-label="앱 화면" class="nav2">
+    <span class="navlab">작업</span>
+    <button role="tab" id="t-exam"  aria-selected="false" aria-controls="p-exam">파이널 채점</button>
+    <button role="tab" id="t-dt"    aria-selected="false" aria-controls="p-dt">DT 채점</button>
+    <button role="tab" id="t-dtp"   aria-selected="false" aria-controls="p-dtp">DT 재시·문자</button>
+    <button role="tab" id="t-dtr"   aria-selected="false" aria-controls="p-dtr">DT 명단</button>
+    <button role="tab" id="t-km"    aria-selected="false" aria-controls="p-km">KMChC</button>
   </nav>
 </header>
 
@@ -221,10 +283,13 @@ tr.pick:hover td{background:var(--wash)}
       <h2>오늘 현황</h2>
       <p class="hint">세 앱에서 읽어 옵니다. 이 화면은 아무것도 저장하지 않습니다.
         숫자 밑의 <b>칩</b>을 누르면 그 할 일로 바로 내려갑니다.
-        탭은 <span class="kbd">1</span>–<span class="kbd">7</span>, 찾기는 <span class="kbd">/</span>.</p>
+        탭은 <span class="kbd">1</span>–<span class="kbd">9</span><span class="kbd">0</span>,
+        찾기는 <span class="kbd">/</span>.</p>
       <div class="cards" id="dashCards"><div class="card"><b>—</b><span>불러오는 중</span></div></div>
       <!-- 할 일이 아래로 여러 섹션에 흩어져 있다. 몇 건인지와 어디인지를 한 줄에 세운다. -->
       <div class="chips" id="jump" hidden></div>
+      <!-- 숫자 여덟 칸으로는 "오늘 얼마나 끝났나" 가 안 읽힌다. 그림 한 줄로 먼저 본다. -->
+      <div id="dashFig"></div>
       <p class="hint" id="srcNote"></p>
       <div id="connBar" class="connbar"></div>
       <div id="syncBar" class="note" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -290,7 +355,7 @@ tr.pick:hover td{background:var(--wash)}
       <div class="bar"><input type="search" id="rq" placeholder="회차 이름으로 찾기" autocomplete="off"></div>
       <div id="rndNote"></div>
       <div class="scroll"><table id="rndTable"><thead><tr>
-        <th>회차</th><th>채점</th><th>평균</th><th>최고</th><th>마지막 채점</th><th>안 본 학생</th>
+        <th>회차</th><th>채점</th><th>평균</th><th>최고</th><th>마지막 채점</th><th>안 본 학생</th><th>비율</th>
       </tr></thead><tbody><tr><td colspan="6" class="spin">불러오는 중…</td></tr></tbody></table></div>
     </section>
   </div>
@@ -312,18 +377,36 @@ tr.pick:hover td{background:var(--wash)}
     </section>
   </div>
 
+  <div class="pane" id="p-cls" role="tabpanel" aria-labelledby="t-cls">
+    <section>
+      <h2>반</h2>
+      <p class="hint">DT 반 명단을 그대로 씁니다. 반을 고르면 그 반 아이들이
+        <b>미응시 · 재시 대기 · 통과</b>와 <b>파이널 성적</b>과 함께 한 표에 섭니다.
+        문자도 여기서 바로 복사하고, 이름을 누르면 그 학생 카드가 열립니다.</p>
+      <div class="chips" id="clsTabs"></div>
+      <div id="clsHead"></div>
+      <div class="list" id="clsList"><div class="spin" style="padding:16px">반 명단을 부르는 중…</div></div>
+    </section>
+  </div>
+
   <div class="pane frame" id="p-exam" role="tabpanel" aria-labelledby="t-exam"></div>
   <div class="pane frame" id="p-dt"   role="tabpanel" aria-labelledby="t-dt"></div>
+  <!-- 재시·문자 화면은 어차피 문구를 빌리려고 띄운다. 안 보이게 숨겨 두느니
+       탭으로 내놓는다 — 한 번만 뜨고, 빌리는 길은 그대로다. -->
+  <div class="pane frame" id="p-dtp"  role="tabpanel" aria-labelledby="t-dtp"></div>
+  <div class="pane frame" id="p-dtr"  role="tabpanel" aria-labelledby="t-dtr"></div>
   <div class="pane frame" id="p-km"   role="tabpanel" aria-labelledby="t-km"></div>
 
   <div class="pane" id="p-mat" role="tabpanel" aria-labelledby="t-mat">
     <section>
       <h2>자료</h2>
-      <p class="hint">회차별 문제지와 해설지입니다. 채점하지 않아도 바로 받을 수 있습니다.</p>
-      <div class="bar"><input type="search" id="mq" placeholder="회차 이름으로 찾기" autocomplete="off"></div>
-      <div class="scroll"><table id="matTable"><thead><tr>
-        <th>회차</th><th>문항</th><th>문제지</th><th>해설</th><th>채점</th>
-      </tr></thead><tbody><tr><td colspan="5" class="spin">불러오는 중…</td></tr></tbody></table></div>
+      <p class="hint">파이널 모의고사 · DT 회차 자료 · 개념강의 · 도구를 한자리에 모았습니다.
+        점이 켜져 있으면(<span class="dot on" style="vertical-align:-1px"></span>) 그 자료가
+        <b>실제로 있습니다</b> — 없는 것은 아예 걸지 않으므로 눌러 보고 404 를 만날 일이 없습니다.</p>
+      <div class="chips" id="matTabs"></div>
+      <div class="bar"><input type="search" id="mq" placeholder="회차·이름으로 찾기" autocomplete="off"></div>
+      <div id="matNote"></div>
+      <div class="scroll" id="matBody"><div class="spin" style="padding:16px">불러오는 중…</div></div>
     </section>
   </div>
 </main>
@@ -334,9 +417,91 @@ tr.pick:hover td{background:var(--wash)}
 </div><div class="dlg__b" id="dlgBody"></div></dialog>
 
 <script>
+/* ── 첫 화면 잠금 ──────────────────────────────────────────────────────
+   이 셸은 GitHub Pages 에 그대로 올라간다. 주소만 알면 아무나 들어와 반 명단과
+   점수를 볼 수 있어서, 들어올 때 코드를 한 번 묻는다.
+
+   **이것은 암호가 아니다.** 소스 보기를 누르면 코드가 그대로 보이고, DT·KMChC
+   창구는 셸을 거치지 않고도 부를 수 있다. 지나가다 눌러 보는 사람을 막는
+   문고리이지 자물쇠가 아니다 — 여기에 진짜 비밀이 실려서는 안 된다는 뜻이다.
+
+   열쇠칸(chemistreal:gate)도 코드도 파이널·홈과 **같은 것을 쓴다.** 갈라 두면
+   한 화면에서 넣고 다른 화면에서 또 넣게 되고, 셸은 파이널을 iframe 으로
+   얹으므로 그 안에서 또 물어 화면이 두 겹으로 잠긴다.
+
+   맞히기 전에는 **아무 창구도 부르지 않는다** — 못 들어올 사람 때문에
+   앱스크립트를 두드릴 이유가 없다.
+
+   지우려면 콘솔에서 localStorage.removeItem('chemistreal:gate'). */
+function hubGate(then){
+  var KEY = 'chemistreal:gate', CODE = '0000', DAYS = 90;
+  function passed(){
+    try{
+      var v = localStorage.getItem(KEY);
+      return !!v && (Date.now() - Number(v)) < DAYS * 864e5;
+    }catch(e){ return false; }
+  }
+  if(passed()){ then(); return; }
+
+  var wrap = document.createElement('div');
+  wrap.id = 'gate';
+  wrap.innerHTML =
+    '<div class="gate__box">' +
+    '<div class="gate__logo">CHEMISTREAL</div>' +
+    '<div class="gate__t">통합관리</div>' +
+    '<div class="gate__s">이어서 보려면 코드를 입력하세요.</div>' +
+    '<input class="gate__i" id="gateIn" type="tel" inputmode="numeric" maxlength="12" ' +
+    'autocomplete="off" placeholder="････" aria-label="접속 코드">' +
+    '<button class="gate__b" id="gateGo">들어가기</button>' +
+    '<div class="gate__e" id="gateErr"></div></div>';
+  var css = document.createElement('style');
+  css.textContent =
+    '#gate{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;' +
+    'background:linear-gradient(160deg,#0E5A4C 0%,#0b3f36 55%,#08241f 100%);font-family:system-ui,-apple-system,"Malgun Gothic",sans-serif}' +
+    '.gate__box{width:min(320px,86vw);text-align:center;color:#F4F1E8}' +
+    '.gate__logo{font-size:11px;letter-spacing:3px;opacity:.72;margin-bottom:14px}' +
+    '.gate__t{font-size:25px;font-weight:800;letter-spacing:-.4px}' +
+    '.gate__s{font-size:13px;opacity:.75;margin:7px 0 20px}' +
+    '.gate__i{width:100%;box-sizing:border-box;padding:13px 14px;font-size:19px;text-align:center;' +
+    'letter-spacing:7px;border:1px solid rgba(255,255,255,.28);border-radius:11px;' +
+    'background:rgba(255,255,255,.08);color:#fff;outline:none}' +
+    '.gate__i:focus{border-color:rgba(255,255,255,.6);background:rgba(255,255,255,.13)}' +
+    '.gate__b{width:100%;margin-top:11px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;' +
+    'border:0;border-radius:11px;background:#F4F1E8;color:#0E5A4C}' +
+    '.gate__b:active{transform:translateY(1px)}' +
+    '.gate__e{min-height:19px;margin-top:11px;font-size:13px;color:#F3B8A4}';
+  document.head.appendChild(css);
+  document.body.appendChild(wrap);
+  document.documentElement.style.overflow = 'hidden';
+
+  var input = document.getElementById('gateIn'), err = document.getElementById('gateErr');
+  function open(){
+    try{ localStorage.setItem(KEY, String(Date.now())); }catch(e){}
+    wrap.remove(); document.documentElement.style.overflow = '';
+    then();
+  }
+  function tryOpen(){
+    if(input.value.trim() === CODE){ open(); return; }
+    err.textContent = '코드가 맞지 않습니다.';
+    input.value = ''; input.focus();
+  }
+  document.getElementById('gateGo').addEventListener('click', tryOpen);
+  input.addEventListener('keydown', function(e){ if(e.key === 'Enter') tryOpen(); });
+  input.addEventListener('input', function(){ err.textContent = ''; });
+  setTimeout(function(){ try{ input.focus(); }catch(e){} }, 60);
+}
+
 /* ── 앱 등록 ────────────────────────────────────────────────────────
    경로는 이 파일(/exam/hub.html) 기준 상대 경로다. GitHub Pages 에서
    /exam/ 옆에 /DT/ 와 /KMChC/ 가 있다. 같은 오리진이라 iframe 이 통한다. */
+/* 앱 안의 **특정 화면**을 탭으로 바로 연다. 창구(ep)가 없으므로 APPS 와 따로 둔다 —
+   섞어 두면 읽기 창구를 세는 검사가 무엇을 세는지 흐려진다.
+   재시·문자 화면은 어차피 문구를 빌리려고 띄우고 있었다(안 보이는 자리에).
+   같은 창을 탭으로 내놓으면 두 번 뜨지 않는다. */
+const PAGES = {
+  dtp: { name:'DT 재시·문자', path:'../DT/pending.html' },
+  dtr: { name:'DT 명단',      path:'../DT/roster.html' },
+};
 const APPS = {
   exam: { name:'파이널', path:'final.html',
           ep:'https://script.google.com/macros/s/AKfycbxGmSCkip0cQCyOH_JA2SiAMSxri00XObLmHyXlyXwxhG7u7w-x0FH02VN4DQySiUsv9Q/exec' },
@@ -540,7 +705,14 @@ function readOnce(app, action, shape, force){
 }
 function dtOnce(action, force){
   return readOnce('dt', action, function(d){
-    if(action==='names') return flatClasses(d.classes);
+    if(action==='names'){
+      /* 반 구조를 잃지 않는다. 여태는 납작하게 펴서 명단으로만 썼는데, 반 탭은
+         '이 반에 누가 있나'를 반째로 물어야 한다. 펴 놓은 줄에 원본을 달아
+         둔다 — 창구를 한 번 더 두드리지 않으려는 것이다. */
+      const rows = flatClasses(d.classes);
+      rows.classes = d.classes || [];
+      return rows;
+    }
     /* DT 는 {active, stale, …} 객체로 준다. 배열로 알고 .length 를 읽고 있어서
        'DT 미완료' 칸에 undefined 가 찍혔다. 실제로 챙겨야 하는 것은 active 다
        — stale 은 2주 넘게 소식이 없어 이탈로 보는 쪽이라 알림에서 뺀다. */
@@ -665,7 +837,25 @@ function renderConn(){
 }
 
 /* ── 탭 ─────────────────────────────────────────────────────────── */
-const TABS = ['dash','stu','rnd','exam','dt','km','mat'];
+/* 차례가 곧 숫자키 차례다(1~9,0). 앞 다섯은 셸이 그리는 화면, 뒤 다섯은
+   앱을 그대로 얹은 화면 — 머리의 두 줄과 같은 차례로 둔다. */
+const TABS = ['dash','stu','cls','rnd','mat','exam','dt','dtp','dtr','km'];
+/* 탭 안에 얹는 화면. 셋은 앱의 첫 화면(APPS), 둘은 앱 안의 특정 화면(PAGES). */
+function frameOf(id){
+  if(APPS[id]) return APPS[id];
+  return PAGES[id] || null;
+}
+function mountFrame(id){
+  const src = frameOf(id); if(!src) return null;
+  const pane = document.getElementById('p-'+id);
+  let f = pane.querySelector('iframe');
+  if(!f){
+    f = document.createElement('iframe');
+    f.src = src.path; f.title = src.name;
+    pane.appendChild(f);
+  }
+  return f;
+}
 function show(id){
   TABS.forEach(function(t){
     const b = document.getElementById('t-'+t), p = document.getElementById('p-'+t);
@@ -673,17 +863,9 @@ function show(id){
     b.setAttribute('aria-selected', on?'true':'false');
     p.classList.toggle('on', on);
   });
-  // 앱 화면은 처음 열 때만 붙인다 — 미리 셋을 다 띄우면 느리다
-  const app = {exam:'exam', dt:'dt', km:'km'}[id];
-  if(app){
-    const pane = document.getElementById('p-'+id);
-    if(!pane.firstChild){
-      const f = document.createElement('iframe');
-      f.src = APPS[app].path;
-      f.title = APPS[app].name;
-      pane.appendChild(f);
-    }
-  }
+  // 앱 화면은 처음 열 때만 붙인다 — 미리 다 띄우면 느리다
+  const app = frameOf(id) ? id : null;
+  if(app) mountFrame(app);
   /* 앱 탭에서 채점하고 돌아오면 숫자가 달라져 있어야 한다. 셸 화면으로
      올 때마다 다시 읽는다 — storage 이벤트를 놓친 경우의 그물이다. */
   if(!app) refreshSoon();
@@ -705,19 +887,15 @@ TABS.forEach(function(t){
    여기에 베껴 두면 언젠가 두 문구가 갈라지고, 학부모는 같은 상황에서 서로
    다른 문자를 받는다. 성적표 링크 규칙을 파이널에서 빌리는 것과 같은 이유다.
 
-   pending.html 을 안 보이게 한 장 띄워 놓고 그 함수를 부른다. 같은 오리진이라
-   된다. 화면에는 안 나오므로 셸의 탭 구성은 그대로다. */
+   pending.html 을 한 장 띄워 놓고 그 함수를 부른다. 같은 오리진이라 된다.
+
+   예전에는 화면 밖(left:-9999px)에 숨겨 띄웠다. 어차피 띄우고 있는 화면이니
+   **탭으로 내놓는다** — 선생님은 그 화면을 그대로 쓰고, 빌리는 길은 그대로다.
+   한 장만 뜨므로 앱스크립트를 두 번 두드리지도 않는다. */
 let DTP_W = null;
 function dtPendWindow(){
   if(DTP_W && DTP_W.shareMsg && DTP_W.passMsg) return Promise.resolve(DTP_W);
-  let f = document.getElementById('dtpFrame');
-  if(!f){
-    f = document.createElement('iframe');
-    f.id = 'dtpFrame'; f.src = '../DT/pending.html'; f.title = 'DT 문자 문구';
-    f.setAttribute('aria-hidden','true');
-    f.style.cssText = 'position:absolute;width:1px;height:1px;left:-9999px;top:0;border:0';
-    document.body.appendChild(f);
-  }
+  const f = mountFrame('dtp');
   return new Promise(function(res, rej){
     let n = 0;
     const tick = function(){
@@ -728,6 +906,10 @@ function dtPendWindow(){
     if(tick()) return;
     const t = setInterval(function(){
       if(tick()){ clearInterval(t); return; }
+      /* 탭으로도 얹히는 화면이라, 문자를 만들기 전에 선생님이 그 탭을 먼저
+         지나갈 수 있다. 그때 망이 끊겨 빈 화면을 물었다면 그 창을 아무리
+         빌려 봐야 함수가 영영 안 생긴다 — 딱 한 번 다시 띄운다. */
+      if(n === 40){ try{ f.src = f.src; }catch(e){} }
       if(++n > 80){ clearInterval(t); rej(new Error('DT 문구 화면이 아직 안 떴습니다')); }
     }, 250);
   });
@@ -765,9 +947,7 @@ function copyMsg(btn, make, noteId){
 let FIN_W = null;
 function finalWindow(){
   if(FIN_W && FIN_W.hashStrFinal) return Promise.resolve(FIN_W);
-  const pane = document.getElementById('p-exam');
-  let f = pane.querySelector('iframe');
-  if(!f){ f=document.createElement('iframe'); f.src=APPS.exam.path; f.title=APPS.exam.name; pane.appendChild(f); }
+  const f = mountFrame('exam');
   return new Promise(function(res, rej){
     let n = 0;
     const tick = function(){
@@ -904,6 +1084,47 @@ function wireActs(root, rounds){
   });
 }
 
+/* ── 그림 어휘 ──────────────────────────────────────────────────────
+   숫자만 늘어놓으면 무엇이 급한지 세어 봐야 안다. 화면마다 다른 그림을 쓰면
+   그림마다 읽는 법을 새로 배워야 하므로, 셸 전체가 이 네 개만 쓴다.
+   색은 한 벌이다: 초록=끝남 · 주황=진행 중 · 빨강=손이 필요 · 회색=없음 */
+/* 0 인 칸은 그리지 않는다 — 1px 짜리 색점이 남으면 없는 것을 있다고 읽는다. */
+function stackBar(parts){
+  const total = parts.reduce(function(t,p){ return t+p.n; }, 0);
+  if(!total) return '<div class="stack"></div>';
+  return '<div class="stack">'+parts.filter(function(p){ return p.n>0; }).map(function(p){
+    return '<i class="'+p.tone+'" style="width:'+(p.n/total*100)+'%" title="'+
+           esc(p.label+' '+p.n+'명')+'"></i>'; }).join('')+'</div>';
+}
+/* 색만 있고 이름이 없으면 무슨 색이 무엇인지 물어야 한다. 늘 붙여 둔다. */
+function legendOf(parts){
+  return '<div class="legend">'+parts.filter(function(p){ return p.n>0; }).map(function(p){
+    return '<span><b class="'+p.tone+'"></b>'+esc(p.label)+' '+p.n+'</span>'; }).join('')+'</div>';
+}
+function donut(pct, label){
+  const p = Math.max(0, Math.min(100, Math.round(pct||0)));
+  return '<div class="dwrap"><div class="donut" title="'+esc(label||'')+'" '+
+    'style="background:conic-gradient(var(--teal) '+p+'%,var(--sunk) 0)"><span>'+p+'%</span></div>'+
+    (label? '<div class="hint" style="margin:5px 0 0;text-align:center">'+esc(label)+'</div>' : '')+'</div>';
+}
+/* 점수 분포. "이 회차가 쉬웠나 어려웠나" 는 평균 하나로는 안 보인다 —
+   40점대에 몰렸는지 위아래로 갈렸는지가 다음 회차를 짜는 근거다. */
+function histo(pcts){
+  const b = [0,0,0,0,0,0,0,0,0,0];
+  (pcts||[]).forEach(function(v){ b[Math.max(0,Math.min(9,Math.floor((v||0)/10)))]++; });
+  const mx = Math.max.apply(null, b) || 1;
+  return '<div class="hist">'+b.map(function(n,i){
+      return '<i class="'+(i<5?'hot':'')+'" style="height:'+Math.max(2,Math.round(n/mx*38))+
+             'px" title="'+(i*10)+'~'+(i*10+9)+'% · '+n+'명"></i>'; }).join('')+'</div>'+
+    '<div class="histx">'+b.map(function(n,i){ return '<span>'+(i%2?'':(i*10))+'</span>'; }).join('')+'</div>';
+}
+/* 있다/없다. 자료 탭에서 "이 회차에 해설이 있나" 를 표를 읽지 않고 본다. */
+function dotsOf(flags){
+  return '<span class="dots">'+flags.map(function(f){
+    return '<i class="dot '+(f.on===true?'on':(f.on==='half'?'half':''))+'" title="'+
+           esc(f.label)+'"></i>'; }).join('')+'</span>';
+}
+
 /* ── 대시보드 ───────────────────────────────────────────────────── */
 function card(v, label, warn){
   return '<div class="card'+(warn?' warn':'')+'"><b>'+v+'</b><span>'+label+'</span></div>';
@@ -930,7 +1151,30 @@ const JUMPS = [
   { id:'misWrap',   label:'어려워하는 개념', urgent:false, n:function(){ return MIS_TOP.length; } },
   { id:'mergeWrap', label:'합쳐야 할 이름', urgent:true, n:function(){ return mergeCandidates().length; } },
 ];
+/* ── 오늘 한눈에 ────────────────────────────────────────────────────
+   숫자 칸 여덟 개로는 "얼마나 끝났나" 가 안 읽힌다 — 여덟을 눈으로 견줘야 한다.
+   반 명단을 바탕으로 한 줄에 세운다. 셋을 더한 것이 명단보다 클 수 있다(한
+   학생이 미응시이면서 지난 회차를 통과했을 수 있다). 남는 칸은 음수로 가지
+   않게 눌러 둔다 — 막대가 뒤집히면 아무 뜻이 없다. */
+function renderFig(){
+  const el = document.getElementById('dashFig'); if(!el) return;
+  const roster = dtCached('names');
+  if(!roster || !roster.length){ el.innerHTML = ''; return; }
+  const total = roster.length;
+  const miss = ABS_ROWS.reduce(function(t,c){ return t + c.absent.length; }, 0);
+  const wait = PEND_ROWS.length, ok = PASS_ROWS.length;
+  const parts = [{ n:miss, tone:'bad',  label:'미응시' },
+                 { n:wait, tone:'warn', label:'재시 대기' },
+                 { n:ok,   tone:'ok',   label:'통과' },
+                 { n:Math.max(0, total-miss-wait-ok), tone:'none', label:'조용함' }];
+  el.innerHTML = '<div class="note figrow">'+
+    donut(total ? ok/total*100 : 0, '통과 '+ok+'/'+total)+
+    '<div class="fill"><b>반 명단 '+total+'명 기준</b> '+
+    '<span class="dim">· 재시·통과는 최근 2주</span>'+
+    stackBar(parts)+legendOf(parts)+'</div></div>';
+}
 function renderJump(){
+  renderFig();          // 칩과 그림은 같은 숫자를 본다 — 따로 그리면 어긋난다
   const el = document.getElementById('jump'); if(!el) return;
   const on = JUMPS.filter(function(j){ return j.n() > 0; });
   el.hidden = !on.length;
@@ -982,6 +1226,7 @@ function renderDash(){
 
   dtRoster().then(function(rows){
     document.getElementById('dtCnt').textContent = rows.length;
+    renderClassTab();
   }).catch(function(e){
     document.getElementById('dtCnt').textContent = '—';
     note('dashNote', 'DT 명단을 불러오지 못했습니다 — '+e.message+'. 나머지 숫자는 정상입니다.', true);
@@ -989,7 +1234,7 @@ function renderDash(){
 
   dtPending().then(function(rows){
     document.getElementById('pdCnt').textContent = rows.length;
-    syncWorkRows(); renderJump();
+    syncWorkRows(); renderJump(); renderClassTab();
     if(!rows.length){ const w0=document.getElementById('pendWrap'); if(w0) w0.hidden=true; return; }
     const w = document.getElementById('pendWrap'); w.hidden = false;
     document.getElementById('pendList').innerHTML = capNote(PEND_ROWS) + PEND_ROWS.slice(0,DASH_MAX).map(function(r,i){
@@ -1007,7 +1252,7 @@ function renderDash(){
   /* 시험 미응시. 반 단위라 '반 전체 공지' 한 번이면 끝나는 일이 대부분이다. */
   dtAbsentees().then(function(classes){
     const w = document.getElementById('absWrap'); if(!w) return;
-    syncWorkRows(); renderJump();
+    syncWorkRows(); renderJump(); renderClassTab();
     const ac = document.getElementById('abCnt');
     if(ac) ac.textContent = ABS_ROWS.reduce(function(t,c){ return t + c.absent.length; }, 0);
     w.hidden = !ABS_ROWS.length;
@@ -1033,7 +1278,7 @@ function renderDash(){
      조용했다. 문자도 여기서 바로 복사한다. */
   dtPassed().then(function(rows){
     const w = document.getElementById('passWrap'); if(!w) return;
-    syncWorkRows(); renderJump();
+    syncWorkRows(); renderJump(); renderClassTab();
     w.hidden = !PASS_ROWS.length;
     if(!PASS_ROWS.length) return;
     document.getElementById('passList').innerHTML = capNote(PASS_ROWS) + PASS_ROWS.slice(0,DASH_MAX).map(function(r,i){
@@ -1498,6 +1743,7 @@ function refreshLocal(){
   if(KM_ROWS) sources.push({ app:'km', students: KM_ROWS, noSchool:true });
   ROSTER = mergeRosters(sources);
   renderStudents(); renderRounds(); renderQuick(); renderDash(); renderMerge(); renderSyncBar();
+  renderClassTab();
 }
 function refreshSoon(){ clearTimeout(refreshTimer); refreshTimer=setTimeout(refreshLocal, 250); }
 
@@ -1529,6 +1775,137 @@ function renderMerge(){
       '<span class="cnt">'+r.n+'회</span></div>';
   }).join('');
 }
+
+/* ── 반 ────────────────────────────────────────────────────────────
+   여태 셸은 **사람**(학생 탭)과 **시험**(회차 탭)으로만 물을 수 있었다. 그런데
+   수업은 반으로 돈다 — "오늘 토요일 화학1 반, 누가 안 왔고 누가 재시가 밀렸나"
+   가 실제로 묻는 말이고, 그걸 보려면 DT 미응시 화면과 재시 화면과 통과 화면을
+   따로 열어 이름을 눈으로 맞춰야 했다.
+
+   반 명단은 DT 가 갖고 있다(action=names 가 반째로 준다). 여기서는 그 반의
+   아이들을 한 줄씩 세우고, 각자의 상태(미응시 → 재시 대기 → 통과 → 없음)와
+   파이널 성적을 붙여 준다. 문자도 그 자리에서 복사한다.
+
+   상태는 **급한 것이 이긴다.** 미응시인 아이가 통과 기록도 갖고 있으면(지난
+   회차) '미응시' 로 센다 — 지금 손이 필요한 쪽을 말해야 하기 때문이다. */
+const CLS_TONE = { miss:'bad', wait:'warn', ok:'ok', none:'none' };
+const CLS_LABEL = { miss:'미응시', wait:'재시 대기', ok:'통과', none:'아직' };
+let CLS_PICK = '', CLS_ROWS = [];
+function dtClassList(){ const r = dtCached('names'); return (r && r.classes) || []; }
+/* 파이널 기록에서 이 학생을 찾는다. 학교 표기가 앱마다 흔들리므로 같은 규칙을
+   쓴다. 둘 이상 걸리면 고르지 않는다 — 남의 성적을 붙이느니 안 붙인다. */
+function finFor(who){
+  const hit = ((FIN && FIN.students) || []).filter(function(s){
+    return normName(s.name)===normName(who.name) && schoolAkin(s.school, who.school); });
+  return hit.length===1 ? hit[0] : null;
+}
+function classRows(cls){
+  return (cls.students||[]).map(function(s){
+    const who = { name:s.name, school:s.school||'', grade:s.year||'' };
+    const d = dtForStudent(who);
+    /* 이 반의 이 회차만 본다. 다른 반 기록을 여기 붙이면 반 인원 계산이 어긋난다. */
+    const abs  = d.absent.filter(function(a){ const c=ABS_ROWS[a.i]; return c && c.label===cls.label; });
+    const pend = d.pending.filter(function(i){ return PEND_ROWS[i] && PEND_ROWS[i].course===cls.course; });
+    const pass = d.passed .filter(function(i){ return PASS_ROWS[i] && PASS_ROWS[i].course===cls.course; });
+    const st = abs.length ? 'miss' : pend.length ? 'wait' : pass.length ? 'ok' : 'none';
+    return { who:who, abs:abs, pend:pend, pass:pass, st:st, fin:finFor(who) };
+  });
+}
+function clsCounts(rows){
+  const by = { miss:0, wait:0, ok:0, none:0 };
+  rows.forEach(function(r){ by[r.st]++; });
+  return [{ n:by.miss, tone:'bad',  label:'미응시' },
+          { n:by.wait, tone:'warn', label:'재시 대기' },
+          { n:by.ok,   tone:'ok',   label:'통과' },
+          { n:by.none, tone:'none', label:'아직' }];
+}
+function renderClassTab(){
+  const tabs = document.getElementById('clsTabs'); if(!tabs) return;
+  syncWorkRows();
+  const list = dtClassList();
+  const head = document.getElementById('clsHead'), body = document.getElementById('clsList');
+  if(!list.length){
+    tabs.innerHTML = ''; head.innerHTML = '';
+    const c = DT_CACHE['dt:names'];
+    body.innerHTML = '<div class="spin" style="padding:16px">'+
+      (c && c.err ? esc('DT 반 명단을 불러오지 못했습니다 — '+c.err)
+                  : (c && c.val ? '반 명단이 비어 있습니다.' : '반 명단을 부르는 중…'))+'</div>';
+    return;
+  }
+  if(!list.some(function(c){ return c.label===CLS_PICK; })) CLS_PICK = list[0].label;
+
+  tabs.innerHTML = list.map(function(c){
+    const n = clsCounts(classRows(c));
+    const urgent = n[0].n + n[1].n;
+    return '<button class="chip'+(urgent?' urgent':'')+'" aria-pressed="'+(c.label===CLS_PICK)+
+      '" data-cls="'+esc(c.label)+'">'+esc(c.label)+'<small>'+(c.students||[]).length+
+      (urgent? ' · 손 '+urgent : '')+'</small></button>';
+  }).join('');
+
+  const cls = list.filter(function(c){ return c.label===CLS_PICK; })[0];
+  CLS_ROWS = classRows(cls);
+  const parts = clsCounts(CLS_ROWS), done = parts[2].n, tot = CLS_ROWS.length;
+  const absIdx = ABS_ROWS.map(function(c,i){ return c.label===cls.label ? i : -1; })
+                         .filter(function(i){ return i>=0; })[0];
+  const round = (absIdx!=null && ABS_ROWS[absIdx]) ? ABS_ROWS[absIdx].round : null;
+
+  head.innerHTML = '<div class="note figrow">'+
+    donut(tot? done/tot*100 : 0, '통과 '+done+'/'+tot)+
+    '<div class="fill"><b>'+esc(DT_COURSE[cls.course]||cls.course)+'</b>'+
+    (round? ' <span class="dim">· 이번 '+round+'회</span>' : '')+
+    stackBar(parts)+legendOf(parts)+'</div>'+
+    '<span class="acts">'+
+    (absIdx!=null ? '<button class="mini msg" data-abs="'+absIdx+'" data-stage="bc" data-orig="반 전체 공지">반 전체 공지</button>' : '')+
+    '<button class="mini" data-clsact="names">명단 복사</button>'+
+    '<button class="mini" data-clsact="table">표 복사</button>'+
+    '</span></div>';
+
+  body.innerHTML = CLS_ROWS.map(function(r,i){
+    const st = r.st, fin = r.fin;
+    const pcts = fin ? (fin.rounds||[]).map(function(x){ return x.total? Math.round(x.correct/x.total*100):0; }) : [];
+    const last = pcts.length ? pcts[pcts.length-1] : null;
+    let msg = '';
+    if(st==='miss') msg = '<button class="mini msg" data-abs="'+r.abs[0].i+'" data-who="'+r.abs[0].j+
+                          '" data-stage="1" data-orig="1차 안내">1차 안내</button>';
+    else if(st==='wait') msg = '<button class="mini msg" data-pend="'+r.pend[0]+'" data-orig="재시 안내">재시 안내</button>';
+    else if(st==='ok')   msg = '<button class="mini msg" data-pass="'+r.pass[0]+'" data-orig="통과 문자">통과 문자</button>';
+    const score = st==='wait' ? (PEND_ROWS[r.pend[0]].score+'점')
+                : st==='ok'   ? (PASS_ROWS[r.pass[0]].score+'점') : '';
+    return '<div class="row" style="cursor:default">'+
+      '<span class="nm">'+esc(r.who.name)+'</span>'+
+      '<span class="where">'+esc([r.who.school, r.who.grade?r.who.grade+'학년':''].filter(Boolean).join(' '))+'</span>'+
+      '<span class="tags"><span class="tag '+CLS_TONE[st]+'">'+CLS_LABEL[st]+'</span></span>'+
+      '<span class="cnt">'+esc(score)+'</span>'+
+      '<span class="cnt">'+(pcts.length? ('파이널 '+pcts.length+'회'+(last!=null?' · '+last+'%':'')) : '')+'</span>'+
+      '<span class="acts">'+msg+'<button class="mini" data-clsrow="'+i+'">카드</button></span>'+
+      '</div>';
+  }).join('');
+}
+document.addEventListener('click', function(e){
+  const t = e.target.closest ? e.target.closest('.chip[data-cls]') : null;
+  if(t){ CLS_PICK = t.dataset.cls; renderClassTab(); return; }
+  const b = e.target.closest ? e.target.closest('.mini[data-clsact],.mini[data-clsrow]') : null;
+  if(!b) return;
+  if(b.dataset.clsrow != null){
+    const r = CLS_ROWS[+b.dataset.clsrow]; if(!r) return;
+    /* 명단에 이미 있는 학생이면 그 줄을 쓴다 — 파이널 회차까지 붙은 카드가 열린다. */
+    const hit = ROSTER.filter(function(x){
+      return normName(x.name)===normName(r.who.name) && schoolAkin(x.school, r.who.school); });
+    openStudent(hit.length===1 ? hit[0]
+      : { name:r.who.name, school:r.who.school, grade:r.who.grade, apps:{dt:1} });
+    return;
+  }
+  if(b.dataset.clsact === 'names')
+    copyText(b, CLS_ROWS.map(function(r){ return r.who.name; }).join(', '), '이름 복사됨');
+  else
+    copyText(b, ['이름','학교','상태','DT 점수','파이널 응시'].join('\t')+'\n'+
+      CLS_ROWS.map(function(r){
+        const s = r.st==='wait' ? PEND_ROWS[r.pend[0]].score
+                : r.st==='ok'   ? PASS_ROWS[r.pass[0]].score : '';
+        return [r.who.name, r.who.school||'', CLS_LABEL[r.st], s,
+                r.fin ? (r.fin.rounds||[]).length : 0].join('\t');
+      }).join('\n'), '표 복사됨');
+});
 
 /* ── 회차 ──────────────────────────────────────────────────────────
    "9회 몇 명 했지?", "누가 아직 안 봤지?" — 채점하는 날 가장 자주 묻는 둘이다.
@@ -1594,7 +1971,7 @@ function renderRounds(){
   const rows = RNDS.filter(function(g){ return !q || normName(examTitle(g.id)).indexOf(q)>=0; });
   const body = document.querySelector('#rndTable tbody');
   if(!rows.length){
-    body.innerHTML = '<tr><td colspan="6" class="spin">'+
+    body.innerHTML = '<tr><td colspan="7" class="spin">'+
       (RNDS.length? '찾는 회차가 없습니다.' : '아직 채점한 회차가 없습니다.')+'</td></tr>';
     return;
   }
@@ -1603,7 +1980,12 @@ function renderRounds(){
       '<td class="num">'+g.n+'</td><td class="num">'+g.avg+'%</td><td class="num">'+g.best+'%</td>'+
       '<td class="num">'+when(g.last)+'</td>'+
       // 안 센 회차(옛 회차)와 '한 명도 없다' 를 구분하지 않는다 — 둘 다 볼 것이 없다
-      '<td class="num">'+((g.missing && g.missing.length)||'—')+'</td></tr>';
+      '<td class="num">'+((g.missing && g.missing.length)||'—')+'</td>'+
+      /* 숫자 둘(본 n · 안 본 m)을 견주려면 머리를 써야 한다. 길이로 보여 준다. */
+      '<td>'+(g.missing
+        ? stackBar([{n:g.n, tone:'ok', label:'본 학생'},
+                    {n:g.missing.length, tone:'bad', label:'안 본 학생'}])
+        : '<span class="dim">—</span>')+'</td></tr>';
   }).join('');
   [].forEach.call(body.querySelectorAll('tr.pick'), function(tr){
     tr.addEventListener('click', function(){ openRound(tr.dataset.id); });
@@ -1635,7 +2017,13 @@ function openRound(id){
   document.getElementById('dlgName').textContent = examTitle(id);
   document.getElementById('dlgWhere').textContent =
     g.n+'명 채점 · 평균 '+g.avg+'%' + (g.last? ' · 마지막 '+when(g.last) : '');
-  let html = '<div class="sub2">본 학생 · '+g.n+'명'+
+  /* 평균 하나로는 이 회차가 쉬웠는지 갈렸는지 안 보인다. 다음 회차를 짤 때
+     필요한 것은 어디에 몰렸나다. */
+  const pcts = g.rows.map(function(r){ return r.total? Math.round(r.correct/r.total*100):0; });
+  let html = '<div class="sub2">점수 분포</div>'+histo(pcts)+
+    '<div class="hint" style="margin:2px 0 0">가로: 정답률 0~100% · 세로: 인원 '+
+    '<span class="dim">(붉은 쪽이 50% 미만)</span></div>'+
+    '<div class="sub2">본 학생 · '+g.n+'명'+
     ' <button class="mini" data-rnd="table">표 복사</button></div><div class="list">';
   html += g.rows.map(function(r,i){
     const pct = r.total? Math.round(r.correct/r.total*100) : 0;
@@ -1665,23 +2053,180 @@ function openRound(id){
 }
 document.getElementById('rq').addEventListener('input', renderRounds);
 
-/* ── 자료 ──────────────────────────────────────────────────────── */
-function renderMaterials(){
-  const q = normName(document.getElementById('mq').value||'');
-  const body = document.querySelector('#matTable tbody');
-  const rows = EXAMS.filter(function(e){ return !q || normName(e.title).indexOf(q)>=0; });
-  if(!rows.length){ body.innerHTML = '<tr><td colspan="5" class="spin">찾는 회차가 없습니다.</td></tr>'; return; }
-  body.innerHTML = rows.map(function(e){
-    const sol = 'sol-final-'+e.id+'.html';
-    const label = e.solFull ? '문항별 해설' : '정답·개념표';
-    return '<tr><td>'+esc(e.title)+'</td><td class="num">'+e.nQ+'</td>'+
-      '<td>'+(e.pdf? '<a href="'+esc(e.pdf)+'" download>PDF ↓</a>' : '—')+'</td>'+
-      '<td><a href="'+esc(sol)+'" download>'+label+' ↓</a></td>'+
-      '<td><button class="mini" data-grade="'+esc(e.id)+'">채점 →</button></td></tr>';
+/* ── 자료 ──────────────────────────────────────────────────────────
+   여태 이 탭은 파이널 회차만 보여 줬다. 그런데 수업에서 실제로 찾는 자료는
+   DT 회차 자료(문제지·해설·OMR·오답노트)와 개념강의까지 세 갈래이고, 그 셋은
+   서로 다른 저장소·다른 목차에 흩어져 있었다. 여기 한자리에 모은다.
+
+   **없는 것은 걸지 않는다.** 화학Ⅱ 는 문제지·OMR 이 18회까지 있는데 해설
+   HTML 은 7회까지뿐이다(8회부터는 PDF 만). 회차 번호로 주소를 지어내면 눌러 본
+   뒤에야 404 를 만난다 — DT 저장소가 만들어 두는 materials.json 을 읽어,
+   **실제로 있는 파일만** 건다. 못 읽으면 그 갈래만 접고 이유를 적는다. */
+const MAT_GROUPS = [
+  { key:'final', label:'파이널 모의고사' },
+  { key:'ch1',   label:'DT 화학Ⅰ' },
+  { key:'ch2',   label:'DT 화학Ⅱ' },
+  { key:'gc',    label:'DT 일반화학' },
+  { key:'lec',   label:'개념강의' },
+  { key:'tool',  label:'도구' },
+];
+/* 이름은 각 화면의 <title> 에서 가져온 것이다 — 여기서 지어내면 두 이름이 갈라진다. */
+const MAT_TOOLS = [
+  { g:'채점 · 입력', path:'final.html',            name:'파이널 채점' },
+  { g:'채점 · 입력', path:'scan.html',             name:'OMR 스캔 채점' },
+  { g:'채점 · 입력', path:'data-import.html',      name:'데이터 입력' },
+  { g:'채점 · 입력', path:'response-manager.html', name:'응답 데이터 매니저' },
+  { g:'분석',        path:'admin.html',            name:'교사 콘솔 · 성적 분석' },
+  { g:'분석',        path:'integrated-report.html',name:'통합 진단 리포트' },
+  { g:'분석',        path:'batch-report.html',     name:'리포트 일괄 인쇄' },
+  { g:'분석',        path:'item-analysis.html',    name:'고전 문항분석' },
+  { g:'분석',        path:'item-drilldown.html',   name:'문항 드릴다운' },
+  { g:'분석',        path:'longitudinal.html',     name:'종단 비교' },
+  { g:'분석',        path:'calibration.html',      name:'신뢰도 보정' },
+  { g:'수업 준비',   path:'teaching-brief.html',   name:'수업 브리프' },
+  { g:'수업 준비',   path:'test-blueprint.html',   name:'시험 설계' },
+  { g:'수업 준비',   path:'learning-path.html',    name:'학습 경로' },
+  { g:'수업 준비',   path:'misconception-catalog.html', name:'오개념 카탈로그' },
+  { g:'수업 준비',   path:'note.html',             name:'개념 발전 노트' },
+  { g:'목차 · 안내', path:'lecture-index.html',    name:'개념강의 전체 목차' },
+  { g:'목차 · 안내', path:'index_haeseol.html',    name:'해설지 마스터 인덱스' },
+  { g:'목차 · 안내', path:'system-guide.html',     name:'시스템 사용 가이드' },
+  { g:'목차 · 안내', path:'START_HERE_index.html', name:'전체 파일 인덱스' },
+];
+let MAT_PICK = 'final', DT_MAT = null, DT_MAT_ERR = '', LECS = null;
+function dtMaterials(){
+  if(DT_MAT) return Promise.resolve(DT_MAT);
+  return fetch('../DT/materials.json', {cache:'no-cache'})
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(function(j){ DT_MAT = j; DT_MAT_ERR=''; return j; })
+    .catch(function(e){ DT_MAT_ERR = e.message || '실패'; throw e; });
+}
+/* 강의 목록은 목차 페이지가 원본이다. 여기 베껴 두면 강의가 늘 때 갈라진다. */
+function lectures(){
+  if(LECS) return Promise.resolve(LECS);
+  return fetch('lecture-index.html', {cache:'no-cache'}).then(function(r){ return r.text(); })
+    .then(function(t){
+      const doc = new DOMParser().parseFromString(t, 'text/html');
+      LECS = [].map.call(doc.querySelectorAll('a[href^="lec-"]'), function(a){
+        return { href:a.getAttribute('href'),
+                 title:(a.textContent||'').replace(/\s+/g,' ').trim() };
+      });
+      return LECS;
+    });
+}
+function matChips(){
+  const el = document.getElementById('matTabs'); if(!el) return;
+  el.innerHTML = MAT_GROUPS.map(function(g){
+    let n = '';
+    if(g.key==='final') n = EXAMS.length;
+    else if(g.key==='lec') n = LECS ? LECS.length : '';
+    else if(g.key==='tool') n = MAT_TOOLS.length;
+    else if(DT_MAT){
+      const c = DT_MAT.courses.filter(function(c){ return c.key===g.key; })[0];
+      n = c ? c.rounds.length : 0;
+    }
+    return '<button class="chip" aria-pressed="'+(MAT_PICK===g.key)+'" data-mat="'+g.key+'">'+
+           esc(g.label)+(n!==''? '<small>'+n+'</small>':'')+'</button>';
   }).join('');
 }
+function linkOr(path, label){
+  return path ? '<a href="'+esc(path)+'">'+esc(label)+'</a>' : '<span class="dim">—</span>';
+}
+function renderMaterials(){
+  const body = document.getElementById('matBody'); if(!body) return;
+  const q = normName((document.getElementById('mq')||{}).value||'');
+  matChips();
+  document.getElementById('matNote').innerHTML = '';
+
+  if(MAT_PICK === 'final'){
+    const rows = EXAMS.filter(function(e){ return !q || normName(e.title).indexOf(q)>=0; });
+    if(!rows.length){ body.innerHTML = '<div class="spin" style="padding:16px">찾는 회차가 없습니다.</div>'; return; }
+    body.innerHTML = '<table><thead><tr><th>회차</th><th>구분</th><th>문항</th>'+
+      '<th>가진 자료</th><th>문제지</th><th>해설</th><th>채점</th></tr></thead><tbody>'+
+      rows.map(function(e){
+        const sol = 'sol-final-'+e.id+'.html';
+        return '<tr><td>'+esc(e.title)+'</td><td class="dim">'+esc(e.group||'')+'</td>'+
+          '<td class="num">'+e.nQ+'</td>'+
+          '<td>'+dotsOf([{on:!!e.pdf, label:'문제지'}, {on:true, label:'해설'},
+                         {on:e.solFull?true:'half', label:e.solFull?'문항별 해설':'정답·개념표'}])+'</td>'+
+          '<td>'+(e.pdf? '<a href="'+esc(e.pdf)+'" download>PDF ↓</a>' : '<span class="dim">—</span>')+'</td>'+
+          '<td><a href="'+esc(sol)+'" download>'+(e.solFull?'문항별':'정답표')+' ↓</a></td>'+
+          '<td><button class="mini" data-grade="'+esc(e.id)+'">채점 →</button></td></tr>';
+      }).join('')+'</tbody></table>';
+    return;
+  }
+
+  if(MAT_PICK === 'lec'){
+    if(!LECS){
+      body.innerHTML = '<div class="spin" style="padding:16px">강의 목차를 부르는 중…</div>';
+      lectures().then(renderMaterials).catch(function(e){
+        body.innerHTML = '<div class="spin" style="padding:16px">'+
+          esc('강의 목차를 못 읽었습니다 — '+(e.message||'실패'))+'</div>'; });
+      return;
+    }
+    const rows = LECS.filter(function(l){ return !q || normName(l.title).indexOf(q)>=0; });
+    if(!rows.length){ body.innerHTML = '<div class="spin" style="padding:16px">찾는 강의가 없습니다.</div>'; return; }
+    body.innerHTML = '<table><thead><tr><th>번호</th><th>강의</th><th>열기</th></tr></thead><tbody>'+
+      rows.map(function(l){
+        const no = (l.href.match(/lec-(\d+)/)||['',''])[1];
+        return '<tr><td class="num">'+esc(no)+'</td><td>'+esc(l.title||l.href)+'</td>'+
+               '<td><a href="'+esc(l.href)+'">열기 →</a></td></tr>';
+      }).join('')+'</tbody></table>';
+    return;
+  }
+
+  if(MAT_PICK === 'tool'){
+    const rows = MAT_TOOLS.filter(function(t){
+      return !q || normName(t.name).indexOf(q)>=0 || normName(t.g).indexOf(q)>=0; });
+    if(!rows.length){ body.innerHTML = '<div class="spin" style="padding:16px">찾는 도구가 없습니다.</div>'; return; }
+    let last = '', out = '<div class="list">';
+    rows.forEach(function(t){
+      if(t.g !== last){ out += '</div><div class="sub2">'+esc(t.g)+'</div><div class="list">'; last = t.g; }
+      out += '<div class="row" style="cursor:default"><span class="nm">'+esc(t.name)+'</span>'+
+             '<span class="where dim">'+esc(t.path)+'</span>'+
+             '<span class="acts"><a class="mini" href="'+esc(t.path)+'">열기 →</a></span></div>';
+    });
+    body.innerHTML = out.replace(/^<div class="list"><\/div>/, '') + '</div>';
+    return;
+  }
+
+  /* DT 과목. 목록을 못 읽으면 지어내지 않고 이유를 적는다. */
+  if(!DT_MAT){
+    body.innerHTML = '<div class="spin" style="padding:16px">DT 자료 목록을 부르는 중…</div>';
+    dtMaterials().then(renderMaterials).catch(function(){
+      body.innerHTML = '';
+      note('matNote', 'DT 자료 목록(../DT/materials.json)을 못 읽었습니다 — '+DT_MAT_ERR+
+           '. 파이널·개념강의·도구는 그대로 보입니다.', true);
+    });
+    return;
+  }
+  const course = DT_MAT.courses.filter(function(c){ return c.key===MAT_PICK; })[0];
+  if(!course){ body.innerHTML = '<div class="spin" style="padding:16px">그 과목 자료가 없습니다.</div>'; return; }
+  const rows = course.rounds.filter(function(r){ return !q || String(r.round).indexOf(q)>=0; });
+  const P = '../DT/';
+  const cell = function(f){
+    if(!f) return '<span class="dim">—</span>';
+    const out = [];
+    if(f.html) out.push('<a href="'+esc(P+f.html)+'">보기</a>');
+    if(f.pdf)  out.push('<a href="'+esc(P+f.pdf)+'" download>PDF ↓</a>');
+    return out.join(' · ');
+  };
+  body.innerHTML = '<table><thead><tr><th>회차</th><th>가진 자료</th>'+
+    '<th>문제지</th><th>해설</th><th>OMR</th><th>오답노트</th></tr></thead><tbody>'+
+    rows.map(function(r){
+      const f = r.files||{};
+      return '<tr><td>'+course.name+' '+r.round+'회</td>'+
+        '<td>'+dotsOf([
+          {on:!!f.munje,   label:'문제지'},
+          {on:f.haeseol ? (f.haeseol.html? true : 'half') : false, label:f.haeseol&&!f.haeseol.html?'해설 PDF만':'해설'},
+          {on:!!f.omr,     label:'OMR'},
+          {on:!!f.truthbook, label:'오답노트'}])+'</td>'+
+        '<td>'+cell(f.munje)+'</td><td>'+cell(f.haeseol)+'</td>'+
+        '<td>'+cell(f.omr)+'</td><td>'+cell(f.truthbook)+'</td></tr>';
+    }).join('')+'</tbody></table>';
+}
 /* 자료를 보다가 바로 채점으로 넘어간다. 회차를 다시 찾아 고르는 수고를 던다. */
-document.querySelector('#matTable').addEventListener('click', function(e){
+document.getElementById('matBody').addEventListener('click', function(e){
   const b = e.target.closest ? e.target.closest('.mini[data-grade]') : null;
   if(!b) return;
   finalWindow().then(function(w){
@@ -1689,12 +2234,24 @@ document.querySelector('#matTable').addEventListener('click', function(e){
     show('exam');
   }).catch(function(err){ flash(b, err.message||'실패'); });
 });
+document.addEventListener('click', function(e){
+  const b = e.target.closest ? e.target.closest('.chip[data-mat]') : null;
+  if(!b) return;
+  MAT_PICK = b.dataset.mat;
+  renderMaterials();
+});
 document.getElementById('mq').addEventListener('input', renderMaterials);
 
 /* ── 시작 ──────────────────────────────────────────────────────── */
 /* 회차 이름은 exams.json 에서 온다. 늦게 도착하므로, 오면 이름을 쓰는
    화면을 다시 그린다 — 안 그리면 'jmchc-1' 같은 내부 이름이 그대로 남는다. */
-function afterExams(){ renderMaterials(); renderDash(); renderRounds(); }
+let BOOTED = false;
+function afterExams(){
+  renderMaterials();
+  /* 잠금을 지나기 전에는 창구를 부르지 않는다. 이 두 줄이 DT·시트를 두드린다. */
+  if(!BOOTED) return;
+  renderDash(); renderRounds();
+}
 fetch('exams.json',{cache:'no-cache'}).then(function(r){ return r.ok? r.json() : []; })
   .then(function(j){ EXAMS = Array.isArray(j)? j : []; afterExams(); })
   .catch(function(){ EXAMS = []; afterExams(); });
@@ -1714,25 +2271,33 @@ document.addEventListener('keydown', function(e){
   }
   if(e.key==='Escape' && typing && tag==='INPUT'){ t.value=''; t.dispatchEvent(new Event('input')); return; }
   if(typing) return;
-  const n = '1234567'.indexOf(e.key);
+  /* 숫자키 한 자리씩 탭 하나. 열째는 0 이다(1234567890). 탭을 늘리면 여기도
+     늘려야 한다 — 검사가 두 길이를 견준다. */
+  const n = '1234567890'.indexOf(e.key);
   if(n>=0 && n<TABS.length){ e.preventDefault(); show(TABS[n]); }
 });
 
 document.getElementById('syncNow').addEventListener('click', function(){ syncSheet(); });
 
-renderDash();
-loadRoster();
-renderRounds();
-renderSyncBar();
-/* 반나절이 넘었으면 스스로 맞춘다. 화면은 먼저 그려 두고 뒤에서 돈다 —
-   기다리게 하지 않는다. 실패해도 남는 것은 이 브라우저 기록뿐이라 화면은
-   그대로 산다. */
-setTimeout(function(){
-  var at=lastSyncAt();
-  if(!at || (Date.now()-at) > SYNC_STALE) syncSheet();
-}, 1200);
-document.getElementById('stamp').textContent = new Date().toLocaleDateString('ko-KR');
-const h = (location.hash||'').replace('#','');
-if(TABS.indexOf(h)>=0) show(h);
+/* 잠금을 지나야 비로소 움직인다. 코드를 못 맞힌 사람 때문에 앱스크립트를
+   두드릴 이유가 없고, 못 들어온 화면에 반 명단이 잠깐 스치는 것도 안 된다. */
+function boot(){
+  BOOTED = true;
+  renderDash();
+  loadRoster();
+  renderRounds();
+  renderSyncBar();
+  /* 반나절이 넘었으면 스스로 맞춘다. 화면은 먼저 그려 두고 뒤에서 돈다 —
+     기다리게 하지 않는다. 실패해도 남는 것은 이 브라우저 기록뿐이라 화면은
+     그대로 산다. */
+  setTimeout(function(){
+    var at=lastSyncAt();
+    if(!at || (Date.now()-at) > SYNC_STALE) syncSheet();
+  }, 1200);
+  document.getElementById('stamp').textContent = new Date().toLocaleDateString('ko-KR');
+  const h = (location.hash||'').replace('#','');
+  if(TABS.indexOf(h)>=0) show(h);
+}
+hubGate(boot);
 </script>
 </body></html>
