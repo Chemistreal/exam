@@ -108,6 +108,14 @@ const LATER_ALLC = {
   Object.keys(BASE).forEach(id => {
     const b = BASE[id], exam = examOf(id);
     if (!exam) { bad.push(id + ': exams.json 에 없다'); return; }
+    /* ⚠ 여기서 그냥 b.qc.length 를 읽다가 **TypeError 로 죽은** 적이 있다.
+       기준 기록 자동 갱신이 문항별 통계(q·qc)를 열 회차에서 통째로 지웠는데,
+       검사는 "Cannot read properties of undefined" 만 뱉고 끝났다 —
+       무엇이 없어졌는지 아무도 알 수 없다. 없으면 없다고 말한다. */
+    if (!b.qc || !b.q) {
+      bad.push(id + ': 문항별 통계(q·qc)가 없다 — 또래 정답률을 못 만든다');
+      return;
+    }
     if (b.qc.length !== exam.nQ) bad.push(id + ': qc 길이 ' + b.qc.length);
     if (b.q.length !== exam.nQ) bad.push(id + ': q 길이 ' + b.q.length);
     b.q.forEach((o, i) => { cells++;
