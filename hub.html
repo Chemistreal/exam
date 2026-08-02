@@ -3110,8 +3110,13 @@ function conTags(rows){
 function conFor(rows, tag){
   const hit = conTags(rows).filter(function(t){ return t.tag===tag; })[0];
   if(!hit) return [];
+  /* 되풀이해 걸린 아이가 먼저다. 예전에는 **최근 순**으로만 세웠는데, 그러면
+     세 회차 내리 걸린 아이가 이번 주에 한 번 걸린 아이 아래로 내려간다 —
+     보충 자리는 위에서부터 차는데, 정작 필요한 쪽이 아래에 있었다.
+     (줄에 '3회차 걸림' 을 적기는 했다. 적어 놓고 아래에 두면 안 읽힌다.) */
   return hit.rows.slice().sort(function(a,b){
-    return (Number(a.days)||0)-(Number(b.days)||0) ||
+    return conHits(b)-conHits(a) ||
+           (Number(a.days)||0)-(Number(b.days)||0) ||
            String(a.name).localeCompare(String(b.name),'ko'); });
 }
 /* 이 개념이 나온 회차의 자료. 명단만 뽑아 놓고 자료를 다시 찾아 헤매면
