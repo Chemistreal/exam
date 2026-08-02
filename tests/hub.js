@@ -80,10 +80,14 @@ vm.runInContext([
   cut('sentKey'), cut('bulkBar'), cut('readHash'), cut('deltaOf'), cut('dayCounts'),
   cut('rosterCount'), cut('wonOf'),
   cut('dayKey'), cut('snoozedTill'), cut('isSnoozed'), cut('snzCls'), cut('snzBtn'),
-  cut('snzBar'), cut('conEntry'), cut('conPut'), cut('conHits'), cut('conTags'),
+  cut('viewName'), cut('snzBar'), cut('conEntry'), cut('conPut'), cut('conHits'), cut('conTags'),
   cut('conFor'), cut('conClassOf'), cut('conByClass'), cut('conRounds'),
   ((SRC.match(/^const FEE_PER = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
   'var SNZ=new Map(), SNZ_SHOW=false;',
+  ((SRC.match(/^const TAB_NAME = \{[^}]*\};?$/m) || [''])[0]).replace(/^const /, 'var '),
+  ((SRC.match(/^const CLS_LABEL = \{[^}]*\};?$/m) || [''])[0]).replace(/^const /, 'var '),
+  ((SRC.match(/^const MAT_GROUPS = \[[\s\S]*?^\];$/m) || [''])[0]).replace(/^const /, 'var '),
+  ((SRC.match(/^const STU_FILTERS = \[[\s\S]*?^\];$/m) || [''])[0]).replace(/^const /, 'var '),
   ((SRC.match(/^const SNZ_DAYS = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
   'var SENT=new Set(), TABS=["dash","stu","cls","rnd","mat","inc","exam","dt","dtp","dtr","km"], location={hash:""};',
   'var FIN=null, ROSTER=[];',
@@ -176,13 +180,24 @@ console.log('\n── 셸이 남의 데이터를 건드리지 않는다 ──')
   /* 이 파일은 읽어서 보여 주기만 한다. 쓰기가 섞이면 앱 하나가 깨질 때
      원인을 셸에서도 찾아야 한다 — 그 순간 "지워도 안전한 파일"이 아니게 된다. */
   const body = SRC.split('<script>')[1] || '';
-  /* 딱 하나 예외가 있다: 첫 화면 잠금의 열쇠칸. 그건 남의 데이터가 아니라
-     파이널·홈과 **나눠 쓰는 문고리**다 — 따로 두면 셸에서 넣고 iframe 안의
-     파이널에서 또 물어 화면이 두 겹으로 잠긴다. 그 한 곳만 허용한다. */
-  chk('저장하는 곳은 잠금 열쇠칸 하나뿐',
+  /* 쓰는 자리는 **적어 둔 것만** 허용한다. 늘어날 수는 있지만, 늘 때마다
+     여기를 고치게 만들어 "이건 앱 자료가 아니라 이 브라우저의 취향인가" 를
+     한 번은 묻게 한다. 지금 둘 다 취향 쪽이다:
+
+       KEY      첫 화면 잠금. 남의 데이터가 아니라 파이널·홈과 **나눠 쓰는
+                문고리**다 — 따로 두면 셸에서 넣고 iframe 안의 파이널에서 또
+                물어 화면이 두 겹으로 잠긴다.
+       VIEW_KEY 저장된 보기(주소 + 이름). 통째로 지워도 잃는 것이 없다 —
+                세 번 눌러 다시 만든다.
+
+     앱 자료(파이널 기록·DT 명단)를 쓰는 것은 여전히 금지다. 아래 검사들이 본다. */
+  chk('쓰는 곳은 적어 둔 두 칸뿐',
       (CODE_ONLY.match(/localStorage\.setItem\(\s*([A-Za-z_$][\w$]*)/g) || []),
-      ['localStorage.setItem(KEY']);
+      ['localStorage.setItem(KEY', 'localStorage.setItem(VIEW_KEY']);
   chk('그 칸은 파이널과 같은 칸', /var KEY = 'chemistreal:gate'/.test(body), true);
+  /* 셸이 쓰는 칸은 셸 것임이 이름에서 보여야 한다 — 앱 칸을 덮어쓰면
+     앱 하나가 깨질 때 원인을 셸에서도 찾아야 한다. */
+  chk('셸 칸은 셸 이름표를 단다', /const VIEW_KEY = 'chemistreal:views'/.test(body), true);
   chk('파이널 기록은 건드리지 않는다',
       /localStorage\.setItem\(\s*(FIN_PFX|['"]final:)/.test(CODE_ONLY), false);
   chk('localStorage 를 비우지 않는다', /localStorage\.(clear|removeItem)/.test(CODE_ONLY), false);
@@ -1087,6 +1102,103 @@ console.log('\n── 보낸 것은 눈에서 내려간다 ──');
       /return SENT\.has\(k\) \? '<button class="mini undo"/.test(body), true);
   chk('못 받아도 화면은 산다',
       /dtSentLog\(\)\.then\(function\(rows\)\{ seedSent\(rows\); refreshSoon\(\); \}\)\.catch/.test(body), true);
+}
+
+console.log('\n── 막대에서 목록으로 파고든다 ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  /* 여태 막대는 보기만 하는 것이었다. "미응시 4명" 을 보고 나서 그 넷이
+     누구인지 알려면 목록을 눈으로 훑어야 했다. */
+  const parts = ctx.clsCounts([{ st:'miss' },{ st:'miss' },{ st:'wait' },{ st:'ok' }]);
+  chk('조각마다 열쇠가 붙는다', parts.map(function(p){ return p.key; }),
+      ['miss','wait','ok','none']);
+  /* 이름(label)으로 걸면 이름을 고치는 날 저장해 둔 주소가 깨진다. */
+  chk('열쇠는 이름이 아니다', parts[0].key !== parts[0].label, true);
+
+  /* 서른 명 중 하나짜리 조각은 폭이 10px 도 안 된다 — 손가락으로 못 짚는다.
+     이름이 붙은 범례가 훨씬 크다. */
+  const lg = ctx.legendOf(parts, 'cls', 'miss');
+  chk('범례를 누를 수 있다', /<button class="lg on" data-seg="cls" data-segv="miss"/.test(lg), true);
+  chk('지금 고른 것을 알려 준다', /aria-pressed="true"/.test(lg), true);
+  chk('안 고른 것은 눌린 티가 없다', (lg.match(/aria-pressed="false"/g)||[]).length, 2);
+  /* 열쇠가 없는 막대(예: 반 상태 그림)는 그냥 보는 것으로 둔다. */
+  chk('열쇠가 없으면 못 누른다', /<button/.test(ctx.legendOf([{n:1,tone:'ok',label:'통과'}])), false);
+  chk('손가락 자리를 넓힌다', /\.legend button\.lg\{[\s\S]{0,400}?min-height:32px/.test(SRC), true);
+  /* 마우스로는 조각도 되게 한다. */
+  chk('막대 조각에도 같은 열쇠', /data-seg="cls" data-segv="miss"/.test(ctx.stackBar(parts)), true);
+
+  /* 같은 것을 다시 누르면 풀린다 — 끄는 길을 따로 찾게 하지 않는다. */
+  chk('다시 누르면 풀린다', /CLS_ST = \(CLS_ST === v\) \? '' : v/.test(body) &&
+      /CON_CLS = \(CON_CLS === v\) \? '' : v/.test(body), true);
+  /* 걸러 놓은 것을 안 적으면 "왜 애가 넷밖에 없지" 가 된다. */
+  chk('걸러 놓은 것을 적는다', /만 보는 중 · <b>/.test(body), true);
+  chk('푸는 길을 그 자리에 둔다', /data-seg="cls" data-segv=""/.test(body), true);
+  /* 다른 반·다른 개념에서 넘어온 주소면 걸린 것이 그 자리에 없을 수 있다.
+     빈 목록을 놓고 "왜 아무도 없지" 하게 두지 않는다. */
+  chk('없는 것을 걸었으면 스스로 푼다',
+      /if\(CLS_ST && !all\.some\(function\(r\)\{ return r\.st===CLS_ST; \}\)\) CLS_ST = '';/.test(body) &&
+      /if\(CON_CLS && !parts\.some\(function\(x\)\{ return x\.key===CON_CLS; \}\)\) CON_CLS = '';/.test(body), true);
+
+  /* 주소가 곧 상태라, 걸러 놓은 채로 저장·공유가 된다. */
+  chk('주소에 남는다', /p\.push\('s='\+CLS_ST\)/.test(body) &&
+      /p\.push\('c='\+encodeURIComponent\(CON_CLS\)\)/.test(body), true);
+  chk('주소에서 되살린다', /CLS_ST = st\.p\.s \|\| '';/.test(body) &&
+      /CON_CLS = st\.p\.c \|\| '';/.test(body), true);
+  chk('저장한 보기 이름에도 들어간다',
+      ctx.viewName({ tab:'cls', p:{ c:'화학1 토1:30', s:'miss' } }), '반 · 화학1 토1:30 · 미응시');
+}
+
+console.log('\n── 늘 묻는 것은 칩 하나로 (저장된 보기) ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  /* 선생님이 묻는 것은 매번 새롭지 않다 — "3반 지금 어때", "몰농도 못 잡은
+     애들". 그런데 매번 탭 옮기고 고르고 거르는 여섯 번을 되풀이한다. */
+  chk('자리가 있다', /id="views"/.test(SRC), true);
+  /* 주소가 이미 상태다. 저장할 것은 주소 한 줄, 되살리는 길도 이미 있다. */
+  chk('만들 그릇이 없다 — 주소를 적는다',
+      /v\.unshift\(\{ name: viewName\(\), hash: h \}\)/.test(body), true);
+  chk('되살리는 길도 이미 있는 것을 쓴다',
+      /history\.replaceState\(null, '', t\.dataset\.view\);[\s\S]{0,60}applyHash\(\)/.test(body), true);
+
+  /* 물어보면(prompt) 저장이 귀찮아지고, 귀찮으면 안 쓴다. 지금 화면에서 짓는다.
+     셸에는 prompt 가 한 군데 더 있다(클립보드가 막힌 브라우저의 마지막 수단)
+     — 그건 그대로 두고 이 함수 안만 본다. */
+  const vadd = (body.match(/function viewAdd\(\)\{[\s\S]*?\n\}/) || [''])[0];
+  chk('이름을 안 묻는다', /prompt\(/.test(vadd), false);
+  chk('이름은 지금 화면에서 짓는다', /name: viewName\(\)/.test(vadd), true);
+  chk('대시보드는 그냥 대시보드', ctx.viewName({ tab:'dash', p:{} }), '대시보드');
+  chk('반은 반 이름까지', ctx.viewName({ tab:'cls', p:{ c:'화학1 토1:30' } }), '반 · 화학1 토1:30');
+  chk('개념은 개념 이름까지', ctx.viewName({ tab:'con', p:{ tag:'몰농도' } }), '개념 · 몰농도');
+  chk('거른 것도 이름에 넣는다', ctx.viewName({ tab:'stu', p:{ f:'noexam' } }), '학생 · 파이널 기록 없음');
+  chk('찾던 말도 넣는다', ctx.viewName({ tab:'rnd', p:{ q:'12회' } }), '회차 · "12회"');
+  chk('둘 다면 둘 다', ctx.viewName({ tab:'mat', p:{ g:'ch2', q:'해설' } }), '자료 · DT 화학Ⅱ · "해설"');
+  /* '전체' 는 거른 것이 아니다 — 이름에 붙으면 저장한 보기가 다 길어진다. */
+  chk('전체는 이름에 안 붙인다', ctx.viewName({ tab:'stu', p:{ f:'all' } }), '학생');
+
+  /* 앱 화면(iframe)은 저장해도 뜻이 없다 — 그 안의 상태는 주소에 안 담긴다. */
+  chk('앱 화면은 저장 못 한다', /function viewSavable\(\)\{ return !frameOf\(curTab\(\)\); \}/.test(body), true);
+  /* 같은 주소를 두 번 저장하면 칩이 두 개가 되고, 어느 것이 최신인지 모른다. */
+  chk('같은 화면을 두 번 안 담는다',
+      /if\(v\.some\(function\(x\)\{ return x\.hash === h; \}\)\) return 'dup';/.test(body), true);
+  /* 끝없이 쌓이면 칩 줄이 화면을 다 먹는다. */
+  chk('끝없이 쌓이지 않는다', /v\.slice\(0, VIEW_MAX\)/.test(body), true);
+  /* 지우기에 확인을 안 붙인다 — 세 번 눌러 다시 만들 수 있는 것이라,
+     확인창이 지키는 것보다 걸리적거리는 값이 크다. */
+  chk('지우기에 확인창을 안 세운다', /\bconfirm\(/.test(CODE_ONLY), false);
+  chk('열두 탭 밑에 묻히지 않는다 — 팔레트에도 오른다',
+      /kind:'보기', label:v\.name/.test(body), true);
+  chk('탭을 옮기면 어느 보기인지도 따라온다',
+      /navReveal\(id\); navEdges\(\); renderViews\(\);/.test(body), true);
+  /* 재어 보니 이 줄이 휴대폰 머리를 118 → 162px 로 되돌려 놨다. 세로가 가장
+     아쉬운 화면에서, 아직 저장한 것도 없는 빈 줄에 44px 을 내주는 셈이었다. */
+  chk('휴대폰에서는 쓰고 있을 때만 자리를 낸다',
+      /function viewsNarrow\(\)/.test(body) &&
+      /if\(!v\.length && !canAdd\)\{ el\.innerHTML = ''; el\.hidden = true; return; \}/.test(body), true);
+  /* 클래스 선택자가 브라우저 기본 [hidden] 규칙을 이긴다. 이 한 줄이 없으면
+     숨긴 줄이 그대로 서서 머리가 11px 도로 늘어난다 — 재어 보고 알았다. */
+  chk('숨긴 줄이 진짜로 숨는다', /\.views\[hidden\]\{display:none\}/.test(SRC), true);
+  chk('폭이 바뀌면 다시 그린다',
+      /window\.addEventListener\('resize', function\(\)\{ navEdges\(\); renderViews\(\); \}\)/.test(body), true);
 }
 
 console.log('\n── 휴대폰에서도 탭이 다 보인다 ──');
