@@ -355,6 +355,7 @@ body:not(.snzshow) .row.snz{display:none}
     <button role="tab" id="t-stu"   aria-selected="false" aria-controls="p-stu">학생</button>
     <button role="tab" id="t-cls"   aria-selected="false" aria-controls="p-cls">반</button>
     <button role="tab" id="t-rnd"   aria-selected="false" aria-controls="p-rnd">회차</button>
+    <button role="tab" id="t-con"   aria-selected="false" aria-controls="p-con">개념</button>
     <button role="tab" id="t-mat"   aria-selected="false" aria-controls="p-mat">자료</button>
     <button role="tab" id="t-inc"   aria-selected="false" aria-controls="p-inc">수입</button>
   </nav>
@@ -426,7 +427,8 @@ body:not(.snzshow) .row.snz{display:none}
       <h2>요즘 반이 어려워하는 개념</h2>
       <p class="hint">DT 에서 최근 한 달 사이 <b>틀린 문항의 오개념 태그</b>를 모았습니다.
         같은 학생이 여러 번 걸려도 한 명으로 셉니다. 다음 회차를 짤 때 쓰세요.
-        <span class="dim">(개인은 드러나지 않습니다 — DT 가 학생을 s1·s2… 로 바꿔 줍니다)</span></p>
+        여기 숫자는 <b>개인이 드러나지 않는 집계</b>입니다 — DT 가 학생을 s1·s2… 로 바꿔 줍니다.
+        <b>누가</b> 를 누르면 이름이 붙은 <b>개념</b> 탭으로 넘어갑니다.</p>
       <div class="list" id="misList"></div>
     </section>
     <section id="mergeWrap" hidden>
@@ -506,6 +508,20 @@ body:not(.snzshow) .row.snz{display:none}
   <div class="pane frame" id="p-dtp"  role="tabpanel" aria-labelledby="t-dtp"></div>
   <div class="pane frame" id="p-dtr"  role="tabpanel" aria-labelledby="t-dtr"></div>
   <div class="pane frame" id="p-km"   role="tabpanel" aria-labelledby="t-km"></div>
+
+  <div class="pane" id="p-con" role="tabpanel" aria-labelledby="t-con">
+    <section>
+      <h2>개념</h2>
+      <!-- 여태 셸이 보여 준 것은 '몇 명이 걸렸나' 뿐이었다. 보충을 하려면
+           누구인지가 있어야 한다. DT 가 이름 붙은 창구(mistags)를 새로 연다. -->
+      <p class="hint">DT 에서 <b>마지막 시도에 틀린 문항</b>의 오개념 태그를 모았습니다.
+        개념을 고르면 <b>그 개념을 아직 못 잡은 학생</b>이 섭니다 —
+        정시에서 틀렸다가 재시에서 잡은 것은 빠집니다.</p>
+      <div class="chips" id="conTabs"></div>
+      <div id="conHead"></div>
+      <div class="list" id="conList"><div class="spin" style="padding:16px">개념을 부르는 중…</div></div>
+    </section>
+  </div>
 
   <div class="pane" id="p-mat" role="tabpanel" aria-labelledby="t-mat">
     <section>
@@ -869,6 +885,18 @@ function dtPending(force){ return dtOnce('pending', force); }
 function dtMisRows(force){
   return readOnce('dt', 'cohortmis', function(d){ return d.rows||[]; }, force);
 }
+/* ── 이름이 붙은 오개념 ─────────────────────────────────────────────
+   위(cohortmis)는 익명본이라 "몇 명" 까지만 안다. 보충을 하려면 **누구인지**가
+   있어야 한다 — 몰농도를 못 잡은 아이 넷을 따로 앉히려면 이름이 필요하다.
+   그래서 DT 에 이름 붙은 창구를 따로 열었다(mistags). 노출 폭은 이미 열려 있는
+   pending·passed 와 같다 — 이름·학교·점수.
+   익명본은 그대로 익명으로 둔다: 반 패널은 개인을 되짚을 이유가 없다. */
+function dtMisNamed(force){
+  return readOnce('dt', 'mistags', function(d){
+    const m = d.mis;
+    return (m && m.rows) || (Array.isArray(m) ? m : []);
+  }, force);
+}
 /* ── 시험 미응시 ────────────────────────────────────────────────────
    반 명단에는 있는데 이번 회차 시험 기록이 없는 학생이다. 이것만 셸에 없어서,
    채점하다 말고 DT 의 미응시 화면으로 넘어가야 했다 — 하루 흐름에서 여기만
@@ -966,7 +994,7 @@ function renderConn(){
 /* ── 탭 ─────────────────────────────────────────────────────────── */
 /* 차례가 곧 숫자키 차례다(1~9,0). 앞 다섯은 셸이 그리는 화면, 뒤 다섯은
    앱을 그대로 얹은 화면 — 머리의 두 줄과 같은 차례로 둔다. */
-const TABS = ['dash','stu','cls','rnd','mat','inc','exam','dt','dtp','dtr','km'];
+const TABS = ['dash','stu','cls','rnd','con','mat','inc','exam','dt','dtp','dtr','km'];
 /* 탭 안에 얹는 화면. 셋은 앱의 첫 화면(APPS), 둘은 앱 안의 특정 화면(PAGES). */
 function frameOf(id){
   if(APPS[id]) return APPS[id];
@@ -995,6 +1023,13 @@ function show(id){
   if(app) mountFrame(app);
   /* 수입 탭은 들어올 때마다 다시 그린다 — 잠금 화면이 먼저 떠야 한다. */
   if(id === 'inc') renderIncome();
+  /* 개념은 **들어올 때** 부른다. 대시보드를 여는 것만으로 창구를 하나 더
+     두드리면, 앱스크립트가 실행을 한 줄로 세우는 탓에 다른 숫자가 늦어진다. */
+  if(id === 'con'){
+    renderConcept();
+    dtMisNamed().then(function(){ renderConcept(); })
+      .catch(function(){ renderConcept(); });
+  }
   /* 앱 탭에서 채점하고 돌아오면 숫자가 달라져 있어야 한다. 셸 화면으로
      올 때마다 다시 읽는다 — storage 이벤트를 놓친 경우의 그물이다. */
   if(!app) refreshSoon();
@@ -1026,6 +1061,8 @@ function writeHash(){
     if(val('mq')) p.push('q='+encodeURIComponent(val('mq')));
   }else if(tab==='rnd'){
     if(val('rq')) p.push('q='+encodeURIComponent(val('rq')));
+  }else if(tab==='con'){
+    if(CON_PICK) p.push('tag='+encodeURIComponent(CON_PICK));
   }
   const h = (tab==='dash' && !p.length) ? '' : ('#'+tab+(p.length?('?'+p.join('&')):''));
   /* pushState 를 쓰면 탭을 옮길 때마다 뒤로가기 기록이 쌓여, 뒤로가기가
@@ -1064,6 +1101,9 @@ function applyHash(){
     }else if(st.tab==='rnd'){
       if(st.p.q != null && document.getElementById('rq')){
         document.getElementById('rq').value = st.p.q; renderRounds(); }
+    }else if(st.tab==='con'){
+      /* 아직 안 불렀을 수 있다. 골라 둔 것만 적어 두면 도착한 뒤 그대로 열린다. */
+      if(st.p.tag) CON_PICK = st.p.tag;
     }
     show(st.tab);
   }finally{ HASH_LOCK = false; }
@@ -1792,10 +1832,13 @@ function renderDash(){
     const max = top[0].n;
     document.getElementById('misList').innerHTML = top.slice(0,12).map(function(m){
       const pct = max? Math.round(m.n/max*100) : 0;
-      return '<div class="row" style="cursor:default"><span class="nm">'+esc(m.tag)+'</span>'+
+      /* 숫자를 보고 나서 할 수 있는 일이 없으면 이 목록은 읽고 끝난다.
+         눌러서 **그 개념 못 잡은 아이들**로 바로 넘어간다. */
+      return '<div class="row" data-mistag="'+esc(m.tag)+'"><span class="nm">'+esc(m.tag)+'</span>'+
              '<span class="where"><span style="display:inline-block;height:6px;border-radius:3px;'+
              'background:#B0873A;opacity:.55;width:'+Math.max(6,pct)+'px"></span></span>'+
-             '<span class="cnt">'+m.n+'명</span></div>';
+             '<span class="cnt">'+m.n+'명</span>'+
+             '<span class="acts"><button class="mini" data-mistag="'+esc(m.tag)+'">누가</button></span></div>';
     }).join('');
   }).catch(function(){ const w=document.getElementById('misWrap'); if(w) w.hidden=true; });
 
@@ -2427,6 +2470,153 @@ document.addEventListener('click', function(e){
       }).join('\n'), '표 복사됨');
 });
 
+/* ══════════════════════════════════════════════════════════════════
+   개념 하나로 아이들을 부른다 — "몰농도 아직 못 잡은 애들"
+
+   대시보드의 '요즘 반이 어려워하는 개념' 은 익명본이라 **숫자까지만** 안다.
+   "몰농도 7명" 을 보고 나서 할 수 있는 일이 없었다 — 누구인지를 모르니까.
+   보충을 앉히려면 이름이 있어야 한다.
+
+   [무엇이 '아직 못 잡은' 인가]
+   DT 가 (학생·과목·회차)의 **마지막 시도**만 골라 준다. 정시에서 틀렸다가
+   재시에서 잡은 개념은 여기 없다 — 있으면 이미 잡은 아이를 또 앉히게 된다.
+   마지막이 통과여도 거기서 틀린 개념은 남는다(점수를 넘겼다고 잡은 것은 아니다).
+
+   [한 사람은 한 줄]
+   같은 학생이 여러 회차에서 같은 태그에 걸릴 수 있다. 사람으로 묶어 한 줄만
+   세운다 — 안 그러면 한 아이가 셋으로 보여 보충 인원을 잘못 센다.
+   ══════════════════════════════════════════════════════════════════ */
+let CON_PICK = '', CON_ROWS = [];
+/* 이름+학교로 만든 **글자 열쇠**로는 못 묶는다. DT 는 같은 아이를 '휘문' 과
+   '휘문중' 으로 섞어서 준다 — 글자로 비교하면 한 아이가 둘로 서고, 보충 인원이
+   부풀어 있는 그대로 믿게 된다. 셸이 이미 쓰는 규칙(sameStudent → schoolAkin)을
+   그대로 쓴다: 학교 꼬리를 떼고 견주되, 대곡중과 대곡고는 다른 사람이다. */
+function conPut(list, r){
+  for(let i=0;i<list.length;i++){
+    if(!sameStudent({ name:list[i].name, school:list[i].school }, r)) continue;
+    /* 같은 사람이 여러 줄이면 **가장 최근 것**을 남긴다 — 오래된 회차를
+       보여 주면 "이거 벌써 했는데" 가 된다. */
+    if((Number(r.days)||0) < (Number(list[i].days)||0)) list[i] = r;
+    return list;
+  }
+  list.push(r);
+  return list;
+}
+function conTags(rows){
+  const by = new Map();
+  (rows||[]).forEach(function(r){
+    (r.tags||[]).forEach(function(m){
+      const tag = String(m||'').trim(); if(!tag) return;
+      if(!by.has(tag)) by.set(tag, []);
+      conPut(by.get(tag), r);
+    });
+  });
+  return Array.from(by.entries()).map(function(e){
+    return { tag:e[0], n:e[1].length, rows:e[1] };
+  }).sort(function(a,b){ return b.n-a.n || String(a.tag).localeCompare(String(b.tag),'ko'); });
+}
+function conFor(rows, tag){
+  const hit = conTags(rows).filter(function(t){ return t.tag===tag; })[0];
+  if(!hit) return [];
+  return hit.rows.slice().sort(function(a,b){
+    return (Number(a.days)||0)-(Number(b.days)||0) ||
+           String(a.name).localeCompare(String(b.name),'ko'); });
+}
+/* 이 학생이 어느 반인지. 보충을 짤 때 반이 섞이면 시간을 못 잡는다. */
+function conClassOf(r){
+  const list = dtClassList();
+  for(let i=0;i<list.length;i++){
+    const c = list[i];
+    if((c.students||[]).some(function(s){
+      return normName(s.name)===normName(r.name) &&
+             (!r.school || !s.school || schoolAkin(s.school, r.school)); })) return c.label;
+  }
+  return '';
+}
+function conByClass(rows){
+  const by = new Map();
+  (rows||[]).forEach(function(r){
+    const c = conClassOf(r) || '반 모름';
+    by.set(c, (by.get(c)||0)+1);
+  });
+  return Array.from(by.entries()).map(function(e,i){
+    return { n:e[1], tone:['warn','bad','ok','none'][i%4], label:e[0] };
+  }).sort(function(a,b){ return b.n-a.n; });
+}
+function renderConcept(){
+  const tabs = document.getElementById('conTabs'); if(!tabs) return;
+  const head = document.getElementById('conHead'), body = document.getElementById('conList');
+  const all = dtCached('mistags');
+  if(!all){
+    const c = DT_CACHE['dt:mistags'];
+    tabs.innerHTML = ''; head.innerHTML = '';
+    body.innerHTML = '<div class="spin" style="padding:16px">'+
+      (c && c.err ? esc('개념을 불러오지 못했습니다 — '+c.err) : '개념을 부르는 중…')+'</div>';
+    return;
+  }
+  const tags = conTags(all);
+  if(!tags.length){
+    tabs.innerHTML = ''; head.innerHTML = '';
+    body.innerHTML = '<div class="spin" style="padding:16px">최근 3주 사이 못 잡은 개념이 없습니다.</div>';
+    return;
+  }
+  if(!tags.some(function(t){ return t.tag===CON_PICK; })) CON_PICK = tags[0].tag;
+  const max = tags[0].n;
+  tabs.innerHTML = tags.slice(0,24).map(function(t){
+    return '<button class="chip'+(t.tag===CON_PICK?' on':'')+'" data-con="'+esc(t.tag)+'">'+
+      esc(t.tag)+'<small>'+t.n+'</small></button>';
+  }).join('') + (tags.length>24 ? '<span class="dim" style="align-self:center">외 '+(tags.length-24)+'개</span>' : '');
+
+  CON_ROWS = conFor(all, CON_PICK);
+  const parts = conByClass(CON_ROWS);
+  head.innerHTML = '<div class="note figrow">'+
+    donut(max ? CON_ROWS.length/max*100 : 0, CON_PICK+' '+CON_ROWS.length+'명')+
+    '<div class="fill"><b>'+esc(CON_PICK)+'</b> 를 아직 못 잡은 학생 '+CON_ROWS.length+'명'+
+    '<span class="dim"> · DT 최근 3주 · 마지막 시도 기준</span>'+
+    stackBar(parts)+legendOf(parts)+
+    '<div style="margin-top:8px"><button class="mini" data-conact="names">이름 복사</button>'+
+    '<button class="mini" data-conact="table">표 복사</button></div></div></div>';
+
+  body.innerHTML = CON_ROWS.map(function(r,i){
+    const meta = [DT_COURSE[r.course]||r.course, r.round?(r.round+'회'):'', r.attempt||'',
+                  conClassOf(r), (r.days!=null)?(r.days+'일 전'):''].filter(Boolean).join(' · ');
+    /* 통과했는데도 이 개념은 틀렸다는 것을 안 적으면, 선생님이 "얘는 통과했는데
+       왜 여기 있지" 하고 목록 전체를 못 믿게 된다. */
+    const tag = r.pass ? '<span class="tags"><span class="tag ok">통과 · 이 개념은 틀림</span></span>' : '';
+    const other = (r.tags||[]).filter(function(t){ return t!==CON_PICK; });
+    return '<div class="row" style="cursor:default"><span class="nm">'+esc(r.name||'—')+'</span>'+
+      '<span class="where">'+esc(meta)+'</span>'+tag+
+      '<span class="cnt">'+esc(String(r.score!=null?r.score+'점':''))+'</span>'+
+      '<span class="where dim">'+(other.length? ('같이 틀림 '+esc(other.slice(0,3).join(' · '))+(other.length>3?' 외 '+(other.length-3):'')) : '')+'</span>'+
+      '<span class="acts">'+linkBtns(r.reportLink, 'DT 성적표')+
+      '<button class="mini" data-conrow="'+i+'">카드</button></span></div>';
+  }).join('');
+}
+document.addEventListener('click', function(e){
+  const m = e.target.closest ? e.target.closest('[data-mistag]') : null;
+  if(m){ CON_PICK = m.dataset.mistag; show('con'); writeHash(); return; }
+  const t = e.target.closest ? e.target.closest('.chip[data-con]') : null;
+  if(t){ CON_PICK = t.dataset.con; renderConcept(); writeHash(); return; }
+  const b = e.target.closest ? e.target.closest('.mini[data-conact],.mini[data-conrow]') : null;
+  if(!b) return;
+  if(b.dataset.conrow != null){
+    const r = CON_ROWS[+b.dataset.conrow]; if(!r) return;
+    const hit = ROSTER.filter(function(x){
+      return normName(x.name)===normName(r.name) && schoolAkin(x.school, r.school||''); });
+    openStudent(hit.length===1 ? hit[0]
+      : { name:r.name, school:r.school||'', grade:r.year||'', apps:{dt:1} });
+    return;
+  }
+  if(b.dataset.conact === 'names')
+    copyText(b, CON_ROWS.map(function(r){ return r.name; }).join(', '), '이름 복사됨');
+  else
+    copyText(b, ['이름','학교','반','과목','회차','시도','점수','며칠 전'].join('\t')+'\n'+
+      CON_ROWS.map(function(r){
+        return [r.name, r.school||'', conClassOf(r), DT_COURSE[r.course]||r.course,
+                r.round||'', r.attempt||'', r.score!=null?r.score:'', r.days!=null?r.days:''].join('\t');
+      }).join('\n'), '표 복사됨');
+});
+
 /* ── 회차 ──────────────────────────────────────────────────────────
    "9회 몇 명 했지?", "누가 아직 안 봤지?" — 채점하는 날 가장 자주 묻는 둘이다.
    앱에서는 회차를 하나씩 열어 봐야만 알 수 있었다.
@@ -3034,7 +3224,7 @@ document.addEventListener('keydown', function(e){
   if(typing) return;
   /* 숫자키 한 자리씩 탭 하나. 열째는 0 이다(1234567890). 탭을 늘리면 여기도
      늘려야 한다 — 검사가 두 길이를 견준다. */
-  const n = '1234567890-'.indexOf(e.key);
+  const n = '1234567890-='.indexOf(e.key);
   if(n>=0 && n<TABS.length){ e.preventDefault(); show(TABS[n]); }
 });
 
