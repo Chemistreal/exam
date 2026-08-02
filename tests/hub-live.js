@@ -60,18 +60,26 @@ const chk = (n, got, want) => {
     if (isDT && (act === 'names' || act === 'pending')) dtHits.push(act);
     const D = 86400000, now = Date.now();
     const body = (isDT && act === 'names') ? { ok: true, classes: [] }
-               : act === 'names' ? { ok: true, students: [] }      // KMChC
+               /* KMChC: 이 시트에는 학교 열이 **없다.** 같은 이름의 파이널 학생과
+                  한 줄로 붙어야 한다 — 안 붙으면 셸에 같은 아이가 두 줄로 뜨고,
+                  어느 줄을 눌러도 기록이 반쪽이다. */
+               : act === 'names' ? { ok: true, students: [
+                   { id: 'k1', name: '김지성', grade: '중2', kind: '실제',
+                     link: 'https://chemistreal.github.io/KMChC/report.html?id=k1', ts: 0 } ] }
                /* DT 가 실제로 주는 모양이다 — {active, stale, …} 객체. 배열로
                   흉내 내면 'DT 미완료' 가 undefined 로 찍히던 버그를 못 잡는다. */
                : act === 'pending' ? { ok: true, pending: { activeDays: 14, generatedAt: 'T', stale: [], active: [
                    { studentKey: 's1', name: '최예린', school: '역삼중', year: '2', course: 'ch1', round: 12,
                      lastAttempt: '정시', nextNeeded: '재시', score: 68, days: 3, lastDate: '6/17',
                      reportLink: 'https://x/report.html?student=a', active: true } ] } }
+               /* 통과·미응시를 **파이널에도 있는 학생**(김지성)으로 둔다. 학생 카드가
+                  세 앱을 한 장에 모으는지 보려면 같은 아이여야 한다. 학교는 일부러
+                  짧게 준다 — DT 는 실제로 '휘문' 과 '휘문중' 을 섞어서 준다. */
                : act === 'passed' ? { ok: true, passed: { days: 14, generatedAt: 'T', passed: [
-                   { name: '김서준', school: '휘문중', year: '2', course: 'ch2', round: 7, attempt: '정시',
+                   { name: '김지성', school: '휘문', year: '2', course: 'ch2', round: 7, attempt: '정시',
                      tries: 1, score: 96, date: '6/19', days: 1, reportLink: 'https://x/report.html?student=b' } ] } }
                : act === 'absentees' ? { ok: true, absentees: { generatedAt: 'T', classes: [
-                   { label: '화학1 토1:30-5:30', course: 'ch1', round: 12, total: 8, present: 6, absent: ['김도윤', '최예린'] },
+                   { label: '화학1 토1:30-5:30', course: 'ch1', round: 12, total: 8, present: 6, absent: ['김도윤', '김지성'] },
                    { label: '화학2 일6-10', course: 'ch2', round: 7, total: 6, present: 6, absent: [] } ] } }
                : act === 'cohortmis' ? { ok: true, rows: [
                    { studentKey: 's1', date: new Date(now - 2 * D).toISOString(), wrongMis: ['몰농도', '완충'] },
@@ -344,7 +352,7 @@ const chk = (n, got, want) => {
     const one = await grab('#pendList .mini.msg');
     chk('재시 문자를 DT 에서 빌려 온다', one, '빌린재시:최예린/ch1/12/재시/1');
     const two = await grab('#passList .mini.msg');
-    chk('통과 문자도 빌려 온다', two, '빌린통과:김서준/ch2/7/정시/1/96');
+    chk('통과 문자도 빌려 온다', two, '빌린통과:김지성/ch2/7/정시/1/96');
 
     /* 시험 미응시만 셸에 없어서 채점하다 말고 DT 로 넘어가야 했다.
        응시 주소까지 저쪽에서 빌린다 — 셸이 지어내면 경로가 바뀔 때 어긋난다. */
@@ -412,6 +420,119 @@ const chk = (n, got, want) => {
     chk('집계가 화면에 뜬다', mis.shown, true);
     // 두 학생이 걸린 것이 위, 한 명짜리가 아래
     chk('많이 걸린 것부터', mis.rows, ['몰농도:2명', '완충:1명']);
+  }
+
+  /* 여기부터는 앞의 검사들이 만들어 놓은 상태 위에서 돈다:
+     명단 셋(김지성·새학생·이도현), 갈라진 이름표 하나, DT 흉내 응답. */
+  const clip = async sel => {
+    await p.click(sel);
+    await p.waitForFunction(s => { const b = document.querySelector(s); return b && !b.disabled; },
+                            sel, { timeout: 30000 });
+    await p.waitForTimeout(250);
+    return p.evaluate(() => navigator.clipboard.readText());
+  };
+
+  console.log('\n── 학생 카드 한 장에 세 앱이 모인다 ──');
+  {
+    await p.evaluate(() => { const d = document.getElementById('dlg'); if (d.open) d.close(); show('stu'); });
+    await p.waitForTimeout(500);
+    const roster = await p.evaluate(() => ROSTER.map(r =>
+      r.name + '/' + (r.school || '—') + '/' + Object.keys(r.apps).sort().join('+')));
+    console.log('  ' + JSON.stringify(roster));
+    /* KMChC 시트에는 학교 열이 없다. 붙이는 장치는 처음부터 있었는데 셸이 그
+       사실을 안 알려 줘서 한 번도 돌지 않았다 — 같은 아이가 두 줄로 떴고,
+       어느 줄을 눌러도 기록이 반쪽이었다. 검사가 스스로 깃발을 세워 가려 놨다. */
+    chk('KMChC 학생이 따로 뜨지 않는다', roster.length, 3);
+    chk('한 줄에 두 앱이 모인다', roster[0], '김지성/휘문중/exam+km');
+
+    await p.evaluate(() => document.querySelector('#stuList .row').click());
+    await p.waitForTimeout(900);
+    const other = await p.evaluate(() => ({
+      titles: [].map.call(document.querySelectorAll('#stuOther .trk__i .trk__t'), e => e.textContent),
+      kinds:  [].map.call(document.querySelectorAll('#stuOther .trk__i'), e => e.className.replace('trk__i ', '')),
+      kmUrl:  (document.querySelector('#stuOther .trk__i.km .mini[data-url]') || { getAttribute: () => '' })
+                .getAttribute('data-url'),
+    }));
+    console.log('  ' + JSON.stringify(other.titles));
+    /* 여태 이 자리는 "DT 명단에도 있습니다" 한 줄이었다. 정작 물어보고 싶은
+       것은 그쪽인데 — 통과했나, 재시가 밀렸나, 진단은 봤나. */
+    chk('세 앱 기록이 한 카드에 선다', other.titles,
+        ['DT 시험 미응시', 'DT 통과 · 96점', 'KMChC 진단']);
+    chk('급한 것이 위에 선다', other.kinds, ['miss', 'pass', 'km']);
+    // 주소를 셸이 지어내면 저쪽이 경로를 바꾸는 날 조용히 어긋난다
+    chk('KMChC 가 준 주소를 그대로 쓴다', other.kmUrl,
+        'https://chemistreal.github.io/KMChC/report.html?id=k1');
+
+    /* 이 한 줄이 syncWorkRows 의 존재 이유다. 대시보드와 카드가 서로 다르게
+       잘라 담으면 여기서 **엉뚱한 학생 문구**가 나오고, 그대로 학부모에게 간다. */
+    const msg = await clip('#stuOther .mini.msg[data-pass]');
+    chk('카드에서 누른 문자가 그 학생 것이다', msg, '빌린통과:김지성/ch2/7/정시/1/96');
+    const abs = await clip('#stuOther .mini.msg[data-abs][data-stage="1"]');
+    chk('미응시 안내도 카드에서 바로', abs, '빌린미응시:김지성/ch1/12/빌린주소/ch1/12/1');
+  }
+
+  console.log('\n── 오늘 할 일을 한 줄에 세운다 ──');
+  {
+    await p.evaluate(() => { const d = document.getElementById('dlg'); if (d.open) d.close(); show('dash'); });
+    await p.waitForTimeout(600);
+    const jump = await p.evaluate(() => ({
+      shown: !document.getElementById('jump').hidden,
+      labels: [].map.call(document.querySelectorAll('#jump .chip'), e => e.textContent),
+    }));
+    console.log('  ' + JSON.stringify(jump.labels));
+    chk('칩이 뜬다', jump.shown, true);
+    // 반이 아니라 사람 수로 세야 "몇 명에게 보내야 하나" 가 된다
+    chk('미응시는 사람 수로 센다', jump.labels[0], '시험 미응시2');
+    chk('다섯 자리가 다 선다', jump.labels.length, 5);
+    const jumped = await p.evaluate(() => {
+      document.querySelector('#jump .chip[data-jump="passWrap"]').click();
+      return document.getElementById('passWrap').classList.contains('flashed');
+    });
+    chk('누르면 그 자리를 짚어 준다', jumped, true);
+  }
+
+  console.log('\n── 학생을 걸러 본다 ──');
+  {
+    await p.evaluate(() => show('stu'));
+    await p.waitForTimeout(400);
+    const counts = await p.evaluate(() =>
+      [].map.call(document.querySelectorAll('#stuFilter .chip'), e => e.textContent));
+    console.log('  ' + JSON.stringify(counts));
+    chk('칩마다 몇 명인지 적는다', counts, ['전체3', '파이널3', 'DT0', 'KMChC1', '파이널 기록 없음0']);
+    const km = await p.evaluate(() => {
+      document.querySelector('#stuFilter .chip[data-stuf="km"]').click();
+      return { n: document.querySelectorAll('#stuList .row').length,
+               on: document.querySelector('#stuFilter .chip[data-stuf="km"]').getAttribute('aria-pressed') };
+    });
+    chk('고른 것만 남는다', [km.n, km.on], [1, 'true']);
+    // 아무도 없을 때 '찾는 학생이 없습니다' 라고 하면 검색이 잘못된 줄 안다
+    const none = await p.evaluate(() => {
+      document.querySelector('#stuFilter .chip[data-stuf="noexam"]').click();
+      return document.getElementById('stuList').textContent.trim();
+    });
+    chk('비면 조건 때문이라고 말한다', none, '이 조건에 맞는 학생이 없습니다.');
+    await p.evaluate(() => document.querySelector('#stuFilter .chip[data-stuf="all"]').click());
+  }
+
+  console.log('\n── 회차에서 바로 들고 나간다 ──');
+  {
+    await p.evaluate(() => { show('rnd'); openRound('jmchc-2'); });
+    await p.waitForTimeout(400);
+    const tsv = await clip('#dlgBody .mini[data-rnd="table"]');
+    const lines = tsv.split('\n');
+    console.log('  ' + JSON.stringify(lines[0]));
+    chk('엑셀 머리글이 탭으로 나뉜다', lines[0], '이름\t학교\t맞은 문항\t총 문항\t정답률(%)');
+    chk('본 학생 수만큼 줄이 선다', lines.length - 1,
+        await p.evaluate(() => RND_OPEN.rows.length));
+    chk('이름·학교가 들어간다', /김지성\t휘문중\t\d+\t\d+\t\d+/.test(lines[1]), true);
+
+    /* 화면은 120명만 보여 준다. 복사까지 잘리면 공지에서 아이가 빠지는데,
+       빠진 줄도 모른다. */
+    const names = await clip('#dlgBody .mini[data-rnd="names"]');
+    console.log('  ' + JSON.stringify(names));
+    chk('안 본 학생 이름이 공지에 붙는 모양으로', names, '새학생, 이도현');
+    await p.evaluate(() => document.getElementById('dlg').close());
+    chk('닫으면 회차를 놓는다', await p.evaluate(() => RND_OPEN), null);
   }
 
   chk('콘솔에 예외가 없다', errs.filter(e => !/Failed to fetch|ERR_/.test(e)), []);
