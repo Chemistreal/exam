@@ -100,13 +100,14 @@ const RANKS = `(function(){ var out=[];
   console.log(`  ${ids.length}개 회차 · ${total}명`);
 
   const browser = await chromium.launch({ executablePath: CHROMIUM, args: ['--no-sandbox'] });
+  /* ⚠ 브라우저에 건다 — 화면 하나에 걸면 나중에 여는 화면이 샌다. */
+  await noSheet(browser);
   const errs = [];
 
   // ── 2부. 기준표 + 이 브라우저 기록 ──────────────────────────────
   console.log('\n── 기준표 + 채점 기록 ──');
   const page = await browser.newPage();
   page.on('pageerror', e => errs.push(e.message));
-  await noSheet(page);
   await page.goto(U, { waitUntil: 'networkidle' });
   await page.waitForTimeout(800);
 

@@ -55,6 +55,17 @@ header{background:var(--paper);border-bottom:1px solid var(--line);flex:0 0 auto
 .brand .spacer{flex:1}
 nav{display:flex;gap:0;padding:0 12px;overflow-x:auto;scrollbar-width:none}
 nav::-webkit-scrollbar{display:none}
+/* ── 잘린 탭이 잘렸다고 보여야 한다 ──────────────────────
+   휴대폰 폭(390px)에서 열두 탭 중 여섯만 보인다. 가로로 밀 수 있는데 막대를
+   숨겨 놔서 **더 있다는 표시가 아예 없었다** — 자료·수입·학습진단 탭은 있는
+   줄도 모르고 지나간다. 가장자리를 흐려서 "여기서 잘렸다" 를 보여 준다.
+   마스크는 스크롤되는 내용이 아니라 **상자**에 걸리므로 가장자리에 머문다. */
+nav.scr-l{-webkit-mask-image:linear-gradient(to right,transparent 0,#000 26px);
+  mask-image:linear-gradient(to right,transparent 0,#000 26px)}
+nav.scr-r{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 26px),transparent);
+  mask-image:linear-gradient(to right,#000 calc(100% - 26px),transparent)}
+nav.scr-l.scr-r{-webkit-mask-image:linear-gradient(to right,transparent 0,#000 26px,#000 calc(100% - 26px),transparent);
+  mask-image:linear-gradient(to right,transparent 0,#000 26px,#000 calc(100% - 26px),transparent)}
 nav button{
   appearance:none;background:none;border:none;border-bottom:2px solid transparent;
   padding:11px 14px;font:inherit;font-size:14px;color:var(--ink-2);cursor:pointer;white-space:nowrap;
@@ -339,7 +350,19 @@ body:not(.snzshow) .row.snz{display:none}
 .trk__i.km::before{background:#5B4B8A}
 .dlgnote{margin:12px 0 0}
 .dlg__b .acts{flex-wrap:wrap}
-@media (max-width:560px){.brand h1{font-size:17px}.pane{padding:16px 14px 50px}}
+/* ── 휴대폰에서는 머리가 화면을 덜 먹어야 한다 ──────────────────
+   재어 보니 390px 화면에서 머리만 163px 이었다 — 세로의 5분의 1을 숫자 하나
+   보기 전에 쓴다. 부제('파이널 · DT · 학습진단')는 탭에 이미 다 적혀 있다. */
+@media (max-width:560px){
+  .brand{padding:9px 14px 0}
+  .brand h1{font-size:16px}
+  .brand .sub{display:none}
+  .pane{padding:16px 14px 50px}
+  nav{padding:0 8px}
+  nav button{padding:9px 11px;font-size:13.5px}
+  nav.nav2 button{padding:7px 10px;font-size:12.5px}
+  nav .navlab{padding:0 6px 0 2px;font-size:10px}
+}
 </style></head><body>
 
 <header>
@@ -1011,6 +1034,36 @@ function mountFrame(id){
   }
   return f;
 }
+/* 잘린 쪽에 흐림을 켠다. 양쪽 다 잘릴 수 있다(가운데 탭을 골랐을 때). */
+function navEdges(){
+  [].forEach.call(document.querySelectorAll('header nav'), function(n){
+    const max = n.scrollWidth - n.clientWidth;
+    n.classList.toggle('scr-l', max > 2 && n.scrollLeft > 4);
+    n.classList.toggle('scr-r', max > 2 && n.scrollLeft < max - 4);
+  });
+}
+/* 고른 탭이 화면 밖이면 아무 일도 안 일어난 것처럼 보인다 — Cmd+K 로 '수입'
+   에 가면 화면은 바뀌는데 밑줄 그어진 탭은 안 보인다. 탭 줄만 민다(페이지를
+   같이 밀면 보고 있던 자리를 잃는다). */
+function navReveal(id){
+  const b = document.getElementById('t-'+id); if(!b) return;
+  const n = b.parentNode; if(!n || n.scrollWidth <= n.clientWidth + 2) return;
+  const l = b.offsetLeft, r = l + b.offsetWidth;
+  if(l < n.scrollLeft + 8) n.scrollLeft = Math.max(0, l - 8);
+  else if(r > n.scrollLeft + n.clientWidth - 8) n.scrollLeft = r - n.clientWidth + 8;
+  /* 앞쪽 탭이면 처음으로 붙인다 — 20~30px 이 남아 '보기' 라벨이 반쯤 잘린 채
+     서는 것을 막는다.
+     ⚠ 기준은 **그 탭이 줄에서 어디에 있나**(l)지, 밀고 난 결과(scrollLeft)가
+     아니다. 결과로 재면, 탭 줄이 조금만 잘린 화면에서 마지막 탭을 보이려고
+     13px 밀어 놓은 것을 도로 0 으로 되돌려 **그 탭이 영영 안 보인다** —
+     실제로 그렇게 깨져 있었고 브라우저 검사가 잡았다. */
+  if(l < 40) n.scrollLeft = 0;
+}
+window.addEventListener('resize', navEdges);
+document.addEventListener('scroll', function(e){
+  if(e.target && e.target.tagName === 'NAV') navEdges();
+}, true);
+
 function show(id){
   TABS.forEach(function(t){
     const b = document.getElementById('t-'+t), p = document.getElementById('p-'+t);
@@ -1018,6 +1071,7 @@ function show(id){
     b.setAttribute('aria-selected', on?'true':'false');
     p.classList.toggle('on', on);
   });
+  navReveal(id); navEdges();
   // 앱 화면은 처음 열 때만 붙인다 — 미리 다 띄우면 느리다
   const app = frameOf(id) ? id : null;
   if(app) mountFrame(app);
@@ -3306,6 +3360,7 @@ document.getElementById('syncNow').addEventListener('click', function(){ syncShe
    두드릴 이유가 없고, 못 들어온 화면에 반 명단이 잠깐 스치는 것도 안 된다. */
 function boot(){
   BOOTED = true;
+  navEdges();          // 잠금이 풀린 뒤라야 탭 줄의 진짜 폭을 잴 수 있다
   renderDash();
   loadRoster();
   renderRounds();

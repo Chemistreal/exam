@@ -565,6 +565,58 @@ const chk = (n, got, want) => {
     chk('누르면 그 자리를 짚어 준다', jumped, true);
   }
 
+  console.log('\n── 휴대폰에서도 탭이 다 보인다 ──');
+  {
+    /* 390px 에서 재어 보니 열두 탭 중 여섯만 보였다. 밀 수는 있는데 막대를
+       숨겨 놔서 더 있다는 표시가 없었다 — 있는 줄도 모르고 지나간다. */
+    const before = await p.viewportSize();
+    await p.setViewportSize({ width: 390, height: 844 });
+    await p.evaluate(() => { const d = document.getElementById('dlg'); if (d.open) d.close(); show('dash'); });
+    await p.waitForTimeout(400);
+
+    const m0 = await p.evaluate(() => {
+      const navs = [].slice.call(document.querySelectorAll('header nav'));
+      return { cut: navs.map(n => n.scrollWidth > n.clientWidth + 2),
+               cls: navs.map(n => n.className),
+               headH: Math.round(document.querySelector('header').getBoundingClientRect().height) };
+    });
+    chk('탭 줄이 잘린다', m0.cut, [true, true]);
+    chk('잘린 쪽을 흐린다', m0.cls.every(c => /scr-r/.test(c)), true);
+    /* 머리가 163px 이면 세로의 5분의 1을 숫자 하나 보기 전에 쓴다. */
+    console.log('  머리 높이 ' + m0.headH + 'px');
+    chk('머리가 화면을 덜 먹는다', m0.headH <= 130, true);
+
+    /* Cmd+K 로 '수입' 에 가면 화면은 바뀌는데 밑줄 그어진 탭이 화면 밖이라
+       아무 일도 안 일어난 것처럼 보인다. */
+    const wasOff = await p.evaluate(() => {
+      const b = document.getElementById('t-inc');
+      return b.getBoundingClientRect().right > document.documentElement.clientWidth + 1;
+    });
+    chk('그 탭은 원래 화면 밖이었다', wasOff, true);
+    await p.evaluate(() => show('inc'));
+    await p.waitForTimeout(250);
+    const far = await p.evaluate(() => {
+      const b = document.getElementById('t-inc'), w = document.documentElement.clientWidth;
+      const now = b.getBoundingClientRect();
+      return { nowIn: now.left >= -1 && now.right <= w + 1,
+               scrolled: window.scrollY + document.querySelector('main').scrollTop };
+    });
+    chk('고르면 보이는 자리로 온다', far.nowIn, true);
+    /* 페이지까지 같이 밀면 보고 있던 자리를 잃는다. */
+    chk('페이지는 안 밀린다', far.scrolled, 0);
+
+    const back = await p.evaluate(() => {
+      show('dash');
+      const n = document.querySelector('header nav');
+      return { left: n.scrollLeft, cls: n.className };
+    });
+    chk('첫 탭이면 처음으로 붙는다', back.left, 0);
+    chk('처음이면 왼쪽은 안 흐린다', /scr-l/.test(back.cls), false);
+
+    await p.setViewportSize(before);
+    await p.waitForTimeout(300);
+  }
+
   console.log('\n── 개념 하나로 아이들을 부른다 ──');
   {
     /* 대시보드의 '어려워하는 개념' 은 익명본이라 숫자까지만 말해 준다. 그걸

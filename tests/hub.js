@@ -1089,6 +1089,40 @@ console.log('\n── 보낸 것은 눈에서 내려간다 ──');
       /dtSentLog\(\)\.then\(function\(rows\)\{ seedSent\(rows\); refreshSoon\(\); \}\)\.catch/.test(body), true);
 }
 
+console.log('\n── 휴대폰에서도 탭이 다 보인다 ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  /* 390px 에서 재어 보니 열두 탭 중 여섯만 보였다. 가로로 밀 수는 있는데
+     막대를 숨겨 놔서 **더 있다는 표시가 아예 없었다** — 자료·수입·학습진단은
+     있는 줄도 모르고 지나간다. */
+  chk('잘린 쪽을 흐린다', /nav\.scr-l\{/.test(SRC) && /nav\.scr-r\{/.test(SRC), true);
+  chk('양쪽 다 잘릴 수 있다', /nav\.scr-l\.scr-r\{/.test(SRC), true);
+  /* 마스크는 스크롤되는 내용이 아니라 상자에 걸려야 가장자리에 머문다. */
+  chk('사파리도 본다', /-webkit-mask-image:linear-gradient\(to right/.test(SRC), true);
+  chk('잘리지 않으면 안 흐린다', /max > 2 && n\.scrollLeft > 4/.test(body), true);
+
+  /* Cmd+K 로 '수입' 에 가면 화면은 바뀌는데 밑줄 그어진 탭이 화면 밖이라
+     아무 일도 안 일어난 것처럼 보인다. */
+  const nrv = (body.match(/function navReveal\(id\)\{[\s\S]*?\n\}/) || [''])[0];
+  chk('고른 탭을 보이는 자리로', /function navReveal\(id\)/.test(body) &&
+      /navReveal\(id\); navEdges\(\);/.test(body), true);
+  /* 페이지까지 같이 밀면 보고 있던 자리를 잃는다 — 탭 줄만 민다.
+     scrollIntoView 는 셸의 다른 자리에서도 쓰므로 이 함수 안만 본다. */
+  chk('탭 줄만 민다', /scrollIntoView/.test(nrv), false);
+  chk('탭 줄의 scrollLeft 만 건드린다', /n\.scrollLeft =/.test(nrv), true);
+  /* 붙이는 기준은 **그 탭이 줄에서 어디에 있나**(l)지, 밀고 난 결과가 아니다.
+     결과로 재면 마지막 탭을 보이려고 13px 밀어 놓은 것을 도로 0 으로 되돌려
+     그 탭이 영영 안 보인다 — 실제로 그렇게 깨져 있었고 브라우저 검사가 잡았다. */
+  chk('앞쪽 탭이면 처음으로 붙인다', /if\(l < 40\) n\.scrollLeft = 0;/.test(nrv), true);
+  chk('밀고 난 결과로 재지 않는다', /if\(n\.scrollLeft < 40\)/.test(nrv), false);
+  chk('잠금이 풀린 뒤에 잰다', /navEdges\(\);\s*\/\/ 잠금이 풀린 뒤/.test(body), true);
+
+  /* 재어 보니 390px 화면에서 머리만 163px — 세로의 5분의 1을 숫자 하나 보기
+     전에 쓴다. 부제는 탭에 이미 다 적혀 있다. */
+  chk('휴대폰에서 머리를 줄인다', /@media \(max-width:560px\)\{[\s\S]{0,400}\.brand \.sub\{display:none\}/.test(SRC), true);
+  chk('탭도 같이 줄인다', /@media \(max-width:560px\)\{[\s\S]{0,600}nav button\{padding:9px 11px/.test(SRC), true);
+}
+
 console.log('\n── 개념 하나로 아이들을 부른다 ──');
 {
   const body = SRC.split('<script>')[1] || '';
