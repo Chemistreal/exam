@@ -92,6 +92,13 @@ const U = `http://localhost:${PORT}/final.html`;
 let chromium;
 try { ({ chromium } = require(PLAYWRIGHT)); }
 catch (e) {
+  /* 브라우저를 깔아 놓고도 조용히 건너뛰면 초록불이 '브라우저 검사까지
+     통과했다' 로 읽힌다. 실제로 그랬다 — 통합 셸의 브라우저 검사가 몇 달
+     동안 CI 에서 한 번도 안 돌았는데 초록불이었다. 깔아 둔 자리에서는 멈춘다. */
+  if (process.env.REQUIRE_BROWSER) {
+    console.log('실패: playwright 를 찾지 못했다 (REQUIRE_BROWSER 가 켜져 있다)');
+    process.exit(1);
+  }
   console.log('\n건너뜀: playwright 를 찾지 못했다 (PLAYWRIGHT_MODULE 로 경로 지정)');
   console.log(fail ? `\n${fail}개 실패` : '\n소스 검사는 모두 통과');
   process.exit(fail ? 1 : 0);

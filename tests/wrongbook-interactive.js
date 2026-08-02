@@ -30,7 +30,16 @@ const WRONG = [1, 2, 3];
 
 let chromium;
 try { ({ chromium } = require(PLAYWRIGHT)); }
-catch (e) { console.log('건너뜀: playwright 를 찾지 못했다'); process.exit(0); }
+catch (e) {
+  /* 브라우저를 깔아 놓고도 조용히 건너뛰면 초록불이 '브라우저 검사까지
+     통과했다' 로 읽힌다. 실제로 그랬다 — 통합 셸의 브라우저 검사가 몇 달
+     동안 CI 에서 한 번도 안 돌았는데 초록불이었다. 깔아 둔 자리에서는 멈춘다. */
+  if (process.env.REQUIRE_BROWSER) {
+    console.log('실패: playwright 를 찾지 못했다 (REQUIRE_BROWSER 가 켜져 있다)');
+    process.exit(1);
+  }
+  console.log('건너뜀: playwright 를 찾지 못했다'); process.exit(0);
+}
 
 let fail = 0;
 const chk = (n, got, want) => {
