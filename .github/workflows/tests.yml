@@ -34,6 +34,12 @@ jobs:
       REQUIRE_BROWSER: '1'
       NODE_PATH: tests/node_modules
       PORT: '8931'
+      # 멈추는 검사는 실패하는 검사보다 나쁘다. 브라우저 검사에는 영원히
+      # 기다리는 자리가 많고(serviceWorker.ready·waitForFunction), 하나가
+      # 멈추면 30분 타임아웃까지 붙들려 있다가 죽는다 — 통나무에는 "진행 중"
+      # 한 줄뿐이라 무엇이 잘못됐는지 알 수 없다. 두 번 겪었다(offline·hub-live).
+      # 여기서 가장 오래 걸리는 검사가 65초다. 240초면 넉넉하다.
+      TEST_MAX_SEC: '240'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

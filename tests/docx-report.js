@@ -21,6 +21,8 @@
        PLAYWRIGHT_MODULE=<경로> CHROMIUM_PATH=<경로> node tests/docx-report.js
    ============================================================ */
 'use strict';
+/* 멈추는 검사는 실패하는 검사보다 나쁘다 — tests/_watchdog.js 주석 참고. */
+require('./_watchdog.js')(240);
 const PLAYWRIGHT = process.env.PLAYWRIGHT_MODULE || 'playwright';
 const CHROMIUM = process.env.CHROMIUM_PATH || undefined;
 const PORT = Number(process.env.PORT || 8931);
