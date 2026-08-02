@@ -408,7 +408,7 @@ console.log('\n── KMChC 도 명단에 합친다 ──');
   /* 이름이 둘인 것은 자리 때문이다 — 배지에 긴 이름을 넣으면 줄이 통째로 밀린다.
      둘 다 있어야 하고, 폴더 이름(주소)은 바뀌지 않는다. */
   chk('긴 이름과 짧은 이름이 함께 있다',
-      /name:'화학1 1회차 설문조사', short:'화학1 설문'/.test(body), true);
+      /name:'화학 정밀 학습진단', short:'학습진단'/.test(body), true);
   chk('주소는 그대로 KMChC 폴더', /path:'\.\.\/KMChC\/index\.html'/.test(body), true);
   chk('KMChC 명단을 읽는 길이 있다', /function kmRoster\(force\)/.test(body), true);
   const km = cut('kmRoster');

@@ -326,7 +326,7 @@ tr.pick:hover td{background:var(--wash)}
 <header>
   <div class="brand">
     <h1>Chemistreal 통합관리</h1>
-    <span class="sub">파이널 · DT · 화학1 설문</span>
+    <span class="sub">파이널 · DT · 학습진단</span>
     <span class="spacer"></span>
     <span class="sub" id="stamp"></span>
   </div>
@@ -344,7 +344,7 @@ tr.pick:hover td{background:var(--wash)}
     <button role="tab" id="t-dt"    aria-selected="false" aria-controls="p-dt">DT 채점</button>
     <button role="tab" id="t-dtp"   aria-selected="false" aria-controls="p-dtp">DT 재시·문자</button>
     <button role="tab" id="t-dtr"   aria-selected="false" aria-controls="p-dtr">DT 명단</button>
-    <button role="tab" id="t-km"    aria-selected="false" aria-controls="p-km">화학1 1회차 설문조사</button>
+    <button role="tab" id="t-km"    aria-selected="false" aria-controls="p-km">화학 정밀 학습진단</button>
   </nav>
 </header>
 
@@ -435,7 +435,7 @@ tr.pick:hover td{background:var(--wash)}
     <section>
       <h2>학생</h2>
       <p class="hint">세 앱의 명단을 <b>이름 · 학교 · 학년</b>으로 합쳤습니다.
-        이름을 누르면 파이널 회차와 함께 <b>DT 미응시 · 재시 · 통과</b>와 <b>화학1 1회차 설문조사</b>가 한 카드에 열리고,
+        이름을 누르면 파이널 회차와 함께 <b>DT 미응시 · 재시 · 통과</b>와 <b>화학 정밀 학습진단</b>이 한 카드에 열리고,
         문자도 거기서 바로 복사됩니다.</p>
       <div class="bar">
         <input type="search" id="q" placeholder="이름 또는 학교로 찾기" autocomplete="off">
@@ -587,10 +587,13 @@ const APPS = {
           ep:'https://script.google.com/macros/s/AKfycbxGmSCkip0cQCyOH_JA2SiAMSxri00XObLmHyXlyXwxhG7u7w-x0FH02VN4DQySiUsv9Q/exec' },
   dt:   { name:'DT',    path:'../DT/index.html',
           ep:'https://script.google.com/macros/s/AKfycbzvFaPXgEgCBQ8HowtP8tPTtdiIVFtmZSUf0KFXUOVOh3ektrFMkz4KSR4I52LDBzB8rw/exec' },
-  /* 이름이 둘이다. 탭·카드처럼 자리가 있는 곳은 긴 이름, 배지·연결 칸처럼
-     한 줄에 여럿이 서는 곳은 짧은 이름을 쓴다 — 긴 이름을 배지에 넣으면 줄이
-     통째로 밀린다. 폴더 이름(../KMChC/)은 주소라서 그대로다. */
-  km:   { name:'화학1 1회차 설문조사', short:'화학1 설문', path:'../KMChC/index.html',
+  /* 'KMChC' 는 **폴더 이름**이지 선생님이 부르는 이름이 아니다. 화면에는 그 앱이
+     스스로 내거는 이름을 쓴다 — 탭에서 'KMChC' 를 누르고 들어갔는데 안에는
+     '화학 정밀 학습진단' 이 떠 있으면 같은 것인지 알 수 없다.
+     이름이 둘인 것은 자리 때문이다: 탭·카드처럼 여유가 있는 곳은 긴 이름,
+     배지·연결 칸처럼 한 줄에 여럿이 서는 곳은 짧은 이름.
+     폴더 이름(../KMChC/)은 주소라 그대로다 — 이미 나간 링크가 깨지면 안 된다. */
+  km:   { name:'화학 정밀 학습진단', short:'학습진단', path:'../KMChC/index.html',
           ep:'https://script.google.com/macros/s/AKfycbxdD_pKlNZaHyce2mUsDcmTspMW4uh--wOr3MggvDABEDs7n64re6DLYEVOlh8ANE9-/exec' },
 };
 
@@ -893,7 +896,7 @@ const CONN = [
   { key:'dt:pending', name:'DT 미완료' },
   { key:'dt:absentees', name:'DT 미응시' },
   { key:'dt:passed', name:'DT 통과' },
-  { key:'km:names', name:'화학1 설문 명단' },
+  { key:'km:names', name:'학습진단 명단' },
 ];
 function renderConn(){
   const el = document.getElementById('connBar'); if(!el) return;
@@ -1713,7 +1716,7 @@ const STU_FILTERS = [
   { key:'all',    label:'전체',   fn:function(){ return true; } },
   { key:'exam',   label:'파이널', fn:function(r){ return !!r.apps.exam; } },
   { key:'dt',     label:'DT',     fn:function(r){ return !!r.apps.dt; } },
-  { key:'km',     label:'화학1 설문',  fn:function(r){ return !!r.apps.km; } },
+  { key:'km',     label:'학습진단',  fn:function(r){ return !!r.apps.km; } },
   { key:'noexam', label:'파이널 기록 없음', fn:function(r){ return !r.apps.exam; } },
 ];
 let STU_FILTER = 'all';
@@ -1752,7 +1755,7 @@ function renderStudents(){
     const where = [r.school, r.grade?r.grade+'학년':''].filter(Boolean).join(' ') || '—';
     const tags = Object.keys(r.apps).map(function(a){
       const cls = a==='dt'?'dt':(a==='km'?'km':'');
-      return '<span class="tag '+cls+'">'+esc({exam:'파이널',dt:'DT',km:'화학1 설문'}[a]||a)+'</span>';
+      return '<span class="tag '+cls+'">'+esc({exam:'파이널',dt:'DT',km:'학습진단'}[a]||a)+'</span>';
     }).join('');
     return '<button class="row" data-i="'+i+'"><span class="nm">'+esc(r.name)+'</span>'+
       '<span class="where">'+esc(where)+'</span><span class="tags">'+tags+'</span>'+
@@ -1871,25 +1874,25 @@ function renderStuOther(){
       linkBtns(x.reportLink, 'DT 성적표')+'</span></div>');
   });
   if(km && km.kmLink){
-    rows.push('<div class="trk__i km"><div><div class="trk__t">화학1 1회차 설문조사</div>'+
+    rows.push('<div class="trk__i km"><div><div class="trk__t">화학 정밀 학습진단</div>'+
       '<div class="trk__m">'+esc(km.grade||'')+'</div></div><span class="acts">'+
       linkBtns(km.kmLink, '성적표 열기')+'</span></div>');
   }
 
   const waiting = !dtCached('passed') && !dtCached('pending') && !dtCached('absentees');
   let h = '';
-  if(rows.length) h = '<div class="sub2">DT · 화학1 설문</div><div class="trk">'+rows.join('')+'</div>';
-  else if(waiting) h = '<div class="sub2">DT · 화학1 설문</div><div class="spin">다른 앱 기록을 부르는 중…</div>';
+  if(rows.length) h = '<div class="sub2">DT · 학습진단</div><div class="trk">'+rows.join('')+'</div>';
+  else if(waiting) h = '<div class="sub2">DT · 학습진단</div><div class="spin">다른 앱 기록을 부르는 중…</div>';
   else {
     const others = Object.keys(r.apps).filter(function(a){ return a!=='exam'; });
     if(others.length) h = '<div class="note dlgnote">이 학생은 '+
-      others.map(function(a){ return '<b>'+esc({dt:'DT',km:'화학1 설문'}[a]||a)+'</b>'; }).join(' · ')+
+      others.map(function(a){ return '<b>'+esc({dt:'DT',km:'학습진단'}[a]||a)+'</b>'; }).join(' · ')+
       ' 명단에 있습니다. 지금 챙길 것(미응시·재시·통과)은 없습니다.</div>';
   }
   /* 왜 비었는지 말해 준다. 조용히 안 붙이면 "DT 를 안 봤나 보다" 로 넘어간다. */
   if(!nameIsUnique(r.name)) h += '<div class="note err dlgnote">같은 이름의 학생이 명단에 둘 이상입니다. '+
     '<b>미응시·진단은 이름만으로 오기 때문에 붙이지 않았습니다</b> — 잘못 붙이면 남의 문자가 나갑니다. '+
-    'DT·화학1 설문 화면에서 직접 확인해 주세요.</div>';
+    'DT·학습진단 화면에서 직접 확인해 주세요.</div>';
   host.innerHTML = h;
 }
 let EXAMS = [];

@@ -502,7 +502,7 @@ const chk = (n, got, want) => {
     /* 여태 이 자리는 "DT 명단에도 있습니다" 한 줄이었다. 정작 물어보고 싶은
        것은 그쪽인데 — 통과했나, 재시가 밀렸나, 진단은 봤나. */
     chk('세 앱 기록이 한 카드에 선다', other.titles,
-        ['DT 시험 미응시', 'DT 통과 · 96점', '화학1 1회차 설문조사']);
+        ['DT 시험 미응시', 'DT 통과 · 96점', '화학 정밀 학습진단']);
     chk('급한 것이 위에 선다', other.kinds.map(k => k.replace(' sent','')), ['miss', 'pass', 'km']);
     /* 앞 화면(대시보드)에서 이 학생의 통과 문자를 이미 복사했다. 그 표시가
        학생 카드까지 따라와야 "보냈나?" 를 다시 세지 않는다. */
@@ -546,7 +546,7 @@ const chk = (n, got, want) => {
     const counts = await p.evaluate(() =>
       [].map.call(document.querySelectorAll('#stuFilter .chip'), e => e.textContent));
     console.log('  ' + JSON.stringify(counts));
-    chk('칩마다 몇 명인지 적는다', counts, ['전체3', '파이널3', 'DT0', '화학1 설문1', '파이널 기록 없음0']);
+    chk('칩마다 몇 명인지 적는다', counts, ['전체3', '파이널3', 'DT0', '학습진단1', '파이널 기록 없음0']);
     const km = await p.evaluate(() => {
       document.querySelector('#stuFilter .chip[data-stuf="km"]').click();
       return { n: document.querySelectorAll('#stuList .row').length,
