@@ -220,7 +220,11 @@ body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 main{max-width:100%;padding:0 0 10px}
 .sec{box-shadow:none;margin:9px 0}
 .award,.kpis,.kpi,.note,.qcell,.omr,svg{break-inside:avoid;page-break-inside:avoid}
-.sec{break-inside:auto}
+/* 예전에는 auto 였다. 마디가 한 쪽보다 긴 경우가 있어서 그렇게 두었는데,
+   그 탓에 **한 쪽에 들어가는 짧은 마디까지** 쪽 경계에서 반으로 잘렸다
+   (재어 보니 여섯 군데). avoid 로 두어도 한 쪽보다 긴 마디는 브라우저가
+   알아서 나눈다 — 쪽 수를 재어 확인했다. */
+.sec{break-inside:avoid}
 h1,h2,.sec__h,.sub{break-after:avoid}
 summary{list-style:none;cursor:default}
 summary::-webkit-details-marker{display:none}
