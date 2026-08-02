@@ -296,6 +296,20 @@ tr.pick:hover td{background:var(--wash)}
    그 자리에 둔다. */
 .note2{margin:8px 0 0;font-size:12.5px;color:var(--ink-2);display:flex;align-items:center;
   gap:8px;flex-wrap:wrap}
+
+/* ── 안 한 것이 떠오르게 (넛지) ─────────────────────
+   Gmail 이 답장 안 한 메일을 위로 올려 주는 것과 같은 자리다. 무엇을 **하라**
+   가 아니라 무엇이 **안 됐다** 를 말한다. 그래서 할 일 칩과 색을 달리한다. */
+#nudge{margin:0 0 12px}
+.ndg{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 13px;
+  border:1px solid var(--line);border-left:3px solid var(--warnG);border-radius:9px;
+  background:var(--paper);margin-bottom:6px;font-size:13px}
+.ndg .why{color:var(--ink-2)}
+.ndg .who{font-weight:700}
+.ndg .acts{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.ndg .kindl{font-size:10.5px;font-weight:800;letter-spacing:.04em;color:var(--warnG);
+  border:1px solid var(--warnG);border-radius:5px;padding:1px 6px;white-space:nowrap}
+.ndgmore{font-size:12px;color:var(--muted);padding:2px 2px 0}
 .legend b{width:10px;height:10px;border-radius:2px;display:inline-block;border:1px solid rgba(0,0,0,.12)}
 .legend b.ok{background:var(--ok)}
 .legend b.warn{background:var(--warnG);
@@ -439,6 +453,9 @@ body:not(.snzshow) .row.snz{display:none}
         탭은 <span class="kbd">1</span>–<span class="kbd">9</span><span class="kbd">0</span>,
         찾기는 <span class="kbd">/</span>, 무엇이든 <span class="kbd">Ctrl</span>+<span class="kbd">K</span>.</p>
       <div class="cards" id="dashCards"><div class="card"><b>—</b><span>불러오는 중</span></div></div>
+      <!-- 미루기는 선생님이 **누른** 것만 미룬다. 잊은 것은 대개 누른 적이 없다.
+           아무도 안 누른 것을 여기서 짚는다. -->
+      <div id="nudge" hidden></div>
       <!-- 할 일이 아래로 여러 섹션에 흩어져 있다. 몇 건인지와 어디인지를 한 줄에 세운다. -->
       <div class="chips" id="jump" hidden></div>
       <!-- 숫자 여덟 칸으로는 "오늘 얼마나 끝났나" 가 안 읽힌다. 그림 한 줄로 먼저 본다. -->
@@ -1850,6 +1867,161 @@ function capNote(rows){
     : '';
 }
 
+/* ══════════════════════════════════════════════════════════════════
+   넛지 — 안 한 것이 떠오르게
+
+   미루기(SNZ)는 선생님이 **누른** 것만 미룬다. 그런데 잊은 것은 대개 누른 적이
+   없다 — 문자를 보내 놓고 학부모가 열었는지 안 본 것, 재시가 열흘째인데 아직
+   문자를 안 보낸 것. 목록에는 있지만 아무것도 그것을 짚어 주지 않는다.
+
+   Gmail 이 답장 안 한 메일을 위로 올려 주는 자리와 같다. 무엇을 **하라**가
+   아니라 무엇이 **안 됐다**를 말한다.
+
+   [새로 저장하지 않는다]
+   '무시' 는 미루기를 그대로 쓴다(kind='nudge'). 시트에 남으니 기기를 넘어
+   따라오고, 날짜가 지나면 저절로 돌아온다 — 넛지에 딱 맞는 성질이다.
+
+   [보냈는데 안 열어 봤다]
+   DT 는 성적표를 연 사람을 적어 둔다(_열람). 그 창구는 진작 열려 있었는데
+   셸이 안 읽고 있었다 — 아침 메일만 쓰고 있었다.
+   ══════════════════════════════════════════════════════════════════ */
+function dtViews(force){
+  return readOnce('dt', 'views', function(d){ return d.views || []; }, force);
+}
+/* ── 또래 대비 크게 벗어난 점수 ────────────────────────────────────
+   "60점 밑" 같은 고정 기준은 **늘 같은 아이만** 부른다 — 그 아이가 이번에 잘
+   봤는지 못 봤는지는 말해 주지 않는다. 알고 싶은 것은 "이번 회차에 평소와 다른
+   일이 있었나" 다.
+
+   그래서 같은 (과목·회차)를 본 또래와 견준다. 평균·표준편차는 한 명이 크게
+   낮으면 그 한 명 때문에 기준선이 같이 내려가 자기 자신을 못 잡는다. 중앙값과
+   MAD(중앙값 절대편차)는 그렇지 않다 — Datadog 이 outlier 감시에 쓰는 것과
+   같은 이유다.
+
+   1.4826 은 MAD 를 표준편차와 같은 자로 만드는 상수다(정규분포 기준).
+   [안 부르는 자리]
+   - 사람이 적으면(5명 미만) 중앙값 자체가 흔들린다
+   - MAD 가 0 이면(다 같은 점수) 나눌 수가 없다 — 한 명만 달라도 무한대가 된다
+   - 위로 벗어난 것은 안 부른다. 잘 본 것은 챙길 일이 아니다 */
+function median(a){
+  const v = (a||[]).slice().sort(function(x,y){ return x-y; });
+  if(!v.length) return null;
+  const h = Math.floor(v.length/2);
+  return v.length % 2 ? v[h] : (v[h-1]+v[h])/2;
+}
+const MAD_N = 5, MAD_Z = 3;
+function madOutliers(rows){
+  const by = new Map();
+  (rows||[]).forEach(function(r){
+    const sc = Number(r.score); if(!isFinite(sc)) return;
+    const k = String(r.course)+'#'+String(r.round);
+    if(!by.has(k)) by.set(k, []);
+    by.get(k).push({ name:r.name, score:sc, course:r.course, round:r.round });
+  });
+  const out = [];
+  by.forEach(function(list){
+    if(list.length < MAD_N) return;
+    const vals = list.map(function(x){ return x.score; });
+    const m = median(vals);
+    const mad = median(vals.map(function(v){ return Math.abs(v-m); }));
+    if(!mad) return;
+    list.forEach(function(x){
+      const z = (x.score - m) / (1.4826 * mad);
+      if(z <= -MAD_Z) out.push({ name:x.name, score:x.score, course:x.course, round:x.round,
+                                 mid:m, z:Math.round(z*10)/10, n:list.length });
+    });
+  });
+  return out;
+}
+const NDG_SENT_DAYS = 3;    // 보내고 이만큼 지나도 안 열었으면
+const NDG_PEND_DAYS = 7;    // 재시가 이만큼 밀렸는데 아직 안 보냈으면
+const NDG_MAX = 5;          // 여섯 줄이 넘으면 그것도 훑고 만다
+function ndgKey(kind, name, course, round){ return sentKey('nudge:'+kind, name, course, round); }
+function nudges(){
+  const out = [];
+  /* 열어 본 사람. 이름+학교로 맞춘다 — 셸은 DT 의 학생키를 만들 줄 모른다. */
+  const viewed = {};
+  (dtCached('views') || []).forEach(function(v){
+    viewed[normName(v.name)] = Math.max(viewed[normName(v.name)] || 0, Number(v.ts) || 0);
+  });
+  const now = Date.now();
+
+  /* 1) 보냈는데 아직 안 열어 봤다. 보낸 뒤에 열었어야 한다 — 지난달에 한 번
+        열어 본 것으로 이번 문자를 읽었다고 칠 수는 없다. */
+  (dtCached('sentlog') || []).forEach(function(r){
+    if(r.kind !== 'pend' && r.kind !== 'pass') return;
+    const ts = Number(r.ts) || 0; if(!ts) return;
+    const days = Math.floor((now - ts) / DAY);
+    if(days < NDG_SENT_DAYS) return;
+    if((viewed[normName(r.name)] || 0) >= ts) return;
+    out.push({ key: ndgKey('view', r.name, r.course, r.round), kind: '안 열어 봄',
+      name: r.name, days: days,
+      why: (r.kind==='pass' ? '통과 문자' : '재시 안내')+'를 '+days+'일 전에 보냈는데 성적표를 아직 안 열었습니다',
+      go: { tab:'stu', name:r.name } });
+  });
+
+  /* 2) 재시가 오래 밀렸는데 아직 문자를 안 보냈다. 목록에는 있지만 여덟 줄
+        가운데 하나라 눈에 안 걸린다. */
+  PEND_ROWS.forEach(function(r, i){
+    const days = Number(r.days); if(!(days >= NDG_PEND_DAYS)) return;
+    const sk = sentKey('pend', r.name, r.course, r.round);
+    if(SENT.has(sk) || isSnoozed(sk)) return;
+    out.push({ key: ndgKey('pend', r.name, r.course, r.round), kind: '아직 안 보냄',
+      name: r.name, days: days,
+      why: (DT_COURSE[r.course]||r.course)+' '+r.round+'회 재시가 '+days+'일째인데 안내를 아직 안 보냈습니다',
+      msg: i });
+  });
+
+  /* 3) 또래와 크게 벗어난 점수. 고정 기준(60점 밑)은 늘 같은 아이만 부르고,
+        "이번에 무슨 일이 있었나" 는 말해 주지 않는다. */
+  madOutliers(PASS_ROWS.concat(PEND_ROWS)).forEach(function(x){
+    out.push({ key: ndgKey('mad', x.name, x.course, x.round), kind: '또래 대비',
+      name: x.name, days: 0,
+      why: (DT_COURSE[x.course]||x.course)+' '+x.round+'회 · 같이 본 '+x.n+'명 중앙값 '+
+           x.mid+'점인데 '+x.score+'점입니다',
+      go: { tab:'stu', name:x.name } });
+  });
+
+  return out.filter(function(n){ return !isSnoozed(n.key); })
+            .sort(function(a,b){ return b.days - a.days; });
+}
+function renderNudge(){
+  const el = document.getElementById('nudge'); if(!el) return;
+  const all = nudges();
+  el.hidden = !all.length;
+  if(!all.length){ el.innerHTML = ''; return; }
+  el.innerHTML = all.slice(0, NDG_MAX).map(function(n){
+    return '<div class="ndg"><span class="kindl">'+esc(n.kind)+'</span>'+
+      '<span class="who">'+esc(n.name||'—')+'</span>'+
+      '<span class="why">'+esc(n.why)+'</span>'+
+      '<span class="acts">'+
+      (n.msg != null
+        ? '<button class="mini msg" data-pend="'+n.msg+'" data-orig="문자 복사">문자 복사</button>'
+        : '<button class="mini" data-ndgstu="'+esc(n.name||'')+'">카드</button>')+
+      '<button class="mini undo" data-ndgoff="'+esc(n.key)+'">무시</button>'+
+      '</span></div>';
+  }).join('') +
+  (all.length > NDG_MAX ? '<div class="ndgmore">외 '+(all.length-NDG_MAX)+'건</div>' : '');
+}
+document.addEventListener('click', function(e){
+  const b = e.target.closest ? e.target.closest('[data-ndgoff],[data-ndgstu]') : null;
+  if(!b) return;
+  if(b.dataset.ndgstu != null){
+    const hit = ROSTER.filter(function(x){ return normName(x.name)===normName(b.dataset.ndgstu); });
+    if(hit.length) openStudent(hit[0]);
+    return;
+  }
+  /* '무시' 는 미루기를 그대로 쓴다 — 새로 저장할 곳을 만들지 않는다.
+     한 주 뒤에 저절로 돌아온다(그때도 안 열었으면 다시 짚어야 한다). */
+  const k = b.dataset.ndgoff, p = k.split('|'), until = dayKey(SNZ_DAYS);
+  SNZ.set(k, until);
+  renderNudge();
+  dtPendWindow().then(function(w){
+    if(typeof w.snoozeStu === 'function')
+      w.snoozeStu({ kind:p[0], name:p[1], course:p[2], round:p[3], until:until });
+  }).catch(function(){});
+});
+
 /* ── 오늘 할 일 한 줄 ────────────────────────────────────────────────
    급한 것이 아래로 다섯 섹션에 흩어져 있다. 무엇이 얼마나 남았는지 알려면
    스크롤하며 세야 했고, 그래서 아래쪽 섹션은 잘 안 보게 된다.
@@ -1897,6 +2069,7 @@ function renderJump(){
      빼고, 그림은 넣는다 — 칩은 오늘 할 일이고 그림은 반 상태다. 그래서 그림
      쪽에 미룬 수를 적어 둔다. 안 적으면 둘이 안 맞는 것처럼 보인다. */
   renderFig();
+  renderNudge();      // 칩과 같은 배열을 본다 — 따로 세면 어긋난다
   const el = document.getElementById('jump'); if(!el) return;
   const on = JUMPS.filter(function(j){ return j.n() > 0; });
   el.hidden = !on.length;
@@ -1956,6 +2129,9 @@ function renderDash(){
      표시가 없을 뿐이고, 문자는 여전히 복사된다. */
   dtSentLog().then(function(rows){ seedSent(rows); refreshSoon(); }).catch(function(){});
   dtSnoozeLog().then(function(rows){ seedSnooze(rows); refreshSoon(); }).catch(function(){});
+  /* 누가 성적표를 열어 봤나. 이 창구는 진작 열려 있었는데 셸이 안 읽고 있었다 —
+     아침 메일만 쓰고 있었다. 못 받아도 나머지 넛지는 그대로 뜬다. */
+  dtViews().then(function(){ renderNudge(); }).catch(function(){});
 
   dtRoster().then(function(rows){
     document.getElementById('dtCnt').textContent = rows.length;
