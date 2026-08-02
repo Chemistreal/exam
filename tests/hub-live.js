@@ -123,6 +123,22 @@ const chk = (n, got, want) => {
                : act === 'absentees' ? { ok: true, absentees: { generatedAt: 'T', classes: [
                    { label: '화학1 토1:30-5:30', course: 'ch1', round: 12, total: 8, present: 6, absent: ['김도윤', '김지성'] },
                    { label: '화학2 일6-10', course: 'ch2', round: 7, total: 6, present: 6, absent: [] } ] } }
+               /* 이름이 붙은 오개념. 익명본(cohortmis)과 같은 개념을 다루되
+                  이쪽은 사람이 보인다 — '몰농도 7명' 다음에 할 일이 있으려면
+                  누구인지가 있어야 한다. 김지성은 **두 줄**로 준다(회차가 다름):
+                  한 사람이 둘로 서면 보충 인원이 부푼다. */
+               : act === 'mistags' ? { ok: true, mis: { days: 21, rows: [
+                   { name: '김지성', school: '휘문중', course: 'ch2', round: 7, attempt: '재시',
+                     pass: true, score: 96, days: 1, tags: ['몰농도', '완충'],
+                     reportLink: 'https://x/report.html?student=b' },
+                   { name: '김지성', school: '휘문', course: 'ch1', round: 4, attempt: '정시',
+                     pass: false, score: 61, days: 9, tags: ['몰농도'],
+                     reportLink: 'https://x/report.html?student=b2' },
+                   { name: '최예린', school: '역삼중', course: 'ch1', round: 12, attempt: '정시',
+                     pass: false, score: 68, days: 3, tags: ['몰농도'],
+                     reportLink: 'https://x/report.html?student=a' },
+                   { name: '김도윤', school: '', course: 'ch1', round: 12, attempt: '정시',
+                     pass: false, score: 40, days: 2, tags: ['완충'], reportLink: '' } ] } }
                : act === 'cohortmis' ? { ok: true, rows: [
                    { studentKey: 's1', date: new Date(now - 2 * D).toISOString(), wrongMis: ['몰농도', '완충'] },
                    { studentKey: 's2', date: new Date(now - 3 * D).toISOString(), wrongMis: ['몰농도'] },
@@ -546,6 +562,62 @@ const chk = (n, got, want) => {
       return document.getElementById('passWrap').classList.contains('flashed');
     });
     chk('누르면 그 자리를 짚어 준다', jumped, true);
+  }
+
+  console.log('\n── 개념 하나로 아이들을 부른다 ──');
+  {
+    /* 대시보드의 '어려워하는 개념' 은 익명본이라 숫자까지만 말해 준다. 그걸
+       보고 나서 할 수 있는 일이 없었다 — 누구인지를 모르니까. */
+    await p.evaluate(() => { const d = document.getElementById('dlg'); if (d.open) d.close(); show('dash'); });
+    await p.waitForTimeout(400);
+    const jumped = await p.evaluate(() => {
+      const b = document.querySelector('#misList .mini[data-mistag]');
+      if (!b) return null;
+      const tag = b.dataset.mistag;
+      b.click();
+      return { tag: tag, tab: document.querySelector('.pane.on').id, hash: location.hash };
+    });
+    chk('대시보드에서 누가 를 누르면 개념 탭으로', jumped && jumped.tab, 'p-con');
+    chk('주소가 곧 상태', /^#con\?tag=/.test((jumped || {}).hash || ''), true);
+    await p.waitForTimeout(900);
+
+    const con = await p.evaluate(() => ({
+      chips: [].map.call(document.querySelectorAll('#conTabs .chip'), e => e.textContent),
+      head:  (document.getElementById('conHead') || { textContent: '' }).textContent.replace(/\s+/g, ' ').trim(),
+      names: [].map.call(document.querySelectorAll('#conList .row .nm'), e => e.textContent),
+      metas: [].map.call(document.querySelectorAll('#conList .row .where'), e => e.textContent),
+      tags:  [].map.call(document.querySelectorAll('#conList .row .tag'), e => e.textContent),
+    }));
+    console.log('  ' + JSON.stringify(con.chips) + ' · ' + JSON.stringify(con.names));
+    /* 몰농도는 세 줄인데 김지성이 두 줄이라 **2명**이다. 사람으로 안 묶으면
+       3명으로 세고, 보충 자리를 하나 더 잡게 된다. */
+    chk('많이 걸린 개념이 앞에 선다', con.chips[0], '몰농도2');
+    chk('한 사람은 한 줄', con.names, ['김지성', '최예린']);
+    chk('급한 것이 위에 선다', con.names[0], '김지성');
+    chk('몇 명인지 적는다', /몰농도.*2명|아직 못 잡은 학생 2명/.test(con.head), true);
+    /* 통과했는데 여기 있으면 "얘는 통과했는데 왜" 가 되고, 목록 전체를 못 믿게 된다. */
+    chk('통과했지만 이 개념은 틀림을 적는다', con.tags, ['통과 · 이 개념은 틀림']);
+    /* 오래된 회차를 보여 주면 "이거 벌써 했는데" 가 된다 — 최근 것으로 선다. */
+    chk('같은 사람은 최근 회차로', /화학Ⅱ · 7회/.test(con.metas.join(' | ')), true);
+
+    const other = await p.evaluate(() => {
+      const c = [].filter.call(document.querySelectorAll('#conTabs .chip'),
+                               e => /^완충/.test(e.textContent))[0];
+      if (!c) return null;
+      c.click();
+      return { names: [].map.call(document.querySelectorAll('#conList .row .nm'), e => e.textContent),
+               hash: location.hash };
+    });
+    chk('개념을 바꾸면 그 사람들이 선다', (other || {}).names, ['김지성', '김도윤']);
+    chk('바꾼 것도 주소에 남는다', /tag=%EC%99%84%EC%B6%A9/.test((other || {}).hash || ''), true);
+
+    /* 보충을 앉히려면 이름 목록이 있어야 한다. */
+    const copied = await p.evaluate(async () => {
+      document.querySelector('#conHead .mini[data-conact="names"]').click();
+      await new Promise(r => setTimeout(r, 300));
+      return navigator.clipboard.readText();
+    });
+    chk('이름을 한 번에 복사한다', copied, '김지성, 김도윤');
   }
 
   console.log('\n── 오늘 못 하는 줄은 미룬다 ──');

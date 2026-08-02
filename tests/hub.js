@@ -80,7 +80,8 @@ vm.runInContext([
   cut('sentKey'), cut('bulkBar'), cut('readHash'), cut('deltaOf'), cut('dayCounts'),
   cut('rosterCount'), cut('wonOf'),
   cut('dayKey'), cut('snoozedTill'), cut('isSnoozed'), cut('snzCls'), cut('snzBtn'),
-  cut('snzBar'),
+  cut('snzBar'), cut('conPut'), cut('conTags'), cut('conFor'), cut('conClassOf'),
+  cut('conByClass'),
   ((SRC.match(/^const FEE_PER = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
   'var SNZ=new Map(), SNZ_SHOW=false;',
   ((SRC.match(/^const SNZ_DAYS = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
@@ -193,8 +194,8 @@ console.log('\n── 셸이 남의 데이터를 건드리지 않는다 ──')
   chk('읽기 액션만 부른다',
       (body.match(/readOnce\('\w+', '(\w+)'|dtOnce\('(\w+)'/g) || []).sort(),
       ["dtOnce('names'", "dtOnce('pending'", "readOnce('dt', 'absentees'",
-       "readOnce('dt', 'cohortmis'", "readOnce('dt', 'income'", "readOnce('dt', 'passed'",
-       "readOnce('dt', 'sentlog'", "readOnce('dt', 'snoozelog'",
+       "readOnce('dt', 'cohortmis'", "readOnce('dt', 'income'", "readOnce('dt', 'mistags'",
+       "readOnce('dt', 'passed'", "readOnce('dt', 'sentlog'", "readOnce('dt', 'snoozelog'",
        "readOnce('km', 'names'"]);
 
   /* 한 앱이 응답하지 않아도 화면이 비면 안 된다. 앱스크립트는 그냥 안 돌아올
@@ -623,13 +624,13 @@ console.log('\n── 단축키가 글자 입력을 가로채지 않는다 ─�
   /* 숫자를 손으로 적어 두면 탭을 늘릴 때마다 여기가 낡는다. 둘 다 소스에서
      읽어 길이를 견준다 — 탭이 늘었는데 키가 그대로면 마지막 탭에 못 간다. */
   const nTabs = ((body.match(/const TABS = \[([^\]]+)\]/) || ['',''])[1].match(/'/g) || []).length / 2;
-  const nKeys = ((body.match(/const n = '([\d-]+)'\.indexOf/) || ['',''])[1] || '').length;
-  chk('탭이 열한 개', nTabs, 11);
+  const nKeys = ((body.match(/const n = '([\d\-=]+)'\.indexOf/) || ['',''])[1] || '').length;
+  chk('탭이 열두 개', nTabs, 12);
   chk('탭 수와 숫자키 수가 맞는다', nKeys, nTabs);
-  /* 앞 다섯은 셸이 그리는 화면, 뒤 다섯은 앱을 얹은 화면. 머리의 두 줄과
+  /* 앞 일곱은 셸이 그리는 화면, 뒤 다섯은 앱을 얹은 화면. 머리의 두 줄과
      같은 차례여야 숫자키가 눈에 보이는 차례와 맞는다. */
   chk('보는 화면이 앞, 앱이 뒤',
-      /const TABS = \['dash','stu','cls','rnd','mat','inc','exam','dt','dtp','dtr','km'\]/.test(body), true);
+      /const TABS = \['dash','stu','cls','rnd','con','mat','inc','exam','dt','dtp','dtr','km'\]/.test(body), true);
 }
 
 console.log('\n── 학교 표기가 앱마다 흔들린다 ──');
@@ -1086,6 +1087,72 @@ console.log('\n── 보낸 것은 눈에서 내려간다 ──');
       /return SENT\.has\(k\) \? '<button class="mini undo"/.test(body), true);
   chk('못 받아도 화면은 산다',
       /dtSentLog\(\)\.then\(function\(rows\)\{ seedSent\(rows\); refreshSoon\(\); \}\)\.catch/.test(body), true);
+}
+
+console.log('\n── 개념 하나로 아이들을 부른다 ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  /* 익명본(cohortmis)은 "몰농도 7명" 까지만 말해 준다. 그걸 보고 나서 할 수
+     있는 일이 없었다 — 누구인지를 모르니까. 보충을 앉히려면 이름이 필요하다. */
+  chk('이름 붙은 창구를 따로 읽는다', /function dtMisNamed\(force\)/.test(body) &&
+      /readOnce\('dt', 'mistags'/.test(body), true);
+  /* 익명본은 그대로 익명이어야 한다 — 반 패널은 개인을 되짚을 이유가 없다. */
+  chk('익명본은 그대로 쓴다', /readOnce\('dt', 'cohortmis'/.test(body), true);
+
+  const R = [
+    { name:'김지성', school:'휘문중', course:'ch1', round:5, attempt:'재시', pass:true,
+      score:92, days:1, tags:['완충','몰농도'] },
+    { name:'김지성', school:'휘문',   course:'ch1', round:4, attempt:'정시', pass:false,
+      score:60, days:9, tags:['몰농도'] },
+    { name:'이도현', school:'과천중', course:'ch2', round:7, attempt:'정시', pass:false,
+      score:55, days:3, tags:['몰농도'] },
+    { name:'박서준', school:'과천중', course:'ch1', round:5, attempt:'정시', pass:false,
+      score:48, days:2, tags:['완충'] },
+  ];
+  const tags = ctx.conTags(R);
+  chk('많이 걸린 개념이 앞에 선다', tags.map(function(t){ return [t.tag, t.n]; }),
+      [['몰농도',2],['완충',2]]);
+  /* 같은 학생이 여러 회차에서 같은 태그에 걸린다. 사람으로 묶지 않으면 한 아이가
+     셋으로 보여 보충 인원을 잘못 센다. */
+  chk('한 사람은 한 번만 센다', (tags.filter(function(t){ return t.tag==='몰농도'; })[0]||{}).n, 2);
+  /* 학교 표기가 '휘문' 과 '휘문중' 으로 흔들려도 같은 사람이다. */
+  /* DT 는 같은 아이를 '휘문' 과 '휘문중' 으로 섞어서 준다. 글자로 비교하면 한
+     아이가 둘로 서고, 보충 인원이 부푼 채로 믿게 된다. */
+  chk('학교 표기가 흔들려도 한 사람', ctx.conPut([], R[0]).length === 1 &&
+      ctx.conPut([R[0]], R[1]).length === 1, true);
+  /* 대곡중과 대곡고는 다른 사람이다 — 여기서까지 합치면 남의 성적이 섞인다. */
+  chk('중·고가 다르면 다른 사람',
+      ctx.conPut([{ name:'한지우', school:'대곡중', days:1 }],
+                 { name:'한지우', school:'대곡고', days:2, tags:[] }).length, 2);
+
+  const who = ctx.conFor(R, '몰농도');
+  chk('그 개념 못 잡은 사람만 선다', who.map(function(r){ return r.name; }), ['김지성','이도현']);
+  /* 오래된 회차를 보여 주면 "이거 벌써 했는데" 가 된다 — 가장 최근 것을 남긴다. */
+  chk('같은 사람은 최근 것으로', (who.filter(function(r){ return r.name==='김지성'; })[0]||{}).round, 5);
+  chk('급한 것이 위에 선다', who.map(function(r){ return r.days; }), [1,3]);
+  chk('없는 개념이면 빈 목록', ctx.conFor(R, '없는개념'), []);
+
+  /* 통과했는데도 이 개념은 틀렸다는 것을 안 적으면, "얘는 통과했는데 왜 여기
+     있지" 하고 목록 전체를 못 믿게 된다. */
+  chk('통과했지만 틀린 것을 적는다', /통과 · 이 개념은 틀림/.test(body), true);
+
+  /* 보충을 짤 때 반이 섞이면 시간을 못 잡는다. */
+  ctx.DT_CACHE = { 'dt:names': { val: { classes: [
+    { label:'화학1 토1:30', course:'ch1', students:[{ name:'김지성', school:'휘문중' }] } ] } } };
+  chk('어느 반인지 붙인다', ctx.conClassOf(R[0]), '화학1 토1:30');
+  chk('모르면 모른다고 한다', ctx.conClassOf(R[2]), '');
+  chk('반별로 센다', ctx.conByClass(who).map(function(x){ return [x.label, x.n]; }),
+      [['화학1 토1:30',1],['반 모름',1]]);
+  ctx.DT_CACHE = {};
+
+  /* 대시보드 숫자를 보고 나서 할 수 있는 일이 있어야 한다. */
+  chk('대시보드에서 바로 넘어간다', /data-mistag=/.test(body) &&
+      /CON_PICK = m\.dataset\.mistag; show\('con'\)/.test(body), true);
+  /* 열지도 않은 창구를 미리 두드리면 앱스크립트가 줄을 세워 다른 숫자가 늦어진다. */
+  chk('들어올 때 부른다', /if\(id === 'con'\)\{\s*\n\s*renderConcept\(\);/.test(body), true);
+  chk('주소가 곧 상태', /p\.push\('tag='\+encodeURIComponent\(CON_PICK\)\)/.test(body) &&
+      /if\(st\.p\.tag\) CON_PICK = st\.p\.tag/.test(body), true);
+  chk('탭 자리가 있다', /id="p-con"/.test(SRC) && /id="t-con"/.test(SRC), true);
 }
 
 console.log('\n── 오늘 못 하는 줄은 미룬다 ──');
