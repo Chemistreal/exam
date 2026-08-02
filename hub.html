@@ -170,6 +170,30 @@ td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:righ
   letter-spacing:.04em;text-transform:uppercase}
 tr.pick{cursor:pointer}
 tr.pick:hover td{background:var(--wash)}
+
+/* ── 칩 (바로가기 · 걸러 보기) ───────────────────────
+   할 일이 여러 섹션에 흩어져 있어 스크롤로 찾아야 했다. 몇 건인지와
+   어디로 가는지를 한 줄에 세운다. */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 2px}
+.chip{appearance:none;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;
+  border:1px solid var(--line-2);border-radius:999px;padding:4px 12px;
+  background:var(--paper);color:var(--ink-2);white-space:nowrap}
+.chip:hover{border-color:var(--teal);color:var(--teal)}
+.chip:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
+.chip[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:#fff}
+.chip small{font-weight:600;opacity:.7;margin-left:4px;font-size:11px}
+.chip.urgent{border-color:rgba(192,96,58,.45);color:#8a3a1d}
+.chip.urgent:hover{border-color:var(--ms);color:var(--ms)}
+/* 방금 눌러 열린 섹션이 어디인지 눈으로 잡아 준다 */
+@keyframes hubFlash{from{background:rgba(176,141,87,.20)}to{background:transparent}}
+.flashed{animation:hubFlash 1.4s ease-out}
+
+/* ── 학생 카드 안의 다른 앱 기록 ───────────────────── */
+.trk__i.pass::before{background:var(--ok)}
+.trk__i.miss::before{background:var(--ms)}
+.trk__i.km::before{background:#5B4B8A}
+.dlgnote{margin:12px 0 0}
+.dlg__b .acts{flex-wrap:wrap}
 @media (max-width:560px){.brand h1{font-size:17px}.pane{padding:16px 14px 50px}}
 </style></head><body>
 
@@ -196,8 +220,11 @@ tr.pick:hover td{background:var(--wash)}
     <section>
       <h2>오늘 현황</h2>
       <p class="hint">세 앱에서 읽어 옵니다. 이 화면은 아무것도 저장하지 않습니다.
+        숫자 밑의 <b>칩</b>을 누르면 그 할 일로 바로 내려갑니다.
         탭은 <span class="kbd">1</span>–<span class="kbd">7</span>, 찾기는 <span class="kbd">/</span>.</p>
       <div class="cards" id="dashCards"><div class="card"><b>—</b><span>불러오는 중</span></div></div>
+      <!-- 할 일이 아래로 여러 섹션에 흩어져 있다. 몇 건인지와 어디인지를 한 줄에 세운다. -->
+      <div class="chips" id="jump" hidden></div>
       <p class="hint" id="srcNote"></p>
       <div id="connBar" class="connbar"></div>
       <div id="syncBar" class="note" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -258,7 +285,8 @@ tr.pick:hover td{background:var(--wash)}
       <p class="hint">채점 기록이 있는 회차입니다. 회차를 누르면 <b>본 학생</b>과
         <b>아직 안 본 학생</b>이 나뉘어 보입니다.
         '안 본 학생'은 <b>최근 한 달 안에 채점한 회차</b>에서만 셉니다 —
-        옛 회차에 지금 반 학생을 견주면 그 해에 있지도 않던 아이들이 뜹니다.</p>
+        옛 회차에 지금 반 학생을 견주면 그 해에 있지도 않던 아이들이 뜹니다.
+        연 창에서 <b>표 복사</b>(엑셀에 그대로)와 <b>이름 복사</b>(반 공지에 그대로)를 할 수 있습니다.</p>
       <div class="bar"><input type="search" id="rq" placeholder="회차 이름으로 찾기" autocomplete="off"></div>
       <div id="rndNote"></div>
       <div class="scroll"><table id="rndTable"><thead><tr>
@@ -270,11 +298,15 @@ tr.pick:hover td{background:var(--wash)}
   <div class="pane" id="p-stu" role="tabpanel" aria-labelledby="t-stu">
     <section>
       <h2>학생</h2>
-      <p class="hint">세 앱의 명단을 <b>이름 · 학교 · 학년</b>으로 합쳤습니다. 이름을 누르면 그 학생의 전 과목 기록이 열립니다.</p>
+      <p class="hint">세 앱의 명단을 <b>이름 · 학교 · 학년</b>으로 합쳤습니다.
+        이름을 누르면 파이널 회차와 함께 <b>DT 미응시 · 재시 · 통과</b>와 <b>KMChC 진단</b>이 한 카드에 열리고,
+        문자도 거기서 바로 복사됩니다.</p>
       <div class="bar">
         <input type="search" id="q" placeholder="이름 또는 학교로 찾기" autocomplete="off">
         <button class="btn" id="reload">다시 불러오기</button>
       </div>
+      <!-- "DT 반에는 있는데 파이널을 한 번도 안 본 학생" 같은 물음은 검색으로는 못 낸다. -->
+      <div class="chips" id="stuFilter"></div>
       <div id="stuNote"></div>
       <div class="list" id="stuList"><div class="spin" style="padding:16px">불러오는 중…</div></div>
     </section>
@@ -330,6 +362,20 @@ function normSchool(s){
     .trim();
 }
 function normGrade(s){ const m=String(s==null?'':s).match(/\d+/); return m?m[0]:''; }
+/* 학교 표기는 앱 안에서도 흔들린다 — DT 는 같은 학생을 미완료 목록에서는
+   '휘문', 통과 목록에서는 '도곡중', 반 명단에서는 '오륜중' 으로 준다.
+   꼬리를 뗀 몸통으로 견주되 **종류가 어긋나면 다른 학교로 본다**
+   ('대곡중' 과 '대곡고' 는 몸통이 같지만 다른 학교다).
+   한쪽을 모를 때는 학교로 가르지 않는다 — 모르는 것이지 다른 것이 아니다. */
+function schoolCore(s){ return normSchool(s).replace(/(중|고|초)$/,''); }
+function schoolType(s){ const m=normSchool(s).match(/(중|고|초)$/); return m?m[1]:''; }
+function schoolAkin(a, b){
+  const x=schoolCore(a), y=schoolCore(b);
+  if(!x || !y) return true;
+  if(x !== y) return false;
+  const ta=schoolType(a), tb=schoolType(b);
+  return !ta || !tb || ta===tb;
+}
 function unifyKey(name, school, grade){
   return [normName(name), normSchool(school), normGrade(grade)].join('');
 }
@@ -686,8 +732,11 @@ function dtPendWindow(){
     }, 250);
   });
 }
-/* 문자를 클립보드로. 버튼은 눌린 티가 나야 한다 — 복사됐는지 모르면 두 번 누른다. */
-function copyMsg(btn, make){
+/* 문자를 클립보드로. 버튼은 눌린 티가 나야 한다 — 복사됐는지 모르면 두 번 누른다.
+   실패는 **누른 자리 근처**에 적는다. 학생 카드가 열려 있는데 대시보드에 적으면
+   카드에 가려 아무도 못 보고, 눌러도 아무 일이 없는 것처럼 보인다. */
+function copyMsg(btn, make, noteId){
+  const where = noteId || (btn.closest && btn.closest('.dlg__b') ? 'dlgNote' : 'dashNote');
   const orig = btn.getAttribute('data-orig') || btn.textContent;
   btn.disabled = true; btn.textContent = '준비 중…';
   dtPendWindow().then(function(w){
@@ -702,7 +751,7 @@ function copyMsg(btn, make){
     fallback(msg, done);
   }).catch(function(e){
     btn.disabled = false; btn.textContent = orig;
-    note('dashNote', '문자를 복사하지 못했습니다 — ' + e.message, true);
+    note(where, '문자를 복사하지 못했습니다 — ' + e.message, true);
   });
   function fallback(msg, done){
     try{
@@ -758,6 +807,23 @@ function legacyCopy(t){
   ta.style.cssText='position:fixed;left:-9999px'; document.body.appendChild(ta);
   ta.select(); try{ document.execCommand('copy'); }catch(e){} ta.remove();
 }
+/* 셸이 **이미 화면에 그린 것**만 옮긴다 — 이름 목록, 회차 표, 남이 준 주소.
+   학부모에게 갈 문구는 여기가 아니라 copyMsg 가 맡는다(DT 에서 빌려 온다). */
+function copyText(btn, text, label){
+  if(!text){ flash(btn, '복사할 것이 없음'); return; }
+  const done = function(){ flash(btn, label||'복사됨', true); };
+  if(navigator.clipboard && navigator.clipboard.writeText)
+    navigator.clipboard.writeText(text).then(done, function(){ legacyCopy(text); done(); });
+  else { legacyCopy(text); done(); }
+}
+/* 남의 앱이 준 주소를 열거나 옮긴다. 주소는 저쪽이 만든 것을 그대로 쓴다 —
+   셸이 지어내면 저쪽이 경로를 바꾸는 날 조용히 어긋난다. */
+document.addEventListener('click', function(e){
+  const b = e.target.closest ? e.target.closest('.mini[data-url]') : null;
+  if(!b) return;
+  if(b.dataset.mode === 'copy') copyText(b, b.dataset.url, '복사됨');
+  else window.open(b.dataset.url, '_blank', 'noopener');
+});
 /* ── 파이널 앱으로 화면을 넘긴다 ────────────────────────────────────
    저 앱은 hashchange 로 화면을 다시 그린다. 주소를 바꾸자마자 우리가 무엇을
    열면, 뒤늦게 도착한 hashchange 가 그것을 곧바로 덮어 버린다. 한 번을
@@ -842,6 +908,46 @@ function wireActs(root, rounds){
 function card(v, label, warn){
   return '<div class="card'+(warn?' warn':'')+'"><b>'+v+'</b><span>'+label+'</span></div>';
 }
+/* 목록이 길면 화면이 스크롤만 남는다. 자르되 **자른 것을 말한다** — 조용히
+   자르면 그 아래가 없는 줄 알고 넘어간다(그게 아직 안 끝난 학생이다). */
+const DASH_MAX = 40;
+function capNote(rows){
+  return (rows.length > DASH_MAX)
+    ? '<div class="row" style="cursor:default"><span class="where">앞 '+DASH_MAX+'명만 보여 줍니다 · 모두 '+
+      rows.length+'명 — 나머지는 <b>학생</b> 탭에서 이름으로 찾으세요.</span></div>'
+    : '';
+}
+
+/* ── 오늘 할 일 한 줄 ────────────────────────────────────────────────
+   급한 것이 아래로 다섯 섹션에 흩어져 있다. 무엇이 얼마나 남았는지 알려면
+   스크롤하며 세야 했고, 그래서 아래쪽 섹션은 잘 안 보게 된다.
+   몇 건인지와 어디인지를 숫자 카드 바로 밑에 세운다. 빈 것은 안 세운다. */
+const JUMPS = [
+  { id:'absWrap',   label:'시험 미응시', urgent:true,
+    n:function(){ return ABS_ROWS.reduce(function(t,c){ return t+c.absent.length; }, 0); } },
+  { id:'pendWrap',  label:'재시 대기',   urgent:true,  n:function(){ return PEND_ROWS.length; } },
+  { id:'passWrap',  label:'통과',        urgent:false, n:function(){ return PASS_ROWS.length; } },
+  { id:'misWrap',   label:'어려워하는 개념', urgent:false, n:function(){ return MIS_TOP.length; } },
+  { id:'mergeWrap', label:'합쳐야 할 이름', urgent:true, n:function(){ return mergeCandidates().length; } },
+];
+function renderJump(){
+  const el = document.getElementById('jump'); if(!el) return;
+  const on = JUMPS.filter(function(j){ return j.n() > 0; });
+  el.hidden = !on.length;
+  el.innerHTML = on.map(function(j){
+    return '<button class="chip'+(j.urgent?' urgent':'')+'" data-jump="'+j.id+'">'+
+           esc(j.label)+'<small>'+j.n()+'</small></button>';
+  }).join('');
+}
+document.addEventListener('click', function(e){
+  const b = e.target.closest ? e.target.closest('.chip[data-jump]') : null;
+  if(!b) return;
+  const t = document.getElementById(b.dataset.jump); if(!t) return;
+  show('dash');
+  t.scrollIntoView({ behavior:'smooth', block:'start' });
+  /* 어디로 왔는지 눈으로 잡아 준다 — 스크롤만 되면 무엇이 바뀌었는지 모른다. */
+  t.classList.remove('flashed'); void t.offsetWidth; t.classList.add('flashed');
+});
 const DAY = 86400000;
 function startOfToday(){ const d=new Date(); d.setHours(0,0,0,0); return d.getTime(); }
 /* 최근 채점 기록을 시각 내림차순으로. 회차 탭·대시보드가 같이 쓴다. */
@@ -852,6 +958,7 @@ function allRounds(fin){
 }
 function renderDash(){
   const fin = FIN || (FIN = examLocal());
+  syncWorkRows(); renderJump();
   const rounds = allRounds(fin);
   const t0 = startOfToday();
   const today = rounds.filter(function(r){ return (r.ts||0) >= t0; }).length;
@@ -882,10 +989,10 @@ function renderDash(){
 
   dtPending().then(function(rows){
     document.getElementById('pdCnt').textContent = rows.length;
+    syncWorkRows(); renderJump();
     if(!rows.length){ const w0=document.getElementById('pendWrap'); if(w0) w0.hidden=true; return; }
     const w = document.getElementById('pendWrap'); w.hidden = false;
-    PEND_ROWS = rows.slice(0,40);
-    document.getElementById('pendList').innerHTML = PEND_ROWS.map(function(r,i){
+    document.getElementById('pendList').innerHTML = capNote(PEND_ROWS) + PEND_ROWS.slice(0,DASH_MAX).map(function(r,i){
       const nm = esc(r.name||r.studentKey||'—');
       const meta = [DT_COURSE[r.course]||r.course, r.round?(r.round+'회'):'',
                     r.lastAttempt?(r.lastAttempt+' '+r.score+'점'):'',
@@ -900,7 +1007,7 @@ function renderDash(){
   /* 시험 미응시. 반 단위라 '반 전체 공지' 한 번이면 끝나는 일이 대부분이다. */
   dtAbsentees().then(function(classes){
     const w = document.getElementById('absWrap'); if(!w) return;
-    ABS_ROWS = (classes||[]).filter(function(c){ return c.absent && c.absent.length; });
+    syncWorkRows(); renderJump();
     const ac = document.getElementById('abCnt');
     if(ac) ac.textContent = ABS_ROWS.reduce(function(t,c){ return t + c.absent.length; }, 0);
     w.hidden = !ABS_ROWS.length;
@@ -926,10 +1033,10 @@ function renderDash(){
      조용했다. 문자도 여기서 바로 복사한다. */
   dtPassed().then(function(rows){
     const w = document.getElementById('passWrap'); if(!w) return;
-    PASS_ROWS = (rows||[]).slice(0,40);
+    syncWorkRows(); renderJump();
     w.hidden = !PASS_ROWS.length;
     if(!PASS_ROWS.length) return;
-    document.getElementById('passList').innerHTML = PASS_ROWS.map(function(r,i){
+    document.getElementById('passList').innerHTML = capNote(PASS_ROWS) + PASS_ROWS.slice(0,DASH_MAX).map(function(r,i){
       const meta = [DT_COURSE[r.course]||r.course, r.round?(r.round+'회'):'',
                     r.attempt||'', (Number(r.tries)||1)>1?'재시로 마무리':'한 번에',
                     r.date||''].filter(Boolean).join(' · ');
@@ -943,8 +1050,10 @@ function renderDash(){
   /* 요즘 반이 어려워하는 개념. 못 받아도 조용히 접는다 — 이건 참고 자료라
      안 보인다고 채점하는 날 일이 막히지는 않는다. */
   dtMisRows().then(function(rows){
-    const top = misTally(rows, 30), w = document.getElementById('misWrap');
+    MIS_TOP = misTally(rows, 30);
+    const top = MIS_TOP, w = document.getElementById('misWrap');
     if(!w) return;
+    renderJump();
     w.hidden = !top.length;
     if(!top.length) return;
     const max = top[0].n;
@@ -1000,26 +1109,106 @@ function renderQuick(){
     b.addEventListener('click', function(){ openStudent(el.__rows[+b.dataset.i]); });
   });
 }
+/* 학생 카드 안에서도 실패를 말해 줘야 한다. 카드가 열려 있을 때 대시보드에
+   적으면 아무도 못 본다 — 자리가 없으면 조용히 넘어간다(죽지 않는다). */
 function note(id, msg, isErr){
-  document.getElementById(id).innerHTML =
-    '<div class="note'+(isErr?' err':'')+'">'+esc(msg)+'</div>';
+  const el = document.getElementById(id); if(!el) return;
+  el.innerHTML = '<div class="note'+(isErr?' err':'')+'">'+esc(msg)+'</div>';
 }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){
   return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 
 /* ── 학생 ──────────────────────────────────────────────────────── */
 let ROSTER = [], FIN = null, DT_ROWS = null, KM_ROWS = null;
-/* 화면에 그린 줄을 그대로 들고 있다가 문자 만들 때 쓴다(속성에 다 싣지 않는다). */
-let PEND_ROWS = [], PASS_ROWS = [], ABS_ROWS = [];
+/* 화면에 그린 줄을 그대로 들고 있다가 문자 만들 때 쓴다(속성에 다 싣지 않는다).
+   대시보드와 학생 카드가 **같은 배열의 같은 번호**를 가리켜야 한다. 두 곳에서
+   따로 잘라 담으면 학생 카드의 '문자 복사' 가 엉뚱한 학생 문구를 만든다 —
+   그건 학부모에게 그대로 나가고, 되돌릴 수 없다. 담는 곳을 하나로 둔다. */
+let PEND_ROWS = [], PASS_ROWS = [], ABS_ROWS = [], MIS_TOP = [];
+function syncWorkRows(){
+  PASS_ROWS = dtCached('passed') || [];
+  PEND_ROWS = dtCached('pending') || [];
+  ABS_ROWS  = (dtCached('absentees') || []).filter(function(c){ return c.absent && c.absent.length; });
+}
+/* ── 이 줄이 이 학생 것인가 ──────────────────────────────────────────
+   명단을 합칠 때와 같은 규칙이다: **틀리게 붙이느니 안 붙인다.** 남의 성적이
+   남의 카드에 뜨면 그대로 문자로 나가고, 되돌릴 수 없다. */
+function sameStudent(r, row){
+  if(normName(r.name) !== normName(row && row.name)) return false;
+  return schoolAkin(r.school, row.school);
+}
+/* 미응시 목록에는 **이름만** 있다(학교가 없다). 그래서 동명이인이 있으면
+   누구 것인지 알 길이 없다 — 명단에서 그 이름이 하나뿐일 때만 붙인다. */
+function nameIsUnique(name){
+  const n = normName(name);
+  return ROSTER.filter(function(x){ return normName(x.name)===n; }).length <= 1;
+}
+function dtForStudent(r){
+  const hits = function(arr){
+    const out=[];
+    (arr||[]).forEach(function(row,i){ if(sameStudent(r,row)) out.push(i); });
+    return out;
+  };
+  const abs=[];
+  if(nameIsUnique(r.name)){
+    ABS_ROWS.forEach(function(c,i){
+      (c.absent||[]).forEach(function(nm,j){
+        if(normName(nm)===normName(r.name)) abs.push({ i:i, j:j });
+      });
+    });
+  }
+  return { passed:hits(PASS_ROWS), pending:hits(PEND_ROWS), absent:abs };
+}
+/* KMChC 시트에는 학교 열이 없다. 이름이 하나뿐일 때만 고른다 — 둘이면
+   어느 쪽인지 알 길이 없고, 진단 성적표는 남에게 보이면 안 되는 것이다. */
+function kmForStudent(r){
+  const n = normName(r.name);
+  const hit = (KM_ROWS||[]).filter(function(s){ return normName(s.name)===n; });
+  return hit.length===1 ? hit[0] : null;
+}
+/* ── 학생 걸러 보기 ─────────────────────────────────────────────────
+   "DT 반에는 있는데 파이널을 한 번도 안 본 학생" 은 검색으로 낼 수 없는
+   물음인데, 다음 회차를 누구에게 돌릴지 정할 때 가장 먼저 나온다.
+   고른 것은 화면에만 둔다 — 셸은 아무것도 저장하지 않는다. */
+const STU_FILTERS = [
+  { key:'all',    label:'전체',   fn:function(){ return true; } },
+  { key:'exam',   label:'파이널', fn:function(r){ return !!r.apps.exam; } },
+  { key:'dt',     label:'DT',     fn:function(r){ return !!r.apps.dt; } },
+  { key:'km',     label:'KMChC',  fn:function(r){ return !!r.apps.km; } },
+  { key:'noexam', label:'파이널 기록 없음', fn:function(r){ return !r.apps.exam; } },
+];
+let STU_FILTER = 'all';
+function stuFilterFn(){
+  return (STU_FILTERS.filter(function(x){ return x.key===STU_FILTER; })[0] || STU_FILTERS[0]).fn;
+}
+function renderStuFilter(){
+  const el = document.getElementById('stuFilter'); if(!el) return;
+  el.innerHTML = STU_FILTERS.map(function(f){
+    return '<button class="chip" aria-pressed="'+(STU_FILTER===f.key)+'" data-stuf="'+f.key+'">'+
+           esc(f.label)+'<small>'+ROSTER.filter(f.fn).length+'</small></button>';
+  }).join('');
+}
+document.addEventListener('click', function(e){
+  const b = e.target.closest ? e.target.closest('.chip[data-stuf]') : null;
+  if(!b) return;
+  STU_FILTER = b.dataset.stuf;
+  renderStudents();
+});
 function renderStudents(){
+  renderStuFilter();
   const q = (document.getElementById('q').value||'').trim();
   const nq = normName(q);
-  const rows = !nq ? ROSTER : ROSTER.filter(function(r){
+  const keep = stuFilterFn();
+  const rows = ROSTER.filter(function(r){
+    if(!keep(r)) return false;
+    if(!nq) return true;
     return normName(r.name).indexOf(nq)>=0 || normSchool(r.school).indexOf(normSchool(q))>=0;
   });
   const el = document.getElementById('stuList');
   if(!rows.length){ el.innerHTML = '<div class="spin" style="padding:16px">'+
-    (ROSTER.length? '찾는 학생이 없습니다.' : '명단이 비어 있습니다.')+'</div>'; return; }
+    (!ROSTER.length ? '명단이 비어 있습니다.'
+     : STU_FILTER!=='all' ? '이 조건에 맞는 학생이 없습니다.'
+     : '찾는 학생이 없습니다.')+'</div>'; return; }
   el.innerHTML = rows.slice(0,300).map(function(r,i){
     const where = [r.school, r.grade?r.grade+'학년':''].filter(Boolean).join(' ') || '—';
     const tags = Object.keys(r.apps).map(function(a){
@@ -1078,17 +1267,88 @@ function openStudent(r){
              (w? ' · '+w : '')+'</div></div>'+actBtns(i)+'</div>';
     }).join('')+'</div>';
   }
-  const others = Object.keys(r.apps).filter(function(a){ return a!=='exam'; });
-  if(others.length){
-    html += '<div class="note" style="margin-top:16px">이 학생은 '+
-      others.map(function(a){ return '<b>'+esc({dt:'DT',km:'KMChC'}[a]||a)+'</b>'; }).join(' · ')+
-      ' 명단에도 있습니다. 자세한 기록은 해당 탭에서 볼 수 있습니다.</div>';
-  }
-  if(!html) html = '<div class="spin">이 브라우저에 채점 기록이 없습니다.</div>';
+  if(!html) html = '<div class="spin">이 브라우저에 파이널 채점 기록이 없습니다.</div>';
+  html += '<div id="stuOther"></div><div id="dlgNote"></div>';
   const body = document.getElementById('dlgBody');
   body.innerHTML = html;
   if(dlgRounds.length) wireActs(body, dlgRounds);
+  DLG_STU = r;
+  renderStuOther();
+  /* DT 기록이 아직 안 왔으면 부르고, 오는 대로 **그 자리만** 다시 그린다.
+     카드가 열리는 것을 붙잡지 않는다 — 앱스크립트가 조용한 날 12초를 기다리면
+     이름을 눌러도 아무 일이 없는 것처럼 보인다. */
+  Promise.all([
+    dtPassed().catch(function(){}), dtPending().catch(function(){}), dtAbsentees().catch(function(){}),
+  ]).then(function(){ syncWorkRows(); renderStuOther(); });
   document.getElementById('dlg').showModal();
+}
+/* ── 학생 카드에 다른 앱 기록을 붙인다 ────────────────────────────────
+   여태 학생 카드는 파이널 회차만 보여 주고, DT·KMChC 는 "명단에도 있습니다"
+   한 줄로 끝났다. 정작 물어보고 싶은 것은 그쪽이다 — 이 아이가 DT 를
+   통과했나, 재시가 밀렸나, 진단은 봤나. 그걸 보려고 다시 세 앱을 오갔다.
+
+   문자 단추는 대시보드의 것과 **같은 배열의 같은 번호**를 가리킨다(syncWorkRows).
+   문구는 여기서도 DT 에서 빌린다 — 베끼면 언젠가 두 벌이 갈라진다. */
+let DLG_STU = null;
+function linkBtns(url, label){
+  if(!url) return '';
+  return '<button class="mini" data-url="'+esc(url)+'">'+esc(label)+'</button>'+
+         '<button class="mini" data-url="'+esc(url)+'" data-mode="copy">링크</button>';
+}
+function renderStuOther(){
+  const host = document.getElementById('stuOther');
+  if(!host || !DLG_STU) return;
+  const r = DLG_STU, d = dtForStudent(r), km = kmForStudent(r), rows = [];
+
+  d.absent.forEach(function(a){
+    const c = ABS_ROWS[a.i]; if(!c) return;
+    rows.push('<div class="trk__i miss"><div><div class="trk__t">DT 시험 미응시</div>'+
+      '<div class="trk__m">'+esc(c.label+' · '+(DT_COURSE[c.course]||c.course)+' '+c.round+'회')+'</div></div>'+
+      '<span class="acts">'+
+      '<button class="mini msg" data-abs="'+a.i+'" data-who="'+a.j+'" data-stage="1" data-orig="1차 안내">1차 안내</button>'+
+      '<button class="mini msg" data-abs="'+a.i+'" data-who="'+a.j+'" data-stage="2" data-orig="리마인드">리마인드</button>'+
+      '</span></div>');
+  });
+  d.pending.forEach(function(i){
+    const x = PEND_ROWS[i];
+    const meta = [DT_COURSE[x.course]||x.course, x.round?(x.round+'회'):'', x.lastAttempt||'',
+                  x.nextNeeded?('→ '+x.nextNeeded+' 미응시'):'',
+                  (x.days!=null)?(x.days+'일째'):''].filter(Boolean).join(' · ');
+    rows.push('<div class="trk__i dt"><div><div class="trk__t">DT 재시 대기 · '+esc(String(x.score))+'점</div>'+
+      '<div class="trk__m">'+esc(meta)+'</div></div><span class="acts">'+
+      '<button class="mini msg" data-pend="'+i+'" data-orig="재시 안내">재시 안내</button>'+
+      linkBtns(x.reportLink, 'DT 성적표')+'</span></div>');
+  });
+  d.passed.forEach(function(i){
+    const x = PASS_ROWS[i];
+    const meta = [DT_COURSE[x.course]||x.course, x.round?(x.round+'회'):'', x.attempt||'',
+                  (Number(x.tries)||1)>1?'재시로 마무리':'한 번에', x.date||''].filter(Boolean).join(' · ');
+    rows.push('<div class="trk__i pass"><div><div class="trk__t">DT 통과 · '+esc(String(x.score))+'점</div>'+
+      '<div class="trk__m">'+esc(meta)+'</div></div><span class="acts">'+
+      '<button class="mini msg" data-pass="'+i+'" data-orig="통과 문자">통과 문자</button>'+
+      linkBtns(x.reportLink, 'DT 성적표')+'</span></div>');
+  });
+  if(km && km.kmLink){
+    rows.push('<div class="trk__i km"><div><div class="trk__t">KMChC 진단</div>'+
+      '<div class="trk__m">'+esc(km.grade||'')+'</div></div><span class="acts">'+
+      linkBtns(km.kmLink, '성적표 열기')+'</span></div>');
+  }
+
+  const waiting = !dtCached('passed') && !dtCached('pending') && !dtCached('absentees');
+  let h = '';
+  if(rows.length) h = '<div class="sub2">DT · KMChC</div><div class="trk">'+rows.join('')+'</div>';
+  else if(waiting) h = '<div class="sub2">DT · KMChC</div><div class="spin">다른 앱 기록을 부르는 중…</div>';
+  else {
+    const others = Object.keys(r.apps).filter(function(a){ return a!=='exam'; });
+    if(others.length) h = '<div class="note dlgnote">이 학생은 '+
+      others.map(function(a){ return '<b>'+esc({dt:'DT',km:'KMChC'}[a]||a)+'</b>'; }).join(' · ')+
+      ' 명단에 있습니다. 지금 챙길 것(미응시·재시·통과)은 없습니다.</div>';
+  }
+  /* 왜 비었는지 말해 준다. 조용히 안 붙이면 "DT 를 안 봤나 보다" 로 넘어간다. */
+  if(!nameIsUnique(r.name)) h += '<div class="note err dlgnote">같은 이름의 학생이 명단에 둘 이상입니다. '+
+    '<b>미응시·진단은 이름만으로 오기 때문에 붙이지 않았습니다</b> — 잘못 붙이면 남의 문자가 나갑니다. '+
+    'DT·KMChC 화면에서 직접 확인해 주세요.</div>';
+  host.innerHTML = h;
 }
 let EXAMS = [];
 function examTitle(id){
@@ -1100,6 +1360,8 @@ document.getElementById('dlgX').addEventListener('click', function(){ DLG.close(
 /* 바깥을 눌러도 닫는다. showModal 은 Esc 로 닫히지만, 마우스로 쓰는 사람은
    바깥을 누르고 안 닫히면 화면이 멈춘 줄 안다. */
 DLG.addEventListener('click', function(e){ if(e.target===DLG) DLG.close(); });
+/* 닫힌 카드를 계속 들고 있으면, 뒤늦게 온 DT 응답이 이미 사라진 자리를 그린다. */
+DLG.addEventListener('close', function(){ DLG_STU = null; RND_OPEN = null; });
 document.getElementById('q').addEventListener('input', renderStudents);
 document.getElementById('reload').addEventListener('click', loadRoster);
 
@@ -1228,7 +1490,12 @@ function refreshLocal(){
   FIN = examLocal();
   const sources = [{ app:'exam', students: FIN.students }];
   if(DT_ROWS) sources.push({ app:'dt', students: DT_ROWS });
-  if(KM_ROWS) sources.push({ app:'km', students: KM_ROWS });
+  /* KMChC 시트에는 **학교 열이 아예 없다.** 그 말을 여기서 해 주지 않으면
+     mergeRosters 는 '학교를 안 적은 줄' 로 알고 따로 둔다 — 같은 아이가 셸에
+     두 줄로 뜨고, 어느 줄을 눌러도 기록이 반쪽이다. 붙이는 장치는 처음부터
+     있었는데 이 깃발을 안 세워서 한 번도 돌지 않았다(검사가 스스로 세워
+     가려 놓고 있었다). */
+  if(KM_ROWS) sources.push({ app:'km', students: KM_ROWS, noSchool:true });
   ROSTER = mergeRosters(sources);
   renderStudents(); renderRounds(); renderQuick(); renderDash(); renderMerge(); renderSyncBar();
 }
@@ -1342,12 +1609,34 @@ function renderRounds(){
     tr.addEventListener('click', function(){ openRound(tr.dataset.id); });
   });
 }
+/* ── 회차에서 바로 들고 나간다 ──────────────────────────────────────
+   회차를 열어 놓고 하는 일은 둘이다: 반 성적을 따로 정리하거나(엑셀),
+   아직 안 본 아이들에게 공지를 돌리거나. 둘 다 화면을 보고 손으로 옮겨
+   적어야 했다 — 그러다 이름 하나가 빠진다. */
+let RND_OPEN = null;
+document.addEventListener('click', function(e){
+  const b = e.target.closest ? e.target.closest('.mini[data-rnd]') : null;
+  if(!b || !RND_OPEN) return;
+  const g = RND_OPEN;
+  if(b.dataset.rnd === 'table'){
+    const head = ['이름','학교','맞은 문항','총 문항','정답률(%)'].join('\t');
+    const body = g.rows.map(function(r){
+      const pct = r.total? Math.round(r.correct/r.total*100) : 0;
+      return [r.who.name, r.who.school||'', r.correct, r.total, pct].join('\t');
+    }).join('\n');
+    copyText(b, head+'\n'+body, '표 복사됨');       // 탭으로 나눠 엑셀에 그대로 붙는다
+  }else{
+    copyText(b, (g.missing||[]).map(function(r){ return r.name; }).join(', '), '이름 복사됨');
+  }
+});
 function openRound(id){
   const g = RNDS.filter(function(x){ return x.id===id; })[0]; if(!g) return;
+  RND_OPEN = g;
   document.getElementById('dlgName').textContent = examTitle(id);
   document.getElementById('dlgWhere').textContent =
     g.n+'명 채점 · 평균 '+g.avg+'%' + (g.last? ' · 마지막 '+when(g.last) : '');
-  let html = '<div class="sub2">본 학생 · '+g.n+'명</div><div class="list">';
+  let html = '<div class="sub2">본 학생 · '+g.n+'명'+
+    ' <button class="mini" data-rnd="table">표 복사</button></div><div class="list">';
   html += g.rows.map(function(r,i){
     const pct = r.total? Math.round(r.correct/r.total*100) : 0;
     return '<div class="row" style="cursor:default"><span class="nm">'+esc(r.who.name)+'</span>'+
@@ -1355,7 +1644,8 @@ function openRound(id){
       '<span class="cnt">'+r.correct+'/'+r.total+' · '+pct+'%</span>'+actBtns(i)+'</div>';
   }).join('')+'</div>';
   if(g.missing && g.missing.length){
-    html += '<div class="sub2">아직 안 본 학생 · '+g.missing.length+'명</div>'+
+    html += '<div class="sub2">아직 안 본 학생 · '+g.missing.length+'명'+
+      ' <button class="mini" data-rnd="names">이름 복사</button></div>'+
       '<div class="note"><b>지금 배우는 학생</b> 중 이 회차 기록이 없는 사람입니다 ' +
       '(DT 반 명단에 있거나 최근 두 달 안에 채점한 학생). 모든 학생이 모든 회차를 ' +
       '보는 것은 아니므로 참고용으로만 보세요.</div><div class="list">' +
@@ -1364,8 +1654,10 @@ function openRound(id){
         return '<div class="row" style="cursor:default"><span class="nm">'+esc(r.name)+'</span>'+
                '<span class="where">'+esc(where)+'</span></div>';
       }).join('') + '</div>';
-    if(g.missing.length>120) html += '<div class="spin">앞 120명만 보여 줍니다.</div>';
+    if(g.missing.length>120) html += '<div class="spin">앞 120명만 보여 줍니다 '+
+      '<span class="dim">(이름 복사는 '+g.missing.length+'명 전부를 담습니다)</span>.</div>';
   }
+  html += '<div id="dlgNote"></div>';
   const body = document.getElementById('dlgBody');
   body.innerHTML = html;
   wireActs(body, g.rows);

@@ -22,6 +22,11 @@
    - 채점하면 스스로 따라온다(다시 읽는다)
    - 시트와 얼마나 묵었는지 늘 보여 주고, 오래되면 스스로 맞춘다
    - 망을 기다리느라 손에 쥔 것을 못 내주지 않는다
+   - 학생 카드 한 장에 세 앱이 모인다(파이널 회차 · DT 미응시·재시·통과 · KMChC 진단)
+   - 대시보드와 학생 카드가 **같은 배열의 같은 번호**를 가리킨다
+     (어긋나면 카드에서 누른 문자가 엉뚱한 학생 것이 되어 그대로 나간다)
+   - 틀리게 붙이느니 안 붙인다(동명이인·학교 표기가 흔들릴 때)
+   - 화면에서 자른 것은 자른다고 말하고, 복사는 자르지 않는다
 
    실행:  node tests/hub.js
    ============================================================ */
@@ -63,7 +68,11 @@ vm.runInContext([
   'const DAY = 86400000;',
   (SRC.match(/^const RECENT_ROUND = .*$/m) || ['']) [0],
   cut('roundStats'),
+  cut('schoolCore'), cut('schoolType'), cut('schoolAkin'),
+  cut('sameStudent'), cut('nameIsUnique'), cut('dtForStudent'), cut('kmForStudent'),
+  cut('dtCached'), cut('syncWorkRows'), cut('mergeCandidates'),
   'var FIN=null, ROSTER=[];',
+  'var PASS_ROWS=[], PEND_ROWS=[], ABS_ROWS=[], MIS_TOP=[], KM_ROWS=null, DT_CACHE={};',
 ].join('\n'), ctx);
 
 console.log('── 이름표를 다듬는다 ──');
@@ -387,7 +396,13 @@ console.log('\n── KMChC 도 명단에 합친다 ──');
   // 이 시트에는 학교 열이 없다. 없는 것을 지어내면 안 된다
   chk('학교는 빈칸으로 둔다', /school:''/.test(km), true);
   chk('리포트 주소를 들고 온다', /kmLink:s\.link/.test(km), true);
-  chk('명단에 얹는다', /if\(KM_ROWS\) sources\.push\(\{ app:'km', students: KM_ROWS \}\)/.test(body), true);
+  chk('명단에 얹는다', /if\(KM_ROWS\) sources\.push\(\{ app:'km', students: KM_ROWS/.test(body), true);
+  /* ⚠ 아래 검사들은 noSchool 깃발을 **검사가 직접 세워** 부른다. 그래서 셸이
+     그 깃발을 안 세워도 다 통과했고, 실제로 한 번도 안 세우고 있었다 —
+     KMChC 학생이 같은 이름의 파이널 학생과 안 붙어 셸에 두 줄로 떴다.
+     깃발을 세우는지 소스에서 직접 본다. */
+  chk('학교 열이 없는 앱이라고 말해 준다',
+      /sources\.push\(\{ app:'km', students: KM_ROWS, noSchool:true \}\)/.test(body), true);
 
   /* 학교 열이 없는 앱은 이름만으로 붙여 준다 — 안 그러면 같은 아이가 두 줄이다. */
   const merged = ctx.mergeRosters([
@@ -564,6 +579,172 @@ console.log('\n── 단축키가 글자 입력을 가로채지 않는다 ─�
   chk('조합키는 건드리지 않는다', /if\(e\.metaKey\|\|e\.ctrlKey\|\|e\.altKey\) return;/.test(body), true);
   chk('탭 수와 숫자키 수가 맞는다',
       (SRC.match(/'1234567'/)||[]).length===1 && /const TABS = \['dash','stu','rnd','exam','dt','km','mat'\]/.test(body), true);
+}
+
+console.log('\n── 학교 표기가 앱마다 흔들린다 ──');
+{
+  /* 같은 학생을 DT 는 미완료 목록에서 '휘문', 통과 목록에서 '휘문중', 반 명단에서
+     '휘문중학교' 로 준다. 표기로 가르면 학생 카드에 아무것도 안 붙는다. */
+  chk('꼬리가 없어도 같은 학교', ctx.schoolAkin('휘문', '휘문중'), true);
+  chk('긴 표기도 같은 학교', ctx.schoolAkin('휘문중학교', '휘문중'), true);
+  /* 몸통이 같아도 종류가 다르면 다른 학교다. 여기서 붙으면 중학생 카드에
+     고등학생 기록이 뜨고, 그 이름으로 문자가 나간다. */
+  chk('중학교와 고등학교는 다르다', ctx.schoolAkin('대곡중', '대곡고'), false);
+  chk('학교가 다르면 남이다', ctx.schoolAkin('휘문중', '도곡중'), false);
+  chk('한쪽을 모르면 가르지 않는다', ctx.schoolAkin('', '휘문중'), true);
+  chk('둘 다 몰라도 안 죽는다', ctx.schoolAkin(null, undefined), true);
+}
+
+console.log('\n── 학생 카드에 다른 앱 기록을 붙인다 ──');
+{
+  /* 여태 학생 카드는 파이널 회차만 보여 주고 DT·KMChC 는 "명단에도 있습니다"
+     한 줄로 끝났다. 정작 물어보고 싶은 것은 그쪽인데. */
+  ctx.ROSTER = [
+    { name:'김지성', school:'휘문중',     grade:'2', apps:{exam:2, dt:1} },
+    { name:'이도현', school:'대원국제중', grade:'2', apps:{dt:1} },
+    { name:'박서준', school:'A중',        grade:'1', apps:{dt:1} },
+    { name:'박서준', school:'B중',        grade:'2', apps:{dt:1} },   // 동명이인
+  ];
+  ctx.PASS_ROWS = [
+    { name:'김지성', school:'휘문',       course:'ch2', round:7, score:91.7, tries:1 },  // 표기가 짧다
+    { name:'이도현', school:'대원국제중', course:'ch1', round:6, score:85,   tries:2 },
+  ];
+  ctx.PEND_ROWS = [
+    { name:'김지성', school:'휘문중학교', course:'gc', round:7, score:55, nextNeeded:'재시', days:13 },
+  ];
+  ctx.ABS_ROWS = [{ label:'화학1 일6-10', course:'ch1', round:6, absent:['김지성','박서준'], total:26 }];
+  ctx.KM_ROWS = [
+    { name:'김지성', school:'', grade:'중2', kmLink:'https://x/report?id=1' },
+    { name:'박서준', school:'', grade:'중1', kmLink:'https://x/report?id=2' },
+    { name:'박서준', school:'', grade:'중2', kmLink:'https://x/report?id=3' },
+  ];
+
+  const a = ctx.dtForStudent(ctx.ROSTER[0]);
+  chk('표기가 짧아도 통과가 붙는다', a.passed, [0]);
+  chk('표기가 길어도 재시가 붙는다', a.pending, [0]);
+  chk('미응시도 붙는다', a.absent, [{ i:0, j:0 }]);
+  /* 붙는 것은 값이 아니라 **원래 배열의 번호**다. 대시보드의 문자 단추와 같은
+     번호를 써야 카드에서 누른 문자가 그 학생 것이 된다. */
+  chk('번호는 원래 배열의 번호', ctx.PASS_ROWS[a.passed[0]].name, '김지성');
+
+  const b = ctx.dtForStudent(ctx.ROSTER[1]);
+  chk('남의 통과가 안 붙는다', b.passed, [1]);
+  chk('없는 것은 빈 목록', b.pending, []);
+
+  /* 미응시 목록에는 이름만 있다(학교가 없다). 동명이인이면 누구 것인지 알 길이
+     없다 — 붙이면 남의 문자가 나가고, 나간 문자는 되돌릴 수 없다. */
+  const c = ctx.dtForStudent(ctx.ROSTER[2]);
+  chk('동명이인이면 미응시를 안 붙인다', c.absent, []);
+  chk('이름이 유일해야 붙인다',
+      [ctx.nameIsUnique('김지성'), ctx.nameIsUnique('박서준')], [true, false]);
+
+  chk('KMChC 는 이름이 하나뿐일 때만', ctx.kmForStudent(ctx.ROSTER[0]).kmLink, 'https://x/report?id=1');
+  chk('KMChC 동명이인은 고르지 않는다', ctx.kmForStudent(ctx.ROSTER[2]), null);
+  chk('명단에 없는 학생에도 안 죽는다',
+      ctx.dtForStudent({ name:'없는사람', school:'', apps:{} }),
+      { passed:[], pending:[], absent:[] });
+  chk('이름이 빈 줄에 붙지 않는다', ctx.sameStudent(ctx.ROSTER[0], {}), false);
+}
+
+console.log('\n── 대시보드와 학생 카드가 같은 줄을 가리킨다 ──');
+{
+  /* 두 곳에서 따로 잘라 담으면 학생 카드의 '문자 복사' 가 엉뚱한 학생 문구를
+     만든다. 그 문자는 그대로 학부모에게 나가고, 되돌릴 수 없다. */
+  ctx.DT_CACHE = {
+    'dt:passed':    { val:[{ name:'가' }, { name:'나' }] },
+    'dt:pending':   { val:[{ name:'다' }] },
+    'dt:absentees': { val:[{ label:'A', absent:['라'] }, { label:'B', absent:[] }] },
+  };
+  ctx.syncWorkRows();
+  chk('통과는 캐시 그대로', ctx.PASS_ROWS.length, 2);
+  chk('미완료도 그대로', ctx.PEND_ROWS.length, 1);
+  chk('아무도 안 빠진 반은 뺀다', ctx.ABS_ROWS.map(c => c.label), ['A']);
+  ctx.DT_CACHE = {};
+  ctx.syncWorkRows();
+  chk('캐시가 비면 빈 목록', [ctx.PASS_ROWS, ctx.PEND_ROWS, ctx.ABS_ROWS], [[], [], []]);
+
+  const body = SRC.split('<script>')[1] || '';
+  chk('담는 곳은 한 곳뿐', /function syncWorkRows\(\)/.test(body), true);
+  chk('대시보드가 따로 잘라 담지 않는다',
+      /(PASS_ROWS|PEND_ROWS|ABS_ROWS)\s*=\s*[^;]*\.slice\(/.test(body), false);
+  // 조용히 자르면 그 아래가 없는 줄 알고 넘어간다 — 그게 아직 안 끝난 학생이다
+  chk('자를 때는 자른 것을 말한다',
+      /function capNote\(rows\)/.test(body) && /앞 '\+DASH_MAX\+'명만/.test(body), true);
+  chk('학생 카드에도 문자 단추가 있다',
+      /data-pend="'\+i\+'" data-orig="재시 안내"/.test(body) &&
+      /data-pass="'\+i\+'" data-orig="통과 문자"/.test(body) &&
+      /data-abs="'\+a\.i\+'"/.test(body), true);
+  // 뒤늦게 온 DT 응답이 이미 닫힌 카드를 그리면 안 된다
+  chk('닫은 카드는 놓는다', /DLG\.addEventListener\('close'/.test(body), true);
+  // 카드가 열리는 것을 망이 붙잡으면, 이름을 눌러도 아무 일이 없는 것처럼 보인다
+  chk('망을 기다리며 카드를 붙잡지 않는다',
+      /renderStuOther\(\);[\s\S]{0,400}Promise\.all\(\[[\s\S]{0,200}renderStuOther\(\); \}\);/.test(body), true);
+  // 문자 복사가 실패하면 누른 자리 근처에 적어야 보인다(카드가 대시보드를 가린다)
+  chk('실패를 누른 자리에 적는다', /btn\.closest\('\.dlg__b'\) \? 'dlgNote'/.test(body), true);
+}
+
+console.log('\n── 오늘 할 일을 한 줄에 세운다 ──');
+{
+  /* 급한 것이 아래로 다섯 섹션에 흩어져 있어, 무엇이 얼마나 남았는지 알려면
+     스크롤하며 세야 했다. 그래서 아래쪽 섹션은 잘 안 보게 된다. */
+  const jumpSrc = (SRC.match(/^const JUMPS = \[[\s\S]*?^\];$/m) || [''])[0];
+  chk('목록이 있다', !!jumpSrc, true);
+  vm.runInContext(jumpSrc.replace(/^const /, 'var '), ctx);   // const 는 컨텍스트에 안 붙는다
+  ctx.PASS_ROWS = [{}, {}, {}]; ctx.PEND_ROWS = [{}]; ctx.MIS_TOP = [{}, {}];
+  ctx.ABS_ROWS = [{ absent:['가','나'] }, { absent:['다'] }];
+  ctx.FIN = { students:[] };
+  const n = ctx.JUMPS.map(j => j.n());
+  chk('미응시는 반이 아니라 사람 수로 센다', n[0], 3);
+  chk('재시·통과·개념도 센다', [n[1], n[2], n[3]], [1, 3, 2]);
+  chk('합칠 이름도 센다', n[4], 0);
+
+  const body = SRC.split('<script>')[1] || '';
+  chk('자리가 있다', /id="jump"/.test(SRC), true);
+  chk('빈 것은 안 세운다', /JUMPS\.filter\(function\(j\)\{ return j\.n\(\) > 0; \}\)/.test(body), true);
+  chk('누르면 그 자리로 간다', /scrollIntoView/.test(body), true);
+  // 스크롤만 되면 무엇이 바뀌었는지 모른다
+  chk('어디로 왔는지 표시한다', /classList\.add\('flashed'\)/.test(body), true);
+}
+
+console.log('\n── 학생을 걸러 본다 ──');
+{
+  /* "DT 반에는 있는데 파이널을 한 번도 안 본 학생" 은 검색으로 낼 수 없는
+     물음인데, 다음 회차를 누구에게 돌릴지 정할 때 가장 먼저 나온다. */
+  const fSrc = (SRC.match(/^const STU_FILTERS = \[[\s\S]*?^\];$/m) || [''])[0];
+  chk('목록이 있다', !!fSrc, true);
+  vm.runInContext(fSrc.replace(/^const /, 'var '), ctx);
+  const R = [
+    { name:'가', apps:{ exam:2 } },
+    { name:'나', apps:{ dt:1 } },
+    { name:'다', apps:{ exam:1, dt:1, km:1 } },
+  ];
+  const by = k => ctx.STU_FILTERS.filter(f => f.key === k)[0].fn;
+  chk('전체', R.filter(by('all')).length, 3);
+  chk('파이널', R.filter(by('exam')).map(r => r.name), ['가','다']);
+  chk('DT', R.filter(by('dt')).map(r => r.name), ['나','다']);
+  chk('KMChC', R.filter(by('km')).map(r => r.name), ['다']);
+  chk('파이널을 한 번도 안 본 학생', R.filter(by('noexam')).map(r => r.name), ['나']);
+  chk('자리가 있다', /id="stuFilter"/.test(SRC), true);
+}
+
+console.log('\n── 회차에서 바로 들고 나간다 ──');
+{
+  /* 회차를 열어 놓고 하는 일은 둘이다: 반 성적을 엑셀로 옮기거나, 아직 안 본
+     아이들에게 공지를 돌리거나. 둘 다 화면을 보고 손으로 옮겨 적어야 했다. */
+  const body = SRC.split('<script>')[1] || '';
+  chk('표 복사 단추가 있다', /data-rnd="table"/.test(body), true);
+  chk('이름 복사 단추가 있다', /data-rnd="names"/.test(body), true);
+  chk('엑셀에 붙게 탭으로 나눈다', /join\('\\t'\)/.test(body), true);
+  /* 화면은 120명만 보여 준다. 복사까지 잘리면 공지에서 아이가 빠지는데,
+     빠진 줄도 모른다. */
+  chk('이름 복사는 전부를 담는다',
+      /copyText\(b, \(g\.missing\|\|\[\]\)\.map\(function\(r\)\{ return r\.name; \}\)\.join\(', '\)/.test(body), true);
+  chk('잘랐다는 것을 말한다', /이름 복사는 '\+g\.missing\.length\+'명 전부를 담습니다/.test(body), true);
+  chk('닫으면 회차를 놓는다', /RND_OPEN = null/.test(body), true);
+  /* 남의 앱 주소를 셸이 지어내면 저쪽이 경로를 바꾸는 날 조용히 어긋난다.
+     DT·KMChC 가 준 주소를 그대로 연다. */
+  chk('주소를 지어내지 않는다', /data-url="'\+esc\(url\)\+'"/.test(body), true);
+  chk('report\\.html 주소를 짜지 않는다', /['"`]report\.html\?/.test(body), false);
 }
 
 console.log(fail ? `\n${fail}개 실패` : '\n모두 통과');
