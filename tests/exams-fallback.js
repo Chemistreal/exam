@@ -24,6 +24,9 @@
        PLAYWRIGHT_MODULE=<경로> CHROMIUM_PATH=<경로> node tests/exams-fallback.js
    ============================================================ */
 'use strict';
+/* 검사가 운영 시트를 읽으면 실 데이터가 심어 둔 데이터를 덮는다.
+   실제로 CI 에서 그렇게 깨졌다 — tests/_nosheet.js 의 주석 참고. */
+const noSheet = require('./_nosheet.js');
 const fs = require('fs');
 const path = require('path');
 const PLAYWRIGHT = process.env.PLAYWRIGHT_MODULE || 'playwright';
@@ -67,6 +70,7 @@ async function blockExams(page) {
     const page = await browser.newPage();
     const errs = []; page.on('pageerror', e => errs.push(e.message));
     await blockExams(page);
+    await noSheet(page);
     await page.goto(`${BASE}/final.html`, { waitUntil: 'networkidle' });
     await page.waitForTimeout(2500);   // 재시도 600ms + 여유
     const r = await page.evaluate(() => ({

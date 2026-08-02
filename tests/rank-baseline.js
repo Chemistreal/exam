@@ -26,6 +26,9 @@
        PLAYWRIGHT_MODULE=<경로> CHROMIUM_PATH=<경로> node tests/rank-baseline.js
    ============================================================ */
 'use strict';
+/* 검사가 운영 시트를 읽으면 실 데이터가 심어 둔 데이터를 덮는다.
+   실제로 CI 에서 그렇게 깨졌다 — tests/_nosheet.js 의 주석 참고. */
+const noSheet = require('./_nosheet.js');
 const fs = require('fs');
 const path = require('path');
 const PLAYWRIGHT = process.env.PLAYWRIGHT_MODULE || 'playwright';
@@ -103,6 +106,7 @@ const RANKS = `(function(){ var out=[];
   console.log('\n── 기준표 + 채점 기록 ──');
   const page = await browser.newPage();
   page.on('pageerror', e => errs.push(e.message));
+  await noSheet(page);
   await page.goto(U, { waitUntil: 'networkidle' });
   await page.waitForTimeout(800);
 

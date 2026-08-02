@@ -19,6 +19,9 @@
        PLAYWRIGHT_MODULE=<경로> CHROMIUM_PATH=<경로> node tests/share-link.js
    ============================================================ */
 'use strict';
+/* 검사가 운영 시트를 읽으면 실 데이터가 심어 둔 데이터를 덮는다.
+   실제로 CI 에서 그렇게 깨졌다 — tests/_nosheet.js 의 주석 참고. */
+const noSheet = require('./_nosheet.js');
 const PLAYWRIGHT = process.env.PLAYWRIGHT_MODULE || 'playwright';
 const CHROMIUM = process.env.CHROMIUM_PATH || undefined;
 const PORT = Number(process.env.PORT || 8931);
@@ -52,6 +55,7 @@ async function cohortSnapshot(browser, errs) {
   // 선생님 브라우저: 12명 누적(MINP=8 을 넘겨야 통계가 켜진다) → 공유 링크
   const teacher = await browser.newPage();
   teacher.on('pageerror', e => errs.push('교사: ' + e.message));
+  await noSheet(teacher);
   await teacher.goto(U, { waitUntil: 'networkidle' });
   const made = await teacher.evaluate(() => {
     const ex = FINAL_EXAMS.find(e => e.id === 'hwol-2018'), nQ = ex.nQ;

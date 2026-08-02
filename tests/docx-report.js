@@ -36,6 +36,9 @@ catch (e) {
   }
   console.log('건너뜀: playwright 를 찾지 못했다'); process.exit(0);
 }
+/* 검사가 운영 시트를 읽으면 실 데이터가 심어 둔 데이터를 덮는다.
+   실제로 CI 에서 그렇게 깨졌다 — tests/_nosheet.js 의 주석 참고. */
+const noSheet = require('./_nosheet.js');
 const fs=require('fs'),path=require('path'),{execSync}=require('child_process');
 const OUT = require('os').tmpdir() + '/chemistreal-docx-test';
 let fail=0; const chk=(n,g,w)=>{const ok=JSON.stringify(g)===JSON.stringify(w);
@@ -45,6 +48,7 @@ let fail=0; const chk=(n,g,w)=>{const ok=JSON.stringify(g)===JSON.stringify(w);
   const b=await chromium.launch({executablePath:CHROMIUM,args:['--no-sandbox']});
   const ctx=await b.newContext({acceptDownloads:true}); const p=await ctx.newPage();
   const errs=[]; p.on('pageerror',e=>errs.push(e.message));
+  await noSheet(p);
   await p.goto(`http://localhost:${PORT}/final.html`,{waitUntil:'networkidle'});
   await p.waitForTimeout(700);
 

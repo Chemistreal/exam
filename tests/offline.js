@@ -23,6 +23,9 @@
    (playwright 와 크로미움 경로가 필요하다. 아래 상수를 환경에 맞게 고친다.)
    ============================================================ */
 'use strict';
+/* 검사가 운영 시트를 읽으면 실 데이터가 심어 둔 데이터를 덮는다.
+   실제로 CI 에서 그렇게 깨졌다 — tests/_nosheet.js 의 주석 참고. */
+const noSheet = require('./_nosheet.js');
 const { spawn } = require('child_process');
 const path = require('path');
 
@@ -70,6 +73,8 @@ async function main() {
   const page = await (await browser.newContext()).newPage();
   const errs = [];
   page.on('pageerror', e => errs.push('PAGEERR: ' + e.message));
+
+  await noSheet(page);
 
   await page.goto(URL, { waitUntil: 'networkidle' });
   await page.evaluate(() => navigator.serviceWorker.ready);

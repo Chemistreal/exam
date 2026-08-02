@@ -21,6 +21,9 @@
        PLAYWRIGHT_MODULE=<경로> CHROMIUM_PATH=<경로> node tests/wrongbook-interactive.js
    ============================================================ */
 'use strict';
+/* 검사가 운영 시트를 읽으면 실 데이터가 심어 둔 데이터를 덮는다.
+   실제로 CI 에서 그렇게 깨졌다 — tests/_nosheet.js 의 주석 참고. */
+const noSheet = require('./_nosheet.js');
 const PLAYWRIGHT = process.env.PLAYWRIGHT_MODULE || 'playwright';
 const CHROMIUM = process.env.CHROMIUM_PATH || undefined;
 const PORT = Number(process.env.PORT || 8931);
@@ -55,6 +58,8 @@ const chk = (n, got, want) => {
   await page.setViewportSize({ width: 900, height: 1200 });
   const errs = [];
   page.on('pageerror', e => errs.push(e.message));
+
+  await noSheet(page);
 
   await page.goto(U, { waitUntil: 'networkidle' });
   await page.waitForTimeout(700);
