@@ -565,6 +565,69 @@ const chk = (n, got, want) => {
     chk('누르면 그 자리를 짚어 준다', jumped, true);
   }
 
+  console.log('\n── 늘 묻는 것은 칩 하나로 (저장된 보기) ──');
+  {
+    await p.evaluate(() => { const d = document.getElementById('dlg'); if (d.open) d.close();
+                             try { localStorage.removeItem('chemistreal:views'); } catch (e) {}
+                             history.replaceState(null, '', location.pathname);
+                             show('dash'); renderViews(); });
+    await p.waitForTimeout(300);
+    chk('처음에는 비어 있다고 말해 준다', await p.evaluate(() =>
+      /자주 보는 화면을 여기 걸어 두세요/.test(document.getElementById('views').textContent)), true);
+
+    /* 반 하나를 골라 둔 상태를 그대로 저장한다. 주소가 곧 상태라 담을 것이
+       주소 한 줄뿐이다. */
+    const saved = await p.evaluate(() => {
+      CLS_PICK = '화학1 토1:30-5:30'; show('cls'); renderClassTab(); writeHash();
+      document.getElementById('viewAdd').click();
+      return { hash: location.hash,
+               chips: [].map.call(document.querySelectorAll('#views .v > button:first-child'),
+                                  e => e.textContent) };
+    });
+    console.log('  ' + JSON.stringify(saved.chips));
+    chk('이름을 안 묻고 지금 화면에서 짓는다', saved.chips, ['반 · 화학1 토1:30-5:30']);
+    /* 이미 저장한 화면에서는 저장 단추가 사라져야 한다 — 두 번 담으면 어느
+       것이 최신인지 모른다. */
+    chk('저장한 화면에서는 단추가 내려간다', await p.evaluate(() =>
+      !document.getElementById('viewAdd')), true);
+
+    /* 다른 데를 갔다가 칩 하나로 돌아온다 — 그게 이 기능의 전부다. */
+    const backTo = await p.evaluate(async () => {
+      show('dash'); await new Promise(r => setTimeout(r, 200));
+      const had = document.querySelector('.pane.on').id;
+      document.querySelector('#views .v > button[data-view]').click();
+      await new Promise(r => setTimeout(r, 300));
+      return { from: had, tab: document.querySelector('.pane.on').id,
+               pick: CLS_PICK, hash: location.hash };
+    });
+    chk('다른 데로 갔다가', backTo.from, 'p-dash');
+    chk('칩 하나로 그 자리로', backTo.tab, 'p-cls');
+    chk('고른 것까지 그대로', backTo.pick, '화학1 토1:30-5:30');
+
+    /* 브라우저를 닫았다 열어도 남아야 뜻이 있다. */
+    await p.reload();
+    await p.waitForTimeout(1200);
+    chk('새로고침해도 남는다', await p.evaluate(() =>
+      [].map.call(document.querySelectorAll('#views .v > button:first-child'), e => e.textContent)),
+      ['반 · 화학1 토1:30-5:30']);
+
+    /* 앱 화면(iframe)은 저장해도 뜻이 없다 — 그 안의 상태는 주소에 안 담긴다. */
+    chk('앱 탭에서는 저장 단추가 없다', await p.evaluate(async () => {
+      show('dtr'); await new Promise(r => setTimeout(r, 300));
+      return !document.getElementById('viewAdd');
+    }), true);
+
+    const gone = await p.evaluate(async () => {
+      show('dash'); await new Promise(r => setTimeout(r, 200));
+      document.querySelector('#views .v .x').click();
+      await new Promise(r => setTimeout(r, 200));
+      return { n: document.querySelectorAll('#views .v').length,
+               stored: localStorage.getItem('chemistreal:views') };
+    });
+    chk('지우면 없어진다', gone.n, 0);
+    chk('저장된 것에서도 없어진다', gone.stored, '[]');
+  }
+
   console.log('\n── 휴대폰에서도 탭이 다 보인다 ──');
   {
     /* 390px 에서 재어 보니 열두 탭 중 여섯만 보였다. 밀 수는 있는데 막대를
