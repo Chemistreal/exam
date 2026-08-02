@@ -80,7 +80,7 @@ vm.runInContext([
   cut('sentKey'), cut('bulkBar'), cut('readHash'), cut('deltaOf'), cut('dayCounts'),
   cut('rosterCount'), cut('wonOf'),
   cut('dayKey'), cut('snoozedTill'), cut('isSnoozed'), cut('snzCls'), cut('snzBtn'),
-  cut('viewName'), cut('median'), cut('madOutliers'), cut('ndgKey'), cut('nudges'), cut('snzBar'), cut('conEntry'), cut('conPut'), cut('conHits'), cut('conTags'),
+  cut('viewName'), cut('prMis'), cut('median'), cut('madOutliers'), cut('ndgKey'), cut('nudges'), cut('snzBar'), cut('conEntry'), cut('conPut'), cut('conHits'), cut('conTags'),
   cut('conFor'), cut('conClassOf'), cut('conByClass'), cut('conRounds'),
   ((SRC.match(/^const FEE_PER = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
   ((SRC.match(/^const DT_COURSE = \{[^}]*\};?$/m) || [''])[0]).replace(/^const /, 'var '),
@@ -1176,6 +1176,46 @@ console.log('\n── 안 한 것이 떠오르게 (넛지) ──');
   chk('못 받아도 나머지는 뜬다',
       /dtViews\(\)\.then\(function\(\)\{ renderNudge\(\); \}\)\.catch/.test(body), true);
   ctx.SNZ.clear(); ctx.SENT.clear(); ctx.DT_CACHE = {}; ctx.PEND_ROWS = [];
+}
+
+console.log('\n── 상담지 한 장 ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  /* 학부모 상담은 매주 돌아온다. 자료는 이미 셸이 다 들고 있는데 **종이로
+     나가는 길만** 없어서, 그때마다 세 앱을 오가며 손으로 옮겨 적었다. */
+  chk('자리가 있다', /id="print"/.test(SRC), true);
+  chk('단추가 카드에 있다', /id="dlgPrint"/.test(SRC), true);
+  /* 화면 것을 그대로 인쇄하면 잉크만 먹고 안 읽힌다. <dialog> 는 브라우저마다
+     다르게 잘린다 — 인쇄할 것만 따로 짓는다. */
+  chk('화면에는 안 보인다', /#print\{display:none\}/.test(SRC), true);
+  chk('인쇄할 때만 나온다',
+      /@media print\{[\s\S]{0,400}body > \*\{display:none !important\}[\s\S]{0,120}#print\{display:block !important\}/.test(SRC), true);
+  chk('A4 한 장', /@page\{size:A4/.test(SRC), true);
+  chk('검정 글씨로', /#print \*\{color:#000 !important/.test(SRC), true);
+  /* 상담은 말로 한다. 적을 자리가 없으면 종이 뒤에 적게 된다. */
+  chk('적을 자리를 남긴다', /상담 메모<\/h2><div class="memo">/.test(body), true);
+  /* 언제·무엇을 바탕으로 한 종이인지 안 적으면, 나중에 숫자가 달라졌을 때
+     어느 시점 기록인지 알 길이 없다. */
+  chk('무엇을 바탕으로 했는지 적는다',
+      /파이널 채점 기록 · DT 시트 기준/.test(body) && /최근 2주/.test(body), true);
+
+  /* 상담지에만 있는 계산을 두면 화면과 종이가 어긋나고, 어긋나면 어느 쪽이
+     맞는지 물어야 한다. 화면이 쓰는 것을 그대로 쓴다. */
+  chk('화면이 쓰는 것을 그대로 쓴다',
+      /const fin = finFor\(r\), d = dtForStudent\(r\), km = kmForStudent\(r\);/.test(body), true);
+
+  ctx.DT_CACHE = { 'dt:mistags': { val: [
+    { name:'김지성', school:'휘문중', course:'ch1', round:5, tags:['몰농도','완충'] },
+    { name:'김지성', school:'휘문',   course:'ch2', round:7, tags:['몰농도'] },
+    { name:'박서준', school:'과천중', course:'ch1', round:5, tags:['산화수'] },
+  ] } };
+  const m = ctx.prMis({ name:'김지성', school:'휘문중' });
+  chk('이 학생 것만 모은다', m.map(function(x){ return [x.tag, x.n]; }), [['몰농도',2],['완충',1]]);
+  /* 학교 표기가 '휘문' 과 '휘문중' 으로 흔들려도 같은 아이다. */
+  chk('학교 표기가 흔들려도 센다', (m.filter(function(x){ return x.tag==='몰농도'; })[0]||{}).n, 2);
+  chk('남의 개념은 안 붙인다', m.some(function(x){ return x.tag==='산화수'; }), false);
+  chk('기록이 없으면 빈 목록', ctx.prMis({ name:'없는학생', school:'X중' }), []);
+  ctx.DT_CACHE = {};
 }
 
 console.log('\n── 또래 대비 크게 벗어난 점수 (MAD) ──');

@@ -592,6 +592,50 @@ const chk = (n, got, want) => {
     chk('미응시 안내도 카드에서 바로', abs, '빌린미응시:김지성/ch1/12/빌린주소/ch1/12/1');
   }
 
+  console.log('\n── 상담지 한 장 ──');
+  {
+    /* 학부모 상담은 매주 돌아온다. 자료는 이미 셸이 다 들고 있는데 종이로
+       나가는 길만 없어서, 그때마다 세 앱을 오가며 손으로 옮겨 적었다. */
+    const pr = await p.evaluate(async () => {
+      let printed = 0;
+      window.print = () => { printed++; };        // 인쇄창을 실제로 띄우지는 않는다
+      const r = ROSTER.filter(x => x.name === '김지성')[0];
+      openStudent(r);
+      await new Promise(t => setTimeout(t, 700));
+      document.getElementById('dlgPrint').click();
+      await new Promise(t => setTimeout(t, 200));
+      const el = document.getElementById('print');
+      return {
+        printed: printed,
+        h1: (el.querySelector('h1') || {}).textContent,
+        keys: [].map.call(el.querySelectorAll('.pr__k div span'), e => e.textContent),
+        nums: [].map.call(el.querySelectorAll('.pr__k div b'), e => e.textContent),
+        heads: [].map.call(el.querySelectorAll('h2'), e => e.textContent),
+        memo: !!el.querySelector('.memo'),
+        foot: (el.querySelector('.foot') || {}).textContent,
+        onScreen: getComputedStyle(el).display,
+        frames: el.querySelectorAll('iframe').length,
+      };
+    });
+    console.log('  ' + JSON.stringify(pr.heads) + ' ' + JSON.stringify(pr.nums));
+    chk('인쇄를 부른다', pr.printed, 1);
+    chk('누구 것인지 적는다', pr.h1, '김지성 학습 상담지');
+    chk('셀 것을 다 센다', pr.keys,
+        ['파이널 응시', '평균 정답률', '가장 최근', 'DT 통과', '재시 대기', '미응시']);
+    /* 화면 카드가 말하는 것과 종이가 말하는 것이 달라지면 어느 쪽이 맞는지
+       물어야 한다 — 같은 함수를 쓴다(DT 통과 1 · 미응시 1). */
+    chk('화면과 같은 숫자', [pr.nums[3], pr.nums[5]], ['1', '1']);
+    /* 상담은 말로 한다. 적을 자리가 없으면 종이 뒤에 적게 된다. */
+    chk('적을 자리가 있다', pr.memo, true);
+    chk('무엇을 바탕으로 했는지 적는다', /DT 시트 기준/.test(pr.foot || ''), true);
+    /* 화면에는 안 보여야 한다 — 보이면 대시보드 밑에 종이가 한 장 깔린다. */
+    chk('화면에는 안 나온다', pr.onScreen, 'none');
+    /* iframe 이 딸려 들어가면 종이가 여러 장이 되고 앱 화면이 통째로 찍힌다. */
+    chk('앱 화면은 안 딸려 간다', pr.frames, 0);
+    await p.evaluate(() => { const d = document.getElementById('dlg'); if (d.open) d.close(); });
+    await p.waitForTimeout(200);
+  }
+
   console.log('\n── 오늘 할 일을 한 줄에 세운다 ──');
   {
     await p.evaluate(() => { const d = document.getElementById('dlg'); if (d.open) d.close(); show('dash'); });

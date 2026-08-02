@@ -82,6 +82,38 @@ nav.nav2 button{padding:8px 13px;font-size:13px}
 nav .navlab{align-self:center;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--muted);padding:0 10px 0 2px;white-space:nowrap;font-weight:700}
 
+/* ── 상담지 ─────────────────────────────────────────
+   학부모 상담은 매주 돌아온다. 그때마다 파이널·DT·진단 셋을 오가며 손으로
+   옮겨 적었다 — 이 셸이 없앨 수 있는 되풀이 노동 가운데 가장 큰 것이다.
+
+   화면용 화려한 것을 그대로 인쇄하면 잉크만 먹고 읽히지 않는다. 종이에 맞는
+   것만 다시 짓는다: 검정 글씨, A4 한 장, 손으로 적을 빈 줄. */
+#print{display:none}
+@media print{
+  @page{size:A4;margin:14mm}
+  body{background:#fff}
+  body > *{display:none !important}
+  #print{display:block !important}
+  #print *{color:#000 !important;box-shadow:none !important}
+  .pr__h{display:flex;align-items:flex-end;justify-content:space-between;
+    border-bottom:2px solid #000;padding-bottom:6px;margin-bottom:12px}
+  .pr__h h1{font-size:17pt;margin:0}
+  .pr__h .who{font-size:10.5pt}
+  .pr__k{display:flex;gap:10px;margin:0 0 12px;flex-wrap:wrap}
+  .pr__k div{border:1px solid #000;border-radius:4px;padding:6px 12px;min-width:74px;text-align:center}
+  .pr__k b{display:block;font-size:15pt;line-height:1.2}
+  .pr__k span{font-size:8.5pt}
+  #print h2{font-size:11pt;margin:12px 0 5px;border-bottom:1px solid #000;padding-bottom:2px}
+  #print table{width:100%;border-collapse:collapse;font-size:9.5pt}
+  #print th,#print td{border:1px solid #666;padding:3px 6px;text-align:left}
+  #print .bar{display:flex;align-items:flex-end;gap:3px;height:34px;margin:4px 0}
+  #print .bar i{flex:1;background:#000;min-width:5px}
+  #print .barx{display:flex;gap:3px;font-size:7.5pt}
+  #print .barx span{flex:1;text-align:center}
+  #print .memo{border:1px solid #000;border-radius:4px;height:74px;margin-top:4px}
+  #print .foot{margin-top:12px;font-size:8pt;border-top:1px solid #999;padding-top:4px}
+}
+
 /* ── 저장된 보기 ────────────────────────────────────
    늘 묻는 것은 정해져 있다. 주소가 곧 상태(#tab?params)라, 그 주소에 이름만
    붙이면 저장이 끝난다 — 새로 만들 그릇이 없다. */
@@ -624,8 +656,14 @@ body:not(.snzshow) .row.snz{display:none}
 
 <dialog id="dlg"><div class="dlg__h">
   <h3 id="dlgName"></h3><span class="where" id="dlgWhere"></span>
+  <!-- 학부모 상담은 매주 돌아오는데, 그때마다 세 앱을 오가며 손으로 옮겨 적었다. -->
+  <button class="btn" id="dlgPrint">상담지</button>
   <button class="btn x" id="dlgX">닫기</button>
 </div><div class="dlg__b" id="dlgBody"></div></dialog>
+
+<!-- 상담지. 화면에는 없고 인쇄할 때만 나온다. <dialog> 를 그대로 인쇄하면
+     브라우저마다 다르게 잘려서, 인쇄할 것만 따로 짓는다. -->
+<div id="print" aria-hidden="true"></div>
 
 <script>
 /* ── 첫 화면 잠금 ──────────────────────────────────────────────────────
@@ -2455,6 +2493,97 @@ function openStudent(r){
   ]).then(function(){ syncWorkRows(); renderStuOther(); });
   document.getElementById('dlg').showModal();
 }
+/* ══════════════════════════════════════════════════════════════════
+   상담지 — 한 장으로
+
+   학부모 상담은 매주 돌아온다. 그때마다 파이널 성적표를 열고, DT 통과 여부를
+   보고, 취약 개념을 훑어 손으로 옮겨 적었다. 자료는 이미 셸이 다 들고 있는데
+   **종이로 나가는 길만 없었다.**
+
+   [화면 것을 그대로 인쇄하지 않는다]
+   색·그림자·iframe 은 잉크만 먹고 종이에서는 안 읽힌다. <dialog> 를 그대로
+   인쇄하면 브라우저마다 다르게 잘린다. 인쇄할 것만 따로 짓는다.
+
+   [숫자를 지어내지 않는다]
+   여기 적히는 것은 전부 화면에 이미 있는 것이다. 상담지에만 있는 계산을 두면
+   화면과 종이가 어긋나고, 어긋나면 어느 쪽이 맞는지 물어야 한다.
+
+   [빈 줄을 남긴다]
+   상담은 말로 한다. 적을 자리가 없으면 종이 뒤에 적게 된다. */
+function prMis(r){
+  const hits = (dtCached('mistags') || []).filter(function(x){ return sameStudent(r, x); });
+  const by = new Map();
+  hits.forEach(function(x){
+    (x.tags||[]).forEach(function(t){
+      const tag = String(t||'').trim(); if(!tag) return;
+      by.set(tag, (by.get(tag)||0) + 1);
+    });
+  });
+  return Array.from(by.entries()).map(function(e){ return { tag:e[0], n:e[1] }; })
+    .sort(function(a,b){ return b.n-a.n || String(a.tag).localeCompare(String(b.tag),'ko'); });
+}
+function printSheet(r){
+  const host = document.getElementById('print'); if(!host || !r) return '';
+  const fin = finFor(r), d = dtForStudent(r), km = kmForStudent(r);
+  const asc = fin ? fin.rounds.slice().sort(function(a,b){ return (a.ts||0)-(b.ts||0); }) : [];
+  const pcts = asc.map(function(x){ return x.total ? Math.round(x.correct/x.total*100) : 0; });
+  const avg = pcts.length ? Math.round(pcts.reduce(function(a,b){ return a+b; },0)/pcts.length) : null;
+  const last = pcts.length ? pcts[pcts.length-1] : null;
+  const mis = prMis(r);
+  const today = dayKey(0).replace(/-/g,'.');
+
+  let h = '<div class="pr__h"><div><h1>'+esc(r.name||'')+' 학습 상담지</h1>'+
+    '<div class="who">'+esc([r.school, r.grade?r.grade+'학년':''].filter(Boolean).join(' '))+
+    '</div></div><div class="who">'+esc(today)+' · 조준모 화학</div></div>';
+
+  h += '<div class="pr__k">'+
+    '<div><b>'+(pcts.length||0)+'</b><span>파이널 응시</span></div>'+
+    '<div><b>'+(avg!=null?avg+'%':'—')+'</b><span>평균 정답률</span></div>'+
+    '<div><b>'+(last!=null?last+'%':'—')+'</b><span>가장 최근</span></div>'+
+    '<div><b>'+d.passed.length+'</b><span>DT 통과</span></div>'+
+    '<div><b>'+d.pending.length+'</b><span>재시 대기</span></div>'+
+    '<div><b>'+d.absent.length+'</b><span>미응시</span></div></div>';
+
+  if(pcts.length > 1){
+    h += '<h2>파이널 정답률 추세</h2><div class="bar">'+
+      pcts.map(function(v){ return '<i style="height:'+Math.max(4, Math.round(v*0.34))+'px"></i>'; }).join('')+
+      '</div><div class="barx">'+pcts.map(function(v){ return '<span>'+v+'</span>'; }).join('')+'</div>';
+  }
+
+  if(mis.length){
+    h += '<h2>아직 못 잡은 개념</h2><table><tr><th>개념</th><th style="width:22%">걸린 횟수</th></tr>'+
+      mis.slice(0,6).map(function(m){
+        return '<tr><td>'+esc(m.tag)+'</td><td>'+m.n+'회</td></tr>'; }).join('')+'</table>';
+  }
+
+  if(asc.length){
+    /* 최근 것이 위. 종이에서는 위에서부터 읽는다. */
+    const desc = asc.slice().reverse().slice(0,8);
+    h += '<h2>파이널 회차</h2><table><tr><th>회차</th><th style="width:20%">정답</th>'+
+      '<th style="width:16%">정답률</th><th style="width:22%">본 날</th></tr>'+
+      desc.map(function(x){
+        const pct = x.total ? Math.round(x.correct/x.total*100) : 0;
+        return '<tr><td>'+esc(examTitle(x.exam))+'</td><td>'+(x.correct!=null?x.correct+'/'+(x.total||'—'):'—')+
+          '</td><td>'+pct+'%</td><td>'+(x.ts ? new Date(x.ts).toLocaleDateString('ko-KR') : '')+'</td></tr>';
+      }).join('')+'</table>';
+  }
+
+  if(km && km.kmLink) h += '<h2>화학 정밀 학습진단</h2><table><tr><td>'+esc(km.grade||'응시함')+'</td></tr></table>';
+
+  h += '<h2>상담 메모</h2><div class="memo"></div>';
+  /* 무엇을 바탕으로 한 종이인지 안 적으면, 나중에 숫자가 달라졌을 때 어느
+     시점 기록인지 알 길이 없다. */
+  h += '<div class="foot">파이널 채점 기록 · DT 시트 기준 · '+esc(today)+' 만듦. '+
+    '재시·통과·미응시는 최근 2주, 못 잡은 개념은 최근 3주입니다.</div>';
+  host.innerHTML = h;
+  return h;
+}
+document.getElementById('dlgPrint').addEventListener('click', function(){
+  if(!DLG_STU) return;
+  printSheet(DLG_STU);
+  try{ window.print(); }catch(e){}
+});
+
 /* ── 학생 카드에 다른 앱 기록을 붙인다 ────────────────────────────────
    여태 학생 카드는 파이널 회차만 보여 주고, DT·KMChC 는 "명단에도 있습니다"
    한 줄로 끝났다. 정작 물어보고 싶은 것은 그쪽이다 — 이 아이가 DT 를
