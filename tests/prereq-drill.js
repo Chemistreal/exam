@@ -19,18 +19,31 @@
        PLAYWRIGHT_MODULE=<경로> CHROMIUM_PATH=<경로> node tests/prereq-drill.js
    ============================================================ */
 'use strict';
+/* 검사가 운영 시트를 읽으면 실 데이터가 심어 둔 데이터를 덮는다.
+   실제로 CI 에서 그렇게 깨졌다 — tests/_nosheet.js 의 주석 참고. */
+const noSheet = require('./_nosheet.js');
 const PLAYWRIGHT = process.env.PLAYWRIGHT_MODULE || 'playwright';
 const CHROMIUM = process.env.CHROMIUM_PATH || undefined;
 const PORT = Number(process.env.PORT || 8931);
 let chromium;
 try { ({ chromium } = require(PLAYWRIGHT)); }
-catch (e) { console.log('건너뜀: playwright 를 찾지 못했다'); process.exit(0); }
+catch (e) {
+  /* 브라우저를 깔아 놓고도 조용히 건너뛰면 초록불이 '브라우저 검사까지
+     통과했다' 로 읽힌다. 실제로 그랬다 — 통합 셸의 브라우저 검사가 몇 달
+     동안 CI 에서 한 번도 안 돌았는데 초록불이었다. 깔아 둔 자리에서는 멈춘다. */
+  if (process.env.REQUIRE_BROWSER) {
+    console.log('실패: playwright 를 찾지 못했다 (REQUIRE_BROWSER 가 켜져 있다)');
+    process.exit(1);
+  }
+  console.log('건너뜀: playwright 를 찾지 못했다'); process.exit(0);
+}
 let fail=0; const chk=(n,g,w)=>{const ok=JSON.stringify(g)===JSON.stringify(w);
   console.log((ok?'  PASS  ':'  FAIL  ')+n+(ok?'':`  got=${JSON.stringify(g)} want=${JSON.stringify(w)}`));if(!ok)fail++;};
 (async()=>{
   const b=await chromium.launch({executablePath:CHROMIUM,args:['--no-sandbox']});
   const p=await b.newPage(); await p.setViewportSize({width:900,height:1200});
   const errs=[]; p.on('pageerror',e=>errs.push(e.message));
+  await noSheet(p);
   await p.goto(`http://localhost:${PORT}/final.html`,{waitUntil:'networkidle'});
   await p.waitForTimeout(700);
 

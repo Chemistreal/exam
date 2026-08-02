@@ -24,6 +24,9 @@
        PLAYWRIGHT_MODULE=<경로> CHROMIUM_PATH=<경로> node tests/exams-fallback.js
    ============================================================ */
 'use strict';
+/* 검사가 운영 시트를 읽으면 실 데이터가 심어 둔 데이터를 덮는다.
+   실제로 CI 에서 그렇게 깨졌다 — tests/_nosheet.js 의 주석 참고. */
+const noSheet = require('./_nosheet.js');
 const fs = require('fs');
 const path = require('path');
 const PLAYWRIGHT = process.env.PLAYWRIGHT_MODULE || 'playwright';
@@ -33,7 +36,16 @@ const BASE = `http://localhost:${PORT}`;
 
 let chromium;
 try { ({ chromium } = require(PLAYWRIGHT)); }
-catch (e) { console.log('건너뜀: playwright 를 찾지 못했다'); process.exit(0); }
+catch (e) {
+  /* 브라우저를 깔아 놓고도 조용히 건너뛰면 초록불이 '브라우저 검사까지
+     통과했다' 로 읽힌다. 실제로 그랬다 — 통합 셸의 브라우저 검사가 몇 달
+     동안 CI 에서 한 번도 안 돌았는데 초록불이었다. 깔아 둔 자리에서는 멈춘다. */
+  if (process.env.REQUIRE_BROWSER) {
+    console.log('실패: playwright 를 찾지 못했다 (REQUIRE_BROWSER 가 켜져 있다)');
+    process.exit(1);
+  }
+  console.log('건너뜀: playwright 를 찾지 못했다'); process.exit(0);
+}
 
 const EXAMS = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'exams.json'), 'utf8'));
 
@@ -58,6 +70,7 @@ async function blockExams(page) {
     const page = await browser.newPage();
     const errs = []; page.on('pageerror', e => errs.push(e.message));
     await blockExams(page);
+    await noSheet(page);
     await page.goto(`${BASE}/final.html`, { waitUntil: 'networkidle' });
     await page.waitForTimeout(2500);   // 재시도 600ms + 여유
     const r = await page.evaluate(() => ({

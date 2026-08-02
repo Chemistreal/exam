@@ -33,7 +33,19 @@ const SHARED = 'final.html#r=jmchc-6.lh0dhl0zzuxkmg3q98nuun7oshe..~6rmA7KeA7ISx'
 
 let chromium;
 try { ({ chromium } = require(PLAYWRIGHT)); }
-catch (e) { console.log('건너뜀: playwright 를 찾지 못했다'); process.exit(0); }
+catch (e) {
+  /* 브라우저를 깔아 놓고도 조용히 건너뛰면 초록불이 '브라우저 검사까지
+     통과했다' 로 읽힌다. 실제로 그랬다 — 통합 셸의 브라우저 검사가 몇 달
+     동안 CI 에서 한 번도 안 돌았는데 초록불이었다. 깔아 둔 자리에서는 멈춘다. */
+  if (process.env.REQUIRE_BROWSER) {
+    console.log('실패: playwright 를 찾지 못했다 (REQUIRE_BROWSER 가 켜져 있다)');
+    process.exit(1);
+  }
+  console.log('건너뜀: playwright 를 찾지 못했다'); process.exit(0);
+}
+/* 검사가 운영 시트를 읽으면 실 데이터가 심어 둔 데이터를 덮는다.
+   실제로 CI 에서 그렇게 깨졌다 — tests/_nosheet.js 의 주석 참고. */
+const noSheet = require('./_nosheet.js');
 
 let fail = 0;
 const chk = (n, got, want) => {
@@ -50,6 +62,7 @@ const chk = (n, got, want) => {
   const visit = async (path, wait) => {
     const page = await (await browser.newContext()).newPage();
     page.on('pageerror', e => errs.push(path + ': ' + e.message));
+    await noSheet(page);
     await page.goto(AT(path), { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(wait || 900);
     return page;
