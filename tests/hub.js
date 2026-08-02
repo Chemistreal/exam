@@ -1106,8 +1106,14 @@ console.log('\n── 보낸 것은 눈에서 내려간다 ──');
       /w\.unmarkSent\(/.test(body), true);
   chk('보낸 줄에만 무르기가 뜬다',
       /return SENT\.has\(k\) \? '<button class="mini undo"/.test(body), true);
-  chk('못 받아도 화면은 산다',
-      /dtSentLog\(\)\.then\(function\(rows\)\{ seedSent\(rows\); refreshSoon\(\); \}\)\.catch/.test(body), true);
+  /* ⚠ 앱스크립트는 실행을 한 줄로 세운다. 꾸미는 창구까지 한꺼번에 부르면
+     줄이 30초까지 길어지고 그동안 **다른 화면이 실패한다** — 실제로 명단
+     화면이 기본 명단으로 되돌아가 덮어쓸 뻔했다. 뒤에 하나씩 세운다. */
+  chk('꾸미는 창구는 줄 뒤에', /function laterOnce\(\)/.test(body) &&
+      /dtSentLog\(\)\.then\(function\(rows\)\{ seedSent\(rows\); refreshSoon\(\); \}/.test(body), true);
+  chk('한꺼번에 안 부른다', /steps\.reduce\(function\(p, f\)\{/.test(body), true);
+  chk('한 번만 건다', /if\(LATER_DONE\) return;/.test(body), true);
+  chk('못 받아도 화면은 산다', /f\(\)\.catch\(function\(\)\{\}\)/.test(body), true);
 }
 
 console.log('\n── 안 한 것이 떠오르게 (넛지) ──');
@@ -1173,9 +1179,37 @@ console.log('\n── 안 한 것이 떠오르게 (넛지) ──');
   /* 이 창구는 진작 열려 있었는데 셸이 안 읽고 있었다 — 아침 메일만 쓰고 있었다. */
   chk('열람 창구를 읽는다', /function dtViews\(force\)/.test(body) &&
       /readOnce\('dt', 'views'/.test(body), true);
-  chk('못 받아도 나머지는 뜬다',
-      /dtViews\(\)\.then\(function\(\)\{ renderNudge\(\); \}\)\.catch/.test(body), true);
+  chk('못 받아도 나머지는 뜬다', /dtViews\(\)\.then\(function\(\)\{ renderNudge\(\); \}\)/.test(body) &&
+      /f\(\)\.catch\(function\(\)\{\}\)/.test(body), true);
+  /* 급한 것이 실패해도 기다림은 끝나야 한다 — 여기서 멈추면 보낸 표시가
+     영영 안 붙는다. */
+  chk('급한 것이 실패해도 이어 간다',
+      /dtRoster\(\)\.catch\(function\(\)\{\}\), dtPending\(\)\.catch/.test(body), true);
   ctx.SNZ.clear(); ctx.SENT.clear(); ctx.DT_CACHE = {}; ctx.PEND_ROWS = [];
+}
+
+console.log('\n── 어느 오답으로 쏠렸나 (문항 분석) ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  /* 화학은 오답 선택지가 곧 오개념이다(몰 vs 질량, 산화수 부호). 정답률은
+     '틀렸다' 를 말하지만 어느 오답을 골랐는지는 '왜' 를 말한다. */
+  chk('회차에서 들어가는 길이 있다', /data-rnd="ana"/.test(body), true);
+  /* ⚠ 그 계산은 **파이널 앱이 이미 하고 있다**(성적표의 '누적 정답률 · 선택지
+     분석'). 여기에 다시 만들면 두 벌이 갈라지고 어느 쪽이 맞는지 물어야 한다.
+     없던 것은 계산이 아니라 들어가는 길이었다. */
+  chk('여기서 다시 계산하지 않는다',
+      /qopt|qdisc|선택지 분포를 센다/.test(CODE_ONLY), false);
+  chk('이미 있는 길을 그대로 탄다',
+      /const r = RND_OPEN\.rows\.filter\(function\(x\)\{ return x\.ans; \}\)\[0\];[\s\S]{0,120}openReport\(r, b\)/.test(body), true);
+  /* 답안이 없으면 성적표를 못 연다 — 단추를 내놓고 눌러도 아무 일이 없으면
+     고장으로 읽는다. */
+  chk('답안이 있을 때만 내놓는다',
+      /const anaOK = g\.rows\.some\(function\(r\)\{ return r\.ans; \}\);/.test(body) &&
+      /\(anaOK \? '<div class="note2">/.test(body), true);
+  chk('없으면 그렇게 말한다', /flash\(b, '답안 없음'\)/.test(body), true);
+  /* 누구 성적표로 열든 같은 그림이라는 것을 안 적으면, 그 학생 개인 분석으로
+     읽고 "왜 얘 걸로 보지" 가 된다. */
+  chk('반 전체 기록임을 적는다', /반 전체 기록<\/b>으로 그리므로/.test(body), true);
 }
 
 console.log('\n── 상담지 한 장 ──');

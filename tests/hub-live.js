@@ -975,6 +975,38 @@ const chk = (n, got, want) => {
     const names = await clip('#dlgBody .mini[data-rnd="names"]');
     console.log('  ' + JSON.stringify(names));
     chk('안 본 학생 이름이 공지에 붙는 모양으로', names, '새학생, 이도현');
+    /* ── 어느 오답으로 쏠렸나 ──────────────────────────────────────
+       화학은 오답 선택지가 곧 오개념이다. 그 계산은 **파이널 앱이 이미 하고
+       있다** — 없던 것은 계산이 아니라 회차에서 들어가는 길이었다.
+       ⚠ 성적표를 여는 길이므로 **기록이 늘면 안 된다**(파이널은 `#r=` 를 받으면
+       다시 채점한다). 이 검사가 그것도 센다. */
+    const anaBefore = await p.evaluate(() =>
+      JSON.parse(localStorage.getItem('final:roster:jmchc-2') || '[]').length);
+    const ana = await p.evaluate(async () => {
+      const b = document.querySelector('#dlgBody .mini[data-rnd="ana"]');
+      if (!b) return null;
+      b.click();
+      await new Promise(r => setTimeout(r, 900));
+      return { tab: document.querySelector('.pane.on').id,
+               open: document.getElementById('dlg').open };
+    });
+    chk('회차에서 문항 분석으로 간다', (ana || {}).tab, 'p-exam');
+    chk('회차 창은 닫힌다', (ana || {}).open, false);
+    /* 지켜야 할 것은 **없던 학생이 생기지 않는 것**이다. 재어 보니 2 → 1 로
+       줄었는데, 이건 앞 검사가 일부러 심어 둔 '김 지성'(띄어쓴 같은 학생)이
+       성적표를 다시 여는 순간 파이널의 저장 규칙(공백을 지운다)에 따라 붙은
+       것이다 — 갈라진 이름이 하나로 돌아온 것이지 잃은 것이 아니다.
+       그래서 '늘지 않는다' 와 '그 학생이 그대로 있다' 둘로 나눠 본다. */
+    const anaAfter = await p.evaluate(() =>
+      JSON.parse(localStorage.getItem('final:roster:jmchc-2') || '[]').map(r => r.name));
+    console.log('  ' + JSON.stringify(anaAfter));
+    chk('없던 학생이 생기지 않는다', anaAfter.length <= anaBefore, true);
+    chk('그 학생은 그대로 있다', anaAfter.some(n => n.replace(/\s+/g, '') === '김지성'), true);
+    await p.evaluate(() => { const d = document.getElementById('dlg'); if (d.open) d.close(); });
+    await p.evaluate(() => show('rnd'));
+    await p.waitForTimeout(300);
+    await p.evaluate(() => openRound('jmchc-2'));
+    await p.waitForTimeout(400);
     await p.evaluate(() => document.getElementById('dlg').close());
     chk('닫으면 회차를 놓는다', await p.evaluate(() => RND_OPEN), null);
   }
