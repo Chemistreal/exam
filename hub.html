@@ -79,7 +79,7 @@ nav button:focus-visible{outline:2px solid var(--brass);outline-offset:-2px;bord
    화면이고 어느 것이 앱인지 구별이 안 된다 — 뒤로가기가 어디로 갈지 모른다. */
 nav.nav2{background:var(--sunk);border-top:1px solid var(--line);padding:0 12px}
 nav.nav2 button{padding:8px 13px;font-size:13px}
-nav .navlab{align-self:center;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+nav .navlab{align-self:center;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--muted);padding:0 10px 0 2px;white-space:nowrap;font-weight:700}
 
 /* ── 상담지 ─────────────────────────────────────────
@@ -123,7 +123,7 @@ nav .navlab{align-self:center;font-size:10.5px;letter-spacing:.1em;text-transfor
    숨긴 줄이 그대로 서서 휴대폰 머리가 11px 도로 늘어난다(재어 보고 알았다). */
 .views[hidden]{display:none}
 .views::-webkit-scrollbar{display:none}
-.views .vlab{color:var(--muted);font-weight:700;font-size:10.5px;letter-spacing:.08em;
+.views .vlab{color:var(--muted);font-weight:700;font-size:11.5px;letter-spacing:.08em;
   white-space:nowrap;padding-right:2px}
 .views .v{display:inline-flex;align-items:center;gap:0;border:1px solid var(--line-2);
   border-radius:999px;background:var(--paper);white-space:nowrap;overflow:hidden}
@@ -175,11 +175,16 @@ section{margin-bottom:34px}
   font-size:14px;cursor:pointer;background:none;border-left:none;border-right:none;border-top:none;
   width:100%;text-align:left;font-family:inherit;color:inherit}
 .row:last-child{border-bottom:none}
-.row:hover,.row:focus-visible{background:var(--wash);outline:none}
+.row:hover{background:var(--wash)}
+/* 키보드로 줄을 훑을 때 어디에 서 있는지 보여야 한다. 예전에는 여기서
+   outline 을 지우고 옅은 옥색 배경(--wash #EDF4F1)만 남겼는데, 종이색과
+   1.13:1 이라 **사실상 아무 표시도 없었다.** 마우스로 쓰면 안 보이는 결함이다.
+   놋쇠색은 종이 위 3.02:1 로 테두리 기준(3:1)을 넘긴다. */
+.row:focus-visible{background:var(--wash);outline:2px solid var(--brass);outline-offset:-2px}
 .row .nm{font-weight:600;min-width:74px}
 .row .where{color:var(--muted);font-size:12.5px;flex:1}
 .row .tags{display:flex;gap:5px;flex-wrap:wrap}
-.tag{font-size:11px;font-weight:700;padding:1px 7px;border-radius:99px;
+.tag{font-size:11.5px;font-weight:700;padding:1px 7px;border-radius:99px;
   background:var(--wash);color:var(--teal);border:1px solid rgba(14,90,76,.22);white-space:nowrap}
 .tag.dt{background:#FBF3E9;color:#8a6520;border-color:rgba(176,141,87,.3)}
 .tag.km{background:#F1EEF7;color:#5B4B8A;border-color:rgba(91,75,138,.25)}
@@ -225,7 +230,7 @@ dialog::backdrop{background:rgba(20,18,14,.45)}
 
 table{border-collapse:collapse;width:100%;font-size:13.5px}
 th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left}
-th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+th{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
 td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
 .scroll{overflow-x:auto}
 .spin{color:var(--muted);font-size:13.5px;padding:16px 0}
@@ -238,7 +243,7 @@ td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:righ
   display:block;position:relative}
 .spark i.low{background:var(--ms)}
 .spark i:last-child{opacity:1;outline:1px solid var(--brass);outline-offset:1px}
-.sparkx{display:flex;gap:3px;font-family:var(--mono);font-size:10px;color:var(--muted);
+.sparkx{display:flex;gap:3px;font-family:var(--mono);font-size:11.5px;color:var(--muted);
   font-variant-numeric:tabular-nums}
 .sparkx span{flex:1;min-width:5px;text-align:center}
 
@@ -253,7 +258,7 @@ td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:righ
 .connbar{display:flex;flex-wrap:wrap;gap:6px;margin:-2px 0 12px}
 .conn{display:inline-flex;align-items:baseline;gap:5px;font-size:11.5px;font-weight:700;
   border:1px solid var(--line-2);border-radius:999px;padding:3px 10px;color:var(--ink-2);background:var(--paper)}
-.conn small{font-weight:600;font-size:10.5px;opacity:.75}
+.conn small{font-weight:600;font-size:11.5px;opacity:.75}
 .conn.ok{border-color:rgba(47,122,90,.4);color:var(--ok)}
 .conn.bad{border-color:rgba(176,81,47,.45);color:#8a2f1d;background:rgba(176,81,47,.05)}
 .conn.warn{border-color:rgba(176,135,58,.45);color:#7a5d20}
@@ -266,7 +271,7 @@ td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:righ
 .trk__i{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .trk__i>div{flex:1;min-width:150px}
 .acts{display:flex;gap:6px}
-.kbd{font-family:var(--mono);font-size:11px;background:var(--sunk);border:1px solid var(--line-2);
+.kbd{font-family:var(--mono);font-size:11.5px;background:var(--sunk);border:1px solid var(--line-2);
   border-radius:4px;padding:0 5px}
 .sub2{font-size:12.5px;color:var(--muted);margin:14px 0 6px;font-weight:700;
   letter-spacing:.04em;text-transform:uppercase}
@@ -283,7 +288,7 @@ tr.pick:hover td{background:var(--wash)}
 .chip:hover{border-color:var(--teal);color:var(--teal)}
 .chip:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .chip[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:#fff}
-.chip small{font-weight:600;opacity:.7;margin-left:4px;font-size:11px}
+.chip small{font-weight:600;opacity:.7;margin-left:4px;font-size:11.5px}
 .chip.urgent{border-color:rgba(192,96,58,.45);color:#8a3a1d}
 .chip.urgent:hover{border-color:var(--ms);color:var(--ms)}
 /* 고른 칩은 바탕이 짙다. '급함' 색이 그 위에 남으면 흰 바탕 글자가 안 읽힌다. */
@@ -339,7 +344,7 @@ tr.pick:hover td{background:var(--wash)}
 .ndg .why{color:var(--ink-2)}
 .ndg .who{font-weight:700}
 .ndg .acts{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
-.ndg .kindl{font-size:10.5px;font-weight:800;letter-spacing:.04em;color:var(--warnG);
+.ndg .kindl{font-size:11.5px;font-weight:800;letter-spacing:.04em;color:var(--warnG);
   border:1px solid var(--warnG);border-radius:5px;padding:1px 6px;white-space:nowrap}
 .ndgmore{font-size:12px;color:var(--muted);padding:2px 2px 0}
 .legend b{width:10px;height:10px;border-radius:2px;display:inline-block;border:1px solid rgba(0,0,0,.12)}
@@ -355,7 +360,7 @@ tr.pick:hover td{background:var(--wash)}
 .hist{display:flex;align-items:flex-end;gap:2px;height:38px;margin:6px 0 2px}
 .hist i{flex:1;min-width:3px;background:var(--teal);opacity:.6;border-radius:2px 2px 0 0;display:block}
 .hist i.hot{background:var(--ms);opacity:.75}
-.histx{display:flex;gap:2px;font-family:var(--mono);font-size:9.5px;color:var(--muted)}
+.histx{display:flex;gap:2px;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
 .histx span{flex:1;min-width:3px;text-align:center}
 /* 있다/없다/반쯤. 색만 다르면 색약인 눈에는 셋이 같다 —
    **채움 · 반채움 · 빈칸**으로 모양을 다르게 한다. */
@@ -376,8 +381,8 @@ tr.pick:hover td{background:var(--wash)}
    화면에 시킨다. 흐리게만 두지 않고 글자('보냄')를 같이 붙인다: 색과 투명도만
    쓰면 색을 못 가리는 눈에는 아무 차이도 없다. */
 .row.sent,.trk__i.sent{opacity:.5}
-.trk__i.sent .trk__t::after{content:' · 보냄';font-size:11px;color:var(--ok);font-weight:700}
-.row.sent .nm::after{content:' 보냄';font-size:11px;font-weight:700;color:var(--ok);
+.trk__i.sent .trk__t::after{content:' · 보냄';font-size:11.5px;color:var(--ok);font-weight:700}
+.row.sent .nm::after{content:' 보냄';font-size:11.5px;font-weight:700;color:var(--ok);
   letter-spacing:.02em}
 
 /* ── 미룬 줄 ─────────────────────────────────────────
@@ -388,9 +393,9 @@ body:not(.snzshow) .row.snz{display:none}
    챙길 것이 한 건뿐인 학생의 카드가 통째로 비어 "DT 를 안 봤나" 로 읽힌다. */
 .row.snz,.trk__i.snz{opacity:.62;
   background-image:repeating-linear-gradient(45deg,rgba(0,0,0,.045) 0 3px,transparent 3px 8px)}
-.row.snz .nm::after{content:' 미룸';font-size:11px;font-weight:700;color:var(--warnG);
+.row.snz .nm::after{content:' 미룸';font-size:11.5px;font-weight:700;color:var(--warnG);
   letter-spacing:.02em}
-.trk__i.snz .trk__t::after{content:' · 미룸';font-size:11px;font-weight:700;color:var(--warnG)}
+.trk__i.snz .trk__t::after{content:' · 미룸';font-size:11.5px;font-weight:700;color:var(--warnG)}
 .snzbar{border-top:1px dashed var(--line)}
 .mini.snzb{border-style:dashed;color:var(--muted)}
 .mini.snzb:hover{border-color:var(--warnG);color:var(--warnG);border-style:solid}
@@ -412,10 +417,13 @@ body:not(.snzshow) .row.snz{display:none}
 #pal::backdrop{background:rgba(20,18,14,.4)}
 #palIn{width:100%;box-sizing:border-box;border:none;border-bottom:1px solid var(--line);
   padding:15px 18px;font:inherit;font-size:16px;background:none;color:var(--ink);outline:none}
+/* 창을 열면 여기로 초점이 온다. 아무 표시가 없으면 타자가 어디로 들어가는지
+   모른다 — 밑줄을 놋쇠색으로 굵게 바꿔서 알린다. */
+#palIn:focus{border-bottom:2px solid var(--brass);padding-bottom:14px}
 #palList{max-height:52vh;overflow:auto}
 #palList .row{cursor:pointer}
 #palList .row[aria-selected="true"]{background:var(--wash)}
-#palList .kind{font-size:11px;font-weight:700;color:var(--muted);min-width:44px;
+#palList .kind{font-size:11.5px;font-weight:700;color:var(--muted);min-width:44px;
   letter-spacing:.04em}
 .palhint{padding:9px 18px;border-top:1px solid var(--line);font-size:11.5px;color:var(--muted);
   display:flex;gap:12px;flex-wrap:wrap}
@@ -442,7 +450,7 @@ body:not(.snzshow) .row.snz{display:none}
   nav{padding:0 8px}
   nav button{padding:9px 11px;font-size:13.5px}
   nav.nav2 button{padding:7px 10px;font-size:12.5px}
-  nav .navlab{padding:0 6px 0 2px;font-size:10px}
+  nav .navlab{padding:0 6px 0 2px;font-size:11.5px}
 }
 </style></head><body>
 
@@ -560,7 +568,7 @@ body:not(.snzshow) .row.snz{display:none}
       <div class="bar"><input type="search" id="rq" placeholder="회차 이름으로 찾기" autocomplete="off"></div>
       <div id="rndNote"></div>
       <div class="scroll"><table id="rndTable"><thead><tr>
-        <th>회차</th><th>채점</th><th>평균</th><th>최고</th><th>마지막 채점</th><th>안 본 학생</th><th>비율</th>
+        <th scope="col">회차</th><th scope="col">채점</th><th scope="col">평균</th><th scope="col">최고</th><th scope="col">마지막 채점</th><th scope="col">안 본 학생</th><th scope="col">비율</th>
       </tr></thead><tbody><tr><td colspan="6" class="spin">불러오는 중…</td></tr></tbody></table></div>
     </section>
   </div>
@@ -708,7 +716,7 @@ function hubGate(then){
     '#gate{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;' +
     'background:linear-gradient(160deg,#0E5A4C 0%,#0b3f36 55%,#08241f 100%);font-family:system-ui,-apple-system,"Malgun Gothic",sans-serif}' +
     '.gate__box{width:min(320px,86vw);text-align:center;color:#F4F1E8}' +
-    '.gate__logo{font-size:11px;letter-spacing:3px;opacity:.72;margin-bottom:14px}' +
+    '.gate__logo{font-size:11.5px;letter-spacing:3px;opacity:.72;margin-bottom:14px}' +
     '.gate__t{font-size:25px;font-weight:800;letter-spacing:-.4px}' +
     '.gate__s{font-size:13px;opacity:.75;margin:7px 0 20px}' +
     '.gate__i{width:100%;box-sizing:border-box;padding:13px 14px;font-size:19px;text-align:center;' +
@@ -1254,13 +1262,17 @@ function navReveal(id){
   const l = b.offsetLeft, r = l + b.offsetWidth;
   if(l < n.scrollLeft + 8) n.scrollLeft = Math.max(0, l - 8);
   else if(r > n.scrollLeft + n.clientWidth - 8) n.scrollLeft = r - n.clientWidth + 8;
-  /* 앞쪽 탭이면 처음으로 붙인다 — 20~30px 이 남아 '보기' 라벨이 반쯤 잘린 채
-     서는 것을 막는다.
-     ⚠ 기준은 **그 탭이 줄에서 어디에 있나**(l)지, 밀고 난 결과(scrollLeft)가
-     아니다. 결과로 재면, 탭 줄이 조금만 잘린 화면에서 마지막 탭을 보이려고
-     13px 밀어 놓은 것을 도로 0 으로 되돌려 **그 탭이 영영 안 보인다** —
-     실제로 그렇게 깨져 있었고 브라우저 검사가 잡았다. */
-  if(l < 40) n.scrollLeft = 0;
+  /* 처음으로 붙여도 이 탭이 다 보인다면 붙인다 — 20~30px 만 남아 '보기'
+     라벨이 반쯤 잘린 채 서는 것을 막는다.
+     ⚠ 기준은 밀고 난 결과(scrollLeft)가 아니다. 결과로 재면, 탭 줄이 조금만
+     잘린 화면에서 마지막 탭을 보이려고 13px 밀어 놓은 것을 도로 0 으로
+     되돌려 **그 탭이 영영 안 보인다** — 실제로 그렇게 깨져 있었다.
+     ⚠ 그렇다고 `l < 40` 같은 숫자로 재도 안 된다. 그 40 은 '보기' 라벨의
+     너비를 손으로 옮겨 적은 것이라, 라벨 글씨를 10px→11.5px 로 키우자마자
+     첫 탭이 40 을 넘겨 조용히 안 붙었다(브라우저 검사가 잡았다).
+     그래서 라벨 너비를 모르고도 맞는 조건으로 잰다: **0 으로 붙여도 이 탭이
+     통째로 보이나.** 마지막 탭은 여기 걸리지 않는다. */
+  if(r <= n.clientWidth - 8) n.scrollLeft = 0;
 }
 window.addEventListener('resize', function(){ navEdges(); renderViews(); });
 document.addEventListener('scroll', function(e){
@@ -2576,7 +2588,7 @@ function printSheet(r){
   }
 
   if(mis.length){
-    h += '<h2>아직 못 잡은 개념</h2><table><tr><th>개념</th><th style="width:22%">걸린 횟수</th></tr>'+
+    h += '<h2>아직 못 잡은 개념</h2><table><tr><th scope="col">개념</th><th scope="col" style="width:22%">걸린 횟수</th></tr>'+
       mis.slice(0,6).map(function(m){
         return '<tr><td>'+esc(m.tag)+'</td><td>'+m.n+'회</td></tr>'; }).join('')+'</table>';
   }
@@ -2584,8 +2596,8 @@ function printSheet(r){
   if(asc.length){
     /* 최근 것이 위. 종이에서는 위에서부터 읽는다. */
     const desc = asc.slice().reverse().slice(0,8);
-    h += '<h2>파이널 회차</h2><table><tr><th>회차</th><th style="width:20%">정답</th>'+
-      '<th style="width:16%">정답률</th><th style="width:22%">본 날</th></tr>'+
+    h += '<h2>파이널 회차</h2><table><tr><th scope="col">회차</th><th scope="col" style="width:20%">정답</th>'+
+      '<th scope="col" style="width:16%">정답률</th><th scope="col" style="width:22%">본 날</th></tr>'+
       desc.map(function(x){
         const pct = x.total ? Math.round(x.correct/x.total*100) : 0;
         return '<tr><td>'+esc(examTitle(x.exam))+'</td><td>'+(x.correct!=null?x.correct+'/'+(x.total||'—'):'—')+
@@ -3510,8 +3522,8 @@ function renderMaterials(){
   if(MAT_PICK === 'final'){
     const rows = EXAMS.filter(function(e){ return !q || normName(e.title).indexOf(q)>=0; });
     if(!rows.length){ body.innerHTML = '<div class="spin" style="padding:16px">찾는 회차가 없습니다.</div>'; return; }
-    body.innerHTML = '<table><thead><tr><th>회차</th><th>구분</th><th>문항</th>'+
-      '<th>가진 자료</th><th>문제지</th><th>해설</th><th>채점</th></tr></thead><tbody>'+
+    body.innerHTML = '<table><thead><tr><th scope="col">회차</th><th scope="col">구분</th><th scope="col">문항</th>'+
+      '<th scope="col">가진 자료</th><th scope="col">문제지</th><th scope="col">해설</th><th scope="col">채점</th></tr></thead><tbody>'+
       rows.map(function(e){
         const sol = 'sol-final-'+e.id+'.html';
         return '<tr><td>'+esc(e.title)+'</td><td class="dim">'+esc(e.group||'')+'</td>'+
@@ -3535,7 +3547,7 @@ function renderMaterials(){
     }
     const rows = LECS.filter(function(l){ return !q || normName(l.title).indexOf(q)>=0; });
     if(!rows.length){ body.innerHTML = '<div class="spin" style="padding:16px">찾는 강의가 없습니다.</div>'; return; }
-    body.innerHTML = '<table><thead><tr><th>번호</th><th>강의</th><th>열기</th></tr></thead><tbody>'+
+    body.innerHTML = '<table><thead><tr><th scope="col">번호</th><th scope="col">강의</th><th scope="col">열기</th></tr></thead><tbody>'+
       rows.map(function(l){
         const no = (l.href.match(/lec-(\d+)/)||['',''])[1];
         return '<tr><td class="num">'+esc(no)+'</td><td>'+esc(l.title||l.href)+'</td>'+
@@ -3580,11 +3592,11 @@ function renderMaterials(){
     if(f.pdf)  out.push('<a href="'+esc(P+f.pdf)+'" download>PDF ↓</a>');
     return out.join(' · ');
   };
-  body.innerHTML = '<table><thead><tr><th>회차</th><th>가진 자료</th>'+
-    '<th>문제지</th><th>해설</th><th>OMR</th><th>오답노트</th></tr></thead><tbody>'+
+  body.innerHTML = '<table><thead><tr><th scope="col">회차</th><th scope="col">가진 자료</th>'+
+    '<th scope="col">문제지</th><th scope="col">해설</th><th scope="col">OMR</th><th scope="col">오답노트</th></tr></thead><tbody>'+
     rows.map(function(r){
       const f = r.files||{};
-      return '<tr><td>'+course.name+' '+r.round+'회</td>'+
+      return '<tr><td>'+esc(course.name)+' '+r.round+'회</td>'+
         '<td>'+dotsOf([
           {on:!!f.munje,   label:'문제지'},
           {on:f.haeseol ? (f.haeseol.html? true : 'half') : false, label:f.haeseol&&!f.haeseol.html?'해설 PDF만':'해설'},
@@ -3748,7 +3760,7 @@ function renderIncome(){
   const body = document.getElementById('incBody');
   body.innerHTML = !d.rows.length
     ? '<div class="spin" style="padding:16px">반 명단을 아직 못 불러왔습니다.</div>'
-    : '<table><thead><tr><th>반</th><th>과목</th><th>인원</th><th>월 금액</th></tr></thead><tbody>'+
+    : '<table><thead><tr><th scope="col">반</th><th scope="col">과목</th><th scope="col">인원</th><th scope="col">월 금액</th></tr></thead><tbody>'+
       d.rows.map(function(r){
         return '<tr><td>'+esc(r.label)+'</td><td class="dim">'+esc(DT_COURSE[r.course]||r.course)+'</td>'+
           '<td class="num">'+r.n+'</td><td class="num">'+wonOf(r.n*FEE_PER)+'</td></tr>';
@@ -3777,8 +3789,8 @@ function renderIncome(){
     return;
   }
   const mx = Math.max.apply(null, INC_HIST.map(function(r){ return r.monthly; })) || 1;
-  h.innerHTML = '<div class="scroll"><table><thead><tr><th>달</th><th>자리</th><th>사람</th>'+
-    '<th>단가</th><th>월 수입</th><th>추이</th></tr></thead><tbody>'+
+  h.innerHTML = '<div class="scroll"><table><thead><tr><th scope="col">달</th><th scope="col">자리</th><th scope="col">사람</th>'+
+    '<th scope="col">단가</th><th scope="col">월 수입</th><th scope="col">추이</th></tr></thead><tbody>'+
     INC_HIST.slice().reverse().map(function(r){
       return '<tr><td>'+esc(r.ym)+'</td><td class="num">'+r.seats+'</td><td class="num">'+r.heads+'</td>'+
         '<td class="num">'+wonOf(r.per)+'</td><td class="num">'+wonOf(r.monthly)+'</td>'+

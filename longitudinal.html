@@ -1,9 +1,9 @@
 <!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5"><title>종단 비교 · CHEMISTREAL</title><style>
-:root{--cream:#FBFAF6;--paper:#fff;--ink:#23201b;--ink-2:#5a564d;--muted:#8a8578;--teal:#0E5A4C;--brass:#B08D57;--line:#E8E4DA;--ms:#C0603A;--ok:#2E7D6B;--ok-bg:#eef5f2;--up:#2E7D6B;--down:#C0603A;--mono:ui-monospace,Menlo,monospace}
+:root{--cream:#FBFAF6;--paper:#fff;--ink:#23201b;--ink-2:#5a564d;--muted:#6f6a5e;--teal:#0E5A4C;--brass:#B08D57;--line:#E8E4DA;--ms:#C0603A;--ok:#2E7D6B;--ok-bg:#eef5f2;--up:#2E7D6B;--down:#C0603A;--mono:ui-monospace,Menlo,monospace}
 *{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:-apple-system,"Noto Sans KR",sans-serif;line-height:1.55}
 .serif{font-family:"Nanum Myeongjo",Georgia,serif}
 header{background:linear-gradient(180deg,#0E5A4C,#0b4a3f);color:#fff;padding:16px;text-align:center}
-header .logo{font-size:11px;letter-spacing:.18em;opacity:.82;font-weight:600}header h1{margin:5px 0 3px;font-size:20px}header .sub{font-size:11.5px;opacity:.86}
+header .logo{font-size:11.5px;letter-spacing:.18em;opacity:.82;font-weight:600}header h1{margin:5px 0 3px;font-size:20px}header .sub{font-size:11.5px;opacity:.86}
 .wrap{max-width:1060px;margin:0 auto;padding:12px}
 .note{background:#fff;border:1px solid var(--line);border-left:3px solid var(--brass);border-radius:10px;padding:11px 14px;font-size:12.5px;color:var(--ink-2);margin-bottom:12px}.note b{color:var(--ink)}
 .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
@@ -13,24 +13,24 @@ header .logo{font-size:11px;letter-spacing:.18em;opacity:.82;font-weight:600}hea
 .loadrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:11.5px}
 .loadrow .slot{border:1px solid var(--line);border-radius:8px;padding:6px 11px;display:flex;align-items:center;gap:7px}
 .loadrow .slot.ready{background:var(--ok-bg);border-color:#cfe3dc}
-.loadrow .slot .lbl{font-weight:700}.loadrow .slot .st{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.loadrow .slot .lbl{font-weight:700}.loadrow .slot .st{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
 .viewtabs{display:flex;gap:6px;margin:12px 0}.viewtabs button{font-size:12px;font-weight:700;border:1px solid var(--line);background:#fff;color:var(--ink-2);padding:8px 16px;border-radius:9px;cursor:pointer}.viewtabs button.on{background:var(--teal);color:#fff;border-color:var(--teal)}
 .panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px}.panel h2{font-size:13px;margin:0 0 10px;color:var(--muted);font-weight:700}
 .sum{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
-.sumc{flex:1;min-width:110px;background:var(--ok-bg);border:1px solid #cfe3dc;border-radius:10px;padding:10px 13px;text-align:center}.sumc .v{font-size:20px;font-weight:800;font-family:var(--mono)}.sumc .k{font-size:10px;color:var(--ink-2);margin-top:2px}
+.sumc{flex:1;min-width:110px;background:var(--ok-bg);border:1px solid #cfe3dc;border-radius:10px;padding:10px 13px;text-align:center}.sumc .v{font-size:20px;font-weight:800;font-family:var(--mono)}.sumc .k{font-size:11.5px;color:var(--ink-2);margin-top:2px}
 .paired{display:flex;flex-direction:column;gap:7px}
 .prow{font-size:11.5px}.prow .pn{display:flex;justify-content:space-between;margin-bottom:2px}.prow .pn .nm{color:var(--ink-2)}.prow .pn .dl{font-family:var(--mono);font-weight:700}
 .ptrack{height:16px;background:#f0ece4;border-radius:4px;position:relative;overflow:hidden}
 .ptrack .bef{position:absolute;height:100%;background:#cbb89a;border-radius:4px}.ptrack .aft{position:absolute;height:100%;border-radius:4px;opacity:0.92}
 .tbl{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:6px}.tbl th,.tbl td{border:1px solid var(--line);padding:5px 9px;text-align:center}.tbl th{background:#faf8f1;font-weight:700;color:var(--ink-2)}.tbl td.l{text-align:left}.tbl td .dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px}
 .delta{font-family:var(--mono);font-weight:700}.delta.up{color:var(--up)}.delta.down{color:var(--down)}.delta.flat{color:var(--muted)}
-.flag{font-size:9px;font-weight:700;border-radius:6px;padding:1px 6px}.flag.re{background:#fbece7;color:#a3492a}.flag.no{background:#fdf6ec;color:#8a6a2e}
-.slist{display:flex;flex-wrap:wrap;gap:5px}.schip{font-size:11px;border:1px solid var(--line);border-radius:8px;padding:5px 9px;cursor:pointer;background:#faf8f1}.schip:hover{background:var(--ok-bg)}.schip.sel{background:var(--teal);color:#fff}.schip .sd{font-family:var(--mono);font-size:9px;margin-left:4px}
-.hint{font-size:11px;color:var(--muted)}
-footer{text-align:center;color:var(--muted);font-size:11px;padding:20px}
+.flag{font-size:11.5px;font-weight:700;border-radius:6px;padding:1px 6px}.flag.re{background:#fbece7;color:#a3492a}.flag.no{background:#fdf6ec;color:#8a6a2e}
+.slist{display:flex;flex-wrap:wrap;gap:5px}.schip{font-size:11.5px;border:1px solid var(--line);border-radius:8px;padding:5px 9px;cursor:pointer;background:#faf8f1}.schip:hover{background:var(--ok-bg)}.schip.sel{background:var(--teal);color:#fff}.schip .sd{font-family:var(--mono);font-size:11.5px;margin-left:4px}
+.hint{font-size:11.5px;color:var(--muted)}
+footer{text-align:center;color:var(--muted);font-size:11.5px;padding:20px}
 </style></head>
 <body>
-<nav style="background:#08352d;padding:7px 16px;display:flex;align-items:center;justify-content:space-between;font-size:11.5px;font-family:-apple-system,sans-serif"><a href="dashboard.html" style="color:#fff;opacity:0.92;text-decoration:none;font-weight:600">&#8592; CHEMISTREAL 허브</a><span style="color:#fff;opacity:0.5;font-size:10px;letter-spacing:.05em">진단 R&amp;D</span></nav>
+<nav style="background:#08352d;padding:7px 16px;display:flex;align-items:center;justify-content:space-between;font-size:11.5px;font-family:-apple-system,sans-serif"><a href="dashboard.html" style="color:#fff;opacity:0.92;text-decoration:none;font-weight:600">&#8592; CHEMISTREAL 허브</a><span style="color:#fff;opacity:0.5;font-size:11.5px;letter-spacing:.05em">진단 R&amp;D</span></nav>
 <header><div class="logo">CHEMISTREAL · 진단 R&amp;D</div><h1 class="serif">종단 비교</h1><div class="sub">전/후 두 시험 · 향상도 측정 · 재교육 필요 개념 · 수업 효과 검증</div></header>
 <div class="wrap">
 <div class="note"><b>종단 비교:</b> 가르치기 전과 후, 두 응답 데이터를 올리면 <b>무엇이 얼마나 늘었는지</b>를 측정합니다. 코호트 전체 향상, 개념별 변화(향상·정체·퇴행), 학생별 진척을 봅니다. <b>향상되지 않은 개념</b>은 수업이 닿지 않은 지점(재교육 필요), <b>퇴행</b>은 점검이 필요한 신호입니다. 같은 학생(식별자 sid)으로 매칭합니다. 데이터 입력 도구로 두 시점의 responses.json을 만들어 올리세요.</div>
@@ -89,7 +89,7 @@ function renderConcept(O){const cc=commonConcepts();
  const rows=cc.map(c=>({c,bef:RB.cohortC[c],aft:RA.cohortC[c],d:RA.cohortC[c]-RB.cohortC[c]})).sort((a,b)=>a.d-b.d);
  // 퇴행·정체 먼저(주의 필요), 그다음 향상
  let h='<div class="panel"><h2>개념별 변화 (주의 필요 → 향상 순)</h2><div class="hint" style="margin-bottom:6px">퇴행/정체 개념이 위에. 정체=수업이 닿지 않은 지점.</div>'+
-   '<table class="tbl"><tr><th>개념</th><th>영역</th><th>전</th><th>후</th><th>변화</th><th></th></tr>'+
+   '<table class="tbl"><tr><th scope="col">개념</th><th scope="col">영역</th><th scope="col">전</th><th scope="col">후</th><th scope="col">변화</th><th scope="col"></th></tr>'+
    rows.map(x=>{const fl=x.d<-0.02?'<span class="flag re">퇴행</span>':(Math.abs(x.d)<=0.02?'<span class="flag no">정체</span>':'');
      return '<tr><td class="l">'+esc(N[x.c].l)+'</td><td><span class="dot" style="background:'+AC[N[x.c].a]+'"></span>'+esc(N[x.c].a)+'</td><td>'+Math.round(x.bef*100)+'%</td><td>'+Math.round(x.aft*100)+'%</td><td class="delta '+dcol(x.d)+'">'+dstr(x.d)+'</td><td>'+fl+'</td></tr>';}).join('')+'</table></div>';
  O.innerHTML=h;}
@@ -100,8 +100,8 @@ function renderStudent(O){const common=commonStudents();if(!selS||!common.includ
  // 개념 변화 (이 학생)
  const cc=commonConcepts().map(c=>{const b=RB.mastery[selS][c],a=RA.mastery[selS][c];return (b!=null&&a!=null)?{c,b,a,d:a-b}:null;}).filter(Boolean).sort((a,b)=>b.d-a.d);
  const gains=cc.filter(x=>x.d>0.02).slice(0,6),losses=cc.filter(x=>x.d<-0.02).slice(0,6);
- h+='<div class="panel"><h2>가장 향상된 개념</h2>'+(gains.length?'<table class="tbl"><tr><th>개념</th><th>전</th><th>후</th><th>변화</th></tr>'+gains.map(x=>'<tr><td class="l"><span class="dot" style="background:'+AC[N[x.c].a]+'"></span>'+esc(N[x.c].l)+'</td><td>'+Math.round(x.b*100)+'%</td><td>'+Math.round(x.a*100)+'%</td><td class="delta up">'+dstr(x.d)+'</td></tr>').join('')+'</table>':'<div class="hint">뚜렷한 향상 개념이 없습니다.</div>')+'</div>';
- if(losses.length)h+='<div class="panel"><h2>퇴행 개념 (점검 필요)</h2><table class="tbl"><tr><th>개념</th><th>전</th><th>후</th><th>변화</th></tr>'+losses.map(x=>'<tr><td class="l"><span class="dot" style="background:'+AC[N[x.c].a]+'"></span>'+esc(N[x.c].l)+'</td><td>'+Math.round(x.b*100)+'%</td><td>'+Math.round(x.a*100)+'%</td><td class="delta down">'+dstr(x.d)+'</td></tr>').join('')+'</table></div>';
+ h+='<div class="panel"><h2>가장 향상된 개념</h2>'+(gains.length?'<table class="tbl"><tr><th scope="col">개념</th><th scope="col">전</th><th scope="col">후</th><th scope="col">변화</th></tr>'+gains.map(x=>'<tr><td class="l"><span class="dot" style="background:'+AC[N[x.c].a]+'"></span>'+esc(N[x.c].l)+'</td><td>'+Math.round(x.b*100)+'%</td><td>'+Math.round(x.a*100)+'%</td><td class="delta up">'+dstr(x.d)+'</td></tr>').join('')+'</table>':'<div class="hint">뚜렷한 향상 개념이 없습니다.</div>')+'</div>';
+ if(losses.length)h+='<div class="panel"><h2>퇴행 개념 (점검 필요)</h2><table class="tbl"><tr><th scope="col">개념</th><th scope="col">전</th><th scope="col">후</th><th scope="col">변화</th></tr>'+losses.map(x=>'<tr><td class="l"><span class="dot" style="background:'+AC[N[x.c].a]+'"></span>'+esc(N[x.c].l)+'</td><td>'+Math.round(x.b*100)+'%</td><td>'+Math.round(x.a*100)+'%</td><td class="delta down">'+dstr(x.d)+'</td></tr>').join('')+'</table></div>';
  O.innerHTML=h;}
 function nextSid(roster){let n=1;const u=new Set(roster.map(r=>r.sid));while(u.has('S'+String(n).padStart(2,'0')))n++;return 'S'+String(n).padStart(2,'0');}
 function genCohort(group,improve){const DB={roster:[],resp:{}};const ux=EXAMS.filter(e=>e.group===group);const useEx=ux.length?ux:EXAMS.slice(0,12);

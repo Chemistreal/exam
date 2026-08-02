@@ -56,9 +56,12 @@ jobs:
         run: npx --prefix tests playwright install --with-deps chromium
       # 브라우저 검사는 정적 서버가 있어야 한다(file:// 로는 localStorage 오리진이
       # 갈려서 앱끼리 기록을 못 나눈다 — 이 셸이 기대는 바로 그 성질이다).
+      # ⚠ `python3 -m http.server` 는 한 번에 한 요청만 받는다. 서비스워커가
+      # 설치하며 파일을 한꺼번에 받아 갈 때 화면의 요청과 엉켜 서로를 기다린다.
+      # 오프라인 검사가 그것 때문에 CI 를 40분 붙들고 있었다. 여러 줄로 받는다.
       - name: 정적 서버 (검사용)
         run: |
-          nohup python3 -m http.server 8931 >/dev/null 2>&1 &
+          nohup python3 -c 'from http.server import SimpleHTTPRequestHandler,ThreadingHTTPServer; ThreadingHTTPServer(("",8931),SimpleHTTPRequestHandler).serve_forever()' >/dev/null 2>&1 &
           for i in $(seq 1 40); do
             curl -sf -o /dev/null http://127.0.0.1:8931/hub.html && exit 0
             sleep 0.5
@@ -114,6 +117,10 @@ jobs:
       # (--muted 가 셸에서는 고쳐졌는데 파이널에는 옛 값이 남아 갈렸던 적이 있다)
       - name: 색 대비 · 글씨 크기 (두 앱이 갈리지 않게)
         run: node tests/contrast.js
+      # 위 검사는 파이널·셸 두 장만 본다. 화면은 261장이다 — 나머지 259장은
+      # 아무도 안 봤고, 재어 보니 218곳이 대비 미달, 706곳이 11px 미만이었다.
+      - name: 화면 전수 검수 (대비 · 글씨 · 안전장치)
+        run: python3 tools/audit_pages.py
       - name: 통합 셸 (명단 합치기 · 회차 집계 · 남의 데이터를 안 건드린다)
         run: node tests/hub.js
       # 브라우저가 없으면 저절로 건너뛴다(파이널 앱과 맞물리는 자리를 본다)

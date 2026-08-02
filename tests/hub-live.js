@@ -1220,6 +1220,41 @@ const chk = (n, got, want) => {
     await p3.close();
   }
 
+  /* ── 키보드로 훑을 때 어디에 서 있는지 보인다 ──────────────
+     `.row:focus-visible` 이 outline 을 지우고 옅은 옥색 배경만 남겼던 적이
+     있다. 그 배경(--wash #EDF4F1)은 종이색과 **1.13:1** 이라 사실상 아무
+     표시도 아니었다. 마우스로만 써 보면 절대 안 보이는 결함이라 여기서 잰다. */
+  console.log('\n── 키보드로 훑어도 어디인지 보인다 ──');
+  {
+    const p4 = await ctx.newPage();
+    await p4.goto(`http://localhost:${PORT}/hub.html`, { waitUntil: 'domcontentloaded' });
+    await p4.waitForTimeout(700);
+    /* 줄은 학생 탭에 있다. 대시보드에서는 Tab 이 닿지 않는다. */
+    await p4.evaluate(() => show('stu'));
+    await p4.waitForTimeout(400);
+    /* 줄이 아예 없으면 이 검사는 아무것도 안 본 채 통과할 수 있다. 먼저 센다. */
+    const rowN = await p4.evaluate(() =>
+      [].filter.call(document.querySelectorAll('.row'), r => r.getBoundingClientRect().width > 0).length);
+    chk('훑을 줄이 있다', rowN > 0, true);
+    /* ⚠ 스크립트로 focus() 만 부르면 :focus-visible 이 안 걸린다 — 크로뮴은
+       **마지막 조작이 키보드였나**를 본다. 실제로 Tab 을 눌러야 한다. */
+    let ring = { 못찾음: true };
+    for (let i = 0; i < 60; i++) {
+      await p4.keyboard.press('Tab');
+      const r = await p4.evaluate(() => {
+        const a = document.activeElement;
+        if (!a || !a.classList || !a.classList.contains('row')) return null;
+        const cs = getComputedStyle(a);
+        return { 두께: parseFloat(cs.outlineWidth) || 0, 모양: cs.outlineStyle };
+      });
+      if (r) { ring = r; break; }
+    }
+    console.log('  테두리 ' + JSON.stringify(ring));
+    chk('줄에 초점이 오면 테두리가 보인다',
+        !ring.못찾음 && ring.모양 !== 'none' && ring.두께 >= 2, true);
+    await p4.close();
+  }
+
   chk('콘솔에 예외가 없다', errs.filter(e => !/Failed to fetch|ERR_/.test(e)), []);
   await b.close();
   console.log(fail ? `\n${fail}개 실패` : '\n모두 통과');
