@@ -1004,7 +1004,8 @@ const chk = (n, got, want) => {
       tabs: [].map.call(document.querySelectorAll('#clsTabs .chip'), e => e.textContent),
       rows: [].map.call(document.querySelectorAll('#clsList .row'), r => [
         r.querySelector('.nm').textContent, r.querySelector('.tag').textContent]),
-      legend: [].map.call(document.querySelectorAll('#clsHead .legend span'), e => e.textContent),
+      /* 범례는 이제 누를 수 있는 단추다(막대 조각은 손가락으로 짚기엔 너무 얇다). */
+      legend: [].map.call(document.querySelectorAll('#clsHead .legend button.lg'), e => e.textContent),
       donut: (document.querySelector('#clsHead .donut span') || {}).textContent,
       bars: document.querySelectorAll('#clsHead .stack i').length,
     }));
@@ -1026,6 +1027,41 @@ const chk = (n, got, want) => {
       const b = document.querySelector('#clsList .row .mini.msg'); return b && !b.disabled; },
       null, { timeout: 30000 });
     await p3.waitForTimeout(250);
+    /* ── 막대에서 목록으로 파고든다 ────────────────────────────────
+       여태 막대는 보기만 하는 것이었다. "미응시 2명" 을 보고 그 둘이 누구인지
+       알려면 목록을 눈으로 훑어야 했다. */
+    const drill = await p3.evaluate(async () => {
+      const before = [].map.call(document.querySelectorAll('#clsList .row .nm'), e => e.textContent);
+      const b = document.querySelector('#clsHead .legend button.lg[data-segv="miss"]');
+      if (!b) return null;
+      b.click();
+      await new Promise(r => setTimeout(r, 250));
+      return { before: before,
+               after: [].map.call(document.querySelectorAll('#clsList .row .nm'), e => e.textContent),
+               note: (document.querySelector('#clsHead .note2') || { textContent:'' }).textContent.replace(/\s+/g,' ').trim(),
+               hash: location.hash,
+               pressed: document.querySelector('#clsHead .legend button.lg[data-segv="miss"]').getAttribute('aria-pressed') };
+    });
+    chk('누르기 전에는 반 전체', (drill || {}).before, ['가', '나', '다', '라']);
+    chk('누르면 그 사람들만 남는다', (drill || {}).after, ['가', '나']);
+    /* 걸러 놓은 것을 안 적으면 "왜 애가 둘밖에 없지" 가 된다. */
+    chk('걸러 놓은 것을 적는다', /미응시만 보는 중 · 2명/.test((drill || {}).note || ''), true);
+    chk('푸는 길을 그 자리에 둔다', /전체 보기/.test((drill || {}).note || ''), true);
+    chk('눌린 티가 난다', (drill || {}).pressed, 'true');
+    /* 주소가 곧 상태라, 걸러 놓은 채로 저장·공유가 된다. */
+    chk('주소에 남는다', /[?&]s=miss/.test((drill || {}).hash || ''), true);
+
+    /* 같은 것을 다시 누르면 풀린다 — 끄는 길을 따로 찾게 하지 않는다. */
+    const off = await p3.evaluate(async () => {
+      document.querySelector('#clsHead .legend button.lg[data-segv="miss"]').click();
+      await new Promise(r => setTimeout(r, 250));
+      return { n: document.querySelectorAll('#clsList .row').length,
+               note: !!document.querySelector('#clsHead .note2'), hash: location.hash };
+    });
+    chk('다시 누르면 풀린다', off.n, 4);
+    chk('풀리면 알림도 내려간다', off.note, false);
+    chk('주소에서도 빠진다', /[?&]s=/.test(off.hash), false);
+
     chk('반에서 문자를 바로 복사한다',
         await p3.evaluate(() => navigator.clipboard.readText()), '미응시:가/1');
     const names = await p3.evaluate(async () => {

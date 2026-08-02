@@ -85,6 +85,7 @@ vm.runInContext([
   ((SRC.match(/^const FEE_PER = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
   'var SNZ=new Map(), SNZ_SHOW=false;',
   ((SRC.match(/^const TAB_NAME = \{[^}]*\};?$/m) || [''])[0]).replace(/^const /, 'var '),
+  ((SRC.match(/^const CLS_LABEL = \{[^}]*\};?$/m) || [''])[0]).replace(/^const /, 'var '),
   ((SRC.match(/^const MAT_GROUPS = \[[\s\S]*?^\];$/m) || [''])[0]).replace(/^const /, 'var '),
   ((SRC.match(/^const STU_FILTERS = \[[\s\S]*?^\];$/m) || [''])[0]).replace(/^const /, 'var '),
   ((SRC.match(/^const SNZ_DAYS = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
@@ -1101,6 +1102,50 @@ console.log('\n── 보낸 것은 눈에서 내려간다 ──');
       /return SENT\.has\(k\) \? '<button class="mini undo"/.test(body), true);
   chk('못 받아도 화면은 산다',
       /dtSentLog\(\)\.then\(function\(rows\)\{ seedSent\(rows\); refreshSoon\(\); \}\)\.catch/.test(body), true);
+}
+
+console.log('\n── 막대에서 목록으로 파고든다 ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  /* 여태 막대는 보기만 하는 것이었다. "미응시 4명" 을 보고 나서 그 넷이
+     누구인지 알려면 목록을 눈으로 훑어야 했다. */
+  const parts = ctx.clsCounts([{ st:'miss' },{ st:'miss' },{ st:'wait' },{ st:'ok' }]);
+  chk('조각마다 열쇠가 붙는다', parts.map(function(p){ return p.key; }),
+      ['miss','wait','ok','none']);
+  /* 이름(label)으로 걸면 이름을 고치는 날 저장해 둔 주소가 깨진다. */
+  chk('열쇠는 이름이 아니다', parts[0].key !== parts[0].label, true);
+
+  /* 서른 명 중 하나짜리 조각은 폭이 10px 도 안 된다 — 손가락으로 못 짚는다.
+     이름이 붙은 범례가 훨씬 크다. */
+  const lg = ctx.legendOf(parts, 'cls', 'miss');
+  chk('범례를 누를 수 있다', /<button class="lg on" data-seg="cls" data-segv="miss"/.test(lg), true);
+  chk('지금 고른 것을 알려 준다', /aria-pressed="true"/.test(lg), true);
+  chk('안 고른 것은 눌린 티가 없다', (lg.match(/aria-pressed="false"/g)||[]).length, 2);
+  /* 열쇠가 없는 막대(예: 반 상태 그림)는 그냥 보는 것으로 둔다. */
+  chk('열쇠가 없으면 못 누른다', /<button/.test(ctx.legendOf([{n:1,tone:'ok',label:'통과'}])), false);
+  chk('손가락 자리를 넓힌다', /\.legend button\.lg\{[\s\S]{0,400}?min-height:32px/.test(SRC), true);
+  /* 마우스로는 조각도 되게 한다. */
+  chk('막대 조각에도 같은 열쇠', /data-seg="cls" data-segv="miss"/.test(ctx.stackBar(parts)), true);
+
+  /* 같은 것을 다시 누르면 풀린다 — 끄는 길을 따로 찾게 하지 않는다. */
+  chk('다시 누르면 풀린다', /CLS_ST = \(CLS_ST === v\) \? '' : v/.test(body) &&
+      /CON_CLS = \(CON_CLS === v\) \? '' : v/.test(body), true);
+  /* 걸러 놓은 것을 안 적으면 "왜 애가 넷밖에 없지" 가 된다. */
+  chk('걸러 놓은 것을 적는다', /만 보는 중 · <b>/.test(body), true);
+  chk('푸는 길을 그 자리에 둔다', /data-seg="cls" data-segv=""/.test(body), true);
+  /* 다른 반·다른 개념에서 넘어온 주소면 걸린 것이 그 자리에 없을 수 있다.
+     빈 목록을 놓고 "왜 아무도 없지" 하게 두지 않는다. */
+  chk('없는 것을 걸었으면 스스로 푼다',
+      /if\(CLS_ST && !all\.some\(function\(r\)\{ return r\.st===CLS_ST; \}\)\) CLS_ST = '';/.test(body) &&
+      /if\(CON_CLS && !parts\.some\(function\(x\)\{ return x\.key===CON_CLS; \}\)\) CON_CLS = '';/.test(body), true);
+
+  /* 주소가 곧 상태라, 걸러 놓은 채로 저장·공유가 된다. */
+  chk('주소에 남는다', /p\.push\('s='\+CLS_ST\)/.test(body) &&
+      /p\.push\('c='\+encodeURIComponent\(CON_CLS\)\)/.test(body), true);
+  chk('주소에서 되살린다', /CLS_ST = st\.p\.s \|\| '';/.test(body) &&
+      /CON_CLS = st\.p\.c \|\| '';/.test(body), true);
+  chk('저장한 보기 이름에도 들어간다',
+      ctx.viewName({ tab:'cls', p:{ c:'화학1 토1:30', s:'miss' } }), '반 · 화학1 토1:30 · 미응시');
 }
 
 console.log('\n── 늘 묻는 것은 칩 하나로 (저장된 보기) ──');
