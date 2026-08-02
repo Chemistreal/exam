@@ -24,10 +24,20 @@
    ══════════════════════════════════════════════════════════════════ */
 :root{
   --bg:#FBFAF6; --paper:#fff; --sunk:#F4F1E9;
-  --ink:#23201b; --ink-2:#55504a; --muted:#8a8578;
+  --ink:#23201b; --ink-2:#55504a;
+  /* 이 색은 힌트·카드 라벨·목록 부연 등 **작은 글씨 전부**에 쓰인다. 예전 값
+     (#8a8578)은 배경 대비 3.52:1 로 본문 기준(4.5)에 못 미쳤다 — 밝기를 낮춘
+     화면에서는 사라졌다. 5.16:1 로 내린다(색감은 거의 그대로). */
+  --muted:#6f6a5e;
   --line:#E8E4DA; --line-2:#D8D2C4;
   --teal:#0E5A4C; --teal-2:#3A7A6B; --wash:#EDF4F1;
   --brass:#B08D57; --ms:#C0603A; --ok:#2F7A4F;
+  /* 막대·점처럼 **정보를 나르는 그림**에 쓰는 주황. 장식용 --brass 는 배경 대비
+     2.96:1 로 그래픽 기준(3.0)에도 못 미친다. 여기만 따로 어둡게 쓴다.
+     ⚠ 색을 어둡게 해도 초록·빨강과의 명도 차는 1.0~1.2 밖에 안 된다 —
+     적록색약에게는 여전히 같은 색이다. 그래서 색 말고 **구분선과 빗금**으로
+     가른다(아래 .stack 참고). 색만으로 정보를 주지 않는다. */
+  --warnG:#9C7634;
   --sans:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
   --serif:'Iropke Batang','Nanum Myeongjo',Georgia,serif;
   --mono:ui-monospace,SFMono-Regular,'JetBrains Mono','D2Coding',Menlo,monospace;
@@ -78,10 +88,20 @@ section{margin-bottom:34px}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:1px;
   background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:hidden}
 .card{background:var(--paper);padding:14px 16px;box-shadow:0 0 0 1px var(--line)}
-.card b{display:block;font-family:var(--mono);font-size:24px;color:var(--teal);
+/* 예전에는 숫자 여덟 개가 모두 teal 이었다. 색이 강조가 아니라 배경이 되어
+   **어느 것이 급한지 색으로 안 읽혔다.** 평상시 숫자는 먹빛으로 내리고
+   손이 필요한 것에만 색을 쓴다(Linear 의 '강조색은 아껴 쓴다'와 같은 규칙). */
+.card b{display:block;font-family:var(--mono);font-size:24px;color:var(--ink);
   font-variant-numeric:tabular-nums;line-height:1.25}
 .card span{display:block;font-size:12px;color:var(--muted);margin-top:2px}
 .card.warn b{color:var(--ms)}
+/* 값 옆의 전 기간 대비. 숫자 하나만으로는 많은 건지 적은 건지 알 수 없다. */
+.cardv{display:flex;align-items:baseline;gap:6px}
+.card .delta{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--muted)}
+.card .delta.up{color:var(--ok)} .card .delta.down{color:var(--ms)}
+.card .spark{height:16px;margin:5px 0 0;gap:2px}
+.card .spark i{background:var(--teal);opacity:.3;border-radius:1px}
+.card .spark i.today{opacity:.8}
 
 /* ── 목록 ─────────────────────────────────────────── */
 .list{border:1px solid var(--line);border-radius:10px;background:var(--paper);overflow:hidden}
@@ -213,17 +233,24 @@ tr.pick:hover td{background:var(--wash)}
      dots   있다/없다 — 자료 보유
 
    색도 한 벌이다: 초록=끝남 · 주황=진행 중 · 빨강=손이 필요 · 회색=없음 */
-.stack{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--sunk);
+.stack{display:flex;height:11px;border-radius:6px;overflow:hidden;background:var(--sunk);
   border:1px solid var(--line);min-width:110px}
-.stack i{display:block;height:100%}
+/* 칸과 칸 사이에 흰 선을 둔다. 색이 서로 안 보이는 눈에도 **경계는 보인다**. */
+.stack i{display:block;height:100%;box-shadow:1px 0 0 var(--paper) inset,-1px 0 0 var(--paper) inset}
+.stack i:first-child{box-shadow:-1px 0 0 var(--paper) inset}
+.stack i:last-child{box-shadow:1px 0 0 var(--paper) inset}
 .stack i.ok{background:var(--ok)}
-.stack i.warn{background:var(--brass)}
+/* 진행 중(주황)은 빗금을 넣는다 — 색이 아니라 무늬로 갈린다. */
+.stack i.warn{background:var(--warnG);
+  background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.42) 0 2px,transparent 2px 5px)}
 .stack i.bad{background:var(--ms)}
 .stack i.none{background:var(--line-2)}
 .legend{display:flex;flex-wrap:wrap;gap:12px;margin:8px 0 0;font-size:12px;color:var(--muted)}
 .legend span{display:inline-flex;align-items:center;gap:5px}
-.legend b{width:9px;height:9px;border-radius:2px;display:inline-block}
-.legend b.ok{background:var(--ok)} .legend b.warn{background:var(--brass)}
+.legend b{width:10px;height:10px;border-radius:2px;display:inline-block;border:1px solid rgba(0,0,0,.12)}
+.legend b.ok{background:var(--ok)}
+.legend b.warn{background:var(--warnG);
+  background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.42) 0 2px,transparent 2px 5px)}
 .legend b.bad{background:var(--ms)} .legend b.none{background:var(--line-2)}
 .donut{position:relative;width:64px;height:64px;border-radius:50%;display:grid;place-items:center;
   flex:0 0 auto;font-family:var(--mono);font-size:14px;font-weight:700;color:var(--teal)}
@@ -235,13 +262,57 @@ tr.pick:hover td{background:var(--wash)}
 .hist i.hot{background:var(--ms);opacity:.75}
 .histx{display:flex;gap:2px;font-family:var(--mono);font-size:9.5px;color:var(--muted)}
 .histx span{flex:1;min-width:3px;text-align:center}
-.dots{display:inline-flex;gap:3px}
-.dot{width:9px;height:9px;border-radius:2px;background:var(--line-2);display:inline-block}
-.dot.on{background:var(--ok)}
-.dot.half{background:var(--brass)}
+/* 있다/없다/반쯤. 색만 다르면 색약인 눈에는 셋이 같다 —
+   **채움 · 반채움 · 빈칸**으로 모양을 다르게 한다. */
+.dots{display:inline-flex;gap:4px}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block;
+  background:transparent;border:1.5px solid var(--line-2)}
+.dot.on{background:var(--ok);border-color:var(--ok)}
+.dot.half{border-color:var(--warnG);
+  background:linear-gradient(135deg,var(--warnG) 0 50%,transparent 50% 100%)}
 /* 그림 옆에 숫자를 붙이는 줄 */
 .figrow{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .figrow>.fill{flex:1;min-width:140px}
+
+/* ── 처리한 것은 가라앉는다 ─────────────────────────
+   문자를 보내도 그 줄이 그대로 남아 있으면, 잠깐 다른 일을 하고 돌아와서
+   누구에게 보냈는지 다시 세야 한다. 누른 줄은 눈에서 내려간다.
+   ⚠ 이 표시는 **이 화면에서만** 산다(셸은 아무것도 저장하지 않는다).
+   기기를 넘어 남기려면 DT 시트에 적어야 하고, 그건 DT 쪽 일이다. */
+.row.sent,.trk__i.sent{opacity:.5}
+.trk__i.sent .trk__t::after{content:' · 보냄';font-size:11px;color:var(--ok);font-weight:700}
+.row.sent .nm::after{content:' 보냄';font-size:11px;font-weight:700;color:var(--ok);
+  letter-spacing:.02em}
+
+/* ── 모든 반 한눈에(스몰 멀티플) ─────────────────────
+   반이 여덟이면 칩을 여덟 번 눌러야 전체가 보인다. 같은 막대를 반마다 한 줄씩
+   쌓으면 한 화면에서 견줄 수 있다. */
+.mult{border:1px solid var(--line);border-radius:10px;background:var(--paper);overflow:hidden;
+  margin-bottom:14px}
+.mult .row{padding:8px 14px;font-size:13px}
+.mult .row .nm{min-width:120px}
+.mult .row .fill{flex:1;min-width:120px}
+
+/* ── 명령 팔레트 ────────────────────────────────────
+   탭이 열 개가 되면서 '어디에 있더라'가 생겼다. 무엇을 하려는지 치면 간다. */
+#pal{border:none;border-radius:14px;padding:0;max-width:560px;width:calc(100% - 32px);
+  background:var(--paper);color:var(--ink);box-shadow:0 18px 50px rgba(0,0,0,.2);
+  margin-top:12vh}
+#pal::backdrop{background:rgba(20,18,14,.4)}
+#palIn{width:100%;box-sizing:border-box;border:none;border-bottom:1px solid var(--line);
+  padding:15px 18px;font:inherit;font-size:16px;background:none;color:var(--ink);outline:none}
+#palList{max-height:52vh;overflow:auto}
+#palList .row{cursor:pointer}
+#palList .row[aria-selected="true"]{background:var(--wash)}
+#palList .kind{font-size:11px;font-weight:700;color:var(--muted);min-width:44px;
+  letter-spacing:.04em}
+.palhint{padding:9px 18px;border-top:1px solid var(--line);font-size:11.5px;color:var(--muted);
+  display:flex;gap:12px;flex-wrap:wrap}
+
+/* ── 여럿 골라 한 번에 ──────────────────────────────── */
+.row input[type=checkbox]{width:15px;height:15px;accent-color:var(--teal);flex:0 0 auto;cursor:pointer}
+.selbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 14px;
+  background:var(--wash);border-bottom:1px solid var(--line);font-size:13px}
 
 /* ── 학생 카드 안의 다른 앱 기록 ───────────────────── */
 .trk__i.pass::before{background:var(--ok)}
@@ -255,7 +326,7 @@ tr.pick:hover td{background:var(--wash)}
 <header>
   <div class="brand">
     <h1>Chemistreal 통합관리</h1>
-    <span class="sub">파이널 · DT · KMChC</span>
+    <span class="sub">파이널 · DT · 화학1 설문</span>
     <span class="spacer"></span>
     <span class="sub" id="stamp"></span>
   </div>
@@ -273,7 +344,7 @@ tr.pick:hover td{background:var(--wash)}
     <button role="tab" id="t-dt"    aria-selected="false" aria-controls="p-dt">DT 채점</button>
     <button role="tab" id="t-dtp"   aria-selected="false" aria-controls="p-dtp">DT 재시·문자</button>
     <button role="tab" id="t-dtr"   aria-selected="false" aria-controls="p-dtr">DT 명단</button>
-    <button role="tab" id="t-km"    aria-selected="false" aria-controls="p-km">KMChC</button>
+    <button role="tab" id="t-km"    aria-selected="false" aria-controls="p-km">화학1 1회차 설문조사</button>
   </nav>
 </header>
 
@@ -284,7 +355,7 @@ tr.pick:hover td{background:var(--wash)}
       <p class="hint">세 앱에서 읽어 옵니다. 이 화면은 아무것도 저장하지 않습니다.
         숫자 밑의 <b>칩</b>을 누르면 그 할 일로 바로 내려갑니다.
         탭은 <span class="kbd">1</span>–<span class="kbd">9</span><span class="kbd">0</span>,
-        찾기는 <span class="kbd">/</span>.</p>
+        찾기는 <span class="kbd">/</span>, 무엇이든 <span class="kbd">Ctrl</span>+<span class="kbd">K</span>.</p>
       <div class="cards" id="dashCards"><div class="card"><b>—</b><span>불러오는 중</span></div></div>
       <!-- 할 일이 아래로 여러 섹션에 흩어져 있다. 몇 건인지와 어디인지를 한 줄에 세운다. -->
       <div class="chips" id="jump" hidden></div>
@@ -364,7 +435,7 @@ tr.pick:hover td{background:var(--wash)}
     <section>
       <h2>학생</h2>
       <p class="hint">세 앱의 명단을 <b>이름 · 학교 · 학년</b>으로 합쳤습니다.
-        이름을 누르면 파이널 회차와 함께 <b>DT 미응시 · 재시 · 통과</b>와 <b>KMChC 진단</b>이 한 카드에 열리고,
+        이름을 누르면 파이널 회차와 함께 <b>DT 미응시 · 재시 · 통과</b>와 <b>화학1 1회차 설문조사</b>가 한 카드에 열리고,
         문자도 거기서 바로 복사됩니다.</p>
       <div class="bar">
         <input type="search" id="q" placeholder="이름 또는 학교로 찾기" autocomplete="off">
@@ -383,6 +454,8 @@ tr.pick:hover td{background:var(--wash)}
       <p class="hint">DT 반 명단을 그대로 씁니다. 반을 고르면 그 반 아이들이
         <b>미응시 · 재시 대기 · 통과</b>와 <b>파이널 성적</b>과 함께 한 표에 섭니다.
         문자도 여기서 바로 복사하고, 이름을 누르면 그 학생 카드가 열립니다.</p>
+      <!-- 반이 여덟이면 칩을 여덟 번 눌러야 전체가 보인다. 한 화면에서 견준다. -->
+      <div id="clsMult"></div>
       <div class="chips" id="clsTabs"></div>
       <div id="clsHead"></div>
       <div class="list" id="clsList"><div class="spin" style="padding:16px">반 명단을 부르는 중…</div></div>
@@ -410,6 +483,13 @@ tr.pick:hover td{background:var(--wash)}
     </section>
   </div>
 </main>
+
+<dialog id="pal" aria-label="빠른 이동">
+  <input id="palIn" type="search" autocomplete="off" placeholder="학생 · 반 · 회차 · 자료 · 화면 …">
+  <div class="list" id="palList"></div>
+  <div class="palhint"><span><span class="kbd">↑</span><span class="kbd">↓</span> 고르기</span>
+    <span><span class="kbd">Enter</span> 열기</span><span><span class="kbd">Esc</span> 닫기</span></div>
+</dialog>
 
 <dialog id="dlg"><div class="dlg__h">
   <h3 id="dlgName"></h3><span class="where" id="dlgWhere"></span>
@@ -507,7 +587,10 @@ const APPS = {
           ep:'https://script.google.com/macros/s/AKfycbxGmSCkip0cQCyOH_JA2SiAMSxri00XObLmHyXlyXwxhG7u7w-x0FH02VN4DQySiUsv9Q/exec' },
   dt:   { name:'DT',    path:'../DT/index.html',
           ep:'https://script.google.com/macros/s/AKfycbzvFaPXgEgCBQ8HowtP8tPTtdiIVFtmZSUf0KFXUOVOh3ektrFMkz4KSR4I52LDBzB8rw/exec' },
-  km:   { name:'KMChC', path:'../KMChC/index.html',
+  /* 이름이 둘이다. 탭·카드처럼 자리가 있는 곳은 긴 이름, 배지·연결 칸처럼
+     한 줄에 여럿이 서는 곳은 짧은 이름을 쓴다 — 긴 이름을 배지에 넣으면 줄이
+     통째로 밀린다. 폴더 이름(../KMChC/)은 주소라서 그대로다. */
+  km:   { name:'화학1 1회차 설문조사', short:'화학1 설문', path:'../KMChC/index.html',
           ep:'https://script.google.com/macros/s/AKfycbxdD_pKlNZaHyce2mUsDcmTspMW4uh--wOr3MggvDABEDs7n64re6DLYEVOlh8ANE9-/exec' },
 };
 
@@ -810,7 +893,7 @@ const CONN = [
   { key:'dt:pending', name:'DT 미완료' },
   { key:'dt:absentees', name:'DT 미응시' },
   { key:'dt:passed', name:'DT 통과' },
-  { key:'km:names', name:'KMChC 명단' },
+  { key:'km:names', name:'화학1 설문 명단' },
 ];
 function renderConn(){
   const el = document.getElementById('connBar'); if(!el) return;
@@ -869,7 +952,76 @@ function show(id){
   /* 앱 탭에서 채점하고 돌아오면 숫자가 달라져 있어야 한다. 셸 화면으로
      올 때마다 다시 읽는다 — storage 이벤트를 놓친 경우의 그물이다. */
   if(!app) refreshSoon();
-  try{ location.hash = id==='dash' ? '' : id; }catch(e){}
+  writeHash();
+}
+/* ── 주소가 곧 상태 ────────────────────────────────────────────────
+   고른 것(탭·걸러보기·반·자료 갈래·찾는 말)이 화면 안에만 있으면 새로고침 한
+   번에 날아간다. 매일 같은 조합을 손으로 다시 만들어야 한다.
+
+   주소에 담으면 **저장 기능을 따로 만들지 않고도** 즐겨찾기가 곧 저장된
+   보기가 된다. "DT 반에 있는데 파이널을 안 본 학생" 을 한 번 만들어 두고
+   북마크하면 끝이다. 셸이 아무것도 저장하지 않는다는 규칙도 그대로다. */
+let HASH_LOCK = false;
+function curTab(){
+  return TABS.filter(function(t){
+    return document.getElementById('p-'+t).classList.contains('on'); })[0] || 'dash';
+}
+function val(id){ const e=document.getElementById(id); return e ? (e.value||'').trim() : ''; }
+function writeHash(){
+  if(HASH_LOCK) return;
+  const tab = curTab(), p = [];
+  if(tab==='stu'){
+    if(STU_FILTER!=='all') p.push('f='+STU_FILTER);
+    if(val('q')) p.push('q='+encodeURIComponent(val('q')));
+  }else if(tab==='cls'){
+    if(CLS_PICK) p.push('c='+encodeURIComponent(CLS_PICK));
+  }else if(tab==='mat'){
+    if(MAT_PICK!=='final') p.push('g='+MAT_PICK);
+    if(val('mq')) p.push('q='+encodeURIComponent(val('mq')));
+  }else if(tab==='rnd'){
+    if(val('rq')) p.push('q='+encodeURIComponent(val('rq')));
+  }
+  const h = (tab==='dash' && !p.length) ? '' : ('#'+tab+(p.length?('?'+p.join('&')):''));
+  /* pushState 를 쓰면 탭을 옮길 때마다 뒤로가기 기록이 쌓여, 뒤로가기가
+     브라우저를 빠져나가는 데 열 번 걸린다. 자리만 바꿔 둔다. */
+  try{ if((location.hash||'') !== h)
+    history.replaceState(null, '', h || (location.pathname+location.search)); }catch(e){}
+}
+function readHash(){
+  const raw = (location.hash||'').replace(/^#/,'');
+  if(!raw) return null;
+  const cut = raw.indexOf('?');
+  const tab = cut<0 ? raw : raw.slice(0,cut);
+  if(TABS.indexOf(tab)<0) return null;
+  const p = {};
+  (cut<0 ? '' : raw.slice(cut+1)).split('&').filter(Boolean).forEach(function(kv){
+    const i = kv.indexOf('=');
+    p[i<0?kv:kv.slice(0,i)] = i<0 ? '' : decodeURIComponent(kv.slice(i+1));
+  });
+  return { tab:tab, p:p };
+}
+function applyHash(){
+  const st = readHash(); if(!st) return;
+  HASH_LOCK = true;                       // 되돌려 쓰다가 스스로를 지우지 않게
+  try{
+    if(st.tab==='stu'){
+      if(st.p.f && STU_FILTERS.some(function(f){ return f.key===st.p.f; })) STU_FILTER = st.p.f;
+      if(st.p.q != null && document.getElementById('q')) document.getElementById('q').value = st.p.q;
+      renderStudents();
+    }else if(st.tab==='cls'){
+      if(st.p.c) CLS_PICK = st.p.c;
+      renderClassTab();
+    }else if(st.tab==='mat'){
+      if(st.p.g && MAT_GROUPS.some(function(g){ return g.key===st.p.g; })) MAT_PICK = st.p.g;
+      if(st.p.q != null && document.getElementById('mq')) document.getElementById('mq').value = st.p.q;
+      renderMaterials();
+    }else if(st.tab==='rnd'){
+      if(st.p.q != null && document.getElementById('rq')){
+        document.getElementById('rq').value = st.p.q; renderRounds(); }
+    }
+    show(st.tab);
+  }finally{ HASH_LOCK = false; }
+  writeHash();
 }
 TABS.forEach(function(t){
   document.getElementById('t-'+t).addEventListener('click', function(){ show(t); });
@@ -914,6 +1066,95 @@ function dtPendWindow(){
     }, 250);
   });
 }
+/* ── 누른 줄은 눈에서 내려간다 ─────────────────────────────────────
+   문자를 보내도 그 줄이 그대로 남으면, 잠깐 다른 일을 하고 돌아와서 누구에게
+   보냈는지 다시 세야 한다. 여덟 명 중 다섯에게 보낸 뒤가 특히 그렇다.
+
+   ⚠ 이 표시는 **이 화면에서만** 산다. 셸은 아무것도 저장하지 않기 때문이다
+   (브라우저에 적어 두면 다른 기기에서는 안 보이고, 그건 이 시스템이 피하려는
+   바로 그 모양이다). 기기를 넘어 남기려면 DT 시트에 적어야 하고 그건 DT 쪽 일이다. */
+const SENT = new Set();
+function sentKey(kind, name, course, round){
+  return [kind, normName(name), course||'', round||''].join('|');
+}
+function sentAttr(k){ return ' data-sk="'+esc(k)+'"'; }
+function sentCls(k){ return SENT.has(k) ? ' sent' : ''; }
+/* 문구 만드는 규칙이 낱개 단추와 일괄 단추 두 곳에 흩어지면 언젠가 갈라진다.
+   한 곳에서만 만든다 — 문구 자체는 여기서도 DT 에서 빌린다. */
+function makerFor(kind, i, j){
+  if(kind === 'pend'){
+    const r = PEND_ROWS[i]; if(!r) return null;
+    return function(w){ return w.shareMsg({ name:r.name, course:r.course, round:r.round,
+      att:r.lastAttempt, score:r.score, next:r.nextNeeded, link:r.reportLink||'' }, '1'); };
+  }
+  if(kind === 'pass'){
+    const r = PASS_ROWS[i]; if(!r) return null;
+    return function(w){ return w.passMsg({ name:r.name, course:r.course, round:r.round,
+      att:r.attempt, score:r.score, tries:r.tries, link:r.reportLink||'' }); };
+  }
+  if(kind === 'abs'){
+    const c = ABS_ROWS[i]; if(!c) return null;
+    const who = (j != null) ? c.absent[j] : '';
+    return function(w, stage){ return w.absentMsg({ name:who, course:c.course, round:c.round,
+      link:w.examLink(c.course, c.round) }, stage || (j!=null ? '1' : 'bc')); };
+  }
+  return null;
+}
+/* ── 여덟 명이면 단추를 여덟 번 눌렀다 ──────────────────────────────
+   아직 안 보낸 사람 몫을 한 번에 만든다. 보낼 곳은 사람마다 다르니 한 덩어리로
+   잇되 누구 것인지 머리를 붙인다 — 붙여 넣고 잘라 쓰면 된다. */
+function copyBulk(btn, kind, rows){
+  const orig = btn.getAttribute('data-orig') || btn.textContent;
+  const left = rows.filter(function(r){ return !SENT.has(r.key); });
+  if(!left.length){ flash(btn, '모두 보냈습니다', true); return; }
+  btn.disabled = true; btn.textContent = '준비 중…';
+  dtPendWindow().then(function(w){
+    const parts = [];
+    left.forEach(function(r){
+      const mk = makerFor(kind, r.i, r.j); if(!mk) return;
+      const msg = mk(w); if(!msg) return;
+      parts.push('── ' + r.name + ' ──\n' + msg);
+    });
+    if(!parts.length) throw new Error('문구를 만들지 못했습니다');
+    const text = parts.join('\n\n');
+    const done = function(){
+      left.forEach(function(r){ SENT.add(r.key); });
+      btn.disabled = false; btn.textContent = parts.length + '명 복사됨 ✓'; btn.classList.add('copied');
+      [].forEach.call(document.querySelectorAll('.row[data-sk]'), function(el){
+        if(SENT.has(el.dataset.sk)) el.classList.add('sent'); });
+      setTimeout(function(){ btn.textContent = orig; btn.classList.remove('copied'); }, 2400);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText)
+      return navigator.clipboard.writeText(text).then(done, function(){ legacyCopy(text); done(); });
+    legacyCopy(text); done();
+  }).catch(function(e){
+    btn.disabled = false; btn.textContent = orig;
+    note(btn.closest && btn.closest('.dlg__b') ? 'dlgNote' : 'dashNote',
+         '한 번에 복사하지 못했습니다 — ' + e.message, true);
+  });
+}
+function bulkBar(kind, rows, label){
+  const left = rows.filter(function(r){ return !SENT.has(r.key); }).length;
+  if(rows.length < 2) return '';
+  return '<div class="selbar"><span>모두 <b>'+rows.length+'명</b>'+
+    (left<rows.length ? ' · 남은 <b>'+left+'명</b>' : '')+'</span><span style="flex:1"></span>'+
+    '<button class="mini" data-bulk="'+kind+'" data-orig="'+esc(label)+'">'+esc(label)+'</button></div>';
+}
+document.addEventListener('click', function(e){
+  const b = e.target.closest ? e.target.closest('.mini[data-bulk]') : null;
+  if(!b) return;
+  const kind = b.dataset.bulk;
+  let rows = [];
+  if(kind === 'pend') rows = PEND_ROWS.map(function(r,i){
+    return { i:i, name:r.name||'', key:sentKey('pend', r.name, r.course, r.round) }; });
+  else if(kind === 'pass') rows = PASS_ROWS.map(function(r,i){
+    return { i:i, name:r.name||'', key:sentKey('pass', r.name, r.course, r.round) }; });
+  else if(kind === 'abs') ABS_ROWS.forEach(function(c,i){
+    (c.absent||[]).forEach(function(nm,j){
+      rows.push({ i:i, j:j, name:nm, key:sentKey('abs', nm, c.course, c.round) }); }); });
+  copyBulk(b, kind, rows);
+});
+
 /* 문자를 클립보드로. 버튼은 눌린 티가 나야 한다 — 복사됐는지 모르면 두 번 누른다.
    실패는 **누른 자리 근처**에 적는다. 학생 카드가 열려 있는데 대시보드에 적으면
    카드에 가려 아무도 못 보고, 눌러도 아무 일이 없는 것처럼 보인다. */
@@ -926,6 +1167,9 @@ function copyMsg(btn, make, noteId){
     if(!msg) throw new Error('문구를 만들지 못했습니다');
     const done = function(){
       btn.disabled = false; btn.textContent = '복사됨 ✓'; btn.classList.add('copied');
+      /* 누른 줄을 가라앉힌다. 다시 그려도 남도록 열쇠를 따로 기억해 둔다. */
+      const row = btn.closest && btn.closest('.row,.trk__i');
+      if(row && row.dataset && row.dataset.sk){ SENT.add(row.dataset.sk); row.classList.add('sent'); }
       setTimeout(function(){ btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
     };
     if(navigator.clipboard && navigator.clipboard.writeText)
@@ -1126,8 +1370,40 @@ function dotsOf(flags){
 }
 
 /* ── 대시보드 ───────────────────────────────────────────────────── */
-function card(v, label, warn){
-  return '<div class="card'+(warn?' warn':'')+'"><b>'+v+'</b><span>'+label+'</span></div>';
+/* 숫자 칸(<b>)에는 **숫자만** 담는다. 델타를 그 안에 넣으면 "4▲2" 가 한 덩어리가
+   되어, 읽는 사람도 값을 읽는 코드도 헷갈린다. 옆에 나란히 둔다. */
+function card(v, label, warn, delta, extra){
+  return '<div class="card'+(warn?' warn':'')+'"><div class="cardv"><b>'+v+'</b>'+
+         (delta||'')+'</div><span>'+label+'</span>'+(extra||'')+'</div>';
+}
+/* ── 값 하나로는 많은지 적은지 모른다 ────────────────────────────────
+   "오늘 채점 4" 를 봐도 평소보다 많은 건지 알 수 없다. 전 기간 대비와 열나흘
+   추세를 같은 자리에 붙인다 — 값·델타·스파크라인 셋이 한 카드에 있는 것은
+   Stripe 대시보드가 십 년을 버틴 조합이다. */
+function dayCounts(rounds, days){
+  const t0 = startOfToday(), out = new Array(days).fill(0);
+  (rounds||[]).forEach(function(r){
+    if(!r.ts) return;
+    const d0 = new Date(r.ts); d0.setHours(0,0,0,0);
+    const d = Math.round((t0 - d0.getTime())/DAY);
+    if(d >= 0 && d < days) out[days-1-d]++;
+  });
+  return out;
+}
+/* 늘었는지 줄었는지만 말한다. 백분율은 표본이 작을 때 거짓말을 한다
+   (1건에서 2건이 '+100%' 로 보인다). */
+function deltaOf(now, before){
+  if(before == null) return '';
+  const d = now - before;
+  if(!d) return '<span class="delta">±0</span>';
+  return '<span class="delta '+(d>0?'up':'down')+'">'+(d>0?'▲':'▼')+Math.abs(d)+'</span>';
+}
+function sparkOf(vals){
+  const mx = Math.max.apply(null, vals) || 1;
+  return '<div class="spark">'+vals.map(function(v,i){
+    return '<i class="'+(i===vals.length-1?'today':'')+'" style="height:'+
+           Math.max(1, Math.round(v/mx*16))+'px" title="'+v+'건"></i>';
+  }).join('')+'</div>';
 }
 /* 목록이 길면 화면이 스크롤만 남는다. 자르되 **자른 것을 말한다** — 조용히
    자르면 그 아래가 없는 줄 알고 넘어간다(그게 아직 안 끝난 학생이다). */
@@ -1204,12 +1480,18 @@ function renderDash(){
   const fin = FIN || (FIN = examLocal());
   syncWorkRows(); renderJump();
   const rounds = allRounds(fin);
-  const t0 = startOfToday();
-  const today = rounds.filter(function(r){ return (r.ts||0) >= t0; }).length;
-  const week  = rounds.filter(function(r){ return (r.ts||0) >= t0-6*DAY; }).length;
+  const d14 = dayCounts(rounds, 14);
+  const today = d14[13];
+  /* 어제와 견주면 요일 때문에 늘 출렁인다(토요일 수업, 화요일 없음).
+     **지난주 같은 요일**과 견줘야 뜻이 있다. */
+  const sameDayLastWeek = d14[6];
+  const sum = function(a){ return a.reduce(function(x,y){ return x+y; }, 0); };
+  const week = sum(d14.slice(7)), prevWeek = sum(d14.slice(0,7));
   const cards = [
-    card(today, '오늘 채점', false),
-    card(week, '최근 7일 채점'),
+    card(today, '오늘 채점 <span class="dim">· 지난주 같은 요일 대비</span>',
+         false, deltaOf(today, sameDayLastWeek), sparkOf(d14)),
+    card(week, '최근 7일 채점 <span class="dim">· 그 전 7일 대비</span>',
+         false, deltaOf(week, prevWeek)),
     card(fin.students.length, '파이널 누적 학생'),
     card(fin.records, '파이널 채점 기록'),
     card(fin.rounds, '기록이 있는 회차'),
@@ -1237,13 +1519,17 @@ function renderDash(){
     syncWorkRows(); renderJump(); renderClassTab();
     if(!rows.length){ const w0=document.getElementById('pendWrap'); if(w0) w0.hidden=true; return; }
     const w = document.getElementById('pendWrap'); w.hidden = false;
-    document.getElementById('pendList').innerHTML = capNote(PEND_ROWS) + PEND_ROWS.slice(0,DASH_MAX).map(function(r,i){
+    document.getElementById('pendList').innerHTML = bulkBar('pend',
+      PEND_ROWS.map(function(r,i){ return { i:i, name:r.name||'',
+        key:sentKey('pend', r.name, r.course, r.round) }; }), '안 보낸 사람 한 번에') +
+      capNote(PEND_ROWS) + PEND_ROWS.slice(0,DASH_MAX).map(function(r,i){
       const nm = esc(r.name||r.studentKey||'—');
+      const sk = sentKey('pend', r.name, r.course, r.round);
       const meta = [DT_COURSE[r.course]||r.course, r.round?(r.round+'회'):'',
                     r.lastAttempt?(r.lastAttempt+' '+r.score+'점'):'',
                     r.nextNeeded?('→ '+r.nextNeeded+' 미응시'):'',
                     (r.days!=null)?(r.days+'일'):''].filter(Boolean).join(' · ');
-      return '<div class="row" style="cursor:default"><span class="nm">'+nm+'</span>'+
+      return '<div class="row'+sentCls(sk)+'" style="cursor:default"'+sentAttr(sk)+'><span class="nm">'+nm+'</span>'+
              '<span class="where">'+esc(meta)+'</span>'+
              '<button class="mini msg" data-pend="'+i+'" data-orig="문자 복사">문자 복사</button></div>';
     }).join('');
@@ -1257,13 +1543,17 @@ function renderDash(){
     if(ac) ac.textContent = ABS_ROWS.reduce(function(t,c){ return t + c.absent.length; }, 0);
     w.hidden = !ABS_ROWS.length;
     if(!ABS_ROWS.length) return;
-    document.getElementById('absList').innerHTML = ABS_ROWS.map(function(c,i){
+    document.getElementById('absList').innerHTML = bulkBar('abs',
+      (function(){ const out=[]; ABS_ROWS.forEach(function(c,i){ (c.absent||[]).forEach(function(nm,j){
+        out.push({ i:i, j:j, name:nm, key:sentKey('abs', nm, c.course, c.round) }); }); }); return out; })(),
+      '개별 안내 한 번에') + ABS_ROWS.map(function(c,i){
       const head = '<div class="row" style="cursor:default"><span class="nm">'+esc(c.label)+'</span>'
         +'<span class="where">'+esc((DT_COURSE[c.course]||c.course)+' '+c.round+'회')+'</span>'
         +'<span class="cnt">미응시 '+c.absent.length+'/'+c.total+'</span>'
         +'<button class="mini msg" data-abs="'+i+'" data-stage="bc" data-orig="반 전체 공지">반 전체 공지</button></div>';
       const stus = c.absent.map(function(nm,j){
-        return '<div class="row sub" style="cursor:default"><span class="nm">'+esc(nm)+'</span>'
+        const sk = sentKey('abs', nm, c.course, c.round);
+        return '<div class="row sub'+sentCls(sk)+'" style="cursor:default"'+sentAttr(sk)+'><span class="nm">'+esc(nm)+'</span>'
           +'<button class="mini msg" data-abs="'+i+'" data-who="'+j+'" data-stage="1" data-orig="1차 안내">1차 안내</button>'
           +'<button class="mini msg" data-abs="'+i+'" data-who="'+j+'" data-stage="2" data-orig="리마인드">리마인드</button></div>';
       }).join('');
@@ -1281,11 +1571,15 @@ function renderDash(){
     syncWorkRows(); renderJump(); renderClassTab();
     w.hidden = !PASS_ROWS.length;
     if(!PASS_ROWS.length) return;
-    document.getElementById('passList').innerHTML = capNote(PASS_ROWS) + PASS_ROWS.slice(0,DASH_MAX).map(function(r,i){
+    document.getElementById('passList').innerHTML = bulkBar('pass',
+      PASS_ROWS.map(function(r,i){ return { i:i, name:r.name||'',
+        key:sentKey('pass', r.name, r.course, r.round) }; }), '안 보낸 사람 한 번에') +
+      capNote(PASS_ROWS) + PASS_ROWS.slice(0,DASH_MAX).map(function(r,i){
+      const sk = sentKey('pass', r.name, r.course, r.round);
       const meta = [DT_COURSE[r.course]||r.course, r.round?(r.round+'회'):'',
                     r.attempt||'', (Number(r.tries)||1)>1?'재시로 마무리':'한 번에',
                     r.date||''].filter(Boolean).join(' · ');
-      return '<div class="row" style="cursor:default"><span class="nm">'+esc(r.name||'—')+'</span>'+
+      return '<div class="row'+sentCls(sk)+'" style="cursor:default"'+sentAttr(sk)+'><span class="nm">'+esc(r.name||'—')+'</span>'+
              '<span class="where">'+esc(meta)+'</span>'+
              '<span class="cnt">'+esc(r.score)+'점</span>'+
              '<button class="mini msg" data-pass="'+i+'" data-orig="통과 문자">통과 문자</button></div>';
@@ -1419,7 +1713,7 @@ const STU_FILTERS = [
   { key:'all',    label:'전체',   fn:function(){ return true; } },
   { key:'exam',   label:'파이널', fn:function(r){ return !!r.apps.exam; } },
   { key:'dt',     label:'DT',     fn:function(r){ return !!r.apps.dt; } },
-  { key:'km',     label:'KMChC',  fn:function(r){ return !!r.apps.km; } },
+  { key:'km',     label:'화학1 설문',  fn:function(r){ return !!r.apps.km; } },
   { key:'noexam', label:'파이널 기록 없음', fn:function(r){ return !r.apps.exam; } },
 ];
 let STU_FILTER = 'all';
@@ -1437,7 +1731,7 @@ document.addEventListener('click', function(e){
   const b = e.target.closest ? e.target.closest('.chip[data-stuf]') : null;
   if(!b) return;
   STU_FILTER = b.dataset.stuf;
-  renderStudents();
+  renderStudents(); writeHash();
 });
 function renderStudents(){
   renderStuFilter();
@@ -1458,7 +1752,7 @@ function renderStudents(){
     const where = [r.school, r.grade?r.grade+'학년':''].filter(Boolean).join(' ') || '—';
     const tags = Object.keys(r.apps).map(function(a){
       const cls = a==='dt'?'dt':(a==='km'?'km':'');
-      return '<span class="tag '+cls+'">'+esc({exam:'파이널',dt:'DT',km:'KMChC'}[a]||a)+'</span>';
+      return '<span class="tag '+cls+'">'+esc({exam:'파이널',dt:'DT',km:'화학1 설문'}[a]||a)+'</span>';
     }).join('');
     return '<button class="row" data-i="'+i+'"><span class="nm">'+esc(r.name)+'</span>'+
       '<span class="where">'+esc(where)+'</span><span class="tags">'+tags+'</span>'+
@@ -1547,7 +1841,8 @@ function renderStuOther(){
 
   d.absent.forEach(function(a){
     const c = ABS_ROWS[a.i]; if(!c) return;
-    rows.push('<div class="trk__i miss"><div><div class="trk__t">DT 시험 미응시</div>'+
+    const sk = sentKey('abs', r.name, c.course, c.round);
+    rows.push('<div class="trk__i miss'+sentCls(sk)+'"'+sentAttr(sk)+'><div><div class="trk__t">DT 시험 미응시</div>'+
       '<div class="trk__m">'+esc(c.label+' · '+(DT_COURSE[c.course]||c.course)+' '+c.round+'회')+'</div></div>'+
       '<span class="acts">'+
       '<button class="mini msg" data-abs="'+a.i+'" data-who="'+a.j+'" data-stage="1" data-orig="1차 안내">1차 안내</button>'+
@@ -1559,7 +1854,8 @@ function renderStuOther(){
     const meta = [DT_COURSE[x.course]||x.course, x.round?(x.round+'회'):'', x.lastAttempt||'',
                   x.nextNeeded?('→ '+x.nextNeeded+' 미응시'):'',
                   (x.days!=null)?(x.days+'일째'):''].filter(Boolean).join(' · ');
-    rows.push('<div class="trk__i dt"><div><div class="trk__t">DT 재시 대기 · '+esc(String(x.score))+'점</div>'+
+    const sk = sentKey('pend', x.name, x.course, x.round);
+    rows.push('<div class="trk__i dt'+sentCls(sk)+'"'+sentAttr(sk)+'><div><div class="trk__t">DT 재시 대기 · '+esc(String(x.score))+'점</div>'+
       '<div class="trk__m">'+esc(meta)+'</div></div><span class="acts">'+
       '<button class="mini msg" data-pend="'+i+'" data-orig="재시 안내">재시 안내</button>'+
       linkBtns(x.reportLink, 'DT 성적표')+'</span></div>');
@@ -1568,31 +1864,32 @@ function renderStuOther(){
     const x = PASS_ROWS[i];
     const meta = [DT_COURSE[x.course]||x.course, x.round?(x.round+'회'):'', x.attempt||'',
                   (Number(x.tries)||1)>1?'재시로 마무리':'한 번에', x.date||''].filter(Boolean).join(' · ');
-    rows.push('<div class="trk__i pass"><div><div class="trk__t">DT 통과 · '+esc(String(x.score))+'점</div>'+
+    const sk = sentKey('pass', x.name, x.course, x.round);
+    rows.push('<div class="trk__i pass'+sentCls(sk)+'"'+sentAttr(sk)+'><div><div class="trk__t">DT 통과 · '+esc(String(x.score))+'점</div>'+
       '<div class="trk__m">'+esc(meta)+'</div></div><span class="acts">'+
       '<button class="mini msg" data-pass="'+i+'" data-orig="통과 문자">통과 문자</button>'+
       linkBtns(x.reportLink, 'DT 성적표')+'</span></div>');
   });
   if(km && km.kmLink){
-    rows.push('<div class="trk__i km"><div><div class="trk__t">KMChC 진단</div>'+
+    rows.push('<div class="trk__i km"><div><div class="trk__t">화학1 1회차 설문조사</div>'+
       '<div class="trk__m">'+esc(km.grade||'')+'</div></div><span class="acts">'+
       linkBtns(km.kmLink, '성적표 열기')+'</span></div>');
   }
 
   const waiting = !dtCached('passed') && !dtCached('pending') && !dtCached('absentees');
   let h = '';
-  if(rows.length) h = '<div class="sub2">DT · KMChC</div><div class="trk">'+rows.join('')+'</div>';
-  else if(waiting) h = '<div class="sub2">DT · KMChC</div><div class="spin">다른 앱 기록을 부르는 중…</div>';
+  if(rows.length) h = '<div class="sub2">DT · 화학1 설문</div><div class="trk">'+rows.join('')+'</div>';
+  else if(waiting) h = '<div class="sub2">DT · 화학1 설문</div><div class="spin">다른 앱 기록을 부르는 중…</div>';
   else {
     const others = Object.keys(r.apps).filter(function(a){ return a!=='exam'; });
     if(others.length) h = '<div class="note dlgnote">이 학생은 '+
-      others.map(function(a){ return '<b>'+esc({dt:'DT',km:'KMChC'}[a]||a)+'</b>'; }).join(' · ')+
+      others.map(function(a){ return '<b>'+esc({dt:'DT',km:'화학1 설문'}[a]||a)+'</b>'; }).join(' · ')+
       ' 명단에 있습니다. 지금 챙길 것(미응시·재시·통과)은 없습니다.</div>';
   }
   /* 왜 비었는지 말해 준다. 조용히 안 붙이면 "DT 를 안 봤나 보다" 로 넘어간다. */
   if(!nameIsUnique(r.name)) h += '<div class="note err dlgnote">같은 이름의 학생이 명단에 둘 이상입니다. '+
     '<b>미응시·진단은 이름만으로 오기 때문에 붙이지 않았습니다</b> — 잘못 붙이면 남의 문자가 나갑니다. '+
-    'DT·KMChC 화면에서 직접 확인해 주세요.</div>';
+    'DT·화학1 설문 화면에서 직접 확인해 주세요.</div>';
   host.innerHTML = h;
 }
 let EXAMS = [];
@@ -1607,7 +1904,7 @@ document.getElementById('dlgX').addEventListener('click', function(){ DLG.close(
 DLG.addEventListener('click', function(e){ if(e.target===DLG) DLG.close(); });
 /* 닫힌 카드를 계속 들고 있으면, 뒤늦게 온 DT 응답이 이미 사라진 자리를 그린다. */
 DLG.addEventListener('close', function(){ DLG_STU = null; RND_OPEN = null; });
-document.getElementById('q').addEventListener('input', renderStudents);
+document.getElementById('q').addEventListener('input', function(){ renderStudents(); writeHash(); });
 document.getElementById('reload').addEventListener('click', loadRoster);
 
 function loadRoster(){
@@ -1834,6 +2131,25 @@ function renderClassTab(){
   }
   if(!list.some(function(c){ return c.label===CLS_PICK; })) CLS_PICK = list[0].label;
 
+  /* ── 모든 반 한눈에 ────────────────────────────────────────────
+     반이 여덟이면 칩을 여덟 번 눌러야 전체가 보인다. 같은 막대를 반마다 한
+     줄씩 쌓으면 한 화면에서 견줄 수 있다(스몰 멀티플). 어느 반이 밀렸는지
+     고르기 전에 안다. */
+  const mult = document.getElementById('clsMult');
+  if(mult){
+    mult.innerHTML = (list.length < 2) ? '' :
+      ('<div class="mult">'+list.map(function(c){
+        const parts = clsCounts(classRows(c)), hand = parts[0].n + parts[1].n;
+        return '<div class="row" data-clsjump="'+esc(c.label)+'">'+
+          '<span class="nm">'+esc(c.label)+'</span>'+
+          '<span class="cnt">'+((c.students||[]).length)+'명</span>'+
+          '<span class="fill">'+stackBar(parts)+'</span>'+
+          '<span class="cnt">'+(hand ? ('손 '+hand) : '—')+'</span></div>';
+      }).join('')+'</div>'+
+      legendOf([{n:1,tone:'bad',label:'미응시'},{n:1,tone:'warn',label:'재시 대기'},
+                {n:1,tone:'ok',label:'통과'},{n:1,tone:'none',label:'아직'}]));
+  }
+
   tabs.innerHTML = list.map(function(c){
     const n = clsCounts(classRows(c));
     const urgent = n[0].n + n[1].n;
@@ -1871,7 +2187,11 @@ function renderClassTab(){
     else if(st==='ok')   msg = '<button class="mini msg" data-pass="'+r.pass[0]+'" data-orig="통과 문자">통과 문자</button>';
     const score = st==='wait' ? (PEND_ROWS[r.pend[0]].score+'점')
                 : st==='ok'   ? (PASS_ROWS[r.pass[0]].score+'점') : '';
-    return '<div class="row" style="cursor:default">'+
+    const sk = st==='miss' ? sentKey('abs', r.who.name, cls.course, (ABS_ROWS[r.abs[0].i]||{}).round)
+             : st==='wait' ? sentKey('pend', r.who.name, PEND_ROWS[r.pend[0]].course, PEND_ROWS[r.pend[0]].round)
+             : st==='ok'   ? sentKey('pass', r.who.name, PASS_ROWS[r.pass[0]].course, PASS_ROWS[r.pass[0]].round)
+             : '';
+    return '<div class="row'+(sk?sentCls(sk):'')+'" style="cursor:default"'+(sk?sentAttr(sk):'')+'>'+
       '<span class="nm">'+esc(r.who.name)+'</span>'+
       '<span class="where">'+esc([r.who.school, r.who.grade?r.who.grade+'학년':''].filter(Boolean).join(' '))+'</span>'+
       '<span class="tags"><span class="tag '+CLS_TONE[st]+'">'+CLS_LABEL[st]+'</span></span>'+
@@ -1882,8 +2202,12 @@ function renderClassTab(){
   }).join('');
 }
 document.addEventListener('click', function(e){
+  const j = e.target.closest ? e.target.closest('.row[data-clsjump]') : null;
+  if(j){ CLS_PICK = j.dataset.clsjump; renderClassTab(); writeHash();
+         const h=document.getElementById('clsHead'); if(h) h.scrollIntoView({behavior:'smooth',block:'nearest'});
+         return; }
   const t = e.target.closest ? e.target.closest('.chip[data-cls]') : null;
-  if(t){ CLS_PICK = t.dataset.cls; renderClassTab(); return; }
+  if(t){ CLS_PICK = t.dataset.cls; renderClassTab(); writeHash(); return; }
   const b = e.target.closest ? e.target.closest('.mini[data-clsact],.mini[data-clsrow]') : null;
   if(!b) return;
   if(b.dataset.clsrow != null){
@@ -2051,7 +2375,7 @@ function openRound(id){
   wireActs(body, g.rows);
   document.getElementById('dlg').showModal();
 }
-document.getElementById('rq').addEventListener('input', renderRounds);
+document.getElementById('rq').addEventListener('input', function(){ renderRounds(); writeHash(); });
 
 /* ── 자료 ──────────────────────────────────────────────────────────
    여태 이 탭은 파이널 회차만 보여 줬다. 그런데 수업에서 실제로 찾는 자료는
@@ -2238,9 +2562,9 @@ document.addEventListener('click', function(e){
   const b = e.target.closest ? e.target.closest('.chip[data-mat]') : null;
   if(!b) return;
   MAT_PICK = b.dataset.mat;
-  renderMaterials();
+  renderMaterials(); writeHash();
 });
-document.getElementById('mq').addEventListener('input', renderMaterials);
+document.getElementById('mq').addEventListener('input', function(){ renderMaterials(); writeHash(); });
 
 /* ── 시작 ──────────────────────────────────────────────────────── */
 /* 회차 이름은 exams.json 에서 온다. 늦게 도착하므로, 오면 이름을 쓰는
@@ -2258,10 +2582,91 @@ fetch('exams.json',{cache:'no-cache'}).then(function(r){ return r.ok? r.json() :
 
 document.getElementById('qq').addEventListener('input', renderQuick);
 
+/* ── 어디 있더라 (Cmd+K) ────────────────────────────────────────────
+   탭이 열 개가 되면서 "그 학생이 어느 반이더라", "그 회차가 어느 탭이더라" 가
+   생겼다. 탭을 짚어 가는 대신 **무엇을 하려는지 치면** 간다.
+
+   목록은 지금 화면이 이미 들고 있는 것으로만 만든다 — 창구를 새로 두드리지
+   않는다. 그래서 명단이 안 왔으면 화면·회차·자료만 나온다(빈 화면보다 낫다). */
+const PAL = document.getElementById('pal');
+let PAL_ROWS = [], PAL_AT = 0;
+function palSources(){
+  const out = [];
+  TABS.forEach(function(t){
+    const b = document.getElementById('t-'+t);
+    out.push({ kind:'화면', label:(b.textContent||t), sub:'', go:function(){ show(t); } });
+  });
+  ROSTER.forEach(function(r){
+    out.push({ kind:'학생', label:r.name,
+      sub:[r.school, r.grade?r.grade+'학년':''].filter(Boolean).join(' '),
+      go:function(){ show('stu'); openStudent(r); } });
+  });
+  dtClassList().forEach(function(c){
+    out.push({ kind:'반', label:c.label, sub:(DT_COURSE[c.course]||c.course),
+      go:function(){ CLS_PICK=c.label; show('cls'); renderClassTab(); writeHash(); } });
+  });
+  RNDS.forEach(function(g){
+    out.push({ kind:'회차', label:examTitle(g.id), sub:g.n+'명 채점 · 평균 '+g.avg+'%',
+      go:function(){ show('rnd'); openRound(g.id); } });
+  });
+  EXAMS.forEach(function(e){
+    out.push({ kind:'자료', label:e.title, sub:'문제지 · 해설 · 채점',
+      go:function(){ MAT_PICK='final'; show('mat');
+        const q=document.getElementById('mq'); if(q) q.value=e.title;
+        renderMaterials(); writeHash(); } });
+  });
+  return out;
+}
+function renderPal(){
+  const q = normName(document.getElementById('palIn').value||'');
+  const all = palSources();
+  PAL_ROWS = (q ? all.filter(function(r){
+      return normName(r.label).indexOf(q)>=0 || normName(r.sub||'').indexOf(q)>=0 ||
+             normName(r.kind).indexOf(q)>=0;
+    }) : all.slice(0, TABS.length)).slice(0, 40);
+  if(PAL_AT >= PAL_ROWS.length) PAL_AT = 0;
+  const el = document.getElementById('palList');
+  if(!PAL_ROWS.length){ el.innerHTML = '<div class="spin" style="padding:14px 18px">찾는 것이 없습니다.</div>'; return; }
+  el.innerHTML = PAL_ROWS.map(function(r,i){
+    return '<div class="row" role="option" aria-selected="'+(i===PAL_AT)+'" data-pal="'+i+'">'+
+      '<span class="kind">'+esc(r.kind)+'</span><span class="nm">'+esc(r.label)+'</span>'+
+      '<span class="where">'+esc(r.sub||'')+'</span></div>';
+  }).join('');
+  const on = el.querySelector('[aria-selected="true"]');
+  if(on && on.scrollIntoView) on.scrollIntoView({block:'nearest'});
+}
+function palRun(i){
+  const r = PAL_ROWS[i]; if(!r) return;
+  PAL.close();
+  try{ r.go(); }catch(e){}
+}
+function openPal(){
+  if(PAL.open) return;
+  document.getElementById('palIn').value = ''; PAL_AT = 0;
+  renderPal(); PAL.showModal();
+  setTimeout(function(){ try{ document.getElementById('palIn').focus(); }catch(e){} }, 30);
+}
+document.getElementById('palIn').addEventListener('input', function(){ PAL_AT = 0; renderPal(); });
+document.getElementById('palIn').addEventListener('keydown', function(e){
+  if(e.key==='ArrowDown'){ e.preventDefault(); PAL_AT = Math.min(PAL_AT+1, PAL_ROWS.length-1); renderPal(); }
+  else if(e.key==='ArrowUp'){ e.preventDefault(); PAL_AT = Math.max(PAL_AT-1, 0); renderPal(); }
+  else if(e.key==='Enter'){ e.preventDefault(); palRun(PAL_AT); }
+});
+document.getElementById('palList').addEventListener('click', function(e){
+  const r = e.target.closest ? e.target.closest('.row[data-pal]') : null;
+  if(r) palRun(+r.dataset.pal);
+});
+PAL.addEventListener('click', function(e){ if(e.target===PAL) PAL.close(); });
+
 /* ── 손이 빠른 사람을 위해 ──────────────────────────────────────────
    채점하는 날은 탭을 하루에 수십 번 오간다. 숫자키로 곧장 간다.
    글자를 치는 중에는 가로채지 않는다. */
 document.addEventListener('keydown', function(e){
+  /* Cmd+K / Ctrl+K 는 글자를 치는 중에도 열려야 한다 — 찾다가 생각이 바뀌는
+     일이 잦다. 그래서 아래 '입력 중에는 비켜선다' 보다 앞에 둔다. */
+  if((e.metaKey||e.ctrlKey) && !e.altKey && (e.key==='k' || e.key==='K')){
+    e.preventDefault(); openPal(); return;
+  }
   if(e.metaKey||e.ctrlKey||e.altKey) return;
   const t = e.target, tag = (t&&t.tagName)||'';
   const typing = tag==='INPUT' || tag==='TEXTAREA' || (t&&t.isContentEditable);
@@ -2295,8 +2700,7 @@ function boot(){
     if(!at || (Date.now()-at) > SYNC_STALE) syncSheet();
   }, 1200);
   document.getElementById('stamp').textContent = new Date().toLocaleDateString('ko-KR');
-  const h = (location.hash||'').replace('#','');
-  if(TABS.indexOf(h)>=0) show(h);
+  applyHash();
 }
 hubGate(boot);
 </script>

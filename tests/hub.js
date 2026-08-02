@@ -404,7 +404,12 @@ console.log('\n── KMChC 도 명단에 합친다 ──');
   /* 여기만 읽을 창구가 없어서, KMChC 를 본 학생은 셸에 아예 안 나왔다.
      같은 학생인데 파이널·DT 에서만 보이니 '전 과목 기록' 이 반쪽이었다. */
   const body = SRC.split('<script>')[1] || '';
-  chk('KMChC 주소가 채워졌다', /km:\s*\{[\s\S]{0,160}ep:'https:\/\/script\.google\.com/.test(body), true);
+  chk('설문 앱 주소가 채워졌다', /km:\s*\{[\s\S]{0,300}ep:'https:\/\/script\.google\.com/.test(body), true);
+  /* 이름이 둘인 것은 자리 때문이다 — 배지에 긴 이름을 넣으면 줄이 통째로 밀린다.
+     둘 다 있어야 하고, 폴더 이름(주소)은 바뀌지 않는다. */
+  chk('긴 이름과 짧은 이름이 함께 있다',
+      /name:'화학1 1회차 설문조사', short:'화학1 설문'/.test(body), true);
+  chk('주소는 그대로 KMChC 폴더', /path:'\.\.\/KMChC\/index\.html'/.test(body), true);
   chk('KMChC 명단을 읽는 길이 있다', /function kmRoster\(force\)/.test(body), true);
   const km = cut('kmRoster');
   chk('같은 캐시를 쓴다', /readOnce\('km', 'names'/.test(km), true);
