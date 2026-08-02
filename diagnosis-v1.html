@@ -1,50 +1,50 @@
 <!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5"><title>통합 진단 엔진 v1 · CHEMISTREAL</title><style>
-:root{--cream:#FBFAF6;--paper:#fff;--ink:#23201b;--ink-2:#5a564d;--muted:#8a8578;--teal:#0E5A4C;--teal-d:#3A7A6B;--brass:#B08D57;--line:#E8E4DA;--ms:#C0603A;--ok:#2E7D6B;--ok-bg:#eef5f2;--mono:ui-monospace,Menlo,monospace}
+:root{--cream:#FBFAF6;--paper:#fff;--ink:#23201b;--ink-2:#5a564d;--muted:#6f6a5e;--teal:#0E5A4C;--teal-d:#3A7A6B;--brass:#B08D57;--line:#E8E4DA;--ms:#C0603A;--ok:#2E7D6B;--ok-bg:#eef5f2;--mono:ui-monospace,Menlo,monospace}
 *{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:-apple-system,"Noto Sans KR",sans-serif;line-height:1.5}
 .serif{font-family:"Nanum Myeongjo",Georgia,serif}
 header{background:linear-gradient(180deg,#0E5A4C,#0b4a3f);color:#fff;padding:18px;text-align:center}
-header .logo{font-size:11px;letter-spacing:.18em;opacity:.82;font-weight:600}header h1{margin:5px 0 3px;font-size:20px}header .sub{font-size:11.5px;opacity:.86}
+header .logo{font-size:11.5px;letter-spacing:.18em;opacity:.82;font-weight:600}header h1{margin:5px 0 3px;font-size:20px}header .sub{font-size:11.5px;opacity:.86}
 .wrap{max-width:1080px;margin:0 auto;padding:14px 12px 50px}
 .note{background:#fff;border:1px solid var(--line);border-left:3px solid var(--brass);border-radius:10px;padding:11px 14px;font-size:12.5px;color:var(--ink-2);margin-bottom:12px}.note b{color:var(--ink)}
 .cols{display:grid;grid-template-columns:1fr 1.1fr;gap:16px}@media(max-width:880px){.cols{grid-template-columns:1fr}}
 .panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px}
 .panel h2{font-size:14px;margin:0 0 11px;display:flex;align-items:center;gap:8px}
-.panel h2 .b{font-family:var(--mono);font-size:11px;font-weight:700;color:#fff;background:var(--teal);width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center}
+.panel h2 .b{font-family:var(--mono);font-size:11.5px;font-weight:700;color:#fff;background:var(--teal);width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center}
 .exsel{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
 .exsel select{flex:1;min-width:170px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px}
 .exsel button{font-size:11.5px;font-weight:600;border:1px solid var(--line);background:#faf8f1;color:var(--ink);padding:7px 11px;border-radius:8px;cursor:pointer}
 .grid{display:grid;grid-template-columns:repeat(10,1fr);gap:5px}
 @media(max-width:520px){.grid{grid-template-columns:repeat(8,1fr)}}
-.q{aspect-ratio:1;border:1px solid var(--line);border-top:3px solid #ccc;border-radius:6px;background:#fff;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink-2);font-family:var(--mono)}
+.q{aspect-ratio:1;border:1px solid var(--line);border-top:3px solid #ccc;border-radius:6px;background:#fff;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink-2);font-family:var(--mono)}
 .q.wrong{background:#fbece7;border-color:var(--ms);color:#8f3a1f}
 .q.nul{opacity:.4}
-.legend{font-size:11px;color:var(--muted);margin-top:8px}
+.legend{font-size:11.5px;color:var(--muted);margin-top:8px}
 /* report */
 .report{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .rhead{background:linear-gradient(180deg,#0E5A4C,#0b4a3f);color:#fff;padding:13px 16px}
 .rhead .t{font-size:13px;font-weight:700}.rhead .s{font-size:11.5px;opacity:.9;margin-top:2px}
-.conf{display:inline-block;margin-top:7px;font-size:10.5px;font-weight:700;color:#fff;padding:3px 10px;border-radius:12px}
+.conf{display:inline-block;margin-top:7px;font-size:11.5px;font-weight:700;color:#fff;padding:3px 10px;border-radius:12px}
 .rbody{padding:15px 16px}
 .confnote{font-size:12px;color:var(--ink-2);margin:0 0 12px;padding:8px 11px;background:#faf8f1;border-radius:8px}
-.sec{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.04em;margin:16px 0 8px}
+.sec{font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.04em;margin:16px 0 8px}
 .root{background:var(--ok-bg);border:1px solid #cfe3dc;border-left:3px solid var(--teal);border-radius:9px;padding:11px 13px;margin-bottom:10px}
-.root .lab{font-size:10.5px;font-weight:700;color:var(--teal)}.root .main{font-size:15px;font-weight:700;margin:3px 0;font-family:"Nanum Myeongjo",Georgia,serif}
+.root .lab{font-size:11.5px;font-weight:700;color:var(--teal)}.root .main{font-size:15px;font-weight:700;margin:3px 0;font-family:"Nanum Myeongjo",Georgia,serif}
 .root .why{font-size:12px;color:var(--ink-2)}.root .why b{color:var(--ms)}
 .start{display:inline-flex;gap:5px;margin-top:8px;font-size:12px;font-weight:700;color:#fff;background:var(--teal);text-decoration:none;padding:6px 12px;border-radius:7px}
 .mc{border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin-bottom:9px}
 .mc .bad{color:#a32;font-size:13px;font-weight:600}.mc .good{color:#1c5a4c;font-size:13px;margin-top:3px}
 .mc .ft{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:8px}
-.tbadge{font-size:9.5px;font-weight:700;color:#fff;padding:2px 8px;border-radius:10px}
-.mc .cn{font-size:11px;color:var(--muted);font-family:var(--mono)}
-.mc .rt{font-size:11px;color:var(--ink-2);margin-left:auto}.mc .rt a{color:var(--teal);text-decoration:none;font-weight:700}
+.tbadge{font-size:11.5px;font-weight:700;color:#fff;padding:2px 8px;border-radius:10px}
+.mc .cn{font-size:11.5px;color:var(--muted);font-family:var(--mono)}
+.mc .rt{font-size:11.5px;color:var(--ink-2);margin-left:auto}.mc .rt a{color:var(--teal);text-decoration:none;font-weight:700}
 .step{display:flex;align-items:center;gap:9px;font-size:12.5px;padding:6px 2px;border-bottom:1px solid #f3efe6}.step:last-child{border-bottom:none}
-.step .ord{font-family:var(--mono);font-size:10px;font-weight:700;color:#fff;background:var(--brass);width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none}
-.step a{color:var(--teal);text-decoration:none;font-weight:600}.step .rl{font-size:10.5px;color:var(--muted);font-family:var(--mono)}
-.tag{font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:5px;margin-left:auto}.tag.root{background:#dcebe5;color:#13463b}.tag.sym{background:#f5ddd4;color:#8f3a1f}.tag.weak{background:#fdf0d8;color:#8a6a1e}
+.step .ord{font-family:var(--mono);font-size:11.5px;font-weight:700;color:#fff;background:var(--brass);width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none}
+.step a{color:var(--teal);text-decoration:none;font-weight:600}.step .rl{font-size:11.5px;color:var(--muted);font-family:var(--mono)}
+.tag{font-size:11.5px;font-weight:700;padding:2px 6px;border-radius:5px;margin-left:auto}.tag.root{background:#dcebe5;color:#13463b}.tag.sym{background:#f5ddd4;color:#8f3a1f}.tag.weak{background:#fdf0d8;color:#8a6a1e}
 .empty{text-align:center;color:var(--muted);font-size:13px;padding:26px 10px}
-footer{text-align:center;color:var(--muted);font-size:11px;padding:20px}
+footer{text-align:center;color:var(--muted);font-size:11.5px;padding:20px}
 </style></head>
-<body><nav style="background:#08352d;padding:7px 16px;display:flex;align-items:center;justify-content:space-between;font-size:11.5px;font-family:-apple-system,sans-serif"><a href="dashboard.html" style="color:#fff;opacity:0.92;text-decoration:none;font-weight:600">&#8592; CHEMISTREAL 허브</a><span style="color:#fff;opacity:0.5;font-size:10px;letter-spacing:.05em">진단 R&amp;D</span></nav>
+<body><nav style="background:#08352d;padding:7px 16px;display:flex;align-items:center;justify-content:space-between;font-size:11.5px;font-family:-apple-system,sans-serif"><a href="dashboard.html" style="color:#fff;opacity:0.92;text-decoration:none;font-weight:600">&#8592; CHEMISTREAL 허브</a><span style="color:#fff;opacity:0.5;font-size:11.5px;letter-spacing:.05em">진단 R&amp;D</span></nav>
 <header><div class="logo">CHEMISTREAL · 진단 R&amp;D</div><h1 class="serif">통합 진단 엔진 v1</h1><div class="sub">Q-행렬 + 선수 DAG + 오개념 결합 · 정오답 → 약점·오개념·근본 원인</div></header>
 <div class="wrap">
 <div class="note"><b>S5 결정론적 진단 v1:</b> 네 층(개념 온톨로지·선수 DAG·Q-행렬·오개념)을 결합했습니다. 시험을 고르고 <b>틀린 문항을 클릭</b>하면(빨강), 엔진이 ① 틀린 문항 → 약점 개념(Q-행렬) ② 약점 → 근본 원인(DAG) ③ 보유 가능 오개념(S4) ④ 우선 학습 경로를 한 블록으로 산출합니다. 이게 final.html에 배선될 진단 블록의 프로토타입입니다. 매핑·오개념은 1차 초안 기반이라 출력도 그 한계를 따릅니다.</div>
@@ -115,7 +115,7 @@ function render(){const {tot,wr}=computeS();
      `<div class="ft"><span class="tbadge" style="background:${TC[m.t]}">${esc(TN[m.t])}</span><span class="cn">${id} ${esc(N[id].l)}</span>`+
      `<span class="rt">근본: <a href="${N[m.r].f}">${m.r} ${esc(N[m.r].l)}</a></span></div></div>`;}).join('');
  const rootsH=sc.map((s,i)=>{const symList=[...s.sym].sort((a,b)=>TOPO.indexOf(a)-TOPO.indexOf(b)).map(x=>`${N[x].l}(${x})`).join(', ');
-   return `<div class="root"><div class="lab">${sc.length>1?`뿌리 ${i+1}/${sc.length}`:'근본 원인'}</div><div class="main">${esc(N[s.id].l)} <span style="font-family:var(--mono);font-size:11px;color:var(--muted)">${s.id}</span></div>`+
+   return `<div class="root"><div class="lab">${sc.length>1?`뿌리 ${i+1}/${sc.length}`:'근본 원인'}</div><div class="main">${esc(N[s.id].l)} <span style="font-family:var(--mono);font-size:11.5px;color:var(--muted)">${s.id}</span></div>`+
      `<div class="why">그 위에 쌓이는 <b>${s.reach-1}개</b> 개념 실패를 설명${s.sym.size?`: ${esc(symList)}`:'(단독)'}.</div><a class="start" href="${N[s.id].f}">여기부터 → ${s.id}강</a></div>`;}).join('');
  const pathH=fixOrder.map((id,i)=>{const isR=rootSet.has(id),sv=S[id];
    return `<div class="step"><span class="ord">${i+1}</span><a href="${N[id].f}">${esc(N[id].l)}</a><span class="rl">${id} · ${N[id].a}</span><span class="tag ${isR?'root':(sv>=2?'sym':'weak')}">${isR?'뿌리':(sv>=2?'증상':'약함')}</span></div>`;}).join('');

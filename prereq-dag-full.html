@@ -1,5 +1,5 @@
 <!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5"><title>선수 개념 DAG · 근본 원인 진단 (전체)</title><style>
-:root{--cream:#FBFAF6;--paper:#fff;--ink:#23201b;--ink-2:#5a564d;--muted:#8a8578;--teal:#0E5A4C;--teal-d:#3A7A6B;--brass:#B08D57;--line:#E8E4DA;--ms:#C0603A;--cobalt:#3F5C8C;--ok-bg:#eef5f2;--mono:ui-monospace,Menlo,monospace}
+:root{--cream:#FBFAF6;--paper:#fff;--ink:#23201b;--ink-2:#5a564d;--muted:#6f6a5e;--teal:#0E5A4C;--teal-d:#3A7A6B;--brass:#B08D57;--line:#E8E4DA;--ms:#C0603A;--cobalt:#3F5C8C;--ok-bg:#eef5f2;--mono:ui-monospace,Menlo,monospace}
 *{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:-apple-system,"Noto Sans KR",sans-serif;line-height:1.55}
 .serif{font-family:"Nanum Myeongjo",Georgia,serif}
 header{background:linear-gradient(180deg,#0E5A4C,#0b4a3f);color:#fff;padding:22px 18px;text-align:center}
@@ -12,7 +12,7 @@ main{max-width:1080px;margin:0 auto;padding:16px 14px 60px}
 @media(max-width:820px){.grid{grid-template-columns:1fr}}
 .panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px 16px;margin-bottom:14px}
 .panel h2{font-size:14px;margin:0 0 11px;display:flex;align-items:center;gap:8px}
-.panel h2 .b{font-family:var(--mono);font-size:11px;font-weight:700;color:#fff;background:var(--teal);width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center}
+.panel h2 .b{font-family:var(--mono);font-size:11.5px;font-weight:700;color:#fff;background:var(--teal);width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center}
 .presets{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
 .presets button{font-size:11.5px;font-weight:600;border:1px solid var(--line);background:#faf8f1;color:var(--ink);padding:6px 11px;border-radius:16px;cursor:pointer}
 .presets button:hover{border-color:var(--teal);color:var(--teal)}
@@ -22,7 +22,7 @@ main{max-width:1080px;margin:0 auto;padding:16px 14px 60px}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
 .chips{display:flex;flex-wrap:wrap;gap:5px}
 .chip{font-size:11.5px;border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 8px;cursor:pointer;user-select:none;display:flex;align-items:center;gap:5px;transition:all .12s}
-.chip .n{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.chip .n{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
 .chip.w2{background:#fbece7;border-color:var(--ms);color:#8f3a1f}
 .chip.w2 .n{color:var(--ms)}
 .chip.w1{background:#fdf6ec;border-color:#cf9f3a;color:#7a5b16}
@@ -30,30 +30,30 @@ main{max-width:1080px;margin:0 auto;padding:16px 14px 60px}
 /* report block */
 .report{background:#fff;border:1px solid var(--line);border-radius:12px;padding:0;overflow:hidden}
 .rhead{background:linear-gradient(180deg,#0E5A4C,#0b4a3f);color:#fff;padding:12px 16px}
-.rhead .t{font-size:13px;font-weight:700}.rhead .s{font-size:11px;opacity:.85;margin-top:2px}
-.conf{display:inline-block;margin-top:7px;font-size:10.5px;font-weight:700;color:#fff;padding:3px 10px;border-radius:12px}
+.rhead .t{font-size:13px;font-weight:700}.rhead .s{font-size:11.5px;opacity:.85;margin-top:2px}
+.conf{display:inline-block;margin-top:7px;font-size:11.5px;font-weight:700;color:#fff;padding:3px 10px;border-radius:12px}
 .confnote{font-size:12px;color:var(--ink-2);margin:0 0 11px;padding:8px 11px;background:#faf8f1;border-radius:8px}
 .rbody{padding:15px 16px}
 .root{background:var(--ok-bg);border:1px solid #cfe3dc;border-left:3px solid var(--teal);border-radius:9px;padding:12px 14px;margin:0 0 12px}
-.root .lab{font-size:11px;font-weight:700;color:var(--teal);letter-spacing:.03em}
+.root .lab{font-size:11.5px;font-weight:700;color:var(--teal);letter-spacing:.03em}
 .root .main{font-size:16px;font-weight:700;margin:4px 0 2px;font-family:"Nanum Myeongjo",Georgia,serif}
 .root .why{font-size:12.5px;color:var(--ink-2);margin-top:5px}
 .root .why b{color:var(--ms)}
 .start{display:inline-flex;align-items:center;gap:6px;margin-top:9px;font-size:12.5px;font-weight:700;color:#fff;background:var(--teal);text-decoration:none;padding:7px 13px;border-radius:8px}
 .path{margin:12px 0 0}
-.path .lab{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.03em;margin-bottom:6px}
+.path .lab{font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.03em;margin-bottom:6px}
 .step{display:flex;align-items:center;gap:9px;font-size:12.5px;padding:6px 2px;border-bottom:1px solid #f3efe6}
 .step:last-child{border-bottom:none}
-.step .ord{font-family:var(--mono);font-size:10px;font-weight:700;color:#fff;background:var(--brass);width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none}
+.step .ord{font-family:var(--mono);font-size:11.5px;font-weight:700;color:#fff;background:var(--brass);width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none}
 .step a{color:var(--teal);text-decoration:none;font-weight:600}
-.step .rl{font-size:10.5px;color:var(--muted);font-family:var(--mono)}
-.tag{font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:5px;margin-left:auto}
+.step .rl{font-size:11.5px;color:var(--muted);font-family:var(--mono)}
+.tag{font-size:11.5px;font-weight:700;padding:2px 6px;border-radius:5px;margin-left:auto}
 .tag.root{background:#dcebE5;color:#13463b;border:none;padding:2px 6px}
 .tag.sym{background:#f5ddd4;color:#8f3a1f}
 .empty{text-align:center;color:var(--muted);font-size:13px;padding:24px 10px}
 .figwrap{margin:14px 0 0;text-align:center}
 .figwrap svg{max-width:100%;height:auto;border:1px solid var(--line);border-radius:9px;background:#fcfbf7}
-.figcap{font-size:11px;color:var(--muted);margin-top:5px}
+.figcap{font-size:11.5px;color:var(--muted);margin-top:5px}
 /* audit */
 details{background:#fff;border:1px solid var(--line);border-radius:12px;padding:0;margin-top:14px}
 summary{padding:13px 16px;font-size:13.5px;font-weight:700;cursor:pointer;list-style:none}
@@ -63,14 +63,14 @@ details[open] summary::before{content:'▾ '}
 .audit{padding:0 16px 16px}
 .audit table{width:100%;border-collapse:collapse;font-size:12px}
 .audit th,.audit td{padding:6px 7px;border-bottom:1px solid #f3efe6;text-align:left;vertical-align:top}
-.audit th{color:var(--muted);font-size:10.5px;border-bottom:1.5px solid var(--line)}
-.audit .nn{font-family:var(--mono);font-size:10.5px;color:var(--teal);white-space:nowrap}
+.audit th{color:var(--muted);font-size:11.5px;border-bottom:1.5px solid var(--line)}
+.audit .nn{font-family:var(--mono);font-size:11.5px;color:var(--teal);white-space:nowrap}
 .audit .pq{color:var(--ink-2)}
-.audit .root0{color:var(--brass);font-weight:700;font-size:10.5px}
-.ek{font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;white-space:nowrap}
+.audit .root0{color:var(--brass);font-weight:700;font-size:11.5px}
+.ek{font-size:11.5px;font-weight:700;padding:1px 5px;border-radius:4px;white-space:nowrap}
 .ek.hard{background:#e3efe9;color:#1c5a4c}.ek.soft{background:#f3ece0;color:#8a6a2e}
-.legend{font-size:11px;color:var(--muted);margin:6px 2px 0;line-height:1.6}
-.stat{font-family:var(--mono);font-size:11px;color:var(--ink-2);margin-top:8px}
+.legend{font-size:11.5px;color:var(--muted);margin:6px 2px 0;line-height:1.6}
+.stat{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);margin-top:8px}
 footer{text-align:center;color:var(--muted);font-size:11.5px;padding:22px 16px;line-height:1.6}
 </style></head>
 <body><header><div class="logo">CHEMISTREAL · 진단 R&amp;D</div><h1 class="serif">선수 개념 DAG · 근본 원인 진단</h1><div class="sub">전체 16영역 · 125개념 · 200간선</div></header>
@@ -356,7 +356,7 @@ document.querySelectorAll('[data-pre]').forEach(b=>b.addEventListener('click',()
 (function(){let rows=''; const order=['원자모형', '주기율', '분자의 모양', '분자 간 인력', '몰과 양적 관계', '기체', '액체와 용액', '고체와 결정', '열화학', '화학 평형', '산과 염기', '중화 반응', '산화 환원', '반응 속도', '탄소 화합물', '배위 화학'];
  order.forEach(a=>{IDS.filter(id=>N[id].a===a).forEach(id=>{
    const pq=N[id].p.length?N[id].p.map(pp=>`${esc(N[pp].l)}(${pp}) <span class="ek ${isSoft(id,pp)?'soft':'hard'}">${isSoft(id,pp)?'도움':'필수'}</span>`).join('   '):'<span class="root0">뿌리 개념</span>';
-   rows+=`<tr><td class="nn">${id}</td><td>${esc(N[id].l)}<br><span style="font-size:9.5px;color:${AREAS[a].c}">${a}</span></td><td class="pq">${pq}</td></tr>`;});});
+   rows+=`<tr><td class="nn">${id}</td><td>${esc(N[id].l)}<br><span style="font-size:11.5px;color:${AREAS[a].c}">${a}</span></td><td class="pq">${pq}</td></tr>`;});});
  document.getElementById('audit').innerHTML=`<table><tr><th>강</th><th>개념</th><th>선수 개념 (← 먼저 필요)</th></tr>${rows}</table>`;
 })();
 render();

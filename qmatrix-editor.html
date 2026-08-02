@@ -1,16 +1,16 @@
 <!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5"><title>Q-행렬 편집기 · 문항 태그 → 개념 매핑</title><style>
-:root{--cream:#FBFAF6;--paper:#fff;--ink:#23201b;--ink-2:#5a564d;--muted:#8a8578;--teal:#0E5A4C;--brass:#B08D57;--line:#E8E4DA;--ms:#C0603A;--ok:#2E7D6B;--ok-bg:#eef5f2;--mono:ui-monospace,Menlo,monospace}
+:root{--cream:#FBFAF6;--paper:#fff;--ink:#23201b;--ink-2:#5a564d;--muted:#6f6a5e;--teal:#0E5A4C;--brass:#B08D57;--line:#E8E4DA;--ms:#C0603A;--ok:#2E7D6B;--ok-bg:#eef5f2;--mono:ui-monospace,Menlo,monospace}
 *{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:-apple-system,"Noto Sans KR",sans-serif;line-height:1.5}
 .serif{font-family:"Nanum Myeongjo",Georgia,serif}
 header{background:linear-gradient(180deg,#0E5A4C,#0b4a3f);color:#fff;padding:18px;text-align:center}
-header .logo{font-size:11px;letter-spacing:.18em;opacity:.82;font-weight:600}header h1{margin:5px 0 3px;font-size:20px}header .sub{font-size:11.5px;opacity:.86}
+header .logo{font-size:11.5px;letter-spacing:.18em;opacity:.82;font-weight:600}header h1{margin:5px 0 3px;font-size:20px}header .sub{font-size:11.5px;opacity:.86}
 .wrap{max-width:1180px;margin:0 auto;padding:12px}
 .note{background:#fff;border:1px solid var(--line);border-left:3px solid var(--brass);border-radius:10px;padding:11px 14px;font-size:12.5px;color:var(--ink-2);margin-bottom:12px}
 .note b{color:var(--ink)}
 .bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
 .stat{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 14px;flex:1;min-width:120px;text-align:center}
 .stat .v{font-size:20px;font-weight:800;font-family:var(--mono)}
-.stat .k{font-size:10.5px;color:var(--muted);margin-top:2px}
+.stat .k{font-size:11.5px;color:var(--muted);margin-top:2px}
 .stat.warn .v{color:var(--ms)}
 .tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
 .tools input.search{flex:1;min-width:160px;border:1px solid var(--line);border-radius:8px;padding:8px 11px;font-size:13px}
@@ -21,30 +21,30 @@ header .logo{font-size:11px;letter-spacing:.18em;opacity:.82;font-weight:600}hea
 @media(max-width:880px){.cols{grid-template-columns:1fr}}
 .panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 15px}
 .panel h2{font-size:13.5px;margin:0 0 10px;display:flex;justify-content:space-between;align-items:center}
-.panel h2 .c{font-family:var(--mono);font-size:11px;color:var(--muted);font-weight:600}
+.panel h2 .c{font-family:var(--mono);font-size:11.5px;color:var(--muted);font-weight:600}
 .tlist{max-height:64vh;overflow-y:auto;margin:-4px}
 .trow{display:flex;align-items:center;gap:9px;padding:6px 6px;border-bottom:1px solid #f3efe6}
 .trow.hide{display:none}
 .trow.un{background:#fdf6ec}
-.freq{font-family:var(--mono);font-size:10px;font-weight:700;color:#fff;background:var(--brass);border-radius:5px;padding:2px 6px;min-width:30px;text-align:center}
+.freq{font-family:var(--mono);font-size:11.5px;font-weight:700;color:#fff;background:var(--brass);border-radius:5px;padding:2px 6px;min-width:30px;text-align:center}
 .tn{flex:1;min-width:0;font-size:12.5px}
-.tn .ta{font-size:9.5px;color:var(--muted);font-family:var(--mono)}
+.tn .ta{font-size:11.5px;color:var(--muted);font-family:var(--mono)}
 .csel{width:178px;border:1px solid var(--line);border-radius:7px;padding:5px 8px;font-size:11.5px}
 .csel.empty{border-color:#d9b24a;background:#fffdf7}
 .cdot{width:10px;height:10px;border-radius:50%;flex:none;background:#ddd}
 .covlist{max-height:64vh;overflow-y:auto}
 .cvarea{margin:6px 0}
-.cvah{font-size:10.5px;font-weight:700;display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.cvah{font-size:11.5px;font-weight:700;display:flex;align-items:center;gap:6px;margin-bottom:3px}
 .dot{width:8px;height:8px;border-radius:50%}
 .cvrow{display:flex;align-items:center;gap:7px;padding:3px 6px;border-radius:6px;font-size:11.5px;cursor:pointer}
 .cvrow:hover{background:#faf8f1}
-.cvrow .id{font-family:var(--mono);font-size:9.5px;color:var(--muted)}
+.cvrow .id{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
 .cvrow .ct{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cvrow .cnt{font-family:var(--mono);font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:9px}
+.cvrow .cnt{font-family:var(--mono);font-size:11.5px;font-weight:700;padding:1px 7px;border-radius:9px}
 .cnt.gap{background:#fbe3e3;color:#a32}.cnt.und{background:#fdf0d8;color:#8a6a1e}.cnt.ok{background:#e3efe9;color:#1c5a4c}
-footer{text-align:center;color:var(--muted);font-size:11px;padding:20px}
+footer{text-align:center;color:var(--muted);font-size:11.5px;padding:20px}
 </style></head>
-<body><nav style="background:#08352d;padding:7px 16px;display:flex;align-items:center;justify-content:space-between;font-size:11.5px;font-family:-apple-system,sans-serif"><a href="dashboard.html" style="color:#fff;opacity:0.92;text-decoration:none;font-weight:600">&#8592; CHEMISTREAL 허브</a><span style="color:#fff;opacity:0.5;font-size:10px;letter-spacing:.05em">진단 R&amp;D</span></nav>
+<body><nav style="background:#08352d;padding:7px 16px;display:flex;align-items:center;justify-content:space-between;font-size:11.5px;font-family:-apple-system,sans-serif"><a href="dashboard.html" style="color:#fff;opacity:0.92;text-decoration:none;font-weight:600">&#8592; CHEMISTREAL 허브</a><span style="color:#fff;opacity:0.5;font-size:11.5px;letter-spacing:.05em">진단 R&amp;D</span></nav>
 <header><div class="logo">CHEMISTREAL · 진단 R&amp;D</div><h1 class="serif">Q-행렬 편집기</h1><div class="sub">문항 태그 599개 → 125 개념(스킬) 매핑 · 커버리지/갭 분석</div></header>
 <div class="wrap">
 <div class="note"><b>S3 Q-행렬:</b> final.html 41개 시험·1860문항의 <b>type 태그</b>를 125 개념에 매핑합니다. 각 태그의 개념을 자동 추천했고(키워드+area), 빈도순으로 정렬했습니다. 매핑을 검수·수정하면 우측 <b>커버리지</b>가 실시간 갱신됩니다. 노란 칸=미매핑, 우측 빨강=갭(0문항)·주황=과소평가. 매핑은 1차 초안이라 선생님 검수 대상이고, <b>type 태그는 선생님이 출제 시 단 것이라 매핑은 본질적으로 선생님 영역</b>입니다.</div>

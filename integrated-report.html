@@ -1,66 +1,66 @@
 <!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5"><title>통합 진단 리포트 · CHEMISTREAL</title><style>
-:root{--cream:#FBFAF6;--paper:#fff;--ink:#23201b;--ink-2:#5a564d;--muted:#8a8578;--teal:#0E5A4C;--brass:#B08D57;--line:#E8E4DA;--ms:#C0603A;--ok:#2E7D6B;--ok-bg:#eef5f2;--warn:#C77B4A;--mono:ui-monospace,Menlo,monospace}
+:root{--cream:#FBFAF6;--paper:#fff;--ink:#23201b;--ink-2:#5a564d;--muted:#6f6a5e;--teal:#0E5A4C;--brass:#B08D57;--line:#E8E4DA;--ms:#C0603A;--ok:#2E7D6B;--ok-bg:#eef5f2;--warn:#C77B4A;--mono:ui-monospace,Menlo,monospace}
 *{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:-apple-system,"Noto Sans KR",sans-serif;line-height:1.55}
 .serif{font-family:"Nanum Myeongjo",Georgia,serif}
 header{background:linear-gradient(180deg,#0E5A4C,#0b4a3f);color:#fff;padding:16px;text-align:center}
-header .logo{font-size:11px;letter-spacing:.18em;opacity:.82;font-weight:600}header h1{margin:5px 0 3px;font-size:20px}header .sub{font-size:11.5px;opacity:.86}
+header .logo{font-size:11.5px;letter-spacing:.18em;opacity:.82;font-weight:600}header h1{margin:5px 0 3px;font-size:20px}header .sub{font-size:11.5px;opacity:.86}
 .wrap{max-width:1080px;margin:0 auto;padding:12px}
 .note{background:#fff;border:1px solid var(--line);border-left:3px solid var(--brass);border-radius:10px;padding:11px 14px;font-size:12.5px;color:var(--ink-2);margin-bottom:12px}.note b{color:var(--ink)}
 .tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
 .tools button,.tools label.fb{font-size:11.5px;font-weight:600;border:1px solid var(--line);background:#faf8f1;color:var(--ink);padding:7px 12px;border-radius:8px;cursor:pointer}
 .tools button.pri{background:var(--teal);color:#fff;border-color:var(--teal)}
-.tools select{border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:12.5px}.tools .hint{font-size:11px;color:var(--muted)}
+.tools select{border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:12.5px}.tools .hint{font-size:11.5px;color:var(--muted)}
 .viewtabs{display:flex;gap:6px;margin-bottom:12px}
 .viewtabs button{font-size:12px;font-weight:700;border:1px solid var(--line);background:#fff;color:var(--ink-2);padding:8px 16px;border-radius:9px;cursor:pointer}
 .viewtabs button.on{background:var(--teal);color:#fff;border-color:var(--teal)}
 .panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px}
 .panel h2{font-size:13.5px;margin:0 0 10px;color:var(--muted);font-weight:700}
 .cohort-stats{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
-.cstat{flex:1;min-width:120px;background:var(--ok-bg);border:1px solid #cfe3dc;border-radius:10px;padding:10px 13px;text-align:center}.cstat .v{font-size:20px;font-weight:800;font-family:var(--mono);color:var(--teal)}.cstat .k{font-size:10px;color:var(--ink-2);margin-top:2px}
+.cstat{flex:1;min-width:120px;background:var(--ok-bg);border:1px solid #cfe3dc;border-radius:10px;padding:10px 13px;text-align:center}.cstat .v{font-size:20px;font-weight:800;font-family:var(--mono);color:var(--teal)}.cstat .k{font-size:11.5px;color:var(--ink-2);margin-top:2px}
 .areabars{display:flex;flex-direction:column;gap:5px}
 .abar{display:flex;align-items:center;gap:8px;font-size:11.5px}
 .abar .an{width:96px;flex:none;text-align:right;color:var(--ink-2)}
 .abar .track{flex:1;height:15px;background:#f0ece4;border-radius:4px;overflow:hidden;position:relative}
 .abar .fill{height:100%;border-radius:4px}
-.abar .pct{width:38px;flex:none;font-family:var(--mono);font-size:10.5px;font-weight:700}
+.abar .pct{width:38px;flex:none;font-family:var(--mono);font-size:11.5px;font-weight:700}
 .hardlist{display:flex;flex-direction:column;gap:3px}
 .hrow{display:flex;align-items:center;gap:8px;font-size:11.5px;padding:4px 6px;border-bottom:1px solid #f3efe6}
-.hrow .hi{font-family:var(--mono);font-size:9px;color:var(--muted);width:24px;flex:none}.hrow .hl{flex:1}.hrow .ha{font-size:9px;color:#fff;border-radius:7px;padding:1px 7px;flex:none}.hrow .hp{font-family:var(--mono);font-size:10.5px;font-weight:700;width:42px;text-align:right;flex:none}
+.hrow .hi{font-family:var(--mono);font-size:11.5px;color:var(--muted);width:24px;flex:none}.hrow .hl{flex:1}.hrow .ha{font-size:11.5px;color:#fff;border-radius:7px;padding:1px 7px;flex:none}.hrow .hp{font-family:var(--mono);font-size:11.5px;font-weight:700;width:42px;text-align:right;flex:none}
 .slist{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:4px}
-.schip{font-size:11px;border:1px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer;background:#faf8f1}
+.schip{font-size:11.5px;border:1px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer;background:#faf8f1}
 .schip:hover{background:var(--ok-bg);border-color:#cfe3dc}.schip.sel{background:var(--teal);color:#fff;border-color:var(--teal)}
-.schip .sm{font-family:var(--mono);font-size:9px;opacity:.7;margin-left:4px}
+.schip .sm{font-family:var(--mono);font-size:11.5px;opacity:.7;margin-left:4px}
 .report-head{display:flex;align-items:center;gap:14px;background:linear-gradient(180deg,#fff,#fafdfb);border:1px solid #cfe0d9;border-radius:11px;padding:13px 16px;margin-bottom:12px}
-.report-head .pctl{text-align:center}.report-head .pctl .v{font-size:26px;font-weight:800;font-family:var(--mono);color:var(--teal)}.report-head .pctl .k{font-size:9.5px;color:var(--muted)}
-.report-head .rinfo{flex:1}.report-head .rname{font-size:16px;font-weight:800}.report-head .rmeta{font-size:11px;color:var(--ink-2);margin-top:2px}
-.rx-sec{font-size:11px;font-weight:800;color:var(--teal);margin:14px 0 7px;display:flex;align-items:center;gap:7px}.rx-sec:before{content:"";width:3px;height:14px;background:var(--teal);border-radius:2px}
+.report-head .pctl{text-align:center}.report-head .pctl .v{font-size:26px;font-weight:800;font-family:var(--mono);color:var(--teal)}.report-head .pctl .k{font-size:11.5px;color:var(--muted)}
+.report-head .rinfo{flex:1}.report-head .rname{font-size:16px;font-weight:800}.report-head .rmeta{font-size:11.5px;color:var(--ink-2);margin-top:2px}
+.rx-sec{font-size:11.5px;font-weight:800;color:var(--teal);margin:14px 0 7px;display:flex;align-items:center;gap:7px}.rx-sec:before{content:"";width:3px;height:14px;background:var(--teal);border-radius:2px}
 .presc{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;border-left-width:4px}
 .presc.root{border-left-color:var(--ms);background:#fdf3ef}.presc.deriv{border-left-color:var(--warn);background:#fdf7f0}
 .presc .ph{display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}
-.presc .pord{width:22px;height:22px;border-radius:50%;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:none}
+.presc .pord{width:22px;height:22px;border-radius:50%;color:#fff;font-size:11.5px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:none}
 .presc.root .pord{background:var(--ms)}.presc.deriv .pord{background:var(--warn)}
-.presc .pname{font-size:13px;font-weight:700;flex:1}.presc .pbadge{font-size:9px;font-weight:700;color:#fff;border-radius:7px;padding:1px 8px}.presc .pm{font-family:var(--mono);font-size:10px;color:var(--muted)}
-.presc .pchain{font-size:11px;color:var(--ink-2);margin:2px 0 0 30px}.presc .pchain b{color:var(--ms)}
-.presc .pmis{font-size:11px;color:#8a5a3a;margin:4px 0 0 30px;background:#fff;border-radius:6px;padding:5px 9px}.presc .pmis b{color:var(--ms)}
+.presc .pname{font-size:13px;font-weight:700;flex:1}.presc .pbadge{font-size:11.5px;font-weight:700;color:#fff;border-radius:7px;padding:1px 8px}.presc .pm{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.presc .pchain{font-size:11.5px;color:var(--ink-2);margin:2px 0 0 30px}.presc .pchain b{color:var(--ms)}
+.presc .pmis{font-size:11.5px;color:#8a5a3a;margin:4px 0 0 30px;background:#fff;border-radius:6px;padding:5px 9px}.presc .pmis b{color:var(--ms)}
 .presc .pact{font-size:11.5px;color:var(--teal);font-weight:600;margin:4px 0 0 30px}
 .strong{font-size:11.5px;color:var(--ok);background:var(--ok-bg);border-radius:8px;padding:7px 11px}
-.print-btn{font-size:11px;font-weight:600;border:1px solid var(--line);background:#faf8f1;padding:6px 12px;border-radius:8px;cursor:pointer;float:right}
-.hint{font-size:11px;color:var(--muted)}
+.print-btn{font-size:11.5px;font-weight:600;border:1px solid var(--line);background:#faf8f1;padding:6px 12px;border-radius:8px;cursor:pointer;float:right}
+.hint{font-size:11.5px;color:var(--muted)}
 svg{display:block}
 .tiers{display:flex;flex-wrap:wrap;gap:10px}
 .tier{flex:1;min-width:200px;background:#fff;border:1px solid var(--line);border-top:3px solid;border-radius:10px;padding:10px 13px}
-.tier .th{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.tier .tn{font-size:13px;font-weight:800}.tier .tc{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--muted)}
-.tier .tnote{font-size:10.5px;color:var(--ink-2);margin-top:6px;border-top:1px solid #f3efe6;padding-top:5px}
+.tier .th{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.tier .tn{font-size:13px;font-weight:800}.tier .tc{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--muted)}
+.tier .tnote{font-size:11.5px;color:var(--ink-2);margin-top:6px;border-top:1px solid #f3efe6;padding-top:5px}
 .grp{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;border-left:4px solid var(--ms);background:#fdf6f2}
 .grp .grh{display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}
-.grp .gord{width:22px;height:22px;border-radius:50%;background:var(--ms);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:none}
-.grp .gname{font-size:13px;font-weight:700;flex:1}.grp .ga{font-size:9px;color:#fff;border-radius:7px;padding:1px 7px}.grp .gn{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--ms)}
-.grp .gmis{font-size:11px;color:#8a5a3a;margin:3px 0;background:#fff;border-radius:6px;padding:5px 9px}.grp .gmis b{color:var(--ms)}
+.grp .gord{width:22px;height:22px;border-radius:50%;background:var(--ms);color:#fff;font-size:11.5px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:none}
+.grp .gname{font-size:13px;font-weight:700;flex:1}.grp .ga{font-size:11.5px;color:#fff;border-radius:7px;padding:1px 7px}.grp .gn{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--ms)}
+.grp .gmis{font-size:11.5px;color:#8a5a3a;margin:3px 0;background:#fff;border-radius:6px;padding:5px 9px}.grp .gmis b{color:var(--ms)}
 .grp .gstud{margin-top:5px}
 @media print{.tools,.viewtabs,.note,.print-btn,header .sub{display:none}.panel{break-inside:avoid}}
-footer{text-align:center;color:var(--muted);font-size:11px;padding:20px}
+footer{text-align:center;color:var(--muted);font-size:11.5px;padding:20px}
 </style></head>
-<body><nav style="background:#08352d;padding:7px 16px;display:flex;align-items:center;justify-content:space-between;font-size:11.5px;font-family:-apple-system,sans-serif"><a href="dashboard.html" style="color:#fff;opacity:0.92;text-decoration:none;font-weight:600">&#8592; CHEMISTREAL 허브</a><span style="color:#fff;opacity:0.5;font-size:10px;letter-spacing:.05em">진단 R&amp;D</span></nav>
+<body><nav style="background:#08352d;padding:7px 16px;display:flex;align-items:center;justify-content:space-between;font-size:11.5px;font-family:-apple-system,sans-serif"><a href="dashboard.html" style="color:#fff;opacity:0.92;text-decoration:none;font-weight:600">&#8592; CHEMISTREAL 허브</a><span style="color:#fff;opacity:0.5;font-size:11.5px;letter-spacing:.05em">진단 R&amp;D</span></nav>
 <header><div class="logo">CHEMISTREAL · 진단 R&amp;D</div><h1 class="serif">통합 진단 리포트</h1><div class="sub">능력 · 개념 숙달 · 선수 결손 · 오개념 · 처방을 하나로</div></header>
 <div class="wrap">
 <div class="note"><b>통합 리포트:</b> 응답 데이터 하나로 다섯 분석을 한 리포트에 종합합니다. <b>능력</b>(IRT θ → 백분위), <b>개념·영역 숙달</b>(문항별 정답률, 경험적 베이즈 보정), <b>선수 결손</b>(DAG로 약한 개념을 뿌리/파생으로 분류), <b>오개념</b>(약한 개념의 알려진 오개념), <b>처방</b>(뿌리부터 고치는 순서). 코호트 전체와 학생별 리포트를 오갈 수 있습니다. 데이터 입력 도구의 responses.json을 그대로 올리면 됩니다.</div>
@@ -129,7 +129,7 @@ function renderCohort(O){const n=RES.sids.length;
  let hist='<svg viewBox="0 0 '+W+' '+H+'">';bins.forEach((v,i)=>{const bw=(W-20)/10;const bh=v/maxb*(H-24);hist+='<rect x="'+(10+i*bw)+'" y="'+(H-18-bh)+'" width="'+(bw-2)+'" height="'+bh+'" fill="#0E5A4C" opacity="0.8" rx="1"/>';});
  hist+='<text x="10" y="'+(H-4)+'" font-size="8" fill="#999">낮음</text><text x="'+(W-30)+'" y="'+(H-4)+'" font-size="8" fill="#999">높음</text></svg>';
  let h='<div class="panel"><h2>코호트 개요</h2><div class="cohort-stats"><div class="cstat"><div class="v">'+n+'</div><div class="k">학생 수</div></div><div class="cstat"><div class="v">'+RES.concepts.length+'</div><div class="k">측정 개념</div></div><div class="cstat"><div class="v">'+ch.filter(x=>x.m<TH).length+'</div><div class="k">코호트 약점 개념</div></div></div>';
- h+='<div style="font-size:11px;color:var(--muted);margin-bottom:4px">능력(θ) 분포</div>'+hist+'</div>';
+ h+='<div style="font-size:11.5px;color:var(--muted);margin-bottom:4px">능력(θ) 분포</div>'+hist+'</div>';
  h+='<div class="panel"><h2>영역별 평균 숙달</h2><div class="areabars">'+ORD.map(a=>{const v=areaAvg[a];if(v==null)return '';return '<div class="abar"><span class="an">'+esc(a)+'</span><span class="track"><span class="fill" style="width:'+Math.round(v*100)+'%;background:'+barColor(v)+'"></span></span><span class="pct" style="color:'+barColor(v)+'">'+Math.round(v*100)+'%</span></div>';}).join('')+'</div></div>';
  h+='<div class="panel"><h2>코호트 최약 개념 (집중 보강 후보)</h2><div class="hardlist">'+ch.map(x=>'<div class="hrow"><span class="hi">'+x.c+'</span><span class="hl">'+esc(N[x.c].l)+'</span><span class="ha" style="background:'+AC[N[x.c].a]+'">'+esc(N[x.c].a)+'</span><span class="hp" style="color:'+barColor(x.m)+'">'+Math.round(x.m*100)+'%</span></div>').join('')+'</div></div>';
  O.innerHTML=h;}
@@ -175,13 +175,13 @@ function renderGroups(O){const n=RES.sids.length;
    '</div></div>';
  // 전체 공통 약점
  if(whole.length){h+='<div class="panel"><h2>전체 재교육 필요 (반 60% 이상 뿌리 약점)</h2><div class="hint" style="margin-bottom:8px">아래는 반 대다수가 약해 개별 그룹이 아닌 전체 수업으로 다룰 개념입니다.</div>'+
-   whole.slice(0,6).map(g=>{const mis=MIS[g.c];return '<div class="grp" style="border-left-color:#9E7B3F;background:#fdfaf2"><div class="grh"><span class="gord" style="background:#9E7B3F">전</span><span class="gname">'+esc(N[g.c].l)+'</span><span class="ga" style="background:'+AC[N[g.c].a]+'">'+esc(N[g.c].a)+'</span><span class="gn" style="color:#9E7B3F">'+g.studs.length+'/'+n+'명</span><a href="teaching-brief.html#'+g.c+'" target="_blank" style="font-size:10px;font-weight:700;color:#0E5A4C">브리프 &#8594;</a></div>'+(mis?'<div class="gmis"><b>핵심 오개념:</b> "'+esc(mis.b)+'" → '+esc(mis.cr)+'</div>':'')+'</div>';}).join('')+'</div>';}
+   whole.slice(0,6).map(g=>{const mis=MIS[g.c];return '<div class="grp" style="border-left-color:#9E7B3F;background:#fdfaf2"><div class="grh"><span class="gord" style="background:#9E7B3F">전</span><span class="gname">'+esc(N[g.c].l)+'</span><span class="ga" style="background:'+AC[N[g.c].a]+'">'+esc(N[g.c].a)+'</span><span class="gn" style="color:#9E7B3F">'+g.studs.length+'/'+n+'명</span><a href="teaching-brief.html#'+g.c+'" target="_blank" style="font-size:11.5px;font-weight:700;color:#0E5A4C">브리프 &#8594;</a></div>'+(mis?'<div class="gmis"><b>핵심 오개념:</b> "'+esc(mis.b)+'" → '+esc(mis.cr)+'</div>':'')+'</div>';}).join('')+'</div>';}
  // 차등 보강 그룹
  h+='<div class="panel"><h2>차등 보강 그룹 (반 일부가 공유하는 뿌리 결손)</h2>';
  if(!groups.length){h+='<div class="hint">차등 그룹으로 나눌 뿌리 결손이 없습니다 (전체 공통이거나 개별 보강으로 충분).</div>';}
  else{h+='<div class="hint" style="margin-bottom:8px">아래 각 개념을 해당 학생들끼리 묶어 함께 가르치면 효율적입니다. 학생 수 많은 순.</div>';
    h+=groups.slice(0,8).map((g,i)=>{const c=g.c;const mis=MIS[c];
-     return '<div class="grp"><div class="grh"><span class="gord">'+(i+1)+'</span><span class="gname">'+esc(N[c].l)+'</span><span class="ga" style="background:'+AC[N[c].a]+'">'+esc(N[c].a)+'</span><span class="gn">'+g.studs.length+'명</span><a href="teaching-brief.html#'+c+'" target="_blank" style="font-size:10px;font-weight:700;color:#0E5A4C">브리프 &#8594;</a></div>'+
+     return '<div class="grp"><div class="grh"><span class="gord">'+(i+1)+'</span><span class="gname">'+esc(N[c].l)+'</span><span class="ga" style="background:'+AC[N[c].a]+'">'+esc(N[c].a)+'</span><span class="gn">'+g.studs.length+'명</span><a href="teaching-brief.html#'+c+'" target="_blank" style="font-size:11.5px;font-weight:700;color:#0E5A4C">브리프 &#8594;</a></div>'+
        (mis?'<div class="gmis"><b>핵심 오개념:</b> "'+esc(mis.b)+'" → '+esc(mis.cr)+'</div>':'')+
        '<div class="slist gstud">'+g.studs.sort((a,b)=>a.m-b.m).map(x=>'<span class="schip" onclick="VIEW=\'student\';selS=\''+x.sid+'\';syncTabs();render()">'+esc(x.sid)+'<span class="sm">'+Math.round(x.m*100)+'%</span></span>').join('')+'</div></div>';}).join('');}
  h+='</div>';

@@ -1,40 +1,40 @@
 <!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5"><title>다차원 IRT (MIRT) · CHEMISTREAL</title><style>
-:root{--cream:#FBFAF6;--paper:#fff;--ink:#23201b;--ink-2:#5a564d;--muted:#8a8578;--teal:#0E5A4C;--brass:#B08D57;--line:#E8E4DA;--ms:#C0603A;--ok:#2E7D6B;--ok-bg:#eef5f2;--mono:ui-monospace,Menlo,monospace}
+:root{--cream:#FBFAF6;--paper:#fff;--ink:#23201b;--ink-2:#5a564d;--muted:#6f6a5e;--teal:#0E5A4C;--brass:#B08D57;--line:#E8E4DA;--ms:#C0603A;--ok:#2E7D6B;--ok-bg:#eef5f2;--mono:ui-monospace,Menlo,monospace}
 *{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:-apple-system,"Noto Sans KR",sans-serif;line-height:1.5}
 .serif{font-family:"Nanum Myeongjo",Georgia,serif}
 header{background:linear-gradient(180deg,#0E5A4C,#0b4a3f);color:#fff;padding:16px;text-align:center}
-header .logo{font-size:11px;letter-spacing:.18em;opacity:.82;font-weight:600}header h1{margin:5px 0 3px;font-size:20px}header .sub{font-size:11.5px;opacity:.86}
+header .logo{font-size:11.5px;letter-spacing:.18em;opacity:.82;font-weight:600}header h1{margin:5px 0 3px;font-size:20px}header .sub{font-size:11.5px;opacity:.86}
 .wrap{max-width:1100px;margin:0 auto;padding:12px}
 .note{background:#fff;border:1px solid var(--line);border-left:3px solid var(--brass);border-radius:10px;padding:11px 14px;font-size:12.5px;color:var(--ink-2);margin-bottom:12px}.note b{color:var(--ink)}
 .tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
 .tools button,.tools label.fb{font-size:11.5px;font-weight:600;border:1px solid var(--line);background:#faf8f1;color:var(--ink);padding:7px 12px;border-radius:8px;cursor:pointer}
 .tools button.pri{background:var(--teal);color:#fff;border-color:var(--teal)}
 .tools select{border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:12.5px}
-.tools .hint{font-size:11px;color:var(--muted)}
+.tools .hint{font-size:11.5px;color:var(--muted)}
 .bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
 .stat{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 14px;flex:1;min-width:130px;text-align:center}
-.stat .v{font-size:19px;font-weight:800;font-family:var(--mono)}.stat .k{font-size:10.5px;color:var(--muted);margin-top:2px}.stat .s2{font-size:10px;color:var(--ink-2);margin-top:1px}
+.stat .v{font-size:19px;font-weight:800;font-family:var(--mono)}.stat .k{font-size:11.5px;color:var(--muted);margin-top:2px}.stat .s2{font-size:11.5px;color:var(--ink-2);margin-top:1px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:880px){.grid2{grid-template-columns:1fr}}
 .panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-bottom:14px}
-.panel h2{font-size:13.5px;margin:0 0 10px;display:flex;justify-content:space-between;align-items:center}.panel h2 .c{font-size:11px;color:var(--muted);font-weight:600}
-.heat{border-collapse:collapse;font-size:9px;font-family:var(--mono)}
+.panel h2{font-size:13.5px;margin:0 0 10px;display:flex;justify-content:space-between;align-items:center}.panel h2 .c{font-size:11.5px;color:var(--muted);font-weight:600}
+.heat{border-collapse:collapse;font-size:11.5px;font-family:var(--mono)}
 .heat td,.heat th{width:24px;height:24px;text-align:center;border:1px solid #fff}
-.heat th{color:var(--muted);font-weight:600;font-size:8.5px}
+.heat th{color:var(--muted);font-weight:600;font-size:11.5px}
 .heat th.row{text-align:right;padding-right:4px;width:auto}
 .studsel{border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:12.5px;width:100%;margin-bottom:10px}
 .prof{display:flex;align-items:center;gap:8px;font-size:11.5px;padding:3px 4px}
-.prof .nm{width:54px;font-size:10.5px}.prof .b2{flex:1;height:12px;background:#f1ede4;border-radius:6px;position:relative;overflow:visible}
+.prof .nm{width:54px;font-size:11.5px}.prof .b2{flex:1;height:12px;background:#f1ede4;border-radius:6px;position:relative;overflow:visible}
 .prof .b2 .mid{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:#ccc}
 .prof .b2 i{position:absolute;top:0;height:100%;border-radius:6px}
-.prof .vv{font-family:var(--mono);font-size:10px;width:84px;text-align:right}
+.prof .vv{font-family:var(--mono);font-size:11.5px;width:84px;text-align:right}
 .val{background:#faf8f1;border-radius:8px;padding:9px 12px;font-size:12px;margin-bottom:12px}.val b{color:var(--teal)}
-.hint{font-size:11px;color:var(--muted);margin-top:6px}
+.hint{font-size:11.5px;color:var(--muted);margin-top:6px}
 .sw{font-size:12px;padding:4px 0;border-bottom:1px solid #f3efe6;display:flex;gap:8px;align-items:center}
-.sw .tg{font-size:9.5px;font-weight:700;padding:1px 7px;border-radius:5px}.sw .tg.up{background:#e3efe9;color:#1c5a4c}.sw .tg.dn{background:#fbe3e3;color:#a32}
+.sw .tg{font-size:11.5px;font-weight:700;padding:1px 7px;border-radius:5px}.sw .tg.up{background:#e3efe9;color:#1c5a4c}.sw .tg.dn{background:#fbe3e3;color:#a32}
 svg{display:block}
-footer{text-align:center;color:var(--muted);font-size:11px;padding:20px}
+footer{text-align:center;color:var(--muted);font-size:11.5px;padding:20px}
 </style></head>
-<body><nav style="background:#08352d;padding:7px 16px;display:flex;align-items:center;justify-content:space-between;font-size:11.5px;font-family:-apple-system,sans-serif"><a href="dashboard.html" style="color:#fff;opacity:0.92;text-decoration:none;font-weight:600">&#8592; CHEMISTREAL 허브</a><span style="color:#fff;opacity:0.5;font-size:10px;letter-spacing:.05em">진단 R&amp;D</span></nav>
+<body><nav style="background:#08352d;padding:7px 16px;display:flex;align-items:center;justify-content:space-between;font-size:11.5px;font-family:-apple-system,sans-serif"><a href="dashboard.html" style="color:#fff;opacity:0.92;text-decoration:none;font-weight:600">&#8592; CHEMISTREAL 허브</a><span style="color:#fff;opacity:0.5;font-size:11.5px;letter-spacing:.05em">진단 R&amp;D</span></nav>
 <header><div class="logo">CHEMISTREAL · 진단 R&amp;D</div><h1 class="serif">다차원 IRT (MIRT)</h1><div class="sub">영역별 능력 벡터 · 영역 간 상관 · 강약 프로파일 · 차원성 평가</div></header>
 <div class="wrap">
 <div class="note"><b>S9 MIRT:</b> 단일 능력 θ를 화학 <b>영역별 능력 벡터</b>로 확장합니다. 각 문항은 그 개념의 영역 차원에 적재되고(단순구조), 학생은 영역마다 다른 능력을 가집니다. 영역별 1PL을 적합해(소표본 안정 위해 MAP 사전분포) 능력 프로파일을 얻고, <b>영역 간 상관</b>으로 차원들이 실제로 분리되는지 봅니다. 상관이 높으면 단일 능력으로 충분하고, 낮으면 영역별 강약 프로파일이 중요합니다. 데모는 영역마다 능력이 다른 학생을 만들어 회복을 검증합니다. 한 영역당 문항이 적으면 추정이 불안정하니 여러 시험에 걸친 응답을 합산합니다.</div>
@@ -117,9 +117,9 @@ function renderProfile(){const {res,areas}=FIT;const sid=selStud;if(!sid){docume
  // 상대 강약
  const sorted=[...vals].sort((a,b)=>(b.t-mean)-(a.t-mean));
  const strong=sorted.filter(x=>x.t-mean>0.4).slice(0,3),weak=sorted.filter(x=>x.t-mean<-0.4).slice(-3).reverse();
- let sw='<div style="font-size:11px;color:var(--muted);margin:8px 0 4px">평균(갈색 점선) 대비 상대 강약</div>';
- strong.forEach(x=>sw+='<div class="sw"><span class="tg up">강점</span>'+esc(x.a)+' <span style="margin-left:auto;font-family:var(--mono);font-size:10px">θ='+x.t.toFixed(2)+'</span></div>');
- weak.forEach(x=>sw+='<div class="sw"><span class="tg dn">약점</span>'+esc(x.a)+' <span style="margin-left:auto;font-family:var(--mono);font-size:10px">θ='+x.t.toFixed(2)+'</span></div>');
+ let sw='<div style="font-size:11.5px;color:var(--muted);margin:8px 0 4px">평균(갈색 점선) 대비 상대 강약</div>';
+ strong.forEach(x=>sw+='<div class="sw"><span class="tg up">강점</span>'+esc(x.a)+' <span style="margin-left:auto;font-family:var(--mono);font-size:11.5px">θ='+x.t.toFixed(2)+'</span></div>');
+ weak.forEach(x=>sw+='<div class="sw"><span class="tg dn">약점</span>'+esc(x.a)+' <span style="margin-left:auto;font-family:var(--mono);font-size:11.5px">θ='+x.t.toFixed(2)+'</span></div>');
  if(!strong.length&&!weak.length)sw+='<div class="hint">영역 간 능력차가 크지 않습니다(고른 프로파일).</div>';
  document.getElementById('profile').innerHTML='<div style="display:flex;justify-content:center">'+radar+'</div>'+sw;}
 function nextSid(){let n=1;const u=new Set(DB.roster.map(r=>r.sid));while(u.has('S'+String(n).padStart(2,'0')))n++;return 'S'+String(n).padStart(2,'0');}
