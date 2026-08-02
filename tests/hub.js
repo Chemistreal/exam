@@ -80,8 +80,8 @@ vm.runInContext([
   cut('sentKey'), cut('bulkBar'), cut('readHash'), cut('deltaOf'), cut('dayCounts'),
   cut('rosterCount'), cut('wonOf'),
   cut('dayKey'), cut('snoozedTill'), cut('isSnoozed'), cut('snzCls'), cut('snzBtn'),
-  cut('snzBar'), cut('conPut'), cut('conTags'), cut('conFor'), cut('conClassOf'),
-  cut('conByClass'),
+  cut('snzBar'), cut('conEntry'), cut('conPut'), cut('conHits'), cut('conTags'),
+  cut('conFor'), cut('conClassOf'), cut('conByClass'), cut('conRounds'),
   ((SRC.match(/^const FEE_PER = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
   'var SNZ=new Map(), SNZ_SHOW=false;',
   ((SRC.match(/^const SNZ_DAYS = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
@@ -1146,6 +1146,39 @@ console.log('\n── 개념 하나로 아이들을 부른다 ──');
   ctx.DT_CACHE = {};
 
   /* 대시보드 숫자를 보고 나서 할 수 있는 일이 있어야 한다. */
+  /* ── 한 번 틀린 아이와 세 회차 내리 걸린 아이는 다른 아이다 ──────────
+     목록에 섞여 있으면 둘이 똑같아 보이고, 보충은 대개 뒤엣아이 몫이다. */
+  const rep = ctx.conFor(R, '몰농도').filter(function(e){ return e.name==='김지성'; })[0];
+  chk('몇 회차에서 걸렸는지 센다', ctx.conHits(rep), 2);
+  chk('한 회차뿐이면 1', ctx.conHits(ctx.conFor(R,'몰농도')[1]), 1);
+  /* 같은 회차의 정시·재시를 둘로 세면 "두 번 걸렸다" 가 거짓이 된다. */
+  chk('같은 회차를 두 번 세지 않는다',
+      ctx.conHits(ctx.conFor([
+        { name:'한지우', school:'X중', course:'ch1', round:3, attempt:'정시', days:5, tags:['몰농도'] },
+        { name:'한지우', school:'X중', course:'ch1', round:3, attempt:'재시', days:4, tags:['몰농도'] },
+      ], '몰농도')[0]), 1);
+  chk('줄 하나가 망가져도 화면이 안 죽는다',
+      ctx.conPut([{ name:'한지우', school:'X중', course:'ch1', round:3, days:1 }],
+                 { name:'한지우', school:'X중', course:'ch1', round:4, days:2 }).length, 1);
+  chk('되풀이를 화면에 적는다', /회차 걸림</.test(body), true);
+  chk('되풀이만 따로 볼 수 있다', /data-conact="repeat"/.test(body) &&
+      /CON_REPEAT = !CON_REPEAT/.test(body), true);
+  /* 되풀이가 없는데 '되풀이만' 이 켜져 있으면 빈 화면이 뜬다. */
+  chk('되풀이가 없으면 스스로 내린다', /if\(CON_REPEAT && !rep\.length\) CON_REPEAT = false;/.test(body), true);
+
+  /* ── 명단만 뽑고 자료를 다시 찾아 헤매면 보충 준비가 두 번 일이 된다 ── */
+  chk('이 개념이 나온 회차를 모은다',
+      ctx.conRounds(ctx.conFor(R, '몰농도')).map(function(c){ return c.course+c.round; }),
+      ['ch14','ch15','ch27']);
+  chk('같은 회차는 한 번만', ctx.conRounds([
+      { course:'ch1', round:5, seen:['ch1#5'] }, { course:'ch1', round:5, seen:['ch1#5'] }]).length, 1);
+  /* 주소를 지어내면 404 로 끝난다 — 화학Ⅱ 는 해설 HTML 이 7회까지밖에 없다.
+     DT 자료 목록에 실제로 있는 것만 건다. */
+  chk('없는 자료는 안 건다', /if\(!DT_MAT\) return '';/.test(body) &&
+      /if\(f\.munje\)/.test(body) && /if\(f\.haeseol\)/.test(body), true);
+  chk('자료를 못 읽어도 명단은 뜬다',
+      /if\(!DT_MAT\) dtMaterials\(\)\.then\(function\(\)\{ renderConcept\(\); \}\)\.catch/.test(body), true);
+
   chk('대시보드에서 바로 넘어간다', /data-mistag=/.test(body) &&
       /CON_PICK = m\.dataset\.mistag; show\('con'\)/.test(body), true);
   /* 열지도 않은 창구를 미리 두드리면 앱스크립트가 줄을 세워 다른 숫자가 늦어진다. */
