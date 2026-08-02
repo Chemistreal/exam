@@ -1893,7 +1893,7 @@ function conceptClinicSec(exam, sel, wrong, cs){
        ${lec?`<details style="margin-top:8px"><summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--teal)">${esc(bd)} 개념 강의 보기</summary><div style="font-size:13px;line-height:1.78;margin-top:7px;color:var(--ink-2)">${lec.s}</div>${lec.u?`<a href="${lec.u}" target="_blank" rel="noopener" style="display:inline-block;margin-top:10px;font-size:13px;color:var(--cobalt);font-weight:700">▶ ${esc(bd)} 개념 강의 보러가기 ↗</a>`:''}</details>`:''}
        ${r&&r.rx?`<div style="font-size:12px;color:var(--teal-d);margin-top:6px"><b>처방</b> ${esc(r.rx)}</div>`:''}
      </div>`; }).join('');
-  return `<div class="sec" id="clinic">${secH('오답 개념 클리닉')}<div class="sub">틀린 문항을 개념 영역으로 묶어, 문항별 오개념 → 개념 강의 → 처방으로 한 번에 복습합니다.${anyCommon?' 또래도 많이 틀린 문항(빨강)이 개념 보강 1순위입니다.':''}</div>
+  return `<div class="sec" id="clinic">${secH('오답 개념 클리닉')}<div class="sub">틀린 문항을 개념 영역으로 묶어, 문항별 오개념 → 개념 강의 → 처방으로 한 번에 복습합니다.${anyCommon?' 또래도 많이 틀린 문항(<b>또래 NN% 동일</b>로 적힌 것)이 개념 보강 1순위입니다.':''}</div>
    ${body}
    <div class="note" style="font-size:12px;color:var(--muted)">개념 강의로 원리를 다시 잡고, 같은 개념의 변형 문항을 풀어 결손이 메워졌는지 확인하세요.</div>
   </div>`;
@@ -2250,10 +2250,14 @@ function prereqSec(exam, sel, cs){
   const col=d=>!reliable(d)?'var(--muted)':(sb[d]>=75?'var(--teal)':sb[d]>=60?'var(--brass)':'var(--ms)');
   let edges='';
   N.forEach(d=>{ (PREREQ[d]||[]).filter(p=>nodes.has(p)).forEach(p=>{ const a=pos[p],b=pos[d]; edges+=`<line x1="${(a.x+nodeW).toFixed(1)}" y1="${(a.y+nodeH/2).toFixed(1)}" x2="${b.x.toFixed(1)}" y2="${(b.y+nodeH/2).toFixed(1)}" stroke="var(--line)" stroke-width="1.5" marker-end="url(#pa)"/>`; }); });
-  const rects=N.map(d=>{ const p=pos[d],c=col(d); const sc=reliable(d)?sb[d]+'%':'-'; return `<g><rect x="${p.x.toFixed(1)}" y="${p.y.toFixed(1)}" width="${nodeW}" height="${nodeH}" rx="7" fill="#fff" stroke="${c}" stroke-width="${d===target?2.5:1.5}"/><text x="${(p.x+nodeW/2).toFixed(1)}" y="${(p.y+15).toFixed(1)}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink)">${esc(d)}</text><text x="${(p.x+nodeW/2).toFixed(1)}" y="${(p.y+27).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="700" fill="${c}">${sc}</text></g>`; }).join('');
+  /* ⚠ 색만으로 말하면 적록색약(남학생 스무 명 중 한 명꼴)은 못 읽는다.
+     아래 설명이 "색은 현재 숙달도(초록 안정·노랑 보통·빨강 약함)" 라고
+     적혀 있었다 — 색을 못 보면 그 문장 자체가 쓸모없다. 칸 안에 글자로 적는다. */
+  const stOf=d=>!reliable(d)?'표본 부족':(sb[d]>=75?'안정':sb[d]>=60?'보통':'약함');
+  const rects=N.map(d=>{ const p=pos[d],c=col(d); const sc=(reliable(d)?sb[d]+'% · ':'')+stOf(d); return `<g><rect x="${p.x.toFixed(1)}" y="${p.y.toFixed(1)}" width="${nodeW}" height="${nodeH}" rx="7" fill="#fff" stroke="${c}" stroke-width="${d===target?2.5:1.5}"/><text x="${(p.x+nodeW/2).toFixed(1)}" y="${(p.y+15).toFixed(1)}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink)">${esc(d)}</text><text x="${(p.x+nodeW/2).toFixed(1)}" y="${(p.y+27).toFixed(1)}" text-anchor="middle" font-size="9.5" font-weight="700" fill="${c}">${sc}</text></g>`; }).join('');
   const svg=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px;height:auto;margin-top:6px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="pa" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L6,3.5 L0,7 Z" fill="var(--muted)"/></marker></defs>${edges}${rects}</svg>`;
   const weakP=[...nodes].filter(p=>p!==target&&reliable(p)&&sb[p]<60).sort((a,b)=>sb[a]-sb[b]);
-  const advice = weakP.length ? `<b>${esc(target)}</b> 약점은 선수 개념 <b>${weakP.map(esc).join('·')}</b>의 결손에서 비롯됐을 수 있습니다. 빨간 영역부터 메우면 위층이 함께 풀립니다.` : `<b>${esc(target)}</b>의 선수 개념은 안정적입니다. ${esc(target)} 자체의 개념과 유형에 집중하세요.`;
+  const advice = weakP.length ? `<b>${esc(target)}</b> 약점은 선수 개념 <b>${weakP.map(esc).join('·')}</b>의 결손에서 비롯됐을 수 있습니다. <b>약함</b>으로 적힌 영역부터 메우면 위층이 함께 풀립니다.` : `<b>${esc(target)}</b>의 선수 개념은 안정적입니다. ${esc(target)} 자체의 개념과 유형에 집중하세요.`;
   /* 지도만 보여 주고 끝내면 "그래서 뭘 하라는 건데"가 남는다. 무너진 선수 개념이
      있으면 **그 영역 문제**를 여기서 바로 풀게 한다. 위층(target)을 붙들고 있는
      것보다 아래층부터 메우는 것이 빠르기 때문에, 굳이 아래층 문제를 내준다.
@@ -2273,7 +2277,7 @@ function prereqSec(exam, sel, cs){
       const st=!reliable(d)?'표본 부족':(sb[d]>=75?'안정':sb[d]>=60?'보통':'약함');
       return `<tr><td>${esc(d)}${d===target?' (목표)':''}</td><td>${lv[d]+1}층</td><td>${reliable(d)?sb[d]+'% · '+st:st}</td><td>${ps.length?ps.map(esc).join(' · '):'-'}</td></tr>`;
     }).join('')}</tbody></table>`;
-  return `<div class="sec">${secH('선수 개념 지도 · 학습 순서')}<div class="sub">가장 약한 영역이 어떤 선행 개념 위에 서 있는지 보여 줍니다. 화살표는 '먼저 알아야 함', 색은 현재 숙달도(초록 안정·노랑 보통·빨강 약함·회색 표본 부족)입니다.</div>
+  return `<div class="sec">${secH('선수 개념 지도 · 학습 순서')}<div class="sub">가장 약한 영역이 어떤 선행 개념 위에 서 있는지 보여 줍니다. 화살표는 '먼저 알아야 함', 칸 안의 <b>안정 · 보통 · 약함 · 표본 부족</b>이 현재 숙달도입니다(색도 같이 씁니다).</div>
    ${svg}${docxTbl}
    <div class="note" style="font-size:12.5px;margin-top:9px">${advice}</div>
    ${drill}
