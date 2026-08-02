@@ -337,6 +337,7 @@ tr.pick:hover td{background:var(--wash)}
     <button role="tab" id="t-cls"   aria-selected="false" aria-controls="p-cls">반</button>
     <button role="tab" id="t-rnd"   aria-selected="false" aria-controls="p-rnd">회차</button>
     <button role="tab" id="t-mat"   aria-selected="false" aria-controls="p-mat">자료</button>
+    <button role="tab" id="t-inc"   aria-selected="false" aria-controls="p-inc">수입</button>
   </nav>
   <nav role="tablist" aria-label="앱 화면" class="nav2">
     <span class="navlab">작업</span>
@@ -361,6 +362,8 @@ tr.pick:hover td{background:var(--wash)}
       <div class="chips" id="jump" hidden></div>
       <!-- 숫자 여덟 칸으로는 "오늘 얼마나 끝났나" 가 안 읽힌다. 그림 한 줄로 먼저 본다. -->
       <div id="dashFig"></div>
+      <!-- "이번 달 몇 명이지" 는 매일 나오는 물음인데, 반 탭까지 들어가야 알 수 있었다. -->
+      <div id="dashRoster"></div>
       <p class="hint" id="srcNote"></p>
       <div id="connBar" class="connbar"></div>
       <div id="syncBar" class="note" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -459,6 +462,21 @@ tr.pick:hover td{background:var(--wash)}
       <div class="chips" id="clsTabs"></div>
       <div id="clsHead"></div>
       <div class="list" id="clsList"><div class="spin" style="padding:16px">반 명단을 부르는 중…</div></div>
+    </section>
+  </div>
+
+  <div class="pane" id="p-inc" role="tabpanel" aria-labelledby="t-inc">
+    <section>
+      <h2>수입</h2>
+      <p class="hint">DT <b>반 명단</b>을 그대로 세어 계산합니다. 한 학생이 두 반을 들으면
+        <b>자리</b>는 2, <b>사람</b>은 1입니다 — 수업료는 반 단위라 총액은 자리로 셉니다.
+        <span class="dim">추정치입니다. 실제 수납·미납은 반영되지 않습니다.</span></p>
+      <div class="cards" id="incCards"></div>
+      <div id="incNote"></div>
+      <div class="sub2">반별</div>
+      <div class="scroll" id="incBody"></div>
+      <div class="sub2">월별 추이</div>
+      <div id="incHist"></div>
     </section>
   </div>
 
@@ -771,12 +789,16 @@ function examLocal(){
    다시 묻는다. 실패한 것은 담아 두지 않는다(다음에 다시 묻는다). */
 const DT_TTL = 5*60*1000;
 const DT_CACHE = {};                       // app:action → {at, val, inflight}
-function readOnce(app, action, shape, force){
+function readOnce(app, action, shape, force, extra){
   const key = app+':'+action;
   const c = DT_CACHE[key] || (DT_CACHE[key] = {at:0, val:null, inflight:null});
   if(c.inflight) return c.inflight;                                  // 이미 묻고 있다
   if(!force && c.val && (Date.now()-c.at) < DT_TTL) return Promise.resolve(c.val);
-  c.inflight = jsonp(APPS[app].ep, { action:action }).then(function(d){
+  /* 곁들임(토큰 등)을 받되 창구는 여기 하나뿐이다 — 부르는 곳이 늘면 무엇을
+     읽고 있는지 세는 검사가 뜻을 잃는다. */
+  const q = { action:action };
+  for(const k in (extra||{})) q[k] = extra[k];
+  c.inflight = jsonp(APPS[app].ep, q).then(function(d){
     if(!d || !d.ok) throw new Error((d&&d.error)||'응답 오류');
     c.val = shape(d);
     c.at = Date.now(); c.inflight = null; c.err = '';
@@ -925,7 +947,7 @@ function renderConn(){
 /* ── 탭 ─────────────────────────────────────────────────────────── */
 /* 차례가 곧 숫자키 차례다(1~9,0). 앞 다섯은 셸이 그리는 화면, 뒤 다섯은
    앱을 그대로 얹은 화면 — 머리의 두 줄과 같은 차례로 둔다. */
-const TABS = ['dash','stu','cls','rnd','mat','exam','dt','dtp','dtr','km'];
+const TABS = ['dash','stu','cls','rnd','mat','inc','exam','dt','dtp','dtr','km'];
 /* 탭 안에 얹는 화면. 셋은 앱의 첫 화면(APPS), 둘은 앱 안의 특정 화면(PAGES). */
 function frameOf(id){
   if(APPS[id]) return APPS[id];
@@ -952,6 +974,8 @@ function show(id){
   // 앱 화면은 처음 열 때만 붙인다 — 미리 다 띄우면 느리다
   const app = frameOf(id) ? id : null;
   if(app) mountFrame(app);
+  /* 수입 탭은 들어올 때마다 다시 그린다 — 잠금 화면이 먼저 떠야 한다. */
+  if(id === 'inc') renderIncome();
   /* 앱 탭에서 채점하고 돌아오면 숫자가 달라져 있어야 한다. 셸 화면으로
      올 때마다 다시 읽는다 — storage 이벤트를 놓친 경우의 그물이다. */
   if(!app) refreshSoon();
@@ -1511,7 +1535,7 @@ function renderDash(){
 
   dtRoster().then(function(rows){
     document.getElementById('dtCnt').textContent = rows.length;
-    renderClassTab();
+    renderClassTab(); renderRosterCount(); renderIncome();
   }).catch(function(e){
     document.getElementById('dtCnt').textContent = '—';
     note('dashNote', 'DT 명단을 불러오지 못했습니다 — '+e.message+'. 나머지 숫자는 정상입니다.', true);
@@ -2043,7 +2067,7 @@ function refreshLocal(){
   if(KM_ROWS) sources.push({ app:'km', students: KM_ROWS, noSchool:true });
   ROSTER = mergeRosters(sources);
   renderStudents(); renderRounds(); renderQuick(); renderDash(); renderMerge(); renderSyncBar();
-  renderClassTab();
+  renderClassTab(); renderRosterCount(); renderIncome();
 }
 function refreshSoon(){ clearTimeout(refreshTimer); refreshTimer=setTimeout(refreshLocal, 250); }
 
@@ -2585,6 +2609,166 @@ fetch('exams.json',{cache:'no-cache'}).then(function(r){ return r.ok? r.json() :
 
 document.getElementById('qq').addEventListener('input', renderQuick);
 
+/* ── 반별 인원 · 수입 ───────────────────────────────────────────────
+   "이번 달 몇 명이지" 는 매일 나오는 물음인데 반 탭까지 들어가야 알 수 있었다.
+   대시보드에 반별 인원과 총원을 세워 둔다.
+
+   [자리와 사람을 따로 센다]
+   한 학생이 화학Ⅰ·Ⅱ 를 다 들으면 **자리는 2, 사람은 1** 이다. 수업료는 반
+   단위로 받으므로 총액은 자리로 세지만, 둘 다 보여 주지 않으면 "42명인데 왜
+   44명분이지" 를 매달 다시 헤아리게 된다.
+
+   [이 숫자는 추정이다]
+   명단에 이름이 있으면 한 자리로 센다. 실제 수납·미납·형제 할인 같은 것은
+   모른다. 화면에 그렇게 적어 둔다 — 추정을 결산으로 읽으면 사고가 난다. */
+const FEE_PER = 160000;                 // 1인 1반 월 수업료(4주 기준) 가정
+/* ── 수입 탭만 따로 잠근다 ──────────────────────────────────────────
+   수입은 명단·점수와 종류가 다르다. 셸 전체 잠금(0000)은 채점하는 날 내내
+   열려 있으므로, 화면을 켜 둔 채 자리를 비우거나 학생이 옆에 서 있을 때
+   금액이 그대로 보인다. 이 탭만 한 번 더 묻는다.
+
+   **이것도 암호가 아니다.** 소스 보기를 누르면 1233 이 그대로 보인다 —
+   어깨너머로 보는 것을 막는 문고리다. 진짜로 감춰야 하는 것(월별 추이)은
+   시트 쪽 토큰으로 따로 잠가 둔다.
+
+   이 통과 표시는 **저장하지 않는다.** 셸 잠금과 달리 90일을 기억해 두면
+   문고리를 다는 뜻이 없어진다 — 새로고침하면 다시 묻는다. */
+const INC_CODE = '1233';
+let INC_OPEN = false;
+function wonOf(n){ return (Math.round(n)||0).toLocaleString('ko-KR')+'원'; }
+function rosterCount(){
+  const list = dtClassList();
+  let seats = 0; const names = new Set(), rows = [];
+  list.forEach(function(c){
+    const st = c.students||[], n = st.length;
+    seats += n;
+    /* 명단 줄은 {name:…} 이기도 하고 문자열이기도 하다. 예전에는 이름이 빈
+       객체가 오면 객체 자체를 이름으로 읽어('[object Object]') 사람 수에
+       세고 있었다 — 실인원이 조용히 부풀었다. */
+    st.forEach(function(x){
+      const nm = normName((x && typeof x === 'object') ? (x.name || '') : x);
+      if(nm) names.add(nm);
+    });
+    rows.push({ label:c.label, course:c.course, n:n });
+  });
+  return { rows:rows, seats:seats, heads:names.size, monthly:seats*FEE_PER };
+}
+function renderRosterCount(){
+  const el = document.getElementById('dashRoster'); if(!el) return;
+  const d = rosterCount();
+  if(!d.rows.length){ el.innerHTML = ''; return; }
+  const mx = Math.max.apply(null, d.rows.map(function(r){ return r.n; })) || 1;
+  el.innerHTML = '<div class="note"><div class="figrow" style="margin-bottom:8px">'+
+    '<b>반별 인원</b><span class="dim">· 자리 '+d.seats+' · 사람 '+d.heads+
+    (d.seats!==d.heads ? ' <span class="dim">(두 반 이상 듣는 학생이 있습니다)</span>' : '')+'</span>'+
+    '<span style="flex:1"></span>'+
+    '<button class="mini" data-jump2="inc">수입 보기 →</button></div>'+
+    '<div class="mult">'+d.rows.map(function(r){
+      return '<div class="row" data-clsjump="'+esc(r.label)+'">'+
+        '<span class="nm">'+esc(r.label)+'</span>'+
+        '<span class="where dim">'+esc(DT_COURSE[r.course]||r.course)+'</span>'+
+        '<span class="fill"><span class="stack"><i class="ok" style="width:'+
+          Math.round(r.n/mx*100)+'%"></i></span></span>'+
+        '<span class="cnt">'+r.n+'명</span></div>';
+    }).join('')+'</div></div>';
+}
+document.addEventListener('click', function(e){
+  const b = e.target.closest ? e.target.closest('.mini[data-jump2]') : null;
+  if(b) show(b.dataset.jump2);
+});
+/* 월별 추이는 시트가 갖고 있다(달마다 한 줄씩 쌓인다). 지금 인원은 명단을
+   보면 알지만 **지난달 인원은 명단이 덮이는 순간 사라진다** — 추이는 지나간
+   뒤에 못 만든다.
+   그 창구만은 토큰을 받는다. 수입은 명단·점수와 종류가 다르다. 토큰은 이
+   화면에서만 들고 있는다(저장하지 않는다) — 공개 페이지에 적어 두면 토큰을
+   두는 뜻이 없어진다. */
+let INC_TOKEN = '', INC_HIST = null, INC_ERR = '';
+function incomeHistory(force){
+  if(!INC_TOKEN) return Promise.reject(new Error('토큰이 필요합니다'));
+  if(INC_HIST && !force) return Promise.resolve(INC_HIST);
+  return readOnce('dt', 'income', function(d){ return d.history || []; }, force, { t:INC_TOKEN })
+    .then(function(rows){ INC_HIST = rows; INC_ERR = ''; return rows; })
+    .catch(function(e){
+      INC_ERR = /no_token/.test(e.message||'') ? 'DT 시트에 INCOME_TOKEN 을 아직 안 정했습니다'
+              : (e.message || '실패');
+      throw e;
+    });
+}
+function renderIncome(){
+  const cards = document.getElementById('incCards'); if(!cards) return;
+  const note = document.getElementById('incNote');
+  const body0 = document.getElementById('incBody'), hist0 = document.getElementById('incHist');
+  if(!INC_OPEN){
+    cards.innerHTML = ''; body0.innerHTML = ''; hist0.innerHTML = '';
+    note.innerHTML = '<div class="note" style="max-width:420px">'+
+      '<p style="margin:0 0 4px"><b>수입은 따로 잠가 뒀습니다.</b></p>'+
+      '<p class="hint" style="margin:0 0 12px">셸 잠금은 채점하는 날 내내 열려 있어, '+
+      '화면을 켜 둔 채 자리를 비우면 금액이 그대로 보입니다.</p>'+
+      '<div class="bar"><input type="password" id="incPw" placeholder="코드" autocomplete="off" '+
+      'inputmode="numeric" maxlength="12"><button class="btn" id="incPwGo">열기</button></div>'+
+      '<div class="note err" id="incPwErr" style="display:none;margin:10px 0 0"></div>'+
+      '<p class="hint" style="margin:9px 0 0">새로고침하면 다시 묻습니다 — 기억해 두지 않습니다.</p></div>';
+    const go = document.getElementById('incPwGo'), inp = document.getElementById('incPw');
+    const tryOpen = function(){
+      if((inp.value||'').trim() === INC_CODE){ INC_OPEN = true; renderIncome(); return; }
+      const err = document.getElementById('incPwErr');
+      err.style.display = ''; err.textContent = '코드가 맞지 않습니다.';
+      inp.value = ''; inp.focus();
+    };
+    go.addEventListener('click', tryOpen);
+    inp.addEventListener('keydown', function(e){ if(e.key === 'Enter') tryOpen(); });
+    setTimeout(function(){ try{ inp.focus(); }catch(e){} }, 30);
+    return;
+  }
+  note.innerHTML = '';
+  const d = rosterCount();
+  cards.innerHTML =
+    card(d.seats, '자리 <span class="dim">· 반 등록 수</span>') +
+    card(d.heads, '사람 <span class="dim">· 실인원</span>') +
+    card(wonOf(FEE_PER), '1자리 월 수업료 <span class="dim">· 4주 기준</span>') +
+    card(wonOf(d.monthly), '월 수입 예정 <span class="dim">· 자리 × 수업료</span>');
+  const body = document.getElementById('incBody');
+  body.innerHTML = !d.rows.length
+    ? '<div class="spin" style="padding:16px">반 명단을 아직 못 불러왔습니다.</div>'
+    : '<table><thead><tr><th>반</th><th>과목</th><th>인원</th><th>월 금액</th></tr></thead><tbody>'+
+      d.rows.map(function(r){
+        return '<tr><td>'+esc(r.label)+'</td><td class="dim">'+esc(DT_COURSE[r.course]||r.course)+'</td>'+
+          '<td class="num">'+r.n+'</td><td class="num">'+wonOf(r.n*FEE_PER)+'</td></tr>';
+      }).join('')+'</tbody><tfoot><tr><td colspan="2"><b>합계</b></td>'+
+      '<td class="num"><b>'+d.seats+'</b></td><td class="num"><b>'+wonOf(d.monthly)+'</b></td></tr></tfoot></table>';
+
+  const h = document.getElementById('incHist');
+  if(!INC_HIST){
+    h.innerHTML = '<div class="note"><p style="margin:0 0 9px">월별 추이는 <b>DT 시트</b>가 매달 1일에 한 줄씩 남깁니다. '+
+      '수입은 명단·점수와 종류가 달라 이 창구만 <b>토큰</b>을 받습니다.</p>'+
+      '<div class="bar"><input type="password" id="incTok" placeholder="INCOME_TOKEN" autocomplete="off">'+
+      '<button class="btn" id="incGo">추이 보기</button></div>'+
+      (INC_ERR? '<div class="note err" style="margin:10px 0 0">'+esc(INC_ERR)+'</div>':'')+
+      '<p class="hint" style="margin:9px 0 0">토큰은 이 화면에서만 들고 있습니다 — 저장하지 않으므로 새로고침하면 다시 물어봅니다.</p></div>';
+    const go = document.getElementById('incGo');
+    if(go) go.addEventListener('click', function(){
+      INC_TOKEN = (document.getElementById('incTok').value||'').trim();
+      if(!INC_TOKEN){ INC_ERR='토큰을 넣어 주세요'; renderIncome(); return; }
+      go.disabled = true; go.textContent = '부르는 중…';
+      incomeHistory(true).then(renderIncome).catch(function(){ INC_TOKEN=''; renderIncome(); });
+    });
+    return;
+  }
+  if(!INC_HIST.length){
+    h.innerHTML = '<div class="note">아직 남은 달이 없습니다. DT 시트에서 <b>setupMonthlyIncomeTrigger</b> 를 한 번 실행하면 이번 달부터 쌓입니다.</div>';
+    return;
+  }
+  const mx = Math.max.apply(null, INC_HIST.map(function(r){ return r.monthly; })) || 1;
+  h.innerHTML = '<div class="scroll"><table><thead><tr><th>달</th><th>자리</th><th>사람</th>'+
+    '<th>단가</th><th>월 수입</th><th>추이</th></tr></thead><tbody>'+
+    INC_HIST.slice().reverse().map(function(r){
+      return '<tr><td>'+esc(r.ym)+'</td><td class="num">'+r.seats+'</td><td class="num">'+r.heads+'</td>'+
+        '<td class="num">'+wonOf(r.per)+'</td><td class="num">'+wonOf(r.monthly)+'</td>'+
+        '<td><span class="stack" style="min-width:90px"><i class="ok" style="width:'+
+          Math.round(r.monthly/mx*100)+'%"></i></span></td></tr>';
+    }).join('')+'</tbody></table></div>';
+}
+
 /* ── 어디 있더라 (Cmd+K) ────────────────────────────────────────────
    탭이 열 개가 되면서 "그 학생이 어느 반이더라", "그 회차가 어느 탭이더라" 가
    생겼다. 탭을 짚어 가는 대신 **무엇을 하려는지 치면** 간다.
@@ -2681,7 +2865,7 @@ document.addEventListener('keydown', function(e){
   if(typing) return;
   /* 숫자키 한 자리씩 탭 하나. 열째는 0 이다(1234567890). 탭을 늘리면 여기도
      늘려야 한다 — 검사가 두 길이를 견준다. */
-  const n = '1234567890'.indexOf(e.key);
+  const n = '1234567890-'.indexOf(e.key);
   if(n>=0 && n<TABS.length){ e.preventDefault(); show(TABS[n]); }
 });
 

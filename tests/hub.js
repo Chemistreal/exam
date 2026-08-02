@@ -77,6 +77,10 @@ vm.runInContext([
   cut('dtCached'), cut('syncWorkRows'), cut('mergeCandidates'),
   cut('esc'), cut('stackBar'), cut('legendOf'), cut('donut'), cut('histo'), cut('dotsOf'),
   cut('dtClassList'), cut('finFor'), cut('classRows'), cut('clsCounts'),
+  cut('sentKey'), cut('bulkBar'), cut('readHash'), cut('deltaOf'), cut('dayCounts'),
+  cut('rosterCount'), cut('wonOf'),
+  ((SRC.match(/^const FEE_PER = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
+  'var SENT=new Set(), TABS=["dash","stu","cls","rnd","mat","inc","exam","dt","dtp","dtr","km"], location={hash:""};',
   'var FIN=null, ROSTER=[];',
   'var PASS_ROWS=[], PEND_ROWS=[], ABS_ROWS=[], MIS_TOP=[], KM_ROWS=null, DT_CACHE={};',
 ].join('\n'), ctx);
@@ -185,7 +189,8 @@ console.log('\n── 셸이 남의 데이터를 건드리지 않는다 ──')
   chk('읽기 액션만 부른다',
       (body.match(/readOnce\('\w+', '(\w+)'|dtOnce\('(\w+)'/g) || []).sort(),
       ["dtOnce('names'", "dtOnce('pending'", "readOnce('dt', 'absentees'",
-       "readOnce('dt', 'cohortmis'", "readOnce('dt', 'passed'", "readOnce('km', 'names'"]);
+       "readOnce('dt', 'cohortmis'", "readOnce('dt', 'income'", "readOnce('dt', 'passed'",
+       "readOnce('km', 'names'"]);
 
   /* 한 앱이 응답하지 않아도 화면이 비면 안 된다. 앱스크립트는 그냥 안 돌아올
      때가 있어서, 타임아웃이 없으면 셸이 영원히 '불러오는 중'에 멈춘다. */
@@ -381,7 +386,7 @@ console.log('\n── DT 를 다시 그릴 때마다 두드리지 않는다 ─�
      뒤엣것은 한참을 기다리고, 그동안 화면의 DT 숫자는 '…' 로 돌아가 있다. */
   const body = SRC.split('<script>')[1] || '';
   const once = cut('readOnce');
-  chk('한 창구로만 부른다', /function readOnce\(app, action, shape, force\)/.test(body), true);
+  chk('한 창구로만 부른다', /function readOnce\(app, action, shape, force, extra\)/.test(body), true);
   chk('받아 둔 것을 쓴다', /if\(!force && c\.val && \(Date\.now\(\)-c\.at\) < DT_TTL\)/.test(once), true);
   chk('동시에 물으면 하나로 합친다', /if\(c\.inflight\) return c\.inflight;/.test(once), true);
   // 실패한 것을 담아 두면 다음에도 계속 틀린 값을 쓴다
@@ -613,13 +618,13 @@ console.log('\n── 단축키가 글자 입력을 가로채지 않는다 ─�
   /* 숫자를 손으로 적어 두면 탭을 늘릴 때마다 여기가 낡는다. 둘 다 소스에서
      읽어 길이를 견준다 — 탭이 늘었는데 키가 그대로면 마지막 탭에 못 간다. */
   const nTabs = ((body.match(/const TABS = \[([^\]]+)\]/) || ['',''])[1].match(/'/g) || []).length / 2;
-  const nKeys = ((body.match(/const n = '(\d+)'\.indexOf/) || ['',''])[1] || '').length;
-  chk('탭이 열 개', nTabs, 10);
+  const nKeys = ((body.match(/const n = '([\d-]+)'\.indexOf/) || ['',''])[1] || '').length;
+  chk('탭이 열한 개', nTabs, 11);
   chk('탭 수와 숫자키 수가 맞는다', nKeys, nTabs);
   /* 앞 다섯은 셸이 그리는 화면, 뒤 다섯은 앱을 얹은 화면. 머리의 두 줄과
      같은 차례여야 숫자키가 눈에 보이는 차례와 맞는다. */
   chk('보는 화면이 앞, 앱이 뒤',
-      /const TABS = \['dash','stu','cls','rnd','mat','exam','dt','dtp','dtr','km'\]/.test(body), true);
+      /const TABS = \['dash','stu','cls','rnd','mat','inc','exam','dt','dtp','dtr','km'\]/.test(body), true);
 }
 
 console.log('\n── 학교 표기가 앱마다 흔들린다 ──');
@@ -918,6 +923,176 @@ console.log('\n── 첫 화면 잠금 ──');
   chk('부르는 것은 모두 boot 안에 있다',
       /function boot\(\)\{[\s\S]*?loadRoster\(\);[\s\S]*?\n\}/.test(body), true);
   chk('시험 목록이 늦게 와도 잠금을 넘지 않는다', /if\(!BOOTED\) return;/.test(body), true);
+}
+
+console.log('\n── 반별 인원 · 수입 ──');
+{
+  /* "이번 달 몇 명이지" 는 매일 나오는 물음인데 반 탭까지 들어가야 알 수 있었다. */
+  const body = SRC.split('<script>')[1] || '';
+  chk('대시보드에 반별 인원 자리가 있다', /id="dashRoster"/.test(SRC), true);
+  chk('수입 탭 자리가 있다', /id="t-inc"/.test(SRC) && /id="p-inc"/.test(SRC), true);
+
+  /* 한 학생이 화학Ⅰ·Ⅱ 를 다 들으면 **자리는 2, 사람은 1** 이다. 수업료는 반
+     단위라 총액은 자리로 세지만, 둘을 뭉뚱그리면 "42명인데 왜 44명분이지" 를
+     매달 다시 헤아리게 된다. */
+  ctx.DT_CACHE = { 'dt:names': { val: Object.assign([], { classes: [
+    { label:'화학1 토', course:'ch1', students:[{name:'가'},{name:'나'},{name:'다'}] },
+    { label:'화학2 일', course:'ch2', students:[{name:'가'},{name:'라'}] },
+  ] }) } };
+  const d = ctx.rosterCount();
+  chk('자리는 반 등록 수', d.seats, 5);
+  chk('사람은 겹치는 이름을 지운다', d.heads, 4);
+  chk('반마다 인원이 나온다', d.rows.map(r => [r.label, r.n]), [['화학1 토',3],['화학2 일',2]]);
+  chk('총액은 자리 × 수업료', d.monthly, 5 * ctx.FEE_PER);
+  chk('수업료는 16만원', ctx.FEE_PER, 160000);
+  chk('빈 이름은 사람으로 안 센다', (function(){
+    ctx.DT_CACHE = { 'dt:names': { val: Object.assign([], { classes:[
+      { label:'X', course:'ch1', students:[{name:''},{name:'  '},{name:'마'}] }] }) } };
+    return ctx.rosterCount().heads; })(), 1);
+  chk('명단이 없으면 0', (function(){ ctx.DT_CACHE = {}; const x = ctx.rosterCount();
+    return [x.seats, x.heads, x.monthly]; })(), [0, 0, 0]);
+  chk('돈은 세 자리마다 끊는다', ctx.wonOf(160000), '160,000원');
+
+  /* 추정을 결산으로 읽으면 사고가 난다 — 화면이 그렇게 말해야 한다. */
+  chk('추정이라고 적는다', /추정치입니다\. 실제 수납·미납은 반영되지 않습니다/.test(SRC), true);
+  chk('자리와 사람의 차이를 적는다', /한 학생이 두 반을 들으면[\s\S]{0,80}자리<\/b>는 2/.test(SRC), true);
+
+  /* ── 수입 탭만 한 번 더 묻는다 ────────────────────────────────────
+     셸 잠금(0000)은 채점하는 날 내내 열려 있다. 화면을 켜 둔 채 자리를 비우거나
+     학생이 옆에 서 있으면 금액이 그대로 보인다. */
+  chk('수입 탭에 따로 코드가 걸린다', /const INC_CODE = '1233';/.test(body), true);
+  chk('셸 잠금과 다른 코드', /var KEY = 'chemistreal:gate', CODE = '0000'/.test(body) &&
+      /const INC_CODE = '1233'/.test(body), true);
+  chk('통과 전에는 숫자를 안 그린다', /if\(!INC_OPEN\)\{[\s\S]{0,200}cards\.innerHTML = '';/.test(body), true);
+  /* 90일을 기억해 두면 문고리를 다는 뜻이 없어진다 — 새로고침하면 다시 묻는다. */
+  chk('통과 표시를 저장하지 않는다', /localStorage[\s\S]{0,60}INC_OPEN/.test(CODE_ONLY), false);
+  chk('탭에 들어올 때마다 다시 그린다', /if\(id === 'inc'\) renderIncome\(\);/.test(body), true);
+
+  /* 수입은 명단·점수와 종류가 다르다. 그 창구만 토큰을 받고, 토큰은 공개
+     페이지에 적어 두지 않는다(적어 두면 토큰을 두는 뜻이 없다). */
+  chk('수입 창구는 토큰을 받는다', /readOnce\('dt', 'income'[\s\S]{0,80}t:INC_TOKEN/.test(body), true);
+  chk('토큰을 저장하지 않는다', /localStorage[\s\S]{0,60}INC_TOKEN/.test(CODE_ONLY), false);
+  chk('토큰이 없으면 부르지 않는다', /if\(!INC_TOKEN\) return Promise\.reject/.test(body), true);
+
+  /* 지난달 인원은 명단이 덮이는 순간 사라진다 — 추이는 지나간 뒤에 못 만든다. */
+  chk('추이는 시트가 남긴다고 적는다', /매달 1일에 한 줄씩 남깁니다/.test(SRC), true);
+}
+
+console.log('\n── 색이 실제로 읽히는가 (눈이 아니라 재서) ──');
+{
+  /* "괜찮아 보인다"는 근거가 아니다. 밝기를 낮춘 화면·나이든 눈·색약에서
+     무너지는 것은 재 봐야 안다. 예전 --muted 는 3.52:1 로 본문 기준(4.5)에
+     못 미쳤고, 그 색이 힌트·카드 라벨·목록 부연 등 작은 글씨 전부에 쓰였다. */
+  const V = {};
+  (SRC.match(/--[a-zA-Z0-9-]+:\s*#[0-9A-Fa-f]{6}/g) || []).forEach(m => {
+    const i = m.indexOf(':'); V[m.slice(2, i).trim()] = m.slice(i + 1).trim();
+  });
+  const lin = c => (c /= 255) <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  const lum = h => { h = h.replace('#', '');
+    const p = i => lin(parseInt(h.slice(i, i + 2), 16));
+    return 0.2126 * p(0) + 0.7152 * p(2) + 0.0722 * p(4); };
+  const ratio = (a, b) => { const x = lum(a), y = lum(b);
+    return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+  const bg = V.bg;
+  chk('색 이름을 읽어 왔다', [!!bg, !!V.muted, !!V.warnG].every(Boolean), true);
+  chk('작은 글씨가 본문 기준(4.5)을 넘는다', ratio(V.muted, bg) >= 4.5, true);
+  chk('본문색도 넉넉하다', ratio(V['ink-2'], bg) >= 4.5, true);
+  // 막대·점은 글자가 아니라 그림이다 — 3:1 이 최소다
+  chk('그림용 주황이 그래픽 기준(3.0)을 넘는다', ratio(V.warnG, bg) >= 3, true);
+  chk('초록도 넘는다', ratio(V.ok, bg) >= 3, true);
+  chk('빨강도 넘는다', ratio(V.ms, bg) >= 3, true);
+  /* ⚠ 여기가 핵심이다. 주황을 아무리 어둡게 해도 초록·빨강과의 명도 차는
+     1.0~1.2 밖에 안 된다 — 적록색약에게는 여전히 같은 색이다. 색조를 만지는
+     것으로는 못 고친다. 그래서 색이 아닌 단서가 반드시 있어야 한다. */
+  chk('색만으로는 못 가른다(그래서 아래가 필요하다)',
+      ratio(V.warnG, V.ok) < 2 && ratio(V.warnG, V.ms) < 2, true);
+  chk('막대 칸 사이에 흰 구분선이 있다',
+      /box-shadow:1px 0 0 var\(--paper\) inset/.test(SRC), true);
+  chk('진행 중 칸에 빗금이 있다',
+      /\.stack i\.warn\{[\s\S]{0,200}repeating-linear-gradient/.test(SRC), true);
+  chk('점은 채움·반채움·빈칸으로 갈린다',
+      /\.dot\.half\{[\s\S]{0,160}linear-gradient/.test(SRC) &&
+      /\.dot\{[\s\S]{0,200}background:transparent/.test(SRC), true);
+  chk('범례에도 같은 빗금을 쓴다',
+      /\.legend b\.warn\{[\s\S]{0,200}repeating-linear-gradient/.test(SRC), true);
+  /* 숫자 여덟 개가 모두 강조색이면 색이 강조가 아니라 배경이 된다. */
+  chk('평상시 숫자는 먹빛', /\.card b\{[^}]*color:var\(--ink\)/.test(SRC), true);
+  chk('급한 숫자만 색', /\.card\.warn b\{color:var\(--ms\)\}/.test(SRC), true);
+}
+
+console.log('\n── 주소가 곧 상태 ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  chk('주소를 쓰는 길이 있다', /function writeHash\(\)/.test(body), true);
+  chk('주소를 읽는 길이 있다', /function applyHash\(\)/.test(body), true);
+  // 탭을 옮길 때마다 기록이 쌓이면 뒤로가기가 브라우저를 못 빠져나간다
+  chk('뒤로가기 기록을 쌓지 않는다',
+      /history\.replaceState/.test(body) && !/history\.pushState/.test(body), true);
+  chk('되돌려 읽는 동안은 안 쓴다', /if\(HASH_LOCK\) return;/.test(body), true);
+
+  ctx.location = { hash:'#stu?f=noexam&q=%ED%9C%98%EB%AC%B8' };
+  chk('탭과 조건을 되읽는다', ctx.readHash(), { tab:'stu', p:{ f:'noexam', q:'휘문' } });
+  ctx.location = { hash:'#cls?c=%ED%99%94%ED%95%992%20%EC%9D%BC' };
+  chk('반 이름의 빈칸도 살아 돌아온다', ctx.readHash().p.c, '화학2 일');
+  ctx.location = { hash:'#nope?x=1' };
+  chk('모르는 탭은 무시한다', ctx.readHash(), null);
+  ctx.location = { hash:'' };
+  chk('빈 주소도 안 죽는다', ctx.readHash(), null);
+  chk('고른 것이 바뀌면 주소도 바뀐다', (body.match(/writeHash\(\);/g) || []).length >= 6, true);
+}
+
+console.log('\n── 보낸 것은 눈에서 내려간다 ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  chk('보낸 줄을 기억한다', /const SENT = new Set\(\);/.test(body), true);
+  /* 열쇠는 목록 **번호**가 아니라 사람이다 — 번호로 만들면 다시 불러올 때
+     밀려서 엉뚱한 줄이 흐려진다. */
+  chk('열쇠는 번호가 아니라 사람', ctx.sentKey('pend', '김 지성', 'ch1', 12), 'pend|김지성|ch1|12');
+  chk('빈 값에도 안 죽는다', ctx.sentKey('abs', null), 'abs|||');
+  chk('누르면 그 줄에 표시한다', /row\.classList\.add\('sent'\)/.test(body), true);
+  chk('다시 그려도 남는다', /function sentCls\(k\)/.test(body) && /SENT\.has\(k\)/.test(body), true);
+  chk('브라우저에 남기지 않는다', /localStorage[\s\S]{0,40}SENT/.test(CODE_ONLY), false);
+}
+
+console.log('\n── 여덟 명이면 여덟 번 눌렀다 ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  chk('한 번에 만드는 길이 있다', /function copyBulk\(btn, kind, rows\)/.test(body), true);
+  chk('이미 보낸 사람은 뺀다', /rows\.filter\(function\(r\)\{ return !SENT\.has\(r\.key\); \}\)/.test(body), true);
+  chk('누구 것인지 머리를 붙인다', /'── ' \+ r\.name \+ ' ──/.test(body), true);
+  /* 문구 규칙이 낱개와 일괄 두 곳에 흩어지면 갈라지고, 학부모는 같은 상황에서
+     서로 다른 문자를 받는다. */
+  chk('문구는 한 곳에서만 만든다', /function makerFor\(kind, i, j\)/.test(body), true);
+  chk('일괄도 DT 에서 빌린다', /copyBulk[\s\S]{0,400}dtPendWindow\(\)/.test(body), true);
+  chk('한 명뿐이면 안 내놓는다', ctx.bulkBar('pend', [{key:'a'}], '한 번에'), '');
+  chk('둘부터 내놓는다', /data-bulk="pend"/.test(ctx.bulkBar('pend', [{key:'a'},{key:'b'}], '한 번에')), true);
+  chk('남은 사람 수를 적는다',
+      /남은 <b>1명/.test((ctx.SENT.add('a'), ctx.bulkBar('pend', [{key:'a'},{key:'b'}], 'x'))), true);
+  ctx.SENT.clear();
+}
+
+console.log('\n── 어디 있더라 (Cmd+K) ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  chk('팔레트 자리가 있다', /id="pal"/.test(SRC) && /id="palIn"/.test(SRC), true);
+  chk('학생·반·회차·자료·화면을 모두 담는다',
+      /kind:'화면'/.test(body) && /kind:'학생'/.test(body) && /kind:'반'/.test(body) &&
+      /kind:'회차'/.test(body) && /kind:'자료'/.test(body), true);
+  /* 팔레트를 열 때마다 창구를 두드리면 앱스크립트가 줄을 선다. */
+  chk('창구를 새로 두드리지 않는다',
+      /readOnce|jsonp\(|dtRoster\(|kmRoster\(/.test(cut('palSources')), false);
+  const kb = body.slice(body.indexOf("document.addEventListener('keydown'"));
+  chk('입력 중에도 열린다', kb.indexOf('openPal();') < kb.indexOf('if(typing) return;'), true);
+  chk('위아래로 고르고 엔터로 연다',
+      /ArrowDown/.test(body) && /ArrowUp/.test(body) && /palRun\(PAL_AT\)/.test(body), true);
+}
+
+console.log('\n── 모든 반 한눈에 ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  chk('자리가 있다', /id="clsMult"/.test(SRC), true);
+  chk('반이 하나면 안 그린다', /\(list\.length < 2\) \? '' :/.test(body), true);
+  chk('누르면 그 반으로 간다', /data-clsjump/.test(body), true);
 }
 
 console.log(fail ? `\n${fail}개 실패` : '\n모두 통과');

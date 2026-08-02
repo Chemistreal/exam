@@ -262,7 +262,7 @@ const chk = (n, got, want) => {
     return out;
   });
   chk('언제나 한 탭만 켜진다', only.every(x => x[0]===1 && x[1]===1), true);
-  chk('열 탭을 다 봤다', only.length, 10);
+  chk('탭을 하나도 안 빼고 봤다', only.length, await p.evaluate(() => TABS.length));
   await p.keyboard.press('/');
   await p.waitForTimeout(200);
   chk('/ 는 바로 찾기', await p.evaluate(() => document.activeElement.id), 'qq');
