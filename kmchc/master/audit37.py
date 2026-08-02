@@ -18,6 +18,8 @@
   I  ★축별 최빈값 교차★ — 선지가 'X Y' 두 마디로 갈리는 문항에서 두 축의
      최빈값이 만나는 칸이 정답인가
   J  answer_expr / calc_check / answer_proof 결손
+  K  ★발문 메아리★ — 수치 정답이 발문에 그대로 적힌 수인가 (T13 P6 규약 소급)
+  L  ★극성 홀로서기★ — 부정 표지를 가진 선지가 하나뿐인가 (T13 P6 규약 소급)
 """
 import json, os, re
 from collections import Counter
@@ -56,8 +58,11 @@ for it in items:
     for k in range(4):
         if MK[k] + ' ' + cs[k] not in sol:
             rep(it, 'C', f'해설의 {MK[k]} 인용이 선지 문면과 다르다 — 선지 「{cs[k]}」')
-    if '가 옳아' not in sol and '이 옳아' not in sol:
-        rep(it, 'D', '해설에 정답 확정 어구(가/이 옳아)가 없다')
+    # ▸ 부정 발문('…없는 것은?' · '…아닌 것은?')에서는 "①이 옳아" 가 오히려 어긋난다.
+    #   M01938 이 '그래서 답이 ①이야' 로 적은 것은 결함이 아니라 올바른 처리다.
+    #   확정 어구는 꼴을 넓혀 본다.
+    if not any(t in sol for t in ('가 옳아', '이 옳아', f'답이 {MK[a]}', f'{MK[a]}이야')):
+        rep(it, 'D', '해설에 정답 확정 어구가 없다')
 
     # E ── distractor
     ds = it.get('distractors', [])
@@ -121,11 +126,30 @@ for it in items:
         if not it.get(fld):
             rep(it, 'J', f'{fld} 결손')
 
+    # K ── ★발문 메아리★ (T13 P6 에서 새로 세운 규약을 소급 적용)
+    #   정답이 수치일 때 그 수가 발문에 그대로 적혀 있으면, 아무것도 모르는 학생의
+    #   첫 반사(발문에 나온 수 고르기)가 정답에 착지한다.
+    #   ▸ ★메아리는 정답에만 있을 때 단서다.★ 네 선지의 수가 모두 발문에 적혀 있으면
+    #     (자료를 표로 준 문항) 발문에 있다는 사실이 아무것도 좁혀 주지 않는다.
+    def inste(c):
+        m = NUM.match(c) and re.match(r'\s*[-−]?(\d+)', c)
+        return bool(m) and bool(re.search(r'(?<!\d)' + m.group(1) + r'(?!\d)', it['stem']))
+    if NUM.match(cs[a]) and inste(cs[a]) and not any(inste(c) for i, c in enumerate(cs) if i != a):
+        rep(it, 'K', f'정답값 「{cs[a]}」 만 발문에 그대로 있다 — 나머지 셋은 발문에 없다')
+
+    # L ── ★극성 홀로서기★ (같은 규약)
+    #   부정 표지를 가진 선지가 하나뿐이면 그 하나가 형태로 도드라진다.
+    #   ▸ 오답 하나만 부정형인 경우(18 → 13 건)는 걸지 않는다. 실측에서 걸린 것은
+    #     ★정답★ 이 홀로 부정형일 때뿐이고, 오답 쪽은 뜻을 담느라 자연히 생긴다.
+    neg = [i for i, c in enumerate(cs) if any(t in c for t in ('않', '없', '아니', '못'))]
+    if neg == [a]:
+        rep(it, 'L', f'정답만 부정형 — 극성으로 홀로 선다 「{cs[a]}」')
+
 # ── 출력 ──────────────────────────────────────────────────────────────────
 CLS = {'A': 'objective', 'B': '★ 유출', 'C': '해설 인용 불일치(STALE)',
        'D': '정답 확정 어구', 'E': 'distractor', 'F': '길이 단서(G3/G3b)',
        'G': '선지·해설 형식', 'H': '수치 선지 3단', 'I': '축별 최빈값 교차',
-       'J': '근거 필드'}
+       'J': '근거 필드', 'K': '발문 메아리(P6 규약 소급)', 'L': '극성 홀로서기(P6 규약 소급)'}
 print(f'감사37 — T12 2차 {LO}~{HI} · {len(items)}제')
 print('=' * 74)
 c = Counter(x[1] for x in F)
