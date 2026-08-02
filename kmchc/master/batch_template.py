@@ -198,6 +198,31 @@ def verify(items):
                                      f"간격 {pos[1]-pos[0]} 씩 고르게 놓임 — 한 자리를 옮길 것",
                            '', ''))
 
+    # ★G3f 경계 넘김 — G3d·G3e 는 '이번 배치 안'만 본다. T12 마감 14제가
+    #   10 제(P16) + 4 제(마감)로 나뉘어 만들어졌더니, 각 배치 안에서는 결백한데
+    #   이어 붙인 14 자리에서 ② 가 8·10·12·14 번으로 간격 2 씩 네 번 놓였다.
+    #   두 배치 다 통과하고 합친 자리에서만 새는 유형이라 여기서만 잡힌다.
+    #   앞 배치 꼬리를 끌어와 이어 붙인 뒤 '등차로 네 번 이상' 을 본다.
+    #   (배치 안 기준은 세 번이지만, 창을 넓히면 우연히 세 번 걸리는 일이 잦아
+    #    경계 검사는 네 번으로 올린다.)
+    try:
+        tail = [x['answer'] for x in json.load(open(BANK, encoding='utf-8'))[-8:]]
+    except Exception:
+        tail = []
+    ext, off = tail + seq, len(tail)
+    for d in (1, 2, 3, 4, 5):
+        for i in range(len(ext)):
+            if i - d >= 0 and ext[i - d] == ext[i]:
+                continue                       # 앞에서 이미 이어진 줄
+            L = 1
+            while i + L * d < len(ext) and ext[i + L * d] == ext[i]:
+                L += 1
+            if L >= 4 and i + (L - 1) * d >= off:      # 새 문항이 한 자리라도 끼어야 함
+                spots = [i + k * d - off for k in range(L)]
+                issues.append(('[경계]', f"G3f 정답 {CIR[ext[i]]} 이 간격 {d} 로 {L} 번 "
+                                         f"이어짐 (이번 배치 기준 {[s+1 for s in spots]} 번, "
+                                         f"음수는 앞 배치) — 한 자리를 옮길 것", '', ''))
+
     pp = Counter(it['answer'] for it in items)
     print(f"위치: ①{pp[0]} ②{pp[1]} ③{pp[2]} ④{pp[3]}"
           f" | 길이순위: " + " ".join(f"{r}위{rr.get(r,0)}" for r in (1, 2, 3, 4))
