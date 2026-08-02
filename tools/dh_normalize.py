@@ -109,7 +109,11 @@ UNSUP = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789")
 
 def normalize(text: str) -> str:
     text = HALF_EXP.sub(lambda m: f"^({m.group(1).translate(UNSUP)}{m.group(2)})", text)
-    text = text.replace("도씨", "℃").replace("<->", "⇌").replace("<=>", "⇌")
+    # ⚠ 예전에는 "도씨" 를 ℃(U+2103)로 바꿨다. 그 글자는 CJK 호환용이라
+    #   유니코드가 쓰지 말라고 권하고, 글꼴에 따라 작은 크기에서 뭉개지며,
+    #   "°C" 로 찾으면 안 걸린다. 저장소 안에서도 한 화면에 두 표기가 섞여
+    #   있었다(grade-j0.html: ℃ 11개 · °C 10개). °C 로 모은다.
+    text = text.replace("도씨", "°C").replace("℃", "°C").replace("<->", "⇌").replace("<=>", "⇌")
     text = re.sub(r"(?<![<=\-])->", "→", text)
     # 10^23, 10^-5 → 10²³, 10⁻⁵
     #
@@ -273,7 +277,7 @@ def diff_tokens(old: str, new: str) -> list[tuple[str, str]]:
         converted = parse_formula(token)
         if converted and converted != token:
             pairs.append((token, converted))
-    for symbol, name in (("->", "→"), ("도씨", "℃"), ("^", "위첨자")):
+    for symbol, name in (("->", "→"), ("도씨", "°C"), ("^", "위첨자")):
         if symbol in old and symbol not in new:
             pairs.append((symbol, name))
     return pairs

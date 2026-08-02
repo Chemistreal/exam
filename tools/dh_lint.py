@@ -31,6 +31,7 @@ import collections
 import glob
 import json
 import re
+import os
 import sys
 from pathlib import Path
 
@@ -154,6 +155,34 @@ def main() -> int:
                 print(f"       … 외 {len(lines)-20}건")
         elif verbose:
             print(f"  ok  {exam_id}  ({n_q}문항, 정답 분포 {dist})")
+
+    # ── 저장소 전체 온도 표기 ────────────────────────────
+    # 위 검사는 재집필한 동형문제만 본다. 그런데 ℃(U+2103)는 해설·답안 자료
+    # 곳곳에 3,666군데 있었고, **한 화면 안에서 두 표기가 섞여** 있었다
+    # (grade-j0.html: ℃ 11개 · °C 10개). 그 글자는 CJK 호환용이라 유니코드가
+    # 쓰지 말라고 권하고, "°C" 로 찾으면 안 걸린다. °C 로 모았으니 지킨다.
+    root = ROOT if "ROOT" in dir() else os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    stray = []
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if d not in (".git", "node_modules", "__pycache__")]
+        for fn in filenames:
+            if not fn.endswith((".json", ".html")):
+                continue
+            fp = os.path.join(dirpath, fn)
+            try:
+                text = open(fp, encoding="utf-8", errors="ignore").read()
+            except OSError:
+                continue
+            n = text.count("\u2103")
+            if n:
+                stray.append(f"{os.path.relpath(fp, root)} ({n}곳)")
+    if stray:
+        problems.append("온도 표기")
+        print("FAIL 온도 표기가 ℃ 로 남아 있다 (°C 로 모은다)")
+        for line in stray[:10]:
+            print(f"       {line}")
+        if len(stray) > 10:
+            print(f"       … 외 {len(stray)-10}개 파일")
 
     gt = sum(global_dist)
     print(
