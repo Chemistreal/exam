@@ -190,7 +190,7 @@ console.log('\n── 셸이 남의 데이터를 건드리지 않는다 ──')
       (body.match(/readOnce\('\w+', '(\w+)'|dtOnce\('(\w+)'/g) || []).sort(),
       ["dtOnce('names'", "dtOnce('pending'", "readOnce('dt', 'absentees'",
        "readOnce('dt', 'cohortmis'", "readOnce('dt', 'income'", "readOnce('dt', 'passed'",
-       "readOnce('km', 'names'"]);
+       "readOnce('dt', 'sentlog'", "readOnce('km', 'names'"]);
 
   /* 한 앱이 응답하지 않아도 화면이 비면 안 된다. 앱스크립트는 그냥 안 돌아올
      때가 있어서, 타임아웃이 없으면 셸이 영원히 '불러오는 중'에 멈춘다. */
@@ -1052,6 +1052,31 @@ console.log('\n── 보낸 것은 눈에서 내려간다 ──');
   chk('누르면 그 줄에 표시한다', /row\.classList\.add\('sent'\)/.test(body), true);
   chk('다시 그려도 남는다', /function sentCls\(k\)/.test(body) && /SENT\.has\(k\)/.test(body), true);
   chk('브라우저에 남기지 않는다', /localStorage[\s\S]{0,40}SENT/.test(CODE_ONLY), false);
+
+  /* ── 기기를 넘어 남는다 ────────────────────────────────────────────
+     화면에서만 살면 새로고침에 사라지고 다른 기기에서는 안 보인다. 브라우저에
+     적으면 기기마다 답이 달라진다 — 이 시스템이 피하려는 바로 그 모양이다.
+     그래서 시트다. 그런데 **셸은 여전히 쓰지 않는다** — DT 화면에 시킨다. */
+  chk('시트에서 읽어 온다', /function dtSentLog\(force\)/.test(body) &&
+      /readOnce\('dt', 'sentlog'/.test(body), true);
+  chk('받은 것을 화면에 입힌다', /function seedSent\(rows\)/.test(body), true);
+  /* 시트 응답은 늦게 온다. 그 사이에 누른 것이 있으면 비우는 순간 사라진다 —
+     방금 보낸 사람이 안 보낸 것처럼 되돌아온다. */
+  chk('늦게 온 시트가 방금 누른 것을 지우지 않는다',
+      /function seedSent\(rows\)\{\s*\n\s*\(rows\|\|\[\]\)\.forEach/.test(body), true);
+  chk('셸이 직접 쓰지 않는다 — DT 에 시킨다',
+      /w\.markSent\(\{ kind:p\[0\]/.test(body), true);
+  chk('일괄로 보낸 것도 적는다',
+      /left\.forEach\(function\(r\)\{[\s\S]{0,200}w\.markSent\(/.test(body), true);
+  chk('앱스크립트에 POST 하지 않는다', /method\s*:\s*['"]POST/i.test(body), false);
+  /* 잘못 눌렀으면 무를 수 있다. 보낸 표시는 로그라 지울 수 있으므로, 5초
+     기다리게 하는 것보다 되돌릴 수 있게 두는 편이 낫다. */
+  chk('무르는 길이 있다', /function sentUndo\(k\)/.test(body) &&
+      /w\.unmarkSent\(/.test(body), true);
+  chk('보낸 줄에만 무르기가 뜬다',
+      /return SENT\.has\(k\) \? '<button class="mini undo"/.test(body), true);
+  chk('못 받아도 화면은 산다',
+      /dtSentLog\(\)\.then\(function\(rows\)\{ seedSent\(rows\); refreshSoon\(\); \}\)\.catch/.test(body), true);
 }
 
 console.log('\n── 여덟 명이면 여덟 번 눌렀다 ──');
