@@ -44,6 +44,27 @@ const chk = (name, got, want) => {
 };
 const wait = ms => new Promise(r => setTimeout(r, ms));
 
+/* ⚠ 멈추는 검사는 실패하는 검사보다 나쁘다.
+   이 검사가 CI 를 **40분 동안 붙들고** 있었다. 통나무에는 "오프라인 캐시 ·
+   진행 중" 이라고만 찍혀 있고 왜 멈췄는지는 아무 데도 없다. 사람은 느린가 보다
+   하고 기다리다가 30분 타임아웃으로 죽은 것을 본다 — 무엇이 잘못됐는지는
+   끝내 모른다.
+   여기서 세 번 돌려 보니 **세 번에 한 번 멈춘다.** 아래 serviceWorker.ready 가
+   범인이다. 워커가 활성화되지 않으면 **영원히** 기다린다(기본 시간 제한이 없다).
+   두 겹으로 막는다: 그 자리에 시간 제한을 두고, 검사 전체에도 둔다. */
+const HANG = Number(process.env.OFFLINE_MAX_SEC || 300);
+const watchdog = setTimeout(() => {
+  console.log(`\n실패: ${HANG}초가 지나도 안 끝났다 — 마지막으로 찍힌 줄이 멈춘 자리다.`);
+  process.exit(1);
+}, HANG * 1000);
+watchdog.unref();
+
+/* 시간 제한이 없는 기다림에 제한을 씌운다. */
+const within = (ms, what, p) => Promise.race([
+  p,
+  new Promise((_, rej) => setTimeout(() => rej(new Error(what + ' — ' + ms + 'ms 안에 안 끝났다')), ms)),
+]);
+
 /* 오답으로 만들 문항. 적게 잡아야 '미리 받은 것만 캐시됐는지'를 볼 수 있다. */
 const WRONG = [1, 2, 3];
 const EXAM = 'hwol-2018';
@@ -63,8 +84,16 @@ async function main() {
     return 0;
   }
 
-  const server = spawn('python3', ['-m', 'http.server', String(PORT)],
-    { cwd: ROOT, stdio: 'ignore' });
+  /* ⚠ `python3 -m http.server` 는 **한 번에 한 요청만** 받는다.
+     서비스워커는 설치할 때 파일을 여러 개 한꺼번에 받아 가는데, 그 사이 화면도
+     자기 자원을 부른다. 한 줄로 세워진 서버에서는 이것이 서로를 기다리며
+     엉키고, 그러면 워커가 영영 활성화되지 않는다 — 이 검사가 세 번에 한 번
+     멈추던 진짜 이유다. 여러 줄로 받는 서버를 쓴다. */
+  const server = spawn('python3', ['-c',
+    'import sys,functools;from http.server import SimpleHTTPRequestHandler,ThreadingHTTPServer;'
+    + 'ThreadingHTTPServer(("",int(sys.argv[1])),'
+    + 'functools.partial(SimpleHTTPRequestHandler,directory=sys.argv[2])).serve_forever()',
+    String(PORT), ROOT], { cwd: ROOT, stdio: 'ignore' });
   const stop = () => { try { server.kill('SIGKILL'); } catch (e) {} };
   process.on('exit', stop);
   await wait(1200);
@@ -78,7 +107,17 @@ async function main() {
 
 
   await page.goto(URL, { waitUntil: 'networkidle' });
-  await page.evaluate(() => navigator.serviceWorker.ready);
+  /* ⚠ serviceWorker.ready 는 워커가 활성화되지 않으면 **영원히** 기다린다.
+     여기가 이 검사를 세 번에 한 번 멈추게 하던 자리다. 못 뜨면 못 떴다고
+     말하고 끝낸다 — 40분 뒤에 아무 말 없이 죽는 것보다 낫다. */
+  try {
+    await within(30000, '서비스워커가 활성화되지 않았다',
+      page.evaluate(() => navigator.serviceWorker.ready));
+  } catch (e) {
+    chk('서비스워커가 뜬다', e.message, '(떠야 한다)');
+    await browser.close();
+    return 1;
+  }
   await page.reload({ waitUntil: 'networkidle' });   // 첫 방문은 controller 가 늦다
   chk('서비스워커가 final.html 을 제어',
     await page.evaluate(() => !!navigator.serviceWorker.controller), true);

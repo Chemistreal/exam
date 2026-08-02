@@ -56,9 +56,12 @@ jobs:
         run: npx --prefix tests playwright install --with-deps chromium
       # 브라우저 검사는 정적 서버가 있어야 한다(file:// 로는 localStorage 오리진이
       # 갈려서 앱끼리 기록을 못 나눈다 — 이 셸이 기대는 바로 그 성질이다).
+      # ⚠ `python3 -m http.server` 는 한 번에 한 요청만 받는다. 서비스워커가
+      # 설치하며 파일을 한꺼번에 받아 갈 때 화면의 요청과 엉켜 서로를 기다린다.
+      # 오프라인 검사가 그것 때문에 CI 를 40분 붙들고 있었다. 여러 줄로 받는다.
       - name: 정적 서버 (검사용)
         run: |
-          nohup python3 -m http.server 8931 >/dev/null 2>&1 &
+          nohup python3 -c 'from http.server import SimpleHTTPRequestHandler,ThreadingHTTPServer; ThreadingHTTPServer(("",8931),SimpleHTTPRequestHandler).serve_forever()' >/dev/null 2>&1 &
           for i in $(seq 1 40); do
             curl -sf -o /dev/null http://127.0.0.1:8931/hub.html && exit 0
             sleep 0.5
