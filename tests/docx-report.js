@@ -41,13 +41,17 @@ catch (e) {
 /* 검사가 운영 시트를 읽으면 실 데이터가 심어 둔 데이터를 덮는다.
    실제로 CI 에서 그렇게 깨졌다 — tests/_nosheet.js 의 주석 참고. */
 const noSheet = require('./_nosheet.js');
+/* 검사가 진짜 시트에 쓰면 안 된다. 실제로 CI 가 돌 때마다 파이널 앱이
+   진짜 앱스크립트로 제출해서, 홍길동·예비본 같은 줄이 학생들 석차
+   모집단에 섞여 들어갔다. 브라우저를 띄우자마자 그 길을 끊는다. */
+const seal = require('./_seal.js');
 const fs=require('fs'),path=require('path'),{execSync}=require('child_process');
 const OUT = require('os').tmpdir() + '/chemistreal-docx-test';
 let fail=0; const chk=(n,g,w)=>{const ok=JSON.stringify(g)===JSON.stringify(w);
   console.log((ok?'  PASS  ':'  FAIL  ')+n+(ok?'':`  got=${JSON.stringify(g)} want=${JSON.stringify(w)}`));if(!ok)fail++;};
 (async()=>{
   fs.mkdirSync(OUT,{recursive:true});
-  const b=await chromium.launch({executablePath:CHROMIUM,args:['--no-sandbox']});
+  const b=seal(await chromium.launch({executablePath:CHROMIUM,args:['--no-sandbox']}));
   /* ⚠ 브라우저에 건다 — 화면 하나에 걸면 나중에 여는 화면이 샌다. */
   await noSheet(b);
   const ctx=await b.newContext({acceptDownloads:true}); const p=await ctx.newPage();

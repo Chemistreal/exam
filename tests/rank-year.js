@@ -54,6 +54,9 @@ vm.runInContext([
   'var CUR_YEAR=' + YEAR + ';',
   cutFn(SRC, 'rankIn'), cutFn(SRC, 'rankPoolYear'),
   cutFn(SRC, 'rankPool'), cutFn(SRC, 'baselineTotals'),
+  /* 시트가 대답한 '지금 인원'. 링크에 실린 낡은 숫자를 갈아 끼우는 자리라
+     여기서도 실물을 넣는다 — 흉내로 두면 갈아 끼우는 규칙을 못 잰다. */
+  'var LIVE_POOL=null;', cutFn(SRC, 'liveTotals'),
   'var COHORT_ALIAS={}; function cohortKey(id){return id;}',
 ].join('\n'), ctx);
 
@@ -184,6 +187,39 @@ console.log('\n── 시트 문자도 같은 규칙이다 ──');
   chk('기준분포를 연도 코호트에 넣지 않는다',
       /var byYear = \{\};[\s\S]{0,400}baseTotals/.test(GAS), false);
   chk('행마다 그 행의 해로 센다', /var yr = _yearOf\(ts\(ri\)\)/.test(GAS), true);
+}
+
+/* ── 공유 링크의 인원이 굳지 않는다 ──────────────────────────────────
+   링크에 실린 점수 분포는 **링크를 지은 순간**의 것이다. 뒤에 채점한 학생이
+   늘어도 학부모 화면의 분모는 그대로였다 — "총석차 1/5" 가 다섯 명인 채로
+   굳는다. 시트에 지금 몇 명인지 물어 그 숫자로 바꾼다. */
+console.log('\n── 공유 링크가 지금 인원을 본다 ──');
+{
+  const cs = { totals: [50, 40, 30] };              // 링크에 실린 그때의 셋
+  ctx.BASELINE = null; ctx.LIVE_POOL = null;
+  chk('시트가 없으면 링크에 실린 것을 쓴다', ctx.rankPool(ex, cs).N, 3);
+
+  /* 같은 사람들을 세는 두 벌이라 **더하지 않고 갈아 끼운다.** 더하면 한
+     사람이 두 번 세어져 분모가 부풀고 등수가 뒤로 밀린다. */
+  ctx.LIVE_POOL = { id: 'x-1', hist: { 50: 1, 40: 1, 30: 1, 20: 3 }, n: 6 };
+  const live = ctx.rankPool(ex, cs);
+  chk('시트가 대답하면 그 숫자로', live.N, 6);
+  chk('더하지 않고 갈아 끼운다', live.N === 3 + 6, false);
+  chk('갈아 끼웠다고 표시한다', live.live, true);
+  /* 등수도 따라 움직여야 한다 — 분모만 늘고 등수가 그대로면 더 이상하다. */
+  chk('등수도 새 모집단에서', ctx.rankIn(live.pool, 40), 2);
+
+  /* 다른 회차 것이 남아 있으면 남의 인원으로 등수를 매기게 된다. */
+  ctx.LIVE_POOL = { id: '다른회차', hist: { 10: 9 }, n: 9 };
+  chk('회차가 다르면 안 쓴다', ctx.rankPool(ex, cs).N, 3);
+
+  /* 기준 기록(옛 엑셀 응시자)과는 겹치지 않는 사람들이라 그대로 더한다. */
+  ctx.BASELINE = { 'x-1': { hist: { 55: 2 } } };
+  ctx.LIVE_POOL = { id: 'x-1', hist: { 50: 1, 40: 1 }, n: 2 };
+  chk('기준 기록에는 더한다', ctx.rankPool(ex, cs).N, 4);
+
+  ctx.LIVE_POOL = null; ctx.BASELINE = null;
+  chk('빈 대답은 안 쓴다', ctx.rankPool(ex, cs).N, 3);
 }
 
 console.log(fail ? `\n${fail}개 실패` : '\n모두 통과');

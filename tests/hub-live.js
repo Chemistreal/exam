@@ -24,6 +24,10 @@
 'use strict';
 /* 멈추는 검사는 실패하는 검사보다 나쁘다 — tests/_watchdog.js 주석 참고. */
 require('./_watchdog.js')(240);
+/* 검사가 진짜 시트에 쓰면 안 된다. 실제로 CI 가 돌 때마다 파이널 앱이
+   진짜 앱스크립트로 제출해서, 홍길동·예비본 같은 줄이 학생들 석차
+   모집단에 섞여 들어갔다. 브라우저를 띄우자마자 그 길을 끊는다. */
+const seal = require('./_seal.js');
 let chromium;
 try { ({ chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright')); }
 catch (e) {
@@ -47,7 +51,7 @@ const chk = (n, got, want) => {
 };
 
 (async () => {
-  const b = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH, args: ['--no-sandbox'] });
+  const b = seal(await chromium.launch({ executablePath: process.env.CHROMIUM_PATH, args: ['--no-sandbox'] }));
   /* 서비스 워커를 막는다. 여기서는 오프라인 캐시를 보지 않는데(그건 offline.js),
      로컬 서버는 저장소 루트를 그대로 서빙해서 워커 범위가 '/' 가 된다. 그러면
      워커가 ../DT/ 요청까지 가로채 검사용 흉내 화면이 안 뜬다.
@@ -1330,6 +1334,99 @@ const chk = (n, got, want) => {
     await p5.waitForTimeout(400);
     chk('혼자 열면 단추가 안 보인다', (await shown()).단추, false);
     await p5.close();
+  }
+
+  /* 수업이 끝나면 반마다 "오늘 뭘 배웠다" 를 보낸다. 열두 명이면 열두 번,
+     이름만 바꿔 손으로 붙여 넣었다. 여기서는 **실제로 열두 통이 나오는지**를 본다. */
+  console.log('\n── 수업 문자: 반 하나로 사람 수만큼 ──');
+  {
+    const p6 = await ctx.newPage();
+    /* 창구 대답은 창마다 따로 꾸민다(route 는 창에 붙는다). 반 넷짜리 한 반이면
+       "사람 수만큼 나오는가" 를 세기에 넉넉하다. */
+    await p6.route('**/macros/s/**', route => {
+      const u = new URL(route.request().url());
+      const cb = u.searchParams.get('callback'), act = u.searchParams.get('action');
+      const isDT = u.pathname.includes(DT_EP);
+      const body = (isDT && act === 'names') ? { ok: true, classes: [
+            { label:'화학1 토1:30', course:'ch1', students:[
+              {name:'가',school:'A중',year:'2'},{name:'나',school:'A중',year:'2'},
+              {name:'다',school:'A중',year:'2'},{name:'라',school:'A중',year:'2'}] }] }
+        : act === 'names' ? { ok: true, students: [] }
+        : act === 'pending' ? { ok: true, pending: { stale: [], active: [] } }
+        : act === 'passed' ? { ok: true, passed: { passed: [] } }
+        : act === 'absentees' ? { ok: true, absentees: { classes: [] } }
+        : { ok: true, rows: [] };
+      return route.fulfill({ status: 200, contentType: 'application/javascript',
+                             body: cb + '(' + JSON.stringify(body) + ')' });
+    });
+    await p6.goto(`http://localhost:${PORT}/hub.html`, { waitUntil: 'domcontentloaded' });
+    await p6.waitForTimeout(900);
+    /* 앞 검사가 남긴 회차 글이 있으면 셈이 어긋난다 — 빈 상태에서 시작한다. */
+    await p6.evaluate(() => localStorage.removeItem('chemistreal:lessons'));
+    await p6.evaluate(() => show('cls'));
+    await p6.waitForSelector('.mini[data-clsact="lesson"]', { timeout: 20000 });
+    await p6.click('.mini[data-clsact="lesson"]');
+    await p6.waitForTimeout(300);
+    chk('반에서 창이 열린다', await p6.evaluate(() => document.getElementById('les').open), true);
+    /* 아직 아무것도 없을 때 빈 화면이 아니라 무엇을 하면 되는지 말해야 한다. */
+    chk('처음에는 시작하는 법을 적는다',
+        await p6.evaluate(() => /＋ 새 회차/.test(document.getElementById('lesBody').textContent)), true);
+
+    await p6.click('.mini[data-les="new"]');
+    await p6.waitForTimeout(250);
+    chk('새 회차는 곧장 고치기로 열린다',
+        await p6.evaluate(() => !!document.getElementById('lesBodyIn')), true);
+    /* 자리표시자는 커서 자리에 들어가야 한다 — 끝에 붙으면 옮겨 적어야 한다. */
+    await p6.evaluate(() => {
+      const ta = document.getElementById('lesBodyIn');
+      ta.value = '안녕하세요. 학생 학부모님.'; ta.selectionStart = ta.selectionEnd = 7;
+    });
+    await p6.click('[data-lesmark="{이름}"]');
+    await p6.waitForTimeout(120);
+    chk('자리표시자가 커서 자리에 들어간다',
+        await p6.evaluate(() => document.getElementById('lesBodyIn').value),
+        '안녕하세요. {이름}학생 학부모님.');
+
+    await p6.evaluate(() => { document.getElementById('lesTitle').value = '화학의 기초'; });
+    await p6.click('.mini[data-les="save"]');
+    await p6.waitForTimeout(300);
+    const view = await p6.evaluate(() => ({
+      담김: JSON.parse(localStorage.getItem('chemistreal:lessons') || '{}').lessons.length,
+      고르개: !!document.getElementById('lesPick'),
+      미리보기: document.querySelector('.les__pre').textContent,
+      사람수: document.querySelectorAll('[data-lesone]').length,
+    }));
+    chk('브라우저에 담긴다', view.담김, 1);
+    chk('회차 고르개가 생긴다', view.고르개, true);
+    chk('미리보기가 첫 학생 이름으로 채워진다', /\{이름\}/.test(view.미리보기), false);
+    chk('사람 수만큼 복사 단추', view.사람수 > 0, true);
+
+    /* 열두 통이 한 덩어리로 나와야 한다 — 이름 사이에 머리를 넣는다. */
+    const bulk = await p6.evaluate(() => {
+      const cur = lesCur(), who = lesWho();
+      return who.map(s => '── ' + s.name + ' ──\n' + lesFill(cur.body, s, LES_CLS, cur.round)).join('\n\n');
+    });
+    const heads = (bulk.match(/── .+ ──/g) || []).length;
+    chk('사람 수만큼 통이 나온다', heads, view.사람수);
+    chk('통마다 그 학생 이름이 들어간다', /\{이름\}/.test(bulk), false);
+
+    /* 이름 자리가 없으면 열두 통이 모두 같은 글이 된다 — 붙여 넣고 나서 알면 늦다. */
+    await p6.click('.mini[data-les="edit"]');
+    await p6.waitForTimeout(200);
+    await p6.evaluate(() => { document.getElementById('lesBodyIn').value = '이름 없는 글'; });
+    await p6.click('.mini[data-les="save"]');
+    await p6.waitForTimeout(250);
+    chk('이름 자리가 없으면 붉게 짚는다',
+        await p6.evaluate(() => !!document.querySelector('#lesBody .note.err')), true);
+
+    /* 지우기는 고치는 중에만 있다 — 보기 화면에서 실수로 눌리면 안 된다. */
+    await p6.click('.mini[data-les="edit"]');
+    await p6.waitForTimeout(200);
+    await p6.click('.mini[data-les="del"]');
+    await p6.waitForTimeout(250);
+    chk('지우면 목록에서 빠진다',
+        await p6.evaluate(() => JSON.parse(localStorage.getItem('chemistreal:lessons') || '{}').lessons.length), 0);
+    await p6.close();
   }
 
   chk('콘솔에 예외가 없다', errs.filter(e => !/Failed to fetch|ERR_/.test(e)), []);
