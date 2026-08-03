@@ -3174,17 +3174,24 @@ const LES_MARKS = ['{이름}','{학교}','{학년}','{반}','{과목}','{회차}
    그러면 같은 회차라도 **매번 다른 객체**가 나온다. 고치기에서 `all.indexOf(cur)`
    가 늘 -1 이 되어 저장이 조용히 안 됐다 — 눌러도 아무 일이 없었다.
    검사가 이걸 잡았다(브라우저 검사의 '브라우저에 담긴다'). */
-let LES_ALL = null;
+let LES_ALL = null, LES_HEAD = null;
+/* 본문에 {이름} 을 손으로 넣게 하면 잊는다 — 잊으면 열두 통이 모두 같은 글이
+   되고, 그걸 붙여 넣고 나서야 안다. 그래서 **머리말로 이름이 저절로 붙는다.**
+   본문에 {이름} 을 직접 넣었으면 머리말은 안 붙인다(두 번 나오면 어색하다). */
+const LES_HEAD_DEFAULT = '{이름} 학생 학부모님께';
 function lesAll(){
   if(LES_ALL) return LES_ALL;
   try{
     const v = JSON.parse(localStorage.getItem(LES_KEY) || 'null');
     LES_ALL = v && Array.isArray(v.lessons) ? v.lessons : [];
-  }catch(e){ LES_ALL = []; }
+    LES_HEAD = (v && typeof v.head === 'string') ? v.head : LES_HEAD_DEFAULT;
+  }catch(e){ LES_ALL = []; LES_HEAD = LES_HEAD_DEFAULT; }
   return LES_ALL;
 }
+function lesHead(){ lesAll(); return LES_HEAD == null ? LES_HEAD_DEFAULT : LES_HEAD; }
 function lesSave(){
-  try{ localStorage.setItem(LES_KEY, JSON.stringify({ v:1, lessons: LES_ALL || [] })); return true; }
+  try{ localStorage.setItem(LES_KEY, JSON.stringify(
+        { v:1, lessons: LES_ALL || [], head: lesHead() })); return true; }
   catch(e){ return false; }
 }
 /* 반의 과목에 맞는 회차만, 번호 차례로. 과목이 안 적힌 글은 어느 반에서나
@@ -3192,6 +3199,15 @@ function lesSave(){
 function lesFor(course){
   return lesAll().filter(function(x){ return !x.course || x.course === course; })
     .sort(function(a,b){ return (Number(a.round)||0) - (Number(b.round)||0); });
+}
+/* 한 학생에게 나가는 **한 통 그대로**. 미리보기와 복사가 같은 것을 써야
+   화면에서 본 것과 나간 것이 다르지 않다. */
+function lesText(cur, who, cls){
+  if(!cur) return '';
+  const body = String(cur.body == null ? '' : cur.body);
+  const head = lesHead();
+  const whole = (head && body.indexOf('{이름}') < 0) ? (head + '\n\n' + body) : body;
+  return lesFill(whole, who, cls, cur.round);
 }
 function lesFill(body, who, cls, round){
   const map = {
@@ -3302,11 +3318,16 @@ function lesRender(){
   /* 미리보기는 **첫 학생 것**으로 채워 보여 준다. 빈 자리표시자가 그대로
      남아 있으면 여기서 보인다 — 붙여 넣고 나서 알면 이미 나간 뒤다. */
   const first = who[0] || null;
-  const filled = lesFill(cur.body, first, LES_CLS, cur.round);
-  const noName = String(cur.body||'').indexOf('{이름}') < 0;
+  const filled = lesText(cur, first, LES_CLS);
+  const auto = String(cur.body||'').indexOf('{이름}') < 0 && !!lesHead();
   body.innerHTML = bar +
-    (noName ? '<div class="note err">본문에 <b>{이름}</b> 이 없습니다 — ' +
-              '지금 그대로면 ' + who.length + '통이 모두 같은 글이 됩니다.</div>' : '') +
+    (auto ? '<div class="note">본문에 {이름} 이 없어 <b>머리말로 이름이 자동으로</b> 붙습니다 — ' +
+            '<code>' + esc(lesHead()) + '</code>. ' +
+            '<button class="mini" data-les="head">머리말 고치기</button></div>'
+          : (!lesHead() && String(cur.body||'').indexOf('{이름}') < 0
+             ? '<div class="note err">머리말도 비었고 본문에 {이름} 도 없습니다 — ' +
+               who.length + '통이 모두 같은 글이 됩니다.' +
+               ' <button class="mini" data-les="head">머리말 고치기</button></div>' : '')) +
     '<div class="note2" style="margin-bottom:6px">미리보기 · ' +
       (first ? esc(first.name) + ' 학생 것' : '학생 없음') + '</div>' +
     '<div class="les__pre">' + esc(filled) + '</div>' +
@@ -3355,7 +3376,7 @@ document.addEventListener('click', function(e){
   if(!b) return;
   const cur = lesCur(), who = lesWho()[+b.dataset.lesone];
   if(!cur || !who) return;
-  copyText(b, lesFill(cur.body, who, LES_CLS, cur.round), '복사됨');
+  copyText(b, lesText(cur, who, LES_CLS), '복사됨');
 });
 document.addEventListener('click', function(e){
   const b = e.target.closest ? e.target.closest('.mini[data-les]') : null;
@@ -3371,6 +3392,14 @@ document.addEventListener('click', function(e){
     LES_EDIT = true; lesRender(); return;
   }
   if(act === 'edit'){ LES_EDIT = true; lesRender(); return; }
+  if(act === 'head'){
+    const v = prompt('모든 회차 앞에 붙는 머리말입니다. {이름} 자리에 학생 이름이 들어갑니다.\n' +
+                     '비워 두면 아무것도 안 붙습니다.', lesHead());
+    if(v == null) return;                       // 취소
+    LES_ALL = lesAll(); LES_HEAD = String(v);
+    if(!lesSave()){ note('lesNote', '이 브라우저에 저장하지 못했습니다.', true); return; }
+    lesRender(); return;
+  }
   if(act === 'cancel'){ LES_EDIT = false; lesRender(); return; }
   if(act === 'save'){
     if(!cur) return;
@@ -3412,7 +3441,7 @@ document.addEventListener('click', function(e){
     const who = lesWho();
     if(!who.length){ flash(b, '반에 학생이 없습니다'); return; }
     const text = who.map(function(s){
-      return '── ' + s.name + ' ──\n' + lesFill(cur.body, s, LES_CLS, cur.round);
+      return '── ' + s.name + ' ──\n' + lesText(cur, s, LES_CLS);
     }).join('\n\n');
     copyText(b, text, who.length + '명 복사됨'); return;
   }
@@ -3432,6 +3461,7 @@ document.getElementById('lesFile').addEventListener('change', function(){
     if(now.length && !confirm('지금 있는 회차 ' + now.length + '개를 이 파일 ' +
         v.lessons.length + '개로 바꿉니다. 계속할까요?')) return;
     LES_ALL = v.lessons;
+    if(typeof v.head === 'string') LES_HEAD = v.head;
     if(!lesSave()){ note('lesNote', '이 브라우저에 저장하지 못했습니다.', true); return; }
     LES_AT = 0; LES_EDIT = false; lesRender();
   };

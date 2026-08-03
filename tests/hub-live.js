@@ -1395,6 +1395,30 @@ const chk = (n, got, want) => {
     await p6.waitForTimeout(250);
     chk('고치기가 열린다',
         await p6.evaluate(() => !!document.getElementById('lesBodyIn')), true);
+    /* ── 이름을 손으로 안 넣어도 된다 ────────────────────────────────
+       본문에 {이름} 이 없어도 머리말로 이름이 저절로 붙어야 한다. 이것이
+       "이름까지 자동" 의 자리다. */
+    await p6.evaluate(() => {
+      const ta = document.getElementById('lesBodyIn');
+      ta.value = '안녕하세요. 화학올림피아드 담당하는 조준모입니다.';
+      document.getElementById('lesTitle').value = '자동 이름';
+    });
+    await p6.click('.mini[data-les="save"]');
+    await p6.waitForTimeout(300);
+    const autoP = await p6.evaluate(() => ({
+      미리보기: document.querySelector('.les__pre').textContent,
+      안내: /머리말로 이름이 자동으로/.test(document.getElementById('lesBody').textContent),
+      한통: (function(){ const c = lesCur(), w = lesWho()[0]; return lesText(c, w, LES_CLS); })(),
+    }));
+    chk('이름을 안 넣어도 머리말이 붙는다', /^가 학생 학부모님께/.test(autoP.미리보기.trim()), true);
+    chk('자동으로 붙는다고 알려 준다', autoP.안내, true);
+    chk('복사되는 한 통에도 들어간다', /^가 학생 학부모님께\n\n안녕하세요/.test(autoP.한통), true);
+    /* 학생마다 달라야 한다 — 안 그러면 자동으로 붙여도 뜻이 없다. */
+    const each = await p6.evaluate(() => lesWho().map(s => lesText(lesCur(), s, LES_CLS).split('\n')[0]));
+    chk('통마다 이름이 다르다', new Set(each).size, each.length);
+
+    await p6.click('.mini[data-les="edit"]');
+    await p6.waitForTimeout(200);
     /* 자리표시자는 커서 자리에 들어가야 한다 — 끝에 붙으면 옮겨 적어야 한다. */
     await p6.evaluate(() => {
       const ta = document.getElementById('lesBodyIn');
@@ -1429,14 +1453,20 @@ const chk = (n, got, want) => {
     chk('사람 수만큼 통이 나온다', heads, view.사람수);
     chk('통마다 그 학생 이름이 들어간다', /\{이름\}/.test(bulk), false);
 
-    /* 이름 자리가 없으면 열두 통이 모두 같은 글이 된다 — 붙여 넣고 나서 알면 늦다. */
+    /* 머리말도 비우고 본문에도 {이름} 이 없으면, 그때는 열두 통이 정말 같은
+       글이 된다. 그 경우에만 붉게 짚는다(머리말이 있으면 자동으로 붙으니까). */
     await p6.click('.mini[data-les="edit"]');
     await p6.waitForTimeout(200);
     await p6.evaluate(() => { document.getElementById('lesBodyIn').value = '이름 없는 글'; });
     await p6.click('.mini[data-les="save"]');
     await p6.waitForTimeout(250);
-    chk('이름 자리가 없으면 붉게 짚는다',
+    chk('머리말이 있으면 안 짚는다(자동으로 붙으니까)',
+        await p6.evaluate(() => !!document.querySelector('#lesBody .note.err')), false);
+    await p6.evaluate(() => { LES_HEAD = ''; lesSave(); lesRender(); });
+    await p6.waitForTimeout(200);
+    chk('머리말까지 비면 붉게 짚는다',
         await p6.evaluate(() => !!document.querySelector('#lesBody .note.err')), true);
+    await p6.evaluate(() => { LES_HEAD = null; lesSave(); });
 
     /* 지우기는 고치는 중에만 있다 — 보기 화면에서 실수로 눌리면 안 된다. */
     await p6.click('.mini[data-les="edit"]');

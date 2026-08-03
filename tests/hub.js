@@ -68,6 +68,9 @@ vm.runInContext([
   ((SRC.match(/^const CHO = \[[\s\S]*?\];$/m) || [''])[0]).replace(/^const /, 'var '),
   cut('choOf'), cut('isCho'), cut('koHit'),
   cut('lesFill'),
+  "var LES_ALL=[], LES_HEAD=null; const LES_HEAD_DEFAULT='{이름} 학생 학부모님께';" +
+  ' function lesAll(){return LES_ALL;} function lesHead(){return LES_HEAD==null?LES_HEAD_DEFAULT:LES_HEAD;}',
+  cut('lesText'),
   cut('unifyKey'), cut('looseKey'), cut('mergeRosters'),
   cut('allRounds'), cut('misTally'),
   /* 기간 기준은 소스에서 그대로 읽는다. 여기 손으로 적어 두면 소스만 바뀌었을 때
@@ -1711,6 +1714,27 @@ console.log('\n── 수업 문자 ──');
   const who = { name:'김유정', school:'휘문중', grade:'2' };
 
   chk('이름이 채워진다', ctx.lesFill('{이름} 학생', who, cls, 1), '김유정 학생');
+
+  /* 본문에 {이름} 을 손으로 넣게 하면 잊는다 — 잊으면 열두 통이 모두 같은
+     글이 되고, 붙여 넣고 나서야 안다. 머리말로 저절로 붙는다. */
+  ctx.LES_HEAD = null;
+  chk('본문에 이름이 없으면 머리말이 붙는다',
+      ctx.lesText({ body: '안녕하세요. 조준모입니다.', round: 1 }, who, cls),
+      '김유정 학생 학부모님께\n\n안녕하세요. 조준모입니다.');
+  /* 본문에 직접 넣었으면 안 붙인다 — 두 번 나오면 어색하다. */
+  chk('본문에 이름이 있으면 안 붙인다',
+      ctx.lesText({ body: '{이름} 학생, 안녕하세요.', round: 1 }, who, cls),
+      '김유정 학생, 안녕하세요.');
+  ctx.LES_HEAD = '[{과목} {회차}회] {이름} 학부모님';
+  chk('머리말을 바꿀 수 있다',
+      ctx.lesText({ body: '본문', round: 3 }, who, cls),
+      '[화학Ⅰ 3회] 김유정 학부모님\n\n본문');
+  ctx.LES_HEAD = '';
+  chk('머리말을 비우면 안 붙는다', ctx.lesText({ body: '본문', round: 1 }, who, cls), '본문');
+  ctx.LES_HEAD = null;
+  /* 학생이 없으면 이름 자리는 빈 칸이 된다 — 자리표시자가 그대로 남는 것보다 낫다. */
+  chk('빈 회차에도 안 죽는다', [ctx.lesText(null, who, cls), ctx.lesText({}, null, null)],
+      ['', ' 학생 학부모님께\n\n']);
   chk('학교·학년도', ctx.lesFill('{학교} {학년}', who, cls, 1), '휘문중 2학년');
   chk('반과 과목도', ctx.lesFill('{반} / {과목}', who, cls, 1), '화학1 일3-7 / 화학Ⅰ');
   chk('회차도', ctx.lesFill('조준모의고사 {회차}회', who, cls, 3), '조준모의고사 3회');
@@ -1729,8 +1753,13 @@ console.log('\n── 수업 문자 ──');
   chk('과목이 맞는 회차만 보인다', /!x\.course \|\| x\.course === course/.test(cut('lesFor')), true);
   chk('회차 번호 차례로', /\(Number\(a\.round\)\|\|0\)-\(Number\(b\.round\)\|\|0\)/.test(cut('lesFor').replace(/\s/g,'')), true);
   /* {이름} 이 없으면 열두 통이 모두 같은 글이 된다 — 붙여 넣고 나서 알면 늦다. */
-  chk('이름 자리가 없으면 짚어 준다', /지금 그대로면/.test(body), true);
-  chk('미리보기는 실제로 채워서 보여 준다', /lesFill\(cur\.body, first/.test(body), true);
+  chk('이름이 자동으로 붙는다고 적는다', /머리말로 이름이 자동으로/.test(body), true);
+  chk('머리말도 비면 그때는 짚어 준다', /통이 모두 같은 글이 됩니다/.test(body), true);
+  chk('머리말을 고칠 수 있다', /data-les="head"/.test(body), true);
+  chk('미리보기는 나가는 것 그대로', /lesText\(cur, first, LES_CLS\)/.test(body), true);
+  /* 미리보기와 복사가 다른 것을 쓰면 화면에서 본 것과 나간 것이 달라진다. */
+  chk('복사도 같은 것을 쓴다',
+      (body.match(/lesText\(cur, /g) || []).length >= 3, true);
   /* 브라우저를 비우면 사라지는 것을 유일한 사본으로 두지 않는다. */
   chk('파일로 내보낼 수 있다', /data-les="export"/.test(body) && /수업문자\.json/.test(body), true);
   chk('파일에서 가져올 수 있다', /data-les="import"/.test(body) && /id="lesFile"/.test(SRC), true);
