@@ -162,6 +162,26 @@ def verify(items):
         sp = spread(it['choices'])
         if g3b_applies(it['choices']) and sp > G3B_MAX_SPREAD:
             issues.append((it['id'], f'G3b 보기 길이 산포 {sp:.2f}>{G3B_MAX_SPREAD} — 보기를 나란히', ln, a))
+        # ★G3g — 칸별 최빈값을 이으면 정답이 재구성되는가★ (T13 마감 4제가 세웠다)
+        #   네 선지가 같은 개수의 마디로 나뉠 때, 마디마다 가장 흔한 값을 집어 이어 붙이면
+        #   ★정답만 남는 일이 잦다★ — 오답 하나가 한 마디를 맞히고 다른 하나가 나머지를
+        #   맞히면 구조적으로 그렇게 된다. 그러면 화학을 몰라도 정답이 짚힌다.
+        #   ▸ 봉인은 ★한 마디라도 최빈값이 없게(동률이 되게) 만드는 것★ 이다.
+        #   ▸ 살아남는 것이 둘 이상이면 결함이 아니다 — 유일할 때만 짚는다.
+        #   ▸ 은행 실측: 적용 가능 412제 중 46제(11.2%)가 걸린다. 소급 부채로 남긴다.
+        toks = [c.split() for c in it['choices']]
+        if len(toks[0]) >= 2 and all(len(t) == len(toks[0]) for t in toks):
+            picks = []
+            for col in zip(*toks):
+                cc = Counter(col).most_common()
+                win = [v for v, k in cc if k == cc[0][1]]
+                picks.append(win[0] if len(win) == 1 else None)
+            if any(p is not None for p in picks):
+                surv = [i for i, t in enumerate(toks)
+                        if all(p is None or t[k] == p for k, p in enumerate(picks))]
+                if surv == [it['answer']]:
+                    issues.append((it['id'], 'G3g 칸별 최빈값 조합이 정답을 유일하게 '
+                                             '짚음 — 한 마디를 동률로 만들 것', '', ''))
         if len(it.get('solution', '')) < 300:
             issues.append((it['id'], f"해설 {len(it.get('solution',''))}자(<300)", '', ''))
         if '[정답]' not in it.get('solution', '') or '자가진단' not in it.get('solution', ''):
