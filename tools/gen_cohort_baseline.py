@@ -123,20 +123,33 @@ def read_round(path: Path) -> Round | None:
     header = grid[hr]
     acol, nq = _block(header, "번호")
     scol, _ = _block(header, "채점", nq)
-    # 맞은 문항 수를 어디서 읽나.
-    #
+    # ── 맞은 문항 수는 **직접 센다** ────────────────────────────────
     # 예전에는 '총점' 을 3으로 나눴다(문항당 3점, 180점 만점). 그런데 감점이
     # 있는 서식에서는 총점이 3의 배수가 아니고 음수도 나온다 — 산과염기 60제가
-    # 그랬고, 23명 중 21명이 "총점이 이상하다" 며 통째로 버려졌다. 두 명만
-    # 남은 기준 기록은 없느니만 못하다.
+    # 그랬고, 23명 중 21명이 "총점이 이상하다" 며 통째로 버려졌다.
     #
-    # 그 서식에는 '맞은문항수' 열이 따로 있다. 있으면 그것을 그대로 쓴다 —
-    # 나누기도 없고 감점에도 흔들리지 않는다.
+    # 감점은 그 시험지의 채점 규칙이지 **맞은 개수**가 아니다. 석차·백분위가
+    # 쓰는 것은 맞은 개수다. 그러니 감점을 거치지 말고, 정답 행과 학생 답을
+    # 맞대어 그 자리에서 센다. 서식이 어떻든 같은 답이 나온다.
+    #
+    # 정답 행에 '모두정답'·'1또는2' 처럼 여러 답이 적힌 칸도 있다 — 그 칸에
+    # 든 숫자를 모두 정답으로 본다. 숫자가 하나도 없으면(전원정답) 누구나
+    # 맞은 것으로 센다.
+    ans_key = []
+    for i in range(nq):
+        raw = grid[hr - 2][acol + i] if acol + i < len(grid[hr - 2]) else None
+        if isinstance(raw, (int, float)):
+            ans_key.append({int(raw)})
+        else:
+            nums = {int(x) for x in re.findall(r"[1-4]", str(raw or ""))}
+            ans_key.append(nums)          # 빈 집합 = 전원정답
+    # 서식에 '맞은문항수' 열이 있으면 우리가 센 것과 맞는지만 견준다.
     ccol = None
     for c, v in enumerate(header):
         if isinstance(v, str) and v.replace(" ", "") == "맞은문항수":
             ccol = c
             break
+    mismatched = 0
 
     out = Round(path)
     out.nq = nq
@@ -148,32 +161,35 @@ def read_round(path: Path) -> Round | None:
     for line in grid[hr + 1:]:
         if len(line) <= TOTAL_COL or not line[NAME_COL]:
             continue
-        if ccol is not None:
-            got_n = line[ccol] if ccol < len(line) else None
-            if not isinstance(got_n, (int, float)) or got_n < 0 or got_n > nq:
-                print(f"  ! 맞은문항수가 이상해 세지 않았다: {path.name} {got_n!r}")
-                continue
-            out.scores.append(int(got_n))
-        else:
-            total = line[TOTAL_COL]
-            if not isinstance(total, (int, float)) or total < 0 or int(total) % PER_Q:
-                print(f"  ! 총점이 이상해 세지 않았다: {path.name} {total!r}")
-                continue
-            out.scores.append(int(total) // PER_Q)
+        mine = 0
         for i in range(nq):
-            got = line[scol + i] if scol + i < len(line) else None
-            if isinstance(got, (int, float)) and got > 0:
-                correct[i] += 1
             a = line[acol + i] if acol + i < len(line) else None
+            ok = False
+            if not ans_key[i]:
+                ok = True                            # 전원정답
+            elif isinstance(a, (int, float)) and int(a) in ans_key[i]:
+                ok = True
+            if ok:
+                mine += 1
+                correct[i] += 1
             if a is None or a == 0:
                 opt[i][4] += 1
             elif isinstance(a, int) and 1 <= a <= 4:
                 opt[i][a - 1] += 1
             else:
                 dirty[i] += 1                       # '모두정답' 등으로 덮인 칸
+        out.scores.append(mine)
+        if ccol is not None and ccol < len(line):
+            said = line[ccol]
+            if isinstance(said, (int, float)) and int(said) != mine:
+                mismatched += 1
 
     if not out.scores:
         return None
+    if mismatched:
+        # 엑셀이 적어 둔 맞은 개수와 우리가 센 것이 다르다. 정답 행이 바뀌었거나
+        # 그 서식이 다른 규칙으로 세고 있다는 뜻이라, 조용히 넘기면 안 된다.
+        print(f"  ! 엑셀의 '맞은문항수' 와 다른 학생 {mismatched}명: {path.name}")
     out.qc = correct
     # 덮인 칸만 빠진다. 한 칸도 안 남았으면(전원정답 등) 그 문항만 null.
     out.qopt = [None if sum(opt[i]) == 0 else opt[i] for i in range(nq)]
