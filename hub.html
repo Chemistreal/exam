@@ -3207,7 +3207,34 @@ function lesFill(body, who, cls, round){
 }
 
 let LES_CLS = null, LES_AT = 0, LES_EDIT = false;
-function lesList(){ return LES_CLS ? lesFor(LES_CLS.course) : []; }
+/* ── 칸은 DT 회차만큼 미리 세워 둔다 ────────────────────────────────
+   '＋ 새 회차' 를 열여덟 번 누르게 하면 안 된다. DT 자료가 이미 그 과목에
+   몇 회차가 있는지 알고 있다(화학Ⅰ 18 · 화학Ⅱ 18 · 일반화학 10).
+   그 수만큼 빈 칸을 세워 두고, 적은 것만 채워 넣는다.
+
+   빈 칸도 목록에 보인다 — 안 보이면 "몇 회차까지 적었더라" 를 세게 된다. */
+function lesRoundsOf(course){
+  if(!DT_MAT || !DT_MAT.courses) return [];
+  const c = DT_MAT.courses.filter(function(x){ return x.key === course; })[0];
+  if(!c || !c.rounds) return [];
+  return c.rounds.map(function(r){ return Number(r.round) || 0; })
+    .filter(function(n){ return n > 0; }).sort(function(a,b){ return a-b; });
+}
+/* 적어 둔 것 + DT 가 아는 회차를 하나로. 적어 둔 것이 이긴다(내용이 있으니까). */
+function lesList(){
+  if(!LES_CLS) return [];
+  const mine = lesFor(LES_CLS.course);
+  const by = {};
+  mine.forEach(function(x){ const k = Number(x.round); if(k) by[k] = x; });
+  const out = [];
+  lesRoundsOf(LES_CLS.course).forEach(function(n){
+    out.push(by[n] || { course: LES_CLS.course, round: n, title: '', body: '', blank: true });
+    delete by[n];
+  });
+  /* DT 회차에 없는 것(손으로 더한 회차·번호 없는 글)도 뒤에 붙인다. */
+  mine.forEach(function(x){ const k = Number(x.round); if(!k || by[k]) out.push(x); });
+  return out.sort(function(a,b){ return (Number(a.round)||9999) - (Number(b.round)||9999); });
+}
 function lesCur(){ const l = lesList(); return l[Math.min(LES_AT, l.length-1)] || null; }
 /* 이 반 아이들. 반 탭이 걸러 놓은 것과 상관없이 **반 전체**로 보낸다 —
    수업 안내는 재시 안내와 달리 빠지는 사람이 없다. */
@@ -3222,9 +3249,13 @@ function lesRender(){
   const bar = '<div class="les__bar">' +
     (list.length
       ? '<select id="lesPick" aria-label="회차">' + list.map(function(x, i){
+          /* 빈 칸도 목록에 둔다 — 안 보이면 "몇 회차까지 적었더라" 를 세게 된다. */
           return '<option value="'+i+'"'+(i===LES_AT?' selected':'')+'>'+
                  esc((x.round!=null? x.round+'회차' : '번호 없음') +
-                     (x.title ? ' · ' + x.title : '')) + '</option>'; }).join('') + '</select>'
+                     (x.title ? ' · ' + x.title : (x.body ? '' : ' · 아직 안 적음'))) +
+                 '</option>'; }).join('') + '</select>' +
+        '<span class="dim">' + list.filter(function(x){ return x.body; }).length +
+        '/' + list.length + ' 적음</span>'
       : '<span class="dim">아직 적어 둔 회차가 없습니다.</span>') +
     '<span style="flex:1"></span>' +
     '<button class="mini" data-les="new">＋ 새 회차</button>' +
@@ -3259,6 +3290,15 @@ function lesRender(){
     return;
   }
 
+  /* 아직 안 적은 회차. 빈 미리보기를 보여 주는 대신 무엇을 하면 되는지 적는다. */
+  if(!cur.body){
+    body.innerHTML = bar +
+      '<div class="note">' + esc((cur.round!=null? cur.round+'회차' : '이 회차')) +
+      ' 는 아직 안 적었습니다. <b>고치기</b> 를 눌러 문자 본문을 넣으세요.</div>' +
+      '<div id="lesNote"></div>';
+    return;
+  }
+
   /* 미리보기는 **첫 학생 것**으로 채워 보여 준다. 빈 자리표시자가 그대로
      남아 있으면 여기서 보인다 — 붙여 넣고 나서 알면 이미 나간 뒤다. */
   const first = who[0] || null;
@@ -3286,6 +3326,9 @@ function openLessons(cls){
   LES_CLS = cls; LES_AT = 0; LES_EDIT = false;
   document.getElementById('lesName').textContent = '수업 문자 · ' + (cls.label || '');
   lesRender();
+  /* 회차 수는 DT 자료 목록에서 온다. 자료 탭에 한 번도 안 들어갔으면 아직
+     안 읽었다 — 창은 먼저 띄우고, 오면 칸을 세워 다시 그린다. */
+  if(!DT_MAT) dtMaterials().then(function(){ lesRender(); }).catch(function(){});
   const d = document.getElementById('les');
   if(!d.open) d.showModal();
 }
@@ -3320,8 +3363,7 @@ document.addEventListener('click', function(e){
   const act = b.dataset.les, all = lesAll(), cur = lesCur();
 
   if(act === 'new'){
-    const mine = lesFor(LES_CLS ? LES_CLS.course : '');
-    const next = mine.reduce(function(m, x){ return Math.max(m, Number(x.round)||0); }, 0) + 1;
+    const next = lesList().reduce(function(m, x){ return Math.max(m, Number(x.round)||0); }, 0) + 1;
     all.push({ course: LES_CLS ? LES_CLS.course : '', round: next, title: '', body: '' });
     if(!lesSave()){ note('lesNote', '이 브라우저에 저장하지 못했습니다.', true); return; }
     const l = lesList();
@@ -3337,15 +3379,18 @@ document.addEventListener('click', function(e){
     const v = document.getElementById('lesBodyIn').value;
     /* 화면에 보이는 목록은 걸러 낸 사본이라, 저장은 **원본에서 같은 것**을
        찾아 고친다. 사본을 고치면 다음에 열 때 그대로 돌아온다. */
+    const row = { course: cur.course, round: r === '' ? null : (Number(r) || null), title: t, body: v };
     const at = all.indexOf(cur);
-    if(at < 0){ note('lesNote', '고칠 회차를 못 찾았습니다 — 다시 열어 주세요.', true); return; }
-    all[at] = { course: cur.course, round: r === '' ? null : (Number(r) || null), title: t, body: v };
+    /* DT 회차로 세워 둔 빈 칸은 아직 담긴 것이 아니다 — 처음 적을 때 넣는다. */
+    if(at < 0) all.push(row); else all[at] = row;
     if(!lesSave()){ note('lesNote', '이 브라우저에 저장하지 못했습니다.', true); return; }
     LES_EDIT = false; lesRender(); return;
   }
   if(act === 'del'){
     if(!cur) return;
-    const at = all.indexOf(cur); if(at < 0) return;
+    const at = all.indexOf(cur);
+    /* 아직 안 적은 칸은 지울 것이 없다(DT 회차라 목록에는 계속 남는다). */
+    if(at < 0){ LES_EDIT = false; lesRender(); return; }
     all.splice(at, 1);
     if(!lesSave()){ note('lesNote', '이 브라우저에 저장하지 못했습니다.', true); return; }
     LES_AT = 0; LES_EDIT = false; lesRender(); return;

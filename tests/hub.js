@@ -1741,6 +1741,24 @@ console.log('\n── 수업 문자 ──');
   chk('원본에서 찾아 고친다', /const at = all\.indexOf\(cur\);/.test(body), true);
   /* 이 셸은 앱 자료를 쓰지 않는다. 회차 글은 앱 자료가 아니라 여기서 짓는 것이다. */
   chk('앱스크립트에 올리지 않는다', /lesSave[\s\S]{0,200}jsonp\(/.test(body), false);
+
+  /* '＋ 새 회차' 를 열여덟 번 누르게 하면 안 된다. DT 자료가 그 과목에 몇
+     회차가 있는지 이미 안다(화학Ⅰ 18 · 화학Ⅱ 18 · 일반화학 10). */
+  chk('DT 회차 수를 읽어 온다', /function lesRoundsOf/.test(body), true);
+  chk('회차 번호만 골라 차례로', /r\.round\) \|\| 0/.test(cut('lesRoundsOf')), true);
+  chk('그 수만큼 빈 칸을 세운다', /blank: true/.test(cut('lesList')), true);
+  /* 적어 둔 것이 이긴다 — 빈 칸이 내용을 덮으면 글이 사라진 것처럼 보인다. */
+  chk('적어 둔 것이 이긴다', /out\.push\(by\[n\] \|\| \{/.test(cut('lesList')), true);
+  /* DT 회차에 없는 것(손으로 더한 회차)도 사라지면 안 된다. */
+  chk('DT 에 없는 회차도 남는다', /mine\.forEach\(function\(x\)\{ const k = Number\(x\.round\); if\(!k \|\| by\[k\]\) out\.push\(x\); \}\);/.test(cut('lesList')), true);
+  /* 빈 칸은 아직 담긴 것이 아니다 — 처음 적을 때 넣어야 한다. */
+  chk('빈 칸은 처음 적을 때 담는다', /if\(at < 0\) all\.push\(row\); else all\[at\] = row;/.test(body), true);
+  chk('빈 칸은 지울 것이 없다', /아직 안 적은 칸은 지울 것이 없다/.test(SRC), true);
+  /* 몇 칸을 채웠는지 보여야 "어디까지 적었더라" 를 안 센다. */
+  chk('몇 칸 적었는지 적는다', /' 적음<\/span>'/.test(body), true);
+  chk('빈 칸이라고 알려 준다', /아직 안 적음/.test(body), true);
+  /* 회차 수는 DT 자료에서 온다 — 자료 탭에 안 들어갔으면 아직 안 읽었다. */
+  chk('창을 열 때 자료를 부른다', /if\(!DT_MAT\) dtMaterials\(\)\.then\(function\(\)\{ lesRender\(\); \}\)/.test(body), true);
 }
 
 console.log('\n── 모든 반 한눈에 ──');
