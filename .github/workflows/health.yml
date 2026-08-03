@@ -6,7 +6,12 @@
 # 인지 '고장' 인지 알 길이 없어 아무도 눈치채지 못했다.
 #
 # 사람이 화면을 봐야 아는 고장은 안 고쳐진다. 기계가 매일 본다.
-# 실패하면 깃허브가 저장소 주인에게 메일을 보낸다(별도 설정 필요 없음).
+#
+# ⚠ 다만 **매일 알리지는 않는다.** 매일 도는 검사가 매일 실패하면 매일 아침
+# 메일이 오는데, 이틀째부터 그 메일에는 새 소식이 없다. 새 소식 없는 알림이
+# 쌓이면 사람이 알림을 안 보게 되고, 그러면 진짜가 와도 안 본다.
+# 그래서 지난번 결과를 들고 있다가 **바뀐 것만** 빨간불로 낸다.
+# (자세한 규칙은 tools/health_check.js 머리에)
 name: 앱 창구 점검
 
 on:
@@ -20,8 +25,17 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - name: 창구가 대답하는지
-        run: node tools/health_check.js
+
+      # 지난번 점검 결과를 들고 온다. 열쇠에 run_id 를 넣어 **늘 새로 저장**되게
+      # 하고, restore-keys 로 가장 최근 것을 되찾는다(같은 열쇠면 저장을 건너뛴다).
+      # 이 파일이 없으면 '처음' 으로 쳐서 한 번은 더 알린다 — 조용히 넘기는
+      # 것보다 낫다.
+      - name: 지난번 점검 결과
+        uses: actions/cache@v4
+        with:
+          path: .health-state.json
+          key: health-state-${{ github.run_id }}
+          restore-keys: health-state-
 
       # ── 배포 열쇠가 아직 살아 있는지 ──────────────────────────
       # 2026-08-03 에 .gs 를 고쳐 병합했는데 자동 배포가 `invalid_grant` 로
@@ -31,22 +45,30 @@ jobs:
       # 배포는 .gs 가 바뀔 때만 돈다. 그래서 열쇠가 만료돼도 다음에 .gs 를
       # 고칠 때까지, 몇 주라도 아무도 모른다. 여기서 매일 한 번 확인한다.
       # (읽기만 한다 — clasp status 는 아무것도 올리지 않는다)
-      - name: 배포 열쇠가 살아 있는지
+      #
+      # ⚠ 여기서는 **판정만** 하고 빨간불은 안 낸다. 알릴지 말지는 아래 한
+      # 곳에서 정한다 — 두 곳에서 정하면 한쪽만 조용해진다.
+      - name: 배포 열쇠 판정
+        id: key
         env:
           CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
           GAS_SCRIPT_ID: ${{ secrets.GAS_SCRIPT_ID }}
         run: |
           if [ -z "$CLASPRC_JSON" ] || [ -z "$GAS_SCRIPT_ID" ]; then
-            echo "::warning title=배포 미설정::자동배포 시크릿이 없습니다 — .gs 를 고쳐도 반영되지 않습니다."
-            exit 0
+            echo "state=unset" >> "$GITHUB_OUTPUT"; exit 0
           fi
           npm i -g @google/clasp@2.4.2 >/dev/null 2>&1
           printf '%s' "$CLASPRC_JSON" > ~/.clasprc.json
+          printf '%s' "$CLASPRC_JSON" > .clasprc.json
           printf '{"scriptId":"%s","rootDir":"gas"}' "$GAS_SCRIPT_ID" > .clasp.json
           mkdir -p gas
           if clasp status >/dev/null 2>&1; then
-            echo "배포 열쇠 살아 있음"
+            echo "state=ok" >> "$GITHUB_OUTPUT"
           else
-            echo "::error title=배포 열쇠 만료::clasp 인증이 만료됐습니다(invalid_grant). .gs 를 고쳐도 앱스크립트에 안 올라갑니다 — AUTODEPLOY.md 의 CLASPRC_JSON 을 다시 발급하세요."
-            exit 1
+            echo "state=dead" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: 창구·열쇠 점검 (바뀐 것만 빨간불)
+        env:
+          DEPLOY_KEY: ${{ steps.key.outputs.state }}
+        run: node tools/health_check.js --state .health-state.json
