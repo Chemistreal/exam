@@ -258,7 +258,9 @@ def safety_gate(new):
     return b
 
 
-def merge_and_house(new, note=BATCH_NOTE):
+def merge_and_house(new, note=None):
+    if note is None:
+        note = BATCH_NOTE
     b = safety_gate(new)
     b += new
     json.dump(b, open(BANK, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
