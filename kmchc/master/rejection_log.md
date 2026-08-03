@@ -222,3 +222,4 @@
 - [T11 P11] …배치 요지·폐기 사유를 여기 적어 rejection_log 에 남긴다
 - [T11 P11] …배치 요지·폐기 사유를 여기 적어 rejection_log 에 남긴다
 - [T11 P11] …배치 요지·폐기 사유를 여기 적어 rejection_log 에 남긴다
+- [T11 P11] …배치 요지·폐기 사유를 여기 적어 rejection_log 에 남긴다
