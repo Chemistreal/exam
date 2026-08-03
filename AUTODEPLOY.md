@@ -110,17 +110,30 @@ clasp login
 
 한 번만 하면 됩니다. 20분쯤 걸립니다.
 
+구글 콘솔은 메뉴가 자주 바뀌고 계정마다 옛 화면·새 화면이 갈립니다.
+**메뉴를 찾지 말고 주소로 바로 가세요.** 위에서부터 차례로 누르면 됩니다.
+
+| 단계 | 주소 |
+|---|---|
+| ① 프로젝트 만들기 | https://console.cloud.google.com/projectcreate |
+| ② Apps Script API 켜기 | https://console.cloud.google.com/apis/library/script.googleapis.com |
+| ③ 동의 화면 → 프로덕션 | https://console.cloud.google.com/auth/audience |
+| ④ 클라이언트 만들기 | https://console.cloud.google.com/auth/clients |
+
+⚠ 어느 페이지든 **맨 위 파란 띠의 프로젝트 이름**이 ①에서 만든 것인지 먼저
+보세요. 다른 프로젝트가 골라져 있으면 엉뚱한 곳에 만들어집니다.
+
 ## 1. 프로젝트 만들고 Apps Script API 켜기
 
-1. https://console.cloud.google.com 접속 — **시트를 소유한 계정**으로.
-2. 위쪽 프로젝트 고르개 → **새 프로젝트** → 이름은 아무거나(예: `chemistreal-deploy`) → 만들기.
-3. 만든 프로젝트가 골라진 상태에서
+1. https://console.cloud.google.com/projectcreate — **시트를 소유한 계정**으로.
+   이름은 아무거나(예: `chemistreal-deploy`) → 만들기.
+2. 만든 프로젝트가 골라진 상태에서
    https://console.cloud.google.com/apis/library/script.googleapis.com → **사용(Enable)**.
 
 ## 2. 동의 화면 만들고 **프로덕션으로 게시**
 
-콘솔 왼쪽 메뉴 **API 및 서비스 → OAuth 동의 화면**
-(최신 콘솔에서는 **Google Auth Platform**, 주소는 https://console.cloud.google.com/auth/overview).
+https://console.cloud.google.com/auth/audience
+(옛 화면이면 **API 및 서비스 → OAuth 동의 화면**. 하는 일은 같습니다)
 
 1. **시작하기 / 브랜딩** — 앱 이름은 아무거나, 사용자 지원 이메일·개발자
    연락처에 **본인 메일**을 넣습니다.
@@ -139,12 +152,23 @@ clasp login
 
 ## 3. 데스크톱 클라이언트 만들기
 
-1. **API 및 서비스 → 사용자 인증 정보(Credentials)**
-   (또는 Google Auth Platform → **클라이언트**)
-2. **사용자 인증 정보 만들기 → OAuth 클라이언트 ID**
-3. 애플리케이션 유형 **데스크톱 앱** ← ⚠ 웹 애플리케이션이 아닙니다.
+https://console.cloud.google.com/auth/clients
+
+1. **+ 클라이언트 만들기** (파란 단추)
+2. 애플리케이션 유형 **데스크톱 앱** ← ⚠ 웹 애플리케이션이 아닙니다.
    clasp 는 데스크톱 클라이언트만 받습니다.
-4. 만들고 나면 **JSON 다운로드** — 파일 이름을 `creds.json` 으로 바꿔 둡니다.
+3. 이름은 아무거나(`clasp` 등) → **만들기**
+4. 뜨는 창이나 목록의 **다운로드 아이콘(↓) → JSON 다운로드** —
+   파일 이름을 `creds.json` 으로 바꿔 둡니다.
+
+다른 화면이 뜬다면:
+
+- **"OAuth 동의 화면을 먼저 구성하세요"** → 2번을 아직 안 한 것입니다.
+- 왼쪽 메뉴가 `개요 · 브랜딩 · 대상 · 클라이언트 · 데이터 액세스` 면 새 화면이고,
+  맞게 온 것입니다.
+- **옛 화면**이 뜨는 계정도 있습니다. 그때는 왼쪽 위 **☰ → API 및 서비스 →
+  사용자 인증 정보 → + 사용자 인증 정보 만들기 → OAuth 클라이언트 ID**.
+  하는 일은 똑같습니다.
 
 ## 4. 그 클라이언트로 로그인
 
