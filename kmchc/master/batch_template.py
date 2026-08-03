@@ -187,7 +187,8 @@ def verify(items):
     if rr.get(1) or rr.get(4):
         issues.append(('[배치]', f"G3c 정답이 최장 또는 최단인 문항 "
                                  f"{rr.get(1, 0) + rr.get(4, 0)}제 — G3 와 어긋남", '', ''))
-    if rl and max(rr.get(2, 0), rr.get(3, 0)) / len(rl) >= 0.80:
+    #   ★표본이 4 미만이면 비율을 재지 않는다★ — 두셋뿐일 때의 100% 는 우연이다.
+    if len(rl) >= 4 and max(rr.get(2, 0), rr.get(3, 0)) / len(rl) >= 0.80:
         issues.append(('[배치]', f"G3c 정답 길이순위 편중 {dict(sorted(rr.items()))} "
                                  f"— 두 갈래에서 한쪽 쏠림 {max(rr.values())}/{len(rl)}", '', ''))
 
