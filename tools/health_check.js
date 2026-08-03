@@ -35,6 +35,7 @@
 
    실행:  node tools/health_check.js [--state <파일>]
           DEPLOY_KEY=ok|dead|unset  배포 열쇠 판정을 밖에서 받는다(선택)
+          LIVE_SYNC=ok|drift        서비스되는 화면이 저장소와 같은지(선택)
    ============================================================ */
 'use strict';
 
@@ -177,6 +178,18 @@ if (require.main === module) (async () => {
     console.log('  · 배포 열쇠 — 시크릿 미설정(건너뜀)');
   } else if (key === 'ok') {
     console.log('  ✓ 배포 열쇠 · 살아 있음');
+  }
+
+  /* 서비스되는 화면이 저장소와 같은지도 밖(워크플로)에서 받는다.
+     "고쳤다" 와 "실제로 그렇게 돌고 있다" 가 어긋나면 그것도 고장이다 —
+     오히려 조용해서 더 오래 간다. */
+  const live = process.env.LIVE_SYNC || '';
+  if (live === 'drift') {
+    bad.push({ name: '배포 반영',
+      why: '서비스되는 화면이 저장소와 다르다 — 고친 것이 학부모 화면에 안 갔다' });
+    console.log('  ✗ 배포 반영 — 저장소와 다름');
+  } else if (live === 'ok') {
+    console.log('  ✓ 배포 반영 · 저장소와 같음');
   }
 
   const statePath = arg('--state');
