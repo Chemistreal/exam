@@ -57,9 +57,17 @@ def pnum_choice(s):
     return pnum(t)
 
 def ans_len_rank(it):
-    """정답 보기의 길이 순위(1=가장 긺). 길이 단서 편중 측정용."""
+    """정답 보기의 길이 순위(1=가장 긺). 길이 단서 편중 측정용.
+
+    ★정답과 길이가 같은 보기가 하나라도 있으면 None 을 돌려준다★(T13 P12 발견).
+    '몇 번째로 긴 것을 찍는다'가 단서가 되려면 그 순위가 보기 길이만으로 정해져야 하는데,
+    동률이 있으면 학생은 어느 쪽이 앞인지 알 수 없다. 종전에는 목록 차례로 순위를 매겨
+    ★길이가 넷 다 같은 문항까지 특정 순위로 집계★ 되었고, 그만큼 편중이 부풀려졌다."""
     L=[len(str(c)) for c in it['choices']]
-    return sorted(range(4), key=lambda i:-L[i]).index(it['answer'])+1
+    a=it['answer']
+    if L.count(L[a])>1:
+        return None
+    return sum(1 for x in L if x>L[a])+1
 
 def pnum(s):
     s=str(s).replace('\u2212','-')
@@ -158,18 +166,37 @@ for s,c in over: set_errs.append(f"G7 스킬 상한 초과 '{s}' {c}/20")
 # ★G3c 세트 수준: 정답 길이순위 편중 = '몇 번째로 긴 보기를 찍는다'가 통하는지
 # 문항 단위로는 전부 결백해도 집합에서 새는 유형이라 세트 검사로만 잡힌다.
 WINDOW=100
-win=bank[-WINDOW:] if n>=WINDOW else bank
-rank_c=Counter(ans_len_rank(it) for it in win)
-worst_r,worst_n=rank_c.most_common(1)[0]
-worst=worst_n/len(win)
-rank_line=" ".join(f"{r}위 {rank_c.get(r,0)/len(win):.0%}" for r in (1,2,3,4))
-if worst>=0.50:
-    set_errs.append(f"G3c 최근 {len(win)}제 정답 길이순위 {worst_r}위 {worst:.0%} — 길이로 정답을 찍을 수 있음")
+# ★창은 '최근 100제' 가 아니라 '순위가 정의되는 최근 100제' 다★(T13 P12).
+# 동률 문항을 창 안에 두면 표본이 열몇 제로 쪼그라들어 편중이 요동친다.
+ranked=[]
+win=[]
+for it in reversed(bank):
+    r=ans_len_rank(it)
+    if r is None:
+        continue
+    ranked.append(r); win.append(it)
+    if len(ranked)>=WINDOW:
+        break
+rank_c=Counter(ranked)
+nrk=len(ranked) or 1
+# ★기대값은 1/4 이 아니라 1/2 이다★(T13 P12 발견).
+# G3 가 '정답이 유일 최장/유일 최단' 을 막으므로, 순위가 정의되는 문항에서 정답은
+# 구조적으로 2위 아니면 3위뿐이다 — 실측으로도 은행 325제에서 1위·4위가 정확히 0% 다.
+# 종전 임계(0.35 ⚠ / 0.50 🔴)는 4분할 가정 위에 세운 값이라, 2분할 실질에서는
+# 균등(50:50)조차 경고로 잡는 눈금이었다. 2분할 기준으로 다시 잡는다.
+worst_r,worst_n=(rank_c.most_common(1)[0] if rank_c else (0,0))
+worst=worst_n/nrk
+edge=(rank_c.get(1,0)+rank_c.get(4,0))/nrk
+rank_line=" ".join(f"{r}위 {rank_c.get(r,0)/nrk:.0%}" for r in (1,2,3,4)) + f" (동률 제외 {nrk}/{len(bank)}제)"
+if worst>=0.80:
+    set_errs.append(f"G3c 최근 {nrk}제(동률 제외) 정답 길이순위 {worst_r}위 {worst:.0%} — 2위·3위 두 갈래에서 한쪽으로 쏠림")
+if edge>0:
+    set_errs.append(f"G3c 정답이 최장 또는 최단인 문항이 {rank_c.get(1,0)+rank_c.get(4,0)}제 — G3 와 어긋남")
 
 print(f"═══ 게이트 v2 · {n}제 ═══")
 print(f"  정답분포 {{ {' '.join(f'{CIR[k]}{adist.get(k,0)}' for k in range(4))} }} | 트랙 {dict(Counter(it['track'] for it in bank))} | 난이도 {dict(Counter(it['difficulty'] for it in bank))}")
 print(f"  정답 길이순위(최근 {len(win)}제) {rank_line}"
-      + ("  ⚠ 편중" if worst>=0.35 else "  ✓ 균등"))
+      + ("  ⚠ 편중(2분할 기준)" if worst>=0.70 else "  ✓ 균등(2분할 기준 50:50)"))
 if not fails and not set_errs:
     print(f"  ✅ 전 항목 통과 (형식+실체+세트)")
 else:

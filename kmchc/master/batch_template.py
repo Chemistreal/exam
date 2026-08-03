@@ -132,9 +132,15 @@ def g3b_applies(choices):
 
 
 def len_rank(it):
-    """정답 보기의 길이 순위(1=가장 긺)."""
+    """정답 보기의 길이 순위(1=가장 긺). ★동률이면 None★(T13 P12 발견).
+
+    정답과 길이가 같은 보기가 있으면 '몇 번째로 긴 것' 을 짚을 수 없으므로 순위가 없다.
+    종전에는 목록 차례로 순위를 매겨 길이가 넷 다 같은 문항까지 특정 순위로 집계됐다."""
     L = [len(str(c)) for c in it['choices']]
-    return sorted(range(4), key=lambda i: -L[i]).index(it['answer']) + 1
+    a = it['answer']
+    if L.count(L[a]) > 1:
+        return None
+    return sum(1 for v in L if v > L[a]) + 1
 
 
 def verify(items):
@@ -174,10 +180,16 @@ def verify(items):
                 if abs(val - float(re.match(r'^-?[\d.]+', ansc.strip()).group())) > 1e-9:
                     issues.append((it['id'], f"expr 불일치 {it['answer_expr']}={val} vs {ansc}", '', ''))
     # ★G3c 배치 수준 — 정답 길이순위가 한쪽에 몰리면 지식 없이 찍어서 맞힐 수 있다.
-    rr = Counter(len_rank(it) for it in items)
-    if items and max(rr.values()) > max(4, len(items) * 0.4):
+    #   ★기대값은 1/4 이 아니라 1/2 이다★ — G3 가 유일 최장·유일 최단을 막으므로
+    #   순위가 정의되는 문항에서 정답은 2위 아니면 3위뿐이다(은행 실측 1위·4위 0%).
+    rl = [r for it in items if (r := len_rank(it)) is not None]
+    rr = Counter(rl)
+    if rr.get(1) or rr.get(4):
+        issues.append(('[배치]', f"G3c 정답이 최장 또는 최단인 문항 "
+                                 f"{rr.get(1, 0) + rr.get(4, 0)}제 — G3 와 어긋남", '', ''))
+    if rl and max(rr.get(2, 0), rr.get(3, 0)) / len(rl) >= 0.80:
         issues.append(('[배치]', f"G3c 정답 길이순위 편중 {dict(sorted(rr.items()))} "
-                                 f"— 한 순위 {max(rr.values())}/{len(items)}", '', ''))
+                                 f"— 두 갈래에서 한쪽 쏠림 {max(rr.values())}/{len(rl)}", '', ''))
 
     # ★G3d 배치 수준 — 정답 ★차례★ 가 되풀이되면 개수가 아무리 고르게 맞아도 새어 나간다.
     #   T12 P14 가 ③①④② ③①④② ③① 로 나와 네 문항만 풀면 나머지 여섯이 예측됐다.
@@ -225,7 +237,8 @@ def verify(items):
 
     pp = Counter(it['answer'] for it in items)
     print(f"위치: ①{pp[0]} ②{pp[1]} ③{pp[2]} ④{pp[3]}"
-          f" | 길이순위: " + " ".join(f"{r}위{rr.get(r,0)}" for r in (1, 2, 3, 4))
+          f" | 길이순위(동률 {len(items) - len(rl)}제 제외): "
+          + " ".join(f"{r}위{rr.get(r, 0)}" for r in (2, 3))
           + f" | 산포 평균 {sum(spread(i['choices']) for i in items)/max(1,len(items)):.2f}")
     for i in issues:
         print(f"  ⚠ {i[0]}: {i[1]} {i[2] if i[2] else ''} {i[3] if i[3] != '' else ''}")
