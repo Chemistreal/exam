@@ -232,8 +232,16 @@ console.log('\n── 회차마다 설정이 붙어 있다 ──');
   const over = exams.filter(e => gas.EXAM_COHORT[e.title].base.some(v => v > e.nQ)).map(e => e.id);
   chk('기준 점수가 문항 수를 넘지 않는다', over, []);
 
+  /* ⚠ 기준 기록에는 **exams.json 에 없는 회차**가 섞일 수 있다(자동 갱신이
+     엑셀에서 통째로 긁어 온다). 그것을 .gs 표가 안 실은 것은 표의 잘못이
+     아니다 — 앱이 모르는 시험이라 실을 자리가 없다.
+     그래서 견주는 대상은 **앱이 아는 회차** 로 좁히고, 남는 것은 따로 말한다.
+     (2026-08 자동 갱신이 j0·kmchc-2018 을 들여왔는데 둘 다 시험 목록에 없다.) */
+  const known = Object.keys(baseline).filter(id => exams.some(e => e.id === id));
+  const orphan = Object.keys(baseline).filter(id => !exams.some(e => e.id === id));
   const withBase = exams.filter(e => gas.EXAM_COHORT[e.title].base.length).length;
-  chk('기준 기록이 실린 회차 수', withBase, Object.keys(baseline).length);
+  chk('앱이 아는 회차는 기준 기록이 다 실렸다', withBase, known.length);
+  if (orphan.length) console.log('  ※ 시험 목록에 없는 기준 기록 ' + orphan.length + '개: ' + orphan.join(', '));
 }
 
 console.log('\n── 제출이 없는 회차도 훑는다 ──');

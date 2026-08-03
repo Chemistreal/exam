@@ -4076,6 +4076,10 @@ function buildBook(exam, selv, cs, correct, total, W, wrong, dh, answers){
 
   // ── 01 진단 개요 ──
   var lead;
+  /* ⚖ 프레이밍은 선생님이 정했다(2026-08): **파이널은 틀린 문항 수**로 말한다.
+     DT 성적표는 반대로 '바로잡은 개념' 으로 말하는데, 갈린 것이 아니라 각자
+     맞는 말이다 — 파이널은 수상권까지 몇 문항인지가 곧 목표이고, DT 는 주마다
+     쌓이는 회복을 보여 주는 자리다. 한쪽으로 모으지 않는다. */
   if(aw.inA){ lead='<b>'+esc2(nm||'학생')+'</b> 학생은 이번 「'+esc2(exam.title)+'」에서 '+total+'문항 중 <b>'+correct+'문항</b>을 맞혀 원점수 <b>'+rs.score+'점</b>을 기록했습니다. 틀린 문항 '+W+'개로 현재 <b>'+esc2(aw.name)+'권</b>'+(aw.nextTier&&aw.reach?(', '+aw.nextTier+'권까지 '+aw.gap+'문항을 남겨두고 있습니다.'):'에 위치합니다.'); }
   else { var need=Math.max(1,W-(cut[4]||18)); lead='<b>'+esc2(nm||'학생')+'</b> 학생은 이번 「'+esc2(exam.title)+'」에서 '+total+'문항 중 <b>'+correct+'문항</b>을 맞혀 원점수 <b>'+rs.score+'점</b>을 기록했습니다. 장려상까지 <b>'+need+'문항</b> — 아래에서 짚은 취약 개념을 회복하면 수상권 진입이 가능합니다.'; }
   H+='<div class="bk-sec"><div class="bk-kicker">Overview</div><div class="bk-h"><span class="no">'+no()+'</span><span class="tt">진단 개요</span></div>'

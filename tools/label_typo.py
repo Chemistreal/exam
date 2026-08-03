@@ -19,11 +19,15 @@
 ⚠ 자동으로 고치지 않는다. 후보의 대부분은 **둘 다 맞는 말**이다
 (중합반응/중화반응 · 원자오비탈/분자오비탈 · 녹는점/끓는점).
 
+선생님이 남은 열한 개를 실제 문항과 대조해 **전부 오타가 아니라고** 판정했다
+(2026-08). 그러니 이 목록이 비지 않는 것이 정상이다 — 새로 뜬 이름만 보면 된다.
+
     실행:  python3 tools/label_typo.py
 """
 import collections
 import json
 import os
+import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -42,9 +46,18 @@ def labels():
     return out
 
 
+CODE = re.compile(r'^[A-Za-z]{1,4}[-_ ]?\d')   # CH1-048 · GC 12 같은 코드
+
+
 def one_off(a, b):
     """길이가 같고 딱 한 글자만 다르다."""
     return len(a) == len(b) and sum(1 for x, y in zip(a, b) if x != y) == 1
+
+
+def is_name(t):
+    """이름만 본다. 코드는 한 글자 차이가 당연해서 후보가 폭발한다 —
+    DT 개념 코드로 재어 보니 202개가 나왔고 전부 거짓이었다."""
+    return bool(t) and not CODE.match(t)
 
 
 def main():
@@ -52,7 +65,7 @@ def main():
     names = list(lab)
     hits = []
     for a in names:
-        if lab[a] > RARE_MAX:
+        if lab[a] > RARE_MAX or not is_name(a):
             continue
         for b in names:
             if a is not b and one_off(a, b) and lab[b] >= lab[a] * TIMES:
