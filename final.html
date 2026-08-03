@@ -1427,6 +1427,14 @@ function examAssetsHTML(exam){
 }
 function openExam(id){
   fShared=false; cur=FINAL_EXAMS.find(e=>e.id===id); sel={};
+  /* ── 어느 화면에서 열든 같은 인원을 본다 ────────────────────────────
+     예전에는 모집단이 "이 브라우저에 채점해 둔 만큼" 이었다. 학교 컴퓨터와
+     집 노트북이 서로 다른 숫자를 냈고, 학부모에게 나간 링크는 만든 순간에
+     굳었다. 시트가 지금 몇 명인지 알고 있으니 열 때 한 번 물어 그것을 쓴다.
+
+     화면은 먼저 그린다 — 창구를 기다리느라 성적표가 안 뜨면 그게 더 나쁘다.
+     오면 그 자리에서 다시 그린다. 못 오면 예전대로 이 브라우저 기록을 쓴다. */
+  if(id) loadLiveCohort(id, function(){ try{ scoreAuto(); }catch(e){} });
   /* 전원정답 문항도 문항 수에 든다. 답을 쓰지 않아도 맞은 것으로 세므로
      분모에서 뺄 이유가 없다. */
   const ac=allcSet(cur); const total=cur.nQ; const acList=[...ac].sort((a,b)=>a-b);
@@ -1556,7 +1564,7 @@ function baselineTotals(examId){
 
    못 받아 오면 링크에 실린 것을 그대로 쓴다 — 숫자가 조금 낡을 뿐,
    빈칸이 되지는 않는다. */
-var LIVE_POOL=null;
+var LIVE_POOL=null, LIVE_ASK={};
 function liveTotals(examId){
   if(!LIVE_POOL || LIVE_POOL.id!==examId || !LIVE_POOL.hist) return null;
   var out=[]; for(var k in LIVE_POOL.hist){ var s=+k, c=LIVE_POOL.hist[k]|0;
@@ -1565,6 +1573,10 @@ function liveTotals(examId){
 }
 function loadLiveCohort(examId, then){
   if(!examId) return;
+  /* 한 회차에 한 번만 묻는다. 앱스크립트는 실행을 한 줄로 세우므로, 열 때마다
+     또 부르면 채점하는 손이 그만큼 느려진다. */
+  if(LIVE_ASK[examId]) return;
+  LIVE_ASK[examId]=1;
   var cb='__lc'+Date.now();
   var t=setTimeout(function(){ cleanup(); }, 12000);
   function cleanup(){ clearTimeout(t); try{ delete window[cb]; }catch(e){ window[cb]=undefined; }
@@ -3541,6 +3553,17 @@ function saveToSheetFinal(cur,sel,correct,total,W,cs,nm,sch,grd,pct){
   if(!(nm||sch)) return;
   postToSheet(sheetPayloadFor(cur,sel,cs,nm,sch,grd));
   fToast('구글 시트로 전송했습니다 · '+(nm||sch));
+  /* 방금 한 명이 늘었다. 들고 있던 인원은 이미 낡았으니 버리고 다시 묻는다 —
+     안 그러면 다음 학생 성적표에 **한 명 적은** 분모가 찍힌다.
+     시트가 줄을 받아 넣을 틈을 조금 준다(no-cors 라 끝난 때를 알 수 없다). */
+  try{
+    var _eid=cur&&cur.id;
+    if(_eid) setTimeout(function(){
+      LIVE_ASK[_eid]=0;
+      if(LIVE_POOL&&LIVE_POOL.id===_eid) LIVE_POOL=null;
+      loadLiveCohort(_eid, function(){ try{ scoreAuto(); }catch(e){} });
+    }, 2500);
+  }catch(e){}
 }
 function nextGuideCta(nm, exam, wrong){
   try{

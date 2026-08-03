@@ -220,6 +220,36 @@ console.log('\n── 공유 링크가 지금 인원을 본다 ──');
 
   ctx.LIVE_POOL = null; ctx.BASELINE = null;
   chk('빈 대답은 안 쓴다', ctx.rankPool(ex, cs).N, 3);
+
+  /* 링크만이 아니라 **어느 화면에서 열든** 같은 인원을 봐야 한다. 학교
+     컴퓨터와 집 노트북이 서로 다른 숫자를 내던 것도 같은 뿌리다. */
+  chk('회차를 열 때 물어 본다', /if\(id\) loadLiveCohort\(id,/.test(SRC), true);
+  chk('공유 링크에서도 물어 본다', /loadLiveCohort\(ex\.id,/.test(SRC), true);
+  /* 앱스크립트는 실행을 한 줄로 세운다 — 열 때마다 또 부르면 손이 느려진다. */
+  chk('한 회차에 한 번만 묻는다', /if\(LIVE_ASK\[examId\]\) return;/.test(SRC), true);
+  /* 한 명 채점하면 인원이 늘었다. 안 버리면 다음 학생 성적표에 한 명 적은
+     분모가 찍힌다. */
+  chk('채점해 보내면 다시 묻는다',
+      /LIVE_ASK\[_eid\]=0;[\s\S]{0,200}loadLiveCohort\(_eid/.test(SRC), true);
+  /* 나가는 것은 사람 수뿐이어야 한다 — 이름이 실리면 학부모가 남의 명단을 본다. */
+  chk('이름을 부르는 창구가 아니다', /action=cohort/.test(SRC) && /action=all[^']*'\+/.test(SRC), false);
+}
+
+/* 표에 없는 회차를 못 걸러 내면, 모든 회차 사람을 한 회차 모집단으로 센다.
+   지금 시트로 치면 분모가 8이 아니라 148이 되고 등수가 통째로 틀린다. */
+console.log('\n── 모르는 회차는 안 센다 ──');
+{
+  const gas = fs.readFileSync(path.join(ROOT, 'AppsScript-Code.gs'), 'utf8');
+  const fn = gas.slice(gas.indexOf('function cohortOf_'));
+  chk('창구가 있다', /function cohortOf_/.test(gas), true);
+  chk('못 찾으면 빈 대답', /if \(!want\) return _jsonOut_/.test(fn.slice(0, 1200)), true);
+  chk('찾은 뒤에는 반드시 거른다', /if \(want\.indexOf\(String\(r\[0\]\)\) < 0\) continue;/.test(fn), true);
+  /* 검사가 낸 줄(localhost)은 학생이 아니다 — 시트에서 지우기 전에도 안 센다. */
+  chk('검사가 낸 줄은 안 센다', /localhost\/i\.test\(String\(r\[2\]/.test(fn), true);
+  /* 이름·학교·답안이 나가면 학부모 브라우저가 남의 명단을 갖게 된다. */
+  const out = fn.slice(0, fn.indexOf('}\n', fn.indexOf('_jsonOut_(JSON.stringify({ ok: true, exam: examId, hist')));
+  chk('내보내는 것은 사람 수뿐',
+      /name|school|answers|이름/.test(fn.match(/JSON\.stringify\(\{ ok: true, exam: examId, hist: hist[^)]*\)/)?.[0] || ''), false);
 }
 
 console.log(fail ? `\n${fail}개 실패` : '\n모두 통과');
