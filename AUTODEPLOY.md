@@ -99,6 +99,16 @@ clasp login
 
 # 매주 만료되지 않게 (내 OAuth 클라이언트로 갈아타기)
 
+> ⚠ **먼저 읽어 보세요 — 이게 정말 필요한지.**
+> 이 절차는 "동의 화면이 테스트면 새로고침 토큰이 7일만 산다" 는 규칙을
+> 겨냥합니다. 그런데 실제로 죽은 열쇠는 **7월 20일부터 8월 3일까지 14일**을
+> 살았습니다. 7일 만료라면 안 맞는 숫자입니다 — 이번에 죽은 진짜 이유가
+> 동의 화면 상태가 아닐 수 있습니다(토큰 발급 수 초과·구글의 회수 등).
+>
+> 어차피 **매일 아침 열쇠 점검**이 돌아서 죽으면 그날 알게 되고, 다시 넣는
+> 데 2분입니다. 아래를 하다 막히면 **멈추셔도 손해가 없습니다** —
+> 위의 `clasp logout` → `clasp login` → 시크릿 갈아 끼우기로 돌아가면 됩니다.
+
 토큰의 수명은 **그 토큰이 붙은 OAuth 클라이언트의 동의 화면 상태**가 정합니다.
 동의 화면이 **'테스트'** 면 새로고침 토큰이 **7일**만 살고, **'프로덕션'** 이면
 쓰는 동안 계속 삽니다.
@@ -110,17 +120,30 @@ clasp login
 
 한 번만 하면 됩니다. 20분쯤 걸립니다.
 
+구글 콘솔은 메뉴가 자주 바뀌고 계정마다 옛 화면·새 화면이 갈립니다.
+**메뉴를 찾지 말고 주소로 바로 가세요.** 위에서부터 차례로 누르면 됩니다.
+
+| 단계 | 주소 |
+|---|---|
+| ① 프로젝트 만들기 | https://console.cloud.google.com/projectcreate |
+| ② Apps Script API 켜기 | https://console.cloud.google.com/apis/library/script.googleapis.com |
+| ③ 동의 화면 → 프로덕션 | https://console.cloud.google.com/auth/audience |
+| ④ 클라이언트 만들기 | https://console.cloud.google.com/auth/clients |
+
+⚠ 어느 페이지든 **맨 위 파란 띠의 프로젝트 이름**이 ①에서 만든 것인지 먼저
+보세요. 다른 프로젝트가 골라져 있으면 엉뚱한 곳에 만들어집니다.
+
 ## 1. 프로젝트 만들고 Apps Script API 켜기
 
-1. https://console.cloud.google.com 접속 — **시트를 소유한 계정**으로.
-2. 위쪽 프로젝트 고르개 → **새 프로젝트** → 이름은 아무거나(예: `chemistreal-deploy`) → 만들기.
-3. 만든 프로젝트가 골라진 상태에서
+1. https://console.cloud.google.com/projectcreate — **시트를 소유한 계정**으로.
+   이름은 아무거나(예: `chemistreal-deploy`) → 만들기.
+2. 만든 프로젝트가 골라진 상태에서
    https://console.cloud.google.com/apis/library/script.googleapis.com → **사용(Enable)**.
 
 ## 2. 동의 화면 만들고 **프로덕션으로 게시**
 
-콘솔 왼쪽 메뉴 **API 및 서비스 → OAuth 동의 화면**
-(최신 콘솔에서는 **Google Auth Platform**, 주소는 https://console.cloud.google.com/auth/overview).
+https://console.cloud.google.com/auth/audience
+(옛 화면이면 **API 및 서비스 → OAuth 동의 화면**. 하는 일은 같습니다)
 
 1. **시작하기 / 브랜딩** — 앱 이름은 아무거나, 사용자 지원 이메일·개발자
    연락처에 **본인 메일**을 넣습니다.
@@ -139,14 +162,49 @@ clasp login
 
 ## 3. 데스크톱 클라이언트 만들기
 
-1. **API 및 서비스 → 사용자 인증 정보(Credentials)**
-   (또는 Google Auth Platform → **클라이언트**)
-2. **사용자 인증 정보 만들기 → OAuth 클라이언트 ID**
-3. 애플리케이션 유형 **데스크톱 앱** ← ⚠ 웹 애플리케이션이 아닙니다.
+https://console.cloud.google.com/auth/clients
+
+1. **+ 클라이언트 만들기** (파란 단추)
+2. 애플리케이션 유형 **데스크톱 앱** ← ⚠ 웹 애플리케이션이 아닙니다.
    clasp 는 데스크톱 클라이언트만 받습니다.
-4. 만들고 나면 **JSON 다운로드** — 파일 이름을 `creds.json` 으로 바꿔 둡니다.
+3. 이름은 아무거나(`clasp` 등) → **만들기**
+4. 뜨는 창이나 목록의 **다운로드 아이콘(↓) → JSON 다운로드** —
+   파일 이름을 `creds.json` 으로 바꿔 둡니다.
+
+다른 화면이 뜬다면:
+
+- **"OAuth 동의 화면을 먼저 구성하세요"** → 2번을 아직 안 한 것입니다.
+- 왼쪽 메뉴가 `개요 · 브랜딩 · 대상 · 클라이언트 · 데이터 액세스` 면 새 화면이고,
+  맞게 온 것입니다.
+- **옛 화면**이 뜨는 계정도 있습니다. 그때는 왼쪽 위 **☰ → API 및 서비스 →
+  사용자 인증 정보 → + 사용자 인증 정보 만들기 → OAuth 클라이언트 ID**.
+  하는 일은 똑같습니다.
 
 ## 4. 그 클라이언트로 로그인
+
+⚠ clasp 2.x 는 `login --creds` 를 할 때 **지금 폴더에 `.clasp.json`(프로젝트
+파일)이 있어야** 넘어갑니다. 로그인과 상관없는 요구인데 clasp 쪽 버그입니다.
+없으면 이렇게 멈춥니다:
+
+```
+No valid C:\Users\...\.clasp.json project file.
+You may need to `create` or `clone` a project first.
+```
+
+그래서 먼저 만들어 둡니다. 스크립트 ID 는 Apps Script 편집기 →
+**⚙ 프로젝트 설정 → 스크립트 ID**.
+
+```powershell
+cd $env:USERPROFILE
+'{"scriptId":"여기에_스크립트_ID"}' | Set-Content .clasp.json -Encoding ascii
+```
+
+> `-Encoding ascii` 인 이유: 파워셸 기본 utf8 은 파일 앞에 보이지 않는
+> 글자(BOM)를 넣는데, 그러면 clasp 가 JSON 을 못 읽습니다.
+
+Mac/리눅스면 `echo '{"scriptId":"..."}' > .clasp.json` 입니다.
+
+그다음:
 
 ```bash
 clasp logout                        # 옛 열쇠를 먼저 지웁니다

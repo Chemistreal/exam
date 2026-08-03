@@ -35,6 +35,14 @@ on:
     - cron: '17 21 * * *'     # 매일 06:17 KST (창구 점검보다 조금 먼저)
   workflow_dispatch:
 
+# 한 브랜치에서 앞 검사가 끝나기도 전에 다음 커밋이 오면, 앞 것은 이미 낡은
+# 답이다. 그런데 끝까지 돌아 실패하면 **메일은 그대로 간다.** 취소된 검사는
+# 메일을 안 보낸다 — 낡은 답을 지우면 그만큼 조용해지고 시간도 아낀다.
+# main 에서는 안 지운다. 거기서 취소하면 어느 커밋도 검사받지 않은 채 남는다.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -184,6 +192,10 @@ jobs:
         run: node tests/retest-sheet.js
       - name: 명단 관리 (이름 고침 · 합치기)
         run: node tests/roster-admin.js
+      # 매일 도는 점검이 매일 같은 실패를 알리면, 사람이 알림을 안 보게 된다.
+      # 알릴 것과 안 알릴 것을 가르는 규칙을 여기서 잰다(창구는 안 두드린다).
+      - name: 점검 알림 (같은 소식을 두 번 말하지 않는다)
+        run: node tests/health-quiet.js
       - name: 공유 링크 (답안 · 또래 통계)
         run: node tests/share-link.js
 
