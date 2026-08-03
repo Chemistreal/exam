@@ -65,6 +65,8 @@ const ctx = { console, Date };
 vm.createContext(ctx);
 vm.runInContext([
   cut('normName'), cut('normSchool'), cut('normGrade'),
+  ((SRC.match(/^const CHO = \[[\s\S]*?\];$/m) || [''])[0]).replace(/^const /, 'var '),
+  cut('choOf'), cut('isCho'), cut('koHit'),
   cut('unifyKey'), cut('looseKey'), cut('mergeRosters'),
   cut('allRounds'), cut('misTally'),
   /* 기간 기준은 소스에서 그대로 읽는다. 여기 손으로 적어 두면 소스만 바뀌었을 때
@@ -195,11 +197,16 @@ console.log('\n── 셸이 남의 데이터를 건드리지 않는다 ──')
                 물어 화면이 두 겹으로 잠긴다.
        VIEW_KEY 저장된 보기(주소 + 이름). 통째로 지워도 잃는 것이 없다 —
                 세 번 눌러 다시 만든다.
+       PAL_KEY  빠른 이동에서 방금 본 것(갈래 + 이름 여덟 개). 이것도 취향이다 —
+                지워도 다음에 한 번 더 치면 된다. 학생 이름이 들어가지만 명단은
+                이미 이 브라우저가 들고 있는 것이고, 여기 적힌 이름은 열 때
+                지금 명단에서 되찾아야만 줄이 된다(없으면 사라진다).
 
      앱 자료(파이널 기록·DT 명단)를 쓰는 것은 여전히 금지다. 아래 검사들이 본다. */
-  chk('쓰는 곳은 적어 둔 두 칸뿐',
+  chk('쓰는 곳은 적어 둔 세 칸뿐',
       (CODE_ONLY.match(/localStorage\.setItem\(\s*([A-Za-z_$][\w$]*)/g) || []),
-      ['localStorage.setItem(KEY', 'localStorage.setItem(VIEW_KEY']);
+      ['localStorage.setItem(KEY', 'localStorage.setItem(VIEW_KEY',
+       'localStorage.setItem(PAL_KEY']);
   chk('그 칸은 파이널과 같은 칸', /var KEY = 'chemistreal:gate'/.test(body), true);
   /* 셸이 쓰는 칸은 셸 것임이 이름에서 보여야 한다 — 앱 칸을 덮어쓰면
      앱 하나가 깨질 때 원인을 셸에서도 찾아야 한다. */
@@ -1623,10 +1630,40 @@ console.log('\n── 어디 있더라 (Cmd+K) ──');
   /* 팔레트를 열 때마다 창구를 두드리면 앱스크립트가 줄을 선다. */
   chk('창구를 새로 두드리지 않는다',
       /readOnce|jsonp\(|dtRoster\(|kmRoster\(/.test(cut('palSources')), false);
+  /* 빈 칸으로 열었을 때 탭만 나오면 팔레트를 열 이유가 없다(탭은 숫자키 한 번).
+     방금 본 학생·반·회차가 먼저 와야 한다. */
+  chk('방금 본 것을 적어 둔다', /PAL_KEY|palRemember/.test(body), true);
+  chk('고르면 적는다', /palRemember\(r\);/.test(cut('palRun')), true);
+  chk('탭은 안 적는다', /kind === '화면'/.test(cut('palRemember')), true);
+  chk('빈 칸이면 방금 본 것이 먼저', /rec\.concat\(/.test(cut('renderPal')), true);
+  /* 이름만 적어 두고 열 때 되찾는다 — 명단에서 빠진 학생이 남으면 안 된다. */
+  chk('없어진 줄은 저절로 사라진다', /if\(hit\) out\.push\(hit\);/.test(cut('palRecentRows')), true);
   const kb = body.slice(body.indexOf("document.addEventListener('keydown'"));
   chk('입력 중에도 열린다', kb.indexOf('openPal();') < kb.indexOf('if(typing) return;'), true);
   chk('위아래로 고르고 엔터로 연다',
       /ArrowDown/.test(body) && /ArrowUp/.test(body) && /palRun\(PAL_AT\)/.test(body), true);
+}
+
+/* 명단이 300명을 넘는다. 이름을 통째로 치는 것과 초성 세 번은 매번 다르다. */
+console.log('\n── 초성으로 찾는다 ──');
+{
+  chk('초성을 뽑는다', [ctx.choOf('김'), ctx.choOf('유'), ctx.choOf('정')], ['ㄱ','ㅇ','ㅈ']);
+  chk('한글이 아니면 빈칸', [ctx.choOf('A'), ctx.choOf('7'), ctx.choOf('')], ['','','']);
+  chk('겹자음도 제자리', [ctx.choOf('까'), ctx.choOf('빵')], ['ㄲ','ㅃ']);
+  chk('초성 셋으로 찾는다', ctx.koHit('김유정', 'ㄱㅇㅈ'), true);
+  chk('순서가 다르면 안 걸린다', ctx.koHit('김유정', 'ㅈㅇㄱ'), false);
+  chk('가운데부터도 걸린다', ctx.koHit('남궁유정', 'ㅇㅈ'), true);
+  chk('조합 중인 글자도 걸린다', ctx.koHit('김준', '김ㅈ'), true);
+  chk('통짜 찾기는 그대로', [ctx.koHit('김유정','김유'), ctx.koHit('김유정','박')], [true, false]);
+  chk('빈 물음은 다 걸린다', ctx.koHit('김유정', ''), true);
+  /* 모음만 친 것은 초성이 아니다. 'ㅏ' 가 아무 글자에나 붙으면 목록이 안 줄어든다. */
+  chk('모음은 초성으로 안 본다', ctx.koHit('김유정', 'ㅏ'), false);
+  chk('물음이 이름보다 길면 안 걸린다', ctx.koHit('김유', 'ㄱㅇㅈㅎ'), false);
+  chk('학교도 초성으로', ctx.koHit(ctx.normSchool('휘문중학교'), 'ㅎㅁㅈ'), true);
+  /* 세 찾기 칸이 모두 같은 자를 쓴다 — 한 곳만 고치면 나머지가 뒤처진다. */
+  const body = SRC.split('<script>')[1] || '';
+  chk('학생·바로 찾기·빠른 이동이 모두 쓴다',
+      (body.match(/koHit\(/g) || []).length >= 6, true);
 }
 
 console.log('\n── 모든 반 한눈에 ──');

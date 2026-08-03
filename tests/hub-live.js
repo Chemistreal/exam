@@ -1264,6 +1264,38 @@ const chk = (n, got, want) => {
     await p4.close();
   }
 
+  /* 한글 자판에서 자음만 치면 낱자가 남는다. 순수 함수는 tests/hub.js 가 재고,
+     여기서는 **화면이 실제로 줄어드는지**를 본다 — 함수가 맞아도 찾기 칸이
+     그 함수를 안 쓰면 아무것도 안 달라진다(예전에 세 칸 중 한 곳만 고쳤다). */
+  console.log('\n── 초성으로 찾으면 목록이 줄어든다 ──');
+  {
+    const p5 = await ctx.newPage();
+    await p5.goto(`http://localhost:${PORT}/hub.html`, { waitUntil: 'domcontentloaded' });
+    await p5.waitForTimeout(900);
+    await p5.evaluate(() => show('stu'));
+    await p5.waitForTimeout(300);
+    const named = async () => p5.evaluate(() =>
+      [].map.call(document.querySelectorAll('#stuList .row .nm'), e => e.textContent));
+    console.log('  명단 ' + JSON.stringify(await named()));
+    chk('명단에 이름이 있다', (await named()).length > 1, true);
+    /* '이도현' 의 초성. 한글 IME 없이도 낱자는 그대로 넣을 수 있다.
+       ⚠ 앞선 검사들이 명단을 바꿔 놓는다 — 여기 있는 이름으로 골라야 한다. */
+    await p5.evaluate(() => {
+      const q = document.getElementById('q');
+      q.value = 'ㅇㄷㅎ'; q.dispatchEvent(new Event('input'));
+    });
+    await p5.waitForTimeout(200);
+    chk('초성만 쳐도 그 학생이 남는다', await named(), ['이도현']);
+    /* 조합 중인 글자('김ㅈ')에서 목록이 비지 않아야 한다 — 치는 도중의 한 순간이다. */
+    await p5.evaluate(() => {
+      const q = document.getElementById('q');
+      q.value = '김ㅈ'; q.dispatchEvent(new Event('input'));
+    });
+    await p5.waitForTimeout(200);
+    chk('치는 도중에도 안 비워진다', (await named()).indexOf('김지성') >= 0, true);
+    await p5.close();
+  }
+
   chk('콘솔에 예외가 없다', errs.filter(e => !/Failed to fetch|ERR_/.test(e)), []);
   await b.close();
   console.log(fail ? `\n${fail}개 실패` : '\n모두 통과');

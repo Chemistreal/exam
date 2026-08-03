@@ -784,6 +784,45 @@ const APPS = {
    따지지 않는다 — 한쪽에만 적혀 있다고 다른 사람으로 갈라놓으면
    명단이 두 배가 된다. */
 function normName(s){ return String(s==null?'':s).replace(/\s+/g,'').trim(); }
+
+/* ── 초성으로도 찾는다 ───────────────────────────────────────────────
+   한글 자판에서 자음만 치면 낱자가 그대로 남는다 — '김유정' 을 찾으려고
+   'ㄱㅇㅈ' 세 번만 치는 것이 한국에서 이름을 찾는 보통의 방법이다.
+   명단이 300명이 넘는데 여태 셸의 세 찾기 칸(학생·바로 찾기·빠른 이동)은
+   전부 통짜 비교라, 초성을 치면 **찾는 학생이 없습니다** 가 떴다.
+
+   덤이 하나 더 있다. 한글은 치는 도중에 글자가 완성되지 않는다 —
+   '김준' 을 치는 중간에 '김ㅈ' 이 한 번 지나간다. 통짜 비교로는 그 순간
+   목록이 텅 비었다가 다시 찬다. 낱자를 초성으로 보면 안 비워진다.
+
+   모음(ㅏ·ㅗ…)은 초성이 될 수 없으니 낱자로 쳐 주지 않는다. */
+const CHO = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ',
+             'ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+function choOf(ch){
+  const c = String(ch||'').charCodeAt(0);
+  return (c >= 0xAC00 && c <= 0xD7A3) ? CHO[Math.floor((c - 0xAC00) / 588)] : '';
+}
+function isCho(ch){ return CHO.indexOf(ch) >= 0; }
+/* 찾는 말이 통짜로 들어 있거나(김유 → 김유정), 초성 자리가 차례로 맞으면
+   찾은 것으로 본다. 섞여도 된다: '김ㅈ' 은 김준·김진에 붙는다. */
+function koHit(hay, needle){
+  hay = normName(hay); needle = normName(needle);
+  if(!needle) return true;
+  if(hay.indexOf(needle) >= 0) return true;
+  /* 낱자가 하나도 없으면 위 통짜 비교가 전부다 — 더 볼 것이 없다. */
+  if(!Array.prototype.some.call(needle, isCho)) return false;
+  for(let s = 0; s + needle.length <= hay.length; s++){
+    let ok = true;
+    for(let k = 0; k < needle.length; k++){
+      const n = needle[k], h = hay[s + k];
+      if(n === h) continue;
+      if(isCho(n) && choOf(h) === n) continue;
+      ok = false; break;
+    }
+    if(ok) return true;
+  }
+  return false;
+}
 function normSchool(s){
   return String(s==null?'':s).replace(/\s+/g,'')
     .replace(/(중학교|고등학교|초등학교)$/,m=>m[0])   // 휘문중학교 → 휘문중
@@ -2344,7 +2383,7 @@ function renderQuick(){
   const q = normName(document.getElementById('qq').value||'');
   const el = document.getElementById('qqList');
   if(!q){ el.hidden = true; el.innerHTML=''; return; }
-  const rows = ROSTER.filter(function(r){ return normName(r.name).indexOf(q)>=0; }).slice(0,8);
+  const rows = ROSTER.filter(function(r){ return koHit(r.name, q); }).slice(0,8);
   el.hidden = false;
   if(!rows.length){ el.innerHTML = '<div class="spin" style="padding:14px 16px">찾는 학생이 없습니다.</div>'; return; }
   el.innerHTML = rows.map(function(r,i){
@@ -2450,7 +2489,7 @@ function renderStudents(){
   const rows = ROSTER.filter(function(r){
     if(!keep(r)) return false;
     if(!nq) return true;
-    return normName(r.name).indexOf(nq)>=0 || normSchool(r.school).indexOf(normSchool(q))>=0;
+    return koHit(r.name, nq) || koHit(normSchool(r.school), normSchool(q));
   });
   const el = document.getElementById('stuList');
   if(!rows.length){ el.innerHTML = '<div class="spin" style="padding:16px">'+
@@ -3812,6 +3851,39 @@ function renderIncome(){
    않는다. 그래서 명단이 안 왔으면 화면·회차·자료만 나온다(빈 화면보다 낫다). */
 const PAL = document.getElementById('pal');
 let PAL_ROWS = [], PAL_AT = 0;
+
+/* ── 방금 본 것 ──────────────────────────────────────────────────
+   빈 칸으로 열면 여태 탭 열한 개뿐이었다. 그런데 탭은 숫자키 한 번이면
+   가는 곳이라, 팔레트를 여는 이유는 늘 **탭이 아닌 것**(학생·반·회차)이다.
+   상담을 하다 보면 같은 학생을 하루에도 몇 번씩 다시 연다 — 그때마다
+   이름을 다시 친다.
+
+   함수(go)는 저장할 수 없으니 **갈래와 이름만** 적어 두고, 열 때 지금 목록에서
+   같은 줄을 되찾는다. 그래서 명단에서 빠진 학생은 저절로 사라진다 —
+   없는 곳으로 가는 줄이 남지 않는다. */
+const PAL_KEY = 'chemistreal:pal:recent';
+const PAL_MAX = 8;
+function palRecent(){
+  try{ const v = JSON.parse(localStorage.getItem(PAL_KEY) || '[]');
+       return Array.isArray(v) ? v : []; }catch(e){ return []; }
+}
+function palRemember(r){
+  if(!r || r.kind === '화면') return;   // 탭은 숫자키가 더 빠르다
+  const keep = palRecent().filter(function(x){
+    return !(x.kind === r.kind && x.label === r.label); });
+  keep.unshift({ kind:r.kind, label:r.label });
+  try{ localStorage.setItem(PAL_KEY, JSON.stringify(keep.slice(0, PAL_MAX))); }catch(e){}
+}
+/* 적어 둔 갈래·이름을 지금 목록의 진짜 줄로 되돌린다. 못 찾으면 버린다. */
+function palRecentRows(all){
+  const out = [];
+  palRecent().forEach(function(m){
+    const hit = all.filter(function(r){
+      return r.kind === m.kind && r.label === m.label; })[0];
+    if(hit) out.push(hit);
+  });
+  return out;
+}
 function palSources(){
   const out = [];
   TABS.forEach(function(t){
@@ -3847,17 +3919,27 @@ function palSources(){
 function renderPal(){
   const q = normName(document.getElementById('palIn').value||'');
   const all = palSources();
-  PAL_ROWS = (q ? all.filter(function(r){
-      return normName(r.label).indexOf(q)>=0 || normName(r.sub||'').indexOf(q)>=0 ||
-             normName(r.kind).indexOf(q)>=0;
-    }) : all.slice(0, TABS.length)).slice(0, 40);
+  /* 빈 칸이면 방금 본 것을 먼저, 그 뒤에 탭. 같은 줄이 두 번 나오지 않게 뺀다. */
+  let base, recN = 0;
+  if(q){
+    base = all.filter(function(r){
+      return koHit(r.label, q) || koHit(r.sub||'', q) || koHit(r.kind, q); });
+  }else{
+    const rec = palRecentRows(all);
+    recN = rec.length;
+    base = rec.concat(all.slice(0, TABS.length).filter(function(r){
+      return rec.indexOf(r) < 0; }));
+  }
+  PAL_ROWS = base.slice(0, 40);
   if(PAL_AT >= PAL_ROWS.length) PAL_AT = 0;
   const el = document.getElementById('palList');
   if(!PAL_ROWS.length){ el.innerHTML = '<div class="spin" style="padding:14px 18px">찾는 것이 없습니다.</div>'; return; }
   el.innerHTML = PAL_ROWS.map(function(r,i){
+    /* 왜 학생이 맨 위에 있는지 말해 준다 — 안 말하면 순서가 제멋대로로 보인다. */
+    const why = i < recN ? [r.sub, '방금 본'].filter(Boolean).join(' · ') : (r.sub||'');
     return '<div class="row" role="option" aria-selected="'+(i===PAL_AT)+'" data-pal="'+i+'">'+
       '<span class="kind">'+esc(r.kind)+'</span><span class="nm">'+esc(r.label)+'</span>'+
-      '<span class="where">'+esc(r.sub||'')+'</span></div>';
+      '<span class="where">'+esc(why)+'</span></div>';
   }).join('');
   const on = el.querySelector('[aria-selected="true"]');
   if(on && on.scrollIntoView) on.scrollIntoView({block:'nearest'});
@@ -3865,6 +3947,7 @@ function renderPal(){
 function palRun(i){
   const r = PAL_ROWS[i]; if(!r) return;
   PAL.close();
+  palRemember(r);
   try{ r.go(); }catch(e){}
 }
 function openPal(){
