@@ -224,6 +224,26 @@ dialog::backdrop{background:rgba(20,18,14,.45)}
 .dlg__h .dnav{display:flex;align-items:center;gap:6px}
 .dlg__h .dnav .btn{padding:5px 11px;font-size:15px;line-height:1}
 .dlg__b{padding:16px 22px 22px;max-height:64vh;overflow:auto}
+
+/* ── 수업 문자 ────────────────────────────────────── */
+#les{max-width:820px}
+.les__bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.les__bar select,.les__t{font:inherit;font-size:14px;padding:7px 10px;border:1px solid var(--line-2);
+  border-radius:8px;background:var(--paper);color:var(--ink)}
+.les__bar select{min-width:190px}
+.les__t{width:100%;box-sizing:border-box}
+/* 본문은 길다(문자 한 통이 스무 줄이 넘는다). 미리보기와 편집칸 둘 다
+   충분히 높아야 한 화면에서 앞뒤가 보인다 — 짧으면 계속 스크롤하며 고치게 된다. */
+.les__pre{white-space:pre-wrap;word-break:break-word;font-size:13.5px;line-height:1.72;
+  background:var(--sunk);border:1px solid var(--line);border-radius:10px;padding:14px 16px;
+  max-height:38vh;overflow:auto}
+.les__ta{width:100%;box-sizing:border-box;min-height:38vh;font:inherit;font-size:13.5px;
+  line-height:1.72;padding:14px 16px;border:1px solid var(--line-2);border-radius:10px;
+  background:var(--paper);color:var(--ink);resize:vertical}
+.les__ta:focus,.les__t:focus{outline:2px solid var(--brass);outline-offset:-2px}
+.les__who{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.les__pill{font-family:var(--mono);font-size:11.5px;background:var(--sunk);
+  border:1px solid var(--line-2);border-radius:6px;padding:3px 7px;cursor:pointer}
 .trk{border-left:2px solid var(--line);padding-left:16px;margin-left:6px}
 .trk__i{position:relative;padding:9px 0;border-bottom:1px solid var(--line)}
 .trk__i:last-child{border-bottom:none}
@@ -683,6 +703,16 @@ body:not(.snzshow) .row.snz{display:none}
   <button class="btn" id="dlgPrint">상담지</button>
   <button class="btn x" id="dlgX">닫기</button>
 </div><div class="dlg__b" id="dlgBody"></div></dialog>
+
+<!-- 수업이 끝나면 반마다 "오늘 뭘 배웠다" 를 보낸다. 열두 명이면 열두 번,
+     이름만 바꿔 가며 손으로 붙여 넣었다. 회차 글을 한 번 적어 두고 반을
+     고르면, 이름이 채워진 열두 통이 한 번에 나온다. -->
+<dialog id="les" aria-label="수업 문자"><div class="dlg__h">
+  <h3 id="lesName">수업 문자</h3><span class="where" id="lesWhere"></span>
+  <span class="sp"></span>
+  <button class="btn x" id="lesX">닫기</button>
+</div><div class="dlg__b" id="lesBody"></div></dialog>
+<input type="file" id="lesFile" accept="application/json,.json" hidden>
 
 <!-- 상담지. 화면에는 없고 인쇄할 때만 나온다. <dialog> 를 그대로 인쇄하면
      브라우저마다 다르게 잘려서, 인쇄할 것만 따로 짓는다. -->
@@ -3082,6 +3112,7 @@ function renderClassTab(){
     '</div>'+
     '<span class="acts">'+
     (absIdx!=null ? '<button class="mini msg" data-abs="'+absIdx+'" data-stage="bc" data-orig="반 전체 공지">반 전체 공지</button>' : '')+
+    '<button class="mini" data-clsact="lesson">수업 문자</button>'+
     '<button class="mini" data-clsact="names">명단 복사</button>'+
     '<button class="mini" data-clsact="table">표 복사</button>'+
     '</span></div>';
@@ -3113,6 +3144,256 @@ function renderClassTab(){
       '</div>';
   }).join('');
 }
+/* ══════════════════════════════════════════════════════════════════
+   수업 문자 — 회차 글 하나로 반 전체를
+
+   수업이 끝나면 반마다 "오늘 뭘 배웠다" 를 보낸다. 열두 명이면 열두 번,
+   이름만 바꿔 가며 손으로 붙여 넣었다. 한 반에 5분, 여섯 반이면 30분이
+   매주 되풀이됐다.
+
+   회차 글은 **한 번만** 적어 둔다. 반을 고르면 이름이 채워진 열두 통이
+   한 번에 나온다.
+
+   [어디에 담나]
+   이 셸은 남의 앱 자료를 쓰지 않는다는 규칙이 있다(검사가 본다). 회차 글은
+   남의 자료가 아니라 **선생님이 여기서 짓는 것**이라 이 브라우저에 담는다.
+   대신 **파일로 내보내기**를 나란히 둔다 — 브라우저를 비우면 사라지는 것을
+   유일한 사본으로 두면 안 된다.
+
+   ⚠ 저장소에는 안 넣는다. 공개 저장소라 수업 내용과 **전화번호**가 그대로
+   인터넷에 남는다. 내보낸 파일은 선생님 컴퓨터에만 둔다.
+
+   [자리표시자]
+   {이름} {학교} {학년} {반} {과목} {회차}
+   한 통을 만들 때 그 학생 것으로 바뀐다. {이름} 이 없으면 열두 통이 모두
+   같은 글이 되므로 화면에서 짚어 준다.
+   ══════════════════════════════════════════════════════════════════ */
+const LES_KEY = 'chemistreal:lessons';
+const LES_MARKS = ['{이름}','{학교}','{학년}','{반}','{과목}','{회차}'];
+/* ⚠ 한 벌만 들고 있는다. 예전에는 부를 때마다 localStorage 를 다시 파싱했는데,
+   그러면 같은 회차라도 **매번 다른 객체**가 나온다. 고치기에서 `all.indexOf(cur)`
+   가 늘 -1 이 되어 저장이 조용히 안 됐다 — 눌러도 아무 일이 없었다.
+   검사가 이걸 잡았다(브라우저 검사의 '브라우저에 담긴다'). */
+let LES_ALL = null;
+function lesAll(){
+  if(LES_ALL) return LES_ALL;
+  try{
+    const v = JSON.parse(localStorage.getItem(LES_KEY) || 'null');
+    LES_ALL = v && Array.isArray(v.lessons) ? v.lessons : [];
+  }catch(e){ LES_ALL = []; }
+  return LES_ALL;
+}
+function lesSave(){
+  try{ localStorage.setItem(LES_KEY, JSON.stringify({ v:1, lessons: LES_ALL || [] })); return true; }
+  catch(e){ return false; }
+}
+/* 반의 과목에 맞는 회차만, 번호 차례로. 과목이 안 적힌 글은 어느 반에서나
+   보인다 — 처음 쓸 때 과목까지 고르게 하면 한 번에 막힌다. */
+function lesFor(course){
+  return lesAll().filter(function(x){ return !x.course || x.course === course; })
+    .sort(function(a,b){ return (Number(a.round)||0) - (Number(b.round)||0); });
+}
+function lesFill(body, who, cls, round){
+  const map = {
+    '{이름}':  (who && who.name) || '',
+    '{학교}':  (who && who.school) || '',
+    '{학년}':  (who && who.grade) ? String(who.grade)+'학년' : '',
+    '{반}':    (cls && cls.label) || '',
+    '{과목}':  (cls && (DT_COURSE[cls.course] || cls.course)) || '',
+    '{회차}':  round != null ? String(round) : '',
+  };
+  return String(body == null ? '' : body).replace(/\{(이름|학교|학년|반|과목|회차)\}/g,
+    function(m){ return map[m] != null ? map[m] : m; });
+}
+
+let LES_CLS = null, LES_AT = 0, LES_EDIT = false;
+function lesList(){ return LES_CLS ? lesFor(LES_CLS.course) : []; }
+function lesCur(){ const l = lesList(); return l[Math.min(LES_AT, l.length-1)] || null; }
+/* 이 반 아이들. 반 탭이 걸러 놓은 것과 상관없이 **반 전체**로 보낸다 —
+   수업 안내는 재시 안내와 달리 빠지는 사람이 없다. */
+function lesWho(){ return LES_CLS ? (LES_CLS.students || []) : []; }
+
+function lesRender(){
+  const body = document.getElementById('lesBody');
+  const list = lesList(), cur = lesCur(), who = lesWho();
+  document.getElementById('lesWhere').textContent =
+    LES_CLS ? ((DT_COURSE[LES_CLS.course] || LES_CLS.course) + ' · ' + who.length + '명') : '';
+
+  const bar = '<div class="les__bar">' +
+    (list.length
+      ? '<select id="lesPick" aria-label="회차">' + list.map(function(x, i){
+          return '<option value="'+i+'"'+(i===LES_AT?' selected':'')+'>'+
+                 esc((x.round!=null? x.round+'회차' : '번호 없음') +
+                     (x.title ? ' · ' + x.title : '')) + '</option>'; }).join('') + '</select>'
+      : '<span class="dim">아직 적어 둔 회차가 없습니다.</span>') +
+    '<span style="flex:1"></span>' +
+    '<button class="mini" data-les="new">＋ 새 회차</button>' +
+    (cur && !LES_EDIT ? '<button class="mini" data-les="edit">고치기</button>' : '') +
+    '<button class="mini" data-les="export">파일로 내보내기</button>' +
+    '<button class="mini" data-les="import">파일에서 가져오기</button>' +
+    '</div>';
+
+  if(LES_EDIT && cur){
+    body.innerHTML = bar +
+      '<div class="les__bar">' +
+        '<input class="les__t" id="lesTitle" style="flex:1;min-width:180px" placeholder="회차 이름 (예: 화학의 기초)" value="'+esc(cur.title||'')+'">' +
+        '<input class="les__t" id="lesRound" style="width:110px" inputmode="numeric" placeholder="회차" value="'+esc(cur.round!=null?String(cur.round):'')+'">' +
+      '</div>' +
+      '<textarea class="les__ta" id="lesBodyIn" placeholder="문자 본문. 학생마다 달라지는 자리는 아래 조각을 눌러 넣으세요.">'+esc(cur.body||'')+'</textarea>' +
+      '<div class="les__who"><span class="dim">넣을 수 있는 자리 —</span>' +
+        LES_MARKS.map(function(m){ return '<button class="les__pill" data-lesmark="'+esc(m)+'">'+esc(m)+'</button>'; }).join('') +
+      '</div>' +
+      '<div class="les__bar" style="margin-top:14px">' +
+        '<button class="mini" data-les="save">저장</button>' +
+        '<button class="mini" data-les="cancel">되돌리기</button>' +
+        '<span style="flex:1"></span>' +
+        '<button class="mini" data-les="del">이 회차 지우기</button>' +
+      '</div><div id="lesNote"></div>';
+    return;
+  }
+
+  if(!cur){
+    body.innerHTML = bar +
+      '<div class="note">회차 글을 한 번 적어 두면, 반을 고를 때마다 이름이 채워진 ' +
+      '문자가 사람 수만큼 한 번에 나옵니다. <b>＋ 새 회차</b>로 시작하세요.</div>';
+    return;
+  }
+
+  /* 미리보기는 **첫 학생 것**으로 채워 보여 준다. 빈 자리표시자가 그대로
+     남아 있으면 여기서 보인다 — 붙여 넣고 나서 알면 이미 나간 뒤다. */
+  const first = who[0] || null;
+  const filled = lesFill(cur.body, first, LES_CLS, cur.round);
+  const noName = String(cur.body||'').indexOf('{이름}') < 0;
+  body.innerHTML = bar +
+    (noName ? '<div class="note err">본문에 <b>{이름}</b> 이 없습니다 — ' +
+              '지금 그대로면 ' + who.length + '통이 모두 같은 글이 됩니다.</div>' : '') +
+    '<div class="note2" style="margin-bottom:6px">미리보기 · ' +
+      (first ? esc(first.name) + ' 학생 것' : '학생 없음') + '</div>' +
+    '<div class="les__pre">' + esc(filled) + '</div>' +
+    '<div class="les__bar" style="margin-top:14px">' +
+      '<button class="mini" data-les="all" data-orig="' + who.length + '명 모두 복사">' +
+        who.length + '명 모두 복사</button>' +
+      '<span class="dim">이름 사이에 <b>── 이름 ──</b> 을 넣어 한 덩어리로 담습니다</span>' +
+    '</div>' +
+    '<div class="list" style="margin-top:6px">' + who.map(function(s, i){
+      return '<div class="row" style="cursor:default"><span class="nm">'+esc(s.name)+'</span>' +
+        '<span class="where">'+esc([s.school, s.year?s.year+'학년':''].filter(Boolean).join(' '))+'</span>' +
+        '<span class="acts"><button class="mini" data-lesone="'+i+'" data-orig="복사">복사</button></span></div>';
+    }).join('') + '</div><div id="lesNote"></div>';
+}
+
+function openLessons(cls){
+  LES_CLS = cls; LES_AT = 0; LES_EDIT = false;
+  document.getElementById('lesName').textContent = '수업 문자 · ' + (cls.label || '');
+  lesRender();
+  const d = document.getElementById('les');
+  if(!d.open) d.showModal();
+}
+document.getElementById('lesX').addEventListener('click', function(){
+  document.getElementById('les').close(); });
+document.getElementById('les').addEventListener('click', function(e){
+  if(e.target === this) this.close(); });
+document.getElementById('les').addEventListener('close', function(){ LES_EDIT = false; });
+
+document.addEventListener('change', function(e){
+  if(e.target && e.target.id === 'lesPick'){ LES_AT = +e.target.value || 0; lesRender(); }
+});
+/* 자리표시자는 **커서 자리에** 넣는다. 끝에 붙이면 옮겨 적어야 한다. */
+document.addEventListener('click', function(e){
+  const m = e.target.closest ? e.target.closest('[data-lesmark]') : null;
+  if(!m) return;
+  const ta = document.getElementById('lesBodyIn'); if(!ta) return;
+  const s = ta.selectionStart, t = ta.selectionEnd, mk = m.dataset.lesmark;
+  ta.value = ta.value.slice(0, s) + mk + ta.value.slice(t);
+  ta.focus(); ta.selectionStart = ta.selectionEnd = s + mk.length;
+});
+document.addEventListener('click', function(e){
+  const b = e.target.closest ? e.target.closest('[data-lesone]') : null;
+  if(!b) return;
+  const cur = lesCur(), who = lesWho()[+b.dataset.lesone];
+  if(!cur || !who) return;
+  copyText(b, lesFill(cur.body, who, LES_CLS, cur.round), '복사됨');
+});
+document.addEventListener('click', function(e){
+  const b = e.target.closest ? e.target.closest('.mini[data-les]') : null;
+  if(!b) return;
+  const act = b.dataset.les, all = lesAll(), cur = lesCur();
+
+  if(act === 'new'){
+    const mine = lesFor(LES_CLS ? LES_CLS.course : '');
+    const next = mine.reduce(function(m, x){ return Math.max(m, Number(x.round)||0); }, 0) + 1;
+    all.push({ course: LES_CLS ? LES_CLS.course : '', round: next, title: '', body: '' });
+    if(!lesSave()){ note('lesNote', '이 브라우저에 저장하지 못했습니다.', true); return; }
+    const l = lesList();
+    LES_AT = Math.max(0, l.findIndex(function(x){ return (Number(x.round)||0) === next; }));
+    LES_EDIT = true; lesRender(); return;
+  }
+  if(act === 'edit'){ LES_EDIT = true; lesRender(); return; }
+  if(act === 'cancel'){ LES_EDIT = false; lesRender(); return; }
+  if(act === 'save'){
+    if(!cur) return;
+    const t = document.getElementById('lesTitle').value.trim();
+    const r = document.getElementById('lesRound').value.trim();
+    const v = document.getElementById('lesBodyIn').value;
+    /* 화면에 보이는 목록은 걸러 낸 사본이라, 저장은 **원본에서 같은 것**을
+       찾아 고친다. 사본을 고치면 다음에 열 때 그대로 돌아온다. */
+    const at = all.indexOf(cur);
+    if(at < 0){ note('lesNote', '고칠 회차를 못 찾았습니다 — 다시 열어 주세요.', true); return; }
+    all[at] = { course: cur.course, round: r === '' ? null : (Number(r) || null), title: t, body: v };
+    if(!lesSave()){ note('lesNote', '이 브라우저에 저장하지 못했습니다.', true); return; }
+    LES_EDIT = false; lesRender(); return;
+  }
+  if(act === 'del'){
+    if(!cur) return;
+    const at = all.indexOf(cur); if(at < 0) return;
+    all.splice(at, 1);
+    if(!lesSave()){ note('lesNote', '이 브라우저에 저장하지 못했습니다.', true); return; }
+    LES_AT = 0; LES_EDIT = false; lesRender(); return;
+  }
+  if(act === 'export'){
+    /* 브라우저를 비우면 사라지는 것을 유일한 사본으로 두지 않는다. */
+    const blob = new Blob([JSON.stringify({ v:1, lessons: all }, null, 2)],
+                          { type:'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = '수업문자.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 4000);
+    flash(b, '내려받음', true); return;
+  }
+  if(act === 'import'){ document.getElementById('lesFile').click(); return; }
+  if(act === 'all'){
+    if(!cur) return;
+    const who = lesWho();
+    if(!who.length){ flash(b, '반에 학생이 없습니다'); return; }
+    const text = who.map(function(s){
+      return '── ' + s.name + ' ──\n' + lesFill(cur.body, s, LES_CLS, cur.round);
+    }).join('\n\n');
+    copyText(b, text, who.length + '명 복사됨'); return;
+  }
+});
+/* 가져오기는 **덮어쓴다**. 합치면 같은 회차가 둘이 되고, 어느 쪽이 최신인지
+   알 수 없다. 덮어쓰기 전에 지금 것을 잃는지 묻는다. */
+document.getElementById('lesFile').addEventListener('change', function(){
+  const f = this.files && this.files[0]; if(!f) return;
+  const rd = new FileReader();
+  rd.onload = function(){
+    let v;
+    try{ v = JSON.parse(String(rd.result)); }
+    catch(e){ note('lesNote', '읽을 수 없는 파일입니다(JSON 이 아닙니다).', true); return; }
+    if(!v || !Array.isArray(v.lessons)){
+      note('lesNote', '수업 문자 파일이 아닙니다 — lessons 목록이 없습니다.', true); return; }
+    const now = lesAll();
+    if(now.length && !confirm('지금 있는 회차 ' + now.length + '개를 이 파일 ' +
+        v.lessons.length + '개로 바꿉니다. 계속할까요?')) return;
+    LES_ALL = v.lessons;
+    if(!lesSave()){ note('lesNote', '이 브라우저에 저장하지 못했습니다.', true); return; }
+    LES_AT = 0; LES_EDIT = false; lesRender();
+  };
+  rd.readAsText(f);
+  this.value = '';   // 같은 파일을 다시 골라도 change 가 오도록
+});
+
 document.addEventListener('click', function(e){
   const j = e.target.closest ? e.target.closest('.row[data-clsjump]') : null;
   if(j){ CLS_PICK = j.dataset.clsjump; renderClassTab(); writeHash();
@@ -3128,6 +3409,13 @@ document.addEventListener('click', function(e){
     const list = CLS_ROWS.map(function(x){
       return rosterRow(x.who.name, x.who.school, x.who.grade); });
     openStudent(list[i], list, i);
+    return;
+  }
+  /* 수업 안내는 반 전체에게 간다 — 걸러 놓은 것(CLS_ROWS)이 아니라 반 자체를
+     넘긴다. 미응시만 보는 중에 눌러도 열두 명 모두에게 나가야 한다. */
+  if(b.dataset.clsact === 'lesson'){
+    const c = dtClassList().filter(function(x){ return x.label === CLS_PICK; })[0];
+    if(c) openLessons(c);
     return;
   }
   if(b.dataset.clsact === 'names')

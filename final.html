@@ -1427,6 +1427,14 @@ function examAssetsHTML(exam){
 }
 function openExam(id){
   fShared=false; cur=FINAL_EXAMS.find(e=>e.id===id); sel={};
+  /* ── 어느 화면에서 열든 같은 인원을 본다 ────────────────────────────
+     예전에는 모집단이 "이 브라우저에 채점해 둔 만큼" 이었다. 학교 컴퓨터와
+     집 노트북이 서로 다른 숫자를 냈고, 학부모에게 나간 링크는 만든 순간에
+     굳었다. 시트가 지금 몇 명인지 알고 있으니 열 때 한 번 물어 그것을 쓴다.
+
+     화면은 먼저 그린다 — 창구를 기다리느라 성적표가 안 뜨면 그게 더 나쁘다.
+     오면 그 자리에서 다시 그린다. 못 오면 예전대로 이 브라우저 기록을 쓴다. */
+  if(id) loadLiveCohort(id, function(){ try{ scoreAuto(); }catch(e){} });
   /* 전원정답 문항도 문항 수에 든다. 답을 쓰지 않아도 맞은 것으로 세므로
      분모에서 뺄 이유가 없다. */
   const ac=allcSet(cur); const total=cur.nQ; const acList=[...ac].sort((a,b)=>a-b);
@@ -1545,13 +1553,53 @@ function baselineTotals(examId){
   var out=[]; for(var k in e.hist){ var s=+k, c=e.hist[k]|0; for(var i=0;i<c;i++) out.push(s); }
   return out.length?out:null;
 }
+/* ── 공유 링크가 본 인원을 지금 것으로 ──────────────────────────────────
+   링크에 실린 점수 분포는 **링크를 지은 순간**의 것이다. 뒤에 채점한 학생이
+   아무리 늘어도 학부모 화면의 분모는 그대로였다 — "연도누적 총석차 1/5" 가
+   다섯 명인 채로 굳는다.
+
+   시트가 지금 몇 명인지 알고 있다. 열 때 한 번 물어 그것으로 바꾼다.
+   받아 오는 것은 **맞은 문항 수별 사람 수**뿐이라 남의 개인정보가 실리지
+   않는다(`action=all` 은 이름이 들어 있어 이 자리에 쓸 수 없다).
+
+   못 받아 오면 링크에 실린 것을 그대로 쓴다 — 숫자가 조금 낡을 뿐,
+   빈칸이 되지는 않는다. */
+var LIVE_POOL=null, LIVE_ASK={};
+function liveTotals(examId){
+  if(!LIVE_POOL || LIVE_POOL.id!==examId || !LIVE_POOL.hist) return null;
+  var out=[]; for(var k in LIVE_POOL.hist){ var s=+k, c=LIVE_POOL.hist[k]|0;
+    for(var i=0;i<c;i++) out.push(s); }
+  return out.length?out:null;
+}
+function loadLiveCohort(examId, then){
+  if(!examId) return;
+  /* 한 회차에 한 번만 묻는다. 앱스크립트는 실행을 한 줄로 세우므로, 열 때마다
+     또 부르면 채점하는 손이 그만큼 느려진다. */
+  if(LIVE_ASK[examId]) return;
+  LIVE_ASK[examId]=1;
+  var cb='__lc'+Date.now();
+  var t=setTimeout(function(){ cleanup(); }, 12000);
+  function cleanup(){ clearTimeout(t); try{ delete window[cb]; }catch(e){ window[cb]=undefined; }
+                      if(s&&s.parentNode) s.parentNode.removeChild(s); }
+  window[cb]=function(j){
+    cleanup();
+    if(j&&j.ok&&j.hist&&j.n>0){ LIVE_POOL={id:examId, hist:j.hist, n:j.n}; if(then) then(); }
+  };
+  var s=document.createElement('script');
+  s.src=SHEET_ENDPOINT+'?action=cohort&exam='+encodeURIComponent(examId)+'&callback='+cb;
+  s.onerror=cleanup;
+  document.head.appendChild(s);
+}
 /* 어느 분포로 등수를 매길지 한 곳에서 정한다. 화면·Word·인쇄가 갈라지면 안 된다. */
 function rankPool(exam,cs){
   var base=baselineTotals(exam&&exam.id);
-  var loc=(cs&&cs.totals)||[];
+  /* 시트가 대답했으면 그것이 링크에 실린 것보다 새것이다. 둘은 같은 사람들을
+     세므로 **더하지 않고 갈아 끼운다** — 더하면 한 사람이 두 번 세어진다. */
+  var live=liveTotals(exam&&exam.id);
+  var loc=live||((cs&&cs.totals)||[]);
   var pool=base?base.concat(loc):loc;
   return {pool:pool, N:pool.length, baseN:base?base.length:0, locN:loc.length,
-          fromBaseline:!!base, ready:pool.length>=MINP};
+          live:!!live, fromBaseline:!!base, ready:pool.length>=MINP};
 }
 function rankIn(pool,my){ return pool.filter(function(t){return t>my;}).length+1; }
 /* ── 올해 응시자 안에서의 석차 ────────────────────────────────────────
@@ -3505,6 +3553,17 @@ function saveToSheetFinal(cur,sel,correct,total,W,cs,nm,sch,grd,pct){
   if(!(nm||sch)) return;
   postToSheet(sheetPayloadFor(cur,sel,cs,nm,sch,grd));
   fToast('구글 시트로 전송했습니다 · '+(nm||sch));
+  /* 방금 한 명이 늘었다. 들고 있던 인원은 이미 낡았으니 버리고 다시 묻는다 —
+     안 그러면 다음 학생 성적표에 **한 명 적은** 분모가 찍힌다.
+     시트가 줄을 받아 넣을 틈을 조금 준다(no-cors 라 끝난 때를 알 수 없다). */
+  try{
+    var _eid=cur&&cur.id;
+    if(_eid) setTimeout(function(){
+      LIVE_ASK[_eid]=0;
+      if(LIVE_POOL&&LIVE_POOL.id===_eid) LIVE_POOL=null;
+      loadLiveCohort(_eid, function(){ try{ scoreAuto(); }catch(e){} });
+    }, 2500);
+  }catch(e){}
 }
 function nextGuideCta(nm, exam, wrong){
   try{
@@ -5216,7 +5275,12 @@ function boot(){
   /* 링크에 실려 온 또래 통계(합계만). 개인 기록은 들어 있지 않다. */
   window.__csLink=null;
   const sm=location.hash.match(/[#&]s=([A-Za-z0-9_-]+)&/);
-  if(m){ const ex=FINAL_EXAMS.find(e=>e.id===m[1]); if(ex){ if(sm) window.__csLink={id:ex.id,raw:sm[1]}; openExam(ex.id); fShared=true; let n=0n; for(const c of m[2]) n=n*36n+BigInt(parseInt(c,36)); for(let q=1;q<=ex.nQ;q++){ const v=Number(n%5n); n=n/5n; if(v) setAns(q,v); } const ne=document.getElementById('nm'), xe=document.getElementById('exno'); if(m[4]&&ne) ne.value=decName(m[4]); if(m[3]&&xe) xe.value=m[3]; scoreAuto(); return; } }
+  if(m){ const ex=FINAL_EXAMS.find(e=>e.id===m[1]); if(ex){ if(sm) window.__csLink={id:ex.id,raw:sm[1]}; openExam(ex.id); fShared=true; let n=0n; for(const c of m[2]) n=n*36n+BigInt(parseInt(c,36)); for(let q=1;q<=ex.nQ;q++){ const v=Number(n%5n); n=n/5n; if(v) setAns(q,v); } const ne=document.getElementById('nm'), xe=document.getElementById('exno'); if(m[4]&&ne) ne.value=decName(m[4]); if(m[3]&&xe) xe.value=m[3]; scoreAuto();
+    /* 링크에 실린 인원은 링크를 지은 순간의 것이다. 지금 몇 명인지 시트에
+       물어 보고, 오면 그 숫자로 다시 그린다. 화면은 먼저 띄운다 —
+       창구를 기다리느라 성적표가 안 뜨면 그게 더 나쁘다. */
+    loadLiveCohort(ex.id, function(){ try{ scoreAuto(); }catch(e){} });
+    return; } }
   if(location.hash==='#roster'){ renderRoster(); }
   else if(location.hash==='#qbank'||location.hash==='#admin'){ renderQbank(); }
   else { renderList(); }

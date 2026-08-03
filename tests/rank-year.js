@@ -54,6 +54,9 @@ vm.runInContext([
   'var CUR_YEAR=' + YEAR + ';',
   cutFn(SRC, 'rankIn'), cutFn(SRC, 'rankPoolYear'),
   cutFn(SRC, 'rankPool'), cutFn(SRC, 'baselineTotals'),
+  /* 시트가 대답한 '지금 인원'. 링크에 실린 낡은 숫자를 갈아 끼우는 자리라
+     여기서도 실물을 넣는다 — 흉내로 두면 갈아 끼우는 규칙을 못 잰다. */
+  'var LIVE_POOL=null;', cutFn(SRC, 'liveTotals'),
   'var COHORT_ALIAS={}; function cohortKey(id){return id;}',
 ].join('\n'), ctx);
 
@@ -184,6 +187,69 @@ console.log('\n── 시트 문자도 같은 규칙이다 ──');
   chk('기준분포를 연도 코호트에 넣지 않는다',
       /var byYear = \{\};[\s\S]{0,400}baseTotals/.test(GAS), false);
   chk('행마다 그 행의 해로 센다', /var yr = _yearOf\(ts\(ri\)\)/.test(GAS), true);
+}
+
+/* ── 공유 링크의 인원이 굳지 않는다 ──────────────────────────────────
+   링크에 실린 점수 분포는 **링크를 지은 순간**의 것이다. 뒤에 채점한 학생이
+   늘어도 학부모 화면의 분모는 그대로였다 — "총석차 1/5" 가 다섯 명인 채로
+   굳는다. 시트에 지금 몇 명인지 물어 그 숫자로 바꾼다. */
+console.log('\n── 공유 링크가 지금 인원을 본다 ──');
+{
+  const cs = { totals: [50, 40, 30] };              // 링크에 실린 그때의 셋
+  ctx.BASELINE = null; ctx.LIVE_POOL = null;
+  chk('시트가 없으면 링크에 실린 것을 쓴다', ctx.rankPool(ex, cs).N, 3);
+
+  /* 같은 사람들을 세는 두 벌이라 **더하지 않고 갈아 끼운다.** 더하면 한
+     사람이 두 번 세어져 분모가 부풀고 등수가 뒤로 밀린다. */
+  ctx.LIVE_POOL = { id: 'x-1', hist: { 50: 1, 40: 1, 30: 1, 20: 3 }, n: 6 };
+  const live = ctx.rankPool(ex, cs);
+  chk('시트가 대답하면 그 숫자로', live.N, 6);
+  chk('더하지 않고 갈아 끼운다', live.N === 3 + 6, false);
+  chk('갈아 끼웠다고 표시한다', live.live, true);
+  /* 등수도 따라 움직여야 한다 — 분모만 늘고 등수가 그대로면 더 이상하다. */
+  chk('등수도 새 모집단에서', ctx.rankIn(live.pool, 40), 2);
+
+  /* 다른 회차 것이 남아 있으면 남의 인원으로 등수를 매기게 된다. */
+  ctx.LIVE_POOL = { id: '다른회차', hist: { 10: 9 }, n: 9 };
+  chk('회차가 다르면 안 쓴다', ctx.rankPool(ex, cs).N, 3);
+
+  /* 기준 기록(옛 엑셀 응시자)과는 겹치지 않는 사람들이라 그대로 더한다. */
+  ctx.BASELINE = { 'x-1': { hist: { 55: 2 } } };
+  ctx.LIVE_POOL = { id: 'x-1', hist: { 50: 1, 40: 1 }, n: 2 };
+  chk('기준 기록에는 더한다', ctx.rankPool(ex, cs).N, 4);
+
+  ctx.LIVE_POOL = null; ctx.BASELINE = null;
+  chk('빈 대답은 안 쓴다', ctx.rankPool(ex, cs).N, 3);
+
+  /* 링크만이 아니라 **어느 화면에서 열든** 같은 인원을 봐야 한다. 학교
+     컴퓨터와 집 노트북이 서로 다른 숫자를 내던 것도 같은 뿌리다. */
+  chk('회차를 열 때 물어 본다', /if\(id\) loadLiveCohort\(id,/.test(SRC), true);
+  chk('공유 링크에서도 물어 본다', /loadLiveCohort\(ex\.id,/.test(SRC), true);
+  /* 앱스크립트는 실행을 한 줄로 세운다 — 열 때마다 또 부르면 손이 느려진다. */
+  chk('한 회차에 한 번만 묻는다', /if\(LIVE_ASK\[examId\]\) return;/.test(SRC), true);
+  /* 한 명 채점하면 인원이 늘었다. 안 버리면 다음 학생 성적표에 한 명 적은
+     분모가 찍힌다. */
+  chk('채점해 보내면 다시 묻는다',
+      /LIVE_ASK\[_eid\]=0;[\s\S]{0,200}loadLiveCohort\(_eid/.test(SRC), true);
+  /* 나가는 것은 사람 수뿐이어야 한다 — 이름이 실리면 학부모가 남의 명단을 본다. */
+  chk('이름을 부르는 창구가 아니다', /action=cohort/.test(SRC) && /action=all[^']*'\+/.test(SRC), false);
+}
+
+/* 표에 없는 회차를 못 걸러 내면, 모든 회차 사람을 한 회차 모집단으로 센다.
+   지금 시트로 치면 분모가 8이 아니라 148이 되고 등수가 통째로 틀린다. */
+console.log('\n── 모르는 회차는 안 센다 ──');
+{
+  const gas = fs.readFileSync(path.join(ROOT, 'AppsScript-Code.gs'), 'utf8');
+  const fn = gas.slice(gas.indexOf('function cohortOf_'));
+  chk('창구가 있다', /function cohortOf_/.test(gas), true);
+  chk('못 찾으면 빈 대답', /if \(!want\) return _jsonOut_/.test(fn.slice(0, 1200)), true);
+  chk('찾은 뒤에는 반드시 거른다', /if \(want\.indexOf\(String\(r\[0\]\)\) < 0\) continue;/.test(fn), true);
+  /* 검사가 낸 줄(localhost)은 학생이 아니다 — 시트에서 지우기 전에도 안 센다. */
+  chk('검사가 낸 줄은 안 센다', /localhost\/i\.test\(String\(r\[2\]/.test(fn), true);
+  /* 이름·학교·답안이 나가면 학부모 브라우저가 남의 명단을 갖게 된다. */
+  const out = fn.slice(0, fn.indexOf('}\n', fn.indexOf('_jsonOut_(JSON.stringify({ ok: true, exam: examId, hist')));
+  chk('내보내는 것은 사람 수뿐',
+      /name|school|answers|이름/.test(fn.match(/JSON\.stringify\(\{ ok: true, exam: examId, hist: hist[^)]*\)/)?.[0] || ''), false);
 }
 
 console.log(fail ? `\n${fail}개 실패` : '\n모두 통과');

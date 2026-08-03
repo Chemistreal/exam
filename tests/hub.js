@@ -67,6 +67,7 @@ vm.runInContext([
   cut('normName'), cut('normSchool'), cut('normGrade'),
   ((SRC.match(/^const CHO = \[[\s\S]*?\];$/m) || [''])[0]).replace(/^const /, 'var '),
   cut('choOf'), cut('isCho'), cut('koHit'),
+  cut('lesFill'),
   cut('unifyKey'), cut('looseKey'), cut('mergeRosters'),
   cut('allRounds'), cut('misTally'),
   /* 기간 기준은 소스에서 그대로 읽는다. 여기 손으로 적어 두면 소스만 바뀌었을 때
@@ -201,12 +202,18 @@ console.log('\n── 셸이 남의 데이터를 건드리지 않는다 ──')
                 지워도 다음에 한 번 더 치면 된다. 학생 이름이 들어가지만 명단은
                 이미 이 브라우저가 들고 있는 것이고, 여기 적힌 이름은 열 때
                 지금 명단에서 되찾아야만 줄이 된다(없으면 사라진다).
+       LES_KEY  수업 문자 회차 글. ⚠ 여기 셋 중 **유일하게 남의 것이 아니라
+                선생님이 여기서 짓는 것**이고, 지우면 다시 못 만든다. 그래서
+                이것만은 파일로 내보내기를 나란히 둔다 — 브라우저를 비우면
+                사라지는 것을 유일한 사본으로 두면 안 된다.
+                저장소에는 안 넣는다(공개 저장소라 수업 내용과 전화번호가
+                그대로 인터넷에 남는다).
 
      앱 자료(파이널 기록·DT 명단)를 쓰는 것은 여전히 금지다. 아래 검사들이 본다. */
-  chk('쓰는 곳은 적어 둔 세 칸뿐',
-      (CODE_ONLY.match(/localStorage\.setItem\(\s*([A-Za-z_$][\w$]*)/g) || []),
-      ['localStorage.setItem(KEY', 'localStorage.setItem(VIEW_KEY',
-       'localStorage.setItem(PAL_KEY']);
+  chk('쓰는 곳은 적어 둔 네 칸뿐',
+      (CODE_ONLY.match(/localStorage\.setItem\(\s*([A-Za-z_$][\w$]*)/g) || []).sort(),
+      ['localStorage.setItem(KEY', 'localStorage.setItem(LES_KEY',
+       'localStorage.setItem(PAL_KEY', 'localStorage.setItem(VIEW_KEY']);
   chk('그 칸은 파이널과 같은 칸', /var KEY = 'chemistreal:gate'/.test(body), true);
   /* 셸이 쓰는 칸은 셸 것임이 이름에서 보여야 한다 — 앱 칸을 덮어쓰면
      앱 하나가 깨질 때 원인을 셸에서도 찾아야 한다. */
@@ -1407,8 +1414,11 @@ console.log('\n── 늘 묻는 것은 칩 하나로 (저장된 보기) ──'
   /* 끝없이 쌓이면 칩 줄이 화면을 다 먹는다. */
   chk('끝없이 쌓이지 않는다', /v\.slice\(0, VIEW_MAX\)/.test(body), true);
   /* 지우기에 확인을 안 붙인다 — 세 번 눌러 다시 만들 수 있는 것이라,
-     확인창이 지키는 것보다 걸리적거리는 값이 크다. */
-  chk('지우기에 확인창을 안 세운다', /\bconfirm\(/.test(CODE_ONLY), false);
+     확인창이 지키는 것보다 걸리적거리는 값이 크다.
+     ⚠ 예전에는 파일 전체에 confirm 이 없는지 봤는데, 그건 이 뜻보다 넓다.
+     되돌릴 수 없는 것(손으로 적은 수업 문자를 파일로 덮어쓰기)에는 물어야
+     한다. 여기서 지키려는 것은 **보기 지우기**뿐이므로 그 자리만 본다. */
+  chk('보기 지우기에 확인창을 안 세운다', /\bconfirm\(/.test(cut('viewDel')), false);
   chk('열두 탭 밑에 묻히지 않는다 — 팔레트에도 오른다',
       /kind:'보기', label:v\.name/.test(body), true);
   chk('탭을 옮기면 어느 보기인지도 따라온다',
@@ -1690,6 +1700,47 @@ console.log('\n── 초성으로 찾는다 ──');
   const body = SRC.split('<script>')[1] || '';
   chk('학생·바로 찾기·빠른 이동이 모두 쓴다',
       (body.match(/koHit\(/g) || []).length >= 6, true);
+}
+
+/* 수업이 끝나면 반마다 "오늘 뭘 배웠다" 를 보낸다. 열두 명이면 열두 번,
+   이름만 바꿔 가며 손으로 붙여 넣었다. 한 반에 5분, 여섯 반이면 30분이다. */
+console.log('\n── 수업 문자 ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  const cls = { label:'화학1 일3-7', course:'ch1' };
+  const who = { name:'김유정', school:'휘문중', grade:'2' };
+
+  chk('이름이 채워진다', ctx.lesFill('{이름} 학생', who, cls, 1), '김유정 학생');
+  chk('학교·학년도', ctx.lesFill('{학교} {학년}', who, cls, 1), '휘문중 2학년');
+  chk('반과 과목도', ctx.lesFill('{반} / {과목}', who, cls, 1), '화학1 일3-7 / 화학Ⅰ');
+  chk('회차도', ctx.lesFill('조준모의고사 {회차}회', who, cls, 3), '조준모의고사 3회');
+  chk('여러 번 나와도 다 바꾼다', ctx.lesFill('{이름}·{이름}', who, cls, 1), '김유정·김유정');
+  /* 학년이 없는 학생이 흔하다(DT 명단에 안 적힌다). '학년' 이라는 글자만
+     덩그러니 남으면 그대로 학부모에게 나간다. */
+  chk('빈 값은 빈 칸으로', ctx.lesFill('[{학교}][{학년}]', { name:'김유정' }, cls, 1), '[][]');
+  chk('모르는 자리표시자는 그대로', ctx.lesFill('{선생님}', who, cls, 1), '{선생님}');
+  chk('본문이 없어도 안 죽는다', [ctx.lesFill(null, who, cls, 1), ctx.lesFill('', null, null, null)], ['', '']);
+  /* 회차 번호가 0 일 수 있다(오리엔테이션). null 과 0 을 섞으면 '0회' 가 빈칸이 된다. */
+  chk('0회차도 0으로', ctx.lesFill('{회차}', who, cls, 0), '0');
+
+  chk('반에서 여는 단추가 있다', /data-clsact="lesson"/.test(body), true);
+  /* 수업 안내는 걸러 놓은 목록이 아니라 **반 전체**에게 간다. */
+  chk('걸러 놓은 목록이 아니라 반 전체', /return LES_CLS \? \(LES_CLS\.students \|\| \[\]\) : \[\];/.test(cut('lesWho')), true);
+  chk('과목이 맞는 회차만 보인다', /!x\.course \|\| x\.course === course/.test(cut('lesFor')), true);
+  chk('회차 번호 차례로', /\(Number\(a\.round\)\|\|0\)-\(Number\(b\.round\)\|\|0\)/.test(cut('lesFor').replace(/\s/g,'')), true);
+  /* {이름} 이 없으면 열두 통이 모두 같은 글이 된다 — 붙여 넣고 나서 알면 늦다. */
+  chk('이름 자리가 없으면 짚어 준다', /지금 그대로면/.test(body), true);
+  chk('미리보기는 실제로 채워서 보여 준다', /lesFill\(cur\.body, first/.test(body), true);
+  /* 브라우저를 비우면 사라지는 것을 유일한 사본으로 두지 않는다. */
+  chk('파일로 내보낼 수 있다', /data-les="export"/.test(body) && /수업문자\.json/.test(body), true);
+  chk('파일에서 가져올 수 있다', /data-les="import"/.test(body) && /id="lesFile"/.test(SRC), true);
+  /* 덮어쓰기는 되돌릴 수 없다 — 손으로 적은 것이라 다시 못 만든다. */
+  chk('덮어쓰기 전에 묻는다', /!confirm\('지금 있는 회차/.test(body), true);
+  chk('수업 문자 파일이 아니면 거른다', /lessons 목록이 없습니다/.test(body), true);
+  /* 화면에 보이는 목록은 걸러 낸 사본이다. 사본을 고치면 다음에 열 때 돌아온다. */
+  chk('원본에서 찾아 고친다', /const at = all\.indexOf\(cur\);/.test(body), true);
+  /* 이 셸은 앱 자료를 쓰지 않는다. 회차 글은 앱 자료가 아니라 여기서 짓는 것이다. */
+  chk('앱스크립트에 올리지 않는다', /lesSave[\s\S]{0,200}jsonp\(/.test(body), false);
 }
 
 console.log('\n── 모든 반 한눈에 ──');

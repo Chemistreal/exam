@@ -250,11 +250,54 @@ function allRows_(cb) {
   return _jsonOut_(JSON.stringify({ ok: true, rows: rows, n: rows.length }), cb);
 }
 
+/* ── 한 회차의 **익명** 점수 분포 ──────────────────────────────────────
+   공유 링크로 열린 성적표는 **만든 시점의 인원**이 박혀 있었다. 받는 쪽
+   브라우저에는 채점 기록이 없어서, 링크를 지을 때 세어 둔 숫자를 그대로
+   싣는 수밖에 없었다. 그래서 뒤에 채점한 학생이 아무리 늘어도 학부모 화면의
+   분모는 그대로였다("연도누적 총석차 1/5" 가 다섯 명인 채로 굳는다).
+
+   여기서 **지금** 시트를 세어 준다. 나가는 것은 맞은 문항 수별 사람 수뿐이다 —
+   이름도 학교도 답안도 안 나간다. `all` 은 이름이 들어 있어 학부모 브라우저에
+   줄 수 없다. 이 창구는 줄 수 있다.
+
+   ⚠ 링크가 localhost 인 줄은 안 센다. 그건 학생이 낸 것이 아니라 **검사가**
+   낸 것이다(홍길동 60/60 · 예비본 57/60 …). 시트에서 지우기 전에도 여기
+   숫자는 바로 맞는다. */
+function cohortOf_(examId, cb) {
+  var hist = {}, n = 0, skipped = 0;
+  try {
+    var want = EXAM_TITLES[examId] || null;
+    if (want && !(want instanceof Array)) want = [want];
+    /* ⚠ 표에 없는 회차면 **아무것도 안 센다.** 다른 창구는 못 찾으면 필터를
+       걸지 않고 다 주는데(하위호환), 여기서 그러면 **모든 회차 사람을 한
+       회차 모집단으로** 세게 된다 — 분모가 열 배로 부풀고 등수가 통째로
+       틀린다. 빈 대답이면 성적표는 링크에 실린 값을 그대로 쓴다. */
+    if (!want) return _jsonOut_(JSON.stringify(
+      { ok: true, exam: examId, hist: {}, n: 0, unknown: true }), cb);
+    var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('성적기록');
+    if (sh && sh.getLastRow() > 1) {
+      var rows = sh.getRange(2, 1, sh.getLastRow() - 1, HEADER.length).getValues();
+      for (var i = 0; i < rows.length; i++) {
+        var r = rows[i];
+        if (want.indexOf(String(r[0])) < 0) continue;
+        if (/localhost/i.test(String(r[2] || ''))) { skipped++; continue; }
+        var c = Number(r[14]);                    // [14] 맞은개수
+        if (!isFinite(c) || c < 0) continue;
+        c = Math.round(c);
+        hist[c] = (hist[c] || 0) + 1;
+        n++;
+      }
+    }
+  } catch (err) {}
+  return _jsonOut_(JSON.stringify({ ok: true, exam: examId, hist: hist, n: n, skipped: skipped }), cb);
+}
+
 function doGet(e) {
   var p = (e && e.parameter) || {};
   var cb = p.callback;
   if (p.action === 'history') return historyFor_(p.name, cb);
   if (p.action === 'all') return allRows_(cb);
+  if (p.action === 'cohort') return cohortOf_(String(p.exam || ''), cb);
   if (p.action === 'list') {
     var students = [];
     try {

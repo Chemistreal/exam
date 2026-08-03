@@ -27,6 +27,10 @@
 'use strict';
 /* 멈추는 검사는 실패하는 검사보다 나쁘다 — tests/_watchdog.js 주석 참고. */
 require('./_watchdog.js')(240);
+/* 검사가 진짜 시트에 쓰면 안 된다. 실제로 CI 가 돌 때마다 파이널 앱이
+   진짜 앱스크립트로 제출해서, 홍길동·예비본 같은 줄이 학생들 석차
+   모집단에 섞여 들어갔다. 브라우저를 띄우자마자 그 길을 끊는다. */
+const seal = require('./_seal.js');
 const fs = require('fs');
 const path = require('path');
 const ROOT = path.join(__dirname, '..');
@@ -415,7 +419,7 @@ async function oldSheetFallback(browser, errs) {
 }
 
 (async () => {
-  const browser = await chromium.launch({ executablePath: CHROMIUM, args: ['--no-sandbox'] });
+  const browser = seal(await chromium.launch({ executablePath: CHROMIUM, args: ['--no-sandbox'] }));
   const errs = [];
   await oneCall(browser, errs);
   await pendingUpload(browser, errs);
