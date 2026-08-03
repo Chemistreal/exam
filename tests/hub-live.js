@@ -1293,6 +1293,42 @@ const chk = (n, got, want) => {
     });
     await p5.waitForTimeout(200);
     chk('치는 도중에도 안 비워진다', (await named()).indexOf('김지성') >= 0, true);
+
+    /* 상담 주간에는 한 반을 차례로 훑는다. 카드를 닫고 다음 이름을 찾아 다시
+       여는 일이 스무 번 되풀이됐다. 목록에서 연 카드는 ← → 로 넘어가야 한다. */
+    console.log('\n── 학생 카드에서 옆 사람으로 ──');
+    await p5.evaluate(() => {
+      const q = document.getElementById('q');
+      q.value = ''; q.dispatchEvent(new Event('input'));
+    });
+    await p5.waitForTimeout(200);
+    const list = await named();
+    await p5.click('#stuList .row');
+    await p5.waitForTimeout(400);
+    const shown = () => p5.evaluate(() => ({
+      이름: document.getElementById('dlgName').textContent,
+      자리: document.getElementById('dlgAt').textContent,
+      단추: !document.getElementById('dlgNav').hidden,
+      앞: document.getElementById('dlgPrev').disabled,
+    }));
+    let st = await shown();
+    chk('첫 학생이 열린다', st.이름, list[0]);
+    chk('넘김 단추가 보인다', st.단추, true);
+    chk('몇 번째인지 적는다', st.자리, '1 / ' + list.length);
+    chk('맨 앞에서는 앞으로 못 간다', st.앞, true);
+    await p5.keyboard.press('ArrowRight');
+    await p5.waitForTimeout(400);
+    st = await shown();
+    chk('→ 로 다음 사람', [st.이름, st.자리], [list[1], '2 / ' + list.length]);
+    await p5.keyboard.press('ArrowLeft');
+    await p5.waitForTimeout(400);
+    chk('← 로 되돌아온다', (await shown()).이름, list[0]);
+    /* 목록 없이 연 카드에는 넘길 곳이 없다 — 단추가 남으면 안 된다. */
+    await p5.evaluate(() => { document.getElementById('dlg').close(); });
+    await p5.waitForTimeout(200);
+    await p5.evaluate(() => openStudent({ name:'혼자', school:'', grade:'', apps:{} }));
+    await p5.waitForTimeout(400);
+    chk('혼자 열면 단추가 안 보인다', (await shown()).단추, false);
     await p5.close();
   }
 

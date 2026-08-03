@@ -883,7 +883,33 @@ console.log('\n── 반으로도 물을 수 있다 ──');
       /data-abs="'\+r\.abs\[0\]\.i\+'"/.test(body) &&
       /data-pend="'\+r\.pend\[0\]\+'"/.test(body) &&
       /data-pass="'\+r\.pass\[0\]\+'"/.test(body), true);
-  chk('반에서 학생 카드로 넘어간다', /openStudent\(hit\.length===1/.test(body), true);
+  /* 명단에 이미 있는 학생이면 그 줄을 쓴다(파이널 회차까지 붙은 카드가 열린다).
+     같은 이름이 둘이면 붙이지 않는다 — 반쪽 카드가 남의 기록보다 낫다. */
+  chk('명단에 있으면 그 줄로 연다', /hit\.length===1 \? hit\[0\]/.test(cut('rosterRow')), true);
+  chk('반에서 학생 카드로 넘어간다', /openStudent\(list\[i\], list, i\)/.test(body), true);
+}
+
+/* 상담 주간에는 한 반을 이름 순서대로 훑는다. 카드를 닫고 다음 이름을 찾아
+   다시 여는 일이 스무 번 되풀이됐다. */
+console.log('\n── 학생 카드에서 옆 사람으로 ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  chk('넘김 자리가 있다', /id="dlgNav"/.test(SRC) && /id="dlgPrev"/.test(SRC) &&
+                          /id="dlgNext"/.test(SRC), true);
+  /* 목록 없이 연 카드(알림에서 이름을 누른 것)에는 넘길 곳이 없다 —
+     눌러도 아무 일이 없는 단추를 두지 않는다. */
+  chk('혼자 열면 단추가 안 보인다', /nav\.hidden = n < 2 \|\| DLG_AT < 0;/.test(cut('dlgNavShow')), true);
+  chk('끝에서는 못 누른다', /disabled = DLG_AT <= 0/.test(cut('dlgNavShow')) &&
+                            /disabled = DLG_AT >= n-1/.test(cut('dlgNavShow')), true);
+  chk('범위를 넘지 않는다', /at < 0 \|\| at >= DLG_LIST\.length/.test(cut('dlgStep')), true);
+  /* 이미 열린 창에 showModal 을 또 부르면 브라우저가 예외를 던진다. */
+  chk('열린 창을 다시 열지 않는다', /if\(!dlg\.open\) dlg\.showModal\(\);/.test(body), true);
+  /* 같은 창을 회차와 학생이 나눠 쓴다. 회차 창에 학생용 단추가 남으면
+     누를 때 엉뚱한 학생이 열린다. */
+  chk('회차 창에는 안 남는다', /DLG_LIST = null; DLG_AT = -1; dlgNavShow\(\);/.test(cut('openRound')), true);
+  chk('닫으면 잊는다', /DLG_LIST = null; DLG_AT = -1;/.test(body.slice(body.indexOf("DLG.addEventListener('close'"))), true);
+  const kb = body.slice(body.indexOf("document.addEventListener('keydown'"));
+  chk('← → 로도 넘긴다', /ArrowLeft.*dlgStep|dlgStep\(e\.key==='ArrowLeft'/.test(kb), true);
 }
 
 console.log('\n── 그림은 한 벌의 어휘를 쓴다 ──');

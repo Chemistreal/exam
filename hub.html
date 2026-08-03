@@ -217,7 +217,12 @@ dialog::backdrop{background:rgba(20,18,14,.45)}
   align-items:baseline;gap:10px;flex-wrap:wrap}
 .dlg__h h3{margin:0;font-family:var(--serif);font-size:19px;font-weight:600}
 .dlg__h .where{color:var(--muted);font-size:13px}
-.dlg__h .x{margin-left:auto}
+/* 오른쪽 단추 묶음을 미는 것은 빈칸 한 조각이다. 예전에는 '닫기' 에
+   margin-left:auto 를 걸었는데, 그 사이에 단추가 하나 더 끼면 남는 자리가
+   둘로 갈려 '상담지' 와 '닫기' 사이가 벌어진다. */
+.dlg__h .sp{flex:1 1 auto}
+.dlg__h .dnav{display:flex;align-items:center;gap:6px}
+.dlg__h .dnav .btn{padding:5px 11px;font-size:15px;line-height:1}
 .dlg__b{padding:16px 22px 22px;max-height:64vh;overflow:auto}
 .trk{border-left:2px solid var(--line);padding-left:16px;margin-left:6px}
 .trk__i{position:relative;padding:9px 0;border-bottom:1px solid var(--line)}
@@ -491,7 +496,9 @@ body:not(.snzshow) .row.snz{display:none}
       <p class="hint">세 앱에서 읽어 옵니다. 이 화면은 아무것도 저장하지 않습니다.
         숫자 밑의 <b>칩</b>을 누르면 그 할 일로 바로 내려갑니다.
         탭은 <span class="kbd">1</span>–<span class="kbd">9</span><span class="kbd">0</span>,
-        찾기는 <span class="kbd">/</span>, 무엇이든 <span class="kbd">Ctrl</span>+<span class="kbd">K</span>.</p>
+        찾기는 <span class="kbd">/</span>, 무엇이든 <span class="kbd">Ctrl</span>+<span class="kbd">K</span>.
+        이름은 <b>초성</b>으로도 찾습니다(<span class="kbd">ㄱㅇㅈ</span> → 김유정).
+        목록에서 연 학생 카드는 <span class="kbd">←</span><span class="kbd">→</span> 로 옆 학생으로 넘어갑니다.</p>
       <div class="cards" id="dashCards"><div class="card"><b>—</b><span>불러오는 중</span></div></div>
       <!-- 미루기는 선생님이 **누른** 것만 미룬다. 잊은 것은 대개 누른 적이 없다.
            아무도 안 누른 것을 여기서 짚는다. -->
@@ -664,6 +671,14 @@ body:not(.snzshow) .row.snz{display:none}
 
 <dialog id="dlg"><div class="dlg__h">
   <h3 id="dlgName"></h3><span class="where" id="dlgWhere"></span>
+  <span class="sp"></span>
+  <!-- 상담 주간에는 한 반을 차례로 훑는다. 카드를 닫고 다음 이름을 찾아
+       다시 여는 일이 스무 번 되풀이됐다. 여기서 곧장 넘긴다(← →). -->
+  <span class="dnav" id="dlgNav" hidden>
+    <button class="btn" id="dlgPrev" title="앞 학생 (←)" aria-label="앞 학생">‹</button>
+    <span class="where" id="dlgAt"></span>
+    <button class="btn" id="dlgNext" title="뒤 학생 (→)" aria-label="뒤 학생">›</button>
+  </span>
   <!-- 학부모 상담은 매주 돌아오는데, 그때마다 세 앱을 오가며 손으로 옮겨 적었다. -->
   <button class="btn" id="dlgPrint">상담지</button>
   <button class="btn x" id="dlgX">닫기</button>
@@ -2393,7 +2408,9 @@ function renderQuick(){
   }).join('');
   el.__rows = rows;
   [].forEach.call(el.querySelectorAll('.row'), function(b){
-    b.addEventListener('click', function(){ openStudent(el.__rows[+b.dataset.i]); });
+    b.addEventListener('click', function(){
+      const i = +b.dataset.i;
+      openStudent(el.__rows[i], el.__rows, i); });
   });
 }
 /* 학생 카드 안에서도 실패를 말해 줘야 한다. 카드가 열려 있을 때 대시보드에
@@ -2508,10 +2525,46 @@ function renderStudents(){
   }).join('');
   el.__rows = rows;
   [].forEach.call(el.querySelectorAll('.row'), function(b){
-    b.addEventListener('click', function(){ openStudent(el.__rows[+b.dataset.i]); });
+    b.addEventListener('click', function(){
+      const i = +b.dataset.i;
+      openStudent(el.__rows[i], el.__rows, i); });
   });
 }
-function openStudent(r){
+/* ── 이웃 학생으로 넘기기 ──────────────────────────────────────────
+   상담 주간에는 한 반을 이름 순서대로 훑는다. 여태는 카드를 닫고 → 목록에서
+   다음 이름을 찾고 → 다시 여는 일을 스무 번 되풀이했다. 목록에서 연 카드는
+   그 목록을 기억해 두었다가 ← → 로 곧장 넘긴다.
+
+   목록 없이 연 카드(알림에서 이름을 누른 것 · 빠른 이동)는 넘길 곳이 없으니
+   단추도 안 보인다 — 눌러도 아무 일이 없는 단추를 두지 않는다. */
+let DLG_LIST = null, DLG_AT = -1;
+function dlgNavShow(){
+  const nav = document.getElementById('dlgNav');
+  const n = DLG_LIST ? DLG_LIST.length : 0;
+  nav.hidden = n < 2 || DLG_AT < 0;
+  if(nav.hidden) return;
+  document.getElementById('dlgAt').textContent = (DLG_AT+1)+' / '+n;
+  document.getElementById('dlgPrev').disabled = DLG_AT <= 0;
+  document.getElementById('dlgNext').disabled = DLG_AT >= n-1;
+}
+function dlgStep(d){
+  if(!DLG_LIST) return;
+  const at = DLG_AT + d;
+  if(at < 0 || at >= DLG_LIST.length) return;
+  openStudent(DLG_LIST[at], DLG_LIST, at);
+}
+/* 명단에 이미 있는 학생이면 그 줄을 쓴다 — 파이널 회차까지 붙은 카드가 열린다.
+   같은 이름이 둘이면 어느 쪽인지 알 수 없으니 붙이지 않는다(반쪽 카드가 낫다). */
+function rosterRow(name, school, grade){
+  const hit = ROSTER.filter(function(x){
+    return normName(x.name)===normName(name) && schoolAkin(x.school, school||''); });
+  return hit.length===1 ? hit[0]
+       : { name:name, school:school||'', grade:grade||'', apps:{dt:1} };
+}
+function openStudent(r, list, at){
+  DLG_LIST = Array.isArray(list) && list.length > 1 ? list : null;
+  DLG_AT = DLG_LIST ? (at != null ? at : DLG_LIST.indexOf(r)) : -1;
+  dlgNavShow();
   document.getElementById('dlgName').textContent = r.name;
   document.getElementById('dlgWhere').textContent =
     [r.school, r.grade?r.grade+'학년':''].filter(Boolean).join(' ');
@@ -2567,7 +2620,11 @@ function openStudent(r){
   Promise.all([
     dtPassed().catch(function(){}), dtPending().catch(function(){}), dtAbsentees().catch(function(){}),
   ]).then(function(){ syncWorkRows(); renderStuOther(); });
-  document.getElementById('dlg').showModal();
+  /* 이미 열려 있는 창에 showModal 을 또 부르면 브라우저가 예외를 던진다 —
+     이웃으로 넘길 때가 바로 그 경우다(안에 든 것만 갈아 끼운다). */
+  const dlg = document.getElementById('dlg');
+  if(!dlg.open) dlg.showModal();
+  dlg.querySelector('.dlg__b').scrollTop = 0;
 }
 /* ══════════════════════════════════════════════════════════════════
    상담지 — 한 장으로
@@ -2738,11 +2795,16 @@ function examTitle(id){
 }
 const DLG = document.getElementById('dlg');
 document.getElementById('dlgX').addEventListener('click', function(){ DLG.close(); });
+document.getElementById('dlgPrev').addEventListener('click', function(){ dlgStep(-1); });
+document.getElementById('dlgNext').addEventListener('click', function(){ dlgStep(1); });
 /* 바깥을 눌러도 닫는다. showModal 은 Esc 로 닫히지만, 마우스로 쓰는 사람은
    바깥을 누르고 안 닫히면 화면이 멈춘 줄 안다. */
 DLG.addEventListener('click', function(e){ if(e.target===DLG) DLG.close(); });
 /* 닫힌 카드를 계속 들고 있으면, 뒤늦게 온 DT 응답이 이미 사라진 자리를 그린다. */
-DLG.addEventListener('close', function(){ DLG_STU = null; RND_OPEN = null; });
+DLG.addEventListener('close', function(){
+  DLG_STU = null; RND_OPEN = null; DLG_LIST = null; DLG_AT = -1;
+  document.getElementById('dlgNav').hidden = true;
+});
 document.getElementById('q').addEventListener('input', function(){ renderStudents(); writeHash(); });
 document.getElementById('reload').addEventListener('click', loadRoster);
 
@@ -3061,12 +3123,11 @@ document.addEventListener('click', function(e){
   const b = e.target.closest ? e.target.closest('.mini[data-clsact],.mini[data-clsrow]') : null;
   if(!b) return;
   if(b.dataset.clsrow != null){
-    const r = CLS_ROWS[+b.dataset.clsrow]; if(!r) return;
-    /* 명단에 이미 있는 학생이면 그 줄을 쓴다 — 파이널 회차까지 붙은 카드가 열린다. */
-    const hit = ROSTER.filter(function(x){
-      return normName(x.name)===normName(r.who.name) && schoolAkin(x.school, r.who.school); });
-    openStudent(hit.length===1 ? hit[0]
-      : { name:r.who.name, school:r.who.school, grade:r.who.grade, apps:{dt:1} });
+    const i = +b.dataset.clsrow; if(!CLS_ROWS[i]) return;
+    /* 반 전체를 함께 넘긴다 — 상담 주간에 한 반을 차례로 훑는 그 순서다. */
+    const list = CLS_ROWS.map(function(x){
+      return rosterRow(x.who.name, x.who.school, x.who.grade); });
+    openStudent(list[i], list, i);
     return;
   }
   if(b.dataset.clsact === 'names')
@@ -3289,11 +3350,11 @@ document.addEventListener('click', function(e){
   const b = e.target.closest ? e.target.closest('.mini[data-conact],.mini[data-conrow]') : null;
   if(!b) return;
   if(b.dataset.conrow != null){
-    const r = CON_ROWS[+b.dataset.conrow]; if(!r) return;
-    const hit = ROSTER.filter(function(x){
-      return normName(x.name)===normName(r.name) && schoolAkin(x.school, r.school||''); });
-    openStudent(hit.length===1 ? hit[0]
-      : { name:r.name, school:r.school||'', grade:r.year||'', apps:{dt:1} });
+    const i = +b.dataset.conrow; if(!CON_ROWS[i]) return;
+    /* 이 개념을 틀린 아이들을 차례로 본다 — 그것이 이 목록을 여는 이유다. */
+    const list = CON_ROWS.map(function(x){
+      return rosterRow(x.name, x.school||'', x.year||''); });
+    openStudent(list[i], list, i);
     return;
   }
   if(b.dataset.conact === 'repeat'){ CON_REPEAT = !CON_REPEAT; renderConcept(); return; }
@@ -3414,6 +3475,9 @@ document.addEventListener('click', function(e){
 function openRound(id){
   const g = RNDS.filter(function(x){ return x.id===id; })[0]; if(!g) return;
   RND_OPEN = g;
+  /* 같은 창을 회차와 학생이 나눠 쓴다. 학생용 넘김 단추가 회차 창에 남으면
+     누를 때 엉뚱한 학생이 열린다. */
+  DLG_LIST = null; DLG_AT = -1; dlgNavShow();
   document.getElementById('dlgName').textContent = examTitle(id);
   document.getElementById('dlgWhere').textContent =
     g.n+'명 채점 · 평균 '+g.avg+'%' + (g.last? ' · 마지막 '+when(g.last) : '');
@@ -3986,6 +4050,11 @@ document.addEventListener('keydown', function(e){
   }
   if(e.key==='Escape' && typing && tag==='INPUT'){ t.value=''; t.dispatchEvent(new Event('input')); return; }
   if(typing) return;
+  /* 학생 카드가 목록에서 열렸으면 ← → 로 이웃으로 넘긴다. 넘길 곳이 없으면
+     dlgStep 이 조용히 돌아간다 — 화면 끝에서 아무 일도 안 일어난다. */
+  if(DLG.open && DLG_LIST && (e.key==='ArrowLeft' || e.key==='ArrowRight')){
+    e.preventDefault(); dlgStep(e.key==='ArrowLeft' ? -1 : 1); return;
+  }
   /* 숫자키 한 자리씩 탭 하나. 열째는 0 이다(1234567890). 탭을 늘리면 여기도
      늘려야 한다 — 검사가 두 길이를 견준다. */
   const n = '1234567890-='.indexOf(e.key);
