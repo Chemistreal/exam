@@ -182,6 +182,12 @@ jobs:
       # tests/run.js 가 이 목록을 그대로 읽어 로컬에서도 같은 것을 돌린다.
       - name: 석차 모집단 (기준표 + 채점 기록)
         run: node tests/rank-baseline.js
+      # 기준 기록은 석차의 분모다. 자동 갱신이 **두 번** 이것을 지웠다 —
+      # 8/3 에 문항별 통계가 열 회차에서, 8/4 에 모집단이 387명→225명으로
+      # (jmchc-1 은 46명→11명). 그 분모로 성적표가 나가고 있었다.
+      # '손입력 깃발' 하나에 기댄 것이 화근이라, 이제 내용을 보고 막는다.
+      - name: 자동 갱신이 못 만드는 것을 지우지 않는다
+        run: node tests/baseline-guard.js
       - name: 성적표 Word 문서
         run: node tests/docx-report.js
       - name: 오답노트 상호작용

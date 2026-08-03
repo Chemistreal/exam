@@ -1395,7 +1395,29 @@ function dailyBackup() {
    원본이니 여기서 만든다 — 이름은 애초에 안 들어간다(점수 분포와 정답자 수뿐).
 
    손으로 넣어 둔 회차는 건드리지 않는다. 엑셀에는 이 시트에 없는 옛 응시자가
-   들어 있어서, 시트만으로 덮으면 모집단이 확 줄어든다. */
+   들어 있어서, 시트만으로 덮으면 모집단이 확 줄어든다.
+
+   ⚠ 그 '건드리지 않는다' 가 **두 번 다 안 먹었다.**
+
+     2026-08-03 04:52  또래 정답률(q·qc)이 열 회차에서 사라짐 — 4시간 빨간불
+     2026-08-04 04:52  같은 일이 또. 게다가 모집단이 387명 → 225명으로 줄었다
+                       (jmchc-1 은 46명 → 11명). 그 숫자로 석차가 나가고 있었다.
+
+   `byHand` 깃발 하나에만 기댔기 때문이다. 엑셀에서 만든 회차에 그 깃발이 안
+   찍혀 있으면 장치가 통째로 없는 것과 같다 — 실제로 안 찍혀 있었다. 깃발은
+   사람이 기억해야 하는 것이라, 잊으면 조용히 데이터가 사라진다.
+
+   그래서 **깃발 말고 내용을 본다.** 두 가지를 지킨다.
+
+     ① 내가 못 만드는 것을 갖고 있으면 손대지 않는다.
+        여기서 만드는 것은 n·hist 뿐이다. q·qc(문항별 통계)를 가진 회차는
+        엑셀에서 온 것이고, 덮으면 그 통계가 영영 사라진다.
+     ② 인원이 줄어드는 갱신은 하지 않는다.
+        시트에는 옛 응시자가 없다. 46명이 11명이 되는 것은 '새 자료' 가 아니라
+        **자료를 잃는 것**이다. 늘어나는 갱신만 받는다.
+
+   둘 다 지나간 것만 갱신한다. 막힌 회차는 로그에 남긴다 — 조용히 건너뛰면
+   왜 안 늘어나는지 아무도 모른다. */
 function rebuildBaseline() {
   if (!_ghToken_()) { Logger.log('[기준] GITHUB_TOKEN 없음 — 건너뜀'); return; }
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -1420,20 +1442,36 @@ function rebuildBaseline() {
     var c = Number(r[8]); if (!isFinite(c)) return;
     (by[id] || (by[id] = {}))[code] = c;                  // 같은 학생은 최신 한 번만
   });
-  var made = 0;
+  var made = 0, kept = [];
   for (var id in by) {
-    if (handmade[id]) continue;                           // 엑셀로 넣은 회차는 그대로 둔다
     var hist = {}, n = 0;
     for (var code in by[id]) { var s = by[id][code]; hist[s] = (hist[s] || 0) + 1; n++; }
     if (n < 2) continue;                                  // 한 명뿐이면 모집단이 아니다
+    var why = _baselineKeepWhy_(exams[id], n, handmade[id]);
+    if (why) { kept.push(id + '(' + why + ')'); continue; }
     exams[id] = { n: n, hist: hist, from: 'sheet',
                   at: Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd') };
     made++;
   }
+  if (kept.length) Logger.log('[기준] 그대로 둔 회차: ' + kept.join(', '));
   if (!made) { Logger.log('[기준] 새로 만들 회차 없음'); return; }
   _ghPut_('cohort/baseline.json', JSON.stringify({ exams: exams }, null, 1),
           '기준 기록 자동 갱신 · ' + made + '회차');
   Logger.log('[기준] ' + made + '회차 갱신');
+}
+
+/* 이 회차를 그대로 둘 이유. 없으면 빈 문자열(= 갱신해도 된다).
+   ⚠ 여기가 이 장치의 전부다. 세 줄이지만 두 번의 사고가 여기서 났다. */
+function _baselineKeepWhy_(old, n, byHandFlag) {
+  if (!old) return '';                       // 처음 만드는 회차 — 잃을 것이 없다
+  if (byHandFlag) return '손입력';            // 사람이 그렇게 적어 뒀다
+  /* 여기서 만드는 것은 n·hist 뿐이다. 문항별 통계를 가진 회차를 덮으면
+     또래 정답률이 사라진다 — 다시 만들려면 엑셀 원본이 있어야 한다. */
+  if (old.q || old.qc) return '문항별통계';
+  /* 시트에는 옛 응시자가 없다. 46명이 11명이 되는 것은 새 자료가 아니라
+     자료를 잃는 것이다. 늘어나는 갱신만 받는다. */
+  if (Number(old.n) > n) return '인원감소 ' + old.n + '→' + n;
+  return '';
 }
 
 /* ── ③ 주간 리포트 ────────────────────────────────────────────────────
