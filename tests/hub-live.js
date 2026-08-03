@@ -1264,6 +1264,74 @@ const chk = (n, got, want) => {
     await p4.close();
   }
 
+  /* 한글 자판에서 자음만 치면 낱자가 남는다. 순수 함수는 tests/hub.js 가 재고,
+     여기서는 **화면이 실제로 줄어드는지**를 본다 — 함수가 맞아도 찾기 칸이
+     그 함수를 안 쓰면 아무것도 안 달라진다(예전에 세 칸 중 한 곳만 고쳤다). */
+  console.log('\n── 초성으로 찾으면 목록이 줄어든다 ──');
+  {
+    const p5 = await ctx.newPage();
+    await p5.goto(`http://localhost:${PORT}/hub.html`, { waitUntil: 'domcontentloaded' });
+    await p5.waitForTimeout(900);
+    await p5.evaluate(() => show('stu'));
+    await p5.waitForTimeout(300);
+    const named = async () => p5.evaluate(() =>
+      [].map.call(document.querySelectorAll('#stuList .row .nm'), e => e.textContent));
+    console.log('  명단 ' + JSON.stringify(await named()));
+    chk('명단에 이름이 있다', (await named()).length > 1, true);
+    /* '이도현' 의 초성. 한글 IME 없이도 낱자는 그대로 넣을 수 있다.
+       ⚠ 앞선 검사들이 명단을 바꿔 놓는다 — 여기 있는 이름으로 골라야 한다. */
+    await p5.evaluate(() => {
+      const q = document.getElementById('q');
+      q.value = 'ㅇㄷㅎ'; q.dispatchEvent(new Event('input'));
+    });
+    await p5.waitForTimeout(200);
+    chk('초성만 쳐도 그 학생이 남는다', await named(), ['이도현']);
+    /* 조합 중인 글자('김ㅈ')에서 목록이 비지 않아야 한다 — 치는 도중의 한 순간이다. */
+    await p5.evaluate(() => {
+      const q = document.getElementById('q');
+      q.value = '김ㅈ'; q.dispatchEvent(new Event('input'));
+    });
+    await p5.waitForTimeout(200);
+    chk('치는 도중에도 안 비워진다', (await named()).indexOf('김지성') >= 0, true);
+
+    /* 상담 주간에는 한 반을 차례로 훑는다. 카드를 닫고 다음 이름을 찾아 다시
+       여는 일이 스무 번 되풀이됐다. 목록에서 연 카드는 ← → 로 넘어가야 한다. */
+    console.log('\n── 학생 카드에서 옆 사람으로 ──');
+    await p5.evaluate(() => {
+      const q = document.getElementById('q');
+      q.value = ''; q.dispatchEvent(new Event('input'));
+    });
+    await p5.waitForTimeout(200);
+    const list = await named();
+    await p5.click('#stuList .row');
+    await p5.waitForTimeout(400);
+    const shown = () => p5.evaluate(() => ({
+      이름: document.getElementById('dlgName').textContent,
+      자리: document.getElementById('dlgAt').textContent,
+      단추: !document.getElementById('dlgNav').hidden,
+      앞: document.getElementById('dlgPrev').disabled,
+    }));
+    let st = await shown();
+    chk('첫 학생이 열린다', st.이름, list[0]);
+    chk('넘김 단추가 보인다', st.단추, true);
+    chk('몇 번째인지 적는다', st.자리, '1 / ' + list.length);
+    chk('맨 앞에서는 앞으로 못 간다', st.앞, true);
+    await p5.keyboard.press('ArrowRight');
+    await p5.waitForTimeout(400);
+    st = await shown();
+    chk('→ 로 다음 사람', [st.이름, st.자리], [list[1], '2 / ' + list.length]);
+    await p5.keyboard.press('ArrowLeft');
+    await p5.waitForTimeout(400);
+    chk('← 로 되돌아온다', (await shown()).이름, list[0]);
+    /* 목록 없이 연 카드에는 넘길 곳이 없다 — 단추가 남으면 안 된다. */
+    await p5.evaluate(() => { document.getElementById('dlg').close(); });
+    await p5.waitForTimeout(200);
+    await p5.evaluate(() => openStudent({ name:'혼자', school:'', grade:'', apps:{} }));
+    await p5.waitForTimeout(400);
+    chk('혼자 열면 단추가 안 보인다', (await shown()).단추, false);
+    await p5.close();
+  }
+
   chk('콘솔에 예외가 없다', errs.filter(e => !/Failed to fetch|ERR_/.test(e)), []);
   await b.close();
   console.log(fail ? `\n${fail}개 실패` : '\n모두 통과');

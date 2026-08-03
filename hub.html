@@ -217,7 +217,12 @@ dialog::backdrop{background:rgba(20,18,14,.45)}
   align-items:baseline;gap:10px;flex-wrap:wrap}
 .dlg__h h3{margin:0;font-family:var(--serif);font-size:19px;font-weight:600}
 .dlg__h .where{color:var(--muted);font-size:13px}
-.dlg__h .x{margin-left:auto}
+/* 오른쪽 단추 묶음을 미는 것은 빈칸 한 조각이다. 예전에는 '닫기' 에
+   margin-left:auto 를 걸었는데, 그 사이에 단추가 하나 더 끼면 남는 자리가
+   둘로 갈려 '상담지' 와 '닫기' 사이가 벌어진다. */
+.dlg__h .sp{flex:1 1 auto}
+.dlg__h .dnav{display:flex;align-items:center;gap:6px}
+.dlg__h .dnav .btn{padding:5px 11px;font-size:15px;line-height:1}
 .dlg__b{padding:16px 22px 22px;max-height:64vh;overflow:auto}
 .trk{border-left:2px solid var(--line);padding-left:16px;margin-left:6px}
 .trk__i{position:relative;padding:9px 0;border-bottom:1px solid var(--line)}
@@ -491,7 +496,9 @@ body:not(.snzshow) .row.snz{display:none}
       <p class="hint">세 앱에서 읽어 옵니다. 이 화면은 아무것도 저장하지 않습니다.
         숫자 밑의 <b>칩</b>을 누르면 그 할 일로 바로 내려갑니다.
         탭은 <span class="kbd">1</span>–<span class="kbd">9</span><span class="kbd">0</span>,
-        찾기는 <span class="kbd">/</span>, 무엇이든 <span class="kbd">Ctrl</span>+<span class="kbd">K</span>.</p>
+        찾기는 <span class="kbd">/</span>, 무엇이든 <span class="kbd">Ctrl</span>+<span class="kbd">K</span>.
+        이름은 <b>초성</b>으로도 찾습니다(<span class="kbd">ㄱㅇㅈ</span> → 김유정).
+        목록에서 연 학생 카드는 <span class="kbd">←</span><span class="kbd">→</span> 로 옆 학생으로 넘어갑니다.</p>
       <div class="cards" id="dashCards"><div class="card"><b>—</b><span>불러오는 중</span></div></div>
       <!-- 미루기는 선생님이 **누른** 것만 미룬다. 잊은 것은 대개 누른 적이 없다.
            아무도 안 누른 것을 여기서 짚는다. -->
@@ -664,6 +671,14 @@ body:not(.snzshow) .row.snz{display:none}
 
 <dialog id="dlg"><div class="dlg__h">
   <h3 id="dlgName"></h3><span class="where" id="dlgWhere"></span>
+  <span class="sp"></span>
+  <!-- 상담 주간에는 한 반을 차례로 훑는다. 카드를 닫고 다음 이름을 찾아
+       다시 여는 일이 스무 번 되풀이됐다. 여기서 곧장 넘긴다(← →). -->
+  <span class="dnav" id="dlgNav" hidden>
+    <button class="btn" id="dlgPrev" title="앞 학생 (←)" aria-label="앞 학생">‹</button>
+    <span class="where" id="dlgAt"></span>
+    <button class="btn" id="dlgNext" title="뒤 학생 (→)" aria-label="뒤 학생">›</button>
+  </span>
   <!-- 학부모 상담은 매주 돌아오는데, 그때마다 세 앱을 오가며 손으로 옮겨 적었다. -->
   <button class="btn" id="dlgPrint">상담지</button>
   <button class="btn x" id="dlgX">닫기</button>
@@ -784,6 +799,45 @@ const APPS = {
    따지지 않는다 — 한쪽에만 적혀 있다고 다른 사람으로 갈라놓으면
    명단이 두 배가 된다. */
 function normName(s){ return String(s==null?'':s).replace(/\s+/g,'').trim(); }
+
+/* ── 초성으로도 찾는다 ───────────────────────────────────────────────
+   한글 자판에서 자음만 치면 낱자가 그대로 남는다 — '김유정' 을 찾으려고
+   'ㄱㅇㅈ' 세 번만 치는 것이 한국에서 이름을 찾는 보통의 방법이다.
+   명단이 300명이 넘는데 여태 셸의 세 찾기 칸(학생·바로 찾기·빠른 이동)은
+   전부 통짜 비교라, 초성을 치면 **찾는 학생이 없습니다** 가 떴다.
+
+   덤이 하나 더 있다. 한글은 치는 도중에 글자가 완성되지 않는다 —
+   '김준' 을 치는 중간에 '김ㅈ' 이 한 번 지나간다. 통짜 비교로는 그 순간
+   목록이 텅 비었다가 다시 찬다. 낱자를 초성으로 보면 안 비워진다.
+
+   모음(ㅏ·ㅗ…)은 초성이 될 수 없으니 낱자로 쳐 주지 않는다. */
+const CHO = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ',
+             'ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+function choOf(ch){
+  const c = String(ch||'').charCodeAt(0);
+  return (c >= 0xAC00 && c <= 0xD7A3) ? CHO[Math.floor((c - 0xAC00) / 588)] : '';
+}
+function isCho(ch){ return CHO.indexOf(ch) >= 0; }
+/* 찾는 말이 통짜로 들어 있거나(김유 → 김유정), 초성 자리가 차례로 맞으면
+   찾은 것으로 본다. 섞여도 된다: '김ㅈ' 은 김준·김진에 붙는다. */
+function koHit(hay, needle){
+  hay = normName(hay); needle = normName(needle);
+  if(!needle) return true;
+  if(hay.indexOf(needle) >= 0) return true;
+  /* 낱자가 하나도 없으면 위 통짜 비교가 전부다 — 더 볼 것이 없다. */
+  if(!Array.prototype.some.call(needle, isCho)) return false;
+  for(let s = 0; s + needle.length <= hay.length; s++){
+    let ok = true;
+    for(let k = 0; k < needle.length; k++){
+      const n = needle[k], h = hay[s + k];
+      if(n === h) continue;
+      if(isCho(n) && choOf(h) === n) continue;
+      ok = false; break;
+    }
+    if(ok) return true;
+  }
+  return false;
+}
 function normSchool(s){
   return String(s==null?'':s).replace(/\s+/g,'')
     .replace(/(중학교|고등학교|초등학교)$/,m=>m[0])   // 휘문중학교 → 휘문중
@@ -2344,7 +2398,7 @@ function renderQuick(){
   const q = normName(document.getElementById('qq').value||'');
   const el = document.getElementById('qqList');
   if(!q){ el.hidden = true; el.innerHTML=''; return; }
-  const rows = ROSTER.filter(function(r){ return normName(r.name).indexOf(q)>=0; }).slice(0,8);
+  const rows = ROSTER.filter(function(r){ return koHit(r.name, q); }).slice(0,8);
   el.hidden = false;
   if(!rows.length){ el.innerHTML = '<div class="spin" style="padding:14px 16px">찾는 학생이 없습니다.</div>'; return; }
   el.innerHTML = rows.map(function(r,i){
@@ -2354,7 +2408,9 @@ function renderQuick(){
   }).join('');
   el.__rows = rows;
   [].forEach.call(el.querySelectorAll('.row'), function(b){
-    b.addEventListener('click', function(){ openStudent(el.__rows[+b.dataset.i]); });
+    b.addEventListener('click', function(){
+      const i = +b.dataset.i;
+      openStudent(el.__rows[i], el.__rows, i); });
   });
 }
 /* 학생 카드 안에서도 실패를 말해 줘야 한다. 카드가 열려 있을 때 대시보드에
@@ -2450,7 +2506,7 @@ function renderStudents(){
   const rows = ROSTER.filter(function(r){
     if(!keep(r)) return false;
     if(!nq) return true;
-    return normName(r.name).indexOf(nq)>=0 || normSchool(r.school).indexOf(normSchool(q))>=0;
+    return koHit(r.name, nq) || koHit(normSchool(r.school), normSchool(q));
   });
   const el = document.getElementById('stuList');
   if(!rows.length){ el.innerHTML = '<div class="spin" style="padding:16px">'+
@@ -2469,10 +2525,46 @@ function renderStudents(){
   }).join('');
   el.__rows = rows;
   [].forEach.call(el.querySelectorAll('.row'), function(b){
-    b.addEventListener('click', function(){ openStudent(el.__rows[+b.dataset.i]); });
+    b.addEventListener('click', function(){
+      const i = +b.dataset.i;
+      openStudent(el.__rows[i], el.__rows, i); });
   });
 }
-function openStudent(r){
+/* ── 이웃 학생으로 넘기기 ──────────────────────────────────────────
+   상담 주간에는 한 반을 이름 순서대로 훑는다. 여태는 카드를 닫고 → 목록에서
+   다음 이름을 찾고 → 다시 여는 일을 스무 번 되풀이했다. 목록에서 연 카드는
+   그 목록을 기억해 두었다가 ← → 로 곧장 넘긴다.
+
+   목록 없이 연 카드(알림에서 이름을 누른 것 · 빠른 이동)는 넘길 곳이 없으니
+   단추도 안 보인다 — 눌러도 아무 일이 없는 단추를 두지 않는다. */
+let DLG_LIST = null, DLG_AT = -1;
+function dlgNavShow(){
+  const nav = document.getElementById('dlgNav');
+  const n = DLG_LIST ? DLG_LIST.length : 0;
+  nav.hidden = n < 2 || DLG_AT < 0;
+  if(nav.hidden) return;
+  document.getElementById('dlgAt').textContent = (DLG_AT+1)+' / '+n;
+  document.getElementById('dlgPrev').disabled = DLG_AT <= 0;
+  document.getElementById('dlgNext').disabled = DLG_AT >= n-1;
+}
+function dlgStep(d){
+  if(!DLG_LIST) return;
+  const at = DLG_AT + d;
+  if(at < 0 || at >= DLG_LIST.length) return;
+  openStudent(DLG_LIST[at], DLG_LIST, at);
+}
+/* 명단에 이미 있는 학생이면 그 줄을 쓴다 — 파이널 회차까지 붙은 카드가 열린다.
+   같은 이름이 둘이면 어느 쪽인지 알 수 없으니 붙이지 않는다(반쪽 카드가 낫다). */
+function rosterRow(name, school, grade){
+  const hit = ROSTER.filter(function(x){
+    return normName(x.name)===normName(name) && schoolAkin(x.school, school||''); });
+  return hit.length===1 ? hit[0]
+       : { name:name, school:school||'', grade:grade||'', apps:{dt:1} };
+}
+function openStudent(r, list, at){
+  DLG_LIST = Array.isArray(list) && list.length > 1 ? list : null;
+  DLG_AT = DLG_LIST ? (at != null ? at : DLG_LIST.indexOf(r)) : -1;
+  dlgNavShow();
   document.getElementById('dlgName').textContent = r.name;
   document.getElementById('dlgWhere').textContent =
     [r.school, r.grade?r.grade+'학년':''].filter(Boolean).join(' ');
@@ -2528,7 +2620,11 @@ function openStudent(r){
   Promise.all([
     dtPassed().catch(function(){}), dtPending().catch(function(){}), dtAbsentees().catch(function(){}),
   ]).then(function(){ syncWorkRows(); renderStuOther(); });
-  document.getElementById('dlg').showModal();
+  /* 이미 열려 있는 창에 showModal 을 또 부르면 브라우저가 예외를 던진다 —
+     이웃으로 넘길 때가 바로 그 경우다(안에 든 것만 갈아 끼운다). */
+  const dlg = document.getElementById('dlg');
+  if(!dlg.open) dlg.showModal();
+  dlg.querySelector('.dlg__b').scrollTop = 0;
 }
 /* ══════════════════════════════════════════════════════════════════
    상담지 — 한 장으로
@@ -2699,11 +2795,16 @@ function examTitle(id){
 }
 const DLG = document.getElementById('dlg');
 document.getElementById('dlgX').addEventListener('click', function(){ DLG.close(); });
+document.getElementById('dlgPrev').addEventListener('click', function(){ dlgStep(-1); });
+document.getElementById('dlgNext').addEventListener('click', function(){ dlgStep(1); });
 /* 바깥을 눌러도 닫는다. showModal 은 Esc 로 닫히지만, 마우스로 쓰는 사람은
    바깥을 누르고 안 닫히면 화면이 멈춘 줄 안다. */
 DLG.addEventListener('click', function(e){ if(e.target===DLG) DLG.close(); });
 /* 닫힌 카드를 계속 들고 있으면, 뒤늦게 온 DT 응답이 이미 사라진 자리를 그린다. */
-DLG.addEventListener('close', function(){ DLG_STU = null; RND_OPEN = null; });
+DLG.addEventListener('close', function(){
+  DLG_STU = null; RND_OPEN = null; DLG_LIST = null; DLG_AT = -1;
+  document.getElementById('dlgNav').hidden = true;
+});
 document.getElementById('q').addEventListener('input', function(){ renderStudents(); writeHash(); });
 document.getElementById('reload').addEventListener('click', loadRoster);
 
@@ -3022,12 +3123,11 @@ document.addEventListener('click', function(e){
   const b = e.target.closest ? e.target.closest('.mini[data-clsact],.mini[data-clsrow]') : null;
   if(!b) return;
   if(b.dataset.clsrow != null){
-    const r = CLS_ROWS[+b.dataset.clsrow]; if(!r) return;
-    /* 명단에 이미 있는 학생이면 그 줄을 쓴다 — 파이널 회차까지 붙은 카드가 열린다. */
-    const hit = ROSTER.filter(function(x){
-      return normName(x.name)===normName(r.who.name) && schoolAkin(x.school, r.who.school); });
-    openStudent(hit.length===1 ? hit[0]
-      : { name:r.who.name, school:r.who.school, grade:r.who.grade, apps:{dt:1} });
+    const i = +b.dataset.clsrow; if(!CLS_ROWS[i]) return;
+    /* 반 전체를 함께 넘긴다 — 상담 주간에 한 반을 차례로 훑는 그 순서다. */
+    const list = CLS_ROWS.map(function(x){
+      return rosterRow(x.who.name, x.who.school, x.who.grade); });
+    openStudent(list[i], list, i);
     return;
   }
   if(b.dataset.clsact === 'names')
@@ -3250,11 +3350,11 @@ document.addEventListener('click', function(e){
   const b = e.target.closest ? e.target.closest('.mini[data-conact],.mini[data-conrow]') : null;
   if(!b) return;
   if(b.dataset.conrow != null){
-    const r = CON_ROWS[+b.dataset.conrow]; if(!r) return;
-    const hit = ROSTER.filter(function(x){
-      return normName(x.name)===normName(r.name) && schoolAkin(x.school, r.school||''); });
-    openStudent(hit.length===1 ? hit[0]
-      : { name:r.name, school:r.school||'', grade:r.year||'', apps:{dt:1} });
+    const i = +b.dataset.conrow; if(!CON_ROWS[i]) return;
+    /* 이 개념을 틀린 아이들을 차례로 본다 — 그것이 이 목록을 여는 이유다. */
+    const list = CON_ROWS.map(function(x){
+      return rosterRow(x.name, x.school||'', x.year||''); });
+    openStudent(list[i], list, i);
     return;
   }
   if(b.dataset.conact === 'repeat'){ CON_REPEAT = !CON_REPEAT; renderConcept(); return; }
@@ -3375,6 +3475,9 @@ document.addEventListener('click', function(e){
 function openRound(id){
   const g = RNDS.filter(function(x){ return x.id===id; })[0]; if(!g) return;
   RND_OPEN = g;
+  /* 같은 창을 회차와 학생이 나눠 쓴다. 학생용 넘김 단추가 회차 창에 남으면
+     누를 때 엉뚱한 학생이 열린다. */
+  DLG_LIST = null; DLG_AT = -1; dlgNavShow();
   document.getElementById('dlgName').textContent = examTitle(id);
   document.getElementById('dlgWhere').textContent =
     g.n+'명 채점 · 평균 '+g.avg+'%' + (g.last? ' · 마지막 '+when(g.last) : '');
@@ -3812,6 +3915,39 @@ function renderIncome(){
    않는다. 그래서 명단이 안 왔으면 화면·회차·자료만 나온다(빈 화면보다 낫다). */
 const PAL = document.getElementById('pal');
 let PAL_ROWS = [], PAL_AT = 0;
+
+/* ── 방금 본 것 ──────────────────────────────────────────────────
+   빈 칸으로 열면 여태 탭 열한 개뿐이었다. 그런데 탭은 숫자키 한 번이면
+   가는 곳이라, 팔레트를 여는 이유는 늘 **탭이 아닌 것**(학생·반·회차)이다.
+   상담을 하다 보면 같은 학생을 하루에도 몇 번씩 다시 연다 — 그때마다
+   이름을 다시 친다.
+
+   함수(go)는 저장할 수 없으니 **갈래와 이름만** 적어 두고, 열 때 지금 목록에서
+   같은 줄을 되찾는다. 그래서 명단에서 빠진 학생은 저절로 사라진다 —
+   없는 곳으로 가는 줄이 남지 않는다. */
+const PAL_KEY = 'chemistreal:pal:recent';
+const PAL_MAX = 8;
+function palRecent(){
+  try{ const v = JSON.parse(localStorage.getItem(PAL_KEY) || '[]');
+       return Array.isArray(v) ? v : []; }catch(e){ return []; }
+}
+function palRemember(r){
+  if(!r || r.kind === '화면') return;   // 탭은 숫자키가 더 빠르다
+  const keep = palRecent().filter(function(x){
+    return !(x.kind === r.kind && x.label === r.label); });
+  keep.unshift({ kind:r.kind, label:r.label });
+  try{ localStorage.setItem(PAL_KEY, JSON.stringify(keep.slice(0, PAL_MAX))); }catch(e){}
+}
+/* 적어 둔 갈래·이름을 지금 목록의 진짜 줄로 되돌린다. 못 찾으면 버린다. */
+function palRecentRows(all){
+  const out = [];
+  palRecent().forEach(function(m){
+    const hit = all.filter(function(r){
+      return r.kind === m.kind && r.label === m.label; })[0];
+    if(hit) out.push(hit);
+  });
+  return out;
+}
 function palSources(){
   const out = [];
   TABS.forEach(function(t){
@@ -3847,17 +3983,27 @@ function palSources(){
 function renderPal(){
   const q = normName(document.getElementById('palIn').value||'');
   const all = palSources();
-  PAL_ROWS = (q ? all.filter(function(r){
-      return normName(r.label).indexOf(q)>=0 || normName(r.sub||'').indexOf(q)>=0 ||
-             normName(r.kind).indexOf(q)>=0;
-    }) : all.slice(0, TABS.length)).slice(0, 40);
+  /* 빈 칸이면 방금 본 것을 먼저, 그 뒤에 탭. 같은 줄이 두 번 나오지 않게 뺀다. */
+  let base, recN = 0;
+  if(q){
+    base = all.filter(function(r){
+      return koHit(r.label, q) || koHit(r.sub||'', q) || koHit(r.kind, q); });
+  }else{
+    const rec = palRecentRows(all);
+    recN = rec.length;
+    base = rec.concat(all.slice(0, TABS.length).filter(function(r){
+      return rec.indexOf(r) < 0; }));
+  }
+  PAL_ROWS = base.slice(0, 40);
   if(PAL_AT >= PAL_ROWS.length) PAL_AT = 0;
   const el = document.getElementById('palList');
   if(!PAL_ROWS.length){ el.innerHTML = '<div class="spin" style="padding:14px 18px">찾는 것이 없습니다.</div>'; return; }
   el.innerHTML = PAL_ROWS.map(function(r,i){
+    /* 왜 학생이 맨 위에 있는지 말해 준다 — 안 말하면 순서가 제멋대로로 보인다. */
+    const why = i < recN ? [r.sub, '방금 본'].filter(Boolean).join(' · ') : (r.sub||'');
     return '<div class="row" role="option" aria-selected="'+(i===PAL_AT)+'" data-pal="'+i+'">'+
       '<span class="kind">'+esc(r.kind)+'</span><span class="nm">'+esc(r.label)+'</span>'+
-      '<span class="where">'+esc(r.sub||'')+'</span></div>';
+      '<span class="where">'+esc(why)+'</span></div>';
   }).join('');
   const on = el.querySelector('[aria-selected="true"]');
   if(on && on.scrollIntoView) on.scrollIntoView({block:'nearest'});
@@ -3865,6 +4011,7 @@ function renderPal(){
 function palRun(i){
   const r = PAL_ROWS[i]; if(!r) return;
   PAL.close();
+  palRemember(r);
   try{ r.go(); }catch(e){}
 }
 function openPal(){
@@ -3903,6 +4050,11 @@ document.addEventListener('keydown', function(e){
   }
   if(e.key==='Escape' && typing && tag==='INPUT'){ t.value=''; t.dispatchEvent(new Event('input')); return; }
   if(typing) return;
+  /* 학생 카드가 목록에서 열렸으면 ← → 로 이웃으로 넘긴다. 넘길 곳이 없으면
+     dlgStep 이 조용히 돌아간다 — 화면 끝에서 아무 일도 안 일어난다. */
+  if(DLG.open && DLG_LIST && (e.key==='ArrowLeft' || e.key==='ArrowRight')){
+    e.preventDefault(); dlgStep(e.key==='ArrowLeft' ? -1 : 1); return;
+  }
   /* 숫자키 한 자리씩 탭 하나. 열째는 0 이다(1234567890). 탭을 늘리면 여기도
      늘려야 한다 — 검사가 두 길이를 견준다. */
   const n = '1234567890-='.indexOf(e.key);
