@@ -264,7 +264,8 @@ function allRows_(cb) {
    낸 것이다(홍길동 60/60 · 예비본 57/60 …). 시트에서 지우기 전에도 여기
    숫자는 바로 맞는다. */
 function cohortOf_(examId, cb) {
-  var hist = {}, n = 0, skipped = 0;
+  var hist = {}, yhist = {}, n = 0, yn = 0, skipped = 0;
+  var year = new Date().getFullYear();
   try {
     var want = EXAM_TITLES[examId] || null;
     if (want && !(want instanceof Array)) want = [want];
@@ -286,10 +287,17 @@ function cohortOf_(examId, cb) {
         c = Math.round(c);
         hist[c] = (hist[c] || 0) + 1;
         n++;
+        /* 올해 채점한 것만 따로 센다 — 반석차가 쓰는 모집단이다.
+           가르는 잣대는 **채점해 넣은 시각**([3] 저장시각)이다. 응시일은
+           비어 있는 줄이 많다. 시각을 모르는 줄은 올해로 치지 않는다 —
+           모르는 것을 올해로 세면 반석차가 소리 없이 부풀어 오른다. */
+        var t = (r[3] instanceof Date) ? r[3].getFullYear() : 0;
+        if (t === year) { yhist[c] = (yhist[c] || 0) + 1; yn++; }
       }
     }
   } catch (err) {}
-  return _jsonOut_(JSON.stringify({ ok: true, exam: examId, hist: hist, n: n, skipped: skipped }), cb);
+  return _jsonOut_(JSON.stringify({ ok: true, exam: examId, hist: hist, n: n,
+                                    yhist: yhist, yn: yn, year: year, skipped: skipped }), cb);
 }
 
 function doGet(e) {
@@ -516,7 +524,7 @@ var EXAM_COHORT = {
   '기출동형 2회 (2016)': { q: 60, base: [] },
   '기출동형 3회 (2017)': { q: 60, base: [] },
   '기출동형 4회 (2013)': { q: 60, base: [] },
-  '산과염기 60제': { q: 60, base: [] },
+  '산과염기 60제': { q: 60, base: [12,12,16,16,18,19,19,19,20,20,22,22,25,25,27,28,29,30,31,32,33,49] },
   'KMChC 2026 제1차 · 일반': { q: 50, base: [] },
   'KMChC 2026 제1차 · 심화': { q: 50, base: [] },
   'KMChC 2025 제2차 · 일반': { q: 50, base: [] },

@@ -147,14 +147,14 @@ const LATER_ALLC = {
     return !(sum === b.n && acc(exam, +qs).reduce((a, kk) => a + (o[kk - 1] || 0), 0) !== b.qc[+qs - 1]);
   });
   chk('쓸모없어진 예외가 남아 있지 않다', stale, []);
-  chk('문항 수', cells, 900);
+  chk('문항 수', cells, 960);
   /* 한 칸도 안 남은 문항. 전부 전원정답·모두정답 처리된 문항이라 분포를 따질
      것이 없다. 늘어나면 원본이 바뀌었거나 칸을 통째로 버리고 있다는 뜻이다. */
   chk('선택 분포가 없는 문항', holes, 5);
   // 일부만 덮인 문항은 남은 사람으로 센다. 통째로 버리면 이 수가 0이 된다.
   chk('일부만 남은 문항', Object.keys(BASE).reduce((a, k) =>
     a + BASE[k].q.filter(o => o && o.reduce((x, y) => x + y, 0) !== BASE[k].n).length, 0), 3);
-  chk('기준 기록 인원', Object.keys(BASE).reduce((a, k) => a + BASE[k].n, 0), 365);
+  chk('기준 기록 인원', Object.keys(BASE).reduce((a, k) => a + BASE[k].n, 0), 387);
 }
 
 console.log('\n── 나중에 전원정답이 된 문항의 또래 정답률 ──');
@@ -314,8 +314,11 @@ console.log('\n── 성적표가 실제로 이 함수를 통한다 ──');
 console.log('\n── 기준 기록이 없으면 예전 그대로 ──');
 {
   ctx.BASELINE = BASE;
-  const exam = examOf('sanyeom-60') || examOf('donghyung-1');
-  chk('이 시험엔 기준 기록이 없다', !BASE[exam.id], true);
+  /* 기준 기록이 **없는** 회차를 골라야 이 검사가 뜻을 가진다. 예전에는
+     'sanyeom-60' 이라고 손으로 적어 두었는데, 그 회차 엑셀이 들어오자
+     검사가 통째로 뒤집혔다. 이름을 적지 말고 없는 것을 찾아 쓴다. */
+  const exam = EXAMS.filter(e => !BASE[e.id])[0];
+  chk('기준 기록이 없는 회차가 하나는 있다', !!exam, true);
   const rows = [Array.from({ length: exam.nQ }, () => 1),
                 Array.from({ length: exam.nQ }, () => 2)];
   const local = localCS(exam, rows);
