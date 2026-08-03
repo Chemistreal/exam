@@ -19,8 +19,10 @@
   ㉠ ★이름만 불리고 바뀌지 않은 문항★ — 기록과 파일이 어긋난 자리. 손으로 볼 것.
      다만 근거로 끌어온 문항(예: 'M02114 는 까닭을 밀침으로 명시한다')은 바뀌지
      않는 것이 정상이라 ★오탐이 섞인다★. 검사가 답을 주지 않고 자리를 짚어 준다.
-  ㉡ ★바뀌었는데 이름이 불리지 않은 문항★ — 기록이 빠뜨린 자리. 이쪽은 오탐이
+  ㉡ ★고쳐졌는데 이름이 불리지 않은 문항★ — 기록이 빠뜨린 자리. 이쪽은 오탐이
      거의 없어 더 무겁다.
+     ▸ ★새로 들인 문항(생산 커밋)은 여기서 세지 않는다★ — 열 문항을 새로 들이는
+       커밋마다 열 곳이 뜨면 검사가 잡음이 되어 아무도 보지 않게 된다.
 """
 import json
 import re
@@ -56,10 +58,13 @@ def check(rev):
         return 0
 
     before, after = bank_at(f'{rev}^'), bank_at(rev)
-    touched = {i for i in set(before) | set(after) if before.get(i) != after.get(i)}
+    # ★새로 들어온 문항과 고쳐진 문항을 가른다★ — 생산 커밋은 열 문항을 새로 들이는데
+    # 그것을 '이름이 없다' 고 짚으면 잡음만 커진다. 기록과 맞대어야 하는 것은 ★고쳐진★ 쪽이다.
+    added = set(after) - set(before)
+    edited = {i for i in set(before) & set(after) if before[i] != after[i]}
 
-    ghost = sorted(named - touched)        # 이름만 불리고 바뀌지 않음
-    silent = sorted(touched - named)       # 바뀌었는데 이름이 없음
+    ghost = sorted(named - added - edited)   # 이름만 불리고 바뀌지 않음
+    silent = sorted(edited - named)          # 고쳐졌는데 이름이 없음
 
     if not ghost and not silent:
         return 0
@@ -69,7 +74,7 @@ def check(rev):
         print(f'  ★이름만 불리고 바뀌지 않음 {len(ghost)}★ — 근거로 끌어온 문항이면 정상')
         print('     ' + ' '.join(ghost))
     if silent:
-        print(f'  ★바뀌었는데 이름이 없음 {len(silent)}★')
+        print(f'  ★고쳐졌는데 이름이 없음 {len(silent)}★')
         print('     ' + ' '.join(silent))
     return len(ghost) + len(silent)
 
