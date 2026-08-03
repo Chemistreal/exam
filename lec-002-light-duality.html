@@ -24,6 +24,20 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .spectrum{font-family:var(--mono);font-size:13px;background:#0e5a4c;color:#eaf3f0;border-radius:9px;padding:12px 14px;margin:13px 0;overflow-x:auto;line-height:1.9}
 .spectrum b{color:#f0c987}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px}
+
+/* 인쇄 — 종이에서만 산다. 화면은 하나도 안 바뀐다.
+   브라우저는 인쇄할 때 배경을 기본으로 안 찍는다. 색 배경 위의 흰 글씨는
+   그래서 흰 종이에 흰 글씨가 된다 — 제목과 절 번호가 통째로 사라졌다. */
+@page{size:A4;margin:15mm 13mm}
+@media print{
+  body{background:#fff}
+  header{background:#fff;color:#000;border-bottom:2px solid #000;padding:8mm 0 5mm}
+  header .logo,header .sub{color:#333;opacity:1}
+  .sec__no{background:#fff;color:#000;border:1.5px solid #000}
+  .steps li::before,.flow .node{background:#fff;color:#000;border:1.5px solid #000}
+  .back{display:none}
+  .sec,.key,.trap,.eg,.fm{break-inside:avoid}
+}
 </style></head>
 <body><header><div class="logo">CHEMISTREAL · 개념강의</div><h1 class="serif">빛의 이중성과 전자기파</h1><div class="sub">002 · 원자모형</div></header><main>
 <a class="back" href="final.html">‹ 파이널로</a>
