@@ -68,7 +68,23 @@ jobs:
             echo "state=dead" >> "$GITHUB_OUTPUT"
           fi
 
+      # ── 고친 것이 실제로 갔는가 ────────────────────────────────
+      # 2026-08-03 하루에 같은 모양의 사고가 다섯 번 났다. 전부 한 문장이다 —
+      # **"고쳤다" 와 "실제로 그렇게 돌고 있다" 사이가 비어 있었다.**
+      # 검사는 저장소 안만 본다. 저장소가 아무리 초록불이어도 학부모가 여는
+      # 화면이 옛 코드면 아무것도 고쳐진 것이 아니다. 여기서는 밖에서 본다.
+      # (여기서도 판정만 한다 — 알릴지는 아래 한 곳에서 정한다)
+      - name: 서비스되는 화면이 저장소와 같은지
+        id: live
+        run: |
+          if node tools/live_check.js --retry 3; then
+            echo "state=ok" >> "$GITHUB_OUTPUT"
+          else
+            echo "state=drift" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: 창구·열쇠 점검 (바뀐 것만 빨간불)
         env:
           DEPLOY_KEY: ${{ steps.key.outputs.state }}
+          LIVE_SYNC: ${{ steps.live.outputs.state }}
         run: node tools/health_check.js --state .health-state.json

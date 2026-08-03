@@ -68,6 +68,9 @@ vm.runInContext([
   ((SRC.match(/^const CHO = \[[\s\S]*?\];$/m) || [''])[0]).replace(/^const /, 'var '),
   cut('choOf'), cut('isCho'), cut('koHit'),
   cut('lesFill'),
+  "var LES_ALL=[], LES_HEAD=null; const LES_HEAD_DEFAULT='{이름} 학생 학부모님께';" +
+  ' function lesAll(){return LES_ALL;} function lesHead(){return LES_HEAD==null?LES_HEAD_DEFAULT:LES_HEAD;}',
+  cut('lesText'),
   cut('unifyKey'), cut('looseKey'), cut('mergeRosters'),
   cut('allRounds'), cut('misTally'),
   /* 기간 기준은 소스에서 그대로 읽는다. 여기 손으로 적어 두면 소스만 바뀌었을 때
@@ -92,6 +95,9 @@ vm.runInContext([
   ((SRC.match(/^const MAD_N = \d+, MAD_Z = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
   ((SRC.match(/^const SNZ_DAYS = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
   ((SRC.match(/^const NDG_PEND_DAYS = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
+  ((SRC.match(/^const NDG_ABS_RUN = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
+  cut('lesRoundsOf'), cut('lesSentKey'), cut('lesSentAt'),
+  'var LES_SENT={}; var DT_MAT=null;',
   'var SNZ=new Map(), SNZ_SHOW=false;',
   ((SRC.match(/^const TAB_NAME = \{[^}]*\};?$/m) || [''])[0]).replace(/^const /, 'var '),
   ((SRC.match(/^const CLS_LABEL = \{[^}]*\};?$/m) || [''])[0]).replace(/^const /, 'var '),
@@ -1711,13 +1717,37 @@ console.log('\n── 수업 문자 ──');
   const who = { name:'김유정', school:'휘문중', grade:'2' };
 
   chk('이름이 채워진다', ctx.lesFill('{이름} 학생', who, cls, 1), '김유정 학생');
-  chk('학교·학년도', ctx.lesFill('{학교} {학년}', who, cls, 1), '휘문중 2학년');
-  chk('반과 과목도', ctx.lesFill('{반} / {과목}', who, cls, 1), '화학1 일3-7 / 화학Ⅰ');
+
+  /* 본문에 {이름} 을 손으로 넣게 하면 잊는다 — 잊으면 열두 통이 모두 같은
+     글이 되고, 붙여 넣고 나서야 안다. 머리말로 저절로 붙는다. */
+  ctx.LES_HEAD = null;
+  chk('본문에 이름이 없으면 머리말이 붙는다',
+      ctx.lesText({ body: '안녕하세요. 조준모입니다.', round: 1 }, who, cls),
+      '김유정 학생 학부모님께\n\n안녕하세요. 조준모입니다.');
+  /* 본문에 직접 넣었으면 안 붙인다 — 두 번 나오면 어색하다. */
+  chk('본문에 이름이 있으면 안 붙인다',
+      ctx.lesText({ body: '{이름} 학생, 안녕하세요.', round: 1 }, who, cls),
+      '김유정 학생, 안녕하세요.');
+  ctx.LES_HEAD = '[{과목} {회차}회] {이름} 학부모님';
+  chk('머리말을 바꿀 수 있다',
+      ctx.lesText({ body: '본문', round: 3 }, who, cls),
+      '[화학Ⅰ 3회] 김유정 학부모님\n\n본문');
+  ctx.LES_HEAD = '';
+  chk('머리말을 비우면 안 붙는다', ctx.lesText({ body: '본문', round: 1 }, who, cls), '본문');
+  ctx.LES_HEAD = null;
+  /* 학생이 없으면 이름 자리는 빈 칸이 된다 — 자리표시자가 그대로 남는 것보다 낫다. */
+  chk('빈 회차에도 안 죽는다', [ctx.lesText(null, who, cls), ctx.lesText({}, null, null)],
+      ['', ' 학생 학부모님께\n\n']);
+  chk('과목도', ctx.lesFill('{과목}', who, cls, 1), '화학Ⅰ');
+  /* 학교·학년·반은 뺐다(선생님 결정). 남아 있으면 그대로 글자로 나가야 한다 —
+     조용히 빈칸이 되면 문장이 깨진 채로 학부모에게 간다. */
+  chk('뺀 것은 글자 그대로', ctx.lesFill('{학교} {학년} {반}', who, cls, 1), '{학교} {학년} {반}');
+  chk('넣을 수 있는 것은 셋뿐', /const LES_MARKS = \['\{이름\}','\{과목\}','\{회차\}'\];/.test(SRC), true);
   chk('회차도', ctx.lesFill('조준모의고사 {회차}회', who, cls, 3), '조준모의고사 3회');
   chk('여러 번 나와도 다 바꾼다', ctx.lesFill('{이름}·{이름}', who, cls, 1), '김유정·김유정');
   /* 학년이 없는 학생이 흔하다(DT 명단에 안 적힌다). '학년' 이라는 글자만
      덩그러니 남으면 그대로 학부모에게 나간다. */
-  chk('빈 값은 빈 칸으로', ctx.lesFill('[{학교}][{학년}]', { name:'김유정' }, cls, 1), '[][]');
+  chk('빈 값은 빈 칸으로', ctx.lesFill('[{이름}]', {}, cls, 1), '[]');
   chk('모르는 자리표시자는 그대로', ctx.lesFill('{선생님}', who, cls, 1), '{선생님}');
   chk('본문이 없어도 안 죽는다', [ctx.lesFill(null, who, cls, 1), ctx.lesFill('', null, null, null)], ['', '']);
   /* 회차 번호가 0 일 수 있다(오리엔테이션). null 과 0 을 섞으면 '0회' 가 빈칸이 된다. */
@@ -1729,8 +1759,13 @@ console.log('\n── 수업 문자 ──');
   chk('과목이 맞는 회차만 보인다', /!x\.course \|\| x\.course === course/.test(cut('lesFor')), true);
   chk('회차 번호 차례로', /\(Number\(a\.round\)\|\|0\)-\(Number\(b\.round\)\|\|0\)/.test(cut('lesFor').replace(/\s/g,'')), true);
   /* {이름} 이 없으면 열두 통이 모두 같은 글이 된다 — 붙여 넣고 나서 알면 늦다. */
-  chk('이름 자리가 없으면 짚어 준다', /지금 그대로면/.test(body), true);
-  chk('미리보기는 실제로 채워서 보여 준다', /lesFill\(cur\.body, first/.test(body), true);
+  chk('이름이 자동으로 붙는다고 적는다', /머리말로 이름이 자동으로/.test(body), true);
+  chk('머리말도 비면 그때는 짚어 준다', /통이 모두 같은 글이 됩니다/.test(body), true);
+  chk('머리말을 고칠 수 있다', /data-les="head"/.test(body), true);
+  chk('미리보기는 나가는 것 그대로', /lesText\(cur, first, LES_CLS\)/.test(body), true);
+  /* 미리보기와 복사가 다른 것을 쓰면 화면에서 본 것과 나간 것이 달라진다. */
+  chk('복사도 같은 것을 쓴다',
+      (body.match(/lesText\(cur, /g) || []).length >= 3, true);
   /* 브라우저를 비우면 사라지는 것을 유일한 사본으로 두지 않는다. */
   chk('파일로 내보낼 수 있다', /data-les="export"/.test(body) && /수업문자\.json/.test(body), true);
   chk('파일에서 가져올 수 있다', /data-les="import"/.test(body) && /id="lesFile"/.test(SRC), true);
@@ -1741,6 +1776,83 @@ console.log('\n── 수업 문자 ──');
   chk('원본에서 찾아 고친다', /const at = all\.indexOf\(cur\);/.test(body), true);
   /* 이 셸은 앱 자료를 쓰지 않는다. 회차 글은 앱 자료가 아니라 여기서 짓는 것이다. */
   chk('앱스크립트에 올리지 않는다', /lesSave[\s\S]{0,200}jsonp\(/.test(body), false);
+
+  /* '＋ 새 회차' 를 열여덟 번 누르게 하면 안 된다. DT 자료가 그 과목에 몇
+     회차가 있는지 이미 안다(화학Ⅰ 18 · 화학Ⅱ 18 · 일반화학 10). */
+  chk('DT 회차 수를 읽어 온다', /function lesRoundsOf/.test(body), true);
+  chk('회차 번호만 골라 차례로', /r\.round\) \|\| 0/.test(cut('lesRoundsOf')), true);
+  chk('그 수만큼 빈 칸을 세운다', /blank: true/.test(cut('lesList')), true);
+  /* 적어 둔 것이 이긴다 — 빈 칸이 내용을 덮으면 글이 사라진 것처럼 보인다. */
+  chk('적어 둔 것이 이긴다', /out\.push\(by\[n\] \|\| \{/.test(cut('lesList')), true);
+  /* DT 회차에 없는 것(손으로 더한 회차)도 사라지면 안 된다. */
+  chk('DT 에 없는 회차도 남는다', /mine\.forEach\(function\(x\)\{ const k = Number\(x\.round\); if\(!k \|\| by\[k\]\) out\.push\(x\); \}\);/.test(cut('lesList')), true);
+  /* 빈 칸은 아직 담긴 것이 아니다 — 처음 적을 때 넣어야 한다. */
+  chk('빈 칸은 처음 적을 때 담는다', /if\(at < 0\) all\.push\(row\); else all\[at\] = row;/.test(body), true);
+  chk('빈 칸은 지울 것이 없다', /아직 안 적은 칸은 지울 것이 없다/.test(SRC), true);
+  /* 몇 칸을 채웠는지 보여야 "어디까지 적었더라" 를 안 센다. */
+  chk('몇 칸 적었는지 적는다', /' 적음<\/span>'/.test(body), true);
+  chk('빈 칸이라고 알려 준다', /아직 안 적음/.test(body), true);
+  /* 회차 수는 DT 자료에서 온다 — 자료 탭에 안 들어갔으면 아직 안 읽었다. */
+  chk('창을 열 때 자료를 부른다', /if\(!DT_MAT\) dtMaterials\(\)\.then\(function\(\)\{ lesRender\(\); \}\)/.test(body), true);
+}
+
+/* 한 번 빠진 것은 넘어가도 여러 회차 연속이면 다른 신호다. 지금은 회차별로만
+   보여서 누적이 안 보였다 — 회차 목록을 아무리 봐도 세어야만 알 수 있었다. */
+console.log('\n── 자꾸 빠지는 학생 ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  chk('몇 회차부터인지 한 곳에 적는다', ctx.NDG_ABS_RUN, 3);
+  chk('회차를 가로질러 센다', /const absN = \{\};/.test(body), true);
+  chk('기준 미만은 안 부른다', /if\(a\.n < NDG_ABS_RUN\) return;/.test(body), true);
+  chk('어느 회차였는지 적는다', /a\.where\.slice\(0, 3\)/.test(body), true);
+  /* 이름이 같은 줄이 여러 번 나오면 한 사람으로 세야 한다. */
+  chk('이름을 다듬어 센다', /const k = normName\(nm\); if\(!k\) return;/.test(body), true);
+  /* 미루기는 다른 넛지와 같은 길을 쓴다 — 따로 만들면 한쪽만 조용해진다. */
+  chk('미루기가 걸린다', /ndgKey\('absrun'/.test(body), true);
+}
+
+/* 카드·칩·넛지·명단이 다 펼쳐져 있어 어디부터 볼지 눈으로 정해야 했다. */
+console.log('\n── 오늘 할 일 한 줄 ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  chk('자리가 있다', /id="todo"/.test(SRC), true);
+  /* 숫자가 칩과 다르면 어느 쪽이 맞는지 알 수 없다 — 같은 배열에서 나와야 한다. */
+  chk('칩과 같은 배열에서 센다', /JUMPS\.filter\(function\(j\)\{ return j\.n\(\) > 0; \}\)/.test(cut('renderTodo')), true);
+  chk('칩과 같은 순간에 그려진다', /renderTodo\(\);/.test(cut('renderJump')), true);
+  chk('할 일이 없으면 없다고 말한다', /남은 것이 없습니다/.test(body), true);
+  chk('수업 문자 안 보낸 반도 센다', /data-todocls/.test(body), true);
+}
+
+/* 반이 여섯이면 "이 반 보냈던가?" 를 매주 헷갈린다. */
+console.log('\n── 수업 문자를 보냈는지 남는다 ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  const cls = { course:'ch1', label:'화학1 일3-7' };
+  chk('열쇠는 과목+회차+반', ctx.lesSentKey(cls, 3), 'ch1|3|화학1 일3-7');
+  chk('빈 것에도 안 죽는다', ctx.lesSentKey(null, null), '||');
+  ctx.LES_SENT = { 'ch1|3|화학1 일3-7': '2026-08-03' };
+  chk('보낸 날을 돌려준다', ctx.lesSentAt(cls, 3), '2026-08-03');
+  chk('다른 반은 안 걸린다', ctx.lesSentAt({ course:'ch1', label:'딴반' }, 3), '');
+  ctx.LES_SENT = {};
+  chk('고르개에 표시한다', /lesSentAt\(LES_CLS, x\.round\) \? '✓ ' : ''/.test(body), true);
+  chk('무를 수 있다', /data-les="unsend"/.test(body), true);
+  /* 복사한 순간이 이쪽에서 아는 마지막 순간이다(붙여넣기는 문자 앱에서 한다). */
+  chk('복사하면 보낸 것으로', /lesMarkSent\(LES_CLS, cur\.round, true\)/.test(body), true);
+}
+
+/* 상담 중에 "이 학생한테만 다시 보내 주세요" 는 흔한 부탁이다. */
+console.log('\n── 학생 카드에서 바로 ──');
+{
+  const body = SRC.split('<script>')[1] || '';
+  chk('그 학생이 든 반을 찾는다', /function lesClassOf/.test(body), true);
+  chk('마지막으로 적어 둔 회차', /function lesLatestFor/.test(body), true);
+  chk('안 적은 회차는 뺀다', /filter\(function\(x\)\{ return x\.body; \}\)/.test(cut('lesLatestFor')), true);
+  chk('카드에 단추가 붙는다', /data-lesstu="1"/.test(body), true);
+  /* 반 탭과 다른 글이 나오면 안 된다 — 같은 함수를 써야 한다. */
+  chk('반 탭과 같은 함수를 쓴다', /copyText\(b, lesText\(cur, DLG_STU, cls\)/.test(body), true);
+  /* 회차 창에서 안 본 학생을 눌러 카드로. 거기에 문자가 다 있다. */
+  chk('회차에서 카드로 간다', /data-rndstu=/.test(body), true);
+  chk('이웃으로도 넘어간다', /openStudent\(list\[\+b\.dataset\.rndstu\], list/.test(body), true);
 }
 
 console.log('\n── 모든 반 한눈에 ──');

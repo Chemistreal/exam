@@ -1359,6 +1359,12 @@ const chk = (n, got, want) => {
       return route.fulfill({ status: 200, contentType: 'application/javascript',
                              body: cb + '(' + JSON.stringify(body) + ')' });
     });
+    /* 회차 칸은 DT 자료 목록에서 온다. 화학Ⅰ 세 회차짜리로 꾸민다. */
+    await p6.route('**/DT/materials.json', route => route.fulfill({
+      status: 200, contentType: 'application/json; charset=utf-8',
+      body: JSON.stringify({ courses: [
+        { key: 'ch1', name: '화학Ⅰ', rounds: [{ round: 1 }, { round: 2 }, { round: 3 }] }] }),
+    }));
     await p6.goto(`http://localhost:${PORT}/hub.html`, { waitUntil: 'domcontentloaded' });
     await p6.waitForTimeout(900);
     /* 앞 검사가 남긴 회차 글이 있으면 셈이 어긋난다 — 빈 상태에서 시작한다. */
@@ -1368,14 +1374,51 @@ const chk = (n, got, want) => {
     await p6.click('.mini[data-clsact="lesson"]');
     await p6.waitForTimeout(300);
     chk('반에서 창이 열린다', await p6.evaluate(() => document.getElementById('les').open), true);
-    /* 아직 아무것도 없을 때 빈 화면이 아니라 무엇을 하면 되는지 말해야 한다. */
-    chk('처음에는 시작하는 법을 적는다',
-        await p6.evaluate(() => /＋ 새 회차/.test(document.getElementById('lesBody').textContent)), true);
+    /* '＋ 새 회차' 를 열여덟 번 누르게 하면 안 된다 — DT 회차만큼 칸이 서 있어야 한다. */
+    await p6.waitForFunction(() => {
+      const sel = document.getElementById('lesPick');
+      return sel && sel.options.length >= 3;
+    }, { timeout: 15000 });
+    const slots = await p6.evaluate(() => ({
+      칸: document.getElementById('lesPick').options.length,
+      첫칸: document.getElementById('lesPick').options[0].textContent,
+      센것: document.getElementById('lesBody').textContent.match(/\d+\/\d+ 적음/)?.[0],
+    }));
+    chk('DT 회차만큼 칸이 선다', slots.칸, 3);
+    chk('빈 칸이라고 알려 준다', /아직 안 적음/.test(slots.첫칸), true);
+    chk('몇 칸 적었는지 적는다', slots.센것, '0/3 적음');
+    /* 빈 칸을 고르면 빈 미리보기 대신 무엇을 하면 되는지 말해야 한다. */
+    chk('빈 칸에는 할 일을 적는다',
+        await p6.evaluate(() => /고치기.*눌러/.test(document.getElementById('lesBody').textContent)), true);
 
-    await p6.click('.mini[data-les="new"]');
+    await p6.click('.mini[data-les="edit"]');
     await p6.waitForTimeout(250);
-    chk('새 회차는 곧장 고치기로 열린다',
+    chk('고치기가 열린다',
         await p6.evaluate(() => !!document.getElementById('lesBodyIn')), true);
+    /* ── 이름을 손으로 안 넣어도 된다 ────────────────────────────────
+       본문에 {이름} 이 없어도 머리말로 이름이 저절로 붙어야 한다. 이것이
+       "이름까지 자동" 의 자리다. */
+    await p6.evaluate(() => {
+      const ta = document.getElementById('lesBodyIn');
+      ta.value = '안녕하세요. 화학올림피아드 담당하는 조준모입니다.';
+      document.getElementById('lesTitle').value = '자동 이름';
+    });
+    await p6.click('.mini[data-les="save"]');
+    await p6.waitForTimeout(300);
+    const autoP = await p6.evaluate(() => ({
+      미리보기: document.querySelector('.les__pre').textContent,
+      안내: /머리말로 이름이 자동으로/.test(document.getElementById('lesBody').textContent),
+      한통: (function(){ const c = lesCur(), w = lesWho()[0]; return lesText(c, w, LES_CLS); })(),
+    }));
+    chk('이름을 안 넣어도 머리말이 붙는다', /^가 학생 학부모님께/.test(autoP.미리보기.trim()), true);
+    chk('자동으로 붙는다고 알려 준다', autoP.안내, true);
+    chk('복사되는 한 통에도 들어간다', /^가 학생 학부모님께\n\n안녕하세요/.test(autoP.한통), true);
+    /* 학생마다 달라야 한다 — 안 그러면 자동으로 붙여도 뜻이 없다. */
+    const each = await p6.evaluate(() => lesWho().map(s => lesText(lesCur(), s, LES_CLS).split('\n')[0]));
+    chk('통마다 이름이 다르다', new Set(each).size, each.length);
+
+    await p6.click('.mini[data-les="edit"]');
+    await p6.waitForTimeout(200);
     /* 자리표시자는 커서 자리에 들어가야 한다 — 끝에 붙으면 옮겨 적어야 한다. */
     await p6.evaluate(() => {
       const ta = document.getElementById('lesBodyIn');
@@ -1396,8 +1439,8 @@ const chk = (n, got, want) => {
       미리보기: document.querySelector('.les__pre').textContent,
       사람수: document.querySelectorAll('[data-lesone]').length,
     }));
-    chk('브라우저에 담긴다', view.담김, 1);
-    chk('회차 고르개가 생긴다', view.고르개, true);
+    chk('처음 적을 때 담긴다', view.담김, 1);
+    chk('회차 고르개가 그대로', view.고르개, true);
     chk('미리보기가 첫 학생 이름으로 채워진다', /\{이름\}/.test(view.미리보기), false);
     chk('사람 수만큼 복사 단추', view.사람수 > 0, true);
 
@@ -1410,21 +1453,27 @@ const chk = (n, got, want) => {
     chk('사람 수만큼 통이 나온다', heads, view.사람수);
     chk('통마다 그 학생 이름이 들어간다', /\{이름\}/.test(bulk), false);
 
-    /* 이름 자리가 없으면 열두 통이 모두 같은 글이 된다 — 붙여 넣고 나서 알면 늦다. */
+    /* 머리말도 비우고 본문에도 {이름} 이 없으면, 그때는 열두 통이 정말 같은
+       글이 된다. 그 경우에만 붉게 짚는다(머리말이 있으면 자동으로 붙으니까). */
     await p6.click('.mini[data-les="edit"]');
     await p6.waitForTimeout(200);
     await p6.evaluate(() => { document.getElementById('lesBodyIn').value = '이름 없는 글'; });
     await p6.click('.mini[data-les="save"]');
     await p6.waitForTimeout(250);
-    chk('이름 자리가 없으면 붉게 짚는다',
+    chk('머리말이 있으면 안 짚는다(자동으로 붙으니까)',
+        await p6.evaluate(() => !!document.querySelector('#lesBody .note.err')), false);
+    await p6.evaluate(() => { LES_HEAD = ''; lesSave(); lesRender(); });
+    await p6.waitForTimeout(200);
+    chk('머리말까지 비면 붉게 짚는다',
         await p6.evaluate(() => !!document.querySelector('#lesBody .note.err')), true);
+    await p6.evaluate(() => { LES_HEAD = null; lesSave(); });
 
     /* 지우기는 고치는 중에만 있다 — 보기 화면에서 실수로 눌리면 안 된다. */
     await p6.click('.mini[data-les="edit"]');
     await p6.waitForTimeout(200);
     await p6.click('.mini[data-les="del"]');
     await p6.waitForTimeout(250);
-    chk('지우면 목록에서 빠진다',
+    chk('지우면 담긴 것에서 빠진다(칸은 남는다)',
         await p6.evaluate(() => JSON.parse(localStorage.getItem('chemistreal:lessons') || '{}').lessons.length), 0);
     await p6.close();
   }
