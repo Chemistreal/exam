@@ -268,12 +268,18 @@ function cohortOf_(examId, cb) {
   try {
     var want = EXAM_TITLES[examId] || null;
     if (want && !(want instanceof Array)) want = [want];
+    /* ⚠ 표에 없는 회차면 **아무것도 안 센다.** 다른 창구는 못 찾으면 필터를
+       걸지 않고 다 주는데(하위호환), 여기서 그러면 **모든 회차 사람을 한
+       회차 모집단으로** 세게 된다 — 분모가 열 배로 부풀고 등수가 통째로
+       틀린다. 빈 대답이면 성적표는 링크에 실린 값을 그대로 쓴다. */
+    if (!want) return _jsonOut_(JSON.stringify(
+      { ok: true, exam: examId, hist: {}, n: 0, unknown: true }), cb);
     var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('성적기록');
     if (sh && sh.getLastRow() > 1) {
       var rows = sh.getRange(2, 1, sh.getLastRow() - 1, HEADER.length).getValues();
       for (var i = 0; i < rows.length; i++) {
         var r = rows[i];
-        if (want && want.indexOf(String(r[0])) < 0) continue;
+        if (want.indexOf(String(r[0])) < 0) continue;
         if (/localhost/i.test(String(r[2] || ''))) { skipped++; continue; }
         var c = Number(r[14]);                    // [14] 맞은개수
         if (!isFinite(c) || c < 0) continue;
