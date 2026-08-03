@@ -263,6 +263,39 @@ def main() -> int:
                   lambda m: "[" + re.sub(r"\s+", "", m.group(1)) + "]", text)
     text += "\n"
     if "--write" in sys.argv[1:]:
+        # ── 덮어쓰기 전에: 있던 것을 잃지 않는가 ─────────────────────────
+        # 2026-08-03 04:52 에 이 파일이 갱신되면서 **문항별 통계(q·qc)가 열
+        # 회차에서 통째로 사라졌다**(jmchc-1~10). 또래 정답률이 그 회차에서
+        # 안 나오게 됐고, 원본 엑셀이 저장소에 없어 되살릴 방법이 없었다 —
+        # 지난 판으로 되돌리는 수밖에 없었다.
+        #
+        # 그러니 **덮어쓰기 전에** 본다. 있던 것이 없어지면 멈춘다.
+        # (정말 지울 뜻이면 --force 를 붙인다. 손이 한 번 더 가야 한다.)
+        lost = []
+        if OUT.exists():
+            try:
+                prev = json.loads(OUT.read_text(encoding="utf-8")).get("exams", {})
+            except Exception:
+                prev = {}
+            for eid, old in prev.items():
+                new = data["exams"].get(eid)
+                if new is None:
+                    lost.append(f"{eid}: 회차가 통째로 빠진다")
+                    continue
+                for key in ("q", "qc"):
+                    if old.get(key) and not new.get(key):
+                        lost.append(f"{eid}: 문항별 통계 {key} 가 사라진다")
+                if (old.get("n") or 0) > (new.get("n") or 0):
+                    lost.append(f"{eid}: 인원이 {old.get('n')} → {new.get('n')} 로 준다")
+        if lost and "--force" not in sys.argv[1:]:
+            print("\n덮어쓰지 않았다 — 있던 것이 없어진다:", file=sys.stderr)
+            for line in lost[:12]:
+                print("   · " + line, file=sys.stderr)
+            if len(lost) > 12:
+                print(f"   … 외 {len(lost)-12}건", file=sys.stderr)
+            print("\n엑셀 원본이 이번에 덜 담겼을 수 있다. 확인하고, 정말 지울 "
+                  "뜻이면 --force 를 붙인다.", file=sys.stderr)
+            return 1
         OUT.parent.mkdir(parents=True, exist_ok=True)
         OUT.write_text(text, encoding="utf-8")
         print(f"{OUT.relative_to(ROOT)} 에 적었다 ({len(text)/1024:.1f}KB)")
