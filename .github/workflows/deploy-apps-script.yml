@@ -43,7 +43,14 @@ jobs:
           CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
         run: |
           npm i -g @google/clasp@2.4.2
+          # clasp 는 인증 파일을 두 자리에서 찾는다.
+          #   ~/.clasprc.json   `clasp login` (clasp 자신의 OAuth 클라이언트)
+          #   ./.clasprc.json   `clasp login --creds` (내 OAuth 클라이언트)
+          # 어느 쪽으로 만든 열쇠든 받아들이도록 둘 다에 쓴다. 파일 모양은 같다
+          # ({token, oauth2ClientSettings, isLocalCreds}) — 안에 클라이언트 정보가
+          # 함께 들어 있어서, 자리만 맞으면 그대로 새로고침된다.
           printf '%s' "$CLASPRC_JSON" > ~/.clasprc.json
+          printf '%s' "$CLASPRC_JSON" > .clasprc.json
 
       - name: 코드 반영 (clasp push)
         if: steps.check.outputs.ready == 'true'
