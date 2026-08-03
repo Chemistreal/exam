@@ -171,5 +171,56 @@ console.log('\n── 회차마다 문항 수와 범위가 맞는다 ──');
   chk('9열(석차 기준)은 그대로 맞은 문항 수다', /total:correct, max:total/.test(APP), true);
 }
 
+/* ── 여섯 벌을 써 놓고 세 벌은 한 번도 안 나갔다 ──────────────────────
+   `_seed` 가 FNV-1a 인데, 마지막 한 글자의 홀짝이 결과의 가장 낮은 자리에
+   거의 그대로 남는다. 자리마다 열쇠 끝이 '|l'·'|t' 로 **고정**이라
+   6 으로 나누면 짝수 번호만 나왔다 — 재어 보니 이랬다.
+
+       MSG_LEAD  0번 33.0% · 1번 0.0% · 2번 33.6% · 3번 0.0% · 4번 33.4% · 5번 0.0%
+
+   문장을 여섯 벌 쓰는 뜻이 없어진다. 눈으로는 절대 안 보인다 — 학부모마다
+   다른 문장을 받으니 "다양하다" 고 느낀다. 400명 × 38회차로 세어야 나온다. */
+console.log('\n── 여섯 벌이 고르게 나간다 ──');
+{
+  const titles = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'exams.json'), 'utf8'))
+    .map(e => e.title);
+  const 성 = '김이박최정강조윤장임한오서신권황안송류전';
+  const 이름 = ['민준','서연','도윤','지우','예준','하은','시우','서윤','주원','지호',
+                '수빈','다인','건우','유진','현우','나윤','지훈','채원','승우','예린'];
+  const names = [];
+  for (const a of 성) for (const b of 이름) names.push(a + b);
+
+  const SLOTS = ['o', 'l', 't', 's', 'w', 'c'];   // 여는·이끄는·범위·강점·보완·맺음
+  const N = 6;
+  let worstLow = 100, worstHigh = 0, dead = [];
+  SLOTS.forEach(k => {
+    const c = new Array(N).fill(0);
+    names.forEach(nm => titles.forEach(t => { c[gas._seed(t + '|' + nm + '|' + k) % N]++; }));
+    const tot = c.reduce((a, b) => a + b, 0);
+    c.forEach((v, i) => {
+      const pct = v / tot * 100;
+      if (pct < worstLow) worstLow = pct;
+      if (pct > worstHigh) worstHigh = pct;
+      if (v === 0) dead.push(k + '자리 ' + i + '번');
+    });
+  });
+  console.log('  가장 적게 나온 벌 ' + worstLow.toFixed(1) + '% · 가장 많이 ' + worstHigh.toFixed(1) + '%');
+  chk('한 번도 안 나가는 벌이 없다', dead, []);
+  /* 고르면 16.7%. 한 벌이 10% 아래로 내려가면 그 벌은 사실상 안 쓰이는 것이다. */
+  chk('어느 벌도 10% 아래로 안 내려간다', worstLow >= 10, true);
+  chk('어느 벌도 25% 위로 안 올라간다', worstHigh <= 25, true);
+
+  /* 자리끼리도 붙어 움직이면 안 된다 — 예전에는 여는 문장과 이끄는 문장의
+     번호가 **0.0%** 로 어긋났다(완전히 붙어 있었다는 뜻이다). */
+  let same = 0, tot2 = 0;
+  names.forEach(nm => titles.forEach(t => {
+    tot2++;
+    if (gas._seed(t + '|' + nm + '|o') % N === gas._seed(t + '|' + nm + '|l') % N) same++;
+  }));
+  const pct = same / tot2 * 100;
+  console.log('  여는 문장과 이끄는 문장이 같은 번호 ' + pct.toFixed(1) + '% (고르면 16.7%)');
+  chk('자리끼리 붙어 움직이지 않는다', pct >= 10 && pct <= 25, true);
+}
+
 console.log(fail ? `\n실패 ${fail}건` : '\n전부 통과');
 process.exit(fail ? 1 : 0);
