@@ -550,7 +550,7 @@ body:not(.snzshow) .row.snz{display:none}
     <section>
       <h2>바로 찾기</h2>
       <p class="hint">이름을 치면 그 학생의 기록이 바로 열립니다. <b>/</b> 를 누르면 여기로 옵니다.</p>
-      <div class="bar"><input type="search" id="qq" placeholder="학생 이름" autocomplete="off"></div>
+      <div class="bar"><input type="search" id="qq" placeholder="학생 이름" autocomplete="off" aria-label="학생 이름"></div>
       <div class="list" id="qqList" hidden></div>
     </section>
     <section id="absWrap" hidden>
@@ -601,7 +601,7 @@ body:not(.snzshow) .row.snz{display:none}
         '안 본 학생'은 <b>최근 한 달 안에 채점한 회차</b>에서만 셉니다 —
         옛 회차에 지금 반 학생을 견주면 그 해에 있지도 않던 아이들이 뜹니다.
         연 창에서 <b>표 복사</b>(엑셀에 그대로)와 <b>이름 복사</b>(반 공지에 그대로)를 할 수 있습니다.</p>
-      <div class="bar"><input type="search" id="rq" placeholder="회차 이름으로 찾기" autocomplete="off"></div>
+      <div class="bar"><input type="search" id="rq" placeholder="회차 이름으로 찾기" autocomplete="off" aria-label="회차 이름으로 찾기"></div>
       <div id="rndNote"></div>
       <div class="scroll"><table id="rndTable"><thead><tr>
         <th scope="col">회차</th><th scope="col">채점</th><th scope="col">평균</th><th scope="col">최고</th><th scope="col">마지막 채점</th><th scope="col">안 본 학생</th><th scope="col">비율</th>
@@ -616,7 +616,7 @@ body:not(.snzshow) .row.snz{display:none}
         이름을 누르면 파이널 회차와 함께 <b>DT 미응시 · 재시 · 통과</b>와 <b>화학 정밀 학습진단</b>이 한 카드에 열리고,
         문자도 거기서 바로 복사됩니다.</p>
       <div class="bar">
-        <input type="search" id="q" placeholder="이름 또는 학교로 찾기" autocomplete="off">
+        <input type="search" id="q" placeholder="이름 또는 학교로 찾기" autocomplete="off" aria-label="이름 또는 학교로 찾기">
         <button class="btn" id="reload">다시 불러오기</button>
       </div>
       <!-- "DT 반에는 있는데 파이널을 한 번도 안 본 학생" 같은 물음은 검색으로는 못 낸다. -->
@@ -684,7 +684,7 @@ body:not(.snzshow) .row.snz{display:none}
         점이 켜져 있으면(<span class="dot on" style="vertical-align:-1px"></span>) 그 자료가
         <b>실제로 있습니다</b> — 없는 것은 아예 걸지 않으므로 눌러 보고 404 를 만날 일이 없습니다.</p>
       <div class="chips" id="matTabs"></div>
-      <div class="bar"><input type="search" id="mq" placeholder="회차·이름으로 찾기" autocomplete="off"></div>
+      <div class="bar"><input type="search" id="mq" placeholder="회차·이름으로 찾기" autocomplete="off" aria-label="회차·이름으로 찾기"></div>
       <div id="matNote"></div>
       <div class="scroll" id="matBody"><div class="spin" style="padding:16px">불러오는 중…</div></div>
     </section>
@@ -3403,8 +3403,8 @@ function lesRender(){
   if(LES_EDIT && cur){
     body.innerHTML = bar +
       '<div class="les__bar">' +
-        '<input class="les__t" id="lesTitle" style="flex:1;min-width:180px" placeholder="회차 이름 (예: 화학의 기초)" value="'+esc(cur.title||'')+'">' +
-        '<input class="les__t" id="lesRound" style="width:110px" inputmode="numeric" placeholder="회차" value="'+esc(cur.round!=null?String(cur.round):'')+'">' +
+        '<input class="les__t" id="lesTitle" style="flex:1;min-width:180px" placeholder="회차 이름 (예: 화학의 기초)" value="'+esc(cur.title||'')+'" aria-label="회차 이름 (예: 화학의 기초)">' +
+        '<input class="les__t" id="lesRound" style="width:110px" inputmode="numeric" placeholder="회차" value="'+esc(cur.round!=null?String(cur.round):'')+'" aria-label="회차">' +
       '</div>' +
       '<textarea class="les__ta" id="lesBodyIn" placeholder="문자 본문. 학생마다 달라지는 자리는 아래 조각을 눌러 넣으세요.">'+esc(cur.body||'')+'</textarea>' +
       '<div class="les__who"><span class="dim">넣을 수 있는 자리 —</span>' +
@@ -4364,7 +4364,7 @@ function renderIncome(){
       '<p class="hint" style="margin:0 0 12px">셸 잠금은 채점하는 날 내내 열려 있어, '+
       '화면을 켜 둔 채 자리를 비우면 금액이 그대로 보입니다.</p>'+
       '<div class="bar"><input type="password" id="incPw" placeholder="코드" autocomplete="off" '+
-      'inputmode="numeric" maxlength="12"><button class="btn" id="incPwGo">열기</button></div>'+
+      'inputmode="numeric" maxlength="12" aria-label="코드"><button class="btn" id="incPwGo">열기</button></div>'+
       '<div class="note err" id="incPwErr" style="display:none;margin:10px 0 0"></div>'+
       '<p class="hint" style="margin:9px 0 0">새로고침하면 다시 묻습니다 — 기억해 두지 않습니다.</p></div>';
     const go = document.getElementById('incPwGo'), inp = document.getElementById('incPw');
@@ -4400,7 +4400,7 @@ function renderIncome(){
   if(!INC_HIST){
     h.innerHTML = '<div class="note"><p style="margin:0 0 9px">월별 추이는 <b>DT 시트</b>가 매달 1일에 한 줄씩 남깁니다. '+
       '수입은 명단·점수와 종류가 달라 이 창구만 <b>토큰</b>을 받습니다.</p>'+
-      '<div class="bar"><input type="password" id="incTok" placeholder="INCOME_TOKEN" autocomplete="off">'+
+      '<div class="bar"><input type="password" id="incTok" placeholder="INCOME_TOKEN" autocomplete="off" aria-label="INCOME_TOKEN">'+
       '<button class="btn" id="incGo">추이 보기</button></div>'+
       (INC_ERR? '<div class="note err" style="margin:10px 0 0">'+esc(INC_ERR)+'</div>':'')+
       '<p class="hint" style="margin:9px 0 0">토큰은 이 화면에서만 들고 있습니다 — 저장하지 않으므로 새로고침하면 다시 물어봅니다.</p></div>';
