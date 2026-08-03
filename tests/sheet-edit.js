@@ -281,5 +281,34 @@ console.log('\n── 읽기 ──');
   chk('열쇠 경고는 이제 없다', out.warning, undefined);
 }
 
+/* ── 검사가 남긴 줄만 지운다 ────────────────────────────────────────
+   CI 의 브라우저 검사가 진짜 앱스크립트로 제출해서, 학생이 아닌 줄이 시트에
+   쌓였다(홍길동 60/60 · 예비본 57/60 …). 그 줄들이 석차 모집단에 들어가
+   진짜 학생들의 등수를 밀어냈다.
+
+   손으로 지우면 빠뜨린다 — '이도현' 은 진짜 줄과 검사 줄이 둘 다 있어서
+   이름으로는 못 가른다. 가르는 것은 링크다. */
+console.log('\n── 검사가 남긴 줄만 지운다 ──');
+{
+  const GAS = fs.readFileSync(path.join(__dirname, '..', 'AppsScript-Code.gs'), 'utf8');
+  const fn = GAS.slice(GAS.indexOf('function _purgeTestRows'));
+  const body = fn.slice(0, fn.indexOf('\nfunction ', 10));
+  chk('창구가 있다', /p\.action === 'purgeTest'/.test(GAS), true);
+  /* 가르는 잣대는 링크 하나뿐이고, 밖에서 바꿀 수 없어야 한다. */
+  chk('링크로만 고른다', /localhost\|127\\\.0\\\.0\\\.1\/i\.test\(link\)/.test(body), true);
+  chk('조건을 밖에서 못 준다', /p\.(where|match|filter|link)/.test(body), false);
+  /* 지우는 것은 되돌릴 수 없다 — 먼저 몇 줄인지 보여 주고, go 를 받아야 지운다. */
+  chk('go 없이는 안 지운다', /if \(!go\) return[\s\S]{0,120}dryRun: true/.test(body), true);
+  chk('go 는 1 이어야 한다', /String\(p\.go \|\| ''\) === '1'/.test(GAS), true);
+  /* 위에서부터 지우면 남은 행 번호가 밀려 엉뚱한 줄이 지워진다. */
+  chk('아래에서부터 지운다', /kill\.sort\(function \(a, b\) \{ return b - a; \}\)/.test(body), true);
+  /* 지우고 나면 모집단이 달라진다. 안 다시 세면 시트에 옛 등수가 남아
+     성적표 문자로 그대로 나간다. */
+  chk('지운 뒤 다시 센다', /recomputeExam\(t, cfg\.base, cfg\.qCount\)/.test(body), true);
+  chk('기준 코호트가 없으면 안 건드린다', /if \(!cfg\) continue;/.test(body), true);
+  /* 통째로 비우는 길은 없어야 한다. */
+  chk('시트를 비우는 길은 없다', /clearContents|deleteRows\(2,/.test(body), false);
+}
+
 console.log(fail ? `\n실패 ${fail}건` : '\n전부 통과');
 process.exit(fail ? 1 : 0);

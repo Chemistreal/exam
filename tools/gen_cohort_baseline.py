@@ -51,6 +51,14 @@
 
     같은 회차 파일이 여럿이면(11회 0804 · 0811 처럼) 사람이 많은 쪽을 쓴다.
     나중에 받은 파일이 대개 몇 명 더 들어와 있다.
+
+    --exam <회차id>   파일 이름에서 회차를 못 읽을 때 사람이 알려 준다.
+                      (이름 규칙은 JMChC 것뿐이라 나머지 시험은 이게 필요하다)
+    --merge           있던 기준 기록을 남기고 **이번에 읽은 회차만** 얹는다.
+                      엑셀이 회차마다 따로 오므로 이것이 보통의 쓰임이다.
+
+    보기:
+        python3 tools/gen_cohort_baseline.py ~/엑셀 --exam sanyeom-60 --merge --write
 """
 
 from __future__ import annotations
@@ -115,6 +123,33 @@ def read_round(path: Path) -> Round | None:
     header = grid[hr]
     acol, nq = _block(header, "번호")
     scol, _ = _block(header, "채점", nq)
+    # ── 맞은 문항 수는 **직접 센다** ────────────────────────────────
+    # 예전에는 '총점' 을 3으로 나눴다(문항당 3점, 180점 만점). 그런데 감점이
+    # 있는 서식에서는 총점이 3의 배수가 아니고 음수도 나온다 — 산과염기 60제가
+    # 그랬고, 23명 중 21명이 "총점이 이상하다" 며 통째로 버려졌다.
+    #
+    # 감점은 그 시험지의 채점 규칙이지 **맞은 개수**가 아니다. 석차·백분위가
+    # 쓰는 것은 맞은 개수다. 그러니 감점을 거치지 말고, 정답 행과 학생 답을
+    # 맞대어 그 자리에서 센다. 서식이 어떻든 같은 답이 나온다.
+    #
+    # 정답 행에 '모두정답'·'1또는2' 처럼 여러 답이 적힌 칸도 있다 — 그 칸에
+    # 든 숫자를 모두 정답으로 본다. 숫자가 하나도 없으면(전원정답) 누구나
+    # 맞은 것으로 센다.
+    ans_key = []
+    for i in range(nq):
+        raw = grid[hr - 2][acol + i] if acol + i < len(grid[hr - 2]) else None
+        if isinstance(raw, (int, float)):
+            ans_key.append({int(raw)})
+        else:
+            nums = {int(x) for x in re.findall(r"[1-4]", str(raw or ""))}
+            ans_key.append(nums)          # 빈 집합 = 전원정답
+    # 서식에 '맞은문항수' 열이 있으면 우리가 센 것과 맞는지만 견준다.
+    ccol = None
+    for c, v in enumerate(header):
+        if isinstance(v, str) and v.replace(" ", "") == "맞은문항수":
+            ccol = c
+            break
+    mismatched = 0
 
     out = Round(path)
     out.nq = nq
@@ -126,25 +161,35 @@ def read_round(path: Path) -> Round | None:
     for line in grid[hr + 1:]:
         if len(line) <= TOTAL_COL or not line[NAME_COL]:
             continue
-        total = line[TOTAL_COL]
-        if not isinstance(total, (int, float)) or total < 0 or int(total) % PER_Q:
-            print(f"  ! 총점이 이상해 세지 않았다: {path.name} {total!r}")
-            continue
-        out.scores.append(int(total) // PER_Q)
+        mine = 0
         for i in range(nq):
-            got = line[scol + i] if scol + i < len(line) else None
-            if isinstance(got, (int, float)) and got > 0:
-                correct[i] += 1
             a = line[acol + i] if acol + i < len(line) else None
+            ok = False
+            if not ans_key[i]:
+                ok = True                            # 전원정답
+            elif isinstance(a, (int, float)) and int(a) in ans_key[i]:
+                ok = True
+            if ok:
+                mine += 1
+                correct[i] += 1
             if a is None or a == 0:
                 opt[i][4] += 1
             elif isinstance(a, int) and 1 <= a <= 4:
                 opt[i][a - 1] += 1
             else:
                 dirty[i] += 1                       # '모두정답' 등으로 덮인 칸
+        out.scores.append(mine)
+        if ccol is not None and ccol < len(line):
+            said = line[ccol]
+            if isinstance(said, (int, float)) and int(said) != mine:
+                mismatched += 1
 
     if not out.scores:
         return None
+    if mismatched:
+        # 엑셀이 적어 둔 맞은 개수와 우리가 센 것이 다르다. 정답 행이 바뀌었거나
+        # 그 서식이 다른 규칙으로 세고 있다는 뜻이라, 조용히 넘기면 안 된다.
+        print(f"  ! 엑셀의 '맞은문항수' 와 다른 학생 {mismatched}명: {path.name}")
     out.qc = correct
     # 덮인 칸만 빠진다. 한 칸도 안 남았으면(전원정답 등) 그 문항만 null.
     out.qopt = [None if sum(opt[i]) == 0 else opt[i] for i in range(nq)]
@@ -174,7 +219,7 @@ def cross_check(exam_id: str, rnd: Round) -> list[str]:
     return bad
 
 
-def build(folder: Path) -> dict:
+def build(folder: Path, force_id=None) -> dict:
     try:
         import openpyxl  # noqa: F401
     except ImportError:
@@ -183,11 +228,20 @@ def build(folder: Path) -> dict:
 
     best: dict[str, Round] = {}
     for path in sorted(folder.rglob("*.xls*")):
-        found = re.search(r"JMchC\s+([\d-]+)\s*[#사]", path.name, re.IGNORECASE)
-        if not found:
-            print(f"  건너뜀(회차를 못 읽음) {path.name}")
-            continue
-        exam_id = "jmchc-" + found.group(1)
+        # 파일 이름에서 회차를 읽는 규칙은 JMChC 것뿐이다. 다른 시험(산과염기
+        # 60제 …)은 이름 규칙이 없어 통째로 건너뛰었고, 그 회차는 기준 기록에
+        # 아예 안 들어갔다 — 석차 모집단이 '앱으로 채점한 몇 명'만 남는다.
+        # 실제로 산과염기 60제가 그래서 1/1 로 나왔다.
+        # 이름으로 못 읽으면 --exam 으로 사람이 알려 준다.
+        if force_id:
+            exam_id = force_id
+        else:
+            found = re.search(r"JMchC\s+([\d-]+)\s*[#사]", path.name, re.IGNORECASE)
+            if not found:
+                print(f"  건너뜀(회차를 못 읽음) {path.name}"
+                      "   ← --exam <회차id> 로 알려 줄 수 있다")
+                continue
+            exam_id = "jmchc-" + found.group(1)
         rnd = read_round(path)
         if not rnd:
             continue
@@ -250,7 +304,13 @@ def main() -> int:
     if not folder.is_dir():
         print(f"디렉터리가 아니다: {folder}", file=sys.stderr)
         return 2
-    data = build(folder)
+    force_id = None
+    for i, a in enumerate(sys.argv[1:]):
+        if a == "--exam" and i + 2 <= len(sys.argv[1:]):
+            force_id = sys.argv[1:][i + 1]
+        elif a.startswith("--exam="):
+            force_id = a.split("=", 1)[1]
+    data = build(folder, force_id)
     total = sum(e["n"] for e in data["exams"].values())
     holes = sum(1 for e in data["exams"].values() for o in e["q"] if o is None)
     cells = sum(len(e["q"]) for e in data["exams"].values())
@@ -271,6 +331,29 @@ def main() -> int:
         #
         # 그러니 **덮어쓰기 전에** 본다. 있던 것이 없어지면 멈춘다.
         # (정말 지울 뜻이면 --force 를 붙인다. 손이 한 번 더 가야 한다.)
+        # ── 얹기(--merge) ────────────────────────────────────────────
+        # 엑셀은 회차마다 따로 온다. 한 파일만 놓고 돌리면 나머지 열다섯
+        # 회차가 통째로 빠진다 — 아래 안전장치가 막지만, 막히면 아무것도
+        # 못 넣는다. --merge 는 있던 것을 남기고 **이번에 읽은 회차만** 얹는다.
+        if "--merge" in sys.argv[1:] and OUT.exists():
+            try:
+                keep = json.loads(OUT.read_text(encoding="utf-8"))
+            except Exception:
+                keep = {"exams": {}}
+            merged = dict(keep.get("exams") or {})
+            for eid, val in data["exams"].items():
+                if eid in merged:
+                    print(f"  얹음(덮어씀) {eid}: {merged[eid].get('n')}명 → {val['n']}명")
+                else:
+                    print(f"  얹음(새로) {eid}: {val['n']}명")
+                merged[eid] = val
+            data = dict(data)
+            data["exams"] = dict(sorted(merged.items()))
+            text = json.dumps(data, ensure_ascii=False, indent=1)
+            text = re.sub(r"\[\s+((?:-?\d+|null)(?:,\s+(?:-?\d+|null))*)\s+\]",
+                          lambda m: "[" + re.sub(r"\s+", "", m.group(1)) + "]", text)
+            text += "\n"
+
         lost = []
         if OUT.exists():
             try:

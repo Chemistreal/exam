@@ -264,7 +264,8 @@ function allRows_(cb) {
    낸 것이다(홍길동 60/60 · 예비본 57/60 …). 시트에서 지우기 전에도 여기
    숫자는 바로 맞는다. */
 function cohortOf_(examId, cb) {
-  var hist = {}, n = 0, skipped = 0;
+  var hist = {}, yhist = {}, n = 0, yn = 0, skipped = 0;
+  var year = new Date().getFullYear();
   try {
     var want = EXAM_TITLES[examId] || null;
     if (want && !(want instanceof Array)) want = [want];
@@ -286,10 +287,17 @@ function cohortOf_(examId, cb) {
         c = Math.round(c);
         hist[c] = (hist[c] || 0) + 1;
         n++;
+        /* 올해 채점한 것만 따로 센다 — 반석차가 쓰는 모집단이다.
+           가르는 잣대는 **채점해 넣은 시각**([3] 저장시각)이다. 응시일은
+           비어 있는 줄이 많다. 시각을 모르는 줄은 올해로 치지 않는다 —
+           모르는 것을 올해로 세면 반석차가 소리 없이 부풀어 오른다. */
+        var t = (r[3] instanceof Date) ? r[3].getFullYear() : 0;
+        if (t === year) { yhist[c] = (yhist[c] || 0) + 1; yn++; }
       }
     }
   } catch (err) {}
-  return _jsonOut_(JSON.stringify({ ok: true, exam: examId, hist: hist, n: n, skipped: skipped }), cb);
+  return _jsonOut_(JSON.stringify({ ok: true, exam: examId, hist: hist, n: n,
+                                    yhist: yhist, yn: yn, year: year, skipped: skipped }), cb);
 }
 
 function doGet(e) {
@@ -369,10 +377,76 @@ function doGet(e) {
       ? ContentService.createTextOutput(cb + '(' + body + ')').setMimeType(ContentService.MimeType.JAVASCRIPT)
       : ContentService.createTextOutput(body).setMimeType(ContentService.MimeType.JSON);
   }
+  /* ── 검사가 남긴 줄만 지운다 ────────────────────────────────────────
+     CI 의 브라우저 검사가 진짜 앱스크립트로 제출해서, 학생이 아닌 줄이
+     시트에 쌓였다(홍길동 60/60 · 예비본 57/60 · 오프라인테스트 …).
+     그 줄들이 석차·백분위·또래 정답률 모집단에 그대로 들어가 **진짜
+     학생들의 등수를 밀어냈다.**
+
+     손으로 지우면 빠뜨린다 — 이름만으로는 못 가른다. '이도현' 은 진짜 줄과
+     검사 줄이 둘 다 있다. 가르는 것은 **링크**다: 검사는 localhost 에서
+     돌고, 학생 화면은 언제나 chemistreal.github.io 다.
+
+     ⚠ 지우는 조건을 밖에서 못 정한다. 링크가 localhost 인 줄, 그것뿐이다.
+     통째로 비우는 길은 여기에도 없다.
+
+       ?action=purgeTest            몇 줄이 걸리는지만 본다(안 지운다)
+       ?action=purgeTest&go=1       지운다 */
+  if (p.action === 'purgeTest') {
+    var body2 = JSON.stringify(_purgeTestRows(String(p.go || '') === '1'));
+    return cb
+      ? ContentService.createTextOutput(cb + '(' + body2 + ')').setMimeType(ContentService.MimeType.JAVASCRIPT)
+      : ContentService.createTextOutput(body2).setMimeType(ContentService.MimeType.JSON);
+  }
   var status = JSON.stringify({ ok: true, msg: 'Chemistreal endpoint live' });
   return cb
     ? ContentService.createTextOutput(cb + '(' + status + ')').setMimeType(ContentService.MimeType.JAVASCRIPT)
     : ContentService.createTextOutput(status).setMimeType(ContentService.MimeType.JSON);
+}
+
+/* 검사가 남긴 줄(링크가 localhost)만 지운다.
+   go 가 아니면 세기만 한다 — 지우는 것은 되돌릴 수 없으므로 먼저 보여 준다.
+   아래에서 지우는 조건은 이 한 줄뿐이고, 밖에서 바꿀 수 없다. */
+function _purgeTestRows(go) {
+  var lock = null;
+  try {
+    try { lock = LockService.getScriptLock(); lock.waitLock(20000); } catch (eL) { lock = null; }
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('성적기록');
+    if (!sheet || sheet.getLastRow() < 2) return { ok: true, found: 0, removed: 0, rows: [] };
+    var n = sheet.getLastRow() - 1;
+    var all = sheet.getRange(2, 1, n, HEADER.length).getValues();
+    var kill = [], rows = [];
+    for (var i = 0; i < n; i++) {
+      var link = String(all[i][2] || '');
+      if (!/localhost|127\.0\.0\.1/i.test(link)) continue;
+      kill.push(i + 2);
+      rows.push({ exam: String(all[i][0] || ''), name: String(all[i][1] || '') });
+    }
+    if (!go) return { ok: true, found: kill.length, removed: 0, rows: rows, dryRun: true };
+    // 아래에서부터 지운다 — 위에서부터 지우면 남은 행 번호가 밀린다.
+    kill.sort(function (a, b) { return b - a; });
+    for (var k = 0; k < kill.length; k++) sheet.deleteRow(kill[k]);
+    /* 지우고 나면 모집단이 달라진다. 석차·백분위·성적표 문자를 다시 계산해
+       두지 않으면, 시트에는 옛 등수가 남아 문자로 그대로 나간다. */
+    var redone = [];
+    try {
+      var seen = {};
+      for (var r2 = 0; r2 < rows.length; r2++) {
+        // recomputeExam 은 **시험 제목**을 받는다(id 가 아니다).
+        var t = rows[r2].exam;
+        if (!t || seen[t]) continue;
+        seen[t] = 1;
+        var cfg = _recomputeConfigFor(t);
+        if (!cfg) continue;                     // 기준 코호트가 없는 회차는 안 건드린다
+        try { recomputeExam(t, cfg.base, cfg.qCount); redone.push(t); } catch (e2) {}
+      }
+    } catch (e3) {}
+    return { ok: true, found: kill.length, removed: kill.length, rows: rows, recomputed: redone };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  } finally {
+    if (lock) { try { lock.releaseLock(); } catch (e) {} }
+  }
 }
 
 /* 성적기록 시트의 행을 고치거나 지운다. doGet 의 rename·editRow·deleteRow 가 부른다.
@@ -516,7 +590,7 @@ var EXAM_COHORT = {
   '기출동형 2회 (2016)': { q: 60, base: [] },
   '기출동형 3회 (2017)': { q: 60, base: [] },
   '기출동형 4회 (2013)': { q: 60, base: [] },
-  '산과염기 60제': { q: 60, base: [] },
+  '산과염기 60제': { q: 60, base: [12,12,16,16,18,19,19,19,20,20,22,22,25,25,27,28,29,30,31,32,33,49] },
   'KMChC 2026 제1차 · 일반': { q: 50, base: [] },
   'KMChC 2026 제1차 · 심화': { q: 50, base: [] },
   'KMChC 2025 제2차 · 일반': { q: 50, base: [] },

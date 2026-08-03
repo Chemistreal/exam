@@ -56,7 +56,7 @@ vm.runInContext([
   cutFn(SRC, 'rankPool'), cutFn(SRC, 'baselineTotals'),
   /* 시트가 대답한 '지금 인원'. 링크에 실린 낡은 숫자를 갈아 끼우는 자리라
      여기서도 실물을 넣는다 — 흉내로 두면 갈아 끼우는 규칙을 못 잰다. */
-  'var LIVE_POOL=null;', cutFn(SRC, 'liveTotals'),
+  'var LIVE_POOL=null;', cutFn(SRC, '_spread'), cutFn(SRC, 'liveTotals'), cutFn(SRC, 'liveYearTotals'),
   'var COHORT_ALIAS={}; function cohortKey(id){return id;}',
 ].join('\n'), ctx);
 
@@ -220,6 +220,26 @@ console.log('\n── 공유 링크가 지금 인원을 본다 ──');
 
   ctx.LIVE_POOL = null; ctx.BASELINE = null;
   chk('빈 대답은 안 쓴다', ctx.rankPool(ex, cs).N, 3);
+
+  /* 총석차만 고치고 두면 한 줄 안에서 두 숫자가 어긋난다 —
+     "연도누적 총석차 7/8 · 2026년 반석차 2/2". 반석차도 같이 간다. */
+  const ys = { yearTotals: [50, 40], yearOf: 2025 };
+  ctx.LIVE_POOL = null;
+  chk('시트가 없으면 링크에 실린 반석차', ctx.rankPoolYear(ex, ys).N, 2);
+  ctx.LIVE_POOL = { id: 'x-1', hist: { 50: 1, 40: 1, 30: 1 }, n: 3,
+                    yhist: { 50: 1, 40: 1, 30: 1, 20: 2 }, yn: 5, year: 2026 };
+  const ly = ctx.rankPoolYear(ex, ys);
+  chk('시트가 대답하면 올해 인원으로', ly.N, 5);
+  chk('해도 시트가 말한 것으로', ly.year, 2026);
+  chk('등수도 새 모집단에서', ctx.rankIn(ly.pool, 40), 2);
+  /* 올해 채점한 사람이 자기 혼자면 등수가 아니라 '아직 아무도 없다' 는 뜻이다. */
+  ctx.LIVE_POOL = { id: 'x-1', hist: { 50: 1 }, n: 1, yhist: { 50: 1 }, yn: 1, year: 2026 };
+  chk('혼자면 안 적는다', ctx.rankPoolYear(ex, ys).ready, false);
+  /* 올해 채점한 사람이 없으면(작년 것만) 링크에 실린 것으로 돌아간다. */
+  ctx.LIVE_POOL = { id: 'x-1', hist: { 50: 9 }, n: 9, yhist: {}, yn: 0, year: 2026 };
+  chk('올해가 비면 링크 것으로', ctx.rankPoolYear(ex, ys).N, 2);
+  chk('회차가 다르면 안 쓴다', ctx.rankPoolYear({ id: '딴것', nQ: 60 }, ys).N, 2);
+  ctx.LIVE_POOL = null;
 
   /* 링크만이 아니라 **어느 화면에서 열든** 같은 인원을 봐야 한다. 학교
      컴퓨터와 집 노트북이 서로 다른 숫자를 내던 것도 같은 뿌리다. */
