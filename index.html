@@ -1018,7 +1018,7 @@ body{background:radial-gradient(130% 90% at 50% -12%,#FCFAF4 0%,var(--paper-soft
       <div><h2>학생 목록</h2><div class="sub" id="rsSub"></div></div>
       <div class="btn-row no-print"><button class="btn btn--g" onclick="App.toInput()">← 답안 입력</button><button class="btn" onclick="App.copyAllLinks()">링크 전체 복사</button><button class="btn" onclick="App.printAll()">전체 인쇄</button><button class="btn btn--p" onclick="printAllFull()">전체 인쇄 (진단표 + 개념 발전 노트)</button></div>
     </div>
-    <input class="rs-search" id="rsSearch" placeholder="이름 검색" oninput="App.renderRoster(this.value)">
+    <input class="rs-search" id="rsSearch" placeholder="이름 검색" oninput="App.renderRoster(this.value)" aria-label="이름 검색">
     <div id="rsList"></div>
   </div>
 </section>
@@ -3799,14 +3799,14 @@ const App={
  },
  renderIdForm(){
   const f=[['name','이름'],['school','학교'],['grade','학년'],['date','응시일']];
-  document.getElementById('idForm').innerHTML=f.map(([k,l])=>`<div><label>${l}</label><input id="id_${k}" value="${esc(this.idData[k]||'')}" oninput="App.idData['${k}']=this.value" placeholder="${l}"></div>`).join("");
+  document.getElementById('idForm').innerHTML=f.map(([k,l])=>`<div><label for="id_${k}">${l}</label><input id="id_${k}" value="${esc(this.idData[k]||'')}" oninput="App.idData['${k}']=this.value" placeholder="${l}"></div>`).join("");
  },
  renderOMR(){
   const qs=this.exam.questions, G=10; let html='';
   for(let g=0;g<qs.length;g+=G){
    const part=qs.slice(g,g+G);
    html+=`<div class="omr-group"><div class="omr-group__h">${part[0].n} – ${part[part.length-1].n}</div><div class="omr-grid">`
-    +part.map(q=>`<div class="qrow"><span class="qrow__n">${q.n}</span><input class="ansin" id="ai_${q.n}" inputmode="numeric" maxlength="1" autocomplete="off" placeholder="·" value="${this.answers[q.n]||''}" oninput="App.typeAns(${q.n},this)" onkeydown="App.keyNav(event,${q.n})" onpaste="App.pasteAns(event,${q.n})" onfocus="this.select()"></div>`).join("")
+    +part.map(q=>`<div class="qrow"><span class="qrow__n">${q.n}</span><input class="ansin" id="ai_${q.n}" inputmode="numeric" maxlength="1" autocomplete="off" placeholder="·" value="${this.answers[q.n]||''}" oninput="App.typeAns(${q.n},this)" onkeydown="App.keyNav(event,${q.n})" onpaste="App.pasteAns(event,${q.n})" onfocus="this.select()" aria-label="·"></div>`).join("")
     +`</div></div>`;
   }
   document.getElementById('omrGrid').innerHTML=html;
