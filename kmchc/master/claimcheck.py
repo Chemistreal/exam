@@ -31,6 +31,7 @@ import sys
 
 BANK = 'kmchc/master/master_bank.json'
 ID_RE = re.compile(r'M\d{5}')
+RANGE_RE = re.compile(r'M\d{5}\s*[~\-–]\s*M\d{5}')
 
 
 def sh(*args):
@@ -53,7 +54,9 @@ def check(rev):
     msg = sh('git', 'log', '-1', '--format=%B', rev)
     short = sh('git', 'rev-parse', '--short', rev).strip()
 
-    named = set(ID_RE.findall(msg))
+    # ★범위 표기는 개별 지목이 아니다★ — 제목의 'M02121~M02130' 을 두 문항으로 읽으면
+    # 조치 커밋마다 잡음 둘이 붙는다. 범위를 먼저 걷어내고 남은 것만 지목으로 센다.
+    named = set(ID_RE.findall(RANGE_RE.sub(' ', msg)))
     if not named:
         return 0
 
