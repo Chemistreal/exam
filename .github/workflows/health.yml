@@ -22,3 +22,31 @@ jobs:
       - uses: actions/checkout@v4
       - name: 창구가 대답하는지
         run: node tools/health_check.js
+
+      # ── 배포 열쇠가 아직 살아 있는지 ──────────────────────────
+      # 2026-08-03 에 .gs 를 고쳐 병합했는데 자동 배포가 `invalid_grant` 로
+      # 죽었다. 저장소에는 고친 코드가 들어갔지만 **앱스크립트에는 안 올라갔다** —
+      # 화면은 옛 코드로 돌고 있었다.
+      #
+      # 배포는 .gs 가 바뀔 때만 돈다. 그래서 열쇠가 만료돼도 다음에 .gs 를
+      # 고칠 때까지, 몇 주라도 아무도 모른다. 여기서 매일 한 번 확인한다.
+      # (읽기만 한다 — clasp status 는 아무것도 올리지 않는다)
+      - name: 배포 열쇠가 살아 있는지
+        env:
+          CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
+          GAS_SCRIPT_ID: ${{ secrets.GAS_SCRIPT_ID }}
+        run: |
+          if [ -z "$CLASPRC_JSON" ] || [ -z "$GAS_SCRIPT_ID" ]; then
+            echo "::warning title=배포 미설정::자동배포 시크릿이 없습니다 — .gs 를 고쳐도 반영되지 않습니다."
+            exit 0
+          fi
+          npm i -g @google/clasp@2.4.2 >/dev/null 2>&1
+          printf '%s' "$CLASPRC_JSON" > ~/.clasprc.json
+          printf '{"scriptId":"%s","rootDir":"gas"}' "$GAS_SCRIPT_ID" > .clasp.json
+          mkdir -p gas
+          if clasp status >/dev/null 2>&1; then
+            echo "배포 열쇠 살아 있음"
+          else
+            echo "::error title=배포 열쇠 만료::clasp 인증이 만료됐습니다(invalid_grant). .gs 를 고쳐도 앱스크립트에 안 올라갑니다 — AUTODEPLOY.md 의 CLASPRC_JSON 을 다시 발급하세요."
+            exit 1
+          fi
