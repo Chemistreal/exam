@@ -228,10 +228,23 @@ console.log('\n── 셸이 남의 데이터를 건드리지 않는다 ──')
       /localStorage\.setItem\(\s*(FIN_PFX|['"]final:)/.test(CODE_ONLY), false);
   chk('localStorage 를 비우지 않는다', /localStorage\.(clear|removeItem)/.test(CODE_ONLY), false);
   chk('앱스크립트에 POST 하지 않는다', /method\s*:\s*['"]POST/i.test(body), false);
-  /* 남의 앱스크립트를 부르는 곳은 readOnce 한 곳뿐이고, 거기 넘기는 것은 읽기
+  /* 남의 앱스크립트를 부르는 곳은 한 군데로 모아 둔다. 거기 넘기는 것은 읽기
      액션뿐이다. 한 곳으로 모으기 전에는 action 문자열을 그대로 세면 됐는데,
-     이제는 부르는 쪽을 세야 같은 것을 지킨다 — 지키는 것은 그대로다. */
-  chk('남의 앱을 부르는 곳은 한 곳뿐', (body.match(/jsonp\(APPS\[?\w*\]?\.?\w*\.ep/g) || []), ['jsonp(APPS[app].ep']);
+     이제는 부르는 쪽을 세야 같은 것을 지킨다 — 지키는 것은 그대로다.
+
+     ⚠ 예전에는 `jsonp(APPS[app].ep` 한 줄만 있으면 됐다. 이제 그 문 안쪽이
+       둘로 나뉘었다(모으는 askOnce · 내보내는 askFlush) — 묶어 보내려면
+       내보내는 자리가 따로 있어야 한다. 그래서 '한 줄' 이 아니라 **'그 두
+       함수 밖에서는 아무도 안 부른다'** 를 지킨다. 문을 우회하는 길이 새로
+       생기면 여기서 걸린다. */
+  {
+    /* 문 안쪽(모으는 곳·내보내는 곳)과 문 자체를 덜어 내고 남은 자리에서 센다. */
+    const outside = [cut('askOnce'), cut('askFlush'), cut('jsonp')]
+      .reduce(function (t, part) { return t.replace(part, ''); }, body);
+    chk('창구를 부르는 곳은 그 문 안쪽뿐',
+        (outside.match(/jsonp\s*\(/g) || []), []);
+    chk('그 문은 readOnce 가 쓴다', /askOnce\(app, action, extra\)\.then/.test(body), true);
+  }
   chk('읽기 액션만 부른다',
       (body.match(/readOnce\('\w+', '(\w+)'|dtOnce\('(\w+)'/g) || []).sort(),
       ["dtOnce('names'", "dtOnce('pending'", "readOnce('dt', 'absentees'",
@@ -1152,12 +1165,18 @@ console.log('\n── 보낸 것은 눈에서 내려간다 ──');
       /w\.unmarkSent\(/.test(body), true);
   chk('보낸 줄에만 무르기가 뜬다',
       /return SENT\.has\(k\) \? '<button class="mini undo"/.test(body), true);
-  /* ⚠ 앱스크립트는 실행을 한 줄로 세운다. 꾸미는 창구까지 한꺼번에 부르면
-     줄이 30초까지 길어지고 그동안 **다른 화면이 실패한다** — 실제로 명단
-     화면이 기본 명단으로 되돌아가 덮어쓸 뻔했다. 뒤에 하나씩 세운다. */
+  /* ⚠ 앱스크립트는 실행을 한 줄로 세운다. 그래서 꾸미는 창구는 급한 것이
+     끝난 뒤에 부른다 — 이건 그대로다.
+
+     바뀐 것: 예전에는 그 셋을 **하나씩 차례로** 불렀고 이 검사도 그것을
+     지켰다(`steps.reduce`). 창구 하나에 한 번씩 실행이 도니 한꺼번에 보내면
+     줄만 길어진다고 본 것인데, 그러다 보니 폭포가 됐다 — 앞엣것이 돌아와야
+     뒤엣것이 나가서 셋에 3초가 걸렸다. 이제는 묶어 보내니(askOnce) 셋이
+     **한 번**으로 간다. 나란히 부르는 것이 맞고, 검사도 그것을 지킨다. */
   chk('꾸미는 창구는 줄 뒤에', /function laterOnce\(\)/.test(body) &&
       /dtSentLog\(\)\.then\(function\(rows\)\{ seedSent\(rows\); refreshSoon\(\); \}/.test(body), true);
-  chk('한꺼번에 안 부른다', /steps\.reduce\(function\(p, f\)\{/.test(body), true);
+  chk('꾸미는 창구는 나란히 부른다(한 묶음으로 나간다)',
+      /Promise\.all\(steps\.map\(function\(f\)\{/.test(body), true);
   chk('한 번만 건다', /if\(LATER_DONE\) return;/.test(body), true);
   chk('못 받아도 화면은 산다', /f\(\)\.catch\(function\(\)\{\}\)/.test(body), true);
 }

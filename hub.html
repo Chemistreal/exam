@@ -1041,6 +1041,66 @@ function examLocal(){
    다시 묻는다. 실패한 것은 담아 두지 않는다(다음에 다시 묻는다). */
 const DT_TTL = 5*60*1000;
 const DT_CACHE = {};                       // app:action → {at, val, inflight}
+
+/* ── 창구를 한 번만 두드린다 ────────────────────────────────────────
+   위(readOnce)는 **같은 것**을 두 번 묻지 않게 한다. 그래도 **다른 것**은
+   여전히 따로 나간다. 재어 보니 셸을 여는 것만으로 앱스크립트 호출이
+   여덟 번이었고, 그중 다섯이 DT 한 창구로 0.15초 안에 몰려 나갔다.
+
+       150ms  DT  names        ┐ 다섯이 동시에 나가지만
+       151ms  DT  pending      │ 앱스크립트는 실행을 한 줄로 세운다 —
+       152ms  DT  absentees    │ 앞엣것이 끝나야 뒤엣것이 시작한다.
+       152ms  DT  passed       │ 그래서 다섯 번을 **차례로** 기다린다.
+       153ms  DT  cohortmis    ┘
+
+   같은 순간에 물을 것들을 잠깐(ASK_WAIT) 모았다가 **한 번에 묶어 보낸다.**
+   저쪽(bundle 창구)은 한 실행에서 다 답한다.
+
+   ⚠ 묶음 창구가 아직 안 올라간 배포에서도 화면은 살아야 한다. 묶음이
+     실패하거나 parts 를 안 주면 **하나씩 다시 묻는다** — 느려질 뿐 안 깨진다.
+   ⚠ 모으는 창은 사람이 못 느낄 만큼만 둔다. 길게 잡으면 첫 숫자가 그만큼
+     늦게 뜬다. 대신 **나가 있는 동안 들어온 것은 다음 묶음에 담는다** —
+     어차피 저쪽은 한 줄로 도니, 두 번째를 지금 보내 봐야 줄만 길어진다.
+     그래서 DT 창구로 나가 있는 요청은 **늘 하나뿐**이다. */
+const ASK_WAIT = 15;                       // ms
+let ASK_Q = null, ASK_BUSY = false;
+function withExtra(q, extra){ for(const k in (extra||{})) q[k] = extra[k]; return q; }
+function askOnce(app, action, extra){
+  /* 묶음은 DT 창구에만 있다. 나머지는 곧바로 부른다 — 창구가 다르면 어차피
+     저쪽 실행도 따로 돈다(줄을 같이 서지 않는다). */
+  if(app !== 'dt') return jsonp(APPS[app].ep, withExtra({ action:action }, extra));
+  if(!ASK_Q){ ASK_Q = { items:[], extra:{} }; setTimeout(askFlush, ASK_WAIT); }
+  const q = ASK_Q;
+  withExtra(q.extra, extra);
+  return new Promise(function(res, rej){ q.items.push({ action:action, res:res, rej:rej }); });
+}
+function askFlush(){
+  if(ASK_BUSY) return;                      // 나가 있다. 돌아오면 그때 같이 보낸다
+  const q = ASK_Q; ASK_Q = null;
+  if(!q || !q.items.length) return;
+  ASK_BUSY = true;
+  const done = function(){
+    ASK_BUSY = false;
+    if(ASK_Q && ASK_Q.items.length) askFlush();   // 기다리던 것을 이제 보낸다
+  };
+  const solo = function(it){
+    return jsonp(APPS.dt.ep, withExtra({ action:it.action }, q.extra)).then(it.res, it.rej);
+  };
+  if(q.items.length === 1){ solo(q.items[0]).then(done, done); return; }
+  const want = q.items.map(function(it){ return it.action; }).join(',');
+  jsonp(APPS.dt.ep, withExtra({ action:'bundle', want:want }, q.extra)).then(function(d){
+    if(!d || !d.ok || !d.parts) throw new Error('묶음 창구 없음');
+    q.items.forEach(function(it){
+      const p = d.parts[it.action];
+      if(p) it.res(p); else it.rej(new Error('응답 없음'));
+    });
+    done();
+  }).catch(function(){
+    /* 옛 배포이거나 묶음이 터졌다. 하나씩 다시 묻는다 — 느릴 뿐 안 깨진다. */
+    Promise.all(q.items.map(function(it){ return solo(it).catch(function(){}); })).then(done, done);
+  });
+}
+
 function readOnce(app, action, shape, force, extra){
   const key = app+':'+action;
   const c = DT_CACHE[key] || (DT_CACHE[key] = {at:0, val:null, inflight:null});
@@ -1048,9 +1108,7 @@ function readOnce(app, action, shape, force, extra){
   if(!force && c.val && (Date.now()-c.at) < DT_TTL) return Promise.resolve(c.val);
   /* 곁들임(토큰 등)을 받되 창구는 여기 하나뿐이다 — 부르는 곳이 늘면 무엇을
      읽고 있는지 세는 검사가 뜻을 잃는다. */
-  const q = { action:action };
-  for(const k in (extra||{})) q[k] = extra[k];
-  c.inflight = jsonp(APPS[app].ep, q).then(function(d){
+  c.inflight = askOnce(app, action, extra).then(function(d){
     if(!d || !d.ok) throw new Error((d&&d.error)||'응답 오류');
     c.val = shape(d);
     c.at = Date.now(); c.inflight = null; c.err = '';
@@ -2190,8 +2248,13 @@ document.addEventListener('click', function(e){
   }).catch(function(){});
 });
 
-/* 꾸미는 창구를 하나씩, 급한 것 뒤에. 한 번 걸어 두면 다시 안 건다 —
-   대시보드는 자주 다시 그려지는데 그때마다 줄을 늘리면 뜻이 없다. */
+/* 꾸미는 창구를 급한 것 뒤에. 한 번 걸어 두면 다시 안 건다 — 대시보드는
+   자주 다시 그려지는데 그때마다 줄을 늘리면 뜻이 없다.
+
+   ⚠ 예전에는 이 셋을 **하나씩 차례로** 불렀다. 창구 하나에 한 번씩 실행이
+     도니 한꺼번에 보내면 줄만 길어진다고 본 것인데, 그러다 보니 폭포가 됐다 —
+     앞엣것이 돌아와야 뒤엣것이 나가서 셋에 3초가 걸렸다. 이제는 묶어 보내니
+     (askOnce) 셋이 **한 번**으로 간다. 나란히 부르는 것이 맞다. */
 let LATER_DONE = false;
 function laterOnce(){
   if(LATER_DONE) return;
@@ -2206,9 +2269,7 @@ function laterOnce(){
   Promise.all([ dtRoster().catch(function(){}), dtPending().catch(function(){}),
                 dtAbsentees().catch(function(){}), dtPassed().catch(function(){}) ])
     .then(function(){
-      return steps.reduce(function(p, f){
-        return p.then(function(){ return f().catch(function(){}); });
-      }, Promise.resolve());
+      return Promise.all(steps.map(function(f){ return f().catch(function(){}); }));
     }).catch(function(){});
 }
 
