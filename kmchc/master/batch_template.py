@@ -168,7 +168,9 @@ def verify(items):
             issues.append((it['id'], '해설 구조 결손', '', ''))
         if len(it['distractors']) != 3:
             issues.append((it['id'], f"오답 {len(it['distractors'])}개", '', ''))
-        nums = [int(m.group(1)) for c in it['choices'] if (m := re.match(r'^(\d+)', c.strip()))]
+        # ★T13 P16★ — 머리 낱말 한 마디를 허용해 '오비탈 9 개' 꼴도 수치 보기로 본다.
+        nums = [int(m.group(1)) for c in it['choices']
+                if (m := re.match(r'^(?:[가-힣a-zA-Z]{1,4}\s+)?(\d+)', c.strip()))]
         if len(nums) == 4 and nums != sorted(nums):
             issues.append((it['id'], f'G6 수치 비오름차순 {nums}', '', ''))
         if it.get('answer_expr'):
