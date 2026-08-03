@@ -57,7 +57,11 @@ def check(rev):
     # ★범위 표기는 개별 지목이 아니다★ — 제목의 'M02121~M02130' 을 두 문항으로 읽으면
     # 조치 커밋마다 잡음 둘이 붙는다. 범위를 먼저 걷어내고 남은 것만 지목으로 센다.
     named = set(ID_RE.findall(RANGE_RE.sub(' ', msg)))
-    if not named:
+    ranges = [(a, b) for a, b in (m.group(0).split('~')[0].strip(),
+                                  m.group(0).split('~')[-1].strip())
+              for m in [None]] if False else [
+        tuple(x.strip() for x in re.split(r'[~\-–]', m)) for m in RANGE_RE.findall(msg)]
+    if not named and not ranges:
         return 0
 
     before, after = bank_at(f'{rev}^'), bank_at(rev)
@@ -66,8 +70,17 @@ def check(rev):
     added = set(after) - set(before)
     edited = {i for i in set(before) & set(after) if before[i] != after[i]}
 
-    ghost = sorted(named - added - edited)   # 이름만 불리고 바뀌지 않음
-    silent = sorted(edited - named)          # 고쳐졌는데 이름이 없음
+    # ★범위 전체가 고쳐진 커밋은 범위 표기를 지목으로 인정한다★ — 마감 커밋은 watch 를
+    # 열 문항에 한꺼번에 적고, 생산 커밋은 열 문항을 한꺼번에 들인다. 그때마다 열 곳이
+    # 뜨면 검사가 잡음이 된다. 범위가 실제로 다 덮였을 때만 인정한다(부분만 고쳤으면 짚는다).
+    covered = set()
+    for lo, hi in ranges:
+        span = {f'M{n:05d}' for n in range(int(lo[1:]), int(hi[1:]) + 1)}
+        if span and span <= (added | edited):
+            covered |= span
+
+    ghost = sorted(named - added - edited)              # 이름만 불리고 바뀌지 않음
+    silent = sorted(edited - named - covered)           # 고쳐졌는데 이름이 없음
 
     if not ghost and not silent:
         return 0
