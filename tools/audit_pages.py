@@ -167,10 +167,14 @@ def main():
     for r in roots:
         if os.path.isfile(r):
             files.append(r)
-        else:
-            for f in sorted(os.listdir(r)):
+            continue
+        # 하위 폴더까지 본다. 여기 앱은 premium/ · v2/ 처럼 판이 폴더로 나뉜다 —
+        # 위층만 보면 그 둘은 아무도 안 재는 화면이 된다.
+        for dirpath, dirnames, names in os.walk(r):
+            dirnames[:] = [d for d in dirnames if d not in ('.git', 'node_modules', '__pycache__')]
+            for f in sorted(names):
                 if f.endswith('.html'):
-                    files.append(os.path.join(r, f))
+                    files.append(os.path.join(dirpath, f))
     rows, byKind = [], collections.Counter()
     for f in files:
         t = tier_of(os.path.basename(f))
