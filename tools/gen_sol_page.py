@@ -121,6 +121,18 @@ def build(exam_id: str) -> str:
     return "\n".join(out) + "\n"
 
 
+def themed(page: str, exam_id: str) -> str:
+    """생성한 글에도 **같은 옷**을 입힌다.
+
+    안 입히면 이 생성기가 만드는 글과 저장소에 있는 글이 영영 어긋난다 —
+    `tools/theme.py` 는 파일에 옷을 입히고, 여기는 그걸 모른 채 옛 모양을
+    만들어 내기 때문이다. 한쪽만 알고 있으면 검사는 매번 빨간불이다.
+    """
+    sys.path.insert(0, str(ROOT / "tools"))
+    import theme
+    return theme.apply(page, theme.plan(f"sol-final-{exam_id}.html", page)) or page
+
+
 def main() -> int:
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     write = "--write" in sys.argv[1:]
@@ -137,7 +149,7 @@ def main() -> int:
             cur = page.read_text(encoding="utf-8")
             if "CHEMISTREAL · FINAL 해설지</div>" not in cur or "정답 · 영역 · 개념</h3>" not in cur:
                 continue
-            if cur != build(e["id"]):
+            if cur != themed(build(e["id"]), e["id"]):
                 stale.append(f"{e['id']}: 해설 데이터와 어긋난다")
         if stale:
             print("FAIL 해설지가 데이터와 어긋난다:")
@@ -150,7 +162,7 @@ def main() -> int:
     if not args:
         print(__doc__)
         return 2
-    page = build(args[0])
+    page = themed(build(args[0]), args[0])
     target = ROOT / f"sol-final-{args[0]}.html"
     if write:
         target.write_text(page, encoding="utf-8")
