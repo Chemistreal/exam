@@ -47,6 +47,10 @@
      밝아지므로 흰 글씨가 흰 바탕에 얹힌 꼴이 된다(재어 보니 2.01:1).
      '무슨 색 위의 글씨' 를 따로 이름 붙여 두면 화면이 바뀌어도 안 깨진다. */
   --on-teal:#fff;                  /* 옥색 바탕 위의 글씨 */
+  /* 브랜드 띠 — 화면이 밝든 어둡든 **깊은 옥색**이다. var(--teal) 을 쓰면
+     어두운 화면에서 밝아져 띠가 형광등이 된다. 여기만 따로 잡는다. */
+  --brand-bg:#0E5A4C; --brand-bg2:#0B4238; --brand-ink:#F4F1E8; --brand-sub:#BFD8CF;
+  --warn-wash:#FDF4EF;             /* 급한 카드 색면 */
   --ms-ink:#8a3a1d;                /* '급함' 글씨 — 종이 위 */
   --ms-bg:#FBF0EA;                 /* '급함' 배지 바탕 */
   --warn-ink:#7a5d20; --warn-bg:#FBF3E9;
@@ -90,6 +94,8 @@
     --ms-ink:#EC8E64;  --ms-bg:#33221B;
     --warn-ink:#DCAE55; --warn-bg:#2E2718;
     --ok-ink:#7FD9A5;
+    --brand-bg:#0B3830; --brand-bg2:#072722; --brand-ink:#EFECE4; --brand-sub:#9FC2B8;
+    --warn-wash:#2A211C;
   }
 }
 
@@ -109,9 +115,22 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
 
 /* ── 머리 + 탭 ─────────────────────────────────────── */
 header{background:var(--paper);border-bottom:1px solid var(--line);flex:0 0 auto}
-.brand{display:flex;align-items:baseline;gap:10px;padding:13px 20px 0;flex-wrap:wrap}
-.brand h1{font-family:var(--serif);font-size:19px;margin:0;font-weight:600}
-.brand .sub{font-size:12.5px;color:var(--muted)}
+/* ── 브랜드 띠 ───────────────────────────────────────────────────────
+   예전에는 흰 판에 글씨 한 줄이라 화면이 어디서 시작하는지 눈에 안 걸렸다.
+   깊은 옥색 띠를 얹어 **머리와 일하는 자리**를 가른다. 탭 줄은 종이색 그대로
+   두어 층이 둘로 보인다.
+   ⚠ 띠 색은 var(--teal) 이 아니다. 그 색은 어두운 화면에서 밝아지므로 띠가
+     형광등이 된다 — 밝든 어둡든 깊은 옥색인 --brand-bg 를 따로 둔다.
+   ⚠ 글씨 대비를 재 두었다: 제목 7.19:1 · 부제 5.39:1 (어두운 화면 10.96 / 6.71). */
+.brand{display:flex;align-items:baseline;gap:10px;padding:15px 20px 14px;flex-wrap:wrap;
+  /* ⚠ 그라데이션 **밑에 단색을 깐다.** 그라데이션만 두면 background-color 가
+     비어 있어, 그것이 안 그려지는 자리(강제 색 모드·아주 옛 브라우저·인쇄)에서
+     크림색 글씨가 흰 바탕에 남는다 — 오늘 종이에서 겪은 것과 같은 꼴이다. */
+  background:var(--brand-bg) linear-gradient(135deg,var(--brand-bg) 0%,var(--brand-bg2) 100%);
+  border-bottom:2px solid var(--brass)}
+.brand h1{font-family:var(--serif);font-size:20px;margin:0;font-weight:600;
+  color:var(--brand-ink);letter-spacing:-.2px}
+.brand .sub{font-size:12.5px;color:var(--brand-sub)}
 .brand .spacer{flex:1}
 nav{display:flex;gap:0;padding:0 12px;overflow-x:auto;scrollbar-width:none}
 nav::-webkit-scrollbar{display:none}
@@ -131,7 +150,11 @@ nav button{
   padding:11px 14px;font:inherit;font-size:14px;color:var(--ink-2);cursor:pointer;white-space:nowrap;
 }
 nav button:hover{color:var(--teal)}
-nav button[aria-selected="true"]{color:var(--teal);font-weight:700;border-bottom-color:var(--teal)}
+/* 고른 탭은 밑줄 2px 하나였다. 열두 탭이 가로로 늘어선 줄에서 밑줄은 눈에
+   잘 안 걸린다 — 색면을 얹어 **어디에 있는지**가 먼저 읽히게 한다.
+   밑줄도 남긴다: 색을 못 보는 눈에도 자리가 보여야 한다. */
+nav button[aria-selected="true"]{color:var(--teal);font-weight:700;border-bottom-color:var(--teal);
+  background:var(--wash);border-radius:8px 8px 0 0}
 nav button:focus-visible{outline:2px solid var(--brass);outline-offset:-2px;border-radius:4px}
 /* ── 두 줄로 가른다 ────────────────────────────────
    윗줄은 **셸이 그리는 화면**(읽고 고르는 곳), 아랫줄은 **앱을 그대로 얹은
@@ -216,15 +239,25 @@ section{margin-bottom:34px}
 /* 칸 수가 줄 수로 안 나누어떨어지면 빈 칸이 남는다. 바탕을 선 색으로 깔면
    그 자리가 회색 덩어리로 보인다 — 칸마다 테두리를 그려 빈 자리는 비워 둔다. */
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:1px;
-  background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:hidden}
-.card{background:var(--paper);padding:14px 16px;box-shadow:0 0 0 1px var(--line)}
+  background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  /* 종이가 한 장 떠 있는 느낌. 그림자는 아주 옅게 — 짙으면 목록이 흐려 보인다. */
+  box-shadow:0 1px 2px rgba(0,0,0,.04),0 6px 18px rgba(0,0,0,.045)}
+.card{background:var(--paper);padding:14px 16px;box-shadow:0 0 0 1px var(--line);
+  position:relative;transition:background .15s ease}
+/* 급한 칸은 숫자 색만 달랐다. 색면과 왼쪽 띠를 더해 **눈이 먼저 가게** 한다.
+   ⚠ 색만으로 가르지 않는다 — 띠는 색이 아니라 **자리**로도 읽힌다. */
+.card.warn{background:var(--warn-wash)}
+.card.warn::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--ms)}
 /* 예전에는 숫자 여덟 개가 모두 teal 이었다. 색이 강조가 아니라 배경이 되어
    **어느 것이 급한지 색으로 안 읽혔다.** 평상시 숫자는 먹빛으로 내리고
    손이 필요한 것에만 색을 쓴다(Linear 의 '강조색은 아껴 쓴다'와 같은 규칙). */
-.card b{display:block;font-family:var(--mono);font-size:24px;color:var(--ink);
-  font-variant-numeric:tabular-nums;line-height:1.25}
+.card b{display:block;font-family:var(--mono);font-size:27px;color:var(--ink);
+  font-variant-numeric:tabular-nums;line-height:1.22;letter-spacing:-.5px}
 .card span{display:block;font-size:12px;color:var(--muted);margin-top:2px}
-.card.warn b{color:var(--ms)}
+/* 색면 위에서는 --ms 가 3.89:1 로 내려간다(종이 위에서는 4.22). 숫자가 커서
+   기준(3.0)은 넘지만, 더 짙은 --ms-ink 로 7.16 을 잡는다 — 급한 것은 짙게. */
+.card.warn b{color:var(--ms-ink)}
 /* 값 옆의 전 기간 대비. 숫자 하나만으로는 많은 건지 적은 건지 알 수 없다. */
 .cardv{display:flex;align-items:baseline;gap:6px}
 .card .delta{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--muted)}
