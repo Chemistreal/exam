@@ -32,7 +32,7 @@ footer{text-align:center;color:var(--muted);font-size:11.5px;padding:20px}
 <header><div class="logo">CHEMISTREAL · 진단 R&amp;D</div><h1 class="serif">문항 드릴다운</h1><div class="sub">학생별 틀린 문항 · 문항별 오답 분포 · 매력적 오답</div></header>
 <div class="wrap">
 <div class="note"><b>문항 드릴다운:</b> 집계 숙달 너머로, 누가 어느 문항을 틀렸고 어떤 오답을 골랐는지 raw 응답을 직접 봅니다. <b>학생별</b>은 개념별로 묶은 정·오답 지도, <b>문항별</b>은 응답 분포입니다. 정답 아닌 선택지에 많이 몰리면 그것이 <b>매력적 오답</b>(attractive distractor)이고, 그 방향이 그 반의 지배적 오개념 신호입니다. 어떤 오개념인지는 오개념 카탈로그·해설 앱과 함께 해석합니다.</div>
-<div class="bar"><select id="exam"></select><button class="pri" onclick="genDemo()">데모 생성</button><label class="fb">responses.json 불러오기<input type="file" accept="application/json" onchange="importJSON(event)" hidden></label></div>
+<div class="bar"><select aria-label="시험 선택" id="exam"></select><button class="pri" onclick="genDemo()">데모 생성</button><label class="fb">responses.json 불러오기<input type="file" accept="application/json" onchange="importJSON(event)" hidden></label></div>
 <div class="viewtabs" id="viewtabs" style="display:none"><button class="on" id="vt-s" onclick="VIEW='student';sync();render()">학생별</button><button id="vt-i" onclick="VIEW='item';sync();render()">문항별</button><button id="vt-m" onclick="VIEW='mis';sync();render()">오개념 단서</button></div>
 <div id="out"><div class="hint">데모를 생성하거나 responses.json을 불러오세요.</div></div>
 </div>
@@ -53,7 +53,7 @@ function render(){const O=document.getElementById('out');if(!DB){O.innerHTML='<d
 const MTYPE={'causal':'인과 오류','conserv':'보존 위반','overgen':'과일반화','proc':'절차 오류','scale':'척도 혼동','sign':'부호 오류','surface':'표면 특징','unit':'단위 무시'};
 function renderMis(O){const exs=loadedExams();if(!selEx||!exs.find(e=>e.id===selEx))selEx=exs[0].id;
  const e=EXAMS.find(z=>z.id===selEx);const sids=DB.roster.map(r=>r.sid);
- let h='<div class="bar"><select id="exsel" onchange="selEx=this.value;render()">'+exs.map(x=>'<option value="'+x.id+'"'+(x.id===selEx?' selected':'')+'>'+esc(x.title)+'</option>').join('')+'</select></div>';
+ let h='<div class="bar"><select aria-label="시험 선택" id="exsel" onchange="selEx=this.value;render()">'+exs.map(x=>'<option value="'+x.id+'"'+(x.id===selEx?' selected':'')+'>'+esc(x.title)+'</option>').join('')+'</select></div>';
  h+='<div class="note" style="margin-bottom:10px"><b>오개념 단서:</b> 매력적 오답이 강한 문항(오답 한 곳에 25% 이상 몰림)을 골라, 그 개념의 알려진 오개념을 짝지었습니다. 선택지 텍스트가 없으므로 "이 오답=이 오개념"으로 단정하지 않습니다. 관찰된 오답 쏠림과 아래 오개념을 대조해 어느 쪽인지 선생님이 판단하세요. 선택지 텍스트가 있으면 해설 앱에서 더 정밀하게 매핑됩니다.</div>';
  // 매력적 오답 강한 문항 추출
  const rows=[];
@@ -87,7 +87,7 @@ function renderStudent(O){const sids=DB.roster.map(r=>r.sid);if(!selS||!sids.inc
  O.innerHTML=h;}
 function renderItem(O){const exs=loadedExams();if(!selEx||!exs.find(e=>e.id===selEx))selEx=exs[0].id;
  const e=EXAMS.find(z=>z.id===selEx);const sids=DB.roster.map(r=>r.sid);
- let h='<div class="bar"><select id="exsel" onchange="selEx=this.value;render()">'+exs.map(x=>'<option value="'+x.id+'"'+(x.id===selEx?' selected':'')+'>'+esc(x.title)+'</option>').join('')+'</select></div>';
+ let h='<div class="bar"><select aria-label="시험 선택" id="exsel" onchange="selEx=this.value;render()">'+exs.map(x=>'<option value="'+x.id+'"'+(x.id===selEx?' selected':'')+'>'+esc(x.title)+'</option>').join('')+'</select></div>';
  h+='<div class="panel"><h2>문항별 응답 분포 · '+esc(e.title)+'</h2><div class="hint" style="margin-bottom:6px">막대=선택 비율(1~5). 초록 테두리=정답, 빨강 테두리=가장 많이 고른 오답(매력적 오답).</div>'+
    '<table class="tbl"><tr><th scope="col">문항</th><th scope="col">개념</th><th scope="col">정답</th><th scope="col">정답률</th><th scope="col">응답 분포</th><th scope="col">매력적 오답</th></tr>';
  e.key.forEach((k,i)=>{const cnt=[0,0,0,0,0];let n=0;sids.forEach(sid=>{const r=DB.resp[e.id]&&DB.resp[e.id][sid];if(r&&r[i]){cnt[r[i]-1]++;n++;}});

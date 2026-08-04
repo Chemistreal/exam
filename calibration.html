@@ -36,7 +36,7 @@ svg{display:block}
 <div class="wrap">
 <div class="note"><b>S11 신뢰도 보정:</b> 진단이 "80% 숙달"이라 할 때 정말 그 정도 맞는지 검증합니다. 모형이 각 (학생·문항)의 정답 확률을 예측하고, <b>교차검증</b>(응답 일부를 가린 뒤 예측)으로 실제 정답과 비교합니다. <b>신뢰도 곡선</b>이 대각선에 가까우면 잘 보정된 것이고, 위/아래로 벗어나면 과소/과신입니다. <b>ECE</b>(평균 보정 오차)로 수치화하고, <b>등위회귀(isotonic)</b>로 확률을 교정합니다(2겹 교차검증으로 정직하게 평가). 확신도가 실제 정확도와 맞아야 처방을 신뢰할 수 있습니다.</div>
 <div class="tools">
-<select id="exam"></select>
+<select aria-label="시험 선택" id="exam"></select>
 <button class="pri" onclick="genDemo()">데모 코호트 생성</button>
 <label class="fb">responses.json 불러오기<input type="file" accept="application/json" onchange="importJSON(event)" hidden></label>
 <button id="ovbtn" onclick="OVER=!OVER;document.getElementById('ovbtn').classList.toggle('on',OVER);run()">과신 주입(데모)</button>

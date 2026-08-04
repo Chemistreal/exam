@@ -46,7 +46,7 @@ footer{text-align:center;color:var(--muted);font-size:11.5px;padding:20px}
 <div class="wrap">
 <div class="note"><b>S14 숙달 학습:</b> "진도"가 아니라 "<b>숙달할 때까지</b>"로 학습을 구조화합니다(Bloom). 개념마다 통과 기준(숙달 확률 임계)을 두고, <b>DAG 진급 게이트</b>로 선행을 숙달해야 다음 개념이 열립니다. 각 개념은 4상태입니다: <b>잠김</b>(선행 미숙달)·<b>가능</b>(열렸으나 미시작)·<b>진행</b>(시도했으나 미통과)·<b>숙달</b>(인증). <b>학습 프런티어</b>(지금 할 것=가능+진행)와 <b>재시도 처방</b>을 주고, 영역별 <b>진급 준비도</b>를 평가합니다. 통과 기준은 아래에서 조절하세요. 숙달 추정은 S10 CDM(DINA)을 사용합니다.</div>
 <div class="tools">
-<select id="exam"></select>
+<select aria-label="시험 선택" id="exam"></select>
 <button class="pri" onclick="genDemo()">데모 코호트 생성</button>
 <label class="fb">responses.json 불러오기<input type="file" accept="application/json" onchange="importJSON(event)" hidden></label>
 <span class="hint" id="status"></span>
@@ -96,7 +96,7 @@ function render(){const R=document.getElementById('results');
    '<div class="stat"><div class="v">'+concepts.length+'</div><div class="k">추적 개념 수</div></div>'+
    '<div class="stat"><div class="v">'+avgCert+'</div><div class="k">평균 숙달 인증(개념)</div></div>'+
    '<div class="stat"><div class="v">'+frontier+'</div><div class="k">학습 프런티어(선택 학생)</div></div></div>';
- R.innerHTML=h+'<div class="panel"><h2>숙달 진행 <span class="c" id="who"></span></h2><select class="studsel" id="ssel" onchange="selStud=this.value;render()"></select><div id="overview"></div></div>'+
+ R.innerHTML=h+'<div class="panel"><h2>숙달 진행 <span class="c" id="who"></span></h2><select aria-label="학생 선택" class="studsel" id="ssel" onchange="selStud=this.value;render()"></select><div id="overview"></div></div>'+
    '<div class="grid2"><div class="panel"><h2>학습 프런티어 <span class="c">지금 할 것 · 처방</span></h2><div class="fr" id="frontier"></div></div>'+
    '<div class="panel"><h2>진급 준비도 <span class="c">영역별</span></h2><div id="promo"></div></div></div>';
  document.getElementById('ssel').innerHTML=sids.map(s=>'<option value="'+s+'" '+(s===selStud?'selected':'')+'>'+s+'</option>').join('');

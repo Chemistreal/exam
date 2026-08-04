@@ -56,6 +56,13 @@ WRAP = re.compile(r'<label\b[^>]*>(?:(?!</label>)[\s\S])*?</label>', re.I)
 SKIP_TYPE = {'hidden', 'submit', 'button', 'reset', 'image'}
 
 
+# 이름이 붙어 있는가 — **값은 안 본다.**
+# `aria-label="'+q.n+'번 답"` 처럼 값을 자바스크립트로 이어 붙인 자리는
+# 값 읽는 규칙(따옴표 안에 따옴표가 없다고 본다)에 안 걸려서, 이름이 멀쩡히
+# 붙어 있는데도 '이름 없는 칸' 으로 세고 있었다(grade-j0.html 문항 60칸).
+HAS_NAME = re.compile(r'\b(aria-label|aria-labelledby|title)\s*=', re.I)
+
+
 def attr(name, tag):
     m = re.search(r'\b' + name + r'\s*=\s*["\']([^"\']*)["\']', tag, re.I)
     return m.group(1) if m else None
@@ -96,7 +103,7 @@ def scan(text):
         typ = (attr('type', tag) or '').lower()
         if typ in SKIP_TYPE:
             continue
-        if attr('aria-label', tag) or attr('aria-labelledby', tag) or attr('title', tag):
+        if HAS_NAME.search(tag):
             named_ok += 1
             continue
         i = attr('id', tag)
@@ -196,6 +203,13 @@ def main():
     if check and fixed:
         print('\nFAIL 자동으로 이어 줄 수 있는 칸이 남아 있다 — '
               'python3 tools/input_labels.py --write')
+        return 1
+    # 세 저장소 82칸을 사람이 하나씩 보고 이름을 지어 0으로 만들었다. 여기서
+    # 세기만 하고 넘어가면 다음 화면 한 장에 다시 쌓인다 — 낭독기한테는
+    # 이름 없는 칸이 열 개면 '편집' 이 열 번이다. 새로 생기면 그 자리에서 막는다.
+    if check and left:
+        print('\nFAIL 이름 없는 칸이 ' + str(left) + '개 있다 — 무엇을 넣는 '
+              '칸인지 보고 aria-label 을 손으로 달아 주세요')
         return 1
     print('\nPASS' if check else '')
     return 0

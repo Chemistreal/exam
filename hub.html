@@ -802,7 +802,7 @@ body:not(.snzshow) .row.snz{display:none}
 </main>
 
 <dialog id="pal" aria-label="빠른 이동">
-  <input id="palIn" type="search" autocomplete="off" placeholder="학생 · 반 · 회차 · 자료 · 화면 …">
+  <input aria-label="찾기 — 학생 · 반 · 회차 · 자료 · 화면" id="palIn" type="search" autocomplete="off" placeholder="학생 · 반 · 회차 · 자료 · 화면 …">
   <div class="list" id="palList"></div>
   <div class="palhint"><span><span class="kbd">↑</span><span class="kbd">↓</span> 고르기</span>
     <span><span class="kbd">Enter</span> 열기</span><span><span class="kbd">Esc</span> 닫기</span></div>
@@ -831,7 +831,7 @@ body:not(.snzshow) .row.snz{display:none}
   <span class="sp"></span>
   <button class="btn x" id="lesX">닫기</button>
 </div><div class="dlg__b" id="lesBody"></div></dialog>
-<input type="file" id="lesFile" accept="application/json,.json" hidden>
+<input aria-label="수업 문자 꾸러미 파일" type="file" id="lesFile" accept="application/json,.json" hidden>
 
 <!-- 상담지. 화면에는 없고 인쇄할 때만 나온다. <dialog> 를 그대로 인쇄하면
      브라우저마다 다르게 잘려서, 인쇄할 것만 따로 짓는다. -->
@@ -3662,7 +3662,7 @@ function lesRender(){
         '<input class="les__t" id="lesTitle" style="flex:1;min-width:180px" placeholder="회차 이름 (예: 화학의 기초)" value="'+esc(cur.title||'')+'" aria-label="회차 이름 (예: 화학의 기초)">' +
         '<input class="les__t" id="lesRound" style="width:110px" inputmode="numeric" placeholder="회차" value="'+esc(cur.round!=null?String(cur.round):'')+'" aria-label="회차">' +
       '</div>' +
-      '<textarea class="les__ta" id="lesBodyIn" placeholder="문자 본문. 학생마다 달라지는 자리는 아래 조각을 눌러 넣으세요.">'+esc(cur.body||'')+'</textarea>' +
+      '<textarea aria-label="문자 본문" class="les__ta" id="lesBodyIn" placeholder="문자 본문. 학생마다 달라지는 자리는 아래 조각을 눌러 넣으세요.">'+esc(cur.body||'')+'</textarea>' +
       '<div class="les__who"><span class="dim">넣을 수 있는 자리 —</span>' +
         LES_MARKS.map(function(m){ return '<button class="les__pill" data-lesmark="'+esc(m)+'">'+esc(m)+'</button>'; }).join('') +
       '</div>' +

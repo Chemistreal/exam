@@ -39,7 +39,7 @@ footer{text-align:center;color:var(--muted);font-size:11.5px;padding:20px}
 <div class="wrap">
 <div class="note"><b>S9 MIRT:</b> 단일 능력 θ를 화학 <b>영역별 능력 벡터</b>로 확장합니다. 각 문항은 그 개념의 영역 차원에 적재되고(단순구조), 학생은 영역마다 다른 능력을 가집니다. 영역별 1PL을 적합해(소표본 안정 위해 MAP 사전분포) 능력 프로파일을 얻고, <b>영역 간 상관</b>으로 차원들이 실제로 분리되는지 봅니다. 상관이 높으면 단일 능력으로 충분하고, 낮으면 영역별 강약 프로파일이 중요합니다. 데모는 영역마다 능력이 다른 학생을 만들어 회복을 검증합니다. 한 영역당 문항이 적으면 추정이 불안정하니 여러 시험에 걸친 응답을 합산합니다.</div>
 <div class="tools">
-<select id="exam"></select>
+<select aria-label="시험 선택" id="exam"></select>
 <button class="pri" onclick="genDemo()">다영역 데모 생성</button>
 <label class="fb">responses.json 불러오기<input type="file" accept="application/json" onchange="importJSON(event)" hidden></label>
 <span class="hint" id="status"></span>
@@ -93,7 +93,7 @@ function render(){const R=document.getElementById('results');
    '<div class="stat"><div class="v">'+areas.length+'/16</div><div class="k">측정된 영역(차원)</div></div>'+
    '<div class="stat"><div class="v">'+meanCorr.toFixed(2)+'</div><div class="k">영역 간 평균 상관</div><div class="s2">'+dim+'</div></div></div>';
  h+='<div class="grid2"><div class="panel"><h2>영역 간 상관 행렬 <span class="c">진한 녹색=높은 상관</span></h2><div id="heat"></div><div class="hint">대각선 밖이 모두 높으면 한 능력으로 충분(단일차원), 낮은 칸이 있으면 그 영역들은 별개 능력입니다.</div></div>'+
-   '<div class="panel"><h2>학생 영역 프로파일 <span class="c">상대 강약</span></h2><select class="studsel" id="ssel" onchange="selStud=this.value;renderProfile()"></select><div id="profile"></div></div></div>';
+   '<div class="panel"><h2>학생 영역 프로파일 <span class="c">상대 강약</span></h2><select aria-label="학생 선택" class="studsel" id="ssel" onchange="selStud=this.value;renderProfile()"></select><div id="profile"></div></div></div>';
  R.innerHTML=h;renderHeat();
  const ss=document.getElementById('ssel');ss.innerHTML=FIT.sids.map(s=>'<option value="'+s+'" '+(s===selStud?'selected':'')+'>'+s+'</option>').join('');
  renderProfile();}

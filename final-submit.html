@@ -243,7 +243,7 @@ function openExam(id){
   let omr='';
   for(let q=1;q<=nQ;q++){ const m=ac.has(q);
     omr+='<div class="qc'+(m?' allc':'')+'"'+(m?' title="전원정답 · 비워 두어도 됩니다"':'')+'><span class="qc__n">'+q+'</span>'
-      +'<input id="a'+q+'" inputmode="numeric" maxlength="1" oninput="onIn('+q+',this)" onkeydown="onKey(event,'+q+')"></div>';
+      +'<input aria-label="'+q+'번 답" id="a'+q+'" inputmode="numeric" maxlength="1" oninput="onIn('+q+',this)" onkeydown="onKey(event,'+q+')"></div>';
   }
   app.innerHTML=(LOCKED?'<div class="brand">Chemistreal · 조준모 화학</div>':'<button class="back" onclick="renderList()">‹ 시험 목록</button>')
     +'<h1 style="font-size:18px">'+esc(cur.title)+'</h1>'

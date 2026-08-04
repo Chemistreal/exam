@@ -50,7 +50,7 @@ footer{text-align:center;color:var(--muted);font-size:11.5px;padding:20px}
 <div class="note"><b>S3 Q-행렬:</b> final.html 41개 시험·1860문항의 <b>type 태그</b>를 125 개념에 매핑합니다. 각 태그의 개념을 자동 추천했고(키워드+area), 빈도순으로 정렬했습니다. 매핑을 검수·수정하면 우측 <b>커버리지</b>가 실시간 갱신됩니다. 노란 칸=미매핑, 우측 빨강=갭(0문항)·주황=과소평가. 매핑은 1차 초안이라 선생님 검수 대상이고, <b>type 태그는 선생님이 출제 시 단 것이라 매핑은 본질적으로 선생님 영역</b>입니다.</div>
 <div class="bar" id="bar"></div>
 <div class="tools">
-<input class="search" id="q" placeholder="태그 검색...">
+<input aria-label="태그 검색" class="search" id="q" placeholder="태그 검색...">
 <label class="tg" id="untg" onclick="toggleUn()">미매핑만</label>
 <button class="pri" onclick="exportJSON()">매핑 JSON 내보내기</button>
 <button onclick="document.getElementById('q').value='';FILT='';UNONLY=false;document.getElementById('untg').classList.remove('on');render()">필터 해제</button>
@@ -96,7 +96,7 @@ function renderTags(){let h='',shown=0;
    const val=m?`${m} ${esc(N[m].l)}`:'';
    const dot=m?AC[N[m].a]:'#ddd';
    h+=`<div class="trow ${m?'':'un'} ${hide?'hide':''}"><span class="freq">${x.f}</span><span class="tn">${esc(x.t)} <span class="ta">${esc(x.a)}</span></span>`+
-     `<input class="csel ${m?'':'empty'}" list="clist" data-t="${esc(x.t)}" value="${esc(val)}" placeholder="개념 선택...">`+
+     `<input aria-label="개념 선택" class="csel ${m?'':'empty'}" list="clist" data-t="${esc(x.t)}" value="${esc(val)}" placeholder="개념 선택...">`+
      `<span class="cdot" style="background:${dot}"></span></div>`;});
  document.getElementById('tlist').innerHTML=h;
  document.getElementById('tcount').textContent=`${shown}개 표시`;}
