@@ -1003,6 +1003,19 @@ const APPS = {
    따지지 않는다 — 한쪽에만 적혀 있다고 다른 사람으로 갈라놓으면
    명단이 두 배가 된다. */
 function normName(s){ return String(s==null?'':s).replace(/\s+/g,'').trim(); }
+/* ⚠ **화면에도 문자에도 이름까지만.** 명단·시트의 이름 칸에 `김지완 대청중`
+   처럼 학교가 붙어 있을 수 있다(명단에 두 명을 넣을 방법이 없던 때의 흔적).
+   그대로 쓰면 학부모에게 "김지완 대청중 학생" 이라고 나간다 — 실제로 그렇게
+   나갔다. DT 창구에서 이미 갈라 보내지만, 여기서도 한 번 더 막는다.
+   ⚠ 띄어쓰기 같은 **구분자가 있을 때만** 가른다. 붙여 쓴 것까지 가르려 들면
+     멀쩡한 이름이 잘린다. 남는 이름이 두 자보다 짧아도 안 가른다. */
+const SCHOOL_TAIL = /^(.+?)[\s·,\/(\[]+([가-힣A-Za-z]{2,10}(?:초|중|고)(?:등학교|학교)?)[\)\]]?\s*$/;
+function justName(v){
+  const s = String(v==null?'':v).trim(), m = SCHOOL_TAIL.exec(s);
+  if(!m) return s;
+  const nm = m[1].trim();
+  return nm.length < 2 ? s : nm;
+}
 
 /* ── 초성으로도 찾는다 ───────────────────────────────────────────────
    한글 자판에서 자음만 치면 낱자가 그대로 남는다 — '김유정' 을 찾으려고
@@ -1888,18 +1901,18 @@ document.addEventListener('click', function(e){
 function makerFor(kind, i, j){
   if(kind === 'pend'){
     const r = PEND_ROWS[i]; if(!r) return null;
-    return function(w){ return w.shareMsg({ name:r.name, course:r.course, round:r.round,
+    return function(w){ return w.shareMsg({ name:justName(r.name), course:r.course, round:r.round,
       att:r.lastAttempt, score:r.score, next:r.nextNeeded, link:r.reportLink||'' }, '1'); };
   }
   if(kind === 'pass'){
     const r = PASS_ROWS[i]; if(!r) return null;
-    return function(w){ return w.passMsg({ name:r.name, course:r.course, round:r.round,
+    return function(w){ return w.passMsg({ name:justName(r.name), course:r.course, round:r.round,
       att:r.attempt, score:r.score, tries:r.tries, link:r.reportLink||'' }); };
   }
   if(kind === 'abs'){
     const c = ABS_ROWS[i]; if(!c) return null;
     const who = (j != null) ? c.absent[j] : '';
-    return function(w, stage){ return w.absentMsg({ name:who, course:c.course, round:c.round,
+    return function(w, stage){ return w.absentMsg({ name:justName(who), course:c.course, round:c.round,
       link:w.examLink(c.course, c.round) }, stage || (j!=null ? '1' : 'bc')); };
   }
   return null;
