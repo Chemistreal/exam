@@ -39,7 +39,32 @@ sub,sup{font-size:.72em}
 /* 인쇄 — 종이에서만 산다. 화면은 하나도 안 바뀐다. */
 @page{size:A4;margin:14mm 12mm}
 @media print{body{background:#fff}.q{break-inside:avoid}.filt{display:none}}
-</style></head><body>
+</style><style id="ct-theme" data-v="3" data-fam="sol">/* 이 조각은 tools/theme.py 가 넣습니다. 손으로 고치지 마세요 —
+   다음 실행에서 덮어써집니다. 색을 바꾸려면 그 파일을 고치세요. */
+:root{--ink:#23201b;--ink-2:#5a564d;--muted:#6f6a5e;
+  --line:#E8E4DA;--line-2:#D8D2C4;
+  --paper:#fff;--cream:#FBFAF6;--bg:#FBFAF6;--sunk:#F4F1E9;
+  --teal:#0E5A4C;--teal-d:#3A7A6B;--wash:#EDF4F1;
+  --brass:#B08D57;--gold:#B08D57;
+  /* 놋쇠는 두 가지 일을 한다. 밑선·테두리(그림, 3:1)는 밝은 쪽이 예쁘고,
+     흰 글씨를 얹는 바탕이나 글자색으로 쓰면 3.09:1 로 못 읽는다.
+     그래서 **글자용 놋쇠**를 따로 둔다 — 흰 글씨 위에서 4.95:1. */
+  --brass-ink:#8A6B3A;
+  --ms:#B8562F;--ok:#2F7A4F;--ok-bg:#eef5f2;
+  --serif:"Hahmlet","Nanum Myeongjo",serif;
+  --mono:ui-monospace,Menlo,monospace}
+html{color-scheme:light;-webkit-text-size-adjust:100%}
+@media screen{
+  body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  ::selection{background:#0E5A4C26}
+  :focus-visible{outline:2px solid #3A7A6B;outline-offset:2px;border-radius:3px}
+  table{font-variant-numeric:tabular-nums}
+  hr{border:0;border-top:1px solid var(--line)}
+  @media (min-width:1080px){body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='520' height='560' viewBox='0 0 520 560'%3E%3Cg fill='none' stroke='%230E5A4C' stroke-width='9' stroke-linejoin='round' opacity='0.055'%3E%3Cpath d='M260 60 L433 160 L433 360 L260 460 L87 360 L87 160 Z'/%3E%3Cpath d='M260 120 L381 190 L381 330 L260 400 L139 330 L139 190 Z'/%3E%3Cpath d='M260 60 L260 0 M433 160 L485 130 M433 360 L485 390 M260 460 L260 520 M87 360 L35 390 M87 160 L35 130'/%3E%3C/g%3E%3Cg fill='%230E5A4C' opacity='0.05'%3E%3Ccircle cx='260' cy='60' r='17'/%3E%3Ccircle cx='433' cy='160' r='17'/%3E%3Ccircle cx='433' cy='360' r='17'/%3E%3Ccircle cx='260' cy='460' r='17'/%3E%3Ccircle cx='87' cy='360' r='17'/%3E%3Ccircle cx='87' cy='160' r='17'/%3E%3C/g%3E%3C/svg%3E");background-repeat:no-repeat;background-attachment:fixed;background-position:right -110px top 90px;background-size:520px 560px}}
+  header .logo{letter-spacing:.16em;font-weight:700}
+  header::after{content:'';display:block;height:3px;margin-top:16px;border-radius:2px;background:linear-gradient(90deg,#3A7A6B 0%,#3A7A6B66 34%,#3A7A6B00 76%)}
+}</style>
+</head><body>
 <header>
   <div class="logo">CHEMISTREAL · FINAL 해설지</div>
   <h1 class="serif">JMChC 9회 · 중학생부</h1>
@@ -582,12 +607,12 @@ sub,sup{font-size:.72em}
 </div>
 
 <div class="q">
-  <div class="qh"><span class="qno">문제 47</span><span class="area">평형식 <span style="color:#b5651d">(전원정답)</span></span><span class="ans" style="background:#b5651d">전원정답</span></div>
+  <div class="qh"><span class="qno">문제 47</span><span class="area">평형식 <span style="color:#9E5417">(전원정답)</span></span><span class="ans" style="background:#9E5417">전원정답</span></div>
   <div class="stem">N<sub>2</sub>(g) + O<sub>2</sub>(g) ⇌ 2NO(g), K<sub>p</sub> = 1×10⁻³¹. 초기 P<sub>N₂</sub>=0.8, P<sub>O₂</sub>=0.2 atm일 때 평형 P<sub>NO</sub>를 구하는 식으로 옳은 것은? (①~④ 보기 생략)</div>
   <div class="sol">
     <h4>사고과정</h4>
     <p class="step">엄밀한 식: NO가 P<sub>NO</sub>만큼 생기면 N<sub>2</sub>·O<sub>2</sub>는 <b>각각 P<sub>NO</sub>/2씩 소모</b> → K<sub>p</sub> = (P<sub>NO</sub>)²/[(0.8−P<sub>NO</sub>/2)(0.2−P<sub>NO</sub>/2)].</p>
-    <p class="step"><span style="color:#b5651d">보기는 모두 분모에 P<sub>NO</sub>/2가 아닌 P<sub>NO</sub>를 써서 양론적으로 불완전. 다만 K<sub>p</sub>=10⁻³¹로 극소라 P<sub>NO</sub>가 무시되어(분모 ≈ 0.8×0.2) 수치 차이가 없으므로 <b>전원정답</b> 처리됨(④ 형태가 가장 근접).</span></p>
+    <p class="step"><span style="color:#9E5417">보기는 모두 분모에 P<sub>NO</sub>/2가 아닌 P<sub>NO</sub>를 써서 양론적으로 불완전. 다만 K<sub>p</sub>=10⁻³¹로 극소라 P<sub>NO</sub>가 무시되어(분모 ≈ 0.8×0.2) 수치 차이가 없으므로 <b>전원정답</b> 처리됨(④ 형태가 가장 근접).</span></p>
     <div class="tip">평형이 거의 안 일어나는(K 극소) 경우 소모량이 무시돼 초기 분압을 그대로 쓴다. 양론 계수(1/2)를 엄밀히 반영하면 보기와 어긋나 무효처리.</div>
   </div>
 </div>
@@ -733,12 +758,12 @@ sub,sup{font-size:.72em}
 </div>
 
 <div class="q">
-  <div class="qh"><span class="qno">문제 60</span><span class="area">착물 형성 평형 <span style="color:#b5651d">(전원정답)</span></span><span class="ans" style="background:#b5651d">전원정답</span></div>
+  <div class="qh"><span class="qno">문제 60</span><span class="area">착물 형성 평형 <span style="color:#9E5417">(전원정답)</span></span><span class="ans" style="background:#9E5417">전원정답</span></div>
   <div class="stem">Ag⁺ + 2NH<sub>3</sub> ⇌ Ag(NH<sub>3</sub>)<sub>2</sub>⁺, K<sub>f</sub> = 1.7×10⁷. 은 이온의 99%를 Ag(NH<sub>3</sub>)<sub>2</sub>⁺로 바꾸는 데 필요한 암모니아 농도에 가장 가까운 것은? (①~④ 보기 생략)</div>
   <div class="sol">
     <h4>사고과정</h4>
     <p class="step">99% 착물화: [착물]/[Ag⁺] = 99 = K<sub>f</sub>·[NH<sub>3</sub>]². <span class="eq">[NH<sub>3</sub>]² = 99/(1.7×10⁷) = 5.8×10⁻⁶ → [NH<sub>3</sub>] ≈ 2.4×10⁻³ M</span>(①에 근접).</p>
-    <p class="step"><span style="color:#b5651d">단 "필요한 농도"가 평형 <b>자유 NH<sub>3</sub></b>인지, 착물에 소모된 2NH<sub>3</sub>까지 포함한 <b>총 첨가량</b>(미지의 [Ag⁺]에 의존)인지 모호해 <b>전원정답</b> 처리됨.</span></p>
+    <p class="step"><span style="color:#9E5417">단 "필요한 농도"가 평형 <b>자유 NH<sub>3</sub></b>인지, 착물에 소모된 2NH<sub>3</sub>까지 포함한 <b>총 첨가량</b>(미지의 [Ag⁺]에 의존)인지 모호해 <b>전원정답</b> 처리됨.</span></p>
     <div class="tip">평형 자유 농도와 총 투입량을 구분해야 한다. 착물 1몰당 NH<sub>3</sub> 2몰이 소모되므로, 총량은 초기 Ag⁺ 농도가 있어야 정해진다.</div>
   </div>
 </div>
