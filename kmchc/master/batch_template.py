@@ -224,6 +224,52 @@ def verify(items):
                                      f"{'-'.join(str(a+1) for a in seq)} — 차례를 흩을 것", '', ''))
             break
 
+    # ★G3h — G3d 는 배치 ★전체★ 가 주기적일 때만 운다. 부분 열은 그대로 샜다.
+    #   T14 P1 이 ②④①③ ②④①③ ①③ 으로 나와 앞 여덟 자리가 주기 4 로 두 번 되풀이됐는데
+    #   전체는 주기적이지 않아 G3d 가 놓쳤다.
+    #   ▸ 되풀이 횟수를 조인 것이 이 검사의 전부다. ★먼저 오탐부터 세었다★ —
+    #     현행 국소 검사(주기 2·3·4 를 두 번씩)는 은행 29.4% 에서 우는데 무작위 자리 열도
+    #     37.4% 에서 운다. ★우연보다 덜 우는 검사는 검사가 아니다.★
+    #     (2×4, 3×3, 4×2) 로 조이면 은행 4.2% · 우연 1.0% 로 갈린다 — 네 배 위다.
+    for per, need in ((2, 4), (3, 3), (4, 2)):
+        L = per * need
+        hit = next((i for i in range(len(seq) - L + 1)
+                    if all(seq[i + k] == seq[i + k % per] for k in range(L))), None)
+        if hit is not None:
+            issues.append(('[배치]', f"G3h {hit+1} 번 자리부터 {L} 자리가 주기 {per} 로 "
+                                     f"{need} 번 되풀이됨 "
+                                     f"{'-'.join(str(a+1) for a in seq[hit:hit+L])} "
+                                     f"— 한 자리를 옮길 것", '', ''))
+            break
+
+    # ★G3i — 낱말 하나가 정답에만 붙어 다니면 뜻을 몰라도 정답이 짚힌다.
+    #   T14 P1 에서 '몫' 이 세 문항의 정답에만 있고 오답에는 한 번도 없었다.
+    #   배치 실측 2.3%(214 배치 중 5) — 드물게 울고, 운 자리는 모두 실제 표지였다.
+    def _tk(s):
+        return {t for t in re.findall(r'[가-힣]{2,}', s)}
+    ans_tok, wrong_tok = [], set()
+    for it in items:
+        ans_tok.append(_tk(it['choices'][it['answer']]))
+        for i, c in enumerate(it['choices']):
+            if i != it['answer']:
+                wrong_tok |= _tk(c)
+    mark = Counter(w for s in ans_tok for w in s)
+    for w, n in sorted(mark.items()):
+        if n >= 3 and w not in wrong_tok:
+            issues.append(('[배치]', f"G3i 낱말 '{w}' 가 정답 {n} 개에만 있고 오답에는 "
+                                     f"한 번도 없음 — 오답에도 심거나 정답에서 뺄 것", '', ''))
+
+    # ★G3j — 앞 문항의 발문이 뒤 문항의 정답 문면을 통째로 주면 뒤 문항이 죽는다.
+    #   은행 소급 0 건 — 새로 세운 검사인데 부채가 없다. 값싸게 지킬 수 있는 자리다.
+    for i in range(len(items) - 1):
+        st = re.sub(r'[^0-9A-Za-z가-힣]', '', items[i]['stem'])
+        for j in range(i + 1, len(items)):
+            core = re.sub(r'[^0-9A-Za-z가-힣]', '',
+                          items[j]['choices'][items[j]['answer']])
+            if len(core) >= 8 and core in st:
+                issues.append(('[배치]', f"G3j {items[i]['id']} 발문이 {items[j]['id']} 의 "
+                                         f"정답 문면을 통째로 담고 있음", '', ''))
+
     # ★G3e — 한 번호가 세 번 넘게 나오면서 ★간격이 모두 같으면★ 그 번호는 예측된다.
     #   전체 차례가 주기적이지 않아도 걸린다. T12 P14 는 ① 이 2·6·10 으로 정확히 4 간격이었다.
     for v in set(seq):
