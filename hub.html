@@ -42,13 +42,17 @@
   --serif:'Iropke Batang','Nanum Myeongjo',Georgia,serif;
   --mono:ui-monospace,SFMono-Regular,'JetBrains Mono','D2Coding',Menlo,monospace;
   /* ── 색 위에 얹는 글씨 ─────────────────────────────────────────────
-     '옥색 배경에 흰 글씨' 처럼 **바탕색을 전제로 박아 둔 글자색**이 있었다.
-     밝은 화면에서는 옥색이 짙어서 맞는 말인데, 어두운 화면에서는 옥색이
-     밝아지므로 흰 글씨가 흰 바탕에 얹힌 꼴이 된다(재어 보니 2.01:1).
-     '무슨 색 위의 글씨' 를 따로 이름 붙여 두면 화면이 바뀌어도 안 깨진다. */
+     '옥색 배경에 흰 글씨' 처럼 **바탕색을 전제로 박아 둔 글자색**이 곳곳에
+     있었다(#8a3a1d · #FBF0EA · #fff …). 바탕색을 조금만 손대도 글씨가 안
+     읽히게 되는데, 어디를 같이 고쳐야 하는지는 아무 데도 안 적혀 있었다.
+
+     '무슨 색 위의 글씨' 를 따로 이름 붙여 둔다. 이렇게 모아 두고 재 보니
+     **'통과' 배지 글씨가 4.15:1** 로 본문 기준(4.5)에 못 미치고 있었다 —
+     배지 바탕(9% 초록) 위에서 재야 나오는 값이라 여태 아무도 몰랐다.
+     --ok-ink 로 6.43 이 됐다. */
   --on-teal:#fff;                  /* 옥색 바탕 위의 글씨 */
-  /* 브랜드 띠 — 화면이 밝든 어둡든 **깊은 옥색**이다. var(--teal) 을 쓰면
-     어두운 화면에서 밝아져 띠가 형광등이 된다. 여기만 따로 잡는다. */
+  /* 브랜드 띠 — **깊은 옥색**이다. var(--teal) 과 따로 두는 까닭은, 저 색은
+     강조색이라 언젠가 손대면 띠까지 같이 흔들리기 때문이다. */
   --brand-bg:#0E5A4C; --brand-bg2:#0B4238; --brand-ink:#F4F1E8; --brand-sub:#BFD8CF;
   --warn-wash:#FDF4EF;             /* 급한 카드 색면 */
   --ms-ink:#8a3a1d;                /* '급함' 글씨 — 종이 위 */
@@ -56,48 +60,13 @@
   --warn-ink:#7a5d20; --warn-bg:#FBF3E9;
   --ok-ink:#256B44;                /* 배지 안의 초록 글씨. --ok 는 배지 바탕(9%)
                                       위에서 4.15:1 로 본문 기준에 못 미쳤다. */
-  /* 스크롤막대·입력칸 같은 **브라우저가 직접 그리는 것**도 따라오게 한다.
-     이 줄이 없으면 화면은 어두운데 스크롤막대만 하얗다. */
-  color-scheme: light dark;
+  /* 이 화면은 **밝은 화면 하나로 간다**(선생님 결정). 그렇다고 이 줄을 지우면
+     안 된다 — 기기가 어두운 화면을 쓰고 있으면 브라우저가 스크롤막대·입력칸을
+     제멋대로 어둡게 그려서, 종이색 화면에 검은 막대가 붙는다.
+     '이 화면은 밝다' 고 적어 두면 그것들도 밝게 나온다. */
+  color-scheme: light;
 }
 
-/* ── 어두운 화면 ─────────────────────────────────────────────────────
-   수업이 저녁 6–10시고 채점은 그 뒤다. 한밤에 종이색(#FBFAF6) 화면을 보면
-   눈이 부시다. 기기가 어두운 화면을 쓰고 있으면 따라간다 — 따로 켜고 끄는
-   단추를 두지 않는다. 하나 더 누를 것을 만들지 않는 편이 낫다.
-
-   ⚠ 색은 눈이 아니라 **자로** 정한다(이 저장소의 규칙이다). 지금 밝은 화면과
-     견주어 재 보고, 모든 색에서 같거나 낫게 잡았다.
-
-         밝은 화면 → 어두운 화면 (종이/카드 위 대비)
-         본문        16.23 → 13.39
-         부연         7.98 →  9.29
-         흐린 글씨    5.39 →  5.86
-         옥색         8.12 →  7.86
-         놋쇠         3.16 →  7.69      ← 밝은 화면에서 제일 아슬아슬하던 색
-         주황(재시)   4.22 →  6.49
-         초록(통과)   5.23 →  7.66
-         노랑(경고)   4.15 →  7.70
-
-   ⚠ 색만으로 정보를 주지 않는 규칙은 그대로다 — 막대는 여기서도 구분선과
-     빗금으로 가른다(.stack 참고). 어두운 화면이라고 그 규칙이 느슨해지지
-     않는다. */
-@media (prefers-color-scheme: dark){
-  :root{
-    --bg:#191A18; --paper:#22231F; --sunk:#2B2C27;
-    --ink:#EFECE4; --ink-2:#CBC6BB; --muted:#A39D90;
-    --line:#35362F; --line-2:#4A4B42;
-    --teal:#5FC9AC; --teal-2:#8FDCC6; --wash:#1E2E29;
-    --brass:#D9AE6B; --ms:#EC8E64; --ok:#5CC98A; --warnG:#DCAE55;
-    /* 옥색이 밝아졌으니 그 위의 글씨는 **어두워야** 한다. */
-    --on-teal:#0C1F1A;
-    --ms-ink:#EC8E64;  --ms-bg:#33221B;
-    --warn-ink:#DCAE55; --warn-bg:#2E2718;
-    --ok-ink:#7FD9A5;
-    --brand-bg:#0B3830; --brand-bg2:#072722; --brand-ink:#EFECE4; --brand-sub:#9FC2B8;
-    --warn-wash:#2A211C;
-  }
-}
 
 /* ── 움직임을 줄여 달라고 해 둔 기기 ────────────────────────────────
    어지럼증·멀미 때문에 운영체제에서 켜 두는 설정이다. 켜 두었으면 화면이
@@ -406,7 +375,13 @@ td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:righ
      반을 골라 문자를 보내는 것이 이 화면의 본업인데, 그 단추가 화면 밖에
      있었다. 좁은 기기에서는 **줄을 접는다** — 이름·상태·점수는 윗줄에,
      학교와 단추는 아랫줄에. 넓은 화면은 그대로 한 줄이다. */
-  .list .row{flex-wrap:wrap; row-gap:8px}
+  /* ⚠ .mult(모든 반 한눈에 · 반별 인원)도 같은 줄 구조다. 여기를 빼 두었더니
+     대시보드에서 과목 칸('화학Ⅰ')이 폭 13px 로 짜부러져 세로로 쪼개졌다 —
+     반 탭만 고치고 대시보드는 안 본 탓이다. */
+  .list .row,.mult .row{flex-wrap:wrap; row-gap:8px}
+  .mult .row .nm{min-width:0}
+  .mult .row .where{flex:0 0 auto}
+  .mult .row .fill{flex:1 0 100%; order:9}
   .list .row .nm{min-width:0; flex:0 0 auto}
   .list .row .where{flex:1 0 100%; order:8; min-width:0}
   .list .row .acts{flex:1 0 100%; order:9; display:flex; gap:8px; flex-wrap:wrap}
@@ -507,7 +482,10 @@ tr.pick:hover td{background:var(--wash)}
 .ndg .why{color:var(--ink-2)}
 .ndg .who{font-weight:700}
 .ndg .acts{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
-.ndg .kindl{font-size:11.5px;font-weight:800;letter-spacing:.04em;color:var(--warnG);
+/* ⚠ --warnG 는 '정보를 나르는 **그림**' 에 쓰는 색이다(기준 3:1). 그것을
+   글씨에 쓰면 종이 위 4.15:1 로 본문 기준(4.5)에 못 미친다 — 실제로 그랬다.
+   글씨에는 글씨용 색(--warn-ink · 6.15:1)을 쓴다. */
+.ndg .kindl{font-size:11.5px;font-weight:800;letter-spacing:.04em;color:var(--warn-ink);
   border:1px solid var(--warnG);border-radius:5px;padding:1px 6px;white-space:nowrap}
 .ndgmore{font-size:12px;color:var(--muted);padding:2px 2px 0}
 .legend b{width:10px;height:10px;border-radius:2px;display:inline-block;border:1px solid rgba(0,0,0,.12)}

@@ -145,6 +145,33 @@ async function look(browser, { width, height, touch }) {
   /* ⚠ 줄이 터지는 것은 **반 탭**에서 본다. 대시보드에 있는 채로 재면 그 줄들이
      아직 안 그려져 있어 늘 '없음' 이 나온다 — 검사가 조용히 아무것도 안 보게
      된다. 대시보드 것을 먼저 재고 나서 탭을 옮긴다. */
+  /* ⚠ 대시보드도 같이 본다. 처음에는 반 탭만 재고 넘어갔는데, 대시보드의
+     '반별 인원' 줄에서 과목 칸('화학Ⅰ')이 폭 13px 로 짜부러져 세로로 쪼개져
+     있었다 — 한 탭만 재면 나머지는 안 재는 것과 같다. */
+  const look1 = () => p.evaluate(() => ({
+    쪼개진칸: [...document.querySelectorAll('.list .row span, .mult .row span')]
+      .filter(e => {
+        if (e.children.length) return false;
+        const t = (e.textContent || '').trim();
+        if (t.length < 2) return false;
+        const b = e.getBoundingClientRect();
+        if (!b.width || !b.height) return false;
+        const lh = parseFloat(getComputedStyle(e).lineHeight) || 18;
+        return Math.round(b.height / lh) >= 3 && b.width < 40;
+      })
+      .map(e => (e.textContent || '').trim().slice(0, 10) + ' ' +
+                Math.round(e.getBoundingClientRect().width) + 'px'),
+    칸밖단추: [...document.querySelectorAll('button')]
+      .filter(e => {
+        const b = e.getBoundingClientRect();
+        if (!b.width || e.closest('nav')) return false;
+        const box = e.closest('section, .list, .note, .card');
+        return box && b.right > box.getBoundingClientRect().right + 1;
+      })
+      .map(e => (e.textContent || '').trim().slice(0, 10)),
+  }));
+  const dash = await look1();
+
   await p.evaluate(() => { if (window.show) show('cls'); });
   await p.waitForTimeout(900);
   const rows = await p.evaluate(() => ({
@@ -171,6 +198,9 @@ async function look(browser, { width, height, touch }) {
     반줄수: document.querySelectorAll('#clsList .row').length,
   }));
   await ctx.close();
+  /* 대시보드에서 본 것과 반 탭에서 본 것을 합쳐서 돌려준다. */
+  rows.쪼개진칸 = dash.쪼개진칸.concat(rows.쪼개진칸);
+  rows.칸밖단추 = dash.칸밖단추.concat(rows.칸밖단추);
   return Object.assign(m, rows, { errs: errs });
 }
 
