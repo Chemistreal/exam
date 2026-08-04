@@ -61,9 +61,16 @@ function part(a) {
         S('김지완', '대청중', '2'),
         S('홍길동', '휘문중', '2') ] } ] },
     pending: { ok: true, pending: { active: [] } },
+    /* 선생님이 알려 주신 사실: **7회는 내정중이 봤고 대청중은 안 봤다.**
+       9회도 내정중만 통과. 그리고 학교를 안 적고 낸 옛 기록이 하나 있다 —
+       그건 누구 것인지 알 길이 없다. */
     passed: { ok: true, passed: { passed: [
+      { name: '김지완', school: '내정중', course: 'ch1', round: 7,
+        attempt: '정시', tries: 1, score: 88, date: '7/20', days: 15 },
       { name: '김지완', school: '내정중', course: 'ch1', round: 9,
-        attempt: '정시', tries: 1, score: 92, date: '8/1', days: 2 } ] } },
+        attempt: '정시', tries: 1, score: 92, date: '8/1', days: 2 },
+      { name: '김지완', school: '', course: 'ch1', round: 5,
+        attempt: '정시', tries: 1, score: 80, date: '7/6', days: 29 } ] } },
     absentees: { ok: true, absentees: { classes: [
       { label: '화학1 일6-10', course: 'ch1', round: 9, total: 3, present: 1,
         /* DT 가 새로 같이 보내는 것 — 이름 목록은 예전 그대로다. */
@@ -144,6 +151,32 @@ function part(a) {
     chk('안 본 김지완(대청중)은 미응시', kim('대청중').st, 'miss');
     chk('미응시 줄이 한 명에게만 붙는다',
         [kim('내정중').abs, kim('대청중').abs], [0, 1]);
+
+    console.log('\n── 이미 쌓인 기록이 각자에게 붙는가 ──');
+    const rec = await p.evaluate(() => {
+      const of = sc => {
+        const r = { name: '김지완', school: sc, grade: '2' };
+        const d = dtForStudent(r);
+        return { pass: d.passed.map(i => PASS_ROWS[i].round).sort((a, b) => a - b),
+                 abs: d.absent.length };
+      };
+      return { nae: of('내정중'), dae: of('대청중'), orphan: orphanRows() };
+    });
+    console.log('  내정중 통과 회차 ' + JSON.stringify(rec.nae.pass));
+    console.log('  대청중 통과 회차 ' + JSON.stringify(rec.dae.pass));
+    /* 여기가 무너지면 7회를 안 본 대청중 김지완이 본 것으로 뜬다. */
+    chk('7회는 내정중에게만 붙는다', rec.nae.pass.indexOf(7) >= 0, true);
+    chk('대청중에게는 7회가 안 붙는다', rec.dae.pass.indexOf(7) < 0, true);
+    chk('9회도 내정중에게만', [rec.nae.pass.indexOf(9) >= 0, rec.dae.pass.indexOf(9) >= 0],
+        [true, false]);
+    /* 학교를 안 적은 옛 기록(5회)은 **어느 쪽에도 안 붙는다.**
+       schoolAkin 은 한쪽이 비면 같은 사람으로 보는데, 김지완이 둘이면
+       그 규칙이 한 기록을 두 사람에게 다 붙인다. */
+    chk('학교 없는 옛 기록은 아무에게도 안 붙는다',
+        [rec.nae.pass.indexOf(5) >= 0, rec.dae.pass.indexOf(5) >= 0], [false, false]);
+    /* 대신 말없이 사라지면 안 된다 — 세어서 화면에 띄운다. */
+    chk('주인 못 정한 기록을 짚어 준다',
+        rec.orphan.map(o => o.kind + ' ' + o.round), ['통과 5']);
 
     console.log('\n── 문자에 실리는 이름 ──');
     const msg = await p.evaluate(() => {

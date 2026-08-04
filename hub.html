@@ -2396,9 +2396,21 @@ function nudges(){
 function renderNudge(){
   const el = document.getElementById('nudge'); if(!el) return;
   const all = nudges();
-  el.hidden = !all.length;
-  if(!all.length){ el.innerHTML = ''; return; }
-  el.innerHTML = all.slice(0, NDG_MAX).map(function(n){
+  /* 이름이 겹치는데 학교를 몰라 주인을 못 정한 기록. 말없이 빼 두면
+     "왜 내 성적이 없지" 가 되고, 아무 데도 안 나오니 영영 모른다. */
+  const orph = orphanRows();
+  const orphBar = orph.length
+    ? '<div class="ndg"><span class="kindl">확인</span>'+
+      '<span class="who">'+esc(orph[0].name)+(orph.length>1?' 외':'')+'</span>'+
+      '<span class="why">이름이 같은 학생이 있는데 이 기록에는 학교가 없어 '+
+      '누구 것인지 못 정했습니다 · '+orph.length+'건 '+
+      esc(orph.slice(0,3).map(function(o){ return o.kind+' '+(o.round||'')+'회'; }).join(' · '))+
+      ' — DT 명단에서 학교를 채우거나 시트에서 그 줄의 학교를 적어 주세요</span></div>'
+    : '';
+  el.hidden = !all.length && !orph.length;
+  if(!all.length && !orph.length){ el.innerHTML = ''; return; }
+  if(!all.length){ el.innerHTML = orphBar; return; }
+  el.innerHTML = orphBar + all.slice(0, NDG_MAX).map(function(n){
     return '<div class="ndg"><span class="kindl">'+esc(n.kind)+'</span>'+
       '<span class="who">'+esc(n.name||'—')+'</span>'+
       '<span class="why">'+esc(n.why)+'</span>'+
@@ -3452,7 +3464,47 @@ function syncWorkRows(){
    남의 카드에 뜨면 그대로 문자로 나가고, 되돌릴 수 없다. */
 function sameStudent(r, row){
   if(normName(r.name) !== normName(row && row.name)) return false;
+  /* ⚠ 이름이 겹치는 학생이 있으면 **학교가 맞아야** 같은 사람이다.
+     `schoolAkin` 은 한쪽 학교가 비어 있으면 같은 사람으로 본다 — 학교를 안
+     적고 낸 옛 기록이 주인을 못 찾는 일이 없게 하려던 느슨한 규칙이다.
+     그런데 화학1 일6-10 반에는 김지완이 둘(내정중·대청중)이라, 그 규칙이면
+     한 기록이 **두 사람에게 다** 붙는다 — 7회를 내정중 김지완만 봤는데
+     대청중 김지완도 본 것으로 뜬다.
+     그래서 이름이 겹칠 때는 양쪽 학교를 다 알아야만 붙인다. 학교를 모르는
+     기록은 어느 쪽에도 안 붙는다 — 모르는 것을 아는 척하면 성적표가 틀린다.
+     (그런 기록이 몇인지는 `orphanRows()` 가 세어 화면에 띄운다) */
+  if(!nameIsUnique(r.name)){
+    if(!schoolCore(r.school) || !schoolCore(row && row.school)) return false;
+    return schoolAkin(r.school, row.school);
+  }
   return schoolAkin(r.school, row.school);
+}
+/* 이름이 겹치는데 학교를 몰라 **누구 것인지 못 정하는** DT 기록.
+   말없이 사라지면 "왜 내 성적이 없지" 가 된다 — 세어서 화면에 띄운다. */
+function orphanRows(){
+  const dup = new Set();
+  const cnt = {};
+  (ROSTER||[]).forEach(function(x){
+    const n = normName(x.name); if(!n) return;
+    cnt[n] = (cnt[n]||0) + 1; if(cnt[n] > 1) dup.add(n);
+  });
+  if(!dup.size) return [];
+  const out = [];
+  const scan = function(rows, kind){
+    (rows||[]).forEach(function(r){
+      if(!dup.has(normName(r.name))) return;
+      if(schoolCore(r.school)) return;
+      out.push({ kind:kind, name:r.name, course:r.course, round:r.round });
+    });
+  };
+  scan(PASS_ROWS, '통과'); scan(PEND_ROWS, '재시');
+  (ABS_ROWS||[]).forEach(function(c){
+    (c.absentWho||[]).forEach(function(w){
+      if(!dup.has(normName(w.name)) || schoolCore(w.school)) return;
+      out.push({ kind:'미응시', name:w.name, course:c.course, round:c.round });
+    });
+  });
+  return out;
 }
 /* 미응시 목록에는 **이름만** 있다(학교가 없다). 그래서 동명이인이 있으면
    누구 것인지 알 길이 없다 — 명단에서 그 이름이 하나뿐일 때만 붙인다. */
