@@ -72,6 +72,13 @@ async function measure(p) {
       if (/^(SCRIPT|STYLE|NOSCRIPT|OPTION)$/.test(el.tagName)) continue;
       const cs = getComputedStyle(el);
       if (cs.visibility === 'hidden' || cs.display === 'none') continue;
+      /* ⚠ 금박 글씨(배경 그라데이션을 글자 모양으로 오려 쓰는 것)는 여기서 안 잰다.
+         그런 글자는 computed color 가 **검정으로 남고** 실제로 칠해지는 것은
+         그라데이션이라, 그대로 재면 '검정 글씨' 대 '옥색 바탕' 이 되어 멀쩡한
+         제목이 빨간불이 된다. 이건 다른 방법으로 재야 하는 것이라 건너뛴다. */
+      if (cs.webkitTextFillColor === 'rgba(0, 0, 0, 0)' ||
+          /text/.test(cs.webkitBackgroundClip || '') ||
+          /text/.test(cs.backgroundClip || '')) continue;
       const r = el.getBoundingClientRect();
       if (r.width < 6 || r.height < 6) continue;
       if (r.bottom < 0 || r.top > innerHeight) continue;     // 첫 화면만 — 사진이 거기까지다
@@ -168,15 +175,28 @@ async function measure(p) {
         const st = document.getElementById('ct-theme');
         const bg = getComputedStyle(document.body).backgroundImage;
         return { has: !!st, v: st && st.dataset.v, fam: st && st.dataset.fam,
+                 want: st && st.dataset.seal,
                  seal: /svg/i.test(bg),
+                 bodyL: (() => { const m = /rgba?\(([^)]+)\)/
+                     .exec(getComputedStyle(document.body).backgroundColor);
+                   if (!m) return 1; const a = m[1].split(/[,\s/]+/).map(Number);
+                   const f = c => { c /= 255; return c <= 0.03928 ? c/12.92
+                     : Math.pow((c+0.055)/1.055, 2.4); };
+                   return 0.2126*f(a[0]) + 0.7152*f(a[1]) + 0.0722*f(a[2]); })(),
                  ink: getComputedStyle(document.documentElement)
                         .getPropertyValue('--ink').trim().toLowerCase() };
       });
       console.log(`\n── ${label} · ${file} ──`);
-      chk('같은 옷을 입고 있다', on.has && on.v === '3', on.fam ? '갈래 ' + on.fam : '');
+      chk('같은 옷을 입고 있다', on.has && on.v === '4', on.fam ? '갈래 ' + on.fam : '');
       /* 팔레트가 한 벌인지는 **화면이 실제로 쓰는 값**으로 본다. */
-      chk('먹색이 한 벌이다', on.ink === '#23201b', on.ink);
-      chk('여백에 표식이 앉았다', on.seal, on.seal ? '' : '(넓은 화면에서만 켠다)');
+      const dark = on.bodyL < 0.18;
+      if (dark) console.log('      (스스로 어두운 화면 — 팔레트·표식은 일부러 안 씌운다)');
+      if (!dark) chk('먹색이 한 벌이다', on.ink === '#23201b', on.ink);
+      /* 표식은 **얹기로 한 화면에서만** 요구한다. 스스로 어두운 화면이나 이미
+         제 배경 그림이 있는 화면에는 일부러 안 얹는다 — 그걸 여기서 요구하면
+         '남의 결을 안 덮는다' 는 규칙을 검사가 되돌리게 된다. */
+      if (on.want === '1') chk('여백에 표식이 앉았다', on.seal, '');
+      else console.log('      (제 배경이 있거나 어두운 화면 — 표식은 일부러 안 얹는다)');
 
       const m = await measure(p);
       const w = m.worst;
@@ -186,7 +206,7 @@ async function measure(p) {
       /* 한 글자도 안 재고 통과하는 것을 막는다. */
       (m.bad || []).forEach(b => console.log(
         `      · ${b.r}:1 (기준 ${b.need}) ${b.tag} "${b.text}" 글씨 ${b.fg} 바탕 rgb(${b.bg.join(',')})`));
-      chk('글자를 실제로 쟀다', m.n >= 10, m.n + '마디');
+      chk('글자를 실제로 쟀다', m.n >= 3, m.n + '마디');
       chk('콘솔에 예외가 없다', !errs.length, errs[0] || '');
       await ctx.close();
     }

@@ -43,7 +43,7 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SKIP_DIR = {'.git', 'node_modules', '__pycache__', 'tests'}
 MARK = 'ct-theme'
-VERSION = '3'
+VERSION = '4'
 
 # ── 갈래 ────────────────────────────────────────────────────────────
 # 한 벌이되, 어느 갈래의 화면인지는 한눈에 보이게 한다. 밑선 한 줄과
@@ -78,6 +78,100 @@ TOKENS = """--ink:#23201b;--ink-2:#5a564d;--muted:#6f6a5e;
   --ms:#B8562F;--ok:#2F7A4F;--ok-bg:#eef5f2;
   --serif:"Hahmlet","Nanum Myeongjo",serif;
   --mono:ui-monospace,Menlo,monospace"""
+
+# ── 남의 결을 덮지 않는다 ────────────────────────────────────────────
+# 처음에는 팔레트를 통째로 덮었다. 그러다 DT 의 `roster.html` 을 망가뜨렸다 —
+# 그 화면은 **일부러 어두운 화면**이라 --ink 가 밝은 글자색(#e9e7e0)이었는데,
+# 여기서 어두운 먹색을 씌우자 어두운 바탕에 어두운 글씨가 되어 **1.14:1**,
+# 즉 아무것도 안 보이게 됐다.
+#
+# 하려던 일은 '갈라진 값을 모으는 것' 이지 '다른 설계를 덮는 것' 이 아니다.
+# 그래서 **밝기가 크게 다르면 그 이름표는 손대지 않는다.** 조금 어긋난 것은
+# 모으고, 다르게 지은 것은 그대로 둔다.
+OLD = re.compile(r'<style id="' + MARK + r'"[^>]*>[\s\S]*?</style>\s*', re.I)
+HEX = re.compile(r'^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$')
+
+
+def _lum(v):
+    """색이면 상대 휘도, 색이 아니면 None."""
+    v = v.strip()
+    m = HEX.match(v)
+    if not m:
+        return None
+    h = m.group(1)
+    if len(h) == 3:
+        h = h[0] * 2 + h[1] * 2 + h[2] * 2
+    out = []
+    for i in (0, 2, 4):
+        c = int(h[i:i + 2], 16) / 255.0
+        out.append(c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4)
+    return 0.2126 * out[0] + 0.7152 * out[1] + 0.0722 * out[2]
+
+
+LIGHT_GAP = 0.22          # 이보다 밝기가 벌어지면 다른 설계로 본다
+
+
+def own_tokens(src):
+    """이 화면이 스스로 적어 둔 :root 값들."""
+    out = {}
+    for r in re.finditer(r':root\s*\{([^}]*)\}', src):
+        for m in re.finditer(r'--([a-z0-9-]+)\s*:\s*([^;}]+)', r.group(1)):
+            out.setdefault(m.group(1), m.group(2).strip())
+    return out
+
+
+def tokens_for(src):
+    """이 화면에 넣을 팔레트. 밝기가 크게 다른 이름표는 빼고 돌려준다."""
+    own = own_tokens(src)
+    keep, dropped = [], []
+    for part in TOKENS.replace('\n', ' ').split(';'):
+        part = part.strip()
+        if not part or ':' not in part:
+            continue
+        name, val = part.split(':', 1)
+        name = name.strip().lstrip('-')
+        mine, theirs = _lum(val), _lum(own.get(name, ''))
+        if mine is not None and theirs is not None and abs(mine - theirs) > LIGHT_GAP:
+            dropped.append(name)
+            continue
+        keep.append(part)
+    return ';'.join(keep), dropped
+
+
+BODY_RULE = re.compile(r'(?:^|[}\n;])\s*(?:html\s*,\s*)?body\s*\{([^}]*)\}', re.I)
+STYLES = re.compile(r'<style[^>]*>([\s\S]*?)</style>', re.I)
+HAS_IMG = re.compile(r'background(-image)?\s*:[^;]*(gradient|url\()', re.I)
+
+
+def has_body_image(src):
+    """이 화면이 이미 제 배경 그림을 가지고 있는가.
+
+    KMChC 는 종이 위에 옅은 빛 무리(radial-gradient) 두 겹을 깔아 두었다.
+    거기에 벤젠 고리를 얹으면 background-image 를 통째로 갈아 끼우게 되어
+    **원래 있던 빛 무리가 사라진다.** 어두운 화면을 안 덮는 것과 같은 이유로,
+    이미 제 그림이 있는 화면에는 표식을 안 얹는다.
+
+    ⚠ 처음에는 글 전체에서 `body … { … background … url(` 를 찾았다. 그러자
+      자바스크립트 안의 중괄호까지 걸려서, 멀쩡한 화면 여덟 장에 표식이 안
+      깔렸다. 이제 **<style> 안의 body 규칙만** 본다. 내가 넣은 조각은 뺀다.
+    """
+    body = OLD.sub('', src)
+    for css in STYLES.findall(body):
+        for m in BODY_RULE.finditer(css):
+            if HAS_IMG.search(m.group(1)):
+                return True
+    return False
+
+
+def is_dark(src):
+    """스스로 어두운 화면으로 지은 곳인가. 여백의 표식도 여기서는 안 깐다."""
+    own = own_tokens(src)
+    for k in ('bg', 'paper', 'card', 'panel', 'surface'):
+        L = _lum(own.get(k, ''))
+        if L is not None and L < 0.18:
+            return True
+    return False
+
 
 # 머리띠 안에 새겨 넣는 분자 문양. 가로로 이어 붙는다.
 # ⚠ 색을 **어둡게만** 쓴다. 밝은 선을 얹으면 띠가 밝아져서 그 위의 글씨
@@ -129,13 +223,13 @@ SEAL = (
 HAIRLINE = re.compile(r'header\s*\{[^}]*border-bottom', re.I)
 
 
-def block(family, accent, band, rule):
+def block(family, accent, band, rule, tokens, seal):
     """이 화면에 박아 넣을 조각."""
     a = ACCENT[accent]
     css = [
         '/* 이 조각은 tools/theme.py 가 넣습니다. 손으로 고치지 마세요 —',
         '   다음 실행에서 덮어써집니다. 색을 바꾸려면 그 파일을 고치세요. */',
-        ':root{' + TOKENS + '}',
+        ':root{' + tokens + '}',
         'html{color-scheme:light;-webkit-text-size-adjust:100%}',
         '@media screen{',
         '  body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}',
@@ -147,11 +241,13 @@ def block(family, accent, band, rule):
         '  hr{border:0;border-top:1px solid var(--line)}',
         # 오른쪽 여백에 앉는 벤젠 고리. 글 폭이 좁아지는 화면에서는 끈다 —
         # 여백이 없어지면 글 뒤로 들어온다.
-        '  @media (min-width:1080px){body{'
-        'background-image:url("' + SEAL + '");'
-        'background-repeat:no-repeat;background-attachment:fixed;'
-        'background-position:right -110px top 90px;background-size:520px 560px}}',
     ]
+    if seal:
+        css.append(
+            '  @media (min-width:1080px){body{'
+            'background-image:url("' + SEAL + '");'
+            'background-repeat:no-repeat;background-attachment:fixed;'
+            'background-position:right -110px top 90px;background-size:520px 560px}}')
     if band:
         css += [
             # 머리띠 — 놋쇠 밑선과 새겨 넣은 문양.
@@ -180,7 +276,8 @@ def block(family, accent, band, rule):
                 'border-radius:2px;background:linear-gradient(90deg,' + a + ' 0%,'
                 + a + '66 34%,' + a + '00 76%)}')
     css.append('}')
-    return ('<style id="' + MARK + '" data-v="' + VERSION + '" data-fam="' + family + '">'
+    return ('<style id="' + MARK + '" data-v="' + VERSION + '" data-fam="' + family +
+            '" data-seal="' + ('1' if seal else '0') + '">'
             + '\n'.join(css) + '</style>')
 
 
@@ -193,7 +290,6 @@ def files():
 
 
 BAND = re.compile(r'header\s*\{[^}]*linear-gradient\(\s*180deg\s*,\s*#0E5A4C', re.I)
-OLD = re.compile(r'<style id="' + MARK + r'"[^>]*>[\s\S]*?</style>\s*', re.I)
 HEADEND = re.compile(r'</head\s*>', re.I)
 
 
@@ -209,7 +305,9 @@ def plan(path, src):
     # 해설지처럼 흰 머리를 쓰는 화면에 띠를 씌우면 짜임새가 깨진다.
     css = src.split('</style>')[0] if '</style>' in src else src
     band = bool(BAND.search(css))
-    return block(fam, accent, band, not band and not HAIRLINE.search(css))
+    tokens, _dropped = tokens_for(src)
+    return block(fam, accent, band, not band and not HAIRLINE.search(css),
+                 tokens, not is_dark(src) and not has_body_image(src))
 
 
 def apply(src, want):
