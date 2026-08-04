@@ -20,6 +20,7 @@
    실행:  node tests/message-variety.js
    ============================================================ */
 'use strict';
+const GAS_ENV = require('./_gasenv.js');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
@@ -34,7 +35,7 @@ const chk = (n, got, want) => {
 
 // Apps Script 전역만 평가한다. 시트 API 는 부르지 않으므로 스텁으로 충분하다.
 const gas = {
-  Logger: { log() {} }, SpreadsheetApp: {}, ContentService: {}, Utilities: {},
+  Logger: { log() {} }, SpreadsheetApp: {}, ContentService: {}, Utilities: { formatDate: GAS_ENV.formatDate },
   PropertiesService: { getScriptProperties: () => ({ getProperty: () => '' }) },
 };
 const SRC = fs.readFileSync(path.join(__dirname, '..', 'AppsScript-Code.gs'), 'utf8');

@@ -166,11 +166,41 @@ console.log('\n── 화면·인쇄·Word 가 같은 말을 한다 ──');
 
 console.log('\n── 시트 문자도 같은 규칙이다 ──');
 {
-  const gctx = { console, Date };
+  /* 앱스크립트의 Utilities 를 **진짜와 같게** 세워 준다. 빈 껍데기로 두면
+     시간대를 서울로 못박은 자리가 검사에서 그냥 지나간다. */
+  const gctx = { console, Date, Utilities: {
+    formatDate(d, tz, fmt) {
+      const p = new Intl.DateTimeFormat('en-CA', { timeZone: tz,
+        year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(d);
+      const g = k => (p.find(x => x.type === k) || {}).value;
+      return fmt === 'yyyy' ? g('year') : `${g('year')}-${g('month')}-${g('day')}`;
+    } } };
   vm.createContext(gctx);
-  vm.runInContext([cutFn(GAS, '_yearOf'), cutFn(GAS, '_yearRankLine'), cutFn(GAS, '_rankPct')].join('\n'), gctx);
+  vm.runInContext([cutFn(GAS, '_seoulYear_'), cutFn(GAS, '_yearOf'),
+                   cutFn(GAS, '_yearRankLine'), cutFn(GAS, '_rankPct')].join('\n'), gctx);
 
   chk('날짜에서 연도를 읽는다', gctx._yearOf(new Date(2026, 3, 1)), 2026);
+
+  /* ── 해가 바뀌는 자리 ──────────────────────────────────────────────
+     `getFullYear()` 는 **이 스크립트가 걸린 시간대**로 답한다. 그 시간대는
+     appsscript.json 에 있고, 그 파일은 배포된 프로젝트에서 끌어오므로
+     저장소에서는 아무도 볼 수 없다. 서울이 아니면 연말연시 몇 시간 동안
+     해가 어긋나고, 그만큼 학생 몇 명이 엉뚱한 해의 반석차에 들어간다.
+     학부모 문자에 그 숫자가 그대로 실린다 — 한 해에 한 번, 조용히.
+
+     아래 시각은 서울에서 2027-01-01 05:00 이고, UTC 에서는 2026-12-31 이다.
+     검사가 도는 곳(CI·이 저장소)은 UTC 라, 시간대에 기대던 옛 코드는 여기서
+     2026 을 내놓고 걸린다. */
+  {
+    const newYearDawn = new Date('2026-12-31T20:00:00Z');   // 서울 2027-01-01 05:00
+    chk('서울 기준으로 해를 센다 (연말연시)', gctx._yearOf(newYearDawn), 2027);
+    const yearEndNight = new Date('2026-12-31T14:00:00Z');  // 서울 2026-12-31 23:00
+    chk('서울에서 아직 작년이면 작년이다', gctx._yearOf(yearEndNight), 2026);
+    /* 코드가 다시 시간대에 기대기 시작하면 위 두 줄이 못 잡는 자리가 생긴다
+       (검사를 서울에서 돌리면 둘 다 지나간다). 소스로도 못박는다. */
+    chk('연도를 세는 곳에 맨 getFullYear 가 없다',
+        /\bgetFullYear\s*\(/.test(GAS.replace(/\/\*[\s\S]*?\*\//g, '')), false);
+  }
   chk('없으면 0', [gctx._yearOf(null), gctx._yearOf(0), gctx._yearOf('')], [0, 0, 0]);
   chk('말이 안 되는 해는 0', gctx._yearOf(new Date(1899, 0, 1)), 0);
 

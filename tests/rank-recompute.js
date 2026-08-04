@@ -23,6 +23,7 @@
    실행:  node tests/rank-recompute.js
    ============================================================ */
 'use strict';
+const GAS_ENV = require('./_gasenv.js');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
@@ -86,7 +87,8 @@ function load(sheet) {
       MimeType: { JSON: 'json', JAVASCRIPT: 'js' },
       createTextOutput: t => ({ _t: t, setMimeType() { return this; } }),
     },
-    Utilities: {}, Session: { getScriptTimeZone: () => 'Asia/Seoul' },
+    Utilities: { formatDate: GAS_ENV.formatDate },
+    Session: { getScriptTimeZone: () => 'Asia/Seoul' },
     PropertiesService: { getScriptProperties: () => ({ getProperty: () => '' }) },
     Date: Date, Math: Math, JSON: JSON, String: String, Number: Number,
     Object: Object, Array: Array, RegExp: RegExp,

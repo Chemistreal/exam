@@ -265,7 +265,8 @@ function allRows_(cb) {
    숫자는 바로 맞는다. */
 function cohortOf_(examId, cb) {
   var hist = {}, yhist = {}, n = 0, yn = 0, skipped = 0;
-  var year = new Date().getFullYear();
+  /* 시간대에 안 기댄다 — _seoulYear_ 주석 참고. */
+  var year = _seoulYear_(new Date());
   try {
     var want = EXAM_TITLES[examId] || null;
     if (want && !(want instanceof Array)) want = [want];
@@ -291,7 +292,7 @@ function cohortOf_(examId, cb) {
            가르는 잣대는 **채점해 넣은 시각**([3] 저장시각)이다. 응시일은
            비어 있는 줄이 많다. 시각을 모르는 줄은 올해로 치지 않는다 —
            모르는 것을 올해로 세면 반석차가 소리 없이 부풀어 오른다. */
-        var t = (r[3] instanceof Date) ? r[3].getFullYear() : 0;
+        var t = (r[3] instanceof Date) ? _seoulYear_(r[3]) : 0;
         if (t === year) { yhist[c] = (yhist[c] || 0) + 1; yn++; }
       }
     }
@@ -645,12 +646,29 @@ function _rankPct(value, arr) {
 
 function _fmtNum(x) { return Math.round(Number(x) * 10) / 10; }  // 소수 1자리, .0은 자동으로 사라짐
 
+/* 그 시각이 **서울에서 몇 년인가.**
+
+   ⚠ `getFullYear()` 는 이 스크립트가 걸린 시간대로 답한다. 그 시간대는
+     appsscript.json 에 들어 있고, 그 파일은 배포된 프로젝트에서 끌어오므로
+     **저장소에서는 아무도 볼 수 없다**(clasp pull 로 보존만 한다). 서울이
+     아니면 연말연시 몇 시간 동안 해가 어긋난다 — 이 저장소가 도는 UTC 로
+     재어 보면 2027-01-01 05:00 KST 에 낸 답안이 **2026년으로 세어진다.**
+     그만큼 학생 몇 명이 엉뚱한 해의 반석차 모집단에 들어가고, 그 숫자가
+     그대로 학부모 문자에 실린다. 한 해에 한 번, 조용히 틀리는 자리다.
+
+     그래서 시간대를 묻지 않는다. **서울로 못박아** 읽는다 — 이 파일이 다른
+     자리에서 이미 그렇게 하고 있다(Utilities.formatDate(…, 'Asia/Seoul', …)). */
+function _seoulYear_(d) {
+  if (!(d instanceof Date) || isNaN(d.getTime())) return 0;
+  var y = Number(Utilities.formatDate(d, 'Asia/Seoul', 'yyyy'));
+  return (isNaN(y) || y < 2000 || y > 2100) ? 0 : y;
+}
+
 /* 저장시각에서 연도만. 값이 없거나 날짜가 아니면 0 — 모르는 것을 올해로 세지 않는다. */
 function _yearOf(t) {
   if (!t) return 0;
   var d = (t instanceof Date) ? t : new Date(Number(t));
-  var y = d.getFullYear();
-  return (isNaN(y) || y < 2000 || y > 2100) ? 0 : y;
+  return _seoulYear_(d);
 }
 
 /* 그 해에 채점한 학생 안에서의 등수. 누적 석차 한 줄만 보내면 "우리 반에서는
