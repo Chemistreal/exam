@@ -44,7 +44,7 @@ footer{text-align:center;color:var(--muted);font-size:11.5px;padding:20px}
 <div class="wrap">
 <div class="note"><b>S13 간격 반복:</b> S12에서 추정한 <b>망각률</b>로 각 개념의 기억이 시간에 따라 어떻게 감소하는지(망각곡선) 모형화하고, <b>목표 보존율</b>로 떨어지기 직전이 최적 복습 시점이 되도록 일정을 짭니다. 복습할 때마다 기억이 공고해져 <b>간격이 넓어집니다</b>(간격 효과, 톱니 곡선). 학생별 <b>복습 우선순위 큐</b>와 <b>14일 일정</b>을 산출하고, 보존율이 임계 아래로 떨어진 개념을 <b>즉시 복습</b>으로 표시합니다. 아래 설정으로 목표 보존율과 기본 반감기를 조절하세요.</div>
 <div class="tools">
-<select id="exam"></select>
+<select aria-label="시험 선택" id="exam"></select>
 <button class="pri" onclick="genDemo()">데모 코호트 생성</button>
 <label class="fb">responses.json 불러오기<input type="file" accept="application/json" onchange="importJSON(event)" hidden></label>
 <span class="hint" id="status"></span>
@@ -98,7 +98,7 @@ function render(){const R=document.getElementById('results');
    '<div class="stat"><div class="v">'+concepts.length+'</div><div class="k">추적 개념 수</div></div>'+
    '<div class="stat"><div class="v">'+meanH.toFixed(1)+'일</div><div class="k">평균 반감기</div></div>'+
    '<div class="stat '+(overdue?'bad':'')+'"><div class="v">'+overdue+'</div><div class="k">즉시 복습(선택 학생)</div></div></div>';
- h+='<div class="grid2"><div class="panel"><h2>복습 우선순위 큐 <span class="c">긴급순</span></h2><select class="studsel" id="ssel" onchange="selStud=this.value;selConcept=null;render()"></select><div class="q" id="queue"></div></div>'+
+ h+='<div class="grid2"><div class="panel"><h2>복습 우선순위 큐 <span class="c">긴급순</span></h2><select aria-label="학생 선택" class="studsel" id="ssel" onchange="selStud=this.value;selConcept=null;render()"></select><div class="q" id="queue"></div></div>'+
    '<div class="panel"><h2>기억 보존 곡선 <span class="c" id="curwho"></span></h2><div id="curve"></div><div class="sched" id="sched"></div></div></div>';
  h+='<div class="panel"><h2>개념 휘발성 (망각률·반감기) <span class="c">반감기 짧은 순</span></h2><div style="max-height:320px;overflow-y:auto"><div id="frag"></div></div></div>';
  R.innerHTML=h;

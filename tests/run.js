@@ -44,8 +44,12 @@ function ciSteps() {
 }
 
 const steps = ciSteps();
+/* `_` 로 시작하는 것은 검사가 아니라 **다른 검사가 불러 쓰는 살림살이**다
+   (`_gasenv.js` 는 앱스크립트 흉내, `_seal.js` 는 진짜 시트를 막는 마개).
+   혼자서는 돌 수 없으니 CI 에 걸릴 수도 없는데, 여태 '안 걸린 파일' 로
+   같이 세고 있었다. 진짜로 안 걸린 검사가 그 넷에 섞이면 안 보인다. */
 const nodeFiles = fs.readdirSync(path.join(ROOT, 'tests'))
-  .filter(f => f.endsWith('.js') && f !== 'run.js').sort();
+  .filter(f => f.endsWith('.js') && f !== 'run.js' && !f.startsWith('_')).sort();
 
 /* CI 에 안 걸린 검사 파일 — 만들어 놓고 안 돌리면 없는 것과 같다. */
 const orphan = nodeFiles.filter(f => !steps.some(c => c.includes('tests/' + f)));

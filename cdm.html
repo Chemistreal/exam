@@ -43,7 +43,7 @@ footer{text-align:center;color:var(--muted);font-size:11.5px;padding:20px}
 <div class="wrap">
 <div class="note"><b>S10 CDM (진단 깊이의 정점):</b> IRT가 "능력 정도"라면 CDM은 <b>개념별 숙달/미숙달을 확률로 분류</b>합니다. DINA 모형: 문항을 맞히려면 그 개념을 숙달해야 하되, <b>슬립</b>(숙달했는데 실수, s)과 <b>추측</b>(미숙달인데 맞힘, g)을 허용합니다. EM으로 개념별 s·g와 학생별 숙달 확률을 추정합니다. 여기에 <b>DAG를 융합</b>해(82단계) 선수개념 없이 숙달된 듯 보이는 <b>취약(표면 학습)</b>과 선수까지 빈 <b>기초 공백</b>을 구분합니다. 데모는 DAG를 따르는(하향 닫힌) 숙달 프로파일을 만들어 분류 정확도를 검증합니다.</div>
 <div class="tools">
-<select id="exam"></select>
+<select aria-label="시험 선택" id="exam"></select>
 <button class="pri" onclick="genDemo()">데모 코호트 생성</button>
 <label class="fb">responses.json 불러오기<input type="file" accept="application/json" onchange="importJSON(event)" hidden></label>
 <span class="hint" id="status"></span>
@@ -91,7 +91,7 @@ function render(){const R=document.getElementById('results');
    '<div class="stat"><div class="v">'+concepts.length+'</div><div class="k">진단 개념 수</div></div>'+
    '<div class="stat"><div class="v">'+meanS.toFixed(2)+'</div><div class="k">평균 슬립 s</div></div>'+
    '<div class="stat"><div class="v">'+meanG.toFixed(2)+'</div><div class="k">평균 추측 g</div></div></div>';
- h+='<div class="grid2"><div class="panel"><h2>학생 숙달 프로파일 <span class="c">Q-행렬 × DAG</span></h2><select class="studsel" id="ssel" onchange="selStud=this.value;renderProfile()"></select><div id="pcount"></div><div class="mlist" id="profile"></div></div>'+
+ h+='<div class="grid2"><div class="panel"><h2>학생 숙달 프로파일 <span class="c">Q-행렬 × DAG</span></h2><select aria-label="학생 선택" class="studsel" id="ssel" onchange="selStud=this.value;renderProfile()"></select><div id="pcount"></div><div class="mlist" id="profile"></div></div>'+
    '<div class="panel"><h2>개념 모수 (DINA) <span class="c">s=슬립·g=추측·π=숙달률</span></h2><div style="max-height:480px;overflow-y:auto"><div id="cparams"></div></div></div></div>';
  R.innerHTML=h;
  const ss=document.getElementById('ssel');ss.innerHTML=FIT.sids.map(s=>'<option value="'+s+'" '+(s===selStud?'selected':'')+'>'+s+'</option>').join('');

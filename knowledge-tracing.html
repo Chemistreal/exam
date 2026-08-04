@@ -36,7 +36,7 @@ footer{text-align:center;color:var(--muted);font-size:11.5px;padding:20px}
 <div class="wrap">
 <div class="note"><b>S12 지식 추적:</b> 한 시점 진단을 넘어 여러 시험에 걸친 <b>학습 궤적</b>을 추적합니다. <b>BKT</b>(베이지안 지식추적)는 개념마다 숨은 숙달 상태를 가정하고, 연습(문항)마다 <b>학습</b>(미숙달→숙달, P(T))·<b>망각</b>(숙달→미숙달, P(F))이 일어나며, 관측엔 <b>슬립</b>(s)·<b>추측</b>(g)이 섞입니다. 시계열 응답으로 이 모수를 추정하고 개념별 숙달 확률 궤적을 그립니다. <b>다음 수행</b>을 예측하고, 연습해도 안 오르는 <b>정체</b>·떨어지는 <b>퇴행</b>을 경보합니다. 데모는 연습마다 실제로 학습하는 학생을 만들어 궤적 회복을 검증합니다.</div>
 <div class="tools">
-<select id="exam"></select>
+<select aria-label="시험 선택" id="exam"></select>
 <button class="pri" onclick="genDemo()">데모 코호트 생성</button>
 <label class="fb">responses.json 불러오기<input type="file" accept="application/json" onchange="importJSON(event)" hidden></label>
 <span class="hint" id="status"></span>
@@ -78,7 +78,7 @@ function render(){const R=document.getElementById('results');
    '<div class="stat"><div class="v">'+meanT.toFixed(2)+'</div><div class="k">평균 학습률 P(T)</div></div>'+
    '<div class="stat"><div class="v">'+meanF.toFixed(2)+'</div><div class="k">평균 망각률 P(F)</div></div></div>';
  h+='<div class="grid2"><div class="panel"><h2>숙달 궤적 <span class="c">학생 × 개념</span></h2>'+
-   '<div class="sel2"><select id="ssel" onchange="selStud=this.value;renderTraj()"></select><select id="csel" onchange="selConcept=this.value;renderTraj()"></select></div>'+
+   '<div class="sel2"><select aria-label="학생 선택" id="ssel" onchange="selStud=this.value;renderTraj()"></select><select aria-label="개념 선택" id="csel" onchange="selConcept=this.value;renderTraj()"></select></div>'+
    '<div id="traj"></div></div>'+
    '<div class="panel"><h2>정체·퇴행 경보 <span class="c" id="alwho"></span></h2><div id="alerts"></div></div></div>';
  h+='<div class="panel"><h2>개념 BKT 모수 <span class="c">L0=초기숙달·T=학습·S=슬립·G=추측·F=망각</span></h2><div style="max-height:340px;overflow-y:auto"><div id="cparams"></div></div></div>';

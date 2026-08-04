@@ -1386,7 +1386,7 @@ function renderQbank(){
      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="gtbl"><thead><tr><th scope="col">ID</th><th scope="col">제목</th><th scope="col">그룹</th><th scope="col">문항</th><th scope="col">area</th><th scope="col">type</th><th scope="col">PDF</th><th scope="col">상태</th></tr></thead><tbody>${exRows}</tbody></table></div>
    </div>
    <div class="sec">${secH('문항 열람')}
-     <select id="qbsel" onchange="showExamQ(this.value)" style="padding:7px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px;max-width:100%;background:#fff;color:var(--ink)">${opts}</select>
+     <select aria-label="문항 열람 — 회차 선택" id="qbsel" onchange="showExamQ(this.value)" style="padding:7px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px;max-width:100%;background:#fff;color:var(--ink)">${opts}</select>
      <div id="qbdetail" style="margin-top:9px"></div>
    </div>`;
   window.scrollTo(0,0);
@@ -1448,7 +1448,7 @@ function openExam(id){
     for(let q=g;q<=last;q++){ const m=ac.has(q);
       /* 칸은 잠그지 않는다 — 답안지를 한 번에 이어 붙일 때 잠긴 칸이 있으면
          그 뒤 문항이 통째로 한 칸씩 밀린다. 무엇을 넣든 정답이다. */
-      grid+=`<div class="qrow${m?' allc':''}"${m?' title="전원정답 · 비워 두어도 맞은 것으로 처리됩니다"':''}><span class="qrow__n">${q}</span><input class="ansin" id="ai_${q}" inputmode="numeric" maxlength="1" autocomplete="off" placeholder="${m?'◎':'·'}" oninput="typeAns(${q},this)" onkeydown="keyNav(event,${q})" onpaste="pasteAns(event,${q})" onfocus="this.select()"></div>`; }
+      grid+=`<div class="qrow${m?' allc':''}"${m?' title="전원정답 · 비워 두어도 맞은 것으로 처리됩니다"':''}><span class="qrow__n">${q}</span><input aria-label="${q}번 답" class="ansin" id="ai_${q}" inputmode="numeric" maxlength="1" autocomplete="off" placeholder="${m?'◎':'·'}" oninput="typeAns(${q},this)" onkeydown="keyNav(event,${q})" onpaste="pasteAns(event,${q})" onfocus="this.select()"></div>`; }
     grid+=`</div></div>`; }
   app.innerHTML=`<button class="back" onclick="renderList()">‹ 시험 목록</button>
    <h2 class="serif" style="margin:6px 0 2px;font-size:20px">${esc(cur.title)}</h2>

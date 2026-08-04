@@ -50,7 +50,7 @@ const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&g
 function sync(){document.getElementById('t-cov').classList.toggle('on',MODE==='cov');document.getElementById('t-bp').classList.toggle('on',MODE==='bp');}
 function render(){if(MODE==='cov')renderCov();else renderBp();}
 function renderCov(){const O=document.getElementById('out');
- let h='<div class="panel"><div class="bar"><select id="exam" onchange="drawCov()"></select><span class="hint">시험을 고르면 영역·개념 커버리지가 표시됩니다</span></div><div id="covout"></div></div>';
+ let h='<div class="panel"><div class="bar"><select aria-label="시험 선택" id="exam" onchange="drawCov()"></select><span class="hint">시험을 고르면 영역·개념 커버리지가 표시됩니다</span></div><div id="covout"></div></div>';
  O.innerHTML=h;const g={};EXAMS.forEach((e,i)=>(g[e.group]=g[e.group]||[]).push([e,i]));
  document.getElementById('exam').innerHTML=Object.keys(g).map(gr=>'<optgroup label="'+esc(gr)+'">'+g[gr].map(([e,i])=>'<option value="'+i+'">'+esc(e.title)+'</option>').join('')+'</optgroup>').join('');
  // 개념 매핑이 있는 첫 시험을 기본 선택

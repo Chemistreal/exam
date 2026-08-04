@@ -34,7 +34,7 @@ footer{text-align:center;color:var(--muted);font-size:11.5px;padding:20px}
 <header><div class="logo">CHEMISTREAL · 진단 R&amp;D</div><h1 class="serif">종단 비교</h1><div class="sub">전/후 두 시험 · 향상도 측정 · 재교육 필요 개념 · 수업 효과 검증</div></header>
 <div class="wrap">
 <div class="note"><b>종단 비교:</b> 가르치기 전과 후, 두 응답 데이터를 올리면 <b>무엇이 얼마나 늘었는지</b>를 측정합니다. 코호트 전체 향상, 개념별 변화(향상·정체·퇴행), 학생별 진척을 봅니다. <b>향상되지 않은 개념</b>은 수업이 닿지 않은 지점(재교육 필요), <b>퇴행</b>은 점검이 필요한 신호입니다. 같은 학생(식별자 sid)으로 매칭합니다. 데이터 입력 도구로 두 시점의 responses.json을 만들어 올리세요.</div>
-<div class="bar"><select id="exam"></select><button class="pri" onclick="genDemo()">전/후 데모 생성</button>
+<div class="bar"><select aria-label="시험 선택" id="exam"></select><button class="pri" onclick="genDemo()">전/후 데모 생성</button>
 <div class="loadrow"><label class="fb">전(前) 불러오기<input type="file" accept="application/json" onchange="importJSON(event,'before')" hidden></label><label class="fb">후(後) 불러오기<input type="file" accept="application/json" onchange="importJSON(event,'after')" hidden></label></div></div>
 <div class="loadrow" style="margin-bottom:6px"><span class="slot" id="slot-before"><span class="lbl">전(前)</span><span class="st">미로드</span></span><span class="slot" id="slot-after"><span class="lbl">후(後)</span><span class="st">미로드</span></span></div>
 <div class="viewtabs" id="viewtabs" style="display:none"><button class="on" id="vt-c" onclick="VIEW='cohort';sync();render()">코호트 진척</button><button id="vt-k" onclick="VIEW='concept';sync();render()">개념별 변화</button><button id="vt-s" onclick="VIEW='student';sync();render()">학생별 진척</button></div>

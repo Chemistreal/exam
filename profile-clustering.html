@@ -32,8 +32,8 @@ footer{text-align:center;color:var(--muted);font-size:11.5px;padding:20px}
 <header><div class="logo">CHEMISTREAL · 진단 R&amp;D</div><h1 class="serif">프로파일 군집화</h1><div class="sub">전체 숙달 프로파일 유사도로 학생 유형 발견 · k-means</div></header>
 <div class="wrap">
 <div class="note"><b>프로파일 군집화:</b> 통합 리포트의 그룹 편성이 "개념 하나"로 묶는다면, 여기서는 학생의 <b>16영역 숙달 프로파일 전체 모양</b>으로 묶습니다. 비슷한 강약 패턴을 가진 학생들이 자연스럽게 한 군집이 됩니다("전반 강함", "분자 영역만 약함" 등). 같은 평균이라도 모양이 다른 학생을 구분하므로, 차등 수업 설계에 유용합니다. k(군집 수)를 조절하세요. 표본이 작으면(30명) 군집은 참고용입니다.</div>
-<div class="bar"><select id="exam"></select><button class="pri" onclick="genDemo()">데모 생성</button><label class="fb">responses.json 불러오기<input type="file" accept="application/json" onchange="importJSON(event)" hidden></label>
-<div class="kctl">군집 수 k <input type="range" id="kSlider" min="2" max="6" value="3" oninput="document.getElementById('kVal').textContent=this.value;recluster()"><b id="kVal">3</b></div></div>
+<div class="bar"><select aria-label="시험 선택" id="exam"></select><button class="pri" onclick="genDemo()">데모 생성</button><label class="fb">responses.json 불러오기<input type="file" accept="application/json" onchange="importJSON(event)" hidden></label>
+<div class="kctl">군집 수 k <input aria-label="군집 수 k" type="range" id="kSlider" min="2" max="6" value="3" oninput="document.getElementById('kVal').textContent=this.value;recluster()"><b id="kVal">3</b></div></div>
 <div id="out"><div class="hint">데모를 생성하거나 responses.json을 불러오세요.</div></div>
 </div>
 <footer>CHEMISTREAL 진단 R&amp;D · 프로파일 군집화 · k-means</footer>
