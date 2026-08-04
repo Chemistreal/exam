@@ -329,7 +329,7 @@ const chk = (n, got, want) => {
     await p.evaluate(() => show('dash'));
     await p.waitForTimeout(500);
     const before = await p.evaluate(() =>
-      document.querySelector('#dashCards .card b').textContent);
+      (document.getElementById('todayCnt') || {}).textContent);
 
     await p.evaluate(() => show('exam'));
     await p.waitForTimeout(4500);
@@ -341,9 +341,12 @@ const chk = (n, got, want) => {
       w.scoreAuto();
     });
     await p.waitForTimeout(1500);
-    /* 대시보드 탭으로 가지도 않았는데 이미 바뀌어 있어야 한다 */
+    /* 대시보드 탭으로 가지도 않았는데 이미 바뀌어 있어야 한다.
+       ⚠ 자리 번호(첫 칸)로 짚지 않는다. 카드 차례를 바꾸는 날 조용히 엉뚱한
+         칸을 보게 된다 — 실제로 그랬다(급한 것을 앞으로 옮기니 첫 칸이
+         '시험 미응시' 가 됐다). 이름표로 짚는다. */
     const after = await p.evaluate(() =>
-      document.querySelector('#dashCards .card b').textContent);
+      (document.getElementById('todayCnt') || {}).textContent);
     chk('대시보드로 가지 않아도 숫자가 바뀐다', Number(after) > Number(before), true);
 
     await p.evaluate(() => show('rnd'));

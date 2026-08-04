@@ -146,6 +146,10 @@ iframe{width:100%;height:100%;border:none;display:block;background:var(--bg)}
 
 h2{font-family:var(--serif);font-size:19px;margin:0 0 3px;font-weight:600}
 .hint{color:var(--muted);font-size:13px;margin:0 0 18px}
+/* 키보드 단축키 안내는 **키보드가 있을 때만** 뜻이 있다. 휴대폰에서는 재어
+   보니 첫 화면(844px) 중 110px 을 먹고 있었는데, 눌러 볼 수 없는 설명이다.
+   그만큼 급한 숫자가 아래로 밀린다. 마우스·키보드가 있는 기기에서는 그대로. */
+@media (pointer: coarse){ .kbdhint{display:none} }
 section{margin-bottom:34px}
 
 /* ── 카드 · 지표 ───────────────────────────────────── */
@@ -284,6 +288,37 @@ td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:righ
 .mini{appearance:none;border:1px solid var(--line-2);background:var(--paper);color:var(--ink-2);
   border-radius:6px;padding:3px 9px;font:inherit;font-size:12px;cursor:pointer;white-space:nowrap}
 .mini:hover{border-color:var(--teal);color:var(--teal)}
+/* ── 손가락으로 쓰는 기기 ────────────────────────────────────────────
+   재어 보니 휴대폰(390×844)에서 누르는 자리가 **28px** 짜리가 25개였다.
+   '문자 복사'·'무시' 처럼 채점하는 날 제일 많이 누르는 것들이다. 28px 은
+   손가락 끝(대략 7~9mm)보다 작아서 옆 단추가 눌린다 — 보낸 표시를 무르려다
+   다른 학생 문자를 복사하는 식이다.
+
+   ⚠ 화면 폭으로 가르지 않는다. 폭이 좁아도 마우스를 쓰는 창이 있고, 넓어도
+     손가락으로 쓰는 태블릿이 있다. **가리키는 장치**로 가른다.
+   ⚠ 마우스에서는 그대로 둔다. 거기서는 28px 로 충분하고, 키우면 한 화면에
+     들어가던 목록이 밀려난다. */
+@media (pointer: coarse){
+  .mini{padding:8px 12px;font-size:13px;min-height:36px}
+  .chip{min-height:36px}
+
+  /* ── 좁은 화면에서 줄이 옆으로 터지던 것 ──────────────────────────
+     `.row` 는 한 줄에 여섯 칸을 옆으로 세운다(이름 · 학교 · 상태 · 점수 ·
+     파이널 · 단추). 넓은 화면에서는 한눈에 읽혀서 좋은데, 휴대폰(390px)에서는
+     들어갈 자리가 없어 이렇게 됐다.
+
+         '대치중 2학년'  →  폭 13px · **6줄**   (한 글자씩 세로로)
+         '재시 안내'·'카드' 단추  →  오른쪽 474px  (화면 밖)
+
+     반을 골라 문자를 보내는 것이 이 화면의 본업인데, 그 단추가 화면 밖에
+     있었다. 좁은 기기에서는 **줄을 접는다** — 이름·상태·점수는 윗줄에,
+     학교와 단추는 아랫줄에. 넓은 화면은 그대로 한 줄이다. */
+  .list .row{flex-wrap:wrap; row-gap:8px}
+  .list .row .nm{min-width:0; flex:0 0 auto}
+  .list .row .where{flex:1 0 100%; order:8; min-width:0}
+  .list .row .acts{flex:1 0 100%; order:9; display:flex; gap:8px; flex-wrap:wrap}
+  .list .row .tags,.list .row .cnt{flex:0 0 auto}
+}
 .mini:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .mini.done{border-color:var(--ok);color:var(--ok)}
 .mini.msg{margin-left:8px;white-space:nowrap}
@@ -303,7 +338,9 @@ td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:righ
 .mini[disabled]{opacity:.55;cursor:progress}
 .trk__i{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .trk__i>div{flex:1;min-width:150px}
-.acts{display:flex;gap:6px}
+/* ⚠ 줄바꿈이 없으면 좁은 화면에서 마지막 단추가 통째로 화면 밖으로 나간다
+   ('표 복사' 가 그랬다). 넓은 화면에서는 자리가 남으니 하나도 안 접힌다. */
+.acts{display:flex;gap:6px;flex-wrap:wrap}
 .kbd{font-family:var(--mono);font-size:11.5px;background:var(--sunk);border:1px solid var(--line-2);
   border-radius:4px;padding:0 5px}
 .sub2{font-size:12.5px;color:var(--muted);margin:14px 0 6px;font-weight:700;
@@ -522,8 +559,10 @@ body:not(.snzshow) .row.snz{display:none}
     <section>
       <h2>오늘 현황</h2>
       <p class="hint">세 앱에서 읽어 옵니다. 이 화면은 아무것도 저장하지 않습니다.
-        숫자 밑의 <b>칩</b>을 누르면 그 할 일로 바로 내려갑니다.
-        탭은 <span class="kbd">1</span>–<span class="kbd">9</span><span class="kbd">0</span>,
+        숫자 밑의 <b>칩</b>을 누르면 그 할 일로 바로 내려갑니다.</p>
+      <!-- 여기부터는 **키보드가 있어야** 뜻이 있다. 휴대폰에서는 접는다 —
+           눌러 볼 수 없는 설명이 첫 화면의 110px 을 먹고 있었다. -->
+      <p class="hint kbdhint">탭은 <span class="kbd">1</span>–<span class="kbd">9</span><span class="kbd">0</span>,
         찾기는 <span class="kbd">/</span>, 무엇이든 <span class="kbd">Ctrl</span>+<span class="kbd">K</span>.
         이름은 <b>초성</b>으로도 찾습니다(<span class="kbd">ㄱㅇㅈ</span> → 김유정).
         목록에서 연 학생 카드는 <span class="kbd">←</span><span class="kbd">→</span> 로 옆 학생으로 넘어갑니다.</p>
@@ -2025,8 +2064,13 @@ function dotsOf(flags){
 /* ── 대시보드 ───────────────────────────────────────────────────── */
 /* 숫자 칸(<b>)에는 **숫자만** 담는다. 델타를 그 안에 넣으면 "4▲2" 가 한 덩어리가
    되어, 읽는 사람도 값을 읽는 코드도 헷갈린다. 옆에 나란히 둔다. */
-function card(v, label, warn, delta, extra){
-  return '<div class="card'+(warn?' warn':'')+'"><div class="cardv"><b>'+v+'</b>'+
+/* ⚠ id 를 받는다. 자리 번호로 짚으면 카드 차례를 바꾸는 날 조용히 엉뚱한
+   칸을 가리킨다 — 실제로 그랬다. 검사가 `#dashCards .card b` (첫 칸)를
+   '오늘 채점' 으로 알고 있었는데, 급한 것을 앞으로 옮기자 그 자리가
+   '시험 미응시' 가 되어 검사가 깨졌다. 이름표로 짚는다. */
+function card(v, label, warn, delta, extra, id){
+  return '<div class="card'+(warn?' warn':'')+'"><div class="cardv"><b'+
+         (id?' id="'+id+'"':'')+'>'+v+'</b>'+
          (delta||'')+'</div><span>'+label+'</span>'+(extra||'')+'</div>';
 }
 /* ── 값 하나로는 많은지 적은지 모른다 ────────────────────────────────
@@ -2397,15 +2441,6 @@ function renderDash(){
   const sameDayLastWeek = d14[6];
   const sum = function(a){ return a.reduce(function(x,y){ return x+y; }, 0); };
   const week = sum(d14.slice(7)), prevWeek = sum(d14.slice(0,7));
-  const cards = [
-    card(today, '오늘 채점 <span class="dim">· 지난주 같은 요일 대비</span>',
-         false, deltaOf(today, sameDayLastWeek), sparkOf(d14)),
-    card(week, '최근 7일 채점 <span class="dim">· 그 전 7일 대비</span>',
-         false, deltaOf(week, prevWeek)),
-    card(fin.students.length, '파이널 누적 학생'),
-    card(fin.records, '파이널 채점 기록'),
-    card(fin.rounds, '기록이 있는 회차'),
-  ];
   /* 이미 아는 숫자를 '…' 로 되돌리지 않는다. 다시 그릴 때마다 물음표로
      바뀌었다가 응답을 기다리면, 채점하는 날 내내 '…' 만 보인다. */
   const dtKnown = dtCached('names'), pdKnown = dtCached('pending'), abKnown = dtCached('absentees');
@@ -2414,11 +2449,33 @@ function renderDash(){
      빼고 그리는데 카드만 안 빼면 둘이 어긋난다. syncWorkRows 를 먼저 돌린다. */
   syncWorkRows();
   const pdN = pdKnown ? PEND_ROWS.length : null;
-  document.getElementById('dashCards').innerHTML = cards.join('') +
-    '<div class="card"><b id="dtCnt">'+(dtKnown? dtKnown.length : '…')+'</b><span>반 명단</span></div>' +
-    /* 채점하는 날 제일 급한 숫자다 — 아직 시험 자체를 안 본 학생. */
+
+  /* ── 급한 것을 맨 앞에 ───────────────────────────────────────────────
+     이 두 칸에는 원래부터 '채점하는 날 제일 급한 숫자' 라고 적혀 있었다.
+     그런데 여덟 칸 중 **일곱째·여덟째**에 있었다 — 적어 놓은 말과 놓인 자리가
+     달랐다.
+
+     휴대폰(390×844)에서 재어 보니 숫자 칸이 두 줄씩 넉 줄, 370px 을 먹는다.
+     급한 두 칸은 맨 아랫줄이라 **스크롤해야 보인다.** 지난 것(오늘 채점 ·
+     누적 학생 · 기록이 있는 회차)이 먼저 보이고, 지금 해야 할 일이 뒤에 있다.
+
+     ⚠ 세는 방법과 자리 이름(id)은 하나도 안 바꾼다. 순서만 옮긴다 —
+       숫자가 달라지면 그건 다른 이야기다. */
+  const urgent =
     '<div class="card warn"><b id="abCnt">'+(abN!=null? abN : '…')+'</b><span>시험 미응시</span></div>' +
-    '<div class="card warn"><b id="pdCnt">'+(pdN!=null? pdN : '…')+'</b><span>DT 미완료</span></div>';
+    '<div class="card warn"><b id="pdCnt">'+(pdN!=null? pdN : '…')+'</b><span>DT 미완료</span></div>' +
+    '<div class="card"><b id="dtCnt">'+(dtKnown? dtKnown.length : '…')+'</b><span>반 명단</span></div>';
+  /* 지난 것 — 오늘 할 일은 아니지만 흐름을 본다. */
+  const past = [
+    card(today, '오늘 채점 <span class="dim">· 지난주 같은 요일 대비</span>',
+         false, deltaOf(today, sameDayLastWeek), sparkOf(d14), 'todayCnt'),
+    card(week, '최근 7일 채점 <span class="dim">· 그 전 7일 대비</span>',
+         false, deltaOf(week, prevWeek), '', 'weekCnt'),
+    card(fin.students.length, '파이널 누적 학생', false, '', '', 'finStuCnt'),
+    card(fin.records, '파이널 채점 기록', false, '', '', 'finRecCnt'),
+    card(fin.rounds, '기록이 있는 회차', false, '', '', 'finRndCnt'),
+  ];
+  document.getElementById('dashCards').innerHTML = urgent + past.join('');
 
   /* ── 꾸미는 창구는 줄 뒤에 세운다 ────────────────────────────────
      ⚠ 앱스크립트는 실행을 **한 줄로 세운다.** 여기서 여덟 창구를 한꺼번에
