@@ -1789,8 +1789,20 @@ document.addEventListener('click', function(e){
       w.unmarkSent({ kind:p[0], name:p[1], course:p[2], round:p[3] });
   }).catch(function(){});
 });
-function sentKey(kind, name, course, round){
-  return [kind, normName(name), course||'', round||''].join('|');
+/* 보냄·미룸 표시를 붙여 두는 열쇠. **학교가 필요할 때만** 섞는다 —
+   화학1 일6-10 반에 김지완(내정중)·김지완(대청중) 두 학생이 있다. 이름만으로
+   열쇠를 만들면 한 명에게 문자를 보냈다고 표시하는 순간 다른 한 명도 보낸
+   것으로 보인다. 학교를 모르는 옛 표시가 안 풀리도록, 학교가 있을 때만
+   뒤에 덧붙인다(없으면 예전 열쇠 그대로다). */
+function sentKey(kind, name, course, round, school){
+  const base = [kind, normName(name), course||'', round||''].join('|');
+  const sc = normName(school);
+  return sc ? base + '|' + sc : base;
+}
+/* 이 미응시 줄의 학교. DT 가 안 보내 주면 빈 값이라 예전 열쇠 그대로다. */
+function absSchool(c, j){
+  const w = c && c.absentWho && c.absentWho[j];
+  return (w && w.school) || '';
 }
 function sentAttr(k){ return ' data-sk="'+esc(k)+'"'; }
 function sentCls(k){ return SENT.has(k) ? ' sent' : ''; }
@@ -1950,7 +1962,7 @@ document.addEventListener('click', function(e){
     return { i:i, name:r.name||'', key:sentKey('pass', r.name, r.course, r.round) }; });
   else if(kind === 'abs') ABS_ROWS.forEach(function(c,i){
     (c.absent||[]).forEach(function(nm,j){
-      rows.push({ i:i, j:j, name:nm, key:sentKey('abs', nm, c.course, c.round) }); }); });
+      rows.push({ i:i, j:j, name:nm, key:sentKey('abs', nm, c.course, c.round, absSchool(c, j)) }); }); });
   copyBulk(b, kind, rows);
 });
 
@@ -2451,8 +2463,8 @@ const JUMPS = [
   /* 미룬 것은 세지 않는다 — 이 줄은 "오늘 할 일" 이고, 미룬 것은 오늘 일이
      아니다. 아래 그림(renderFig)은 반 상태라 미룬 것까지 그대로 센다. */
   { id:'absWrap',   label:'시험 미응시', urgent:true,
-    n:function(){ return ABS_ROWS.reduce(function(t,c){ return t + c.absent.filter(function(nm){
-        return !isSnoozed(sentKey('abs', nm, c.course, c.round)); }).length; }, 0); } },
+    n:function(){ return ABS_ROWS.reduce(function(t,c){ return t + c.absent.filter(function(nm,j){
+        return !isSnoozed(sentKey('abs', nm, c.course, c.round, absSchool(c, j))); }).length; }, 0); } },
   { id:'pendWrap',  label:'재시 대기',   urgent:true,
     n:function(){ return PEND_ROWS.filter(function(r){
         return !isSnoozed(sentKey('pend', r.name, r.course, r.round)); }).length; } },
@@ -3077,8 +3089,8 @@ function renderFig(){
   const miss = ABS_ROWS.reduce(function(t,c){ return t + c.absent.length; }, 0);
   const wait = PEND_ROWS.length, ok = PASS_ROWS.length;
   let snz = PEND_ROWS.filter(function(r){ return isSnoozed(sentKey('pend', r.name, r.course, r.round)); }).length;
-  ABS_ROWS.forEach(function(c){ (c.absent||[]).forEach(function(nm){
-    if(isSnoozed(sentKey('abs', nm, c.course, c.round))) snz++; }); });
+  ABS_ROWS.forEach(function(c){ (c.absent||[]).forEach(function(nm,j){
+    if(isSnoozed(sentKey('abs', nm, c.course, c.round, absSchool(c, j)))) snz++; }); });
   const parts = [{ n:miss, tone:'bad',  label:'미응시' },
                  { n:wait, tone:'warn', label:'재시 대기' },
                  { n:ok,   tone:'ok',   label:'통과' },
@@ -3262,7 +3274,7 @@ function renderDash(){
     w.hidden = !ABS_ROWS.length;
     if(!ABS_ROWS.length) return;
     const absKeys = (function(){ const out=[]; ABS_ROWS.forEach(function(c,i){ (c.absent||[]).forEach(function(nm,j){
-      out.push({ i:i, j:j, name:nm, key:sentKey('abs', nm, c.course, c.round) }); }); }); return out; })();
+      out.push({ i:i, j:j, name:nm, key:sentKey('abs', nm, c.course, c.round, absSchool(c, j)) }); }); }); return out; })();
     document.getElementById('absList').innerHTML =
       bulkBar('abs', absKeys, '개별 안내 한 번에') + snzBar(absKeys) + ABS_ROWS.map(function(c,i){
       const head = '<div class="row" style="cursor:default"><span class="nm">'+esc(c.label)+'</span>'
@@ -3270,7 +3282,7 @@ function renderDash(){
         +'<span class="cnt">미응시 '+c.absent.length+'/'+c.total+'</span>'
         +'<button class="mini msg" data-abs="'+i+'" data-stage="bc" data-orig="반 전체 공지">반 전체 공지</button></div>';
       const stus = c.absent.map(function(nm,j){
-        const sk = sentKey('abs', nm, c.course, c.round);
+        const sk = sentKey('abs', nm, c.course, c.round, absSchool(c, j));
         return '<div class="row sub'+sentCls(sk)+snzCls(sk)+'" style="cursor:default"'+sentAttr(sk)+'><span class="nm">'+esc(nm)+'</span>'
           +'<button class="mini msg" data-abs="'+i+'" data-who="'+j+'" data-stage="1" data-orig="1차 안내">1차 안내</button>'
           +'<button class="mini msg" data-abs="'+i+'" data-who="'+j+'" data-stage="2" data-orig="리마인드">리마인드</button>'
@@ -3455,13 +3467,24 @@ function dtForStudent(r){
     return out;
   };
   const abs=[];
-  if(nameIsUnique(r.name)){
-    ABS_ROWS.forEach(function(c,i){
-      (c.absent||[]).forEach(function(nm,j){
-        if(normName(nm)===normName(r.name)) abs.push({ i:i, j:j });
+  ABS_ROWS.forEach(function(c,i){
+    /* DT 가 학교까지 보내 주면(absentWho) 동명이인도 갈린다. 옛 배포는
+       이름만 보내므로 그때는 예전 규칙 — 모르면 안 붙인다 — 을 그대로 쓴다. */
+    const who = c.absentWho;
+    if(who && who.length === (c.absent||[]).length){
+      who.forEach(function(w,j){
+        if(normName(w.name)!==normName(r.name)) return;
+        if(w.school && r.school){ if(!schoolAkin(r.school, w.school)) return; }
+        else if(!nameIsUnique(r.name)) return;
+        abs.push({ i:i, j:j });
       });
+      return;
+    }
+    if(!nameIsUnique(r.name)) return;
+    (c.absent||[]).forEach(function(nm,j){
+      if(normName(nm)===normName(r.name)) abs.push({ i:i, j:j });
     });
-  }
+  });
   return { passed:hits(PASS_ROWS), pending:hits(PEND_ROWS), absent:abs };
 }
 /* KMChC 시트에는 학교 열이 없다. 이름이 하나뿐일 때만 고른다 — 둘이면
@@ -3768,7 +3791,8 @@ function renderStuOther(){
 
   d.absent.forEach(function(a){
     const c = ABS_ROWS[a.i]; if(!c) return;
-    const sk = sentKey('abs', r.name, c.course, c.round);
+    /* 이 줄이 어느 김지완인지는 a.j 가 안다 — 열쇠도 그 학교로 짓는다. */
+    const sk = sentKey('abs', r.name, c.course, c.round, absSchool(c, a.j));
     rows.push('<div class="trk__i miss'+sentCls(sk)+snzCls(sk)+'"'+sentAttr(sk)+'><div><div class="trk__t">DT 시험 미응시</div>'+
       '<div class="trk__m">'+esc(c.label+' · '+(DT_COURSE[c.course]||c.course)+' '+c.round+'회')+'</div></div>'+
       '<span class="acts">'+
@@ -4148,7 +4172,10 @@ function renderClassTab(){
     else if(st==='ok')   msg = '<button class="mini msg" data-pass="'+r.pass[0]+'" data-orig="통과 문자">통과 문자</button>';
     const score = st==='wait' ? (PEND_ROWS[r.pend[0]].score+'점')
                 : st==='ok'   ? (PASS_ROWS[r.pass[0]].score+'점') : '';
-    const sk = st==='miss' ? sentKey('abs', r.who.name, cls.course, (ABS_ROWS[r.abs[0].i]||{}).round)
+    /* 이 학생의 미응시 줄이 어느 것인지 r.abs[0] 이 안다 — 열쇠도 같은 학교로. */
+    const sk = st==='miss' ? sentKey('abs', r.who.name, cls.course,
+                 (ABS_ROWS[r.abs[0].i]||{}).round,
+                 absSchool(ABS_ROWS[r.abs[0].i]||{}, r.abs[0].j))
              : st==='wait' ? sentKey('pend', r.who.name, PEND_ROWS[r.pend[0]].course, PEND_ROWS[r.pend[0]].round)
              : st==='ok'   ? sentKey('pass', r.who.name, PASS_ROWS[r.pass[0]].course, PASS_ROWS[r.pass[0]].round)
              : '';
