@@ -215,6 +215,46 @@ function part(a) {
     chk('학교가 열쇠에 섞인다', /대청중$/.test(keys[0]), true);
     chk('열쇠가 서로 다르다', keys[0] !== keys[1], true);
 
+    /* ── 명단이 아직 한 명일 때 ──────────────────────────────────────
+       시트에는 `대청중-김지완`·`내정중-김지완` 두 사람이 진작 갈려 있는데
+       명단만 한 명이었다. 명단을 고치기 전에도 남의 기록이 붙으면 안 된다 —
+       7회는 내정중만 봤는데 대청중 성적표에 뜬다.
+       아래 숫자는 **선생님 시트의 실물**이다(2026-08-04 확인). */
+    const solo = await p.evaluate(() => {
+      /* 명단을 예전 모양(김지완 한 줄, 학교 없음)으로 되돌려 놓고 본다. */
+      const back = DT_CACHE && DT_CACHE.names;
+      ROSTER = [{ name: '김지완', school: '', apps: {} }];
+      PASS_ROWS = [
+        { name: '김지완', school: '내정중', course: 'ch1', round: 3, score: 98.3 },
+        { name: '김지완', school: '내정중', course: 'ch1', round: 4, score: 100 },
+        { name: '김지완', school: '내정중', course: 'ch1', round: 6, score: 98.3 },
+        { name: '김지완', school: '내정중', course: 'ch1', round: 7, score: 95 },
+        { name: '김지완', school: '대청중', course: 'ch1', round: 3, score: 86.7 },
+        { name: '김지완', school: '대청중', course: 'ch1', round: 4, score: 88.3 },
+      ];
+      PEND_ROWS = [
+        { name: '김지완', school: '대청중', course: 'ch1', round: 6, score: 78.3,
+          lastAttempt: '첫 응시', nextNeeded: '재시' },
+      ];
+      ABS_ROWS = [];
+      const of = sc => dtForStudent({ name: '김지완', school: sc, grade: '' })
+                        .passed.map(i => PASS_ROWS[i].round).sort((a, b) => a - b);
+      return { uniq: nameIsUnique('김지완'), nae: of('내정중'), dae: of('대청중'),
+               solo: of(''), orph: orphanRows().length };
+    });
+    console.log('\n── 명단이 아직 한 명일 때 (시트 실물) ──');
+    console.log('  내정중 ' + JSON.stringify(solo.nae) + ' · 대청중 ' + JSON.stringify(solo.dae));
+    /* 명단은 한 명이지만 **기록에 학교가 둘**이므로 동명이인으로 봐야 한다. */
+    chk('기록만 보고도 동명이인인 줄 안다', solo.uniq, false);
+    chk('7회는 내정중에게만', [solo.nae.indexOf(7) >= 0, solo.dae.indexOf(7) >= 0],
+        [true, false]);
+    chk('6회 미달은 대청중 것', solo.dae.indexOf(6) < 0 && solo.nae.indexOf(6) >= 0, true);
+    /* 학교를 모르는 명단 줄에는 아무것도 안 붙는다 — 모르는 것을 아는 척하면
+       두 사람의 성적이 한 장에 섞인다. */
+    chk('학교 없는 명단 줄에는 안 붙는다', solo.solo, []);
+    /* 대신 말없이 사라지면 안 된다. 일곱 줄 전부 주인을 못 찾았다고 알린다. */
+    chk('못 붙인 기록을 세어 알린다', solo.orph, 7);
+
     chk('콘솔에 예외가 없다', errs, []);
     await ctx.close();
   } finally {

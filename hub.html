@@ -2415,10 +2415,12 @@ function renderNudge(){
   const orphBar = orph.length
     ? '<div class="ndg"><span class="kindl">확인</span>'+
       '<span class="who">'+esc(orph[0].name)+(orph.length>1?' 외':'')+'</span>'+
-      '<span class="why">이름이 같은 학생이 있는데 이 기록에는 학교가 없어 '+
-      '누구 것인지 못 정했습니다 · '+orph.length+'건 '+
-      esc(orph.slice(0,3).map(function(o){ return o.kind+' '+(o.round||'')+'회'; }).join(' · '))+
-      ' — DT 명단에서 학교를 채우거나 시트에서 그 줄의 학교를 적어 주세요</span></div>'
+      '<span class="why">이름이 같은 학생이 있어 이 기록을 누구 것인지 '+
+      '못 정했습니다 · '+orph.length+'건 '+
+      esc(orph.slice(0,3).map(function(o){
+        return o.kind+' '+(o.round||'')+'회'+(o.school?'('+o.school+')':''); }).join(' · '))+
+      ' — <b>DT 명단</b>에서 그 학생들의 <b>학교</b>를 채워 주세요'+
+      '(기록 쪽에 학교가 없으면 시트의 그 줄에 적어 주세요)</span></div>'
     : '';
   el.hidden = !all.length && !orph.length;
   if(!all.length && !orph.length){ el.innerHTML = ''; return; }
@@ -3492,38 +3494,52 @@ function sameStudent(r, row){
   }
   return schoolAkin(r.school, row.school);
 }
-/* 이름이 겹치는데 학교를 몰라 **누구 것인지 못 정하는** DT 기록.
-   말없이 사라지면 "왜 내 성적이 없지" 가 된다 — 세어서 화면에 띄운다. */
+/* 이름이 겹치는 학생의 기록 중 **어느 명단 줄에도 못 붙는** 것.
+   두 가지 까닭이 있다 —
+     · 기록에 학교가 없다 (옛날에 학교를 안 적고 냈다)
+     · 명단 쪽에 학교가 없다 (명단에 아직 한 명만, 또는 학교 칸이 비었다)
+   어느 쪽이든 **말없이 사라지면 안 된다.** "왜 내 성적이 없지" 가 되고
+   아무 데도 안 나오니 영영 모른다. 세어서 화면에 띄운다. */
 function orphanRows(){
-  const dup = new Set();
-  const cnt = {};
-  (ROSTER||[]).forEach(function(x){
-    const n = normName(x.name); if(!n) return;
-    cnt[n] = (cnt[n]||0) + 1; if(cnt[n] > 1) dup.add(n);
-  });
-  if(!dup.size) return [];
   const out = [];
-  const scan = function(rows, kind){
+  /* ⚠ 붙었는지 아닌지는 **붙이는 그 규칙으로** 판단해야 한다. 여기에 따로
+     느슨한 규칙을 쓰면, 실제로는 안 붙었는데 붙은 줄 알고 조용히 넘어간다 —
+     그러면 그 기록은 어느 성적표에도 없고 아무 데도 안 나온다. */
+  const claimed = function(row){
+    return (ROSTER||[]).some(function(x){ return sameStudent(x, row); });
+  };
+  const scan = function(rows, kind, course, round){
     (rows||[]).forEach(function(r){
-      if(!dup.has(normName(r.name))) return;
-      if(schoolCore(r.school)) return;
-      out.push({ kind:kind, name:r.name, course:r.course, round:r.round });
+      if(nameIsUnique(r.name)) return;         // 겹치지 않는 이름은 예전대로 잘 붙는다
+      if(claimed(r)) return;                   // 주인을 찾았다
+      out.push({ kind:kind, name:justName(r.name), school:r.school||'',
+                 course:course!=null?course:r.course,
+                 round:round!=null?round:r.round });
     });
   };
   scan(PASS_ROWS, '통과'); scan(PEND_ROWS, '재시');
-  (ABS_ROWS||[]).forEach(function(c){
-    (c.absentWho||[]).forEach(function(w){
-      if(!dup.has(normName(w.name)) || schoolCore(w.school)) return;
-      out.push({ kind:'미응시', name:w.name, course:c.course, round:c.round });
-    });
-  });
+  (ABS_ROWS||[]).forEach(function(c){ scan(c.absentWho, '미응시', c.course, c.round); });
   return out;
 }
 /* 미응시 목록에는 **이름만** 있다(학교가 없다). 그래서 동명이인이 있으면
    누구 것인지 알 길이 없다 — 명단에서 그 이름이 하나뿐일 때만 붙인다. */
 function nameIsUnique(name){
   const n = normName(name);
-  return ROSTER.filter(function(x){ return normName(x.name)===n; }).length <= 1;
+  if(ROSTER.filter(function(x){ return normName(x.name)===n; }).length > 1) return false;
+  /* ⚠ 명단이 아직 한 명이어도, **기록에 학교가 둘 이상**이면 동명이인이다.
+     시트에는 `대청중-김지완`·`내정중-김지완` 두 사람이 진작 갈려 있는데
+     명단만 한 명이었다. 명단을 고치기 전에도 남의 기록이 붙으면 안 된다 —
+     7회는 내정중만 봤는데 대청중 성적표에 뜬다. */
+  const sch = new Set();
+  const eat = function(rows){
+    (rows||[]).forEach(function(r){
+      if(normName(r.name)!==n) return;
+      const c = schoolCore(r.school); if(c) sch.add(c);
+    });
+  };
+  eat(PASS_ROWS); eat(PEND_ROWS);
+  (ABS_ROWS||[]).forEach(function(c){ eat(c.absentWho); });
+  return sch.size <= 1;
 }
 function dtForStudent(r){
   const hits = function(arr){
