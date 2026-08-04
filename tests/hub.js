@@ -1108,7 +1108,11 @@ console.log('\n── 색이 실제로 읽히는가 (눈이 아니라 재서) �
       /\.legend b\.warn\{[\s\S]{0,200}repeating-linear-gradient/.test(SRC), true);
   /* 숫자 여덟 개가 모두 강조색이면 색이 강조가 아니라 배경이 된다. */
   chk('평상시 숫자는 먹빛', /\.card b\{[^}]*color:var\(--ink\)/.test(SRC), true);
-  chk('급한 숫자만 색', /\.card\.warn b\{color:var\(--ms\)\}/.test(SRC), true);
+  /* ⚠ 변수 **이름**을 글자 그대로 못 박고 있었다(--ms). 급한 칸에 색면을
+     깔면서 그 위에서 대비가 3.89 로 내려가 --ms-ink(7.16)로 바꿨는데, 뜻은
+     하나도 안 바뀌었는데 검사가 깨졌다. 지켜야 하는 것은 이름이 아니라
+     '평상시는 먹빛, 급한 것만 붉은 계열' 이다. */
+  chk('급한 숫자만 색', /\.card\.warn b\{color:var\(--ms(-ink)?\)\}/.test(SRC.replace(/\/\*[\s\S]*?\*\//g,'')), true);
 }
 
 console.log('\n── 주소가 곧 상태 ──');

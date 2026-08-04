@@ -41,6 +41,41 @@
   --sans:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
   --serif:'Iropke Batang','Nanum Myeongjo',Georgia,serif;
   --mono:ui-monospace,SFMono-Regular,'JetBrains Mono','D2Coding',Menlo,monospace;
+  /* ── 색 위에 얹는 글씨 ─────────────────────────────────────────────
+     '옥색 배경에 흰 글씨' 처럼 **바탕색을 전제로 박아 둔 글자색**이 곳곳에
+     있었다(#8a3a1d · #FBF0EA · #fff …). 바탕색을 조금만 손대도 글씨가 안
+     읽히게 되는데, 어디를 같이 고쳐야 하는지는 아무 데도 안 적혀 있었다.
+
+     '무슨 색 위의 글씨' 를 따로 이름 붙여 둔다. 이렇게 모아 두고 재 보니
+     **'통과' 배지 글씨가 4.15:1** 로 본문 기준(4.5)에 못 미치고 있었다 —
+     배지 바탕(9% 초록) 위에서 재야 나오는 값이라 여태 아무도 몰랐다.
+     --ok-ink 로 6.43 이 됐다. */
+  --on-teal:#fff;                  /* 옥색 바탕 위의 글씨 */
+  /* 브랜드 띠 — **깊은 옥색**이다. var(--teal) 과 따로 두는 까닭은, 저 색은
+     강조색이라 언젠가 손대면 띠까지 같이 흔들리기 때문이다. */
+  --brand-bg:#0E5A4C; --brand-bg2:#0B4238; --brand-ink:#F4F1E8; --brand-sub:#BFD8CF;
+  --warn-wash:#FDF4EF;             /* 급한 카드 색면 */
+  --ms-ink:#8a3a1d;                /* '급함' 글씨 — 종이 위 */
+  --ms-bg:#FBF0EA;                 /* '급함' 배지 바탕 */
+  --warn-ink:#7a5d20; --warn-bg:#FBF3E9;
+  --ok-ink:#256B44;                /* 배지 안의 초록 글씨. --ok 는 배지 바탕(9%)
+                                      위에서 4.15:1 로 본문 기준에 못 미쳤다. */
+  /* 이 화면은 **밝은 화면 하나로 간다**(선생님 결정). 그렇다고 이 줄을 지우면
+     안 된다 — 기기가 어두운 화면을 쓰고 있으면 브라우저가 스크롤막대·입력칸을
+     제멋대로 어둡게 그려서, 종이색 화면에 검은 막대가 붙는다.
+     '이 화면은 밝다' 고 적어 두면 그것들도 밝게 나온다. */
+  color-scheme: light;
+}
+
+
+/* ── 움직임을 줄여 달라고 해 둔 기기 ────────────────────────────────
+   어지럼증·멀미 때문에 운영체제에서 켜 두는 설정이다. 켜 두었으면 화면이
+   미끄러지듯 움직이는 것을 멈춘다 — 자리는 그대로 가되 **한 번에** 간다. */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important; animation-iteration-count:1 !important;
+    transition-duration:.01ms !important; scroll-behavior:auto !important;
+  }
 }
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -49,9 +84,22 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
 
 /* ── 머리 + 탭 ─────────────────────────────────────── */
 header{background:var(--paper);border-bottom:1px solid var(--line);flex:0 0 auto}
-.brand{display:flex;align-items:baseline;gap:10px;padding:13px 20px 0;flex-wrap:wrap}
-.brand h1{font-family:var(--serif);font-size:19px;margin:0;font-weight:600}
-.brand .sub{font-size:12.5px;color:var(--muted)}
+/* ── 브랜드 띠 ───────────────────────────────────────────────────────
+   예전에는 흰 판에 글씨 한 줄이라 화면이 어디서 시작하는지 눈에 안 걸렸다.
+   깊은 옥색 띠를 얹어 **머리와 일하는 자리**를 가른다. 탭 줄은 종이색 그대로
+   두어 층이 둘로 보인다.
+   ⚠ 띠 색은 var(--teal) 이 아니다. 그 색은 어두운 화면에서 밝아지므로 띠가
+     형광등이 된다 — 밝든 어둡든 깊은 옥색인 --brand-bg 를 따로 둔다.
+   ⚠ 글씨 대비를 재 두었다: 제목 7.19:1 · 부제 5.39:1 (어두운 화면 10.96 / 6.71). */
+.brand{display:flex;align-items:baseline;gap:10px;padding:15px 20px 14px;flex-wrap:wrap;
+  /* ⚠ 그라데이션 **밑에 단색을 깐다.** 그라데이션만 두면 background-color 가
+     비어 있어, 그것이 안 그려지는 자리(강제 색 모드·아주 옛 브라우저·인쇄)에서
+     크림색 글씨가 흰 바탕에 남는다 — 오늘 종이에서 겪은 것과 같은 꼴이다. */
+  background:var(--brand-bg) linear-gradient(135deg,var(--brand-bg) 0%,var(--brand-bg2) 100%);
+  border-bottom:2px solid var(--brass)}
+.brand h1{font-family:var(--serif);font-size:20px;margin:0;font-weight:600;
+  color:var(--brand-ink);letter-spacing:-.2px}
+.brand .sub{font-size:12.5px;color:var(--brand-sub)}
 .brand .spacer{flex:1}
 nav{display:flex;gap:0;padding:0 12px;overflow-x:auto;scrollbar-width:none}
 nav::-webkit-scrollbar{display:none}
@@ -71,7 +119,11 @@ nav button{
   padding:11px 14px;font:inherit;font-size:14px;color:var(--ink-2);cursor:pointer;white-space:nowrap;
 }
 nav button:hover{color:var(--teal)}
-nav button[aria-selected="true"]{color:var(--teal);font-weight:700;border-bottom-color:var(--teal)}
+/* 고른 탭은 밑줄 2px 하나였다. 열두 탭이 가로로 늘어선 줄에서 밑줄은 눈에
+   잘 안 걸린다 — 색면을 얹어 **어디에 있는지**가 먼저 읽히게 한다.
+   밑줄도 남긴다: 색을 못 보는 눈에도 자리가 보여야 한다. */
+nav button[aria-selected="true"]{color:var(--teal);font-weight:700;border-bottom-color:var(--teal);
+  background:var(--wash);border-radius:8px 8px 0 0}
 nav button:focus-visible{outline:2px solid var(--brass);outline-offset:-2px;border-radius:4px}
 /* ── 두 줄로 가른다 ────────────────────────────────
    윗줄은 **셸이 그리는 화면**(읽고 고르는 곳), 아랫줄은 **앱을 그대로 얹은
@@ -156,15 +208,25 @@ section{margin-bottom:34px}
 /* 칸 수가 줄 수로 안 나누어떨어지면 빈 칸이 남는다. 바탕을 선 색으로 깔면
    그 자리가 회색 덩어리로 보인다 — 칸마다 테두리를 그려 빈 자리는 비워 둔다. */
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:1px;
-  background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:hidden}
-.card{background:var(--paper);padding:14px 16px;box-shadow:0 0 0 1px var(--line)}
+  background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  /* 종이가 한 장 떠 있는 느낌. 그림자는 아주 옅게 — 짙으면 목록이 흐려 보인다. */
+  box-shadow:0 1px 2px rgba(0,0,0,.04),0 6px 18px rgba(0,0,0,.045)}
+.card{background:var(--paper);padding:14px 16px;box-shadow:0 0 0 1px var(--line);
+  position:relative;transition:background .15s ease}
+/* 급한 칸은 숫자 색만 달랐다. 색면과 왼쪽 띠를 더해 **눈이 먼저 가게** 한다.
+   ⚠ 색만으로 가르지 않는다 — 띠는 색이 아니라 **자리**로도 읽힌다. */
+.card.warn{background:var(--warn-wash)}
+.card.warn::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--ms)}
 /* 예전에는 숫자 여덟 개가 모두 teal 이었다. 색이 강조가 아니라 배경이 되어
    **어느 것이 급한지 색으로 안 읽혔다.** 평상시 숫자는 먹빛으로 내리고
    손이 필요한 것에만 색을 쓴다(Linear 의 '강조색은 아껴 쓴다'와 같은 규칙). */
-.card b{display:block;font-family:var(--mono);font-size:24px;color:var(--ink);
-  font-variant-numeric:tabular-nums;line-height:1.25}
+.card b{display:block;font-family:var(--mono);font-size:27px;color:var(--ink);
+  font-variant-numeric:tabular-nums;line-height:1.22;letter-spacing:-.5px}
 .card span{display:block;font-size:12px;color:var(--muted);margin-top:2px}
-.card.warn b{color:var(--ms)}
+/* 색면 위에서는 --ms 가 3.89:1 로 내려간다(종이 위에서는 4.22). 숫자가 커서
+   기준(3.0)은 넘지만, 더 짙은 --ms-ink 로 7.16 을 잡는다 — 급한 것은 짙게. */
+.card.warn b{color:var(--ms-ink)}
 /* 값 옆의 전 기간 대비. 숫자 하나만으로는 많은 건지 적은 건지 알 수 없다. */
 .cardv{display:flex;align-items:baseline;gap:6px}
 .card .delta{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--muted)}
@@ -193,9 +255,9 @@ section{margin-bottom:34px}
 .tag.dt{background:#FBF3E9;color:#8a6520;border-color:rgba(176,141,87,.3)}
 .tag.km{background:#F1EEF7;color:#5B4B8A;border-color:rgba(91,75,138,.25)}
 /* 상태 배지 — 그림 어휘와 같은 색을 쓴다(초록 끝남 · 주황 진행 · 빨강 손이 필요) */
-.tag.ok{background:rgba(47,122,90,.09);color:var(--ok);border-color:rgba(47,122,90,.3)}
-.tag.warn{background:#FBF3E9;color:#7a5d20;border-color:rgba(176,135,58,.35)}
-.tag.bad{background:#FBF0EA;color:#8a3a1d;border-color:rgba(192,96,58,.32)}
+.tag.ok{background:rgba(47,122,90,.09);color:var(--ok-ink);border-color:rgba(47,122,90,.3)}
+.tag.warn{background:var(--warn-bg);color:var(--warn-ink);border-color:rgba(176,135,58,.35)}
+.tag.bad{background:var(--ms-bg);color:var(--ms-ink);border-color:rgba(192,96,58,.32)}
 .tag.none{background:var(--sunk);color:var(--muted);border-color:var(--line-2)}
 .row .cnt{font-family:var(--mono);font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
 
@@ -211,7 +273,7 @@ input[type=search]:focus{outline:2px solid var(--teal);outline-offset:-1px;borde
 .note{background:var(--sunk);border:1px solid var(--line);border-radius:10px;
   padding:13px 16px;font-size:13.5px;color:var(--ink-2);margin:14px 0}
 .note b{color:var(--ink)}
-.err{background:#FBF0EA;border-color:rgba(192,96,58,.3);color:#8a3a1d}
+.err{background:var(--ms-bg);border-color:rgba(192,96,58,.3);color:var(--ms-ink)}
 
 /* ── 학생 상세 ────────────────────────────────────── */
 dialog{border:none;border-radius:14px;padding:0;max-width:660px;width:calc(100% - 32px);
@@ -313,7 +375,13 @@ td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:righ
      반을 골라 문자를 보내는 것이 이 화면의 본업인데, 그 단추가 화면 밖에
      있었다. 좁은 기기에서는 **줄을 접는다** — 이름·상태·점수는 윗줄에,
      학교와 단추는 아랫줄에. 넓은 화면은 그대로 한 줄이다. */
-  .list .row{flex-wrap:wrap; row-gap:8px}
+  /* ⚠ .mult(모든 반 한눈에 · 반별 인원)도 같은 줄 구조다. 여기를 빼 두었더니
+     대시보드에서 과목 칸('화학Ⅰ')이 폭 13px 로 짜부러져 세로로 쪼개졌다 —
+     반 탭만 고치고 대시보드는 안 본 탓이다. */
+  .list .row,.mult .row{flex-wrap:wrap; row-gap:8px}
+  .mult .row .nm{min-width:0}
+  .mult .row .where{flex:0 0 auto}
+  .mult .row .fill{flex:1 0 100%; order:9}
   .list .row .nm{min-width:0; flex:0 0 auto}
   .list .row .where{flex:1 0 100%; order:8; min-width:0}
   .list .row .acts{flex:1 0 100%; order:9; display:flex; gap:8px; flex-wrap:wrap}
@@ -357,12 +425,12 @@ tr.pick:hover td{background:var(--wash)}
   background:var(--paper);color:var(--ink-2);white-space:nowrap}
 .chip:hover{border-color:var(--teal);color:var(--teal)}
 .chip:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
-.chip[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:#fff}
+.chip[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:var(--on-teal)}
 .chip small{font-weight:600;opacity:.7;margin-left:4px;font-size:11.5px}
-.chip.urgent{border-color:rgba(192,96,58,.45);color:#8a3a1d}
+.chip.urgent{border-color:rgba(192,96,58,.45);color:var(--ms-ink)}
 .chip.urgent:hover{border-color:var(--ms);color:var(--ms)}
 /* 고른 칩은 바탕이 짙다. '급함' 색이 그 위에 남으면 흰 바탕 글자가 안 읽힌다. */
-.chip.urgent[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:#fff}
+.chip.urgent[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:var(--on-teal)}
 /* 방금 눌러 열린 섹션이 어디인지 눈으로 잡아 준다 */
 @keyframes hubFlash{from{background:rgba(176,141,87,.20)}to{background:transparent}}
 .flashed{animation:hubFlash 1.4s ease-out}
@@ -414,7 +482,10 @@ tr.pick:hover td{background:var(--wash)}
 .ndg .why{color:var(--ink-2)}
 .ndg .who{font-weight:700}
 .ndg .acts{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
-.ndg .kindl{font-size:11.5px;font-weight:800;letter-spacing:.04em;color:var(--warnG);
+/* ⚠ --warnG 는 '정보를 나르는 **그림**' 에 쓰는 색이다(기준 3:1). 그것을
+   글씨에 쓰면 종이 위 4.15:1 로 본문 기준(4.5)에 못 미친다 — 실제로 그랬다.
+   글씨에는 글씨용 색(--warn-ink · 6.15:1)을 쓴다. */
+.ndg .kindl{font-size:11.5px;font-weight:800;letter-spacing:.04em;color:var(--warn-ink);
   border:1px solid var(--warnG);border-radius:5px;padding:1px 6px;white-space:nowrap}
 .ndgmore{font-size:12px;color:var(--muted);padding:2px 2px 0}
 .legend b{width:10px;height:10px;border-radius:2px;display:inline-block;border:1px solid rgba(0,0,0,.12)}
