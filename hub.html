@@ -301,6 +301,23 @@ td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:righ
 @media (pointer: coarse){
   .mini{padding:8px 12px;font-size:13px;min-height:36px}
   .chip{min-height:36px}
+
+  /* ── 좁은 화면에서 줄이 옆으로 터지던 것 ──────────────────────────
+     `.row` 는 한 줄에 여섯 칸을 옆으로 세운다(이름 · 학교 · 상태 · 점수 ·
+     파이널 · 단추). 넓은 화면에서는 한눈에 읽혀서 좋은데, 휴대폰(390px)에서는
+     들어갈 자리가 없어 이렇게 됐다.
+
+         '대치중 2학년'  →  폭 13px · **6줄**   (한 글자씩 세로로)
+         '재시 안내'·'카드' 단추  →  오른쪽 474px  (화면 밖)
+
+     반을 골라 문자를 보내는 것이 이 화면의 본업인데, 그 단추가 화면 밖에
+     있었다. 좁은 기기에서는 **줄을 접는다** — 이름·상태·점수는 윗줄에,
+     학교와 단추는 아랫줄에. 넓은 화면은 그대로 한 줄이다. */
+  .list .row{flex-wrap:wrap; row-gap:8px}
+  .list .row .nm{min-width:0; flex:0 0 auto}
+  .list .row .where{flex:1 0 100%; order:8; min-width:0}
+  .list .row .acts{flex:1 0 100%; order:9; display:flex; gap:8px; flex-wrap:wrap}
+  .list .row .tags,.list .row .cnt{flex:0 0 auto}
 }
 .mini:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .mini.done{border-color:var(--ok);color:var(--ok)}
@@ -321,7 +338,9 @@ td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:righ
 .mini[disabled]{opacity:.55;cursor:progress}
 .trk__i{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .trk__i>div{flex:1;min-width:150px}
-.acts{display:flex;gap:6px}
+/* ⚠ 줄바꿈이 없으면 좁은 화면에서 마지막 단추가 통째로 화면 밖으로 나간다
+   ('표 복사' 가 그랬다). 넓은 화면에서는 자리가 남으니 하나도 안 접힌다. */
+.acts{display:flex;gap:6px;flex-wrap:wrap}
 .kbd{font-family:var(--mono);font-size:11.5px;background:var(--sunk);border:1px solid var(--line-2);
   border-radius:4px;padding:0 5px}
 .sub2{font-size:12.5px;color:var(--muted);margin:14px 0 6px;font-weight:700;

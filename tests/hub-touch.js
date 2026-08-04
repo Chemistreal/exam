@@ -141,8 +141,37 @@ async function look(browser, { width, height, touch }) {
       급한카드Y: ab ? Math.round(ab.getBoundingClientRect().top + scrollY) : null,
     };
   }, TAP_MIN);
+
+  /* ⚠ 줄이 터지는 것은 **반 탭**에서 본다. 대시보드에 있는 채로 재면 그 줄들이
+     아직 안 그려져 있어 늘 '없음' 이 나온다 — 검사가 조용히 아무것도 안 보게
+     된다. 대시보드 것을 먼저 재고 나서 탭을 옮긴다. */
+  await p.evaluate(() => { if (window.show) show('cls'); });
+  await p.waitForTimeout(900);
+  const rows = await p.evaluate(() => ({
+    쪼개진칸: [...document.querySelectorAll('.list .row span')]
+      .filter(e => {
+        if (e.children.length) return false;
+        const t = (e.textContent || '').trim();
+        if (t.length < 2) return false;
+        const b = e.getBoundingClientRect();
+        if (!b.width || !b.height) return false;
+        const lh = parseFloat(getComputedStyle(e).lineHeight) || 18;
+        return Math.round(b.height / lh) >= 3 && b.width < 40;
+      })
+      .map(e => (e.textContent || '').trim().slice(0, 10) + ' ' +
+                Math.round(e.getBoundingClientRect().width) + 'px'),
+    칸밖단추: [...document.querySelectorAll('button')]
+      .filter(e => {
+        const b = e.getBoundingClientRect();
+        if (!b.width || e.closest('nav')) return false;
+        const box = e.closest('section, .list, .note, .card');
+        return box && b.right > box.getBoundingClientRect().right + 1;
+      })
+      .map(e => (e.textContent || '').trim().slice(0, 10)),
+    반줄수: document.querySelectorAll('#clsList .row').length,
+  }));
   await ctx.close();
-  return Object.assign(m, { errs: errs });
+  return Object.assign(m, rows, { errs: errs });
 }
 
 (async () => {
@@ -178,6 +207,14 @@ async function look(browser, { width, height, touch }) {
     console.log(`  '시험 미응시' 카드 y=${폰.급한카드Y} (고치기 전 534)`);
     chk('첫 줄로 올라왔다', 폰.급한카드Y < 400, true);
 
+    console.log('  반 탭 줄 ' + 폰.반줄수 + '개 · 쪼개진 칸: ' +
+                (폰.쪼개진칸.length ? JSON.stringify(폰.쪼개진칸) : '없음') +
+                ' · 칸 밖 단추: ' + (폰.칸밖단추.length ? JSON.stringify(폰.칸밖단추) : '없음'));
+    /* 줄이 아예 안 그려졌으면 위 둘은 늘 '없음' 이다 — 안 재고 통과하는 것을 막는다. */
+    chk('반 탭에 줄이 실제로 그려졌다', 폰.반줄수 > 0, true);
+    chk('글자가 한 글자씩 세로로 쪼개지지 않는다', 폰.쪼개진칸, []);
+    chk('단추가 칸 밖으로 안 나간다', 폰.칸밖단추, []);
+
     console.log('\n── 노트북 (마우스) 1280×900 ──');
     const 노트북 = await look(browser, { width: 1280, height: 900, touch: false });
     console.log(`  ${TAP_MIN}px 아래 단추 ${노트북.작은단추}개`);
@@ -188,6 +225,7 @@ async function look(browser, { width, height, touch }) {
     /* 순서는 화면 크기와 상관없이 같다 — 기기마다 다르면 손이 헷갈린다. */
     chk('마우스 화면에서도 급한 것이 앞이다',
         노트북.카드순서.slice(0, 3), ['abCnt', 'pdCnt', 'dtCnt']);
+    chk('넓은 화면에서도 칸 밖으로 안 나간다', 노트북.칸밖단추, []);
     chk('가로 스크롤이 안 생긴다', 노트북.가로스크롤, false);
     chk('콘솔에 예외가 없다', 노트북.errs, []);
   } finally {
