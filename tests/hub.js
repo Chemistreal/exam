@@ -1942,5 +1942,35 @@ console.log('\n── 지금 DT 반에 없는 학생 ──');
       /if\(!PEND_ROWS\.length\)\{ const w0=document\.getElementById\('pendWrap'\)/.test(body), true);
 }
 
+console.log('\n── 인원·수입은 파이널 반까지 센다 ──');
+{
+  /* DT 알림은 DT 반만 본다. 그런데 **인원과 수입은 다르다** — 파이널 반도
+     사람이고 수업료가 나온다. 둘을 헷갈려 여기까지 걸러 내면 자리 수와 수입이
+     조용히 줄어드는데, 줄어든 것은 눈에 안 띈다. 그래서 여기서 못박는다. */
+  ctx.DT_CACHE = {
+    'dt:names': { val: Object.assign([], { classes: [
+      { label:'화학1 일6-10', course:'ch1', kind:'dt',
+        students:[{name:'김지성'},{name:'최예린'}] },
+      { label:'파이널 목7-10', course:'', kind:'exam',
+        students:[{name:'박하람'},{name:'이도윤'},{name:'김지성'}] },
+    ] }) },
+  };
+  const d = ctx.rosterCount();
+  chk('자리 수에 파이널 반이 들어간다', d.seats, 5);
+  /* 같은 학생이 두 반을 들으면 자리는 둘, 사람은 하나다. */
+  chk('사람 수는 겹치는 학생을 한 번만 센다', d.heads, 4);
+  chk('월 수입도 파이널 반 자리까지 센다', d.monthly, 5 * ctx.FEE_PER);
+  chk('반별 줄이 다 나온다', d.rows.map(function(r){ return r.label; }),
+      ['화학1 일6-10', '파이널 목7-10']);
+  /* 파이널 반은 DT 과목이 없다. 과목 자리가 비면 '뭔가 빠졌나' 로 보인다. */
+  chk('파이널 반에는 갈래를 적는다',
+      d.rows.map(function(r){ return r.kind || ''; }), ['dt', 'exam']);
+  const body2 = SRC.split('<script>')[1] || '';
+  chk("빈칸 대신 '파이널' 이라고 적는다",
+      /r\.kind==='exam' \? '파이널'/.test(body2), true);
+  /* 카드 이름도 맞아야 한다 — 이제 DT 반만 세는 것이 아니다. */
+  chk('카드 이름이 반 명단이다', /<span>반 명단<\/span>/.test(body2), true);
+}
+
 console.log(fail ? `\n${fail}개 실패` : '\n모두 통과');
 process.exit(fail ? 1 : 0);
