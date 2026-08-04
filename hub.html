@@ -2415,7 +2415,7 @@ function renderDash(){
   syncWorkRows();
   const pdN = pdKnown ? PEND_ROWS.length : null;
   document.getElementById('dashCards').innerHTML = cards.join('') +
-    '<div class="card"><b id="dtCnt">'+(dtKnown? dtKnown.length : '…')+'</b><span>DT 명단</span></div>' +
+    '<div class="card"><b id="dtCnt">'+(dtKnown? dtKnown.length : '…')+'</b><span>반 명단</span></div>' +
     /* 채점하는 날 제일 급한 숫자다 — 아직 시험 자체를 안 본 학생. */
     '<div class="card warn"><b id="abCnt">'+(abN!=null? abN : '…')+'</b><span>시험 미응시</span></div>' +
     '<div class="card warn"><b id="pdCnt">'+(pdN!=null? pdN : '…')+'</b><span>DT 미완료</span></div>';
@@ -4428,6 +4428,12 @@ const FEE_PER = 160000;                 // 1인 1반 월 수업료(4주 기준) 
 const INC_CODE = '1233';
 let INC_OPEN = false;
 function wonOf(n){ return (Math.round(n)||0).toLocaleString('ko-KR')+'원'; }
+/* ── 반별 인원 · 수입 ────────────────────────────────────────────────
+   ⚠ 여기는 **모든 반**을 센다. 파이널 반도 인원이고 수업료가 나온다.
+
+   DT 알림(재시·미응시·통과·오개념)은 반대로 DT 반만 본다(syncWorkRows).
+   둘을 헷갈려 여기까지 걸러 내면 **자리 수와 수입이 조용히 줄어든다** —
+   줄어든 것은 눈에 안 띈다. 그래서 검사로 못박아 뒀다(tests/hub.js). */
 function rosterCount(){
   const list = dtClassList();
   let seats = 0; const names = new Set(), rows = [];
@@ -4441,7 +4447,7 @@ function rosterCount(){
       const nm = normName((x && typeof x === 'object') ? (x.name || '') : x);
       if(nm) names.add(nm);
     });
-    rows.push({ label:c.label, course:c.course, n:n });
+    rows.push({ label:c.label, course:c.course, kind:c.kind, n:n });
   });
   return { rows:rows, seats:seats, heads:names.size, monthly:seats*FEE_PER };
 }
@@ -4458,7 +4464,10 @@ function renderRosterCount(){
     '<div class="mult">'+d.rows.map(function(r){
       return '<div class="row" data-clsjump="'+esc(r.label)+'">'+
         '<span class="nm">'+esc(r.label)+'</span>'+
-        '<span class="where dim">'+esc(DT_COURSE[r.course]||r.course)+'</span>'+
+        /* 파이널 반은 DT 과목이 없다(course 가 빈칸). 그대로 두면 이 줄만
+           과목 자리가 비어 '뭔가 빠졌나' 로 보인다 — 갈래를 적는다. */
+        '<span class="where dim">'+esc(r.kind==='exam' ? '파이널'
+                                     : (DT_COURSE[r.course]||r.course))+'</span>'+
         '<span class="fill"><span class="stack"><i class="ok" style="width:'+
           Math.round(r.n/mx*100)+'%"></i></span></span>'+
         '<span class="cnt">'+r.n+'명</span></div>';
