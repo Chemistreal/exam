@@ -84,7 +84,7 @@ vm.runInContext([
   cut('isExamClass'),
   cut('esc'), cut('stackBar'), cut('legendOf'), cut('donut'), cut('histo'), cut('dotsOf'),
   cut('dtClassList'), cut('finFor'), cut('classRows'), cut('clsCounts'),
-  cut('sentKey'), cut('bulkBar'), cut('readHash'), cut('deltaOf'), cut('dayCounts'),
+  cut('sentKey'), cut('absSchool'), cut('bulkBar'), cut('readHash'), cut('deltaOf'), cut('dayCounts'),
   cut('rosterCount'), cut('wonOf'),
   cut('dayKey'), cut('snoozedTill'), cut('isSnoozed'), cut('snzCls'), cut('snzBtn'),
   cut('viewName'), cut('prMis'), cut('median'), cut('madOutliers'), cut('ndgKey'), cut('nudges'), cut('snzBar'), cut('conEntry'), cut('conPut'), cut('conHits'), cut('conTags'),
@@ -1144,6 +1144,14 @@ console.log('\n── 보낸 것은 눈에서 내려간다 ──');
      밀려서 엉뚱한 줄이 흐려진다. */
   chk('열쇠는 번호가 아니라 사람', ctx.sentKey('pend', '김 지성', 'ch1', 12), 'pend|김지성|ch1|12');
   chk('빈 값에도 안 죽는다', ctx.sentKey('abs', null), 'abs|||');
+  /* 같은 반에 김지완이 둘이다(내정중 · 대청중). 열쇠가 같으면 한 명에게
+     보냈다고 표시하는 순간 다른 한 명도 보낸 것으로 보인다. */
+  chk('학교가 있으면 열쇠가 갈린다',
+      ctx.sentKey('abs', '김지완', 'ch1', 9, '내정중') !==
+      ctx.sentKey('abs', '김지완', 'ch1', 9, '대청중'), true);
+  /* 학교를 모르던 옛 표시가 안 풀리게, 없을 때는 예전 열쇠 그대로다. */
+  chk('학교가 없으면 옛 열쇠 그대로',
+      ctx.sentKey('abs', '김지완', 'ch1', 9), 'abs|김지완|ch1|9');
   chk('누르면 그 줄에 표시한다', /row\.classList\.add\('sent'\)/.test(body), true);
   chk('다시 그려도 남는다', /function sentCls\(k\)/.test(body) && /SENT\.has\(k\)/.test(body), true);
   chk('브라우저에 남기지 않는다', /localStorage[\s\S]{0,40}SENT/.test(CODE_ONLY), false);

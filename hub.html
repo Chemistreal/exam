@@ -1003,6 +1003,19 @@ const APPS = {
    따지지 않는다 — 한쪽에만 적혀 있다고 다른 사람으로 갈라놓으면
    명단이 두 배가 된다. */
 function normName(s){ return String(s==null?'':s).replace(/\s+/g,'').trim(); }
+/* ⚠ **화면에도 문자에도 이름까지만.** 명단·시트의 이름 칸에 `김지완 대청중`
+   처럼 학교가 붙어 있을 수 있다(명단에 두 명을 넣을 방법이 없던 때의 흔적).
+   그대로 쓰면 학부모에게 "김지완 대청중 학생" 이라고 나간다 — 실제로 그렇게
+   나갔다. DT 창구에서 이미 갈라 보내지만, 여기서도 한 번 더 막는다.
+   ⚠ 띄어쓰기 같은 **구분자가 있을 때만** 가른다. 붙여 쓴 것까지 가르려 들면
+     멀쩡한 이름이 잘린다. 남는 이름이 두 자보다 짧아도 안 가른다. */
+const SCHOOL_TAIL = /^(.+?)[\s·,\/(\[]+([가-힣A-Za-z]{2,10}(?:초|중|고)(?:등학교|학교)?)[\)\]]?\s*$/;
+function justName(v){
+  const s = String(v==null?'':v).trim(), m = SCHOOL_TAIL.exec(s);
+  if(!m) return s;
+  const nm = m[1].trim();
+  return nm.length < 2 ? s : nm;
+}
 
 /* ── 초성으로도 찾는다 ───────────────────────────────────────────────
    한글 자판에서 자음만 치면 낱자가 그대로 남는다 — '김유정' 을 찾으려고
@@ -1789,8 +1802,20 @@ document.addEventListener('click', function(e){
       w.unmarkSent({ kind:p[0], name:p[1], course:p[2], round:p[3] });
   }).catch(function(){});
 });
-function sentKey(kind, name, course, round){
-  return [kind, normName(name), course||'', round||''].join('|');
+/* 보냄·미룸 표시를 붙여 두는 열쇠. **학교가 필요할 때만** 섞는다 —
+   화학1 일6-10 반에 김지완(내정중)·김지완(대청중) 두 학생이 있다. 이름만으로
+   열쇠를 만들면 한 명에게 문자를 보냈다고 표시하는 순간 다른 한 명도 보낸
+   것으로 보인다. 학교를 모르는 옛 표시가 안 풀리도록, 학교가 있을 때만
+   뒤에 덧붙인다(없으면 예전 열쇠 그대로다). */
+function sentKey(kind, name, course, round, school){
+  const base = [kind, normName(name), course||'', round||''].join('|');
+  const sc = normName(school);
+  return sc ? base + '|' + sc : base;
+}
+/* 이 미응시 줄의 학교. DT 가 안 보내 주면 빈 값이라 예전 열쇠 그대로다. */
+function absSchool(c, j){
+  const w = c && c.absentWho && c.absentWho[j];
+  return (w && w.school) || '';
 }
 function sentAttr(k){ return ' data-sk="'+esc(k)+'"'; }
 function sentCls(k){ return SENT.has(k) ? ' sent' : ''; }
@@ -1876,18 +1901,18 @@ document.addEventListener('click', function(e){
 function makerFor(kind, i, j){
   if(kind === 'pend'){
     const r = PEND_ROWS[i]; if(!r) return null;
-    return function(w){ return w.shareMsg({ name:r.name, course:r.course, round:r.round,
+    return function(w){ return w.shareMsg({ name:justName(r.name), course:r.course, round:r.round,
       att:r.lastAttempt, score:r.score, next:r.nextNeeded, link:r.reportLink||'' }, '1'); };
   }
   if(kind === 'pass'){
     const r = PASS_ROWS[i]; if(!r) return null;
-    return function(w){ return w.passMsg({ name:r.name, course:r.course, round:r.round,
+    return function(w){ return w.passMsg({ name:justName(r.name), course:r.course, round:r.round,
       att:r.attempt, score:r.score, tries:r.tries, link:r.reportLink||'' }); };
   }
   if(kind === 'abs'){
     const c = ABS_ROWS[i]; if(!c) return null;
     const who = (j != null) ? c.absent[j] : '';
-    return function(w, stage){ return w.absentMsg({ name:who, course:c.course, round:c.round,
+    return function(w, stage){ return w.absentMsg({ name:justName(who), course:c.course, round:c.round,
       link:w.examLink(c.course, c.round) }, stage || (j!=null ? '1' : 'bc')); };
   }
   return null;
@@ -1950,7 +1975,7 @@ document.addEventListener('click', function(e){
     return { i:i, name:r.name||'', key:sentKey('pass', r.name, r.course, r.round) }; });
   else if(kind === 'abs') ABS_ROWS.forEach(function(c,i){
     (c.absent||[]).forEach(function(nm,j){
-      rows.push({ i:i, j:j, name:nm, key:sentKey('abs', nm, c.course, c.round) }); }); });
+      rows.push({ i:i, j:j, name:nm, key:sentKey('abs', nm, c.course, c.round, absSchool(c, j)) }); }); });
   copyBulk(b, kind, rows);
 });
 
@@ -2384,9 +2409,23 @@ function nudges(){
 function renderNudge(){
   const el = document.getElementById('nudge'); if(!el) return;
   const all = nudges();
-  el.hidden = !all.length;
-  if(!all.length){ el.innerHTML = ''; return; }
-  el.innerHTML = all.slice(0, NDG_MAX).map(function(n){
+  /* 이름이 겹치는데 학교를 몰라 주인을 못 정한 기록. 말없이 빼 두면
+     "왜 내 성적이 없지" 가 되고, 아무 데도 안 나오니 영영 모른다. */
+  const orph = orphanRows();
+  const orphBar = orph.length
+    ? '<div class="ndg"><span class="kindl">확인</span>'+
+      '<span class="who">'+esc(orph[0].name)+(orph.length>1?' 외':'')+'</span>'+
+      '<span class="why">이름이 같은 학생이 있어 이 기록을 누구 것인지 '+
+      '못 정했습니다 · '+orph.length+'건 '+
+      esc(orph.slice(0,3).map(function(o){
+        return o.kind+' '+(o.round||'')+'회'+(o.school?'('+o.school+')':''); }).join(' · '))+
+      ' — <b>DT 명단</b>에서 그 학생들의 <b>학교</b>를 채워 주세요'+
+      '(기록 쪽에 학교가 없으면 시트의 그 줄에 적어 주세요)</span></div>'
+    : '';
+  el.hidden = !all.length && !orph.length;
+  if(!all.length && !orph.length){ el.innerHTML = ''; return; }
+  if(!all.length){ el.innerHTML = orphBar; return; }
+  el.innerHTML = orphBar + all.slice(0, NDG_MAX).map(function(n){
     return '<div class="ndg"><span class="kindl">'+esc(n.kind)+'</span>'+
       '<span class="who">'+esc(n.name||'—')+'</span>'+
       '<span class="why">'+esc(n.why)+'</span>'+
@@ -2451,8 +2490,8 @@ const JUMPS = [
   /* 미룬 것은 세지 않는다 — 이 줄은 "오늘 할 일" 이고, 미룬 것은 오늘 일이
      아니다. 아래 그림(renderFig)은 반 상태라 미룬 것까지 그대로 센다. */
   { id:'absWrap',   label:'시험 미응시', urgent:true,
-    n:function(){ return ABS_ROWS.reduce(function(t,c){ return t + c.absent.filter(function(nm){
-        return !isSnoozed(sentKey('abs', nm, c.course, c.round)); }).length; }, 0); } },
+    n:function(){ return ABS_ROWS.reduce(function(t,c){ return t + c.absent.filter(function(nm,j){
+        return !isSnoozed(sentKey('abs', nm, c.course, c.round, absSchool(c, j))); }).length; }, 0); } },
   { id:'pendWrap',  label:'재시 대기',   urgent:true,
     n:function(){ return PEND_ROWS.filter(function(r){
         return !isSnoozed(sentKey('pend', r.name, r.course, r.round)); }).length; } },
@@ -3077,8 +3116,8 @@ function renderFig(){
   const miss = ABS_ROWS.reduce(function(t,c){ return t + c.absent.length; }, 0);
   const wait = PEND_ROWS.length, ok = PASS_ROWS.length;
   let snz = PEND_ROWS.filter(function(r){ return isSnoozed(sentKey('pend', r.name, r.course, r.round)); }).length;
-  ABS_ROWS.forEach(function(c){ (c.absent||[]).forEach(function(nm){
-    if(isSnoozed(sentKey('abs', nm, c.course, c.round))) snz++; }); });
+  ABS_ROWS.forEach(function(c){ (c.absent||[]).forEach(function(nm,j){
+    if(isSnoozed(sentKey('abs', nm, c.course, c.round, absSchool(c, j)))) snz++; }); });
   const parts = [{ n:miss, tone:'bad',  label:'미응시' },
                  { n:wait, tone:'warn', label:'재시 대기' },
                  { n:ok,   tone:'ok',   label:'통과' },
@@ -3262,7 +3301,7 @@ function renderDash(){
     w.hidden = !ABS_ROWS.length;
     if(!ABS_ROWS.length) return;
     const absKeys = (function(){ const out=[]; ABS_ROWS.forEach(function(c,i){ (c.absent||[]).forEach(function(nm,j){
-      out.push({ i:i, j:j, name:nm, key:sentKey('abs', nm, c.course, c.round) }); }); }); return out; })();
+      out.push({ i:i, j:j, name:nm, key:sentKey('abs', nm, c.course, c.round, absSchool(c, j)) }); }); }); return out; })();
     document.getElementById('absList').innerHTML =
       bulkBar('abs', absKeys, '개별 안내 한 번에') + snzBar(absKeys) + ABS_ROWS.map(function(c,i){
       const head = '<div class="row" style="cursor:default"><span class="nm">'+esc(c.label)+'</span>'
@@ -3270,7 +3309,7 @@ function renderDash(){
         +'<span class="cnt">미응시 '+c.absent.length+'/'+c.total+'</span>'
         +'<button class="mini msg" data-abs="'+i+'" data-stage="bc" data-orig="반 전체 공지">반 전체 공지</button></div>';
       const stus = c.absent.map(function(nm,j){
-        const sk = sentKey('abs', nm, c.course, c.round);
+        const sk = sentKey('abs', nm, c.course, c.round, absSchool(c, j));
         return '<div class="row sub'+sentCls(sk)+snzCls(sk)+'" style="cursor:default"'+sentAttr(sk)+'><span class="nm">'+esc(nm)+'</span>'
           +'<button class="mini msg" data-abs="'+i+'" data-who="'+j+'" data-stage="1" data-orig="1차 안내">1차 안내</button>'
           +'<button class="mini msg" data-abs="'+i+'" data-who="'+j+'" data-stage="2" data-orig="리마인드">리마인드</button>'
@@ -3440,13 +3479,67 @@ function syncWorkRows(){
    남의 카드에 뜨면 그대로 문자로 나가고, 되돌릴 수 없다. */
 function sameStudent(r, row){
   if(normName(r.name) !== normName(row && row.name)) return false;
+  /* ⚠ 이름이 겹치는 학생이 있으면 **학교가 맞아야** 같은 사람이다.
+     `schoolAkin` 은 한쪽 학교가 비어 있으면 같은 사람으로 본다 — 학교를 안
+     적고 낸 옛 기록이 주인을 못 찾는 일이 없게 하려던 느슨한 규칙이다.
+     그런데 화학1 일6-10 반에는 김지완이 둘(내정중·대청중)이라, 그 규칙이면
+     한 기록이 **두 사람에게 다** 붙는다 — 7회를 내정중 김지완만 봤는데
+     대청중 김지완도 본 것으로 뜬다.
+     그래서 이름이 겹칠 때는 양쪽 학교를 다 알아야만 붙인다. 학교를 모르는
+     기록은 어느 쪽에도 안 붙는다 — 모르는 것을 아는 척하면 성적표가 틀린다.
+     (그런 기록이 몇인지는 `orphanRows()` 가 세어 화면에 띄운다) */
+  if(!nameIsUnique(r.name)){
+    if(!schoolCore(r.school) || !schoolCore(row && row.school)) return false;
+    return schoolAkin(r.school, row.school);
+  }
   return schoolAkin(r.school, row.school);
+}
+/* 이름이 겹치는 학생의 기록 중 **어느 명단 줄에도 못 붙는** 것.
+   두 가지 까닭이 있다 —
+     · 기록에 학교가 없다 (옛날에 학교를 안 적고 냈다)
+     · 명단 쪽에 학교가 없다 (명단에 아직 한 명만, 또는 학교 칸이 비었다)
+   어느 쪽이든 **말없이 사라지면 안 된다.** "왜 내 성적이 없지" 가 되고
+   아무 데도 안 나오니 영영 모른다. 세어서 화면에 띄운다. */
+function orphanRows(){
+  const out = [];
+  /* ⚠ 붙었는지 아닌지는 **붙이는 그 규칙으로** 판단해야 한다. 여기에 따로
+     느슨한 규칙을 쓰면, 실제로는 안 붙었는데 붙은 줄 알고 조용히 넘어간다 —
+     그러면 그 기록은 어느 성적표에도 없고 아무 데도 안 나온다. */
+  const claimed = function(row){
+    return (ROSTER||[]).some(function(x){ return sameStudent(x, row); });
+  };
+  const scan = function(rows, kind, course, round){
+    (rows||[]).forEach(function(r){
+      if(nameIsUnique(r.name)) return;         // 겹치지 않는 이름은 예전대로 잘 붙는다
+      if(claimed(r)) return;                   // 주인을 찾았다
+      out.push({ kind:kind, name:justName(r.name), school:r.school||'',
+                 course:course!=null?course:r.course,
+                 round:round!=null?round:r.round });
+    });
+  };
+  scan(PASS_ROWS, '통과'); scan(PEND_ROWS, '재시');
+  (ABS_ROWS||[]).forEach(function(c){ scan(c.absentWho, '미응시', c.course, c.round); });
+  return out;
 }
 /* 미응시 목록에는 **이름만** 있다(학교가 없다). 그래서 동명이인이 있으면
    누구 것인지 알 길이 없다 — 명단에서 그 이름이 하나뿐일 때만 붙인다. */
 function nameIsUnique(name){
   const n = normName(name);
-  return ROSTER.filter(function(x){ return normName(x.name)===n; }).length <= 1;
+  if(ROSTER.filter(function(x){ return normName(x.name)===n; }).length > 1) return false;
+  /* ⚠ 명단이 아직 한 명이어도, **기록에 학교가 둘 이상**이면 동명이인이다.
+     시트에는 `대청중-김지완`·`내정중-김지완` 두 사람이 진작 갈려 있는데
+     명단만 한 명이었다. 명단을 고치기 전에도 남의 기록이 붙으면 안 된다 —
+     7회는 내정중만 봤는데 대청중 성적표에 뜬다. */
+  const sch = new Set();
+  const eat = function(rows){
+    (rows||[]).forEach(function(r){
+      if(normName(r.name)!==n) return;
+      const c = schoolCore(r.school); if(c) sch.add(c);
+    });
+  };
+  eat(PASS_ROWS); eat(PEND_ROWS);
+  (ABS_ROWS||[]).forEach(function(c){ eat(c.absentWho); });
+  return sch.size <= 1;
 }
 function dtForStudent(r){
   const hits = function(arr){
@@ -3455,13 +3548,24 @@ function dtForStudent(r){
     return out;
   };
   const abs=[];
-  if(nameIsUnique(r.name)){
-    ABS_ROWS.forEach(function(c,i){
-      (c.absent||[]).forEach(function(nm,j){
-        if(normName(nm)===normName(r.name)) abs.push({ i:i, j:j });
+  ABS_ROWS.forEach(function(c,i){
+    /* DT 가 학교까지 보내 주면(absentWho) 동명이인도 갈린다. 옛 배포는
+       이름만 보내므로 그때는 예전 규칙 — 모르면 안 붙인다 — 을 그대로 쓴다. */
+    const who = c.absentWho;
+    if(who && who.length === (c.absent||[]).length){
+      who.forEach(function(w,j){
+        if(normName(w.name)!==normName(r.name)) return;
+        if(w.school && r.school){ if(!schoolAkin(r.school, w.school)) return; }
+        else if(!nameIsUnique(r.name)) return;
+        abs.push({ i:i, j:j });
       });
+      return;
+    }
+    if(!nameIsUnique(r.name)) return;
+    (c.absent||[]).forEach(function(nm,j){
+      if(normName(nm)===normName(r.name)) abs.push({ i:i, j:j });
     });
-  }
+  });
   return { passed:hits(PASS_ROWS), pending:hits(PEND_ROWS), absent:abs };
 }
 /* KMChC 시트에는 학교 열이 없다. 이름이 하나뿐일 때만 고른다 — 둘이면
@@ -3768,7 +3872,8 @@ function renderStuOther(){
 
   d.absent.forEach(function(a){
     const c = ABS_ROWS[a.i]; if(!c) return;
-    const sk = sentKey('abs', r.name, c.course, c.round);
+    /* 이 줄이 어느 김지완인지는 a.j 가 안다 — 열쇠도 그 학교로 짓는다. */
+    const sk = sentKey('abs', r.name, c.course, c.round, absSchool(c, a.j));
     rows.push('<div class="trk__i miss'+sentCls(sk)+snzCls(sk)+'"'+sentAttr(sk)+'><div><div class="trk__t">DT 시험 미응시</div>'+
       '<div class="trk__m">'+esc(c.label+' · '+(DT_COURSE[c.course]||c.course)+' '+c.round+'회')+'</div></div>'+
       '<span class="acts">'+
@@ -4148,7 +4253,10 @@ function renderClassTab(){
     else if(st==='ok')   msg = '<button class="mini msg" data-pass="'+r.pass[0]+'" data-orig="통과 문자">통과 문자</button>';
     const score = st==='wait' ? (PEND_ROWS[r.pend[0]].score+'점')
                 : st==='ok'   ? (PASS_ROWS[r.pass[0]].score+'점') : '';
-    const sk = st==='miss' ? sentKey('abs', r.who.name, cls.course, (ABS_ROWS[r.abs[0].i]||{}).round)
+    /* 이 학생의 미응시 줄이 어느 것인지 r.abs[0] 이 안다 — 열쇠도 같은 학교로. */
+    const sk = st==='miss' ? sentKey('abs', r.who.name, cls.course,
+                 (ABS_ROWS[r.abs[0].i]||{}).round,
+                 absSchool(ABS_ROWS[r.abs[0].i]||{}, r.abs[0].j))
              : st==='wait' ? sentKey('pend', r.who.name, PEND_ROWS[r.pend[0]].course, PEND_ROWS[r.pend[0]].round)
              : st==='ok'   ? sentKey('pass', r.who.name, PASS_ROWS[r.pass[0]].course, PASS_ROWS[r.pass[0]].round)
              : '';
