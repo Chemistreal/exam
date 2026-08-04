@@ -129,10 +129,16 @@ async function look(browser, { width, height, touch }) {
       .map(e => (e.textContent || '').trim().slice(0, 12) + ' ' +
                 Math.round(e.getBoundingClientRect().height) + 'px');
     const kb = document.querySelector('.kbdhint');
+    const ab = document.querySelector('#abCnt');
     return {
       작은단추: small.length, 작은단추예: small.slice(0, 4),
       키보드안내보임: !!(kb && kb.getBoundingClientRect().height > 0),
       가로스크롤: de.scrollWidth > de.clientWidth,
+      /* 숫자 칸이 놓인 차례. 급한 것이 앞에 와야 한다. */
+      카드순서: [...document.querySelectorAll('#dashCards .card')]
+        .map(c => { const b = c.querySelector('b'); return b ? b.id : ''; })
+        .filter(Boolean),
+      급한카드Y: ab ? Math.round(ab.getBoundingClientRect().top + scrollY) : null,
     };
   }, TAP_MIN);
   await ctx.close();
@@ -162,6 +168,16 @@ async function look(browser, { width, height, touch }) {
     chk('가로 스크롤이 안 생긴다', 폰.가로스크롤, false);
     chk('콘솔에 예외가 없다', 폰.errs, []);
 
+    /* ── 급한 것이 앞에 온다 ──────────────────────────────────────────
+       이 두 칸에는 원래부터 '채점하는 날 제일 급한 숫자' 라고 적혀 있었는데
+       여덟 칸 중 일곱째·여덟째에 있었다. 휴대폰에서는 숫자 칸이 넉 줄이라
+       급한 두 칸이 **맨 아랫줄**이었다 — 지난 것(오늘 채점·누적 학생)이 먼저
+       보이고 지금 해야 할 일이 뒤에 있었다. */
+    console.log('  카드 차례: ' + 폰.카드순서.join(' · '));
+    chk('급한 두 칸이 맨 앞이다', 폰.카드순서.slice(0, 3), ['abCnt', 'pdCnt', 'dtCnt']);
+    console.log(`  '시험 미응시' 카드 y=${폰.급한카드Y} (고치기 전 534)`);
+    chk('첫 줄로 올라왔다', 폰.급한카드Y < 400, true);
+
     console.log('\n── 노트북 (마우스) 1280×900 ──');
     const 노트북 = await look(browser, { width: 1280, height: 900, touch: false });
     console.log(`  ${TAP_MIN}px 아래 단추 ${노트북.작은단추}개`);
@@ -169,6 +185,9 @@ async function look(browser, { width, height, touch }) {
        밀려난다 — 고치는 것이 아니라 망치는 것이다. */
     chk('마우스 화면은 촘촘한 채로 둔다', 노트북.작은단추 > 0, true);
     chk('키보드 안내는 그대로 보인다', 노트북.키보드안내보임, true);
+    /* 순서는 화면 크기와 상관없이 같다 — 기기마다 다르면 손이 헷갈린다. */
+    chk('마우스 화면에서도 급한 것이 앞이다',
+        노트북.카드순서.slice(0, 3), ['abCnt', 'pdCnt', 'dtCnt']);
     chk('가로 스크롤이 안 생긴다', 노트북.가로스크롤, false);
     chk('콘솔에 예외가 없다', 노트북.errs, []);
   } finally {

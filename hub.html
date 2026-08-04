@@ -2045,8 +2045,13 @@ function dotsOf(flags){
 /* ── 대시보드 ───────────────────────────────────────────────────── */
 /* 숫자 칸(<b>)에는 **숫자만** 담는다. 델타를 그 안에 넣으면 "4▲2" 가 한 덩어리가
    되어, 읽는 사람도 값을 읽는 코드도 헷갈린다. 옆에 나란히 둔다. */
-function card(v, label, warn, delta, extra){
-  return '<div class="card'+(warn?' warn':'')+'"><div class="cardv"><b>'+v+'</b>'+
+/* ⚠ id 를 받는다. 자리 번호로 짚으면 카드 차례를 바꾸는 날 조용히 엉뚱한
+   칸을 가리킨다 — 실제로 그랬다. 검사가 `#dashCards .card b` (첫 칸)를
+   '오늘 채점' 으로 알고 있었는데, 급한 것을 앞으로 옮기자 그 자리가
+   '시험 미응시' 가 되어 검사가 깨졌다. 이름표로 짚는다. */
+function card(v, label, warn, delta, extra, id){
+  return '<div class="card'+(warn?' warn':'')+'"><div class="cardv"><b'+
+         (id?' id="'+id+'"':'')+'>'+v+'</b>'+
          (delta||'')+'</div><span>'+label+'</span>'+(extra||'')+'</div>';
 }
 /* ── 값 하나로는 많은지 적은지 모른다 ────────────────────────────────
@@ -2417,15 +2422,6 @@ function renderDash(){
   const sameDayLastWeek = d14[6];
   const sum = function(a){ return a.reduce(function(x,y){ return x+y; }, 0); };
   const week = sum(d14.slice(7)), prevWeek = sum(d14.slice(0,7));
-  const cards = [
-    card(today, '오늘 채점 <span class="dim">· 지난주 같은 요일 대비</span>',
-         false, deltaOf(today, sameDayLastWeek), sparkOf(d14)),
-    card(week, '최근 7일 채점 <span class="dim">· 그 전 7일 대비</span>',
-         false, deltaOf(week, prevWeek)),
-    card(fin.students.length, '파이널 누적 학생'),
-    card(fin.records, '파이널 채점 기록'),
-    card(fin.rounds, '기록이 있는 회차'),
-  ];
   /* 이미 아는 숫자를 '…' 로 되돌리지 않는다. 다시 그릴 때마다 물음표로
      바뀌었다가 응답을 기다리면, 채점하는 날 내내 '…' 만 보인다. */
   const dtKnown = dtCached('names'), pdKnown = dtCached('pending'), abKnown = dtCached('absentees');
@@ -2434,11 +2430,33 @@ function renderDash(){
      빼고 그리는데 카드만 안 빼면 둘이 어긋난다. syncWorkRows 를 먼저 돌린다. */
   syncWorkRows();
   const pdN = pdKnown ? PEND_ROWS.length : null;
-  document.getElementById('dashCards').innerHTML = cards.join('') +
-    '<div class="card"><b id="dtCnt">'+(dtKnown? dtKnown.length : '…')+'</b><span>반 명단</span></div>' +
-    /* 채점하는 날 제일 급한 숫자다 — 아직 시험 자체를 안 본 학생. */
+
+  /* ── 급한 것을 맨 앞에 ───────────────────────────────────────────────
+     이 두 칸에는 원래부터 '채점하는 날 제일 급한 숫자' 라고 적혀 있었다.
+     그런데 여덟 칸 중 **일곱째·여덟째**에 있었다 — 적어 놓은 말과 놓인 자리가
+     달랐다.
+
+     휴대폰(390×844)에서 재어 보니 숫자 칸이 두 줄씩 넉 줄, 370px 을 먹는다.
+     급한 두 칸은 맨 아랫줄이라 **스크롤해야 보인다.** 지난 것(오늘 채점 ·
+     누적 학생 · 기록이 있는 회차)이 먼저 보이고, 지금 해야 할 일이 뒤에 있다.
+
+     ⚠ 세는 방법과 자리 이름(id)은 하나도 안 바꾼다. 순서만 옮긴다 —
+       숫자가 달라지면 그건 다른 이야기다. */
+  const urgent =
     '<div class="card warn"><b id="abCnt">'+(abN!=null? abN : '…')+'</b><span>시험 미응시</span></div>' +
-    '<div class="card warn"><b id="pdCnt">'+(pdN!=null? pdN : '…')+'</b><span>DT 미완료</span></div>';
+    '<div class="card warn"><b id="pdCnt">'+(pdN!=null? pdN : '…')+'</b><span>DT 미완료</span></div>' +
+    '<div class="card"><b id="dtCnt">'+(dtKnown? dtKnown.length : '…')+'</b><span>반 명단</span></div>';
+  /* 지난 것 — 오늘 할 일은 아니지만 흐름을 본다. */
+  const past = [
+    card(today, '오늘 채점 <span class="dim">· 지난주 같은 요일 대비</span>',
+         false, deltaOf(today, sameDayLastWeek), sparkOf(d14), 'todayCnt'),
+    card(week, '최근 7일 채점 <span class="dim">· 그 전 7일 대비</span>',
+         false, deltaOf(week, prevWeek), '', 'weekCnt'),
+    card(fin.students.length, '파이널 누적 학생', false, '', '', 'finStuCnt'),
+    card(fin.records, '파이널 채점 기록', false, '', '', 'finRecCnt'),
+    card(fin.rounds, '기록이 있는 회차', false, '', '', 'finRndCnt'),
+  ];
+  document.getElementById('dashCards').innerHTML = urgent + past.join('');
 
   /* ── 꾸미는 창구는 줄 뒤에 세운다 ────────────────────────────────
      ⚠ 앱스크립트는 실행을 **한 줄로 세운다.** 여기서 여덟 창구를 한꺼번에
