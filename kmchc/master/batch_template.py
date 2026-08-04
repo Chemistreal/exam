@@ -270,6 +270,22 @@ def verify(items):
                 issues.append(('[배치]', f"G3j {items[i]['id']} 발문이 {items[j]['id']} 의 "
                                          f"정답 문면을 통째로 담고 있음", '', ''))
 
+    # ★G3k — G3j 는 문면 여덟 자를 문턱으로 삼아 ★수치 정답을 통째로 놓친다.★
+    #   T14 P1 에서 M02140 발문이 '176 pm 에서 99 pm 를 빼어 77 pm 를 얻었다' 로
+    #   앞 문항 M02139 의 정답 '77 pm' 와 계산 전부를 주었는데 G3j 가 울지 않았다.
+    #   ▸ 맨숫자까지 보면 잡음이다 — '2'·'3'·'10' 이 남의 발문에 우연히 드는 것까지
+    #     세면 은행에서 625 건이 운다. ★단위가 붙은 값★ 으로 좁히면 4 건이다.
+    for i, a in enumerate(items):
+        val = a['choices'][a['answer']].strip()
+        if len(re.sub(r'[^0-9A-Za-z가-힣]', '', val)) >= 8:
+            continue                            # 그 길이는 G3j 가 본다
+        if not re.match(r'^\d[\d.,]*\s*[a-zA-Z가-힣°%]+$', val):
+            continue                            # 단위 없는 맨숫자는 보지 않는다
+        for j, b in enumerate(items):
+            if i != j and val in b['stem']:
+                issues.append((a['id'], f"G3k 수치 정답 '{val}' 이 {b['id']} 발문에 "
+                                        f"그대로 있음 — 발문에서 값을 걷어낼 것", '', ''))
+
     # ★G3e — 한 번호가 세 번 넘게 나오면서 ★간격이 모두 같으면★ 그 번호는 예측된다.
     #   전체 차례가 주기적이지 않아도 걸린다. T12 P14 는 ① 이 2·6·10 으로 정확히 4 간격이었다.
     for v in set(seq):
