@@ -41,6 +41,66 @@
   --sans:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
   --serif:'Iropke Batang','Nanum Myeongjo',Georgia,serif;
   --mono:ui-monospace,SFMono-Regular,'JetBrains Mono','D2Coding',Menlo,monospace;
+  /* ── 색 위에 얹는 글씨 ─────────────────────────────────────────────
+     '옥색 배경에 흰 글씨' 처럼 **바탕색을 전제로 박아 둔 글자색**이 있었다.
+     밝은 화면에서는 옥색이 짙어서 맞는 말인데, 어두운 화면에서는 옥색이
+     밝아지므로 흰 글씨가 흰 바탕에 얹힌 꼴이 된다(재어 보니 2.01:1).
+     '무슨 색 위의 글씨' 를 따로 이름 붙여 두면 화면이 바뀌어도 안 깨진다. */
+  --on-teal:#fff;                  /* 옥색 바탕 위의 글씨 */
+  --ms-ink:#8a3a1d;                /* '급함' 글씨 — 종이 위 */
+  --ms-bg:#FBF0EA;                 /* '급함' 배지 바탕 */
+  --warn-ink:#7a5d20; --warn-bg:#FBF3E9;
+  --ok-ink:#256B44;                /* 배지 안의 초록 글씨. --ok 는 배지 바탕(9%)
+                                      위에서 4.15:1 로 본문 기준에 못 미쳤다. */
+  /* 스크롤막대·입력칸 같은 **브라우저가 직접 그리는 것**도 따라오게 한다.
+     이 줄이 없으면 화면은 어두운데 스크롤막대만 하얗다. */
+  color-scheme: light dark;
+}
+
+/* ── 어두운 화면 ─────────────────────────────────────────────────────
+   수업이 저녁 6–10시고 채점은 그 뒤다. 한밤에 종이색(#FBFAF6) 화면을 보면
+   눈이 부시다. 기기가 어두운 화면을 쓰고 있으면 따라간다 — 따로 켜고 끄는
+   단추를 두지 않는다. 하나 더 누를 것을 만들지 않는 편이 낫다.
+
+   ⚠ 색은 눈이 아니라 **자로** 정한다(이 저장소의 규칙이다). 지금 밝은 화면과
+     견주어 재 보고, 모든 색에서 같거나 낫게 잡았다.
+
+         밝은 화면 → 어두운 화면 (종이/카드 위 대비)
+         본문        16.23 → 13.39
+         부연         7.98 →  9.29
+         흐린 글씨    5.39 →  5.86
+         옥색         8.12 →  7.86
+         놋쇠         3.16 →  7.69      ← 밝은 화면에서 제일 아슬아슬하던 색
+         주황(재시)   4.22 →  6.49
+         초록(통과)   5.23 →  7.66
+         노랑(경고)   4.15 →  7.70
+
+   ⚠ 색만으로 정보를 주지 않는 규칙은 그대로다 — 막대는 여기서도 구분선과
+     빗금으로 가른다(.stack 참고). 어두운 화면이라고 그 규칙이 느슨해지지
+     않는다. */
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#191A18; --paper:#22231F; --sunk:#2B2C27;
+    --ink:#EFECE4; --ink-2:#CBC6BB; --muted:#A39D90;
+    --line:#35362F; --line-2:#4A4B42;
+    --teal:#5FC9AC; --teal-2:#8FDCC6; --wash:#1E2E29;
+    --brass:#D9AE6B; --ms:#EC8E64; --ok:#5CC98A; --warnG:#DCAE55;
+    /* 옥색이 밝아졌으니 그 위의 글씨는 **어두워야** 한다. */
+    --on-teal:#0C1F1A;
+    --ms-ink:#EC8E64;  --ms-bg:#33221B;
+    --warn-ink:#DCAE55; --warn-bg:#2E2718;
+    --ok-ink:#7FD9A5;
+  }
+}
+
+/* ── 움직임을 줄여 달라고 해 둔 기기 ────────────────────────────────
+   어지럼증·멀미 때문에 운영체제에서 켜 두는 설정이다. 켜 두었으면 화면이
+   미끄러지듯 움직이는 것을 멈춘다 — 자리는 그대로 가되 **한 번에** 간다. */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important; animation-iteration-count:1 !important;
+    transition-duration:.01ms !important; scroll-behavior:auto !important;
+  }
 }
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -193,9 +253,9 @@ section{margin-bottom:34px}
 .tag.dt{background:#FBF3E9;color:#8a6520;border-color:rgba(176,141,87,.3)}
 .tag.km{background:#F1EEF7;color:#5B4B8A;border-color:rgba(91,75,138,.25)}
 /* 상태 배지 — 그림 어휘와 같은 색을 쓴다(초록 끝남 · 주황 진행 · 빨강 손이 필요) */
-.tag.ok{background:rgba(47,122,90,.09);color:var(--ok);border-color:rgba(47,122,90,.3)}
-.tag.warn{background:#FBF3E9;color:#7a5d20;border-color:rgba(176,135,58,.35)}
-.tag.bad{background:#FBF0EA;color:#8a3a1d;border-color:rgba(192,96,58,.32)}
+.tag.ok{background:rgba(47,122,90,.09);color:var(--ok-ink);border-color:rgba(47,122,90,.3)}
+.tag.warn{background:var(--warn-bg);color:var(--warn-ink);border-color:rgba(176,135,58,.35)}
+.tag.bad{background:var(--ms-bg);color:var(--ms-ink);border-color:rgba(192,96,58,.32)}
 .tag.none{background:var(--sunk);color:var(--muted);border-color:var(--line-2)}
 .row .cnt{font-family:var(--mono);font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
 
@@ -211,7 +271,7 @@ input[type=search]:focus{outline:2px solid var(--teal);outline-offset:-1px;borde
 .note{background:var(--sunk);border:1px solid var(--line);border-radius:10px;
   padding:13px 16px;font-size:13.5px;color:var(--ink-2);margin:14px 0}
 .note b{color:var(--ink)}
-.err{background:#FBF0EA;border-color:rgba(192,96,58,.3);color:#8a3a1d}
+.err{background:var(--ms-bg);border-color:rgba(192,96,58,.3);color:var(--ms-ink)}
 
 /* ── 학생 상세 ────────────────────────────────────── */
 dialog{border:none;border-radius:14px;padding:0;max-width:660px;width:calc(100% - 32px);
@@ -357,12 +417,12 @@ tr.pick:hover td{background:var(--wash)}
   background:var(--paper);color:var(--ink-2);white-space:nowrap}
 .chip:hover{border-color:var(--teal);color:var(--teal)}
 .chip:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
-.chip[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:#fff}
+.chip[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:var(--on-teal)}
 .chip small{font-weight:600;opacity:.7;margin-left:4px;font-size:11.5px}
-.chip.urgent{border-color:rgba(192,96,58,.45);color:#8a3a1d}
+.chip.urgent{border-color:rgba(192,96,58,.45);color:var(--ms-ink)}
 .chip.urgent:hover{border-color:var(--ms);color:var(--ms)}
 /* 고른 칩은 바탕이 짙다. '급함' 색이 그 위에 남으면 흰 바탕 글자가 안 읽힌다. */
-.chip.urgent[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:#fff}
+.chip.urgent[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:var(--on-teal)}
 /* 방금 눌러 열린 섹션이 어디인지 눈으로 잡아 준다 */
 @keyframes hubFlash{from{background:rgba(176,141,87,.20)}to{background:transparent}}
 .flashed{animation:hubFlash 1.4s ease-out}

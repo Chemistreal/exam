@@ -127,5 +127,67 @@ console.log('\n── 색을 못 봐도 읽힌다 ──');
       /stOf\s*=\s*d\s*=>/.test(FINAL) && /reliable\(d\)\?sb\[d\]\+'% · ':''\)\+stOf\(d\)/.test(FINAL), true);
 }
 
+console.log('\n── 어두운 화면도 같은 자로 잰다 ──');
+{
+  /* 수업이 저녁 6–10시고 채점은 그 뒤다. 한밤에 종이색 화면은 눈이 부셔서
+     기기 설정을 따라 어두운 화면을 낸다. 그런데 어두운 화면이라고 **잣대가
+     느슨해지면 안 된다** — 밝은 화면을 자로 재서 고쳐 놓고 어두운 화면은
+     눈으로 정하면, 고친 만큼 다시 흐려진다.
+
+     ⚠ 그리고 '어두운 화면이 밝은 화면보다 나쁘지 않은가' 도 같이 본다.
+       기준만 넘기면 되는 것이 아니라, 이미 읽히던 것이 나빠지면 안 된다. */
+  const darkBlock = (HUB.match(/@media \(prefers-color-scheme: dark\)\{[\s\S]*?\n\}/) || [''])[0];
+  chk('어두운 화면 팔레트가 있다', darkBlock.length > 0, true);
+  /* ⚠ `#fff` 처럼 **세 자리로 적은 색**이 있다(--paper 가 그렇다). lum() 은
+     여섯 자리를 전제하므로 그대로 넣으면 NaN 이 나오고, 그러면 대비 검사가
+     조용히 통과한다 — 실제로 처음에 그렇게 나왔다. 여섯 자리로 편다. */
+  const hex6 = h => {
+    if (!h) return h;
+    const v = h.replace('#', '');
+    return '#' + (v.length === 3 ? v.split('').map(c => c + c).join('') : v);
+  };
+  const dv0 = name => {
+    const m = darkBlock.match(new RegExp('--' + name + ':\\s*(#[0-9A-Fa-f]{3,8})'));
+    return m ? m[1] : null;
+  };
+  const dv = name => hex6(dv0(name));
+  const lv = name => hex6(varOf(HUB, name));
+
+  /* 글씨색 → 어느 바탕 위에서 재나. 실제로 그 위에 얹히는 것만 적는다. */
+  const 본문 = [['ink', 'paper'], ['ink-2', 'paper'], ['muted', 'paper'],
+                ['teal', 'paper'], ['ok-ink', 'paper'], ['ms-ink', 'paper'],
+                ['warn-ink', 'paper']];
+  본문.forEach(([fg, bg]) => {
+    const d = dv(fg), db = dv(bg), l = lv(fg), lb = lv(bg);
+    if (!d || !db || !l || !lb) { chk('색을 찾았다 · ' + fg, [d, db, l, lb].every(Boolean), true); return; }
+    const rd = ratio(d, db), rl = ratio(l, lb);
+    console.log(`  ${fg.padEnd(9)} 밝은 ${rl.toFixed(2)} → 어두운 ${rd.toFixed(2)}`);
+    chk('어두운 화면 본문 기준 4.5 · ' + fg, rd >= 4.5, true);
+    /* ⚠ '어두운 쪽이 밝은 쪽보다 낮으면 안 된다' 로 잡았더니 16.23 → 13.39
+       같은 것까지 걸렸다. 둘 다 기준(4.5)의 세 배인데 잡을 이유가 없다 —
+       자가 너무 예민하면 사람이 자를 무시하게 된다.
+
+       정말 지켜야 하는 것은 **아슬아슬한 색이 더 아슬아슬해지지 않는 것**이다.
+       밝은 화면에서 이미 넉넉하면(7 이상) 어두운 쪽은 기준만 넘으면 되고,
+       빠듯하면 거기서 더 내려가면 안 된다. */
+    if (rl < 7) chk('빠듯한 색이 더 빠듯해지지 않았다 · ' + fg, rd >= rl - 0.1, true);
+  });
+
+  /* 색 바탕 위에 얹는 글씨. '옥색에 흰 글씨' 를 박아 두었더니 어두운 화면에서
+     옥색이 밝아져 2.01:1 이 됐다 — 흰 종이에 흰 글씨와 같은 꼴이다. */
+  ['light', 'dark'].forEach(mode => {
+    const g = mode === 'dark' ? dv : lv;
+    const r = ratio(g('on-teal'), g('teal'));
+    console.log(`  옥색 바탕 위 글씨 (${mode}) ${r.toFixed(2)}`);
+    chk('옥색 바탕 위 글씨가 읽힌다 · ' + mode, r >= 4.5, true);
+  });
+
+  /* 색을 바탕으로 쓰는 자리에 **흰색을 박아 두지 않았는가.** 이 규칙이 없으면
+     다음에 또 var(--teal) 위에 #fff 를 적게 된다. */
+  const body = HUB.split('<script>')[0];
+  chk('옥색 바탕에 흰 글씨를 박아 두지 않았다',
+      /background:var\(--teal\)[^}]*color:#fff/.test(body), false);
+}
+
 console.log(fail ? `\n${fail}개 실패` : '\n모두 통과');
 process.exit(fail ? 1 : 0);
