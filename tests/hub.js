@@ -80,7 +80,8 @@ vm.runInContext([
   cut('roundStats'),
   cut('schoolCore'), cut('schoolType'), cut('schoolAkin'),
   cut('sameStudent'), cut('nameIsUnique'), cut('dtForStudent'), cut('kmForStudent'),
-  cut('dtCached'), cut('syncWorkRows'), cut('mergeCandidates'),
+  cut('dtCached'), cut('dtRosterNames'), cut('inDtClass'), cut('syncWorkRows'), cut('mergeCandidates'),
+  cut('isExamClass'),
   cut('esc'), cut('stackBar'), cut('legendOf'), cut('donut'), cut('histo'), cut('dotsOf'),
   cut('dtClassList'), cut('finFor'), cut('classRows'), cut('clsCounts'),
   cut('sentKey'), cut('bulkBar'), cut('readHash'), cut('deltaOf'), cut('dayCounts'),
@@ -1880,6 +1881,65 @@ console.log('\n── 모든 반 한눈에 ──');
   chk('자리가 있다', /id="clsMult"/.test(SRC), true);
   chk('반이 하나면 안 그린다', /\(list\.length < 2\) \? '' :/.test(body), true);
   chk('누르면 그 반으로 간다', /data-clsjump/.test(body), true);
+}
+
+console.log('\n── 지금 DT 반에 없는 학생 ──');
+{
+  /* DT 창구는 시트에 남은 기록에서 재시·통과·오개념을 뽑는다. 반은 바뀌는데
+     기록은 남으므로, 그만둔 학생·파이널만 하는 학생이 그대로 '보내야 할
+     문자' 로 떴다. 실 데이터로 재어 보니 재시 3명 · 통과 3명 · 오개념 15명이
+     반 명단 밖이었다. */
+  ctx.DT_CACHE = {
+    'dt:names': { val: Object.assign([], { classes: [
+      { label:'화학1 일6-10', course:'ch1', kind:'dt',
+        students:[{name:'김지성'},{name:'최예린'}] },
+      { label:'파이널 목7-10', course:'', kind:'exam',
+        students:[{name:'박하람'}] },
+    ] }) },
+    'dt:passed':  { val: [ {name:'김지성', course:'ch1', round:3},
+                           {name:'떠난학생', course:'ch1', round:3} ] },
+    'dt:pending': { val: [ {name:'최예린', course:'ch1', round:4},
+                           {name:'떠난학생', course:'ch1', round:4},
+                           {name:'박하람',  course:'ch1', round:4} ] },
+    'dt:absentees': { val: [] },
+  };
+  ctx.syncWorkRows();
+  chk('명단에 있는 학생만 통과 목록에 남는다',
+      ctx.PASS_ROWS.map(function(r){ return r.name; }), ['김지성']);
+  chk('명단 밖 학생은 재시 대기에서 빠진다',
+      ctx.PEND_ROWS.map(function(r){ return r.name; }), ['최예린']);
+  /* 파이널 반 학생은 DT 를 안 본다 — DT 알림을 만들면 안 된다. */
+  chk('파이널 반 학생도 DT 알림에서 빠진다',
+      ctx.PEND_ROWS.some(function(r){ return r.name === '박하람'; }), false);
+
+  /* ⚠ 못 받았을 때 다 지워 버리면 화면이 통째로 빈다. 그건 고치는 것이
+     아니라 망치는 것이다. */
+  ctx.DT_CACHE['dt:names'] = { val: null };
+  ctx.syncWorkRows();
+  chk('명단을 아직 못 받았으면 아무것도 안 뺀다',
+      [ctx.PASS_ROWS.length, ctx.PEND_ROWS.length], [2, 3]);
+
+  /* 학교 표기가 흔들려도 이름이 같으면 남긴다 — 잘못 빼는 것이 잘못 남기는
+     것보다 나쁘다. 빠지면 아무도 모른다. */
+  ctx.DT_CACHE['dt:names'] = { val: Object.assign([], { classes: [
+    { label:'화학1 일6-10', course:'ch1', students:[{name:'김지성', school:'휘문중학교'}] } ] }) };
+  ctx.DT_CACHE['dt:passed'] = { val: [ {name:'김지성', school:'휘문중', course:'ch1'} ] };
+  ctx.syncWorkRows();
+  chk('학교 표기가 달라도 이름이 같으면 남는다', ctx.PASS_ROWS.length, 1);
+  chk('갈래를 안 적은 옛 반은 DT 로 본다',
+      ctx.isExamClass({ label:'화학1 일6-10' }), false);
+
+  /* ⚠ 카드 숫자를 창구가 준 줄 수로 적으면 목록과 어긋난다 — "2건이라는데
+     하나만 보이네" 가 된다. 실제로 그렇게 나왔다(대시 2 · 목록 1).
+     세는 것도 거른 뒤에 센다. */
+  const body = SRC.split('<script>')[1] || '';
+  chk('DT 미완료 카드가 거른 뒤의 수를 적는다',
+      /const pdN = pdKnown \? PEND_ROWS\.length : null;/.test(body) &&
+      /id="pdCnt">'\+\(pdN!=null\? pdN : '…'\)/.test(body), true);
+  chk('창구가 준 줄 수를 그대로 적지 않는다',
+      /pdCnt'\)\.textContent = rows\.length/.test(body), false);
+  chk('목록도 거른 배열로 그린다',
+      /if\(!PEND_ROWS\.length\)\{ const w0=document\.getElementById\('pendWrap'\)/.test(body), true);
 }
 
 console.log(fail ? `\n${fail}개 실패` : '\n모두 통과');

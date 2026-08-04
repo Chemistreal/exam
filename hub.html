@@ -2410,11 +2410,15 @@ function renderDash(){
      바뀌었다가 응답을 기다리면, 채점하는 날 내내 '…' 만 보인다. */
   const dtKnown = dtCached('names'), pdKnown = dtCached('pending'), abKnown = dtCached('absentees');
   const abN = abKnown ? abKnown.reduce(function(t,c){ return t + ((c.absent||[]).length); }, 0) : null;
+  /* 카드 숫자도 **거른 뒤**의 수여야 한다. 아래 목록은 지금 반에 없는 학생을
+     빼고 그리는데 카드만 안 빼면 둘이 어긋난다. syncWorkRows 를 먼저 돌린다. */
+  syncWorkRows();
+  const pdN = pdKnown ? PEND_ROWS.length : null;
   document.getElementById('dashCards').innerHTML = cards.join('') +
     '<div class="card"><b id="dtCnt">'+(dtKnown? dtKnown.length : '…')+'</b><span>DT 명단</span></div>' +
     /* 채점하는 날 제일 급한 숫자다 — 아직 시험 자체를 안 본 학생. */
     '<div class="card warn"><b id="abCnt">'+(abN!=null? abN : '…')+'</b><span>시험 미응시</span></div>' +
-    '<div class="card warn"><b id="pdCnt">'+(pdKnown? pdKnown.length : '…')+'</b><span>DT 미완료</span></div>';
+    '<div class="card warn"><b id="pdCnt">'+(pdN!=null? pdN : '…')+'</b><span>DT 미완료</span></div>';
 
   /* ── 꾸미는 창구는 줄 뒤에 세운다 ────────────────────────────────
      ⚠ 앱스크립트는 실행을 **한 줄로 세운다.** 여기서 여덟 창구를 한꺼번에
@@ -2435,10 +2439,13 @@ function renderDash(){
     note('dashNote', 'DT 명단을 불러오지 못했습니다 — '+e.message+'. 나머지 숫자는 정상입니다.', true);
   });
 
-  dtPending().then(function(rows){
-    document.getElementById('pdCnt').textContent = rows.length;
+  dtPending().then(function(){
+    /* ⚠ 창구가 준 줄 수를 그대로 적으면 안 된다. 아래 목록은 지금 반에 없는
+       학생을 뺀 것(syncWorkRows)이라, 숫자만 크고 목록은 짧아진다 —
+       "2건이라는데 하나만 보이네" 가 된다. 세는 것도 거른 뒤에 센다. */
     syncWorkRows(); renderJump(); renderClassTab();
-    if(!rows.length){ const w0=document.getElementById('pendWrap'); if(w0) w0.hidden=true; return; }
+    document.getElementById('pdCnt').textContent = PEND_ROWS.length;
+    if(!PEND_ROWS.length){ const w0=document.getElementById('pendWrap'); if(w0) w0.hidden=true; return; }
     const w = document.getElementById('pendWrap'); w.hidden = false;
     const pendKeys = PEND_ROWS.map(function(r,i){ return { i:i, name:r.name||'',
       key:sentKey('pend', r.name, r.course, r.round) }; });
@@ -2594,9 +2601,50 @@ let ROSTER = [], FIN = null, DT_ROWS = null, KM_ROWS = null;
    따로 잘라 담으면 학생 카드의 '문자 복사' 가 엉뚱한 학생 문구를 만든다 —
    그건 학부모에게 그대로 나가고, 되돌릴 수 없다. 담는 곳을 하나로 둔다. */
 let PEND_ROWS = [], PASS_ROWS = [], ABS_ROWS = [], MIS_TOP = [];
+
+/* ── 지금 DT 반에 있는 학생인가 ──────────────────────────────────────
+   DT 창구는 **시트에 남은 기록**에서 재시·통과·오개념을 뽑는다. 그런데 반은
+   바뀐다 — 그만둔 학생, 다른 반으로 옮긴 학생, 파이널만 하는 학생의 옛 기록이
+   시트에 그대로 남아 있고, 그것이 그대로 '보내야 할 문자' 로 떴다.
+
+   실 데이터로 재어 보니 이랬다.
+
+       재시 대기   18줄 중  3명이 반 명단 밖
+       통과       70줄 중  3명이 반 명단 밖
+       오개념    109줄 중 15명이 반 명단 밖
+       미응시     20줄 중  0명 (미응시는 반 명단에서 뽑으니 원래 안 생긴다)
+
+   지금 안 가르치는 학생에게 보낼 문자는 없다. 명단에 없으면 뺀다.
+
+   ⚠ 가르는 잣대는 **이름뿐**이다. 학교까지 맞추면 표기가 흔들릴 때
+     (휘문중 / 휘문중학교 / 빈칸) 실제 우리 반 학생이 조용히 사라진다.
+     여기서 잘못 빼는 것은 잘못 남기는 것보다 나쁘다 — 남으면 눈에 띄지만
+     빠지면 아무도 모른다.
+   ⚠ 명단을 아직 못 받았으면 **아무것도 안 뺀다.** 못 받은 것을 '명단이
+     비었다' 로 읽으면 화면이 통째로 빈다. */
+function dtRosterNames(){
+  const list = dtClassList();
+  if(!list.length) return null;                  // 아직 못 받았다 — 거르지 않는다
+  const set = new Set();
+  list.forEach(function(c){
+    /* 파이널 반은 DT 를 안 본다. 그 반 학생은 DT 알림 대상이 아니다. */
+    if(c.kind === 'exam') return;
+    (c.students || []).forEach(function(s){
+      const n = normName(s && s.name); if(n) set.add(n);
+    });
+  });
+  return set;
+}
+function inDtClass(name, set){
+  if(!set) return true;                          // 명단을 모르면 그대로 둔다
+  const n = normName(name);
+  return !n || set.has(n);                       // 이름이 아예 없는 줄은 안 건드린다
+}
 function syncWorkRows(){
-  PASS_ROWS = dtCached('passed') || [];
-  PEND_ROWS = dtCached('pending') || [];
+  const set = dtRosterNames();
+  const keep = function(r){ return inDtClass(r && r.name, set); };
+  PASS_ROWS = (dtCached('passed') || []).filter(keep);
+  PEND_ROWS = (dtCached('pending') || []).filter(keep);
   ABS_ROWS  = (dtCached('absentees') || []).filter(function(c){ return c.absent && c.absent.length; });
 }
 /* ── 이 줄이 이 학생 것인가 ──────────────────────────────────────────
@@ -3192,26 +3240,42 @@ function finFor(who){
     return normName(s.name)===normName(who.name) && schoolAkin(s.school, who.school); });
   return hit.length===1 ? hit[0] : null;
 }
+/* 파이널만 하는 반인가. 명단에 안 적힌 옛 반은 예전처럼 DT 로 본다. */
+function isExamClass(cls){ return !!cls && cls.kind === 'exam'; }
 function classRows(cls){
+  const exam = isExamClass(cls);
   return (cls.students||[]).map(function(s){
     const who = { name:s.name, school:s.school||'', grade:s.year||'' };
+    const fin = finFor(who);
+    /* 파이널 반은 DT 를 안 본다. 여기에 DT 상태를 그리면 반 전체가 '아직' 으로
+       뜨는데, 그건 '안 했다' 가 아니라 **볼 시험이 없다** 는 뜻이다.
+       그 반에서 뜻이 있는 것은 파이널을 봤느냐다. */
+    if(exam){
+      return { who:who, abs:[], pend:[], pass:[],
+               st: (fin && fin.count) ? 'ok' : 'none', fin:fin };
+    }
     const d = dtForStudent(who);
     /* 이 반의 이 회차만 본다. 다른 반 기록을 여기 붙이면 반 인원 계산이 어긋난다. */
     const abs  = d.absent.filter(function(a){ const c=ABS_ROWS[a.i]; return c && c.label===cls.label; });
     const pend = d.pending.filter(function(i){ return PEND_ROWS[i] && PEND_ROWS[i].course===cls.course; });
     const pass = d.passed .filter(function(i){ return PASS_ROWS[i] && PASS_ROWS[i].course===cls.course; });
     const st = abs.length ? 'miss' : pend.length ? 'wait' : pass.length ? 'ok' : 'none';
-    return { who:who, abs:abs, pend:pend, pass:pass, st:st, fin:finFor(who) };
+    return { who:who, abs:abs, pend:pend, pass:pass, st:st, fin:fin };
   });
 }
-function clsCounts(rows){
+function clsCounts(rows, cls){
   const by = { miss:0, wait:0, ok:0, none:0 };
   rows.forEach(function(r){ by[r.st]++; });
   /* key 는 눌러서 파고들 때 쓰는 열쇠다 — 이름(label)으로 걸면 이름을 고치는
-     날 주소가 깨진다. */
+     날 주소가 깨진다.
+
+     ⚠ 칸 수는 갈래와 상관없이 **넷으로 고정**한다. 부르는 쪽이 자리 번호로
+       세고 있어서(손 = [0]+[1], 끝낸 사람 = [2]) 칸을 줄이면 '손' 이 전체
+       인원이 되고 한 자리는 아예 터진다. 파이널 반은 앞의 둘이 0 일 뿐이다. */
+  const exam = isExamClass(cls);
   return [{ n:by.miss, tone:'bad',  label:'미응시',    key:'miss', seg:'cls' },
           { n:by.wait, tone:'warn', label:'재시 대기', key:'wait', seg:'cls' },
-          { n:by.ok,   tone:'ok',   label:'통과',      key:'ok',   seg:'cls' },
+          { n:by.ok,   tone:'ok',   label:exam?'파이널 응시':'통과', key:'ok',   seg:'cls' },
           { n:by.none, tone:'none', label:'아직',      key:'none', seg:'cls' }];
 }
 function renderClassTab(){
@@ -3237,7 +3301,7 @@ function renderClassTab(){
   if(mult){
     mult.innerHTML = (list.length < 2) ? '' :
       ('<div class="mult">'+list.map(function(c){
-        const parts = clsCounts(classRows(c)), hand = parts[0].n + parts[1].n;
+        const parts = clsCounts(classRows(c), c), hand = parts[0].n + parts[1].n;
         return '<div class="row" data-clsjump="'+esc(c.label)+'">'+
           '<span class="nm">'+esc(c.label)+'</span>'+
           '<span class="cnt">'+((c.students||[]).length)+'명</span>'+
@@ -3249,16 +3313,19 @@ function renderClassTab(){
   }
 
   tabs.innerHTML = list.map(function(c){
-    const n = clsCounts(classRows(c));
+    const n = clsCounts(classRows(c), c);
     const urgent = n[0].n + n[1].n;
+    /* 파이널 반은 일회성이라 한두 달만 명단에 있다. 그동안 DT 반들과 섞여
+       보이면 '왜 이 반만 숫자가 없지' 가 된다 — 갈래를 칩에 적어 둔다. */
+    const tag = isExamClass(c) ? ' · 파이널' : '';
     return '<button class="chip'+(urgent?' urgent':'')+'" aria-pressed="'+(c.label===CLS_PICK)+
-      '" data-cls="'+esc(c.label)+'">'+esc(c.label)+'<small>'+(c.students||[]).length+
+      '" data-cls="'+esc(c.label)+'">'+esc(c.label)+'<small>'+(c.students||[]).length+tag+
       (urgent? ' · 손 '+urgent : '')+'</small></button>';
   }).join('');
 
   const cls = list.filter(function(c){ return c.label===CLS_PICK; })[0];
   const all = classRows(cls);
-  const parts = clsCounts(all), done = parts[2].n, tot = all.length;
+  const parts = clsCounts(all, cls), done = parts[2].n, tot = all.length;
   /* 고른 상태가 이 반에 없으면(다른 반에서 넘어온 주소) 스스로 푼다 —
      빈 목록을 놓고 "왜 아무도 없지" 하게 두지 않는다. */
   if(CLS_ST && !all.some(function(r){ return r.st===CLS_ST; })) CLS_ST = '';
@@ -3838,7 +3905,12 @@ function conByClass(rows){
 function renderConcept(){
   const tabs = document.getElementById('conTabs'); if(!tabs) return;
   const head = document.getElementById('conHead'), body = document.getElementById('conList');
-  const all = dtCached('mistags');
+  /* 지금 DT 반에 없는 학생은 뺀다. 보충은 **불러 앉힐 수 있는 아이**를 세는
+     일인데, 그만둔 학생이 섞여 있으면 '몰농도 일곱 명' 이 실제로는 넷이다.
+     실 데이터로 재어 보니 109줄 중 15명이 명단 밖이었다(syncWorkRows 주석 참고). */
+  const rosterSet = dtRosterNames();
+  const raw = dtCached('mistags');
+  const all = raw && raw.filter(function(r){ return inDtClass(r && r.name, rosterSet); });
   if(!all){
     const c = DT_CACHE['dt:mistags'];
     tabs.innerHTML = ''; head.innerHTML = '';
