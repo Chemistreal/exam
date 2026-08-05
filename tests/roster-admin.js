@@ -324,6 +324,55 @@ const SEED = () => {
   chk('키는 이제 안 보낸다', /(^|&)key=/.test(sent[0] || ''), false);
   chk('콜백 이름을 붙인다', /(^|&)callback=__fsheet/.test(sent[0] || ''), true);
 
+  /* ── 시트에서 사라진 줄 ──────────────────────────────────────────
+     2026-08-05, JMChC 11회에서 겹친 저장 때문에 시트의 세 줄이 덮여 사라졌다.
+     그러자 다음 동기화가 **브라우저의 사본까지 지워서** 되살릴 길이 없었다.
+     시트에도 없고 여기에도 없으면 다시 채점하는 수밖에 없다.
+     이제 지우지 않고 표(up:3)만 단다. 저절로 다시 올리지도 않는다 —
+     선생님이 시트에서 일부러 지운 줄이 되살아나면 그것대로 곤란하다. */
+  console.log('\n── 시트에서 사라진 줄은 지우지 않는다 ──');
+  const vanish = await page.evaluate(() => {
+   try{
+    const ex = FINAL_EXAMS.find(e => e.id === 'jmchc-6');
+    const arr = subs('jmchc-6');
+    arr.forEach(r => { r.up = 1; });                 // 다 시트에 있던 것으로 둔다
+    saveSubs('jmchc-6', arr);
+    const before = subs('jmchc-6').length;
+    /* 시트가 **한 줄만** 돌려준다 — 나머지는 시트에서 사라진 것이다. */
+    const keep = subs('jmchc-6')[0];
+    mergeSheetRows(ex, [{ name: keep.name, school: keep.school, grade: keep.grade,
+                          answers: (keep.ans || []).join(''), ts: 1 }], true);
+    const after = subs('jmchc-6');
+    return { before, after: after.length,
+             gone: after.filter(r => r.up === 3).length,
+             kept: after.filter(r => r.up === 1).length };
+   }catch(e){ return { err: String(e && e.stack || e).slice(0,300) }; }
+  });
+  if (vanish.err) { console.log('  진단: ' + vanish.err); }
+  chk('사본을 하나도 안 지웠다', vanish.after, vanish.before);
+  chk('사라진 줄에 표가 붙었다', vanish.gone, vanish.before - 1);
+  chk('시트에 있는 줄은 그대로', vanish.kept, 1);
+
+  /* 다른 검사들과 같은 방법으로 화면을 다시 그린다 — renderRoster() 만
+     부르면 해시가 그대로라 화면 전환이 안 걸린다. */
+  await page.evaluate(() => { location.hash = ''; location.hash = '#roster'; });
+  await page.waitForTimeout(500);
+  /* ⚠ 회차별 줄은 <details> 안에 접혀 있다. innerText 로 읽으면 접힌 안쪽이
+     안 잡혀서, 표가 멀쩡히 붙어 있는데도 '없다' 고 나온다. 그려진 것을 본다. */
+  const shown = await page.evaluate(() => document.getElementById('app').innerHTML);
+  chk('명단에 "시트에 없음" 이라고 보인다', /시트에 없음/.test(shown), true);
+  chk('다시 올리는 단추가 있다', /시트에 다시 올리기/.test(shown), true);
+
+  /* 다시 올리면 '보냈고 아직 확인 못 함(up:0)' 으로 돌아간다 — 다음
+     동기화에서 시트에 보이면 저절로 up:1 이 된다. */
+  const repush = await page.evaluate(() => {
+    const i = subs('jmchc-6').findIndex(r => r.up === 3);
+    window.confirm = () => true;
+    rosterRepush('jmchc-6', i);
+    return subs('jmchc-6')[i].up;
+  });
+  chk('다시 올리면 보낸 표로 바뀐다', repush, 0);
+
   chk('JS 오류 없음', errs, []);
   await browser.close();
   console.log(fail ? `\n실패 ${fail}건` : '\n전부 통과');

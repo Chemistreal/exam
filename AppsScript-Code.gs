@@ -95,7 +95,9 @@ function doPost(e) {
   var lock = null;
   try {
     // 동시 제출이 겹쳐도 재계산이 꼬이지 않게 직렬화 (최대 20초 대기, 실패 시 잠금 없이 진행)
-    try { lock = LockService.getScriptLock(); lock.waitLock(20000); } catch (eL) { lock = null; }
+    /* 채점이 몰리면 20초로는 모자란다 — 못 얻으면 잠금 없이 진행하게 되어 있어
+       재계산끼리 겹쳤다. 더 기다린다(그래도 못 얻으면 _flushRows 가 막는다). */
+    try { lock = LockService.getScriptLock(); lock.waitLock(45000); } catch (eL) { lock = null; }
 
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName('성적기록') || ss.insertSheet('성적기록');
@@ -727,7 +729,9 @@ function recomputeAllExams() {
     catch (e) { Logger.log('재계산 실패 · ' + t + ' : ' + e); }
   });
 
-  _flushRows(sheet, data, drop);
+  /* 읽을 때의 줄 수를 같이 넘긴다 — 그 사이에 저장이 들어왔으면 물러난다. */
+  var wrote = _flushRows(sheet, data, drop, data.length);
+  if (!wrote) { Logger.log('recomputeAllExams · 겹친 저장이 있어 물러났다'); return; }
   try { fillReportMessages(); } catch (eM) { Logger.log('문자 생성 실패: ' + eM); }
   Logger.log('recomputeAllExams 완료 · ' + done + '/' + titles.length + '개 회차 · 중복삭제 '
     + drop.length + '행' + (skip.length ? ' · 설정 없어 건너뜀: ' + skip.join(', ') : ''));
@@ -753,11 +757,33 @@ function _gradeSheet() {
 }
 
 /* 고친 값을 시트에 한 번에 반영하고, 지울 행은 아래→위로 지운다.
-   위에서부터 지우면 그 아래 행 번호가 하나씩 밀려 엉뚱한 줄이 날아간다. */
-function _flushRows(sheet, data, dropRows) {
+   위에서부터 지우면 그 아래 행 번호가 하나씩 밀려 엉뚱한 줄이 날아간다.
+
+   ⚠ **읽은 뒤에 줄이 늘었으면 쓰지 않는다.**
+   여기서 쓰는 `data` 는 재계산을 시작할 때 찍은 **사진**이다. 그 사이에 다른
+   저장이 줄을 덧붙였으면, 옛 사진을 그 위에 덮어써서 **방금 채점한 학생이
+   시트에서 사라진다.**
+
+   2026-08-05 JMChC 11회에서 실제로 그랬다. 열 명을 이어서 채점했는데 셋
+   (김규민·전준·최민준)이 사라졌다 — 저장은 됐다가 뒤늦게 끝난 옛 재계산이
+   그 줄을 덮었다. 저장마다 잠금을 걸지만 20초 안에 못 얻으면 잠금 없이
+   진행하게 되어 있어서, 채점이 몰리면 겹친다.
+
+   물러나도 잃는 것이 없다. 재계산은 **저장할 때마다** 도는 것이라 다음 저장이
+   전부 다시 맞춘다. 반대로 한 번 덮어쓴 줄은 되돌릴 방법이 없다. */
+function _flushRows(sheet, data, dropRows, expectRows) {
+  if (expectRows != null) {
+    var now = sheet.getLastRow() - 1;
+    if (now !== expectRows) {
+      Logger.log('[재계산] 읽은 뒤 줄이 ' + expectRows + '→' + now +
+                 ' 로 바뀌었다 — 덮어쓰지 않고 물러난다(다음 저장이 다시 맞춘다)');
+      return false;
+    }
+  }
   sheet.getRange(2, 1, data.length, WIDE).setValues(data);
   dropRows.map(function (ri) { return ri + 2; }).sort(function (a, b) { return b - a; })
     .forEach(function (r) { sheet.deleteRow(r); });
+  return true;
 }
 
 /* 한 회차만 다시 맞춘다(수동 복구용). 평상시에는 recomputeAllExams 가 돈다. */
@@ -765,7 +791,7 @@ function recomputeExam(title, baseTotals, qCount) {
   var sheet = _gradeSheet();
   if (!sheet) return;
   var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, WIDE).getValues();
-  _flushRows(sheet, data, _recalcRows(data, title, baseTotals, qCount));
+  _flushRows(sheet, data, _recalcRows(data, title, baseTotals, qCount), data.length);
 }
 
 /* ------------------------------------------------------------------
@@ -1452,6 +1478,24 @@ function rebuildBaseline() {
   var handmade = {};
   for (var k in exams) if (exams[k] && exams[k].byHand) handmade[k] = 1;
 
+  /* ⚠ **시험 목록(exams.json)에 있는 회차만** 만든다.
+     시트에는 앱에서 내린 옛 회차의 기록도 남아 있다. 제목→id 표(EXAM_TITLES)는
+     옛 제목까지 알고 있어서, 그대로 두면 목록에 없는 회차의 기준 기록이
+     저절로 생긴다 — 2026-08-05 에 `j0`(조준모의고사 0회, 18명)가 그렇게
+     되살아났다. 사람이 지운 것이 밤새 돌아온 것이다.
+     목록을 못 읽으면 **새로 만들지 않는다**(있는 것 갱신은 그대로) —
+     모르는 채로 만드는 것보다 안 만드는 편이 되돌리기 쉽다. */
+  var known = null;
+  try {
+    var gx = UrlFetchApp.fetch('https://raw.githubusercontent.com/' + GH_OWNER + '/' + GH_REPO +
+                               '/' + GH_BRANCH + '/exams.json', { muteHttpExceptions: true });
+    if (gx.getResponseCode() === 200) {
+      var list = JSON.parse(gx.getContentText()) || [];
+      known = {};
+      for (var q = 0; q < list.length; q++) if (list[q] && list[q].id) known[list[q].id] = 1;
+    }
+  } catch (eX) {}
+
   var rows = sh.getRange(2, 1, sh.getLastRow() - 1, WIDE).getValues();
   var by = {};                                            // 시험 id → {코드: 맞은수}
   rows.forEach(function (r) {
@@ -1465,6 +1509,11 @@ function rebuildBaseline() {
     var hist = {}, n = 0;
     for (var code in by[id]) { var s = by[id][code]; hist[s] = (hist[s] || 0) + 1; n++; }
     if (n < 2) continue;                                  // 한 명뿐이면 모집단이 아니다
+    if (!exams[id]) {
+      /* 새로 만드는 회차. 시험 목록에 없으면 만들지 않는다. */
+      if (known === null) { kept.push(id + '(목록을 못 읽음)'); continue; }
+      if (!known[id]) { kept.push(id + '(시험 목록에 없다)'); continue; }
+    }
     var why = _baselineKeepWhy_(exams[id], n, handmade[id]);
     if (why) { kept.push(id + '(' + why + ')'); continue; }
     exams[id] = { n: n, hist: hist, from: 'sheet',
