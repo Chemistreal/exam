@@ -256,7 +256,7 @@ async function confirmed(browser, errs) {
    노트북에는 옛 줄이 그대로 남았고, 이름을 고치면 옛 이름 줄이 남은 채 새 이름
    줄이 시트에서 들어와 **한 학생이 두 명**이 됐다. */
 async function pruneGone(browser, errs) {
-  console.log('\n── 시트에서 없어진 줄은 여기서도 없어진다 ──');
+  console.log('\n── 시트에서 없어진 줄은 지우지 않고 표만 단다 ──');
   const st = { calls: [], posts: [],
                rows: [row('김서준', A60(1)), row('이하윤', A60(2)), row('박민준', A60(3))] };
   const p = await browser.newPage();
@@ -269,33 +269,48 @@ async function pruneGone(browser, errs) {
 
   const resync = () => p.evaluate(() => new Promise(res => {
     localStorage.setItem('chemistreal:final:lastsync', '0');
-    syncAllFromSheet(r => setTimeout(() => res({ r: r, names: subs('jmchc-1').map(x => x.name) }), 500), true);
+    syncAllFromSheet(r => setTimeout(() => res({ r: r,
+      names: subs('jmchc-1').map(x => x.name),
+      ups: subs('jmchc-1').map(x => x.up),
+      rows: subs('jmchc-1').map(x => ({ name: x.name, up: x.up })) }), 500), true);
   }));
 
+  /* ⚠ 여기서 **지우지는 않는다.**
+     2026-08-05, JMChC 11회에서 겹친 저장 때문에 시트의 세 줄이 덮여 사라졌다.
+     그러자 이 규칙이 브라우저의 사본까지 지워서 되살릴 길이 없었다 — 시트에도
+     없고 여기에도 없으면 다시 채점하는 수밖에 없다.
+     이제 남겨 두고 표(up:3)만 단다. 명단에서 '시트에 없음' 으로 보이고,
+     사람이 보고 다시 올리거나 지운다. 저절로 다시 올리지는 않는다. */
   // 다른 기기에서 박민준을 지웠다
   st.rows = st.rows.filter(r => r.name !== '박민준');
   const del = await resync();
-  chk('지운 학생이 여기서도 사라진다', del.names, ['김서준', '이하윤']);
-  chk('몇 건을 정리했는지 알린다', del.r.dropped, 1);
+  chk('사본은 남는다', del.names, ['김서준', '이하윤', '박민준']);
+  chk('사라진 줄에 표가 붙는다', del.ups, [1, 1, 3]);
+  chk('몇 건인지 알린다', del.r.dropped, 1);
 
   // 다른 기기에서 이하윤 → 이하윤(고침) 으로 이름을 고쳤다
   st.rows = st.rows.map(r => r.name === '이하윤' ? Object.assign({}, r, { name: '이하윤고침' }) : r);
   const ren = await resync();
-  // 여기가 뒤집히면 한 학생이 두 명이 된다 — 옛 이름 줄이 안 없어지기 때문이다
-  chk('이름을 고치면 한 명 그대로', ren.names, ['김서준', '이하윤고침']);
+  /* 이름을 고치면 새 이름 줄이 들어오고, 옛 이름 줄은 '시트에 없음' 으로
+     표가 붙는다. 화면에서는 갈라 보이므로 '두 명' 으로 헷갈리지 않는다. */
+  chk('새 이름이 들어온다', ren.names.indexOf('이하윤고침') >= 0, true);
+  chk('옛 이름 줄은 표가 붙은 채 남는다',
+      ren.rows.filter(r => r.name === '이하윤').map(r => r.up), [3]);
 
   // 시트 읽기가 엎어져도 {ok:true, rows:[]} 로 온다. 그걸 '전부 지워졌다' 로
   // 읽으면 이 브라우저 기록이 통째로 날아간다.
   st.rows = [];
   const empty = await resync();
-  chk('빈 응답에 기록을 지우지 않는다', empty.names, ['김서준', '이하윤고침']);
+  /* 견주는 대상은 **바로 앞 상태**다. 이름 목록을 손으로 적어 두면, 앞에서
+     규칙이 바뀔 때마다 여기까지 같이 고쳐야 하고 그러다 뜻이 흐려진다. */
+  chk('빈 응답에 기록을 지우지 않는다', empty.names, ren.names);
   chk('그때는 정리했다고 하지 않는다', empty.r.dropped, 0);
 
   /* 다른 회차 줄만 왔을 때도 마찬가지다. 응답에 그 회차가 없는 것은
      '그 회차가 비었다' 가 아니라 '모른다' 다. */
   st.rows = [row('남의회차학생', A60(1), { examId: 'jmchc-2', exam: 'JMChC 2회' })];
   const other = await resync();
-  chk('다른 회차만 왔을 때도 안 지운다', other.names, ['김서준', '이하윤고침']);
+  chk('다른 회차만 왔을 때도 안 지운다', other.names, ren.names);
   chk('그때도 정리하지 않는다', other.r.dropped, 0);
   await p.close();
 }

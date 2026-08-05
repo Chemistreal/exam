@@ -210,7 +210,11 @@ console.log('\n── 기준 기록: 손으로 넣은 것을 안 덮는다 ─�
      모집단이 46명에서 2명으로 줄어든다 — 석차가 통째로 틀어진다. */
   const old = { exams: { 'jmchc-1': { n: 46, hist: { 30: 46 }, byHand: true },
                          'jmchc-9': { n: 30, hist: { 20: 30 }, byHand: true } } };
+  /* 시험 목록(exams.json)도 같이 내준다 — 새 회차는 목록에 있어야 만든다. */
+  const LIST = [{ id: 'jmchc-1' }, { id: 'jmchc-2' }, { id: 'jmchc-9' }];
   const ctx = makeCtx(ROWS, { props: { GITHUB_TOKEN: 'tok' }, onFetch: (url, o) => {
+    if (/raw\.githubusercontent.*exams\.json/.test(url))
+      return { getResponseCode: () => 200, getContentText: () => JSON.stringify(LIST) };
     if (/raw\.githubusercontent/.test(url))
       return { getResponseCode: () => 200, getContentText: () => JSON.stringify(old) };
     return null;
@@ -222,6 +226,41 @@ console.log('\n── 기준 기록: 손으로 넣은 것을 안 덮는다 ─�
   chk('손으로 넣은 9회차도 그대로', j.exams['jmchc-9'].n, 30);
   chk('시트에만 있는 2회차가 새로 생긴다', !!j.exams['jmchc-2'], true);
   chk('기준 기록에 이름이 없다', /김서준|이하윤|박하람|휘문중/.test(JSON.stringify(j)), false);
+}
+
+console.log('\n── 기준 기록: 시험 목록에 없는 회차는 안 만든다 ──');
+{
+  /* 2026-08-05, 사람이 지웠던 `j0`(조준모의고사 0회, 18명)가 밤새 되살아났다.
+     시트에는 앱에서 내린 옛 회차의 기록이 남아 있고, 제목→id 표는 옛 제목까지
+     알고 있어서 저절로 기준 기록이 생겼다. 목록이 없다는 뜻은 '더 안 쓰는
+     회차' 다 — 만들면 안 된다. */
+  const ctx = makeCtx(ROWS, { props: { GITHUB_TOKEN: 'tok' }, onFetch: (url) => {
+    if (/exams\.json/.test(url))
+      return { getResponseCode: () => 200,
+               getContentText: () => JSON.stringify([{ id: 'jmchc-1' }]) };
+    if (/raw\.githubusercontent/.test(url))
+      return { getResponseCode: () => 200, getContentText: () => '{"exams":{}}' };
+    return null;
+  } });
+  ctx.rebuildBaseline();
+  const j = ctx._puts.length
+    ? JSON.parse(Buffer.from(ctx._puts[0].body.content, 'base64').toString('utf8')) : { exams: {} };
+  chk('목록에 있는 회차는 만든다', !!j.exams['jmchc-1'], true);
+  chk('목록에 없는 회차는 안 만든다', !!j.exams['jmchc-2'], false);
+}
+
+console.log('\n── 기준 기록: 시험 목록을 못 읽으면 새로 안 만든다 ──');
+{
+  /* 모르는 채로 만드는 것보다 안 만드는 편이 되돌리기 쉽다. 이미 있는 회차를
+     갱신하는 것은 그대로다. */
+  const ctx = makeCtx(ROWS, { props: { GITHUB_TOKEN: 'tok' }, onFetch: (url) => {
+    if (/exams\.json/.test(url)) return { getResponseCode: () => 500, getContentText: () => '' };
+    if (/raw\.githubusercontent/.test(url))
+      return { getResponseCode: () => 200, getContentText: () => '{"exams":{}}' };
+    return null;
+  } });
+  ctx.rebuildBaseline();
+  chk('아무것도 안 올린다', ctx._puts.length, 0);
 }
 
 console.log('\n── 기준 기록: 모집단이 안 되면 안 만든다 ──');

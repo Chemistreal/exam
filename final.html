@@ -1236,6 +1236,41 @@ function rosterEdit(examId,idx){
              setName:nm,setSchool:r.school,setGrade:r.grade},
     function(res){ sheetEditToast(res,'고쳤습니다'); });
 }
+/* 시트의 석차·백분위·전체누적인원을 지금 다시 맞춘다.
+
+   평상시에는 저장할 때마다 저절로 맞춰진다. 채점이 몰려 겹치면 다시 읽어
+   세 번까지 다시 맞추고, 그래도 겹치면 1분 뒤에 혼자 다시 돈다 — 그러니
+   보통은 이 단추를 누를 일이 없다.
+
+   그래도 남겨 둔다. **스프레드시트를 손으로 고친 경우**는 앱이 알 길이 없어
+   다음 저장까지 굳어 있고, 그날 채점이 끝났으면 다음 저장이 없다. */
+function recomputeSheet(btn){
+  if(!SHEET_ENDPOINT){ fToast('시트 주소가 없습니다'); return; }
+  if(btn){ btn.disabled=true; btn.textContent='맞추는 중…'; }
+  var back=function(t){ if(btn){ btn.disabled=false; btn.textContent='석차 다시 맞추기 ⟳'; } fToast(t); };
+  sheetCall({action:'recompute'}, function(res){
+    if(!res||!res.ok){ back('맞추지 못했습니다'); return; }
+    if(res.retry){ back(res.msg||'지금 채점이 몰려 있습니다 — 1분 뒤 저절로 맞춰집니다'); return; }
+    back('맞췄습니다 · '+(res.done||0)+'개 회차'
+         +(res.dropped?(' · 겹친 줄 '+res.dropped+'개 정리'):'')
+         +' — 시트에서 불러오기로 확인하세요');
+  }, 90000);
+}
+/* 시트에서 사라진 줄을 다시 올린다. 저절로는 안 올린다 — 선생님이 시트에서
+   일부러 지운 줄이 되살아나면 곤란하다. 사람이 보고 누른다. */
+function rosterRepush(examId,idx){
+  var exam=FINAL_EXAMS.filter(function(e){ return e.id===examId; })[0];
+  var arr=subs(examId), r=arr&&arr[idx];
+  if(!exam||!r){ fToast('그 기록을 못 찾았습니다'); return; }
+  if(!r.ans||r.ans.length!==exam.nQ){ fToast('답안이 온전치 않아 올릴 수 없습니다'); return; }
+  if(!confirm('"'+(r.name||'이름 없음')+'" 의 '+exam.title+' 기록을 시트에 다시 올립니다.')) return;
+  var sel={}; r.ans.forEach(function(a,i){ sel[i+1]=a; });
+  try{
+    postToSheet(sheetPayloadFor(exam,sel,cohortStats(exam),r.name,r.school,r.grade));
+    r.up=0; r.upTry=0; saveSubs(examId,arr);      // 0: 보냈고 아직 확인 못 함
+    fToast('보냈습니다 · 다음 동기화에서 확인됩니다'); renderRoster();
+  }catch(e){ fToast('보내지 못했습니다'); }
+}
 function rosterDel(examId,idx){
   var arr=subs(examId), r=arr[idx]; if(!r) return;
   if(!confirm('"'+(r.name||'이름 없음')+'" 의 이 회차 기록을 지웁니다.\n\n'
@@ -1322,11 +1357,16 @@ function renderRoster(){
     var inner=list.map(function(v){
       var p=v.rec.total?Math.round(v.rec.correct/v.rec.total*100):0;
       var when=v.rec.ts?new Date(v.rec.ts).toLocaleDateString('ko-KR'):'-';
-      return `<tr><td>${esc(v.exam.title)}</td>
+      /* 시트에 있었는데 없어진 줄(up:3). 지우지 않고 표만 달아 두었다 —
+         여기서 사람이 보고 다시 올릴지 지울지 정한다. */
+      var gone = v.rec.up === 3;
+      return `<tr${gone?' style="background:#FDF1EC"':''}><td>${esc(v.exam.title)}
+        ${gone?'<span class="pill" style="background:#F6DCD2;color:#8a3a1d;margin-left:6px">시트에 없음</span>':''}</td>
         <td class="mono">${v.rec.correct}/${v.rec.total} · ${p}%</td>
         <td class="mono">${esc(when)}</td>
         <td>${esc([v.rec.school,v.rec.grade?v.rec.grade+'학년':''].filter(Boolean).join(' '))||'<span class="muted">-</span>'}</td>
-        <td><button class="btn ghost sm" onclick="rosterEdit('${esc(v.exam.id)}',${v.idx})">수정</button>
+        <td>${gone?`<button class="btn sm" onclick="rosterRepush('${esc(v.exam.id)}',${v.idx})">시트에 다시 올리기</button> `:''
+            }<button class="btn ghost sm" onclick="rosterEdit('${esc(v.exam.id)}',${v.idx})">수정</button>
             <button class="btn ghost sm" onclick="rosterDel('${esc(v.exam.id)}',${v.idx})">삭제</button></td></tr>`;
     }).join('');
     return `<details style="border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin:6px 0">
@@ -1352,6 +1392,7 @@ function renderRoster(){
      <button class="btn ghost sm" onclick="rosterExport()">백업 내려받기 ↓</button>
      <button class="btn ghost sm" onclick="rosterImport()">백업 가져오기 ↑</button>
      <button class="btn ghost sm" onclick="syncAllFromSheet()">시트에서 불러오기 ↓</button>
+     <button class="btn ghost sm" onclick="recomputeSheet(this)">석차 다시 맞추기 ⟳</button>
    </div>
    <div class="note"><b>이름·학교·학년이 모두 같아야 같은 학생</b>으로 봅니다. 이름만 있고 학교·학년이 비어 있으면 따로 셉니다 — 동명이인을 가르는 단서가 그것뿐입니다.
      이름을 고치면 그 학생의 <b>모든 회차</b>가 함께 바뀌고, 성장 추적·숙달 추적이 다시 이어집니다.
@@ -3092,7 +3133,9 @@ const SHEET_ENDPOINT='https://script.google.com/macros/s/AKfycbxGmSCkip0cQCyOH_J
 /* 시트에 물어보고 답을 받는다(JSONP). 받아오기도 고치기도 이 통로를 쓴다.
    `fetch` 를 쓰면 Apps Script 가 다른 출처라 응답을 읽을 수 없다 — 저장은
    no-cors 로 쏘고 끝이지만, 고치기는 몇 건 바뀌었는지 알아야 한다. */
-function sheetCall(params,onDone){
+/* ⚠ 기다리는 시간을 받는다. 재계산은 시트를 통째로 읽고 쓰고 성적표 문자까지
+   다시 만들어서 12초로는 모자란다 — 다 됐는데도 '응답 없음' 이라고 뜬다. */
+function sheetCall(params,onDone,waitMs){
   if(!SHEET_ENDPOINT){ onDone({error:'시트 주소가 설정되지 않았습니다'}); return; }
   var cb='__fsheet'+Math.floor(performance.now()*1000)+'_'+Math.floor(Math.random()*1e6);
   var sc=document.createElement('script'), done=false;
@@ -3104,7 +3147,7 @@ function sheetCall(params,onDone){
   qs.push('callback='+cb);
   sc.src=SHEET_ENDPOINT+(SHEET_ENDPOINT.indexOf('?')>=0?'&':'?')+qs.join('&');
   document.body.appendChild(sc);
-  setTimeout(function(){ if(!done){ cleanup(); onDone({error:'시트 응답 없음(시간 초과)'}); } },12000);
+  setTimeout(function(){ if(!done){ cleanup(); onDone({error:'시트 응답 없음(시간 초과)'}); } }, waitMs||12000);
 }
 function sheetFetch(examId,onDone){ sheetCall({action:'list',exam:examId},onDone); }
 /* 시트 쪽 결과를 사람 말로. 열쇠가 없으면 시트는 수정을 아예 받지 않는다. */
@@ -3151,7 +3194,17 @@ function subSig(r){ return nameKey(r.name)+'|'+((r.ans||[]).join('')); }
 
    지우는 것은 up:1(시트에서 왔거나, 시트에 있는 것을 확인한) 줄뿐이다.
    아직 못 올린 줄(up:0/2)과 출처를 모르는 옛 줄(up 없음)은 건드리지 않는다 —
-   시트가 한 번도 가진 적 없는 기록을 지우면 되돌릴 수 없다. */
+   시트가 한 번도 가진 적 없는 기록을 지우면 되돌릴 수 없다.
+
+   ⚠ **지우지 않고 표만 단다(up:3).**
+   2026-08-05, JMChC 11회에서 겹친 저장 때문에 시트의 세 줄이 덮여 사라졌다
+   (김규민·전준·최민준). 그러자 다음 동기화에서 이 규칙이 **브라우저의 사본까지
+   지웠다** — 시트에도 없고 여기에도 없으니 되살릴 길이 없었다. 다시 채점하는
+   수밖에 없었다.
+
+   시트가 늘 옳다고 볼 수 없다. 그렇다고 저절로 다시 올리지도 않는다 —
+   선생님이 시트에서 일부러 지운 줄이 되살아나면 그것대로 곤란하다.
+   **남겨 두고 표만 달아** 명단에서 보이게 한다. 올릴지 지울지는 사람이 정한다. */
 function mergeSheetRows(exam,rows,prune){
   if(!rows||!rows.length) return 0;
   var arr=subs(exam.id), seen={}, inSheet={};
@@ -3188,12 +3241,11 @@ function mergeSheetRows(exam,rows,prune){
   });
   var dropped=0;
   if(prune){
-    var left=arr.filter(function(r){
-      if(r.up!==1) return true;                    // 못 올린 줄·출처 모르는 줄은 그대로
-      if(inSheet[subSig(r)]) return true;
-      dropped++; return false;                     // 시트에서 사라졌다 — 여기서도 지운다
+    arr.forEach(function(r){
+      if(r.up!==1) return;                         // 못 올린 줄·출처 모르는 줄은 그대로
+      if(inSheet[subSig(r)]) return;
+      r.up=3; dropped++;                           // 3: 시트에서 사라졌다 — 지우지 않고 표만
     });
-    if(dropped) arr=left;
   }
   if(added||filled||dropped){ arr.sort(function(a,b){ return (a.ts||0)-(b.ts||0); }); saveSubs(exam.id,arr); }
   mergeSheetRows.dropped=(mergeSheetRows.dropped|0)+dropped;
@@ -3305,7 +3357,7 @@ function syncAllFromSheet(onDone, quiet){
         if(one.added) bits.push('새 기록 '+one.added+'건');
         /* 다른 기기에서 지우거나 이름을 고친 것이 여기까지 온 것이다.
            말없이 사라지면 "내 기록이 없어졌다" 가 되므로 반드시 적는다. */
-        if(one.dropped) bits.push('시트에서 없어진 '+one.dropped+'건 정리');
+        if(one.dropped) bits.push('시트에서 없어진 '+one.dropped+'건 — 지우지 않고 표시해 두었습니다(명단에서 확인)');
         if(resent) bits.push('다시 올린 '+resent+'건');
         fToast(bits.length? ('시트와 맞췄습니다 · '+bits.join(' · ')) : '시트와 이미 같습니다');
       }
