@@ -387,9 +387,10 @@ function doGet(e) {
     var rOut;
     try {
       var rr = recomputeAllExams();
-      /* false 면 겹친 저장 때문에 물러난 것이다. 다시 부르면 대개 통과한다. */
+      /* false 면 세 번 다시 읽어도 계속 겹쳤다는 뜻이다 — 지금 누가 채점 중이다.
+         그 경우 1분 뒤에 혼자 다시 도는 예약이 걸려 있으니 기다리기만 하면 된다. */
       rOut = (rr === false)
-        ? { ok: true, retry: true, msg: '다른 저장과 겹쳐 미뤘습니다 — 잠시 뒤 다시 눌러 주세요' }
+        ? { ok: true, retry: true, msg: '지금 채점이 몰려 있습니다 — 1분 뒤 저절로 맞춰집니다' }
         : { ok: true, done: (rr && rr.done) || 0, of: (rr && rr.of) || 0,
             dropped: (rr && rr.dropped) || 0 };
     }
@@ -735,6 +736,24 @@ function recomputeJ0() { recomputeExam('조준모의고사 0회', J0_BASE_TOTALS
  * 라 저장 한 번이 몇십 초가 되고, 학생이 기다리는 동안 실행 시간 제한에 걸린다.
  * 설정이 없는 제목(EXAM_COHORT 에 없는 옛 시험)은 손대지 않고 지나간다. */
 function recomputeAllExams() {
+  /* 겹친 저장을 만나면 **다시 읽어서 다시 맞춘다.** 물러나기만 하면 그 회차는
+     저장 순간의 인원(1명 중 1등)이 굳은 채 다음 저장까지 남는다 — 그날 마지막
+     학생이면 새벽 트리거까지 하루다. 다시 읽으면 방금 들어온 줄까지 함께
+     세니, 물러나기의 안전함은 그대로 두고 굳는 것만 없앤다.
+
+     세 번까지다. 그 사이에 또 저장이 들어왔다는 뜻이고, 그 저장이 스스로
+     전부 맞춘다. 그래도 못 맞췄으면 1분 뒤에 혼자 다시 돈다(예약). */
+  for (var t = 1; t <= 3; t++) {
+    var r = _recomputeAllOnce_();
+    if (r !== false) return r;
+    Logger.log('recomputeAllExams · 겹친 저장 ' + t + '번째 — 다시 읽어 맞춘다');
+  }
+  var booked = _bookRecompute_();
+  Logger.log('recomputeAllExams · 세 번 다 겹쳤다 — ' + (booked ? '1분 뒤 예약했다' : '이미 예약돼 있다'));
+  return false;
+}
+
+function _recomputeAllOnce_() {
   var sheet = _gradeSheet();
   if (!sheet) return;
   var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, WIDE).getValues();
@@ -756,11 +775,43 @@ function recomputeAllExams() {
 
   /* 읽을 때의 줄 수를 같이 넘긴다 — 그 사이에 저장이 들어왔으면 물러난다. */
   var wrote = _flushRows(sheet, data, drop, data.length);
-  if (!wrote) { Logger.log('recomputeAllExams · 겹친 저장이 있어 물러났다'); return false; }
+  if (!wrote) return false;
   try { fillReportMessages(); } catch (eM) { Logger.log('문자 생성 실패: ' + eM); }
   Logger.log('recomputeAllExams 완료 · ' + done + '/' + titles.length + '개 회차 · 중복삭제 '
     + drop.length + '행' + (skip.length ? ' · 설정 없어 건너뜀: ' + skip.join(', ') : ''));
   return { done: done, of: titles.length, dropped: drop.length, skipped: skip };
+}
+
+/* ============================================================
+   못 맞춘 채로 두지 않는다 — 1분 뒤에 혼자 다시 돈다
+   ------------------------------------------------------------
+   세 번 다시 읽어도 계속 겹친다면 채점이 몰리는 중이다. 그 저장들이 스스로
+   맞추겠지만, **마지막 저장이 겹쳐서 물러난 경우**가 남는다 — 뒤에 아무도
+   없으니 아무도 다시 안 맞춘다. 그 자리를 이 예약이 메운다.
+
+   한 번에 하나만 걸어 둔다. 열 명이 몰아 채점하면 예약도 열 개가 되고,
+   앱스크립트 트리거는 20개가 상한이다.
+   ============================================================ */
+function _bookRecompute_() {
+  try {
+    var pending = ScriptApp.getProjectTriggers().some(function (t) {
+      return t.getHandlerFunction() === 'recomputeSoon';
+    });
+    if (pending) return false;                 // 이미 걸려 있다
+    ScriptApp.newTrigger('recomputeSoon').timeBased().after(60 * 1000).create();
+    return true;
+  } catch (e) { Logger.log('재계산 예약 실패: ' + e); return false; }
+}
+
+/* 예약이 부르는 자리. 자기 예약을 먼저 지우고 돈다 — 그래야 이번에도 겹쳤을 때
+   다시 걸 수 있다(안 지우면 '이미 걸려 있다' 로 보여 영영 안 걸린다). */
+function recomputeSoon() {
+  try {
+    ScriptApp.getProjectTriggers().forEach(function (t) {
+      if (t.getHandlerFunction() === 'recomputeSoon') ScriptApp.deleteTrigger(t);
+    });
+  } catch (e) { Logger.log('예약 정리 실패: ' + e); }
+  recomputeAllExams();
 }
 
 /* 성적기록 시트 + 성적표 문자 머리글 보장. 없거나 비었으면 null. */
@@ -795,14 +846,15 @@ function _gradeSheet() {
    그 줄을 덮었다. 저장마다 잠금을 걸지만 20초 안에 못 얻으면 잠금 없이
    진행하게 되어 있어서, 채점이 몰리면 겹친다.
 
-   물러나도 잃는 것이 없다. 재계산은 **저장할 때마다** 도는 것이라 다음 저장이
-   전부 다시 맞춘다. 반대로 한 번 덮어쓴 줄은 되돌릴 방법이 없다. */
+   물러나도 잃는 것이 없다. 부른 쪽(recomputeAllExams · recomputeExam)이 **다시
+   읽어서 다시 맞춘다** — 그때는 방금 들어온 줄까지 함께 센다. 반대로 한 번
+   덮어쓴 줄은 되돌릴 방법이 없다. */
 function _flushRows(sheet, data, dropRows, expectRows) {
   if (expectRows != null) {
     var now = sheet.getLastRow() - 1;
     if (now !== expectRows) {
       Logger.log('[재계산] 읽은 뒤 줄이 ' + expectRows + '→' + now +
-                 ' 로 바뀌었다 — 덮어쓰지 않고 물러난다(다음 저장이 다시 맞춘다)');
+                 ' 로 바뀌었다 — 덮어쓰지 않고 물러난다(다시 읽어 맞춘다)');
       return false;
     }
   }
@@ -814,10 +866,16 @@ function _flushRows(sheet, data, dropRows, expectRows) {
 
 /* 한 회차만 다시 맞춘다(수동 복구용). 평상시에는 recomputeAllExams 가 돈다. */
 function recomputeExam(title, baseTotals, qCount) {
-  var sheet = _gradeSheet();
-  if (!sheet) return;
-  var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, WIDE).getValues();
-  _flushRows(sheet, data, _recalcRows(data, title, baseTotals, qCount), data.length);
+  /* 여기도 겹치면 다시 읽어서 다시 맞춘다 — recomputeAllExams 와 같은 이유다. */
+  for (var t = 1; t <= 3; t++) {
+    var sheet = _gradeSheet();
+    if (!sheet) return false;
+    var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, WIDE).getValues();
+    if (_flushRows(sheet, data, _recalcRows(data, title, baseTotals, qCount), data.length)) return true;
+    Logger.log('recomputeExam · ' + title + ' 겹친 저장 ' + t + '번째 — 다시 읽어 맞춘다');
+  }
+  _bookRecompute_();
+  return false;
 }
 
 /* ------------------------------------------------------------------
@@ -904,10 +962,14 @@ function _recalcRows(data, title, baseTotals, qCount) {
    ------------------------------------------------------------
    setupAllTriggers : 편집기에서 1회 실행 → 아래 트리거를 전부 설치(중복 자동 제거)
      · recomputeAllExams  매일 새벽 5시(KST) — 안전망.
-       평상시 재계산은 **저장하는 즉시** doPost 가 모든 회차를 맞춘다. 이 트리거를
-       기다릴 일은 없다. 남겨 두는 이유는 하나뿐이다 — 스프레드시트를 손으로 고치면
-       앱은 그걸 모르고, 다음 저장이 없으면 그 손질이 반영되지 않는다.
+       평상시 재계산은 **저장하는 즉시** doPost 가 모든 회차를 맞춘다. 겹쳐서
+       물러나면 다시 읽어 세 번까지 다시 맞추고, 그래도 겹치면 recomputeSoon
+       예약(1분 뒤)이 마무리한다. 이 트리거를 기다릴 일은 없다.
+       남겨 두는 이유는 하나뿐이다 — 스프레드시트를 손으로 고치면 앱은 그걸
+       모르고, 다음 저장이 없으면 그 손질이 반영되지 않는다.
        예전에는 조준모의고사 0회만 도는 recomputeJ0 가 걸려 있었다.
+     · recomputeSoon  여기서 설치하지 않는다. 필요할 때만 스스로 걸고, 돌면서
+       자기를 지운다(1회용).
    triggerStatus   : 현재 설치된 트리거 목록을 로그로 출력(설치 여부 확인용)
    ============================================================ */
 function setupAllTriggers() {

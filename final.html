@@ -1238,18 +1238,19 @@ function rosterEdit(examId,idx){
 }
 /* 시트의 석차·백분위·전체누적인원을 지금 다시 맞춘다.
 
-   평상시에는 저장할 때마다 저절로 맞춰진다. 그런데 채점이 몰려 재계산이
-   겹치면 그때는 물러난다(그래야 방금 넣은 줄이 안 덮인다). 그러면 그 회차는
-   **저장 순간의 인원**이 굳은 채 남는다 — 먼저 채점한 학생은 1명 중 1등,
-   나중 학생은 10명 중 3등 같은 식이다. 밤 05시 트리거를 기다리지 않고
-   여기서 바로 맞춘다. */
+   평상시에는 저장할 때마다 저절로 맞춰진다. 채점이 몰려 겹치면 다시 읽어
+   세 번까지 다시 맞추고, 그래도 겹치면 1분 뒤에 혼자 다시 돈다 — 그러니
+   보통은 이 단추를 누를 일이 없다.
+
+   그래도 남겨 둔다. **스프레드시트를 손으로 고친 경우**는 앱이 알 길이 없어
+   다음 저장까지 굳어 있고, 그날 채점이 끝났으면 다음 저장이 없다. */
 function recomputeSheet(btn){
   if(!SHEET_ENDPOINT){ fToast('시트 주소가 없습니다'); return; }
   if(btn){ btn.disabled=true; btn.textContent='맞추는 중…'; }
   var back=function(t){ if(btn){ btn.disabled=false; btn.textContent='석차 다시 맞추기 ⟳'; } fToast(t); };
   sheetCall({action:'recompute'}, function(res){
     if(!res||!res.ok){ back('맞추지 못했습니다'); return; }
-    if(res.retry){ back(res.msg||'다른 저장과 겹쳐 미뤘습니다 — 잠시 뒤 다시 눌러 주세요'); return; }
+    if(res.retry){ back(res.msg||'지금 채점이 몰려 있습니다 — 1분 뒤 저절로 맞춰집니다'); return; }
     back('맞췄습니다 · '+(res.done||0)+'개 회차'
          +(res.dropped?(' · 겹친 줄 '+res.dropped+'개 정리'):'')
          +' — 시트에서 불러오기로 확인하세요');

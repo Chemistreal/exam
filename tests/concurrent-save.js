@@ -109,6 +109,19 @@ function ctxWith(sheet) {
     flush() {},
   };
   ctx.Logger = { log() {} };
+  /* 트리거 흉내. 무엇이 걸렸는지 세어 보려고 목록을 들고 있는다. */
+  ctx.booked = [];
+  ctx.ScriptApp = {
+    getProjectTriggers: () => ctx.booked.map(h => ({ getHandlerFunction: () => h })),
+    deleteTrigger(t) {
+      const i = ctx.booked.indexOf(t.getHandlerFunction());
+      if (i >= 0) ctx.booked.splice(i, 1);
+    },
+    newTrigger(h) {
+      const b = { timeBased: () => b, after: () => b, create() { ctx.booked.push(h); return b; } };
+      return b;
+    },
+  };
   /* doGet 을 부르려면 응답을 만드는 흉내가 있어야 한다. */
   ctx.ContentService = {
     MimeType: { JAVASCRIPT: 'js', JSON: 'json' },
@@ -217,29 +230,81 @@ console.log('\n── 지금 다시 맞추기 창구 ──');
   chk('총원이 두 줄 다 같다', ns[0] === ns[1], true);
 }
 
-console.log('\n── 겹치면 물러났다고 알린다 ──');
-{
-  const T = 'JMChC 모의고사 11회';
-  const sheet = makeSheet([row(T, '김지성', '1'.repeat(60)), row(T, '오승민', '2'.repeat(60))]);
-  const ctx = ctxWith(sheet);
-  /* 읽은 직후에 한 줄이 들어오는 상황을 만든다. */
+/* 읽는 순간에 남이 한 줄 밀어 넣는 상황을 만든다. `times` 번만 그런다. */
+function raceOnRead(sheet, times, mkRow) {
   const realGet = sheet.getRange.bind(sheet);
-  let once = false;
+  let n = 0;
   sheet.getRange = function (r, c, nr, nc) {
     const rng = realGet(r, c, nr, nc);
     const gv = rng.getValues;
     rng.getValues = function () {
       const v = gv.call(rng);
-      if (!once && nr > 1) { once = true; sheet._rows.push(row(T, '김규민', '3'.repeat(60))); }
+      if (n < times && nr > 1) { n++; sheet._rows.push(mkRow(n)); }
       return v;
     };
     return rng;
   };
-  const out = ctx.doGet({ parameter: { action: 'recompute', callback: '__c' } });
-  const j = JSON.parse(/^__c\(([\s\S]*?)\);?$/.exec(String(out.getContent()))[1]);
+}
+
+console.log('\n── 한 번 겹쳐도 굳지 않는다 (다시 읽어 맞춘다) ──');
+{
+  /* 물러나기만 하면 그 회차는 저장 순간의 인원이 굳는다 — 먼저 채점한 학생은
+     1명 중 1등, 나중 학생은 10명 중 3등. 물러난 뒤 **다시 읽어** 맞춰야
+     모든 시험이 그때그때 전체 인원으로 선다. */
+  const T = 'JMChC 모의고사 11회';
+  /* 총원에는 옛 회차의 인원(EXAM_COHORT 의 base)이 얹힌다. 숫자를 적어 두면
+     회차 설정이 바뀔 때마다 시험이 깨진다 — **안 겹쳤을 때와 견준다.** */
+  const calm = makeSheet([row(T, '김지성', '1'.repeat(60)), row(T, '오승민', '2'.repeat(60))]);
+  ctxWith(calm).doGet({ parameter: { action: 'recompute', callback: '__c' } });
+  const n2 = calm._rows[0][13];
+
+  const sheet = makeSheet([row(T, '김지성', '1'.repeat(60)), row(T, '오승민', '2'.repeat(60))]);
+  const ctx = ctxWith(sheet);
+  raceOnRead(sheet, 1, () => row(T, '김규민', '3'.repeat(60)));
+  const j = JSON.parse(/^__c\(([\s\S]*?)\);?$/.exec(
+    String(ctx.doGet({ parameter: { action: 'recompute', callback: '__c' } }).getContent()))[1]);
+  chk('물러나고 끝내지 않는다', !j.retry, true);
+  chk('세 줄 다 있다', sheet._rows.length, 3);
+  chk('끼어든 줄까지 총원에 든다', sheet._rows.map(r => r[13]), [n2 + 1, n2 + 1, n2 + 1]);
+  chk('예약까지 갈 일이 없었다', ctx.booked, []);
+}
+
+console.log('\n── 계속 겹치면 1분 뒤 혼자 다시 돈다 ──');
+{
+  /* 세 번 다시 읽어도 계속 겹치면 지금 채점이 몰리는 중이다. 그 저장들이
+     스스로 맞추겠지만 **마지막 저장이 겹쳐 물러난 경우**는 뒤에 아무도 없다.
+     그 자리를 예약이 메운다 — 아무도 안 누르는 것이 정상이어야 한다. */
+  const T = 'JMChC 모의고사 11회';
+  const sheet = makeSheet([row(T, '김지성', '1'.repeat(60)), row(T, '오승민', '2'.repeat(60))]);
+  const ctx = ctxWith(sheet);
+  raceOnRead(sheet, 99, (n) => row(T, '난입' + n, String((n % 4) + 1).repeat(60)));
+  const j = JSON.parse(/^__c\(([\s\S]*?)\);?$/.exec(
+    String(ctx.doGet({ parameter: { action: 'recompute', callback: '__c' } }).getContent()))[1]);
   chk('물러났다고 알린다', j.retry, true);
-  chk('다시 누르라고 말한다', /다시 눌러/.test(j.msg || ''), true);
-  chk('방금 들어온 줄이 살아 있다', sheet._rows.some(r => r[1] === '김규민'), true);
+  chk('저절로 맞춰진다고 말한다', /저절로|1분/.test(j.msg || ''), true);
+  chk('한 번도 안 썼다', sheet.writes, 0);
+  chk('난입한 줄이 다 살아 있다', sheet._rows.filter(r => /^난입/.test(r[1])).length, 3);
+  chk('1분 뒤로 예약했다', ctx.booked, ['recomputeSoon']);
+
+  /* 예약은 하나만. 열 명이 몰아 채점하면 예약도 열 개가 되고, 앱스크립트
+     트리거는 20개가 상한이다. */
+  ctx.doGet({ parameter: { action: 'recompute', callback: '__c' } });
+  chk('예약은 하나만 건다', ctx.booked, ['recomputeSoon']);
+
+  /* 예약이 돌 때 자기 예약을 안 지우면, 그때도 겹쳤을 경우 '이미 걸려 있다' 로
+     보여 영영 다시 안 걸린다. */
+  ctx.recomputeSoon();
+  chk('예약이 돌면 다시 걸 수 있다', ctx.booked, ['recomputeSoon']);
+}
+
+console.log('\n── 한 회차만 맞출 때도 같다 ──');
+{
+  const T = 'JMChC 모의고사 11회';
+  const sheet = makeSheet([row(T, '김지성', '1'.repeat(60)), row(T, '오승민', '2'.repeat(60))]);
+  const ctx = ctxWith(sheet);
+  raceOnRead(sheet, 1, () => row(T, '김규민', '3'.repeat(60)));
+  chk('겹쳐도 결국 맞춘다', ctx.recomputeExam(T, [], 60), true);
+  chk('총원이 세 줄 다 같다', sheet._rows.map(r => r[13]), [3, 3, 3]);
 }
 
 console.log(fail ? `\nFAIL ${fail}건` : '\nPASS');
