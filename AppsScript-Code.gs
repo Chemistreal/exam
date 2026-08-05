@@ -374,6 +374,31 @@ function doGet(e) {
      열쇠는 두지 않는다(선생님 요청). URL 을 아는 사람은 누구나 부를 수 있다.
      대신 행을 **정확히 지목**해야만 바뀐다 — 시험·이름·답안이 하나라도 어긋나면
      0건이다. 통째로 비우는 동작은 아예 만들지 않았다. */
+  /* ── 석차·백분위를 지금 다시 맞춘다 ────────────────────────────────
+     평상시에는 저장할 때마다 저절로 맞춰지고, 매일 05시 트리거가 안전망이다.
+     그런데 채점이 몰려 재계산이 겹치면 그때 물러난다(그래야 방금 넣은 줄이
+     안 덮인다). 그러면 그 회차는 **저장 순간의 인원**이 굳은 채 남는다 —
+     먼저 채점한 학생은 1명 중 1등, 나중 학생은 10명 중 3등 같은 식이다.
+     2026-08-05 JMChC 12회가 그랬다. 밤까지 기다리지 않고 지금 맞춘다.
+
+     ⚠ 지우는 동작이 아니다. 다시 계산해 적을 뿐이고, 겹친 저장이 있으면
+       _flushRows 가 물러난다(그때는 changed=false 로 알려 준다). */
+  if (p.action === 'recompute') {
+    var rOut;
+    try {
+      var rr = recomputeAllExams();
+      /* false 면 겹친 저장 때문에 물러난 것이다. 다시 부르면 대개 통과한다. */
+      rOut = (rr === false)
+        ? { ok: true, retry: true, msg: '다른 저장과 겹쳐 미뤘습니다 — 잠시 뒤 다시 눌러 주세요' }
+        : { ok: true, done: (rr && rr.done) || 0, of: (rr && rr.of) || 0,
+            dropped: (rr && rr.dropped) || 0 };
+    }
+    catch (eRc) { rOut = { ok: false, error: String(eRc) }; }
+    var rBody = JSON.stringify(rOut);
+    return cb
+      ? ContentService.createTextOutput(cb + '(' + rBody + ')').setMimeType(ContentService.MimeType.JAVASCRIPT)
+      : ContentService.createTextOutput(rBody).setMimeType(ContentService.MimeType.JSON);
+  }
   if (p.action === 'rename' || p.action === 'editRow' || p.action === 'deleteRow' || p.action === 'deleteName' || p.action === 'dedupe') {
     var body = JSON.stringify(_sheetEdit(p));
     return cb
@@ -731,10 +756,11 @@ function recomputeAllExams() {
 
   /* 읽을 때의 줄 수를 같이 넘긴다 — 그 사이에 저장이 들어왔으면 물러난다. */
   var wrote = _flushRows(sheet, data, drop, data.length);
-  if (!wrote) { Logger.log('recomputeAllExams · 겹친 저장이 있어 물러났다'); return; }
+  if (!wrote) { Logger.log('recomputeAllExams · 겹친 저장이 있어 물러났다'); return false; }
   try { fillReportMessages(); } catch (eM) { Logger.log('문자 생성 실패: ' + eM); }
   Logger.log('recomputeAllExams 완료 · ' + done + '/' + titles.length + '개 회차 · 중복삭제 '
     + drop.length + '행' + (skip.length ? ' · 설정 없어 건너뜀: ' + skip.join(', ') : ''));
+  return { done: done, of: titles.length, dropped: drop.length, skipped: skip };
 }
 
 /* 성적기록 시트 + 성적표 문자 머리글 보장. 없거나 비었으면 null. */
