@@ -79,6 +79,7 @@ function makeSheet(rows) {
         setValues(v) { sh.writes++; for (let i = 0; i < v.length; i++) sh._rows[r - 2 + i] = v[i].slice(); },
       });
     },
+    appendRow(r) { this._rows.push(r.slice()); return this; },
     deleteRow(r) { this._rows.splice(r - 2, 1); },
   };
   /* 머리글은 이미 제대로 박혀 있다고 본다 — 그것을 보려는 시험이 아니다. */
@@ -98,7 +99,10 @@ function scratchSheet() {
 }
 
 function ctxWith(sheet) {
-  const ctx = env.make ? env.make() : Object.assign({}, env);
+  /* _gasenv 는 **함수**다. Object.assign 으로 베끼면 Utilities 가 안 들어와서
+     연도 계산이 통째로 넘어지고, 그러면 재계산이 조용히 실패한다(회차마다
+     try 로 감싸 놓아서 겉으로는 멀쩡해 보인다). 제대로 부른다. */
+  const ctx = env();
   const scratch = scratchSheet();
   ctx.SpreadsheetApp = {
     getActiveSpreadsheet: () => ({
@@ -121,6 +125,18 @@ function ctxWith(sheet) {
       const b = { timeBased: () => b, after: () => b, create() { ctx.booked.push(h); return b; } };
       return b;
     },
+  };
+  /* 잠금 흉내. 몇 번 쥐었는지 세어 둔다 — 저장이 재계산까지 쥐고 있으면
+     뒤에 온 저장이 줄을 서고, 그게 이번 사고의 뿌리였다. */
+  ctx.locks = { taken: 0, held: 0, maxHeld: 0 };
+  ctx.LockService = {
+    getScriptLock: () => ({
+      waitLock() {
+        ctx.locks.taken++; ctx.locks.held++;
+        ctx.locks.maxHeld = Math.max(ctx.locks.maxHeld, ctx.locks.held);
+      },
+      releaseLock() { ctx.locks.held--; },
+    }),
   };
   /* doGet 을 부르려면 응답을 만드는 흉내가 있어야 한다. */
   ctx.ContentService = {
@@ -269,7 +285,7 @@ console.log('\n── 한 번 겹쳐도 굳지 않는다 (다시 읽어 맞춘�
   chk('예약까지 갈 일이 없었다', ctx.booked, []);
 }
 
-console.log('\n── 계속 겹치면 1분 뒤 혼자 다시 돈다 ──');
+console.log('\n── 계속 겹치면 조금 뒤 혼자 다시 돈다 ──');
 {
   /* 세 번 다시 읽어도 계속 겹치면 지금 채점이 몰리는 중이다. 그 저장들이
      스스로 맞추겠지만 **마지막 저장이 겹쳐 물러난 경우**는 뒤에 아무도 없다.
@@ -284,7 +300,7 @@ console.log('\n── 계속 겹치면 1분 뒤 혼자 다시 돈다 ──');
   chk('저절로 맞춰진다고 말한다', /저절로|1분/.test(j.msg || ''), true);
   chk('한 번도 안 썼다', sheet.writes, 0);
   chk('난입한 줄이 다 살아 있다', sheet._rows.filter(r => /^난입/.test(r[1])).length, 3);
-  chk('1분 뒤로 예약했다', ctx.booked, ['recomputeSoon']);
+  chk('조금 뒤로 예약했다', ctx.booked, ['recomputeSoon']);
 
   /* 예약은 하나만. 열 명이 몰아 채점하면 예약도 열 개가 되고, 앱스크립트
      트리거는 20개가 상한이다. */
@@ -295,6 +311,44 @@ console.log('\n── 계속 겹치면 1분 뒤 혼자 다시 돈다 ──');
      보여 영영 다시 안 걸린다. */
   ctx.recomputeSoon();
   chk('예약이 돌면 다시 걸 수 있다', ctx.booked, ['recomputeSoon']);
+}
+
+console.log('\n── 저장은 덧붙이고 끝난다 (재계산은 예약한다) ──');
+{
+  /* 2026-08-06. 저장이 재계산을 **끝까지 돌린 뒤** 잠금을 놓고 있었다. 재계산은
+     시트를 통째로 읽고 다시 쓰는 일이라 몇 초가 걸린다 — 열 명을 이어 채점하면
+     마지막 사람은 그만큼 줄을 서고, 화면은 '보냈다' 는데 시트에는 한참 안 보인다.
+     앱은 못 갔다고 보고 다시 보내고, 같은 줄이 쌓였다가 중복 지우기에 지워진다.
+     **줄이 생겼다 지워졌다** 하던 것이 그것이다. */
+  const T = 'JMChC 모의고사 11회';
+  const sheet = makeSheet([row(T, '김지성', '1'.repeat(60))]);
+  const ctx = ctxWith(sheet);
+  const post = (nm, ans) => ctx.doPost({ postData: { contents: JSON.stringify({
+    exam: T, name: nm, total: 30, max: 60, correct: 30, answers: ans, areas: '', n: 1, rank: 1,
+  }) } });
+
+  const r1 = JSON.parse(String(post('오승민', '2'.repeat(60)).getContent()));
+  chk('저장은 성공이라고 답한다', r1.ok, true);
+  chk('줄이 붙었다', sheet._rows.length, 2);
+  chk('저장이 시트를 다시 쓰지 않는다', sheet.writes, 0);
+  chk('재계산을 예약해 뒀다', ctx.booked, ['recomputeSoon']);
+
+  /* 열 명을 이어 채점해도 예약은 하나, 되쓰기는 0 이다. */
+  const before = ctx.locks.taken;
+  for (let i = 0; i < 9; i++) post('학생' + i, String((i % 4) + 1).repeat(60));
+  chk('열 명이 다 붙었다', sheet._rows.length, 11);
+  chk('그래도 되쓰기는 없다', sheet.writes, 0);
+  chk('예약은 여전히 하나', ctx.booked, ['recomputeSoon']);
+  chk('저장마다 잠금을 쥐긴 한다', ctx.locks.taken - before, 9);
+  chk('잠금을 겹쳐 쥐지 않는다', ctx.locks.held, 0);
+
+  /* 예약이 돌면 그때 전부 맞춘다. */
+  ctx.recomputeSoon();
+  chk('예약이 돌면 그때 쓴다', sheet.writes > 0, true);
+  chk('열한 줄 그대로', sheet._rows.length, 11);
+  const ns = sheet._rows.map(r => r[13]);
+  chk('총원이 모두 같다', ns.every(x => x === ns[0]), true);
+  chk('예약을 지우고 돌았다', ctx.booked, []);
 }
 
 console.log('\n── 한 회차만 맞출 때도 같다 ──');
