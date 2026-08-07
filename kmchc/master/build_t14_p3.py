@@ -656,9 +656,14 @@ def local_checks(items):
     #    교재가 값으로 못 박은 것은 다섯뿐이고 이온 반지름은 기출 자료일 뿐이다. P2 는 값을
     #    아예 쓰지 않았지만 P3 은 이온을 다루므로 값이 필요하다 → ★발문이 준 값만 쓴다.★
     #    이렇게 하면 학생이 외울 것이 없고 은행이 기출 수치에 기대지도 않는다.
+    #    ▸ ★P4 에서 넓혔다★ — 계산 문항에서는 ★답이 곧 새 값★ 이라 해설이 발문에 없는
+    #      수를 적어야 한다(77 을 두 배 한 154). 그래서 허용 집합에 ★선지에 적힌 값★ 을
+    #      더했다. 교재 밖 수치가 들어올 길은 그대로 막혀 있다 — 선지도 저작물이기 때문이다.
     NUM = re.compile(r'(\d+)\s*pm')
     for x in items:
         given = set(NUM.findall(x['stem']))
+        for c in x['choices']:
+            given |= set(NUM.findall(c))
         used = set(NUM.findall(x['solution']))
         extra = used - given
         if extra:
