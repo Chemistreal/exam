@@ -311,6 +311,16 @@ jobs:
         run: node tests/retest-sheet.js
       - name: 강의 125장에 돌아가는 자리가 붙어 있는가
         run: python3 tools/lec_back.py --check
+      # 학생은 자기 오답이 가리키는 **한 강만** 연다. 그런데 강의를 쓸 때는
+      # 앞뒤를 다 아는 사람이 쓰므로 "앞에서 배운 Ka·Kb(087)" 같은 문장이
+      # 나온다 — 087을 안 본 학생에게는 모르는 말을 아는 것처럼 다루는 말이다.
+      - name: 강의 전수 검사 (처음 보는 학생이 알아듣는가)
+        run: python3 tools/lec_audit.py --check
+      # 얼개가 아니라 **글 안의 화학**을 본다 — 반응식이 실제로 맞춰져 있는가,
+      # 상수가 장마다 같은가, 뼈대가 갖춰져 있는가, 표기가 안 깨졌는가.
+      # 사람이 125장을 매번 훑을 수 없고, 훑어도 계수 하나는 눈에 안 잡힌다.
+      - name: 강의 내용 검사 (반응식 균형 · 상수 · 뼈대)
+        run: python3 tools/lec_content.py --check
       - name: 명단 관리 (이름 고침 · 합치기)
         run: node tests/roster-admin.js
       # 답안을 치는 중에 인원 응답이 도착해도 화면을 갈아엎거나 저절로
