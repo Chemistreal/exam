@@ -6,7 +6,7 @@
    닿을 수 있었다. 시험지를 나눠 주려고 여는 자리에는 아무것도 없었다.
 
    그리고 이름이 사실과 달랐다. 링크는 전부 '정답·개념 해설' 이었는데, 담긴
-   내용은 회차마다 다르다 — 산과염기 60제·기출동형·KMChC 2024~2026 은
+   내용은 회차마다 다르다 — 기출동형과 일부 KMChC 2024~2026 회차는
    문항별 풀이가 아직 없고 정답·영역·개념표까지다. 해설을 기대하고 연 사람이
    표만 보게 된다.
 
@@ -39,6 +39,10 @@ console.log('── 링크가 가리키는 파일이 실제로 있다 ──');
 {
   const noPdf = EXAMS.filter(e => !e.pdf || !fs.existsSync(path.join(ROOT, e.pdf))).map(e => e.id);
   chk('문제지 PDF 가 전 회차에 있다', noPdf, []);
+  const missingExtra = EXAMS.flatMap(e => ['answerPdf', 'bookPdf']
+    .filter(k => e[k] && !fs.existsSync(path.join(ROOT, e[k])))
+    .map(k => `${e.id}:${k}`));
+  chk('등록한 공식 정답·완성본 PDF 가 있다', missingExtra, []);
   const noSol = EXAMS.filter(e => !fs.existsSync(path.join(ROOT, `sol-final-${e.id}.html`))).map(e => e.id);
   chk('해설 파일이 전 회차에 있다', noSol, []);
   // 빈 껍데기를 링크하면 받는 쪽에서야 알게 된다
@@ -61,7 +65,7 @@ console.log('\n── 이름이 내용과 맞는다 ──');
     if (!!e.solFull !== has) drift.push(`${e.id}: solFull=${!!e.solFull} · 실제 해설=${has}`);
   });
   chk('solFull 이 해설 데이터와 같다', drift, []);
-  chk('문항별 해설이 있는 회차 수', EXAMS.filter(e => e.solFull).length, 27);
+  chk('문항별 해설이 있는 회차 수', EXAMS.filter(e => e.solFull).length, 29);
   // 산과염기 60제에 풀이를 써 넣었다. 데이터에서 파생되므로 값이 저절로 따라온다.
   chk('산과염기 60제에 풀이가 생겼다',
       EXAMS.find(e => e.id === 'sanyeom-60').solFull, true);
@@ -85,11 +89,16 @@ console.log('\n── 앱이 그 이름과 다운로드를 붙인다 ──');
 
   const thin = ctx.examAssetsHTML(EXAMS.find(e => e.id === 'donghyung-1'));
   const full = ctx.examAssetsHTML(EXAMS.find(e => e.id === 'jmchc-6'));
+  const latest = ctx.examAssetsHTML(EXAMS.find(e => e.id === 'kmchc-2026-1-simhwa'));
   chk('풀이 없는 회차는 개념표라고 적는다', /정답 · 개념표/.test(thin), true);
   chk('풀이 없는 회차를 해설이라 하지 않는다', /문항별 해설/.test(thin), false);
   chk('풀이 있는 회차는 문항별 해설이라 적는다', /정답 · 문항별 해설/.test(full), true);
 
   chk('문제지가 걸린다', /href="donghyung-1-problem\.pdf" download/.test(thin), true);
+  chk('새 회차 공식 정답을 직접 받는다',
+      /href="kmchc-2026-1-simhwa-answer\.pdf" download/.test(latest), true);
+  chk('새 회차 문제편·해설편을 직접 받는다',
+      /href="kmchc-2026-1-simhwa-solution-book\.pdf" download/.test(latest), true);
   chk('해설이 내려받아진다', /href="sol-final-donghyung-1\.html" download/.test(thin), true);
   chk('브라우저로 열어 볼 수도 있다', /target="_blank"/.test(thin), true);
   chk('새 창 링크에 rel=noopener 가 있다', /rel="noopener"/.test(thin), true);

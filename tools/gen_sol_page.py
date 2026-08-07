@@ -78,15 +78,36 @@ def build(exam_id: str) -> str:
     has_exp = [k for k in q if str(q[k].get("explanation") or "").strip()]
 
     esc = html.escape
+    source_files = [
+        (exam.get("pdf"), "공식 문제 PDF ↓"),
+        (exam.get("answerPdf"), "공식 정답 PDF ↓"),
+        (exam.get("bookPdf"), "문제편·해설편 PDF ↓"),
+    ]
+    source_files = [(path, label) for path, label in source_files if path]
+    extra_css = """
+.source-assets{max-width:860px;margin:14px auto 0;padding:0 20px;display:flex;gap:8px;flex-wrap:wrap}
+.source-assets a{display:inline-flex;align-items:center;padding:8px 11px;border:1px solid var(--line);
+ border-radius:8px;background:#fff;color:var(--teal);font-size:13px;font-weight:700;text-decoration:none}
+.source-assets a:hover{border-color:var(--teal)}
+.sol-part{margin:13px 0}.sol-part h4{margin:0 0 5px;color:var(--teal);font-size:13.5px;letter-spacing:.02em}
+.sol-part p{margin:5px 0;white-space:pre-wrap}
+.answer-confirm{margin:14px 0 0;padding-top:9px;border-top:1px dashed var(--line);color:var(--teal)}
+""" if exam.get("answerPdf") or exam.get("bookPdf") else ""
     out = ["<!DOCTYPE html><html lang=\"ko\"><head><meta charset=\"utf-8\">",
            "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">",
-           f"<title>{esc(exam['title'])} · 해설지</title><style>{CSS}</style></head><body>",
+           f"<title>{esc(exam['title'])} · 해설지</title><style>{CSS}{extra_css}</style></head><body>",
            "<header><div class=\"logo\">CHEMISTREAL · FINAL 해설지</div>",
            f"<h1>{esc(exam['title'])}</h1>",
            f"<div class=\"sub\">문항별 정답 · 영역 · 개념"
            f"{' · 사고과정 해설' if has_exp else ''} · {exam['nQ']}문항</div>",
            "<div class=\"sub\" style=\"margin-top:6px\">문제 지문은 문제지(PDF)에 있습니다 — "
            "성적표 화면에서 함께 내려받을 수 있습니다.</div></header>"]
+
+    if exam.get("answerPdf") or exam.get("bookPdf"):
+        links = "".join(
+            f'<a href="{esc(path)}" download>{label}</a>' for path, label in source_files
+        )
+        out.append(f'<nav class="source-assets" aria-label="시험 자료 직접 다운로드">{links}</nav>')
 
     if unreviewed and has_exp:
         out.append(f"<div class=\"warn\"><b>검수 전 해설입니다.</b> {len(unreviewed)}문항의 사고과정이 "
