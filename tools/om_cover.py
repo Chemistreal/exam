@@ -87,6 +87,33 @@ def per_question():
     return have, total, thin
 
 
+def no_explanation():
+    """해설(사고과정)이 아직 없는 문항을 회차별로 모은다.
+
+    오개념 한 줄과 해설은 다른 것이다. 오개념은 유형이 정해지면 쓸 수 있지만,
+    해설은 그 문항의 선택지와 그림을 봐야 쓸 수 있다. 문제지 PDF 에서 선택지나
+    반응식이 **이미지**로 들어가 또렷하지 않은 자리는 짐작으로 쓰지 않고 비워
+    두었다 — 틀린 해설은 없느니만 못하다.
+
+    빨간불은 켜지 않는다. 원본을 구해야 채울 수 있는 것이라 코드로 어쩔 수
+    없다. 어디가 비었는지 보이게만 해 둔다.
+    """
+    data = json.load(open(EXAMS, encoding='utf-8'))
+    rounds = data if isinstance(data, list) else data.get('exams', [])
+    out = []
+    for ex in rounds:
+        p = os.path.join(ROOT, 'answers', '%s.json' % ex.get('id'))
+        if not os.path.exists(p):
+            continue
+        qs = (json.load(open(p, encoding='utf-8')).get('questions') or {})
+        miss = [i for i in range(1, int(ex.get('nQ') or 0) + 1)
+                if qs.get(str(i)) is not None
+                and not (qs[str(i)].get('explanation') or '').strip()]
+        if miss:
+            out.append((ex.get('id'), miss))
+    return out
+
+
 def main():
     check = '--check' in sys.argv
     keys = omlib_keys()
@@ -101,12 +128,29 @@ def main():
     print('유형 %d종 · 문항 %d개 · OMLIB %d줄' % (len(types), len(rows), len(keys)))
 
     have, total, thin = per_question()
-    print('문항별 오개념 %d/%d문항 (나머지는 OMLIB 가 받는다)' % (have, total))
+    print('문항별 오개념 %d/%d문항' % (have, total))
     for eid, h, n in thin:
         print('    %-22s %d/%d' % (eid, h, n))
 
+    # 2026-08-07 에 2220문항이 모두 자기 오개념을 갖게 됐다. 여기서부터는
+    # 빠지는 것을 빨간불로 막는다 — 새 회차를 넣을 때 한 문항이라도 비면
+    # 그 학생은 유형 단위의 일반적인 말만 받게 된다.
+    if thin:
+        print('\n문항별 오개념이 빠진 회차가 있다.')
+        print('answers/<회차>.json 의 그 문항에 misconception 을 써 넣어라.')
+        if check:
+            return 1
+
+    gaps = no_explanation()
+    if gaps:
+        n = sum(len(v) for _, v in gaps)
+        print('\n해설(사고과정)이 아직 없는 문항 %d개 — 선택지·그림이 이미지라 비워 둔 자리:' % n)
+        for eid, qs in gaps:
+            print('    %-22s %s' % (eid, ', '.join('%d번' % q for q in qs)))
+        print('    (오개념 한 줄은 이 문항들에도 다 있다. 해설은 원본이 있어야 쓴다.)')
+
     if not miss:
-        print('한 줄이 비는 유형: 없음')
+        print('\n한 줄이 비는 유형: 없음')
         return 0
 
     print('\n한 줄이 비는 유형 %d종:' % len(miss))
@@ -120,4 +164,13 @@ def main():
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except BrokenPipeError:
+        # `| head` 로 잘라 보는 일이 잦다. 그때마다 역추적이 뜨면 진짜 오류처럼
+        # 보인다. 파이프가 끊긴 것은 잘못이 아니므로 조용히 끝낸다.
+        try:
+            sys.stdout.close()
+        except Exception:
+            pass
+        sys.exit(0)
