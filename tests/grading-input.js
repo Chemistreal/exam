@@ -8,14 +8,14 @@
         다시 가버리는 등 입력 단계에서 오류가 발생하고, 스프레드시트에는
         학생 기록이 생겼다가 지워졌다가 반복되는 오류가 생겨."
 
-   셋 다 **한 줄**에서 나왔다.
+   뿌리는 하나다 — **시트에서 늦게 오는 답이 화면을 다시 그린다.** 채점할 때
+   두 가지를 묻는데(인원 loadLiveCohort · 전 회차 이력 loadHist), 둘 다 답이
+   몇 초 뒤에 온다. 그 사이 선생님은 '다음 학생' 으로 넘어가 답안을 치고 있다.
 
-       loadLiveCohort(id, function(){ scoreAuto(); });
+       loadLiveCohort(id, function(){ scoreAuto(); });   // ← 저장까지 한다
+       loadHist(nm) → rerenderReport() → scoreAuto(true) // ← 화면만 갈아엎는다
 
-   인원을 묻는 답(JSONP)은 몇 초 뒤에 온다. 그 사이 선생님은 '다음 학생' 으로
-   넘어가 답안을 치고 있다. 그때 이 콜백이 도착해 `scoreAuto()` 를 부른다 —
-   그런데 **인자 없는 scoreAuto 는 채점해서 저장하고 시트로 보내는 길**이다
-   (saveSubs · saveToSheetFinal). 그래서
+   그래서
 
      · 반쯤 친 답안이 그대로 채점되어 시트로 갔다      → 갑자기 자동 저장
      · 입력칸이 성적표로 갈아엎어졌다                  → 화면이 위로 확 감
@@ -24,11 +24,18 @@
      · 반쯤 친 답안이 조금씩 달라 줄이 쌓였고, 우연히
        같아진 줄은 재계산의 중복 지우기에 지워졌다     → 생겼다 지워졌다 반복
 
+   앞엣것은 인자 없는 scoreAuto 라 **채점해서 저장하고 시트로 보내는 길**이고,
+   뒤엣것은 저장은 안 하지만 성적표로 갈아엎으면서 **스크롤을 맨 위로** 보낸다
+   (scoreAuto 끝에 window.scrollTo(0,0)). 둘 다 '성적표가 화면에 없으면 그리지
+   않는다' 로 막는다.
+
    여기서 지키는 것:
    - 인원이 도착해도 **입력 화면은 그대로**다(칸도, 친 답도, 스크롤도)
    - 인원이 도착해도 **시트로 아무것도 안 보낸다**
    - 채점한 뒤 성적표에서는 인원이 도착하면 다시 그린다(그게 이 창구의 목적)
    - 채점 한 번에 시트 전송도 한 번이다(2.5초 뒤 재조회가 한 번 더 보내면 안 된다)
+   - **이력**이 도착해도 입력 화면과 스크롤이 그대로다
+   - 성적표를 보고 있을 때는 이력이 오면 여전히 다시 그린다
 
    실행 (먼저 저장소 루트에서 `python3 -m http.server 8931`):
        PLAYWRIGHT_MODULE=<경로> CHROMIUM_PATH=<경로> node tests/grading-input.js
@@ -71,7 +78,10 @@ const EXAM = 'jmchc-6';
      - POST(채점 전송)는 세기만 하고 막는다
      - action=cohort 는 **진짜처럼 대답한다** — 그 답이 도착하는 순간이
        이 검사가 보려는 바로 그 순간이다 */
-  let posts = 0, cohortAsks = 0;
+  let posts = 0, cohortAsks = 0, histAsks = 0;
+  /* 이력 응답은 **우리가 부를 때** 오게 한다. 채점하는 순간 나가서 몇 초 뒤에
+     오는 것이 진짜 모습이라, 그 '몇 초 뒤' 를 검사가 정해야 한다. */
+  let histReply = null;
   await page.route('**://script.google.com/**', route => {
     const req = route.request();
     if (req.method() === 'POST') { posts++; return route.abort('blockedbyclient'); }
@@ -82,6 +92,13 @@ const EXAM = 'jmchc-6';
       const body = `${m[1]}({"ok":true,"exam":"${EXAM}","hist":{"30":2,"40":3},"n":5,` +
                    `"yhist":{"30":2,"40":3},"yn":5,"year":2026,"skipped":0});`;
       return route.fulfill({ status: 200, contentType: 'text/javascript', body });
+    }
+    if (/action=history/.test(url) && m) {
+      histAsks++;
+      histReply = () => route.fulfill({ status: 200, contentType: 'text/javascript',
+        body: `${m[1]}({"ok":true,"rows":[{"examId":"${EXAM}","exam":"JMChC 모의고사 6회",` +
+              `"name":"홍길동","school":"","grade":"","answers":"${'1'.repeat(60)}","ts":1700000000000}]});` });
+      return;                                  // 붙잡아 둔다 — 우리가 놓아 줄 때 간다
     }
     return route.abort('blockedbyclient');
   });
@@ -101,11 +118,15 @@ const EXAM = 'jmchc-6';
      결함이 살아 있으면 치는 도중에 칸이 사라진다 — 30초를 기다렸다 넘어지면
      무엇이 잘못됐는지 안 보이니, 그 자리에서 이름을 붙여 실패로 적는다. */
   try {
+    /* 처음 그려지는 것은 기다려 준다 — 그것과 '치는 도중에 사라졌다' 는 다르다. */
+    await page.waitForSelector('#ai_1', { timeout: 15000 });
     for (let q = 1; q <= 5; q++) {
       await page.fill('#ai_' + q, '', { timeout: 5000 });
       await page.type('#ai_' + q, String((q % 4) + 1));
     }
   } catch (e) {
+    console.log('  진단 화면:', (await page.evaluate(() => document.getElementById('app').innerHTML.slice(0, 300))));
+    console.log('  진단 오류:', JSON.stringify(errs));
     chk('치는 동안 입력칸이 안 사라진다', String(e.message).split('\n')[0], '(안 사라짐)');
     console.log(fail ? `\nFAIL ${fail}건` : '\nPASS');
     await browser.close();
@@ -173,6 +194,47 @@ const EXAM = 'jmchc-6';
     ['1', '1', '1']);
   chk('시트로 안 보냈다', posts - postsB, 0);
   chk('줄이 안 늘었다', (await page.evaluate((id) => subs(id).length, EXAM)) - subsB, 0);
+
+  console.log('\n── 다음 학생을 치는 중에 앞 학생의 이력 답이 도착한다 ──');
+  /* 채점할 때 인원 말고 **전 회차 이력**도 같이 물어 본다(loadHist). 그 답도
+     성적표를 다시 그린다 — 저장은 안 하지만 화면을 갈아엎고 **스크롤을 맨 위로**
+     보낸다(scoreAuto 끝에 window.scrollTo(0,0)). 그것이 "입력할 때 스크롤이
+     저절로 이동하던" 나머지 한 갈래다. */
+  chk('이력을 묻긴 했다', histAsks > 0, true);
+  await page.evaluate(() => window.scrollTo(0, 400));
+  const scrollB = await page.evaluate(() => window.scrollY);
+  if (histReply) { await histReply(); histReply = null; }
+  await page.waitForTimeout(1200);
+  chk('입력칸이 그대로 있다', await page.evaluate(() => !!document.getElementById('ai_1')), true);
+  chk('성적표로 갈아엎히지 않았다',
+    await page.evaluate(() => !!document.getElementById('repPDF')), false);
+  chk('스크롤이 안 튀었다', await page.evaluate(() => window.scrollY), scrollB);
+  chk('친 답이 남아 있다',
+    /* 칸이 사라졌으면 여기서 넘어지지 않고 무엇이 없어졌는지 적는다 —
+       실패가 예외로 바뀌면 뒤 검사가 통째로 안 돈다. */
+    await page.evaluate(() => [1, 2, 3].map(q => {
+      const el = document.getElementById('ai_' + q); return el ? el.value : '(칸이 없다)';
+    })),
+    ['1', '1', '1']);
+
+  console.log('\n── 성적표를 보고 있을 때는 이력이 오면 다시 그린다 ──');
+  /* 막기만 하면 안 된다 — 성적표 위에서는 '지금까지 N회 응시' 가 이력이 와야
+     맞는다. 그 자리에서는 여전히 다시 그려야 한다. */
+  await page.evaluate(() => {
+    for (let q = 1; q <= cur.nQ; q++) setAns(q, (q % 4) + 1);
+    document.getElementById('nm').value = '홍길동';
+    scoreAuto(true);                       // 저장 없이 성적표만 띄운다
+  });
+  await page.waitForTimeout(200);
+  const marked = await page.evaluate(() => {
+    HIST_ROWS = [{ examId: 'zzz', exam: '다른 회차', name: '홍길동', answers: '1', ts: 1 }];
+    HIST_FOR = '홍길동';
+    const before = document.getElementById('repPDF') && document.getElementById('repPDF').dataset.t;
+    document.getElementById('repPDF').dataset.t = 'old';
+    rerenderReport();
+    return { was: before, now: document.getElementById('repPDF').dataset.t };
+  });
+  chk('성적표 위에서는 다시 그린다', marked.now, undefined);
 
   chk('자바스크립트 오류 없음', errs, []);
   await browser.close();
