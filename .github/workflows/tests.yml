@@ -309,12 +309,18 @@ jobs:
         run: node tests/prereq-drill.js
       - name: 동형 미니 시험지 · 시트 기록
         run: node tests/retest-sheet.js
+      - name: 강의 125장에 돌아가는 자리가 붙어 있는가
+        run: python3 tools/lec_back.py --check
       - name: 명단 관리 (이름 고침 · 합치기)
         run: node tests/roster-admin.js
       # 답안을 치는 중에 인원 응답이 도착해도 화면을 갈아엎거나 저절로
       # 저장하면 안 된다 — 2026-08-06 에 실제로 그랬다.
       - name: 채점 입력 (치는 중에 갈아엎히지 않는다)
         run: node tests/grading-input.js
+      # 성적표에서 개념강의를 열면 돌아오는 단추가 **그 성적표**를 가리켜야
+      # 한다. 목록으로 보내면 학생은 코드를 몰라 잠금 화면에 갇힌다.
+      - name: 강의에서 돌아가기 (성적표로 · 목록 아님)
+        run: node tests/lec-back.js
       # 매일 도는 점검이 매일 같은 실패를 알리면, 사람이 알림을 안 보게 된다.
       # 알릴 것과 안 알릴 것을 가르는 규칙을 여기서 잰다(창구는 안 두드린다).
       - name: 점검 알림 (같은 소식을 두 번 말하지 않는다)

@@ -5406,6 +5406,31 @@ function boot(){
 }
 /* 해시를 바꾸지 않고 오답 개념 클리닉으로 스크롤(공유 리포트 #r= 상태 유지) */
 function scrollToClinic(){ var e=document.getElementById('clinic'); if(e){ e.scrollIntoView({behavior:'smooth',block:'start'}); } }
+/* ── 개념강의로 나갈 때, 돌아올 자리를 들려 보낸다 ────────────────────
+   학생이 강의를 여는 길은 하나다 — 자기 성적표의 '오답 개념 클리닉'. 그런데
+   강의 페이지의 돌아가는 단추는 시험 목록으로 박혀 있어서, 눌러도 자기
+   성적표가 아니라 **남의 이름과 점수가 있는 목록**이 나왔다. 코드를 모르니
+   잠금 화면에 갇히고, 성적표 주소는 손으로 칠 수 있는 것이 아니다.
+
+   그래서 나가는 링크에 `?from=` 으로 지금 주소를 실어 준다. 강의 쪽 조각은
+   tools/lec_back.py 가 125장에 넣어 두었다.
+
+   ⚠ 주소에 싣는다(sessionStorage 가 아니다). 강의는 **새 탭**에서 열리는데
+     (rel=noopener) 새 탭은 이 탭의 sessionStorage 를 물려받지 않는다. 같은
+     탭에서는 한 번 적힌 것이 계속 남아, 나중에 목록에서 연 강의까지 성적표로
+     보내 버린다 — 얻는 것 없이 끈적하기만 하다.
+
+   성적표(#r=)일 때만 싣는다. 선생님이 목록에서 채점하다 연 강의는 예전처럼
+   목록으로 돌아가는 것이 맞다. */
+document.addEventListener('click', function(e){
+  var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+  if(!a) return;
+  var h = a.getAttribute('href') || '';
+  if(!/^lec-[\w-]+\.html/.test(h)) return;
+  if(!/[#&]r=/.test(location.hash)) return;
+  var base = h.split('?')[0].split('#')[0];
+  a.setAttribute('href', base + '?from=' + encodeURIComponent(location.href));
+}, true);
 /* 시험 목록·채점 규칙을 받아 온 뒤에 화면을 그린다. */
 async function start(){
   FINAL_EXAMS=await loadExams();
