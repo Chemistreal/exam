@@ -59,6 +59,13 @@ jobs:
       # 한 줄뿐이라 무엇이 잘못됐는지 알 수 없다. 두 번 겪었다(offline·hub-live).
       # 여기서 가장 오래 걸리는 검사가 65초다. 240초면 넉넉하다.
       TEST_MAX_SEC: '240'
+      # ⚠ 위 TEST_MAX_SEC 은 `tests/run.js` 가 검사들을 **자기가 돌릴 때** 쓰는
+      #   값이다. CI 는 검사마다 별도의 단계로 node 를 직접 부르므로 그 보호가
+      #   여기까지 오지 않는다. 2026-08-07 에 '통합 셸 · 실제 브라우저' 가
+      #   그대로 멈춰 30분 작업 한도를 통째로 먹고 죽었다 — 통나무에는 그 단계가
+      #   "진행 중" 인 것뿐이라, 뒤에 있던 검사 서른일곱 개는 아예 돌지도 않았다.
+      #   그래서 **단계마다** timeout-minutes 를 붙였다. 멈추면 몇 분 만에,
+      #   어느 단계에서 멈췄는지 이름과 함께 빨간불이 켜진다.
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -69,6 +76,7 @@ jobs:
           python-version: '3.11'
       # wrongbook-assets.py 가 크롭 PNG 2400장이 실제로 열리는지 확인할 때 쓴다.
       - name: Pillow 설치
+        timeout-minutes: 5
         run: python3 -m pip install --quiet Pillow
 
       # ── 브라우저 ──────────────────────────────────────────
@@ -76,8 +84,10 @@ jobs:
       # **매번 조용히 건너뛰고 초록불** 이었다 — 통합 셸의 실제 브라우저 검사는
       # 한 번도 CI 에서 돈 적이 없다. 초록불이 거짓말을 하면 검사는 없느니만 못하다.
       - name: playwright 설치
+        timeout-minutes: 5
         run: npm install --prefix tests
       - name: chromium 설치
+        timeout-minutes: 10
         run: npx --prefix tests playwright install --with-deps chromium
       # 브라우저 검사는 정적 서버가 있어야 한다(file:// 로는 localStorage 오리진이
       # 갈려서 앱끼리 기록을 못 나눈다 — 이 셸이 기대는 바로 그 성질이다).
@@ -85,6 +95,7 @@ jobs:
       # 설치하며 파일을 한꺼번에 받아 갈 때 화면의 요청과 엉켜 서로를 기다린다.
       # 오프라인 검사가 그것 때문에 CI 를 40분 붙들고 있었다. 여러 줄로 받는다.
       - name: 정적 서버 (검사용)
+        timeout-minutes: 3
         run: |
           nohup python3 -c 'from http.server import SimpleHTTPRequestHandler,ThreadingHTTPServer; ThreadingHTTPServer(("",8931),SimpleHTTPRequestHandler).serve_forever()' >/dev/null 2>&1 &
           for i in $(seq 1 40); do
@@ -95,67 +106,91 @@ jobs:
 
       # ── 채점 ──────────────────────────────────────────────
       - name: 원점수 채점 규칙
+        timeout-minutes: 5
         run: node tests/final-score.js
       - name: 학생제출 ↔ 교사용 동기화
+        timeout-minutes: 5
         run: node tests/final-submit-sync.js
 
       # ── 데이터 정합성 ─────────────────────────────────────
       - name: 통계 풀 병합 · 동형문제 세트
+        timeout-minutes: 5
         run: node tests/final-cohort-alias.js
       - name: 시트 동기화 시험 제목 표
+        timeout-minutes: 5
         run: node tests/appsscript-sync.js
       - name: 성적표 문자 문장 다양화
+        timeout-minutes: 5
         run: node tests/message-variety.js
       - name: 전원정답 문항 (답을 안 써도 정답 · 분모에서 안 뺀다)
+        timeout-minutes: 5
         run: node tests/allcorrect.js
       - name: 갈라진 이름표 (응시했는데 안 한 것처럼 보이는 회차)
+        timeout-minutes: 5
         run: node tests/split-name.js
       - name: 응시 이력 (브라우저가 아니라 학생에게 붙는다)
+        timeout-minutes: 5
         run: node tests/history.js
       - name: 연도누적 총석차 · 당해년도 반석차
+        timeout-minutes: 5
         run: node tests/rank-year.js
       - name: 깃허브 자동 저장 (이름 대신 코드 · 손으로 넣은 기준을 안 덮는다)
+        timeout-minutes: 5
         run: node tests/backup-gs.js
       - name: 시트 수정 창구 (지목한 행만 바뀐다)
+        timeout-minutes: 5
         run: node tests/sheet-edit.js
       - name: 시트 석차 재계산 (나중 학생이 앞사람 인원을 늘린다)
+        timeout-minutes: 5
         run: node tests/rank-recompute.js
       - name: 또래 정답률 모집단 (기준 기록을 합쳐 센다)
+        timeout-minutes: 5
         run: node tests/peer-rate.js
       - name: 시험 제목 표가 시험 목록과 일치
+        timeout-minutes: 5
         run: python3 tools/gen_exam_titles.py
       - name: 기준 코호트 표가 시험 목록·기준 기록과 일치
+        timeout-minutes: 5
         run: python3 tools/gen_gas_cohort.py
       - name: 문자 범위 문구가 시험 목록·영역 데이터와 일치
+        timeout-minutes: 5
         run: python3 tools/gen_gas_msgexams.py
       - name: 동형문제 자산 (전 시험 전 문항)
+        timeout-minutes: 5
         run: python3 tests/wrongbook-assets.py
       - name: 표기 · 정답 분포 · 문항 형식
+        timeout-minutes: 5
         run: python3 tools/dh_lint.py
       - name: 개념 색인이 문항 데이터와 일치
+        timeout-minutes: 5
         run: python3 tools/gen_pool_index.py --check
       # exams.json 이 늦게 와도 앱이 죽지 않도록 파일 안에 심어 둔 예비본.
       # 손으로 고치는 사본이 아니라 exams.json 에서 생성한 것이라, 어긋나면 빨간불.
       - name: 회차 자료 링크 (문제지·해설이 실제로 있다)
+        timeout-minutes: 5
         run: node tests/exam-assets.js
       # 눈으로 보면 "좀 흐린가?" 로 끝나고 흐린 채로 남는다. 숫자로 박아 둔다.
       # (--muted 가 셸에서는 고쳐졌는데 파이널에는 옛 값이 남아 갈렸던 적이 있다)
       - name: 색 대비 · 글씨 크기 (두 앱이 갈리지 않게)
+        timeout-minutes: 5
         run: node tests/contrast.js
       # 위 검사는 파이널·셸 두 장만 본다. 화면은 261장이다 — 나머지 259장은
       # 아무도 안 봤고, 재어 보니 218곳이 대비 미달, 706곳이 11px 미만이었다.
       - name: 화면 전수 검수 (대비 · 글씨 · 안전장치)
+        timeout-minutes: 5
         run: python3 tools/audit_pages.py
       # 낭독기는 이름 없는 입력칸을 그냥 '편집' 이라고 읽는다 — 열 칸이
       # 나란히 있으면 열 번 다 '편집' 이다. 눈에 보이는 <label> 이 이미
       # 있는데 이어지지 않은 자리는 사람 판단 없이 이어 줄 수 있다.
       - name: 입력칸에 이름이 붙어 있다
+        timeout-minutes: 5
         run: python3 tools/input_labels.py --check
       # kmchc/분석_v2.html 은 표 머리에 `scope="col"` 을 붙이던 손질이 큰따옴표로
       # 묶인 글자열 **안쪽**에 큰따옴표를 넣는 바람에, 화면을 열면 자바스크립트가
       # 첫 줄에서 죽어 통째로 아무 일도 안 했다. 파일만 보면 멀쩡했고 검사도 다
       # 통과했다 — 아무도 그 화면을 안 열어 봤기 때문이다. 이제 기계가 연다.
       - name: 화면 안 자바스크립트가 안 깨졌다
+        timeout-minutes: 5
         run: python3 tools/js_syntax.py --check
       # 해설지 77장 중 52장이 26쌍의 복사본이다(바이트 단위로 같다 · 1.64MB).
       # 지금은 같으니 아무 일도 안 일어난다. 무서운 것은 **다음 손질**이다 —
@@ -163,18 +198,21 @@ jobs:
       # 어느 쪽을 연 학생이 틀린 해설을 보는지는 그때 가서도 모른다.
       # 지우지는 않는다(어느 이름을 남길지는 선생님이 정한다). 갈라지는 것만 막는다.
       - name: 같은 화면 두 벌이 갈라지지 않았다
+        timeout-minutes: 5
         run: python3 tools/dupe_pages.py --check
       # 팔레트가 261번 따로 적혀 있었고, 그러는 동안 값이 갈라졌다 —
       # --line 8가지 · --ink 6가지 · --teal 5가지 · --paper 2가지.
       # 한 장씩 보면 다 멀쩡하고, 나란히 놓을 일이 없으니 아무도 몰랐다.
       # 이제 한 곳(tools/theme.py)에서 찍어 넣고, 어긋난 장이 있으면 막는다.
       - name: 모든 화면이 같은 옷을 입고 있다
+        timeout-minutes: 5
         run: python3 tools/theme.py --check
       # 그 옷에는 그림이 두 겹 깔린다(머리띠 문양 · 여백의 벤젠 고리).
       # 글로만 읽는 검사는 겹쳐진 결과를 못 본다 — 색 이름표만 재면 문양이
       # 아무리 진해도 초록불이다. 그래서 **화면을 찍어 화소를 읽는다.**
       # 이 검사를 만들면서 원래 있던 대비 미달 여섯 자리가 드러나 같이 고쳤다.
       - name: 그림 위에서도 글씨가 읽힌다 (실제 브라우저)
+        timeout-minutes: 5
         run: node tests/theme.js
       # 화학1 일6-10 반에 김지완(내정중)·김지완(대청중) 두 학생이 있다.
       # 명단이 이름 글자열이라 한 명만 등록돼 반 인원이 모자랐고, 한 명이
@@ -183,6 +221,7 @@ jobs:
       #   그 값이 순수한 이름인지 여기서 못박는다(객체가 들어가면 학부모에게
       #   '[object Object] 학생' 이라고 나간다).
       - name: 같은 반 동명이인이 갈린다 (문자는 이름만)
+        timeout-minutes: 5
         run: node tests/dupe-name.js
       # 2026-08-05, JMChC 11회를 열 명 이어서 채점했는데 셋이 사라졌다
       # (김규민·전준·최민준). 저장은 한 줄 덧붙인 뒤 시트를 통째로 읽어
@@ -190,6 +229,7 @@ jobs:
       # 진행하게 되어 있었다 — 채점이 몰리자 **뒤늦게 끝난 옛 사진**이
       # 그 사이에 들어온 줄을 덮었다. 되쓰기 직전에 줄 수를 견줘 막는다.
       - name: 채점이 몰려도 방금 저장한 줄이 안 사라진다
+        timeout-minutes: 5
         run: node tests/concurrent-save.js
       # 그림은 재기 어렵다 — "좀 화려한가?" 로는 아무것도 안 고쳐진다. 대신
       # **띠를 사진으로 찍어** 글자가 앉은 자리의 화소를 읽고 대비를 잰다.
@@ -197,6 +237,7 @@ jobs:
       # 안 걸린다). 그림이 유일한 통로가 아닌지, WebGL 이 없는 기기에서 빈
       # 구멍이 안 남는지, 안 보일 때 프레임을 멈추는지도 같이 본다.
       - name: 3D 가 글씨를 먹지 않는다 (실제 브라우저)
+        timeout-minutes: 5
         run: node tests/hero3d.js
       # 해설지·문제지는 화면으로도 보지만 **종이로 나가는 것이 본업**이다.
       # 인쇄 규칙이 없으면 바탕색이 A4 를 덮어 잉크를 먹고, 문항이 페이지
@@ -207,11 +248,14 @@ jobs:
       # 종이에서는 강의록 제목이 통째로 안 보였다 — 125장 전부, 절 번호
       # 601곳. 화면으로 보면 멀쩡하니 아무도 몰랐다.
       - name: 인쇄해서 쓰는 화면에 인쇄 규칙이 있다
+        timeout-minutes: 5
         run: python3 tools/print_styles.py --check
       - name: 통합 셸 (명단 합치기 · 회차 집계 · 남의 데이터를 안 건드린다)
+        timeout-minutes: 5
         run: node tests/hub.js
       # 브라우저가 없으면 저절로 건너뛴다(파이널 앱과 맞물리는 자리를 본다)
       - name: 통합 셸 · 실제 브라우저
+        timeout-minutes: 5
         run: node tests/hub-live.js
       # 앱스크립트는 실행을 **한 줄로 세운다** — 몇 번 부르나가 곧 얼마나
       # 기다리나다. 셸을 여는 것만으로 DT 창구를 여덟 번 불렀다(그중 셋은
@@ -219,6 +263,7 @@ jobs:
       # 숫자가 도로 늘면 여기서 걸린다. 묶음 창구가 없는 옛 배포에서도
       # 화면이 사는지(하나씩 다시 묻는 길) 같이 본다.
       - name: 통합 셸이 창구를 몇 번 두드리나
+        timeout-minutes: 5
         env:
           PORT: '8934'
         run: node tests/hub-batch.js
@@ -229,6 +274,7 @@ jobs:
       # ⚠ 마우스 화면은 그대로여야 한다. 거기까지 키우면 한 화면에 들어가던
       #   목록이 밀려난다 — 그건 고치는 것이 아니라 망치는 것이다.
       - name: 휴대폰에서 허브가 눌린다 (마우스 화면은 그대로)
+        timeout-minutes: 5
         env:
           PORT: '8936'
         run: node tests/hub-touch.js
@@ -237,27 +283,34 @@ jobs:
       # 아무것도 없는 흰 종이다. 재어 보니 첫 그림이 13.2초였다 — 같은 망에서
       # 허브는 0.5초, 파이널은 0.6초다(둘은 이 줄이 없다). 고친 뒤 0.86초.
       - name: 바깥 글꼴이 첫 화면을 막지 않는다
+        timeout-minutes: 5
         run: python3 tools/font_block.py --check
       # 성적표 링크는 **암호를 묻지 않는다**(선생님 결정 · tests/gate.js).
       # 그러면 남는 보호막은 주소를 남이 모른다는 것 하나뿐이라, 그 주소가
       # 검색에 잡히면 보호막이 통째로 사라진다 — 아이 이름·점수·등수가
       # 검색되는 것이다. 개인 성적이 뜨는 화면만 골라 막는다(대문은 그대로).
       - name: 개인 성적 화면이 검색에 열려 있지 않다
+        timeout-minutes: 5
         run: python3 tools/noindex.py --check
       # 규칙이 '있다' 는 것과 '실제로 안 기다린다' 는 것은 다르다. 구글이 아예
       # 대답하지 않는 망을 만들어 첫 그림을 재고, 대답하는 망에서는 글꼴이
       # 그대로 오는지도 본다 — 빠르기만 재면 '글꼴을 통째로 빼는 것' 이 만점이다.
       - name: 글꼴 창구가 죽어도 첫 화면이 뜬다
+        timeout-minutes: 5
         env:
           PORT: '8935'
         run: node tests/first-paint.js
       - name: 해설 유무 표시가 해설 데이터와 일치
+        timeout-minutes: 5
         run: python3 tools/gen_exam_solflag.py
       - name: 해설지가 해설 데이터와 일치
+        timeout-minutes: 5
         run: python3 tools/gen_sol_page.py --check
       - name: 시험 목록 예비본이 exams.json 과 일치
+        timeout-minutes: 5
         run: python3 tools/gen_exam_fallback.py --check
       - name: 시험끼리 겹치는 문항 (기준 목록 대비 새로 생긴 것)
+        timeout-minutes: 5
         run: python3 tools/dh_dupe_scan.py --cross --baseline
 
       # ── 브라우저가 있어야 하는 검사 ────────────────────────
@@ -266,23 +319,29 @@ jobs:
       # 목록에서 빠지면 아무도 안 돌린다(실제로 rank-baseline 이 그랬다) —
       # tests/run.js 가 이 목록을 그대로 읽어 로컬에서도 같은 것을 돌린다.
       - name: 석차 모집단 (기준표 + 채점 기록)
+        timeout-minutes: 5
         run: node tests/rank-baseline.js
       # 기준 기록은 석차의 분모다. 자동 갱신이 **두 번** 이것을 지웠다 —
       # 8/3 에 문항별 통계가 열 회차에서, 8/4 에 모집단이 387명→225명으로
       # (jmchc-1 은 46명→11명). 그 분모로 성적표가 나가고 있었다.
       # '손입력 깃발' 하나에 기댄 것이 화근이라, 이제 내용을 보고 막는다.
       - name: 자동 갱신이 못 만드는 것을 지우지 않는다
+        timeout-minutes: 5
         run: node tests/baseline-guard.js
       - name: 성적표 Word 문서
+        timeout-minutes: 5
         run: node tests/docx-report.js
       - name: 오답노트 상호작용
+        timeout-minutes: 5
         run: node tests/wrongbook-interactive.js
       - name: 링크 열람에 암호를 묻지 않는다
+        timeout-minutes: 5
         run: node tests/gate.js
       # 규칙이 '있다' 는 것과 '종이에서 읽힌다' 는 것은 다르다. 실제 브라우저에
       # 인쇄 매체를 씌워 제목·절 번호가 흰 글씨가 아닌지 본다. 그리고 화면
       # 매체에서는 원래대로 흰 글씨인지도 본다 — 화면을 건드리면 안 된다.
       - name: 강의록이 종이에서 읽힌다
+        timeout-minutes: 5
         env:
           PORT: '8933'
         run: node tests/print-lec.js
@@ -294,41 +353,52 @@ jobs:
       # 고침이 그렇게 하루를 날렸다 — 페이지에도 올라갔고 창구도 새 숫자를
       # 주는데 화면만 그대로였다. 캐시 이름을 껍데기 내용에서 짓는다.
       - name: 서비스워커 캐시 이름이 화면 내용과 맞는다
+        timeout-minutes: 5
         run: python3 tools/gen_sw_version.py --check
       - name: 오프라인 캐시
+        timeout-minutes: 10
         env:
           PORT: '8932'
         run: node tests/offline.js
       - name: 웹이 원본 (열 때마다 맞추고 · 못 보낸 것은 다시 보낸다)
+        timeout-minutes: 5
         run: node tests/web-store.js
 
       # ── 브라우저 없이 도는 나머지 ──────────────────────────
       - name: 시험 목록 예비본 (앱 안에 심어 둔 사본)
+        timeout-minutes: 5
         run: node tests/exams-fallback.js
       - name: 선수 개념 드릴
+        timeout-minutes: 5
         run: node tests/prereq-drill.js
       - name: 동형 미니 시험지 · 시트 기록
+        timeout-minutes: 5
         run: node tests/retest-sheet.js
       - name: 강의 125장에 돌아가는 자리가 붙어 있는가
+        timeout-minutes: 5
         run: python3 tools/lec_back.py --check
       # 학생은 자기 오답이 가리키는 **한 강만** 연다. 그런데 강의를 쓸 때는
       # 앞뒤를 다 아는 사람이 쓰므로 "앞에서 배운 Ka·Kb(087)" 같은 문장이
       # 나온다 — 087을 안 본 학생에게는 모르는 말을 아는 것처럼 다루는 말이다.
       - name: 강의 전수 검사 (처음 보는 학생이 알아듣는가)
+        timeout-minutes: 5
         run: python3 tools/lec_audit.py --check
       # 얼개가 아니라 **글 안의 화학**을 본다 — 반응식이 실제로 맞춰져 있는가,
       # 상수가 장마다 같은가, 뼈대가 갖춰져 있는가, 표기가 안 깨졌는가.
       # 사람이 125장을 매번 훑을 수 없고, 훑어도 계수 하나는 눈에 안 잡힌다.
       - name: 강의 내용 검사 (반응식 균형 · 상수 · 뼈대)
+        timeout-minutes: 5
         run: python3 tools/lec_content.py --check
       # 오답 카드는 문항별 오개념 → OMLIB 의 유형별 줄 → 영역 기본값 순으로
       # 말을 고른다. 앞엣것이 없으면 뒤엣것이 받되, 둘 다 없으면 **윗줄만 뜨고**
       # **아래가 조용히 빈다** — 한때 2220문항 가운데 981문항이 그랬다.
       - name: 오답 카드의 오개념이 비지 않는가 (문항별 2220 · 유형별 715)
+        timeout-minutes: 5
         run: python3 tools/om_cover.py --check
       # '네른스트 식' 과 '네른스트식' 은 기계에게 다른 유형이다. 갈리면 통계가
       # 둘로 쪼개지고, OMLIB 에 한쪽만 넣어 두고 나머지가 빈 것을 모른다.
       - name: 같은 유형을 두 가지로 적고 있지 않은가
+        timeout-minutes: 5
         run: python3 tools/type_norm.py --check
       # 시상 컷은 회차마다 같은데 난이도는 그렇지 않다. 기준 기록으로 재면
       # 4회는 동상 이상 36%, 11회는 0% 다 — 같은 컷인데 한쪽은 셋에 하나가
@@ -337,40 +407,50 @@ jobs:
       # ⚠ 빨간불로 막지 않는다. 누구에게 무슨 상을 줄지는 가르치는 판단이고,
       #    기계가 컷을 흔들면 지난 회차의 상과 뜻이 달라진다. 기록에만 남긴다.
       - name: 시상 컷이 회차 난이도와 맞는가 (알림만)
+        timeout-minutes: 5
         run: python3 tools/cut_fit.py
       # 낱개 검사는 저마다 한 조각만 본다. 성적표는 시험 데이터·오답 카드·강의
       # 링크·확률이 한 화면에서 만나는 자리라, 조각이 다 멀쩡해도 합치면 깨질
       # 수 있다 — 회차를 새로 넣을 때 특히 그렇다. 그래서 전 회차를 실제로 채점한다.
       - name: 전 회차 성적표가 끝까지 나온다 (38회차 실제 채점)
+        timeout-minutes: 10
         run: node tests/report-all.js
       # 해설지 생성기는 explanationHtml 만 읽는다. 글(explanation)만 써 넣고
       # 이것을 빠뜨리면 해설지가 통째로 비어 나오는데, 파일은 만들어지고
       # 검사도 지나가서 아무도 모른다 — 2026-08-07 에 실제로 그랬다.
       - name: 해설 글이 해설지 꼴까지 갖췄는가
+        timeout-minutes: 5
         run: python3 tools/gen_expl_html.py --check
       - name: 명단 관리 (이름 고침 · 합치기)
+        timeout-minutes: 5
         run: node tests/roster-admin.js
       # 답안을 치는 중에 인원 응답이 도착해도 화면을 갈아엎거나 저절로
       # 저장하면 안 된다 — 2026-08-06 에 실제로 그랬다.
       - name: 채점 입력 (치는 중에 갈아엎히지 않는다)
+        timeout-minutes: 5
         run: node tests/grading-input.js
       # 성적표에서 개념강의를 열면 돌아오는 단추가 **그 성적표**를 가리켜야
       # 한다. 목록으로 보내면 학생은 코드를 몰라 잠금 화면에 갇힌다.
       - name: 강의에서 돌아가기 (성적표로 · 목록 아님)
+        timeout-minutes: 5
         run: node tests/lec-back.js
       # 매일 도는 점검이 매일 같은 실패를 알리면, 사람이 알림을 안 보게 된다.
       # 알릴 것과 안 알릴 것을 가르는 규칙을 여기서 잰다(창구는 안 두드린다).
       - name: 점검 알림 (같은 소식을 두 번 말하지 않는다)
+        timeout-minutes: 5
         run: node tests/health-quiet.js
       - name: 공유 링크 (답안 · 또래 통계)
+        timeout-minutes: 5
         run: node tests/share-link.js
 
       # 개념 이름 오타 후보. 후보의 대부분은 둘 다 맞는 말이라(중합반응/중화반응)
       # 빨간불을 낼 수 없다 — 사람이 보고 정한다. 알림만 남긴다.
       - name: 개념 이름 오타 후보 (사람이 판단)
+        timeout-minutes: 5
         run: python3 tools/label_typo.py
 
       # 떠 있는 자산은 빨간불까지 낼 일은 아니라 알림만 남긴다.
       # (지울지는 남긴 쪽과 같은 내용인지 사람이 보고 정한다)
       - name: 아무도 읽지 않는 자산
+        timeout-minutes: 5
         run: python3 tools/orphan_scan.py
