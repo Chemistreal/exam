@@ -191,7 +191,7 @@ console.log('\n── 회차 번호 순으로 늘어놓는다 ──');
   ctx.FINAL_EXAMS = [
     mk('jmchc-11', 'JMChC 모의고사 11회'), mk('jmchc-11-1', 'JMChC 모의고사 11-1회'),
     mk('jmchc-2', 'JMChC 모의고사 2회'),
-    mk('donghyung-2', '기출동형 2회 (2016)'), mk('donghyung-1', '기출동형 1회 (2015)'),
+    mk('donghyung-2', '기출동형 2회'), mk('donghyung-1', '기출동형 1회'),
     mk('kmchc-2026-1-ilban', 'KMChC 2026 제1차 · 일반'),
     mk('kmchc-2026-1-simhwa', 'KMChC 2026 제1차 · 심화'),
     mk('kmchc-2024-2', 'KMChC 2024 제2차'), mk('hwol-2024', 'KMChC 2024 제1차'),
