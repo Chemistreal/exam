@@ -56,6 +56,37 @@ def exam_types():
     return out
 
 
+def per_question():
+    """문항마다 따로 쓴 misconception 이 얼마나 채워졌는지 센다.
+
+    OMLIB 의 줄은 **유형 하나에 하나**라, 같은 유형의 두 문항은 같은 말을 받는다.
+    문항마다 쓴 misconception 이 있으면 오답노트가 그것을 먼저 쓴다(더 좁게 맞다).
+    OMLIB 는 그것이 없을 때 받쳐 주는 자리다 — 여기서는 어디까지 왔는지만 센다.
+    """
+    data = json.load(open(EXAMS, encoding='utf-8'))
+    rounds = data if isinstance(data, list) else data.get('exams', [])
+    have = total = 0
+    thin = []
+    for ex in rounds:
+        p = os.path.join(ROOT, 'answers', '%s.json' % ex.get('id'))
+        if not os.path.exists(p):
+            continue
+        qs = (json.load(open(p, encoding='utf-8')).get('questions') or {})
+        h = n = 0
+        for i in range(1, int(ex.get('nQ') or 0) + 1):
+            q = qs.get(str(i))
+            if not q:
+                continue
+            n += 1
+            if (q.get('misconception') or '').strip():
+                h += 1
+        have += h
+        total += n
+        if h < n:
+            thin.append((ex.get('id'), h, n))
+    return have, total, thin
+
+
 def main():
     check = '--check' in sys.argv
     keys = omlib_keys()
@@ -68,6 +99,11 @@ def main():
 
     types = sorted({t for t, _, _ in rows})
     print('유형 %d종 · 문항 %d개 · OMLIB %d줄' % (len(types), len(rows), len(keys)))
+
+    have, total, thin = per_question()
+    print('문항별 오개념 %d/%d문항 (나머지는 OMLIB 가 받는다)' % (have, total))
+    for eid, h, n in thin:
+        print('    %-22s %d/%d' % (eid, h, n))
 
     if not miss:
         print('한 줄이 비는 유형: 없음')
