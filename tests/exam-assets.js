@@ -70,7 +70,7 @@ console.log('\n── 이름이 내용과 맞는다 ──');
      기대값을 기계적으로 올리게 된다 — 그러면 줄어드는 것도 못 잡는다.
      바닥만 지킨다. 어긋남 자체는 바로 위 'solFull 이 해설 데이터와 같다'
      가 본다. 회차를 채울 때 이 바닥도 함께 올려라. */
-  const FULL_FLOOR = 37;
+  const FULL_FLOOR = 38;
   const full = EXAMS.filter(e => e.solFull).length;
   chk(`문항별 해설이 있는 회차 수(바닥 ${FULL_FLOOR})`, full >= FULL_FLOOR, true);
   // 산과염기 60제에 풀이를 써 넣었다. 데이터에서 파생되므로 값이 저절로 따라온다.
@@ -96,9 +96,14 @@ console.log('\n── 앱이 그 이름과 다운로드를 붙인다 ──');
 
   /* '풀이 없는 회차' 본보기는 **골라서 박지 않는다**. 예전에는 donghyung-1
      이었는데 그 회차에 해설을 써 넣자 이 검사가 깨졌다 — 좋은 일이 검사를
-     깨뜨리면 안 된다. 지금 풀이가 없는 회차를 그때그때 집는다. */
-  const thinExam = EXAMS.find(e => !e.solFull);
-  if (!thinExam) throw new Error('풀이 없는 회차가 하나도 없다 — 이 검사를 지워라');
+     깨뜨리면 안 된다. 지금 풀이가 없는 회차를 그때그때 집는다.
+
+     그러다 2026-08-07 에 **전 회차에 해설이 들어가** 집을 회차가 없어졌다.
+     검사를 지우면 나중에 해설 없는 회차가 새로 들어왔을 때 '정답 · 개념표'
+     로 적히는지 아무도 안 본다. 그래서 규칙은 남기고, 집을 것이 없을 때는
+     가짜 회차를 하나 지어 **이름 규칙만** 확인한다(파일 검사는 진짜로 한다). */
+  const thinExam = EXAMS.find(e => !e.solFull)
+    || Object.assign({}, EXAMS[0], { id: '__풀이없음__', solFull: false });
   const thin = ctx.examAssetsHTML(thinExam);
   const full = ctx.examAssetsHTML(EXAMS.find(e => e.id === 'jmchc-6'));
   const latest = ctx.examAssetsHTML(EXAMS.find(e => e.id === 'kmchc-2026-1-simhwa'));
@@ -106,16 +111,18 @@ console.log('\n── 앱이 그 이름과 다운로드를 붙인다 ──');
   chk('풀이 없는 회차를 해설이라 하지 않는다', /문항별 해설/.test(thin), false);
   chk('풀이 있는 회차는 문항별 해설이라 적는다', /정답 · 문항별 해설/.test(full), true);
 
+  /* 파일이 실제로 걸리는지는 **진짜 회차**로 본다 — 가짜에는 파일이 없다. */
+  const realExam = EXAMS.find(e => e.id === 'jmchc-6');
   chk('문제지가 걸린다',
-      new RegExp(`href="${thinExam.id}-problem\\.pdf" download`).test(thin), true);
+      new RegExp(`href="${realExam.pdf}" download`).test(full), true);
   chk('새 회차 공식 정답을 직접 받는다',
       /href="kmchc-2026-1-simhwa-answer\.pdf" download/.test(latest), true);
   chk('새 회차 문제편·해설편을 직접 받는다',
       /href="kmchc-2026-1-simhwa-solution-book\.pdf" download/.test(latest), true);
   chk('해설이 내려받아진다',
-      new RegExp(`href="sol-final-${thinExam.id}\\.html" download`).test(thin), true);
-  chk('브라우저로 열어 볼 수도 있다', /target="_blank"/.test(thin), true);
-  chk('새 창 링크에 rel=noopener 가 있다', /rel="noopener"/.test(thin), true);
+      new RegExp(`href="sol-final-${realExam.id}\\.html" download`).test(full), true);
+  chk('브라우저로 열어 볼 수도 있다', /target="_blank"/.test(full), true);
+  chk('새 창 링크에 rel=noopener 가 있다', /rel="noopener"/.test(full), true);
 
   // 답안 입력 화면에 실제로 꽂혀 있는지 — 함수만 있고 안 부르면 화면엔 없다
   chk('답안 입력 화면이 이 줄을 그린다', /\$\{examAssetsHTML\(cur\)\}/.test(SRC), true);

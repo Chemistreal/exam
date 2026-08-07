@@ -101,9 +101,18 @@ def main():
     print('유형 %d종 · 문항 %d개 · OMLIB %d줄' % (len(types), len(rows), len(keys)))
 
     have, total, thin = per_question()
-    print('문항별 오개념 %d/%d문항 (나머지는 OMLIB 가 받는다)' % (have, total))
+    print('문항별 오개념 %d/%d문항' % (have, total))
     for eid, h, n in thin:
         print('    %-22s %d/%d' % (eid, h, n))
+
+    # 2026-08-07 에 2220문항이 모두 자기 오개념을 갖게 됐다. 여기서부터는
+    # 빠지는 것을 빨간불로 막는다 — 새 회차를 넣을 때 한 문항이라도 비면
+    # 그 학생은 유형 단위의 일반적인 말만 받게 된다.
+    if thin:
+        print('\n문항별 오개념이 빠진 회차가 있다.')
+        print('answers/<회차>.json 의 그 문항에 misconception 을 써 넣어라.')
+        if check:
+            return 1
 
     if not miss:
         print('한 줄이 비는 유형: 없음')
