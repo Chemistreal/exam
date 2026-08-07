@@ -2762,12 +2762,40 @@ function betaBinomPMF(k,n,a,b){return Math.exp(lchooseWP(n,k)+lbetaWP(k+a,n-k+b)
    맞을지를 넣으면, 그만큼 실력을 옮겨 놓고 확률을 다시 잰다. 추세가 없으면
    0 이라 예전과 같다. */
 const WP_EFF = 24;
-function winProb(total, correct, cut, gain){
+/* ── 흔들림은 학생마다 다르다 ──────────────────────────────────────
+   24 는 "보통 이 정도로 흔들린다" 는 어림값이다. 그런데 회차마다 점수가
+   거의 그대로인 학생과 크게 오르내리는 학생을 같은 폭으로 재면, 앞엣
+   학생에게는 지나치게 넓고 뒤엣 학생에게는 지나치게 좁은 값이 나간다.
+
+   기록이 세 회차 이상이면 **그 학생의 흔들림을 직접 잰다.** 추세(오르는
+   기울기)를 빼고 남은 흩어짐만 본다 — 꾸준히 오르는 것은 흔들림이 아니다.
+   흩어짐 s² 와 평균 정답률 p 에서 n = p(1−p)/s² 로 되돌린다.
+
+   위아래를 막는다. 여덟보다 작으면 확률이 죄다 50% 근처가 되어 아무 말도
+   안 하게 되고, 문항 수보다 크면 한 번 본 것으로 그 이상을 아는 척하게 된다. */
+function effN(total){
+  try{
+    if(typeof curName!=='function'||typeof histOf!=='function') return WP_EFF;
+    const nm=curName(); if(!nm) return WP_EFF;
+    const h=histOf(nm); if(!h||h.length<3) return WP_EFF;
+    const ps=h.map(x=> x.r.total? x.r.correct/x.r.total : 0);
+    const n=ps.length; let sx=0,sy=0,sxx=0,sxy=0;
+    for(let i=0;i<n;i++){ sx+=i; sy+=ps[i]; sxx+=i*i; sxy+=i*ps[i]; }
+    const den=n*sxx-sx*sx;
+    const bb=den?(n*sxy-sx*sy)/den:0, aa=(sy-bb*sx)/n;
+    let ss=0; for(let i=0;i<n;i++){ const e=ps[i]-(aa+bb*i); ss+=e*e; }
+    const s2=ss/Math.max(1,n-2), pm=sy/n, v=pm*(1-pm);
+    if(!(s2>0)||!(v>0)) return Math.min(total, 40);
+    return Math.max(8, Math.min(total, v/s2));
+  }catch(e){ return WP_EFF; }
+}
+function winProb(total, correct, cut, gain, eff){
   if(total<=0) return null;
   const g = Math.max(0, Math.min(total - correct, gain || 0));
   const c = correct + g, w = total - c;
-  /* 60문항을 EFF 개로 줄여 센다. 비율은 그대로, 확신만 줄인다. */
-  const k = Math.min(1, WP_EFF / total);
+  /* 60문항을 몇 개로 줄여 셀지. 학생 기록이 있으면 그 학생의 흔들림에서
+     재 오고, 없으면 어림값을 쓴다. 비율은 그대로, 확신만 줄인다. */
+  const k = Math.min(1, (eff != null ? eff : effN(total)) / total);
   const a = 1 + c * k, b = 1 + w * k;
   const pmf=[]; for(let i=0;i<=total;i++)pmf.push(betaBinomPMF(i,total,a,b));
   return cut.map(cT=>{ const need=total-cT; if(need<=0)return 1; let p=0; for(let i=need;i<=total;i++)p+=(pmf[i]||0); return Math.min(1,Math.max(0,p)); });
