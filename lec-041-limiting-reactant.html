@@ -98,4 +98,42 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 </div>
 
 <footer>Chemistreal · 개념강의 041 · 한계 반응물</footer>
+
+
+
+<script data-lec-back>
+/* 성적표에서 왔으면 성적표로 돌려보낸다(tools/lec_back.py 가 넣는다).
+
+   학생이 강의를 여는 길은 하나다 — 자기 성적표의 '오답 개념 클리닉'.
+   그런데 돌아가는 단추가 시험 목록으로 박혀 있어서, 눌러도 자기 성적표가
+   아니라 남의 이름과 점수가 있는 목록(잠금 화면)이 나왔다.
+
+   주소를 **받기만** 하고 믿지는 않는다. 같은 곳의 final.html 이고 성적표(#r=)
+   일 때만 쓴다 — 아니면 손대지 않고 예전대로 목록으로 간다. 남이 심어 둔
+   주소로 학생을 내보내는 길을 열지 않는다. */
+(function () {
+  function ok(raw) {
+    if (!raw) return null;
+    try {
+      var u = new URL(raw, location.href);
+      if (u.origin !== location.origin) return null;
+      if (!/(^|\/)final\.html$/.test(u.pathname)) return null;
+      if (!/[#&]r=/.test(u.hash)) return null;
+      return u.href;
+    } catch (e) { return null; }
+  }
+  try {
+    var a = document.querySelector('a.back');
+    if (!a) return;
+    /* **주소에 실려 온 것만** 본다. 강의는 새 탭에서 열리고(rel=noopener)
+       새 탭은 sessionStorage 를 물려받지 않으니 그쪽은 도움이 안 되는데,
+       같은 탭에서는 한 번 적힌 것이 계속 남아 목록에서 연 강의까지 성적표로
+       보내 버린다. 얻는 것 없이 끈적하기만 하다. */
+    var to = ok(new URL(location.href).searchParams.get('from'));
+    if (!to) return;
+    a.href = to;
+    a.textContent = '\u2039 \uc131\uc801\ud45c\ub85c';   /* ‹ 성적표로 */
+  } catch (e) {}
+})();
+</script>
 </main></body></html>
