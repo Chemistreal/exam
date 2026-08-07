@@ -84,7 +84,22 @@ async function open(browser, opt) {
   p.__errs = [];
   p.on('pageerror', e => p.__errs.push(String(e).slice(0, 140)));
   await p.addInitScript(() => {
-    try { localStorage.setItem('chemistreal:gate', String(Date.now())); } catch (e) {}
+    try {
+      localStorage.setItem('chemistreal:gate', String(Date.now()));
+      /* 띠의 사슬은 **채점한 회차**를 나른다. 자료가 없으면 그릴 것이 없어
+         빈 띠가 맞는 동작이라, 검사에서는 회차를 심어 준다. 회차마다 인원과
+         평균이 달라야 크기·색이 자료를 싣는지 볼 수 있다. */
+      const seed = (id, people) => {
+        const day = 86400000, base = 1785000000000;
+        localStorage.setItem('final:roster:' + id, JSON.stringify(people.map((x, i) => ({
+          name: x[0], school: 'X중', grade: '3', ts: base + i * day,
+          correct: x[1], total: 60, wrong: 60 - x[1], ans: [],
+        }))));
+      };
+      seed('jmchc-9',  [['가온', 52], ['나린', 48], ['다솔', 44]]);        // 평균 높다
+      seed('jmchc-10', [['가온', 33], ['나린', 30]]);                      // 중간
+      seed('jmchc-11', [['가온', 18], ['나린', 20], ['다솔', 22], ['라온', 19]]); // 낮다
+    } catch (e) {}
   });
   await p.route('**/DT/**', r => r.fulfill({
     status: 200, contentType: 'text/html; charset=utf-8',
@@ -246,6 +261,39 @@ async function measureBrand(p) {
       chk('키보드로도 닿는다', r.tab, '0');
       chk('탑 밑에 반 이름이 적혀 있다', r.names > 0, true);
       chk('같은 내용이 글로도 있다', r.text, true);
+
+      /* ── 띠도 자료를 나른다 ──────────────────────────────────────
+         "모든 형태는 기능을 따른다." 띠 안의 사슬은 오래 **지어낸 모양**
+         이었다 — sin() 으로 만든 무한 사슬이라 아무 말도 안 했다. 지금은
+         구슬 하나가 회차 하나다. 그러니 낱말 요약도 있어야 한다. */
+      const hb = await p.evaluate(() => {
+        const cv = document.getElementById('hero3d');
+        if (!cv) return { has: false };
+        return { has: true, role: cv.getAttribute('role'),
+                 label: cv.getAttribute('aria-label') || '',
+                 hidden: cv.getAttribute('aria-hidden'),
+                 title: cv.title || '',
+                 /* 자료가 진짜로 셰이더까지 갔는가 — 회차 수가 0 이면 안 된다.
+                    `let HERO` 는 window 의 값이 아니다 — 이름 그대로 봐야 보인다. */
+                 n: (typeof HERO !== 'undefined' && HERO) ? HERO.n : 0,
+                 /* 반지름이 다 같으면 인원을 안 싣고 있다는 뜻이다 */
+                 radii: (typeof HERO !== 'undefined' && HERO && HERO.A)
+                   ? [...Array(HERO.n)].map((_, i) => Math.round(HERO.A[i * 4 + 2] * 1000)) : [] };
+      });
+      chk('띠에 사슬이 있다', hb.has, true);
+      console.log('  띠 요약: ' + hb.label.slice(0, 90) + '…');
+      chk('회차를 싣고 있다', hb.n > 0, true);
+      chk('낭독기에 그림이라고 알린다 · 띠', hb.role, 'img');
+      chk('감춰 두지 않는다 · 띠', hb.hidden, null);
+      chk('낱말 요약이 무엇을 뜻하는지 말한다',
+          /구슬 크기는 본 학생 수/.test(hb.label) && /평균 성취/.test(hb.label), true);
+      chk('회차 이름과 숫자가 들어 있다', /\d+명 평균 \d+%/.test(hb.label), true);
+      chk('마우스를 얹어도 같은 말이 나온다', hb.title.length > 20, true);
+      /* 회차마다 인원이 다르면 구슬 크기도 달라야 한다. 다 같으면 크기가
+         자료를 안 싣고 있는 것이다 — 그때가 '모양만 남은' 상태다. */
+      chk('인원이 크기로 실렸다',
+          hb.radii.length < 2 || new Set(hb.radii).size > 1, true);
+
       chk('콘솔에 예외가 없다', p.__errs, []);
       await p.context().close();
     }

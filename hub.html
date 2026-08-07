@@ -648,7 +648,9 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <header>
   <div class="brand">
-    <!-- 글씨 밑에서 도는 분자. 뜻을 나르지 않으므로 낭독기에서 감춘다. -->
+    <!-- 글씨 밑의 회차 사슬. 구슬 하나가 회차 하나다(크기=본 학생 · 색=평균 성취 ·
+         곁가지=안 본 학생). 자료가 붙으면 role/aria-label 을 heroSay 가 채운다.
+         자료가 없거나 WebGL 이 없으면 이 칸은 통째로 지워진다. -->
     <canvas id="hero3d" aria-hidden="true"></canvas>
     <h1>Chemistreal 통합관리</h1>
     <span class="sub">파이널 · DT · 학습진단</span>
@@ -2672,32 +2674,48 @@ const G3 = (function(){
      글씨가 오른쪽까지 오고, 배터리도 아깝다. */
 const HERO_FS = [
 'precision highp float;',
-'uniform vec2 res; uniform float t;',
-'uniform vec3 cA, cB, cC;',
+'uniform vec2 res; uniform float t; uniform float nN;',
+/* 회차 하나가 구슬 하나다. (x, y, 반지름, 밴드)
+   반지름 = 본 학생 수 · 밴드 = 평균 성취(0 기초 · 1 중위 · 2 상위) */
+'uniform vec4 nA[10];',
+/* (곁가지 반지름, 곁가지 방향) — 곁가지는 **아직 안 본 학생**이다.
+   없으면 0 이라 아무것도 안 자란다. 깨끗한 사슬 = 다 본 회차. */
+'uniform vec2 nB[10];',
+'uniform vec3 cA, cB, cC, cD;',
 'float sdSph(vec3 p,float r){ return length(p)-r; }',
 'float sdCap(vec3 p,vec3 a,vec3 b,float r){',
 '  vec3 pa=p-a, ba=b-a;',
 '  float h=clamp(dot(pa,ba)/dot(ba,ba),0.,1.);',
 '  return length(pa-ba*h)-r; }',
 'mat2 rot(float a){ float c=cos(a), s=sin(a); return mat2(c,-s,s,c); }',
-/* 사슬은 무한하다. 화소가 서 있는 칸과 양옆 두 칸만 보면 된다 —
-   스무 칸을 다 재면 스무 배로 느려지는데 결과는 같다. */
-'const float CELL = 1.30;',
-'vec3 node(float i){',
-'  float up = mod(i,2.0)<0.5 ? 0.30 : -0.30;',
-'  return vec3(i*CELL, up, sin(i*1.7)*0.22); }',
+/* 사슬은 **자료로 만든다.** 예전에는 sin() 으로 지어낸 무한 사슬이었다 —
+   예쁘긴 한데 아무 말도 안 했다. 지금은 구슬 하나가 회차 하나다.
+   자리·크기·색이 전부 시트에서 온다(왼쪽이 옛 회차, 오른쪽이 최근).
+
+   칸이 열이라 열 번을 다 잰다. 띠가 아주 얇아(70px 안팎) 화소가 적으므로
+   무한 사슬 때와 값이 비슷하다. 대신 자리를 자바스크립트가 정하므로
+   '옆 칸만 보면 된다' 는 요령을 못 쓴다 — 자료가 고르게 놓이지 않는다. */
 'vec2 map(vec3 p){',
 '  vec2 d = vec2(1e9, 0.);',
-'  float b0 = floor(p.x/CELL);',
-'  for(int k=-2;k<=2;k++){',
-'    float i = b0 + float(k);',
-'    vec3 a = node(i), b = node(i+1.0);',
-'    vec3 h = a + vec3(0., 0., mod(i,2.0)<0.5 ? 0.60 : -0.60);',
-'    float s;',
-'    s = sdSph(p-a, 0.34);     if(s<d.x) d = vec2(s, 0.);',
-'    s = sdCap(p, a, b, 0.09); if(s<d.x) d = vec2(s, 2.);',
-'    s = sdCap(p, a, h, 0.06); if(s<d.x) d = vec2(s, 2.);',
-'    s = sdSph(p-h, 0.16);     if(s<d.x) d = vec2(s, 1.);',
+'  for(int i=0;i<10;i++){',
+'    if(float(i) >= nN) break;',
+'    vec4 A = nA[i];',
+'    vec3 a = vec3(A.x, A.y, 0.);',
+'    float s = sdSph(p-a, A.z);',
+'    if(s<d.x) d = vec2(s, A.w);',
+/* 회차와 회차를 잇는 마디. 이어져 있어야 '흐름' 으로 읽힌다. */
+'    if(float(i)+1.0 < nN){',
+'      vec4 B = nA[i+1];',
+'      s = sdCap(p, a, vec3(B.x, B.y, 0.), 0.075);',
+'      if(s<d.x) d = vec2(s, 4.);',
+'    }',
+/* 곁가지 = 아직 안 본 학생. 굵을수록 많다. 없으면 안 자란다. */
+'    vec2 Bb = nB[i];',
+'    if(Bb.x > 0.001){',
+'      vec3 h = a + vec3(0., 0., Bb.y);',
+'      s = sdCap(p, a, h, 0.05); if(s<d.x) d = vec2(s, 4.);',
+'      s = sdSph(p-h, Bb.x);     if(s<d.x) d = vec2(s, 3.);',
+'    }',
 '  }',
 '  return d; }',
 'vec3 nrm(vec3 p){',
@@ -2734,7 +2752,9 @@ const HERO_FS = [
 '  ro.yz = rot(a)*ro.yz; rd.yz = rot(a)*rd.yz;',
 '  float b = -0.26 + sin(t*0.063)*0.09;',
 '  ro.xz = rot(b)*ro.xz; rd.xz = rot(b)*rd.xz;',
-'  ro.x -= t*0.26;',
+/* 예전에는 여기서 옆으로 흘려보냈다(ro.x -= t*0.26). 지어낸 사슬일 때는
+   그게 멋이었는데, **회차를 실어 나르는 지금은 흘러가면 못 읽는다.**
+   자리는 고정하고, 숨쉬듯 흔들리는 것은 위의 두 회전에 맡긴다. */
 '  float tt = 0.0; vec2 h = vec2(0.); float hit = 0.0;',
 '  for(int i=0;i<64;i++){',
 '    h = map(ro + rd*tt);',
@@ -2743,7 +2763,9 @@ const HERO_FS = [
 '    if(tt > 11.0) break; }',
 '  if(hit < 0.5){ gl_FragColor = vec4(0.); return; }',
 '  vec3 p = ro + rd*tt, n = nrm(p);',
-'  vec3 alb = h.y < 0.5 ? cA : (h.y < 1.5 ? cB : cC);',
+/* 0 기초 · 1 중위 · 2 상위 · 3 안 본 학생 · 4 잇는 마디 */
+'  vec3 alb = h.y < 0.5 ? cA : (h.y < 1.5 ? cB : (h.y < 2.5 ? cC :',
+'             (h.y < 3.5 ? cD : mix(cC, cA, 0.5)*0.7)));',
 '  vec3 L = normalize(vec3(0.42, 0.78, 0.47));',
 '  float dif = clamp(dot(n, L), 0., 1.);',
 '  float ao = occ(p, n);',
@@ -2774,15 +2796,99 @@ function heroStart(){
     return;
   }
   if(cv.dataset.on) return;                               // 두 번 켜지 않는다
-  cv.dataset.on = '1';
-  const S = G3.make(cv, HERO_FS, ['res','t','cA','cB','cC']);
+  const S = G3.make(cv, HERO_FS,
+    ['res','t','nN','nA[0]','nB[0]','cA','cB','cC','cD']);
   if(!S){ cv.remove(); return; }                          // 못 그리면 흔적도 안 남긴다
-  const A = G3.cssRGB('--teal-2'), B = G3.cssRGB('--brass'), C = G3.cssRGB('--teal');
+  cv.dataset.on = '1';
+  /* 자료가 아직 없어도 **칸은 남긴다.** 시트는 늦게 온다 — 이때 지워 버리면
+     자료가 도착해도 그릴 자리가 없다. 회차가 0 이면 셰이더가 아무것도 안
+     맞히므로 띠는 그냥 비어 보인다. 지어낸 사슬을 대신 돌리지는 않는다 —
+     예뻐 보이는 대신 **거짓말**이 된다(회차가 열 개인 줄 알고 본다). */
+  const D = heroData();
+  /* 색은 **성취 하나만** 뜻한다. 곁가지(안 본 학생)는 색이 아니라 **모양**으로
+     알아본다 — 색을 둘로 나눠 맡기면 주황이 '기초' 인지 '안 봤다' 인지
+     헷갈린다. 그래서 곁가지는 회색이고, 굵기로 몇 명인지 말한다. */
+  const A = G3.cssRGB('--ms'), B = G3.cssRGB('--brass'), C = G3.cssRGB('--teal-2'),
+        Dc = G3.cssRGB('--muted');
+  HERO = { S:S, cv:cv, A:D.A, B:D.B, n:D.n };
   S.set = function(gl, U){
-    gl.uniform3f(U.cA, A[0]*0.85, A[1]*0.85, A[2]*0.85);
-    gl.uniform3f(U.cB, B[0], B[1], B[2]);
-    gl.uniform3f(U.cC, C[0]*0.9, C[1]*0.9, C[2]*0.9);
+    gl.uniform1f(U.nN, HERO.n);
+    gl.uniform4fv(U['nA[0]'], HERO.A);
+    gl.uniform2fv(U['nB[0]'], HERO.B);
+    /* 성취 밴드 색은 성적표·문자와 같은 뜻을 쓴다 — 초록 상위, 황금 중위,
+       주황 기초. 다만 띠는 크림색 글씨가 얹히는 자리라 밝기를 눌러 둔다
+       (tests/hero3d.js 가 진짜 화소를 읽어 4.5:1 을 지키는지 잰다). */
+    gl.uniform3f(U.cA, A[0]*0.78, A[1]*0.78, A[2]*0.78);
+    gl.uniform3f(U.cB, B[0]*0.92, B[1]*0.92, B[2]*0.92);
+    gl.uniform3f(U.cC, C[0]*0.85, C[1]*0.85, C[2]*0.85);
+    gl.uniform3f(U.cD, Dc[0]*0.80, Dc[1]*0.80, Dc[2]*0.80);
   };
+  if(D.n) heroSay(cv, D);
+}
+
+/* ── 띠가 나르는 것 ────────────────────────────────────────────────
+   최근 열 회차. 왼쪽이 옛것, 오른쪽이 최근.
+     구슬 크기 = 그 회차를 **본 학생 수**
+     구슬 색   = 그 회차 **평균 성취**(상위 ≥80 · 중위 55~79 · 기초 <55)
+     곁가지    = 아직 **안 본 학생** (없으면 안 자란다)
+
+   자리를 자바스크립트가 잡는 이유: 띠가 아주 넓고 납작한데다 왼쪽 절반은
+   글씨가 앉는 자리다(셰이더의 mask). 보이는 오른쪽에 맞춰 넣어야 한다. */
+let HERO = null;
+function heroData(){
+  let list = [];
+  try { list = roundStats() || []; } catch(e){ list = []; }
+  list = list.filter(function(g){ return g && g.n; })
+             .sort(function(a,b){ return (a.last||0) - (b.last||0); });
+  const use = list.slice(-10);
+  const A = new Float32Array(40), B = new Float32Array(20);
+  if(!use.length) return { n:0, A:A, B:B, use:use, cut:0 };
+
+  const most = use.reduce(function(m,x){ return Math.max(m, x.n); }, 1);
+  const mostMiss = use.reduce(function(m,x){
+    return Math.max(m, (x.missing && x.missing.length) || 0); }, 1);
+  /* 보이는 자리에 고르게 펴 놓는다. 한 개뿐이면 오른쪽에 홀로 둔다. */
+  const X0 = 1.6, X1 = 8.4;
+  const dx = use.length > 1 ? (X1 - X0)/(use.length - 1) : 0;
+  use.forEach(function(g, i){
+    const x = use.length > 1 ? X0 + dx*i : X1;
+    /* 위아래로 번갈아 — 납작한 띠에서 겹치지 않고, 사슬이 살아 보인다. */
+    const y = (i % 2 ? -0.26 : 0.26);
+    /* 넓이가 아니라 **면적**이 인원에 비례하게 — 눈은 넓이가 아니라 크기를 센다. */
+    const r = 0.15 + 0.21 * Math.sqrt(g.n / most);
+    const band = g.avg >= 80 ? 2 : (g.avg >= 55 ? 1 : 0);
+    A[i*4] = x; A[i*4+1] = y; A[i*4+2] = r; A[i*4+3] = band;
+    const m = (g.missing && g.missing.length) || 0;
+    B[i*2] = m ? (0.06 + 0.11 * Math.sqrt(m / mostMiss)) : 0;
+    B[i*2+1] = (i % 2 ? -0.58 : 0.58);
+  });
+  return { n:use.length, A:A, B:B, use:use, cut:Math.max(0, list.length - use.length) };
+}
+
+/* 그림만으로 끝내지 않는다. 셸의 규칙이다 — 그림은 덤, 낱말이 본체.
+   낭독기에도 가고, 마우스를 얹어도 같은 말이 나온다. */
+function heroSay(cv, D){
+  const say = D.use.map(function(g){
+    const m = (g.missing && g.missing.length) || 0;
+    return examTitle(g.id) + ' ' + g.n + '명 평균 ' + g.avg + '%' + (m ? (' · 안 본 학생 ' + m) : '');
+  }).join(', ');
+  const head = '최근 ' + D.n + '개 회차 — 구슬 크기는 본 학생 수, 색은 평균 성취'
+             + '(초록 상위 · 황금 중위 · 주황 기초), 곁가지 굵기는 아직 안 본 학생. ';
+  cv.removeAttribute('aria-hidden');
+  cv.setAttribute('role', 'img');
+  cv.setAttribute('aria-label', head + say + (D.cut ? (' · 앞의 ' + D.cut + '개 회차는 안 그렸습니다.') : ''));
+  cv.title = head + say;
+}
+
+/* 자료가 늦게 와도 띠가 옛 모습으로 남으면 안 된다. 다시 채워 넣는다. */
+function heroRefresh(){
+  const cv = document.getElementById('hero3d');
+  if(!cv) return;                                  // 못 그리는 기기 — 지워졌다
+  if(!cv.dataset.on){ heroStart(); return; }       // 그때는 자료가 없었다
+  const D = heroData();
+  if(!D.n) return;
+  if(HERO){ HERO.A = D.A; HERO.B = D.B; HERO.n = D.n; }
+  heroSay(cv, D);
 }
 
 /* ── ② 반별 탑 ──────────────────────────────────────────────────────
@@ -3173,6 +3279,7 @@ function renderJump(){
      쪽에 미룬 수를 적어 둔다. 안 적으면 둘이 안 맞는 것처럼 보인다. */
   renderFig();
   renderTowers();    // 같은 자료를 3D 로도 세운다 — 목록이 본체, 그림이 덤
+  heroRefresh();     // 띠의 회차 사슬도 같은 자료에서 다시 채운다
   renderNudge();      // 칩과 같은 배열을 본다 — 따로 세면 어긋난다
   renderTodo();       // 한 줄 요약도 같은 배열에서 나온다
   const el = document.getElementById('jump'); if(!el) return;
