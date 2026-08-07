@@ -326,6 +326,10 @@ jobs:
       # 잘못 알았는지 못 읽는다. 한때 2220문항 가운데 981문항이 그랬다.
       - name: 오답 카드의 오개념 한 줄이 비지 않는가
         run: python3 tools/om_cover.py --check
+      # '네른스트 식' 과 '네른스트식' 은 기계에게 다른 유형이다. 갈리면 통계가
+      # 둘로 쪼개지고, OMLIB 에 한쪽만 넣어 두고 나머지가 빈 것을 모른다.
+      - name: 같은 유형을 두 가지로 적고 있지 않은가
+        run: python3 tools/type_norm.py --check
       - name: 명단 관리 (이름 고침 · 합치기)
         run: node tests/roster-admin.js
       # 답안을 치는 중에 인원 응답이 도착해도 화면을 갈아엎거나 저절로
