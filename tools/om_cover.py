@@ -164,4 +164,13 @@ def main():
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except BrokenPipeError:
+        # `| head` 로 잘라 보는 일이 잦다. 그때마다 역추적이 뜨면 진짜 오류처럼
+        # 보인다. 파이프가 끊긴 것은 잘못이 아니므로 조용히 끝낸다.
+        try:
+            sys.stdout.close()
+        except Exception:
+            pass
+        sys.exit(0)
