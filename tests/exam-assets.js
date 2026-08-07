@@ -70,7 +70,7 @@ console.log('\n── 이름이 내용과 맞는다 ──');
      기대값을 기계적으로 올리게 된다 — 그러면 줄어드는 것도 못 잡는다.
      바닥만 지킨다. 어긋남 자체는 바로 위 'solFull 이 해설 데이터와 같다'
      가 본다. 회차를 채울 때 이 바닥도 함께 올려라. */
-  const FULL_FLOOR = 35;
+  const FULL_FLOOR = 36;
   const full = EXAMS.filter(e => e.solFull).length;
   chk(`문항별 해설이 있는 회차 수(바닥 ${FULL_FLOOR})`, full >= FULL_FLOOR, true);
   // 산과염기 60제에 풀이를 써 넣었다. 데이터에서 파생되므로 값이 저절로 따라온다.
