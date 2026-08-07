@@ -65,7 +65,14 @@ console.log('\n── 이름이 내용과 맞는다 ──');
     if (!!e.solFull !== has) drift.push(`${e.id}: solFull=${!!e.solFull} · 실제 해설=${has}`);
   });
   chk('solFull 이 해설 데이터와 같다', drift, []);
-  chk('문항별 해설이 있는 회차 수', EXAMS.filter(e => e.solFull).length, 29);
+  /* 해설은 회차마다 손으로 써 넣는 중이라 이 수는 **늘기만 한다**. 정확한
+     값으로 박아 두면 한 회차를 채울 때마다 이 검사가 깨져, 고치는 사람이
+     기대값을 기계적으로 올리게 된다 — 그러면 줄어드는 것도 못 잡는다.
+     바닥만 지킨다. 어긋남 자체는 바로 위 'solFull 이 해설 데이터와 같다'
+     가 본다. 회차를 채울 때 이 바닥도 함께 올려라. */
+  const FULL_FLOOR = 30;
+  const full = EXAMS.filter(e => e.solFull).length;
+  chk(`문항별 해설이 있는 회차 수(바닥 ${FULL_FLOOR})`, full >= FULL_FLOOR, true);
   // 산과염기 60제에 풀이를 써 넣었다. 데이터에서 파생되므로 값이 저절로 따라온다.
   chk('산과염기 60제에 풀이가 생겼다',
       EXAMS.find(e => e.id === 'sanyeom-60').solFull, true);
@@ -87,19 +94,26 @@ console.log('\n── 앱이 그 이름과 다운로드를 붙인다 ──');
   };
   vm.runInContext([cut('examSolLabel'), cut('examAssetsHTML')].join('\n'), ctx);
 
-  const thin = ctx.examAssetsHTML(EXAMS.find(e => e.id === 'donghyung-1'));
+  /* '풀이 없는 회차' 본보기는 **골라서 박지 않는다**. 예전에는 donghyung-1
+     이었는데 그 회차에 해설을 써 넣자 이 검사가 깨졌다 — 좋은 일이 검사를
+     깨뜨리면 안 된다. 지금 풀이가 없는 회차를 그때그때 집는다. */
+  const thinExam = EXAMS.find(e => !e.solFull);
+  if (!thinExam) throw new Error('풀이 없는 회차가 하나도 없다 — 이 검사를 지워라');
+  const thin = ctx.examAssetsHTML(thinExam);
   const full = ctx.examAssetsHTML(EXAMS.find(e => e.id === 'jmchc-6'));
   const latest = ctx.examAssetsHTML(EXAMS.find(e => e.id === 'kmchc-2026-1-simhwa'));
   chk('풀이 없는 회차는 개념표라고 적는다', /정답 · 개념표/.test(thin), true);
   chk('풀이 없는 회차를 해설이라 하지 않는다', /문항별 해설/.test(thin), false);
   chk('풀이 있는 회차는 문항별 해설이라 적는다', /정답 · 문항별 해설/.test(full), true);
 
-  chk('문제지가 걸린다', /href="donghyung-1-problem\.pdf" download/.test(thin), true);
+  chk('문제지가 걸린다',
+      new RegExp(`href="${thinExam.id}-problem\\.pdf" download`).test(thin), true);
   chk('새 회차 공식 정답을 직접 받는다',
       /href="kmchc-2026-1-simhwa-answer\.pdf" download/.test(latest), true);
   chk('새 회차 문제편·해설편을 직접 받는다',
       /href="kmchc-2026-1-simhwa-solution-book\.pdf" download/.test(latest), true);
-  chk('해설이 내려받아진다', /href="sol-final-donghyung-1\.html" download/.test(thin), true);
+  chk('해설이 내려받아진다',
+      new RegExp(`href="sol-final-${thinExam.id}\\.html" download`).test(thin), true);
   chk('브라우저로 열어 볼 수도 있다', /target="_blank"/.test(thin), true);
   chk('새 창 링크에 rel=noopener 가 있다', /rel="noopener"/.test(thin), true);
 

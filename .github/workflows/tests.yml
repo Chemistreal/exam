@@ -330,6 +330,11 @@ jobs:
       # 둘로 쪼개지고, OMLIB 에 한쪽만 넣어 두고 나머지가 빈 것을 모른다.
       - name: 같은 유형을 두 가지로 적고 있지 않은가
         run: python3 tools/type_norm.py --check
+      # 해설지 생성기는 explanationHtml 만 읽는다. 글(explanation)만 써 넣고
+      # 이것을 빠뜨리면 해설지가 통째로 비어 나오는데, 파일은 만들어지고
+      # 검사도 지나가서 아무도 모른다 — 2026-08-07 에 실제로 그랬다.
+      - name: 해설 글이 해설지 꼴까지 갖췄는가
+        run: python3 tools/gen_expl_html.py --check
       - name: 명단 관리 (이름 고침 · 합치기)
         run: node tests/roster-admin.js
       # 답안을 치는 중에 인원 응답이 도착해도 화면을 갈아엎거나 저절로
