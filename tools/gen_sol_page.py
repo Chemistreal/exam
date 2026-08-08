@@ -43,7 +43,9 @@ CSS = """:root{--ink:#1a1a1a;--ink2:#4a463f;--teal:#0E5A4C;--ms:#C0603A;--line:#
 body{margin:0;background:var(--bg);color:var(--ink);line-height:1.75;
  font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif}
 header{padding:26px 20px 16px;border-bottom:1px solid var(--line);background:#fff}
-.logo{font-size:11.5px;letter-spacing:.14em;color:var(--gold);font-weight:700}
+/* 놋쇠 원색(--gold #B08D57)은 흰 종이 위에서 3.09:1 이라 글자로는 못 쓴다.
+   해설지의 갈래 표식은 옥색이다(tools/theme.py 의 '갈래별 표식'). */
+.logo{font-size:11.5px;letter-spacing:.14em;color:var(--teal);font-weight:700}
 h1{margin:6px 0 4px;font-size:23px;font-family:'Iropke Batang',serif}
 .sub{color:var(--ink2);font-size:13.5px}
 .warn{margin:12px 20px 0;padding:10px 13px;border:1px solid #E0C9A6;background:#FFF8EC;

@@ -452,10 +452,17 @@ jobs:
       - name: 검사가 짐작으로 재우는 시간이 늘지 않았는가
         timeout-minutes: 5
         run: python3 tools/blind_wait.py --check
+      # 글자와 바탕의 대비. 오래도록 262장 가운데 261장이 빨간불이라
+      # 아무도 안 봤는데, 그 261장은 --ok-bg(맞은 문항의 연둣빛 띠) 위에
+      # 엉뚱한 글자색을 얹어 잰 헛것이었다. 자를 고치고 진짜 모자란 넷을
+      # 고쳐 0장이 되었다 — 이제 하나라도 생기면 걸린다.
+      - name: 글자와 바탕의 대비가 4.5:1 아래로 안 내려가는가
+        timeout-minutes: 5
+        run: python3 tools/audit_pages.py --check
       # 낱개 검사는 저마다 한 조각만 본다. 성적표는 시험 데이터·오답 카드·강의
       # 링크·확률이 한 화면에서 만나는 자리라, 조각이 다 멀쩡해도 합치면 깨질
       # 수 있다 — 회차를 새로 넣을 때 특히 그렇다. 그래서 전 회차를 실제로 채점한다.
-      - name: 전 회차 성적표가 끝까지 나온다 (38회차 실제 채점)
+      - name: 전 회차 성적표가 끝까지 나온다 (39회차 실제 채점)
         timeout-minutes: 10
         run: node tests/report-all.js
       # 해설지 생성기는 explanationHtml 만 읽는다. 글(explanation)만 써 넣고
