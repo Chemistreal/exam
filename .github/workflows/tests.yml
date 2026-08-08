@@ -514,6 +514,12 @@ jobs:
       - name: Q-행렬 편집기의 유형 태그가 exams.json 과 맞는가
         timeout-minutes: 5
         run: python3 tools/gen_qmatrix_tags.py --check
+      # 오개념 라이브러리가 final.html 과 index.html 에 따로 적혀 있었다.
+      # 같은 함수로 쓰이는데 index 쪽은 여든셋뿐이었고 두 줄은 아예 다른 말을
+      # 하고 있었다. final.html 을 원본으로 두고 한 벌로 맞춘다.
+      - name: 오개념 라이브러리가 두 화면에서 한 벌인가
+        timeout-minutes: 5
+        run: python3 tools/gen_omlib.py --check
       # 낱개 검사는 저마다 한 조각만 본다. 성적표는 시험 데이터·오답 카드·강의
       # 링크·확률이 한 화면에서 만나는 자리라, 조각이 다 멀쩡해도 합치면 깨질
       # 수 있다 — 회차를 새로 넣을 때 특히 그렇다. 그래서 전 회차를 실제로 채점한다.
