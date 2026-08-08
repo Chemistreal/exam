@@ -465,6 +465,12 @@ jobs:
       - name: 문항의 영역 이름을 성적표가 아는가
         timeout-minutes: 5
         run: python3 tools/area_tag.py --check
+      # 같은 문항의 정답이 두 곳에 있다 — exams.json(채점)과 answers/(해설).
+      # 갈리면 학생은 맞았다고 채점된 문항의 해설에서 다른 답을 본다. 점수는
+      # 맞으니 아무도 안 걸린다. jmchc-9 50번이 그랬다.
+      - name: 채점하는 정답과 해설이 말하는 정답이 같은가
+        timeout-minutes: 5
+        run: python3 tools/answer_sync.py --check
       # 낱개 검사는 저마다 한 조각만 본다. 성적표는 시험 데이터·오답 카드·강의
       # 링크·확률이 한 화면에서 만나는 자리라, 조각이 다 멀쩡해도 합치면 깨질
       # 수 있다 — 회차를 새로 넣을 때 특히 그렇다. 그래서 전 회차를 실제로 채점한다.
