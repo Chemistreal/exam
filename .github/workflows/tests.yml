@@ -537,6 +537,12 @@ jobs:
       - name: tools 차례가 자들과 맞는가
         timeout-minutes: 5
         run: python3 tools/gen_tool_index.py --check
+      # 학생이 읽는 글의 과학 표기. 아래첨자·전하까지 기계로 고치려다
+      # 'H2Y->HY^2-' 의 '->' 가 화살표가 아니라 음전하와 부등호인 것을 봤다.
+      # 앞뒤가 정해진 곱셈 기호 한 갈래만 자물쇠로 건다.
+      - name: 윗첨자 지수 앞의 곱셈 기호가 × 인가
+        timeout-minutes: 5
+        run: python3 tools/sci_notation.py --check
       # 낱개 검사는 저마다 한 조각만 본다. 성적표는 시험 데이터·오답 카드·강의
       # 링크·확률이 한 화면에서 만나는 자리라, 조각이 다 멀쩡해도 합치면 깨질
       # 수 있다 — 회차를 새로 넣을 때 특히 그렇다. 그래서 전 회차를 실제로 채점한다.
