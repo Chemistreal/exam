@@ -50,6 +50,10 @@ def check_entry(number: str, q: dict) -> list[str]:
     for i, c in enumerate(choices, 1):
         if CIRCLED.search(str(c)):
             errs.append(f"선택지 {i}에 원문자 중복")
+    # 문항 전체를 한 줄로 요약하는 오개념. 오답 카드에 그대로 실린다 —
+    # 비어 있으면 학생 화면에 빈 줄이 나간다(kmchc-2024-2 세 문항이 그랬다).
+    if not str(q.get("misconception") or "").strip():
+        errs.append("오개념 한 줄 없음")
     # 오답마다 오개념 설명이 있어야 한다
     mis = q.get("misconceptions") or {}
     for opt in range(1, 5):
