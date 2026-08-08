@@ -123,8 +123,9 @@ assert broken <= BROKEN_BUDGET, f"손상 동형문제 증가: {broken} > {BROKEN
 #    2250 → 2310 : KMChC 2012 회차를 새로 넣었다(60문항). 원본 문제지 PDF 가
 #    있어야 크롭을 뜰 수 있는데 2012 년까지가 그 경계다 (2026-08-08).
 #    2310 → 2370 : KMChC 2011 회차를 새로 넣었다(60문항) (2026-08-08).
+#    2370 → 2430 : KMChC 2010 회차를 새로 넣었다(60문항) (2026-08-08).
 assert seen == expected, f"자산이 빠진 문항이 있다: {seen} != {expected}"
-assert seen == 2370, f"문항 총합이 달라졌다: {seen} (기대 2370)"
+assert seen == 2430, f"문항 총합이 달라졌다: {seen} (기대 2430)"
 print(
     f"PASS wrongbook assets: exams={len(exams)} questions={seen} "
     f"손상(가드로 숨김)={broken}/{BROKEN_BUDGET}"
