@@ -30,7 +30,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # 파일별 천장 (군데 수, 합계 ms). 줄였으면 여기도 같이 낮춘다 — 낮추지 않으면
 # 다음 사람이 도로 채워 넣어도 초록불이다.
 CEIL = {
-    'tests/hub-live.js': (72, 28280),
+    'tests/hub-live.js': (71, 27680),
     'tests/web-store.js': (13, 23100),
     'tests/exams-fallback.js': (7, 16700),
     'tests/hero3d.js': (9, 16250),

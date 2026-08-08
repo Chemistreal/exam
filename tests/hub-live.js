@@ -1162,6 +1162,20 @@ async function settled(p, label, fn, arg, ms) {
           + 'function absentMsg(d,s){ return "미응시:"+(d.name||"반전체")+"/"+s; }'
           + '</script>',
     }));
+    /* ── 창구 응답이 다 왔는지로 기다린다 ────────────────────────────
+       반 화면은 창구를 **네 번 나눠** 부른다(names·pending·passed·absentees).
+       어느 하나가 아직 안 왔는데 화면이 잠깐 멎으면 다 그려진 것으로 잘못
+       읽는다. 실제로 그렇게 깨졌다 — 범례가 "아직 4" 하나뿐이었다(미응시·
+       통과가 안 와서 넷 다 '아직' 으로 보인 것이다).
+       화면 모양으로 기다리면 이 틈을 못 막는다. 응답 자체를 센다. */
+    const need3 = new Set(['names', 'pending', 'passed', 'absentees']);
+    let allIn3;
+    const served3 = new Promise(res => { allIn3 = res; });
+    const waitServed3 = (ms) => Promise.race([
+      served3,
+      new Promise((_, rej) => setTimeout(() => rej(new Error(
+        '안 온 창구: ' + [...need3].join(', '))), ms)),
+    ]).catch(e => { console.log('  FAIL  ' + e.message); fail++; });
     await p3.route('**/macros/s/**', route => {
       const u = new URL(route.request().url());
       const cb = u.searchParams.get('callback'), act = u.searchParams.get('action');
@@ -1180,6 +1194,8 @@ async function settled(p, label, fn, arg, ms) {
         : act === 'absentees' ? { ok: true, absentees: { classes: [
             { label:'화학1 토1:30', course:'ch1', round:12, total:4, present:2, absent:['가','나'] }] } }
         : { ok: true, rows: [] };
+      need3.delete(act);
+      if (!need3.size) allIn3();
       return route.fulfill({ status: 200, contentType: 'application/javascript',
                              body: cb + '(' + JSON.stringify(body) + ')' });
     });
@@ -1213,7 +1229,8 @@ async function settled(p, label, fn, arg, ms) {
        벌어져 그 틈을 다 그려진 것으로 잘못 읽는다. 실제로 CPU 를 여섯 배로
        물리면 여덟 번 중 여섯 번이 여기서 깨졌다.
        올 것이 다 왔는지 먼저 보고, 그다음에 멎기를 기다린다. */
-    await until(p3, '반 화면에 올 것이 다 온다', () =>
+    await waitServed3(30000);          // 네 창구가 다 대답할 때까지
+    await until(p3, '반 화면이 그려진다', () =>
       document.querySelectorAll('#clsTabs .chip').length >= 2 &&
       document.querySelectorAll('#clsList .row').length >= 4 &&
       [].every.call(document.querySelectorAll('#clsList .row'),
