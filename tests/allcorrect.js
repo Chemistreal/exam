@@ -197,6 +197,7 @@ console.log('\n── 실제 회차 데이터로 ──');
     'donghyung-2': [19], 'kmchc-2025-1-simhwa': [38, 41],
     'hwol-2021': [60], 'hwol-2019': [23, 42], 'hwol-2018': [34],
     'hwol-2017': [60], 'hwol-2015': [20], 'hwol-2014': [57],
+    'hwol-2010': [38, 42],   // 대회 원본 정답표에 '삭제' 로 적힌 두 문항
   };
   const actual = {};
   EXAMS.forEach(e => { const s = [...F.allcSet(e)].sort((a, b) => a - b); if (s.length) actual[e.id] = s; });

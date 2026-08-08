@@ -47,6 +47,31 @@ INT_TO_CIRCLED = {v: k for k, v in CIRCLED_TO_INT.items()}
 class Header:
     page_index: int
     rect: fitz.Rect
+    pre_page: int | None = None      # 묶음 문두가 있으면 그 쪽 번호
+    pre_rect: fitz.Rect | None = None
+    pre_y1: float | None = None      # 묶음 문두 자료가 끝나는 자리(그 묶음의 첫 문항)
+
+
+# 문항 두 개가 한 자료를 나눠 쓰는 자리. 문제지에는 '문제 22-23' 같은 회색
+# 딱지가 자료 위에 하나 더 붙는다. 그 딱지도 문항 딱지와 생김새가 같아서,
+# 세어 보면 문항 수보다 상자가 많다.
+#
+# 예전 코드는 상자를 앞에서부터 nQ 개만 잘라 썼다. 그러면 묶음 딱지가 문항
+# 하나를 밀어내, **그 뒤로 모든 크롭이 한 칸씩 어긋났다**. 오답 카드에 엉뚱한
+# 문제가 실렸다는 뜻이다. 일곱 회차가 그랬다.
+#
+# 딱지에 적힌 범위는 글자를 읽어야 알 수 있는데, 이 문제지들은 글자가 자모로
+# 흩어져 있어 텍스트로는 안 잡힌다. 그래서 사람이 한 번 읽어 여기 적어 둔다.
+# 표에 없는 묶음 딱지가 나오면 멈춘다 — 새 회차가 조용히 어긋나지 않도록.
+GROUPED = {
+    'jmchc-1': [(37, 38), (50, 51)],
+    'jmchc-2': [(36, 37), (49, 50)],
+    'donghyung-1': [(46, 47)],
+    'hwol-2015': [(46, 47)],
+    'hwol-2012': [(22, 23)],
+    'hwol-2011': [(55, 56)],
+    'hwol-2010': [(55, 56), (57, 58)],
+}
 
 
 def utc_now() -> str:
@@ -271,8 +296,26 @@ def solution_catalog(
     return by_exam, solution_files, candidates
 
 
-def question_headers(document: fitz.Document, expected: int) -> list[Header]:
-    headers: list[Header] = []
+def label_ink_ratio(document: fitz.Document, page_index: int, rect: fitz.Rect) -> float:
+    """딱지 안 글자가 상자 너비의 몇 할을 차지하는가.
+
+    '문제 22' 는 0.58 언저리, '문제 22-23' 은 0.82 위다. 글자를 못 읽어도
+    묶음 딱지인지는 이 폭으로 갈린다.
+    """
+    clip = fitz.Rect(rect.x0 + 1, rect.y0 + 1, rect.x1 - 1, rect.y1 - 1)
+    pixmap = document[page_index].get_pixmap(matrix=fitz.Matrix(4, 4), clip=clip, alpha=False)
+    grey = np.frombuffer(pixmap.samples, dtype=np.uint8)
+    grey = grey.reshape(pixmap.height, pixmap.width, 3).mean(axis=2)
+    columns = np.where((grey < 110).any(axis=0))[0]
+    if not len(columns):
+        return 0.0
+    return float(columns[-1] - columns[0] + 1) / pixmap.width
+
+
+def question_headers(
+    document: fitz.Document, expected: int, exam_id: str = ""
+) -> list[Header]:
+    boxes: list[tuple[int, fitz.Rect]] = []
     for page_index, page in enumerate(document):
         for drawing in page.get_drawings():
             rect = drawing["rect"]
@@ -286,13 +329,51 @@ def question_headers(document: fitz.Document, expected: int) -> list[Header]:
                 and all(0.74 < channel < 0.85 for channel in fill)
             ):
                 continue
-            headers.append(Header(page_index=page_index, rect=fitz.Rect(rect)))
-    headers.sort(key=lambda item: (item.page_index, item.rect.y0))
+            boxes.append((page_index, fitz.Rect(rect)))
+    boxes.sort(key=lambda item: (item[0], item[1].y0))
+
+    groups = list(GROUPED.get(exam_id, []))
+    headers: list[Header] = []
+    pending: tuple[int, fitz.Rect] | None = None   # 아직 문항에 안 붙인 묶음 문두
+    spans: list[tuple[int, int, int, fitz.Rect]] = []   # (시작, 끝, 쪽, 상자)
+    for page_index, rect in boxes:
+        if len(headers) >= expected:
+            break
+        if label_ink_ratio(document, page_index, rect) > 0.70:
+            if not groups:
+                raise RuntimeError(
+                    f"{exam_id}: 표에 없는 묶음 문두를 만났다 (문항 {len(headers)+1} 앞). "
+                    "GROUPED 에 범위를 적어야 크롭이 안 어긋난다"
+                )
+            start, end = groups.pop(0)
+            if start != len(headers) + 1:
+                raise RuntimeError(
+                    f"{exam_id}: 묶음 문두가 {len(headers)+1}번 앞에 있는데 "
+                    f"GROUPED 에는 {start}번으로 적혀 있다"
+                )
+            spans.append([start, end, page_index, rect, None])
+            pending = spans[-1]
+            continue
+        number = len(headers) + 1
+        if pending is not None:
+            # 묶음 자료는 그 묶음의 **첫 문항** 앞에서 끝난다. 뒤엣것 앞에서
+            # 끊으면 앞 문항이 통째로 딸려 들어온다.
+            pending[4] = rect.y0 if pending[2] == page_index else None
+            pending = None
+        share = next((g for g in spans if g[0] <= number <= g[1]), None)
+        headers.append(Header(
+            page_index=page_index, rect=rect,
+            pre_page=share[2] if share else None,
+            pre_rect=share[3] if share else None,
+            pre_y1=share[4] if share else None,
+        ))
     if len(headers) < expected:
         raise RuntimeError(
             f"Only {len(headers)} question headers found; expected {expected}"
         )
-    return headers[:expected]
+    if groups:
+        raise RuntimeError(f"{exam_id}: GROUPED 에 적어 둔 묶음 {groups} 을 못 찾았다")
+    return headers
 
 
 def remove_red_answer_marker(
@@ -364,12 +445,36 @@ def optimize_png(image: Image.Image, output: Path) -> dict[str, Any]:
     }
 
 
+def stack_shared_stem(
+    document: fitz.Document, header: Header, image: Image.Image,
+    matrix: fitz.Matrix, scale: float,
+) -> Image.Image:
+    page = document[header.pre_page]
+    x0 = max(0.0, min(header.pre_rect.x0 - 10.0, 60.0))
+    x1 = min(page.rect.width, page.rect.width - 58.0)
+    y0 = max(0.0, header.pre_rect.y0 - 8.0)
+    if header.pre_y1 is not None:
+        y1 = max(y0 + 45.0, header.pre_y1 - 8.0)
+    else:
+        y1 = min(page.rect.height - 65.0, 775.0)
+    clip = fitz.Rect(x0, y0, x1, y1)
+    pixmap = page.get_pixmap(matrix=matrix, clip=clip, alpha=False)
+    top = Image.frombytes("RGB", [pixmap.width, pixmap.height], pixmap.samples)
+    top, _ = remove_red_answer_marker(top, clip, header.pre_rect, scale)
+    width = max(top.width, image.width)
+    gap = 16
+    out = Image.new("RGB", (width, top.height + gap + image.height), "white")
+    out.paste(top, (0, 0))
+    out.paste(image, (0, top.height + gap))
+    return out
+
+
 def crop_exam(exam: dict[str, Any], force: bool = False) -> list[dict[str, Any]]:
     pdf_path = ROOT / exam["pdf"]
     if not pdf_path.exists():
         raise FileNotFoundError(pdf_path)
     document = fitz.open(pdf_path)
-    headers = question_headers(document, exam["nQ"])
+    headers = question_headers(document, exam["nQ"], exam["id"])
     results: list[dict[str, Any]] = []
     scale = 2.0
     matrix = fitz.Matrix(scale, scale)
@@ -393,6 +498,10 @@ def crop_exam(exam: dict[str, Any], force: bool = False) -> list[dict[str, Any]]
             image, marker_removed = remove_red_answer_marker(
                 image, clip, header.rect, scale
             )
+            if header.pre_rect is not None:
+                # 묶음 문두(둘이 나눠 쓰는 자료)를 문항 위에 얹는다. 안 얹으면
+                # 뒷 문항은 "위 자료를 보고" 만 남고 자료가 없다.
+                image = stack_shared_stem(document, header, image, matrix, scale)
             info = optimize_png(image, output)
         else:
             with Image.open(output) as existing:
