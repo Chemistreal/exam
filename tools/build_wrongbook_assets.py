@@ -21,7 +21,7 @@ import re
 import shutil
 import sys
 from collections import Counter, defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
@@ -50,6 +50,8 @@ class Header:
     pre_page: int | None = None      # 묶음 문두가 있으면 그 쪽 번호
     pre_rect: fitz.Rect | None = None
     pre_y1: float | None = None      # 묶음 문두 자료가 끝나는 자리(그 묶음의 첫 문항)
+    stop_page: int | None = None     # **다음 딱지**(문항이든 묶음 문두든)의 쪽
+    stop_y: float | None = None      # 그 딱지의 윗변. 여기서 잘라야 한다
 
 
 # 문항 두 개가 한 자료를 나눠 쓰는 자리. 문제지에는 '문제 22-23' 같은 회색
@@ -71,6 +73,19 @@ GROUPED = {
     'hwol-2012': [(22, 23)],
     'hwol-2011': [(55, 56)],
     'hwol-2010': [(55, 56), (57, 58)],
+}
+
+# 문제지에 **잘못 박힌 딱지**. 회색 상자인데 문항 딱지가 아니다.
+#
+# hwol-2018 은 문항이 예순인데 상자가 예순하나다. 스물여섯째 상자에 '문제 52'
+# 라고 적혀 있다 — 25번과 26번 사이에 엉뚱한 딱지가 하나 끼어 있는 것이다.
+# 그래서 26번부터 크롭이 한 칸씩 밀렸고 60번은 크롭이 아예 없었다.
+#
+# 넓이로 가려지지 않는다(폭이 보통 딱지와 같다). 딱지 글자를 읽어야 아는데
+# 이 문제지들은 글자가 자모로 흩어져 텍스트로 안 잡힌다. 그래서 사람이 한 번
+# 읽어 여기 적어 둔다. 값은 **상자 차례**(1부터)다.
+STRAY = {
+    'hwol-2018': [26],      # '문제 52' 라고 적힌 딱지가 25번과 26번 사이에 있다      # '문제 52' 라고 적힌 딱지가 25번과 26번 사이에 있다
 }
 
 
@@ -333,12 +348,18 @@ def question_headers(
     boxes.sort(key=lambda item: (item[0], item[1].y0))
 
     groups = list(GROUPED.get(exam_id, []))
+    stray = set(STRAY.get(exam_id, []))
     headers: list[Header] = []
+    seen: list[tuple[int, fitz.Rect]] = []   # 지나온 딱지 전부(묶음 문두 포함)
+    order: list[int] = []                    # headers[i] 가 seen 의 몇 번째인가
     pending: tuple[int, fitz.Rect] | None = None   # 아직 문항에 안 붙인 묶음 문두
     spans: list[tuple[int, int, int, fitz.Rect]] = []   # (시작, 끝, 쪽, 상자)
     for page_index, rect in boxes:
         if len(headers) >= expected:
             break
+        seen.append((page_index, rect))
+        if len(seen) in stray:      # 잘못 박힌 딱지. 문항으로도 자료로도 안 센다
+            continue
         if label_ink_ratio(document, page_index, rect) > 0.70:
             if not groups:
                 raise RuntimeError(
@@ -367,12 +388,30 @@ def question_headers(
             pre_rect=share[3] if share else None,
             pre_y1=share[4] if share else None,
         ))
+        order.append(len(seen) - 1)
     if len(headers) < expected:
         raise RuntimeError(
             f"Only {len(headers)} question headers found; expected {expected}"
         )
     if groups:
         raise RuntimeError(f"{exam_id}: GROUPED 에 적어 둔 묶음 {groups} 을 못 찾았다")
+    # 딱지 셈이 맞는가. 문항 수 + 묶음 문두 + 잘못 박힌 딱지 = 지나온 상자 수.
+    # 어긋나면 표에 없는 딱지가 새로 생긴 것이다 — 그것을 모르고 지나가면
+    # 그 뒤 크롭이 통째로 한 칸씩 밀린다.
+    want = expected + len(GROUPED.get(exam_id, [])) + len(stray)
+    if len(seen) != want:
+        raise RuntimeError(
+            f"{exam_id}: 딱지 셈이 안 맞는다 — 지나온 상자 {len(seen)}, "
+            f"기대 {want} (문항 {expected} + 묶음 {len(GROUPED.get(exam_id, []))} "
+            f"+ 잘못 박힌 딱지 {len(stray)})")
+    # 자를 자리는 **다음 딱지**가 정한다. 다음 '문항' 이 아니다 — 사이에 묶음
+    # 문두가 끼면 그 자료가 앞 문항 크롭에 통째로 딸려 들어간다. jmchc-1 36번이
+    # 그랬다: 제 문항 아래에 '문제 37-38' 의 표가 붙어 나왔다.
+    tail = boxes[len(seen)] if len(boxes) > len(seen) else None
+    for i, h in enumerate(headers):
+        nxt = seen[order[i] + 1] if order[i] + 1 < len(seen) else tail
+        headers[i] = replace(h, stop_page=nxt[0] if nxt else None,
+                             stop_y=nxt[1].y0 if nxt else None)
     return headers
 
 
@@ -485,8 +524,8 @@ def crop_exam(exam: dict[str, Any], force: bool = False) -> list[dict[str, Any]]
         x0 = max(0.0, min(header.rect.x0 - 10.0, 60.0))
         x1 = min(page.rect.width, page.rect.width - 58.0)
         y0 = max(0.0, header.rect.y0 - 8.0)
-        if next_header and next_header.page_index == header.page_index:
-            y1 = max(y0 + 45.0, next_header.rect.y0 - 8.0)
+        if header.stop_y is not None and header.stop_page == header.page_index:
+            y1 = max(y0 + 45.0, header.stop_y - 8.0)
         else:
             y1 = min(page.rect.height - 65.0, 775.0)
         clip = fitz.Rect(x0, y0, x1, y1)
