@@ -69,7 +69,14 @@ def check_entry(number: str, q: dict) -> list[str]:
 
 
 def main() -> None:
-    paths = sys.argv[1:]
+    paths = [a for a in sys.argv[1:] if not a.startswith("-")]
+    # 낱개로만 부를 수 있어서 CI 에 걸 수가 없었다. 걸려 있지 않으니 아무도
+    # 안 돌렸고, 보기 넷이 모두 '①' 인 문항이 그대로 나가 있었다(hwol-2011
+    # 59번 — 문두에 적어 둔 보기를 choices 로 옮기지 않은 자리다).
+    if "--all" in sys.argv[1:]:
+        skip = {"index.json", "_template.json"}
+        paths = sorted(str(x) for x in (ROOT / "donghyung").glob("*.json")
+                       if x.name not in skip)
     if not paths:
         print(__doc__)
         raise SystemExit(1)
