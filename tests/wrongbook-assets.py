@@ -112,7 +112,16 @@ for function in (
 # 손상 항목은 dhUsable() 가드로 숨겨지지만, 새로 늘어나면 즉시 잡는다.
 assert broken <= BROKEN_BUDGET, f"손상 동형문제 증가: {broken} > {BROKEN_BUDGET}"
 
-assert seen == expected == 2400
+# seen == expected 는 "모든 문항이 자산을 갖췄나" 를 본다. 뒤의 총합은 그와
+# 별개로 **조용히 사라지지 않았나** 를 본다 — 회차 하나가 통째로 빠져도 앞
+# 조건은 여전히 맞기 때문이다.
+#
+# ⚠ 이 수는 함부로 내리지 않는다. 내려도 되는 때는 회차를 **일부러** 뺐을
+#    때뿐이고, 그때는 왜 뺐는지 여기 적는다.
+#    2400 → 2250 : KMChC 일반과정 세 회차(2025-1·2025-2·2026-1, 50문항씩)를
+#    뺐다. 같은 회차의 심화과정만 보기로 해서다 (2026-08-08).
+assert seen == expected, f"자산이 빠진 문항이 있다: {seen} != {expected}"
+assert seen == 2250, f"문항 총합이 달라졌다: {seen} (기대 2250)"
 print(
     f"PASS wrongbook assets: exams={len(exams)} questions={seen} "
     f"손상(가드로 숨김)={broken}/{BROKEN_BUDGET}"
