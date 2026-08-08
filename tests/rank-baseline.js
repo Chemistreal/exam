@@ -165,12 +165,18 @@ const RANKS = `(function(){ var out=[];
     for (let q = 1; q <= cur.nQ; q++) setAns(q, cur.key[q - 1]);
     scoreAuto();
     await new Promise(r => setTimeout(r, 2200));
-    return { id: ex.id, ranks: eval(RANKS_SRC) };
+    return { id: ex.id, ranks: eval(RANKS_SRC), body: document.body.innerText };
   }, RANKS);
   if (noBase) {
     console.log(`  ${noBase.id} → ${noBase.ranks.join(' · ') || '(이 브라우저 기록만)'}`);
     // 이 브라우저 기록 1명뿐이니 1/1 이 나온다 — 기준표를 잘못 갖다 붙이지 않았다는 뜻
     chk('기준표 인원을 빌려 쓰지 않는다', noBase.ranks.every(r => r.endsWith('/1')), true);
+    /* 최소 인원(MINP)은 8에서 1로 내렸다. "8명 미만이라도 다 보여 달라" 는
+       주문이었고, 그 대신 **몇 명짜리 숫자인지는 반드시 같이 보이게 한다** 는
+       약속이 붙어 있다(final.html 의 MINP 주석). 기준 기록이 없는 스물세
+       회차가 바로 그 자리다 — 한 명이 채점하면 '1/1 · 상위 100%' 가 나온다.
+       그 옆에 표본 크기가 안 적히면 그 숫자는 거짓말이 된다. */
+    chk('표본이 몇 명인지 같이 적는다', /응시 \d+명 기준의 잠정치/.test(noBase.body), true);
   }
 
   chk('JS 오류 없음', errs, []);
