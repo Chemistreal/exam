@@ -80,5 +80,7 @@ node tests/run.js                       # 브라우저 검사는 playwright 없�
 
 - `프로젝트_가이드.md` — 화면과 데이터가 어떻게 이어지는지
 - `DEPLOY_CHECKLIST.md` · `AUTODEPLOY.md` — 반영 절차
-- `tools/README.md` — 자마다 무엇을 왜 재는지
+- `tools/INDEX.md` — 자 예순의 차례. 어느 자가 무엇을 재는지 (자동 생성)
+- `tools/README.md` — 기출동형을 **어떻게 집필하는가**. 열 가지 원칙과
+  그것이 생긴 사연(틀린 문헌값·뒤집힌 서열·숨은 전제…)
 - `docs/` — 감사 리포트와 결정 기록
