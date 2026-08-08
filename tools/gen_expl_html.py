@@ -13,14 +13,28 @@
 굵게 세운다. 이미 explanationHtml 이 있는 문항은 건드리지 않는다 —
 손으로 공들여 쓴 것을 기계가 덮어쓰면 안 된다.
 
+■ 낡은 꼴도 본다
+
+건드리지 않는 규칙에는 구멍이 있었다. 글을 **고치면** 꼴은 옛 글을 그대로
+들고 있는데, '이미 있으니 건너뛴다' 로 지나가 아무도 모른다. 성적표는 새 글을,
+해설지는 옛 글을 보여 준다 — 같은 문항인데 두 곳이 다른 말을 한다.
+
+실제로 그랬다. 내부 메모(정답표 오류 지적 같은 것)를 학생용 글에서 걷어냈는데
+해설지에는 그대로 남아 있었다.
+
+그래서 글과 꼴이 **같은 말인지** 본다. 태그·공백·아래첨자·따옴표 실체·정답
+표시(→ / 정답)는 꼴마다 다르므로 지우고 견준다. 서식은 손봐도 되고, 내용이
+갈리면 알린다.
+
     python3 tools/gen_expl_html.py <시험id> [--write]
-    python3 tools/gen_expl_html.py --check      # 글은 있는데 꼴이 없는 곳이 있나
+    python3 tools/gen_expl_html.py --check      # 꼴이 없거나 글과 어긋나는 곳
 """
 import glob
 import html
 import json
 import os
 import re
+import unicodedata
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -51,25 +65,52 @@ def build(text):
     return head + body + ('\n' + tail if tail else '')
 
 
+def squash(s):
+    """서식을 걷어내고 '무슨 말인가' 만 남긴다.
+
+    같은 내용이라도 꼴에는 아래첨자 태그·줄바꿈·실체 참조가 들어가고, 정답
+    표시도 '→ ②' 와 '정답 ②' 로 갈린다. 그런 차이로 낡았다고 하면 아무도
+    안 믿는 검사가 된다. 지우고 견준다.
+    """
+    for a, b in (('&lt;', '<'), ('&gt;', '>'), ('&quot;', '"'),
+                 ('&#x27;', "'"), ('&#39;', "'"), ('&nbsp;', ''), ('&amp;', '&')):
+        s = s.replace(a, b)
+    s = re.sub(r'\s+', '', unicodedata.normalize('NFKC', s))
+    return re.sub(r'(정답|→)+', '→', s)
+
+
+def same_words(expl, html_):
+    return squash(expl) == squash(re.sub(r'<[^>]+>', '', html_))
+
+
 def run(path, write):
     data = json.load(open(path, encoding='utf-8'))
     qs = data.get('questions') or {}
     made = missing = 0
+    stale = []
     for k in sorted(qs, key=int):
         q = qs[k]
         expl = str(q.get('explanation') or '').strip()
         cur = str(q.get('explanationHtml') or '').strip()
-        if not expl or cur:
+        if not expl:
             continue
-        missing += 1
-        if write:
-            q['explanationHtml'] = build(expl)
-            made += 1
+        if not cur:
+            missing += 1
+            if write:
+                q['explanationHtml'] = build(expl)
+                made += 1
+            continue
+        # 꼴은 있는데 글과 다른 말을 한다 — 글을 고치고 꼴을 안 고친 자리다.
+        if not same_words(expl, cur):
+            stale.append(k)
+            if write:
+                q['explanationHtml'] = build(expl)
+                made += 1
     if write and made:
         with open(path, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
             f.write('\n')
-    return missing, made
+    return missing, made, stale
 
 
 def main():
@@ -80,19 +121,27 @@ def main():
     paths = ([os.path.join(ROOT, 'answers', '%s.json' % a) for a in args]
              if args else sorted(glob.glob(os.path.join(ROOT, 'answers', '*.json'))))
 
-    total = 0
+    total = old = 0
     for p in paths:
-        missing, made = run(p, write)
+        missing, made, stale = run(p, write)
+        name = os.path.basename(p)
         if missing:
             total += missing
             print('  %-34s 글은 있는데 꼴이 없는 문항 %d개%s'
-                  % (os.path.basename(p), missing, ' → 만들었다' if made else ''))
-    if not total:
-        print('해설 글이 있는 문항은 모두 해설지 꼴을 갖췄다')
+                  % (name, missing, ' → 만들었다' if made else ''))
+        if stale:
+            old += len(stale)
+            print('  %-34s 꼴이 옛 글을 들고 있는 문항 %d개 (%s)%s'
+                  % (name, len(stale), ', '.join(s + '번' for s in stale[:8]),
+                     ' → 다시 만들었다' if write else ''))
+    if not total and not old:
+        print('해설 글이 있는 문항은 모두 해설지 꼴을 갖췄고, 글과 같은 말을 한다')
         return 0
     if write:
         return 0
-    print('\npython3 tools/gen_expl_html.py --write 로 만든다.')
+    if old:
+        print('\n글을 고치고 꼴을 안 고쳤다 — 성적표와 해설지가 다른 말을 하게 된다.')
+    print('python3 tools/gen_expl_html.py --write 로 맞춘다.')
     return 1 if check else 0
 
 
