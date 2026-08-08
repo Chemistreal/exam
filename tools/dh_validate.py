@@ -61,6 +61,17 @@ def check_entry(number: str, q: dict) -> list[str]:
             continue
         if not str(mis.get(str(opt)) or "").strip():
             errs.append(f"오답 {opt} 오개념 설명 없음")
+    # 오답 풀이가 서로 똑같으면 안 된다. 학생은 자기가 고른 보기의 설명을
+    # 읽는데, 두 보기에 같은 문장이 붙어 있으면 '내 답' 이야기가 아니라
+    # 일반론이 된다. 자기 보기를 짚어 말해야 한다.
+    seen: dict[str, str] = {}
+    for opt, text in sorted(mis.items()):
+        flat = re.sub(r"\s+", "", str(text or ""))
+        if not flat:
+            continue
+        if flat in seen:
+            errs.append(f"오답 {seen[flat]}·{opt} 오개념 설명이 똑같음")
+        seen[flat] = opt
     if not str(q.get("concept") or "").strip():
         errs.append("concept 없음")
     if q.get("origin") != "authored":
