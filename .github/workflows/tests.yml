@@ -439,6 +439,13 @@ jobs:
       - name: 분석 화면의 회차 목록이 시험 목록과 맞는가
         timeout-minutes: 5
         run: python3 tools/page_exams.py --check
+      # '전원정답' 은 두 가지 다른 일에 붙어 있었다 — 답이 갈려 모두 인정한
+      # 문항과, 출제 뒤 문제 자체가 폐기된 문항. 학생이 보는 것은 둘 다
+      # '전원정답' 이라 "이건 왜 다 맞았지" 가 된다. 폐기된 것은 그렇다고
+      # 적어 주되, 폐기 문항이 전원정답 처리에서 빠지면 학생이 틀린다.
+      - name: 폐기된 문항이 제대로 처리돼 있는가
+        timeout-minutes: 5
+        run: python3 tools/void_check.py --check
       - name: 문제지의 공식 정답률이 성한가
         timeout-minutes: 5
         run: python3 tools/rate_check.py --check
