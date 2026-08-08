@@ -174,6 +174,16 @@ def main() -> int:
                 continue
             if cur != themed(build(e["id"]), e["id"]):
                 stale.append(f"{e['id']}: 해설 데이터와 어긋난다")
+        # 반대쪽도 본다 — exams.json 에 없는 회차의 해설지가 남아 있으면
+        # 성적표 어디에서도 못 고르는데 파일 목록에는 뜬다. 실제로 넷이
+        # 그랬고, 그 가운데 '화올 2020' 은 2019 회차의 정답을 2020 이라는
+        # 이름으로 보여 주고 있었다. 없는 회차의 정답표만큼 나쁜 것은 없다.
+        ids = {e["id"] for e in exams}
+        for page in sorted(ROOT.glob("sol-final-*.html")):
+            eid = page.name[len("sol-final-"):-len(".html")]
+            if eid not in ids:
+                stale.append(f"{eid}: exams.json 에 없는 회차의 해설지다 "
+                             f"({page.name}) — 지우거나 회차를 넣어라")
         if stale:
             print("FAIL 해설지가 데이터와 어긋난다:")
             for s in stale:
