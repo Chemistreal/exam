@@ -106,8 +106,12 @@ def no_explanation():
         if not os.path.exists(p):
             continue
         qs = (json.load(open(p, encoding='utf-8')).get('questions') or {})
+        # 출제 취소된 문항은 풀 것이 없어졌으므로 해설을 쓸 자리가 아니다.
+        # 세면 영영 안 줄어드는 빚으로 남는다(hwol-2018 34번 · hwol-2019 23·42번 ·
+        # kmchc-2025-1-simhwa 38·41번).
+        void = set(ex.get('voided') or [])
         miss = [i for i in range(1, int(ex.get('nQ') or 0) + 1)
-                if qs.get(str(i)) is not None
+                if qs.get(str(i)) is not None and i not in void
                 and not (qs[str(i)].get('explanation') or '').strip()]
         if miss:
             out.append((ex.get('id'), miss))
