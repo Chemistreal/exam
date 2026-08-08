@@ -198,6 +198,7 @@ console.log('\n── 실제 회차 데이터로 ──');
     'hwol-2021': [60], 'hwol-2019': [23, 42], 'hwol-2018': [34],
     'hwol-2017': [60], 'hwol-2015': [20], 'hwol-2014': [57],
     'hwol-2010': [38, 42],   // 대회 원본 정답표에 '삭제' 로 적힌 두 문항
+    'hwol-2009': [51],       // 옳은 보기가 하나뿐인데 그 답지가 없어 채점 제외
   };
   const actual = {};
   EXAMS.forEach(e => { const s = [...F.allcSet(e)].sort((a, b) => a - b); if (s.length) actual[e.id] = s; });
