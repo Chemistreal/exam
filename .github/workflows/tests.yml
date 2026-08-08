@@ -439,9 +439,19 @@ jobs:
       # 해설지 생성기는 explanationHtml 만 읽는다. 글(explanation)만 써 넣고
       # 이것을 빠뜨리면 해설지가 통째로 비어 나오는데, 파일은 만들어지고
       # 검사도 지나가서 아무도 모른다 — 2026-08-07 에 실제로 그랬다.
-      - name: 해설 글이 해설지 꼴까지 갖췄는가
+      # 이제 '꼴이 있나' 만이 아니라 '글과 같은 말을 하나' 까지 본다. 글만
+      # 고치고 꼴을 안 고치면 성적표와 해설지가 서로 다른 말을 하는데,
+      # 예전 검사는 '이미 있으니 건너뛴다' 로 지나갔다.
+      - name: 해설 글이 해설지 꼴까지 갖췄는가 (낡은 꼴 포함)
         timeout-minutes: 5
         run: python3 tools/gen_expl_html.py --check
+      # 답지를 정리하다 보면 '정답표 오류', '원본 렌더 누락', '최종 확정 예정'
+      # 같은 말을 적게 된다. 선생님이 판단할 일이지 학생에게 할 말이 아닌데,
+      # 적어 넣은 자리가 misconception·explanation 이라 오답 카드와 해설지에
+      # 그대로 실려 나갔다 — 35문항이 그랬다. 자리는 editorNote 다.
+      - name: 선생님께 남긴 메모가 학생 화면으로 새지 않는가
+        timeout-minutes: 5
+        run: python3 tools/editor_note.py --check
       - name: 명단 관리 (이름 고침 · 합치기)
         timeout-minutes: 5
         run: node tests/roster-admin.js
