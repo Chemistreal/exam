@@ -23,6 +23,13 @@
   ① exams.json 에 없는 회차를 들고 있지 않은가
   ② 제목이 exams.json 과 같은가
   ③ 문항 수(nQ)를 적어 둔 화면은 그 값이 맞는가
+  ④ 정답키가 exams.json 과 같은가
+
+  ④ 는 뒤늦게 붙였다. 화면의 정답키가 회차 서른일곱 개 전부 exams.json 보다
+  **1씩 커** 있었다. 보기가 넷뿐인데 ⑤ 가 정답인 문항이 수두룩했다는 뜻이다.
+  대부분은 모의 자료를 만들고 그 자료로 되채점하는 자리라 스스로는 아귀가
+  맞았지만, data-import 는 그 값을 선생님께 '정답키' 라고 그대로 보여 준다.
+  거기서는 전부 한 칸씩 틀린 답이었다.
 
   --fix 는 빠진 회차도 채운다. 다만 **지어내지 않는 것만** 채운다.
 
@@ -137,8 +144,7 @@ def build(ex, order, group):
         'id': "'%s'" % ex['id'],
         'title': "'%s'" % ex['title'],
         'group': "'%s'" % group,
-        # exams.json 의 정답은 0부터 세고, 화면의 key 는 1부터 센다(①=1).
-        'key': '[' + ','.join(str(int(k) + 1) for k in ex['key']) + ']',
+        'key': '[' + ','.join(str(int(k)) for k in ex['key']) + ']',
         'nQ': str(nQ),
         'concepts': nulls,
         'q': nulls,
@@ -167,7 +173,7 @@ def main():
         if len(ents) < 5:                      # 회차 목록이라기엔 너무 짧다
             continue
 
-        drop, retitle, renq = [], [], []
+        drop, retitle, renq, rekey = [], [], [], []
         for _, _, eid in ents:
             ex = real.get(eid)
             if not ex:
@@ -179,6 +185,15 @@ def main():
             m = re.search(r"\{id:'%s'[^}]*?nQ:(\d+)" % re.escape(eid), body)
             if m and int(m.group(1)) != int(ex['nQ']):
                 renq.append((eid, int(m.group(1)), int(ex['nQ'])))
+            for s0, e0, i0 in ents:
+                if i0 != eid:
+                    continue
+                m = re.search(r'key:\[([0-9,]+)\]', body[s0:e0])
+                if m:
+                    got = [int(x) for x in m.group(1).split(',')]
+                    if got != list(ex['key']):
+                        rekey.append((eid, got, list(ex['key'])))
+                break
 
         order = fields(body[ents[0][0]:ents[0][1]])
         # 개념 코드 하나로만 도는 화면(diagnosis-v1)은 전부 null 인 회차를 넣으면
@@ -186,12 +201,12 @@ def main():
         concept_only = 'key' not in order and 'nQ' not in order
 
         missing = [i for i in real if i not in {e[2] for e in ents}]
-        if drop or retitle or renq:
-            bad.append((name, drop, retitle, renq))
+        if drop or retitle or renq or rekey:
+            bad.append((name, drop, retitle, renq, rekey))
         if missing:
             gaps.append((name, missing, concept_only))
 
-        if fix and (drop or retitle or renq or (missing and not concept_only)):
+        if fix and (drop or retitle or renq or rekey or (missing and not concept_only)):
             nb = body
             for eid, _, want in retitle:
                 nb = re.sub(r"(\{id:'%s',title:')[^']*(')" % re.escape(eid),
@@ -199,6 +214,14 @@ def main():
             for eid, _, want in renq:
                 nb = re.sub(r"(\{id:'%s'[^}]*?nQ:)\d+" % re.escape(eid),
                             lambda m: m.group(1) + str(want), nb, count=1)
+            for eid, _, want in rekey:
+                for s0, e0, i0 in entries(nb):
+                    if i0 != eid:
+                        continue
+                    m = re.search(r'key:\[[0-9,]+\]', nb[s0:e0])
+                    nb = (nb[:s0 + m.start()] + 'key:[' + ','.join(map(str, want))
+                          + ']' + nb[s0 + m.end():])
+                    break
             for eid in drop:                   # 뒤에서부터 지워야 자리가 안 밀린다
                 for s, e, i in reversed(entries(nb)):
                     if i != eid:
@@ -251,7 +274,7 @@ def main():
     if bad:
         print('회차 목록이 exams.json 과 어긋난 화면 %d장%s\n'
               % (len(bad), ' → 맞췄다' if fix else ''))
-        for name, drop, retitle, renq in bad:
+        for name, drop, retitle, renq, rekey in bad:
             print('  %s' % name)
             for eid in drop:
                 print('     없는 회차: %s' % eid)
@@ -259,6 +282,10 @@ def main():
                 print("     제목이 낡음: %s  '%s' → '%s'" % (eid, got, want))
             for eid, got, want in renq:
                 print('     문항 수가 다름: %s  %d → %d' % (eid, got, want))
+            for eid, got, want in rekey:
+                n = sum(1 for g, w in zip(got, want) if g != w)
+                print('     정답키가 다름: %s  %d문항 (%s… → %s…)'
+                      % (eid, n, got[:4], want[:4]))
         print()
 
     fillable = [g for g in gaps if not g[2]]
