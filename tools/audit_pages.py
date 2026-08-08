@@ -89,8 +89,16 @@ def audit(path):
     # 했다 — 실제로는 가장 잘 읽히는 화면이다.
     # 그 장이 밝은 화면인지 어두운 화면인지 먼저 정하고, **그 쪽 바탕**으로 잰다.
     vs = dict(VAR.findall(s))
-    allbg = [v for k, v in vs.items()
-             if re.search(r'paper|bg|cream|surface|white|card', k, re.I)]
+    # ⚠ 네 번째 거짓말. 이름에 'bg' 가 들어가면 다 바탕으로 쳤다. 그래서
+    # --ok-bg(맞은 문항의 연둣빛 띠), --ms-bg, --warn-bg 같은 **상태 색**까지
+    # 바탕이 되었고, 거기에 아무 글자색이나 얹어 재고는 모자란다고 했다.
+    # --brass-ink 하나가 --ok-bg 위에서 4.47 이라는 이유로 262장 가운데
+    # **261장**이 빨간불이었다. 그런 자리는 화면에 없다.
+    # 바탕은 **이름 그 자체가 바탕인 것**만 친다. 'ok-bg' 처럼 앞에 무언가
+    # 붙은 것은 그 색의 옅은 띠지 종이가 아니다.
+    SURFACE = {'bg', 'paper', 'cream', 'surface', 'card', 'sunk', 'page',
+               'white', 'canvas'}
+    allbg = [v for k, v in vs.items() if k.lower() in SURFACE]
     dark_page = bool(allbg) and sum(1 for v in allbg if lum(v) <= .5) > len(allbg) / 2
     bgs = [v for v in allbg if (lum(v) <= .5) == dark_page]
     if not bgs:
@@ -98,7 +106,13 @@ def audit(path):
     fgs = [(k, v) for k, v in vs.items()
            if re.search(r'ink|text|sub|muted|faint|fg', k, re.I)]
     for k, v in fgs:
-        worst = min(ratio(v, b) for b in bgs)
+        # --brand-ink 는 종이가 아니라 --brand-bg 위에 얹힌다. 짝이 있으면
+        # 그 짝 위에서 잰다 — 안 그러면 hub 의 크림색 제목을 흰 종이에 얹어
+        # 재고 1.00:1 이라고 한다(실제로는 가장 잘 읽히는 자리다).
+        stem = re.sub(r'[-_]?(ink|text|sub|muted|faint|fg)\d*$', '', k, flags=re.I)
+        pair = [w for kk, w in vs.items() if stem and re.fullmatch(
+            re.escape(stem) + r'[-_]?bg\d*', kk, re.I)]
+        worst = min(ratio(v, b) for b in (pair or bgs))
         if worst < AA_TEXT:
             out.append(('--%s 대비 %.2f:1' % (k, worst), '본문 글씨는 %.1f:1 필요' % AA_TEXT))
 
@@ -194,7 +208,13 @@ def main():
     for k, v in byKind.most_common(14):
         print('  %-30s %d' % (k, v))
     print('\n화면 %d개 · 결함 있는 화면 %d개' % (len(files), len(rows)))
+    # 지금 0장이다. 0 을 자물쇠로 걸어 두어야 다음에 하나라도 생기면 걸린다 —
+    # 261장이던 시절에는 아무도 안 봤다.
+    return 1 if ('--check' in sys.argv and rows) else 0
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        sys.exit(main())
+    except BrokenPipeError:
+        os._exit(0)

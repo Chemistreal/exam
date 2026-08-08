@@ -1,47 +1,35 @@
-<!DOCTYPE html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>JMChC 2회 · 해설지 (사고과정)</title>
-<style>
-:root{--ink:#1a1a1a;--teal:#0E5A4C;--ms:#C0603A;--line:#e6e2da;--bg:#faf8f4;--gold:#B08D57}
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JMChC 모의고사 2회 · 해설지</title><style>:root{--ink:#1a1a1a;--ink2:#4a463f;--teal:#0E5A4C;--ms:#C0603A;--line:#e6e2da;--bg:#faf8f4;--gold:#B08D57}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;line-height:1.72;font-size:15.5px}
-.serif{font-family:'Noto Serif KR',Georgia,serif}
-header{max-width:820px;margin:0 auto;padding:32px 22px 16px}
-.logo{font-size:12px;letter-spacing:.18em;color:var(--teal);font-weight:700}
-h1{font-size:24px;margin:6px 0 2px}
-.sub{color:#6a655c;font-size:13.5px}
-.bar{max-width:820px;margin:8px auto 0;padding:0 22px}
-.note{background:#fff;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:8px;padding:11px 14px;font-size:13px;color:#574f44}
-main{max-width:820px;margin:0 auto;padding:14px 22px 60px}
-.q{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:16px 0;box-shadow:0 1px 2px rgba(0,0,0,.03)}
-.qh{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.qno{font-weight:800;font-size:17px;color:var(--ink)}
-.ans{margin-left:auto;background:var(--teal);color:#fff;font-weight:700;font-size:13px;padding:3px 11px;border-radius:20px}
-.area{background:#f0ece4;color:#6a655c;font-size:11.5px;padding:2px 9px;border-radius:20px}
-.stem{font-size:15px;color:#22201d;margin:2px 0 12px}
-.opts{display:grid;grid-template-columns:1fr 1fr;gap:2px 18px;font-size:14px;color:#3a352f;margin:8px 0 4px}
-.opts.one{grid-template-columns:1fr 1fr 1fr 1fr}
-.opts div{padding:2px 0}
-table.qt{border-collapse:collapse;margin:10px 0;font-size:13.5px}
-table.qt th,table.qt td{border:1px solid #cfc8bd;padding:4px 11px;text-align:center}
-table.qt th{background:#f2efe8}
-.sol{border-top:1px dashed var(--line);margin-top:12px;padding-top:12px}
-.sol h4{margin:0 0 7px;font-size:13px;color:var(--teal);letter-spacing:.04em}
-.sol p{margin:7px 0}
-.step{margin:6px 0;padding-left:14px;border-left:2px solid #e0dccf}
-.k{color:var(--teal);font-weight:700}
-.x{color:var(--ms);font-weight:600}
-.eq{font-family:'Cambria Math','Times New Roman',serif;background:#f7f4ee;padding:1px 5px;border-radius:4px}
-.tip{font-size:12.5px;color:#6a655c;background:#f7f4ee;border-radius:7px;padding:8px 11px;margin-top:8px}
-footer{max-width:820px;margin:0 auto;padding:24px 22px;color:#8a8478;font-size:12px;border-top:1px solid var(--line)}
-sub,sup{font-size:.72em}
-
-/* 인쇄 — 종이에서만 산다. 화면은 하나도 안 바뀐다. */
-@page{size:A4;margin:14mm 12mm}
-@media print{body{background:#fff}.q{break-inside:avoid}.filt{display:none}}
+body{margin:0;background:var(--bg);color:var(--ink);line-height:1.75;
+ font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif}
+header{padding:26px 20px 16px;border-bottom:1px solid var(--line);background:#fff}
+/* 놋쇠 원색(--gold #B08D57)은 흰 종이 위에서 3.09:1 이라 글자로는 못 쓴다.
+   해설지의 갈래 표식은 옥색이다(tools/theme.py 의 '갈래별 표식'). */
+.logo{font-size:11.5px;letter-spacing:.14em;color:var(--teal);font-weight:700}
+h1{margin:6px 0 4px;font-size:23px;font-family:'Iropke Batang',serif}
+.sub{color:var(--ink2);font-size:13.5px}
+.warn{margin:12px 20px 0;padding:10px 13px;border:1px solid #E0C9A6;background:#FFF8EC;
+ border-radius:8px;font-size:13px;color:#7a5a22}
+main{max-width:860px;margin:0 auto;padding:16px 20px 60px}
+table{border-collapse:collapse;width:100%;margin:14px 0 26px;font-size:13.5px;background:#fff}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:center}
+th{background:#f1eee7;font-weight:700}
+.q{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:12px 0}
+.qh{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:8px}
+.qno{font-weight:700;color:var(--teal)}
+.area{font-size:12.5px;color:var(--ink2);background:#f1eee7;border-radius:99px;padding:2px 9px}
+.ans{margin-left:auto;font-weight:700;color:var(--ms)}
+.sol{font-size:14.5px}
+.tip{margin-top:9px;padding:9px 11px;border-left:3px solid var(--gold);background:#faf7f1;
+ font-size:13.5px;color:var(--ink2)}
+.rev{margin-top:9px;padding:9px 11px;border-left:3px solid var(--ms);background:#fdf3ef;
+ font-size:13px;color:#8a3a1d}
+@media print{body{background:#fff}.q{break-inside:avoid}}
 </style><style id="ct-theme" data-v="4" data-fam="sol" data-seal="1">/* 이 조각은 tools/theme.py 가 넣습니다. 손으로 고치지 마세요 —
    다음 실행에서 덮어써집니다. 색을 바꾸려면 그 파일을 고치세요. */
-:root{--ink:#23201b;--ink-2:#5a564d;--muted:#6f6a5e;--line:#E8E4DA;--line-2:#D8D2C4;--paper:#fff;--cream:#FBFAF6;--bg:#FBFAF6;--sunk:#F4F1E9;--teal:#0E5A4C;--teal-d:#3A7A6B;--wash:#EDF4F1;--brass:#B08D57;--gold:#B08D57;/* 놋쇠는 두 가지 일을 한다. 밑선·테두리(그림, 3:1)는 밝은 쪽이 예쁘고,      흰 글씨를 얹는 바탕이나 글자색으로 쓰면 3.09:1 로 못 읽는다.      그래서 **글자용 놋쇠**를 따로 둔다 — 흰 글씨 위에서 4.95:1. */   --brass-ink:#8A6B3A;--ms:#B8562F;--ok:#2F7A4F;--ok-bg:#eef5f2;--serif:"Hahmlet","Nanum Myeongjo",serif;--mono:ui-monospace,Menlo,monospace}
+:root{--ink:#23201b;--ink-2:#5a564d;--muted:#6f6a5e;--line:#E8E4DA;--line-2:#D8D2C4;--paper:#fff;--cream:#FBFAF6;--bg:#FBFAF6;--sunk:#F4F1E9;--teal:#0E5A4C;--teal-d:#3A7A6B;--wash:#EDF4F1;--brass:#B08D57;--gold:#B08D57;/* 놋쇠는 두 가지 일을 한다. 밑선·테두리(그림, 3:1)는 밝은 쪽이 예쁘고,      흰 글씨를 얹는 바탕이나 글자색으로 쓰면 3.09:1 로 못 읽는다.      그래서 **글자용 놋쇠**를 따로 둔다. 흰 종이만 보고 4.95:1 로 맞춰      두었더니 가라앉은 바탕(--sunk #F4F1E9) 위에서 4.38:1 이라 모자랐다.      가장 어두운 바탕에서도 넘도록 조금 더 어둡게 잡는다 —      흰 5.26 · 크림 5.03 · 가라앉은 4.66. */   --brass-ink:#856738;--ms:#B8562F;--ok:#2F7A4F;--ok-bg:#eef5f2;--serif:"Hahmlet","Nanum Myeongjo",serif;--mono:ui-monospace,Menlo,monospace}
 html{color-scheme:light;-webkit-text-size-adjust:100%}
 @media screen{
   body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
@@ -51,751 +39,384 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
   hr{border:0;border-top:1px solid var(--line)}
   @media (min-width:1080px){body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='520' height='560' viewBox='0 0 520 560'%3E%3Cg fill='none' stroke='%230E5A4C' stroke-width='9' stroke-linejoin='round' opacity='0.055'%3E%3Cpath d='M260 60 L433 160 L433 360 L260 460 L87 360 L87 160 Z'/%3E%3Cpath d='M260 120 L381 190 L381 330 L260 400 L139 330 L139 190 Z'/%3E%3Cpath d='M260 60 L260 0 M433 160 L485 130 M433 360 L485 390 M260 460 L260 520 M87 360 L35 390 M87 160 L35 130'/%3E%3C/g%3E%3Cg fill='%230E5A4C' opacity='0.05'%3E%3Ccircle cx='260' cy='60' r='17'/%3E%3Ccircle cx='433' cy='160' r='17'/%3E%3Ccircle cx='433' cy='360' r='17'/%3E%3Ccircle cx='260' cy='460' r='17'/%3E%3Ccircle cx='87' cy='360' r='17'/%3E%3Ccircle cx='87' cy='160' r='17'/%3E%3C/g%3E%3C/svg%3E");background-repeat:no-repeat;background-attachment:fixed;background-position:right -110px top 90px;background-size:520px 560px}}
   header .logo{letter-spacing:.16em;font-weight:700}
-  header::after{content:'';display:block;height:3px;margin-top:16px;border-radius:2px;background:linear-gradient(90deg,#3A7A6B 0%,#3A7A6B66 34%,#3A7A6B00 76%)}
 }</style>
 </head><body>
-<header>
-  <div class="logo">CHEMISTREAL · FINAL 해설지</div>
-  <h1 class="serif">JMChC 2회 · 중학생부</h1>
-  <div class="sub">문항별 정답 · 사고과정 해설 · 4지선다 60문항 (문항당 3점, 오답 −1점)</div>
-</header>
-<div class="bar"><div class="note">각 문항을 풀이 과정 그대로 풀어 정리했습니다. 먼저 무엇을 묻는지 파악하고, 필요한 원리를 떠올린 뒤, 단계적으로 답에 도달하는 흐름으로 서술했습니다. (전체 60문항)</div></div>
-<main>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 1</span><span class="area">원자의 구성 · 중성자</span><span class="ans">정답 ②</span></div>
-  <div class="stem">납(Pb, 원자번호: 82, 질량수: 207) 원자 속의 중성자의 수는?</div>
-  <div class="opts one"><div>① 82</div><div>② 125</div><div>③ 207</div><div>④ 289</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<header><div class="logo">CHEMISTREAL · FINAL 해설지</div>
+<h1>JMChC 모의고사 2회</h1>
+<div class="sub">문항별 정답 · 영역 · 개념 · 사고과정 해설 · 60문항</div>
+<div class="sub" style="margin-top:6px">문제 지문은 문제지(PDF)에 있습니다 — 성적표 화면에서 함께 내려받을 수 있습니다.</div></header>
+<main><h3>정답 · 영역 · 개념</h3><table><thead><tr><th scope="col">문항</th><th scope="col">정답</th><th scope="col">영역</th><th scope="col">개념(유형)</th></tr></thead><tbody>
+<tr><td>1</td><td>②</td><td>원자의구조</td><td>중성자수</td></tr>
+<tr><td>2</td><td>②</td><td>원자의구조</td><td>중성자수</td></tr>
+<tr><td>3</td><td>①</td><td>원자의크기</td><td>원자핵의지름</td></tr>
+<tr><td>4</td><td>①</td><td>원자의크기</td><td>보어반지름</td></tr>
+<tr><td>5</td><td>②</td><td>원자의크기</td><td>원자핵의크기</td></tr>
+<tr><td>6</td><td>④</td><td>열화학</td><td>가열곡선</td></tr>
+<tr><td>7</td><td>④</td><td>열화학</td><td>화학결합</td></tr>
+<tr><td>8</td><td>②</td><td>열화학</td><td>온도단위</td></tr>
+<tr><td>9</td><td>②</td><td>성분원소의확인</td><td>물질의분류</td></tr>
+<tr><td>10</td><td>②</td><td>화학식량</td><td>동위원소</td></tr>
+<tr><td>11</td><td>③</td><td>화학식량</td><td>동위원소</td></tr>
+<tr><td>12</td><td>④</td><td>화학식량</td><td>질량비</td></tr>
+<tr><td>13</td><td>④</td><td>화학식량</td><td>평균원자량</td></tr>
+<tr><td>14</td><td>④</td><td>화학식량</td><td>동위원소</td></tr>
+<tr><td>15</td><td>③</td><td>화학식량</td><td>분산력</td></tr>
+<tr><td>16</td><td>④</td><td>몰과개수</td><td>원자의개수</td></tr>
+<tr><td>17</td><td>③</td><td>몰과개수</td><td>분자수</td></tr>
+<tr><td>18</td><td>②</td><td>몰과질량</td><td>최외각전자수</td></tr>
+<tr><td>19</td><td>①</td><td>몰과질량</td><td>양적관계</td></tr>
+<tr><td>20</td><td>③</td><td>몰과질량</td><td>원자의크기</td></tr>
+<tr><td>21</td><td>①</td><td>몰과질량</td><td>원자의크기</td></tr>
+<tr><td>22</td><td>③</td><td>몰과개수</td><td>단위</td></tr>
+<tr><td>23</td><td>③</td><td>몰과부피</td><td>기체상수</td></tr>
+<tr><td>24</td><td>④</td><td>몰과부피</td><td>PV=nRT</td></tr>
+<tr><td>25</td><td>④</td><td>몰과부피</td><td>PV=nRT</td></tr>
+<tr><td>26</td><td>①</td><td>몰과부피</td><td>PV=nRT</td></tr>
+<tr><td>27</td><td>③</td><td>몰과부피</td><td>PV=nRT</td></tr>
+<tr><td>28</td><td>④</td><td>몰과부피</td><td>d=PM/RT</td></tr>
+<tr><td>29</td><td>③</td><td>몰과부피</td><td>PV=nRT</td></tr>
+<tr><td>30</td><td>③</td><td>몰과부피</td><td>PV=nRT</td></tr>
+<tr><td>31</td><td>②</td><td>몰과부피</td><td>기체분자운동</td></tr>
+<tr><td>32</td><td>③</td><td>성분원소의확인</td><td>앙금생성반응</td></tr>
+<tr><td>33</td><td>①</td><td>원소분석장치</td><td>실험식구하기</td></tr>
+<tr><td>34</td><td>①</td><td>원소분석장치</td><td>실험식구하기</td></tr>
+<tr><td>35</td><td>③</td><td>원소분석장치</td><td>실험식구하기</td></tr>
+<tr><td>36</td><td>④</td><td>원소분석장치</td><td>원소분석장치</td></tr>
+<tr><td>37</td><td>③</td><td>원소분석장치</td><td>원소분석장치</td></tr>
+<tr><td>38</td><td>③</td><td>원소분석장치</td><td>실험식구하기</td></tr>
+<tr><td>39</td><td>③</td><td>계수맞추기</td><td>계수맞추기</td></tr>
+<tr><td>40</td><td>②</td><td>계수맞추기</td><td>계수맞추기</td></tr>
+<tr><td>41</td><td>④</td><td>계수맞추기</td><td>계수의의미</td></tr>
+<tr><td>42</td><td>④</td><td>양적관계</td><td>한계반응물</td></tr>
+<tr><td>43</td><td>③</td><td>계수맞추기</td><td>계수맞추기</td></tr>
+<tr><td>44</td><td>③</td><td>양적관계</td><td>한계반응물</td></tr>
+<tr><td>45</td><td>④</td><td>양적관계</td><td>PV=nRT</td></tr>
+<tr><td>46</td><td>④</td><td>양적관계</td><td>PV=nRT</td></tr>
+<tr><td>47</td><td>④</td><td>양적관계</td><td>한계반응물</td></tr>
+<tr><td>48</td><td>③</td><td>양적관계</td><td>PV=nRT</td></tr>
+<tr><td>49</td><td>②</td><td>양적관계</td><td>그래프해석</td></tr>
+<tr><td>50</td><td>③</td><td>양적관계</td><td>자료해석</td></tr>
+<tr><td>51</td><td>②</td><td>원소의기원</td><td>우주의원소</td></tr>
+<tr><td>52</td><td>①</td><td>원소의기원</td><td>별의원소</td></tr>
+<tr><td>53</td><td>④</td><td>원소의기원</td><td>지각과인체의원소</td></tr>
+<tr><td>54</td><td>②</td><td>원소의기원</td><td>빅뱅</td></tr>
+<tr><td>55</td><td>④</td><td>방사성붕괴</td><td>결합에너지</td></tr>
+<tr><td>56</td><td>①</td><td>방사성붕괴</td><td>투과력</td></tr>
+<tr><td>57</td><td>③</td><td>방사성붕괴</td><td>방사성붕괴</td></tr>
+<tr><td>58</td><td>③</td><td>방사성붕괴</td><td>방사성붕괴</td></tr>
+<tr><td>59</td><td>③</td><td>방사성붕괴</td><td>N-Z그래프</td></tr>
+<tr><td>60</td><td>④</td><td>방사성붕괴</td><td>방사성붕괴단위</td></tr>
+</tbody></table>
+<h3>문항별 사고과정</h3>
+<div class="q"><div class="qh"><span class="qno">문제 1</span><span class="area">중성자수</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">중성자 수 = 질량수 − 양성자수(원자번호) = <span class="eq">207 − 82 = 125</span>. → <b>②</b></p>
-    <div class="tip">질량수 = 양성자 + 중성자. ③(207)은 질량수, ①(82)은 양성자수라는 함정.</div>
-  </div>
+    <div class="tip">질량수 = 양성자 + 중성자. ③(207)은 질량수, ①(82)은 양성자수라는 함정.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 2</span><span class="area">중성자 수 합</span><span class="ans">정답 ②</span></div>
-  <div class="stem">다음에 있는 원소들의 중성자수를 모두 합하면? <span class="eq"><sup>238</sup><sub>92</sub>U</span>, <span class="eq"><sup>40</sup><sub>20</sub>Ca<sup>2+</sup></span>, <span class="eq"><sup>51</sup><sub>23</sub>V<sup>3+</sup></span></div>
-  <div class="opts one"><div>① 135</div><div>② 194</div><div>③ 324</div><div>④ 329</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 2</span><span class="area">중성자수</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">중성자 = 질량수 − 원자번호. 이온의 전하는 전자만 바꾸므로 중성자수와 무관.</p>
     <p class="step">U: 238−92 = 146, Ca: 40−20 = 20, V: 51−23 = 28. 합 = <span class="eq">146 + 20 + 28 = 194</span>. → <b>②</b></p>
-    <div class="tip">Ca<sup>2+</sup>, V<sup>3+</sup>의 전하에 휘둘리지 말 것. 중성자는 핵의 성질이라 이온화와 무관하다.</div>
-  </div>
+    <div class="tip">Ca<sup>2+</sup>, V<sup>3+</sup>의 전하에 휘둘리지 말 것. 중성자는 핵의 성질이라 이온화와 무관하다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 3</span><span class="area">이온 크기 · 척도</span><span class="ans">정답 ①</span></div>
-  <div class="stem">H 원자의 지름은 약 10<sup>−8</sup> cm이다. 다음 중 H<sup>+</sup>의 반지름에 가장 가까운 것은?</div>
-  <div class="opts one"><div>① 10<sup>−13</sup> cm</div><div>② 10<sup>−11</sup> cm</div><div>③ 10<sup>−9</sup> cm</div><div>④ 10<sup>−8</sup> cm</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 3</span><span class="area">원자핵의지름</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">H<sup>+</sup>는 전자를 잃어 <b>양성자 하나만 남은 핵</b>이다. 원자 크기(10<sup>−8</sup> cm)는 전자구름의 크기이고, 핵은 그보다 약 10만 배 작다.</p>
     <p class="step">따라서 H<sup>+</sup>(=양성자)의 반지름은 핵 규모인 <span class="k">10<sup>−13</sup> cm</span>. → <b>①</b></p>
-    <div class="tip">H<sup>+</sup>가 전자를 잃었다는 점이 핵심 — 크기를 결정하던 전자가 없어지니 핵 크기로 줄어든다.</div>
-  </div>
+    <div class="tip">H<sup>+</sup>가 전자를 잃었다는 점이 핵심 — 크기를 결정하던 전자가 없어지니 핵 크기로 줄어든다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 4</span><span class="area">보어 반지름 · 단위</span><span class="ans">정답 ①</span></div>
-  <div class="stem">수소 원자의 크기를 나타내는 보어 반지름은 몇 나노미터인가?</div>
-  <div class="opts one"><div>① 0.05</div><div>② 0.1</div><div>③ 0.5</div><div>④ 1</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 4</span><span class="area">보어반지름</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">보어 반지름 ≈ 0.529 Å. <span class="eq">1 Å = 0.1 nm</span>이므로 0.529 Å ≈ <span class="k">0.05 nm</span>. → <b>①</b></p>
-    <div class="tip">보어 반지름 ≈ 0.53 Å ≈ 0.053 nm을 기억하면 즉답. Å↔nm(×0.1) 환산이 관건.</div>
-  </div>
+    <div class="tip">보어 반지름 ≈ 0.53 Å ≈ 0.053 nm을 기억하면 즉답. Å↔nm(×0.1) 환산이 관건.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 5</span><span class="area">척도 확대 비유</span><span class="ans">정답 ②</span></div>
-  <div class="stem">수소의 원자핵을 수소 원자 크기로 확대하면 수소 원자는 대략 다음 어느 것의 크기가 될까?</div>
-  <div class="opts one"><div>① 우라늄 원자</div><div>② 박테리아</div><div>③ 사과</div><div>④ 지구</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 5</span><span class="area">원자핵의크기</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① 핵(10<sup>−13</sup> cm)을 원자(10<sup>−8</sup> cm) 크기로 키우면 배율은 <span class="eq">10<sup>5</sup></span>배.</p>
     <p class="step">② 같은 배율을 원자에 적용: <span class="eq">10<sup>−8</sup> cm × 10<sup>5</sup> = 10<sup>−3</sup> cm = 10 μm</span> → <b>박테리아 크기</b>(수 μm). → <b>②</b></p>
-    <div class="tip">"핵:원자 = 1:10<sup>5</sup>"라는 비를 양쪽에 똑같이 적용. 10<sup>−3</sup> cm가 박테리아(μm) 규모임을 아는 게 포인트.</div>
-  </div>
+    <div class="tip">"핵:원자 = 1:10<sup>5</sup>"라는 비를 양쪽에 똑같이 적용. 10<sup>−3</sup> cm가 박테리아(μm) 규모임을 아는 게 포인트.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 6</span><span class="area">가열 곡선 · 융해열</span><span class="ans">정답 ④</span></div>
-  <div class="stem">분당 100 J의 가열 속도로 207 g의 납(Pb)을 가열할 때 가열 곡선이 주어졌다(27°C에서 시작, 80분에 327°C 도달, 80~128분 327°C 평탄, 이후 상승). 이에 대한 설명 중 옳지 <u>않은</u> 것은?</div>
-  <div class="opts"><div>① Pb의 용융열은 4.8 kJ/mol이다.</div><div>② 고체 Pb의 비열은 0.13 J g<sup>−1</sup> K<sup>−1</sup>이다.</div><div>③ 고체 Pb의 비열은 27 J mol<sup>−1</sup> K<sup>−1</sup>이다.</div><div>④ 27°C의 1 몰 Pb를 모두 녹이는데 필요한 최소 에너지는 8 kJ/mol이다.</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 6</span><span class="area">가열곡선</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">207 g Pb = 1몰. 가열량 = 100 J/분.</p>
     <p class="step">① 평탄 구간(80~128분, 48분) = 융해. <span class="eq">100 × 48 = 4800 J = 4.8 kJ/mol</span>. <b>참</b>.</p>
     <p class="step">② 고체 구간(0~80분) = <span class="eq">8000 J</span>로 27→327°C(300 K). <span class="eq">c = 8000/(207×300) ≈ 0.13 J/g·K</span>. <b>참</b>. ③ 몰비열 = <span class="eq">8000/(1×300) ≈ 27 J/mol·K</span>. <b>참</b>.</p>
     <p class="step"><span class="x">④</span> 27°C에서 다 녹이려면 가열(8 kJ) + 융해(4.8 kJ) = <span class="k">12.8 kJ</span> 필요. "8 kJ"는 가열만 — 거짓. → <b>④</b></p>
-    <div class="tip">평탄 구간 = 잠열(융해), 기울기 구간 = 현열(온도 상승). ④는 융해열을 빠뜨린 함정이다.</div>
-  </div>
+    <div class="tip">평탄 구간 = 잠열(융해), 기울기 구간 = 현열(온도 상승). ④는 융해열을 빠뜨린 함정이다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 7</span><span class="area">화학결합 vs 핵반응</span><span class="ans">정답 ④</span></div>
-  <div class="stem">원자가 화학결합을 이루는 것과 <u>관계없는</u> 것은?</div>
-  <div class="opts"><div>① 숨을 쉬어야 살 수 있다.</div><div>② 음식을 소화시켜 에너지를 얻는다.</div><div>③ 햇빛을 받아 벼가 자란다.</div><div>④ 태양이 빛과 열을 낸다.</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 7</span><span class="area">화학결합</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">①②③(호흡·소화·광합성)은 모두 분자의 결합이 끊기고 만들어지는 <b>화학 변화</b>다.</p>
     <p class="step"><span class="x">④</span> 태양의 빛·열은 수소 핵이 헬륨으로 융합하는 <b>핵반응</b>이지 화학결합이 아니다. → <b>④</b></p>
-    <div class="tip">화학결합(전자) vs 핵반응(원자핵)의 구분. 태양 에너지는 항상 핵융합이라는 점을 기억.</div>
-  </div>
+    <div class="tip">화학결합(전자) vs 핵반응(원자핵)의 구분. 태양 에너지는 항상 핵융합이라는 점을 기억.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 8</span><span class="area">온도 눈금 환산</span><span class="ans">정답 ②</span></div>
-  <div class="stem">섭씨온도와 선형관계인 새로운 온도 단위(°Z)에서, 물은 120.0 °Z에서 끓고 40.0 °Z에서 언다. 40°C는 몇 °Z인가?</div>
-  <div class="opts one"><div>① 68</div><div>② 72</div><div>③ 76</div><div>④ 80</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 8</span><span class="area">온도단위</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① 기준점: 0°C = 40 °Z(어는점), 100°C = 120 °Z(끓는점). 100°C 간격 = 80 °Z 간격.</p>
     <p class="step">② 변환식: <span class="eq">°Z = 40 + (80/100)·°C = 40 + 0.8·°C</span>.</p>
     <p class="step">③ 40°C → <span class="eq">40 + 0.8×40 = 72</span> °Z. → <b>②</b></p>
-    <div class="tip">두 기준점으로 일차식을 세우는 화씨↔섭씨 유형. 눈금 간격 비(80:100)가 기울기다.</div>
-  </div>
+    <div class="tip">두 기준점으로 일차식을 세우는 화씨↔섭씨 유형. 눈금 간격 비(80:100)가 기울기다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 9</span><span class="area">순물질과 혼합물</span><span class="ans">정답 ②</span></div>
-  <div class="stem">다음 중 순물질을 모두 고른 것은? (●와 ○은 주기율표상 임의의 서로 다른 두 원소를 나타낸 입자 모형이며, I~IV는 네 가지 상자다.)</div>
-  <div class="opts one"><div>① II</div><div>② I, II</div><div>③ III, IV</div><div>④ I, III, IV</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 9</span><span class="area">물질의분류</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">순물질의 정의: <b>한 종류의 입자</b>로만 이루어진 물질(원소 = 같은 원자/분자, 화합물 = 같은 분자).</p>
     <p class="step">I·II는 각각 한 종류의 분자로만 구성 → <b>순물질</b>(하나는 화합물, 하나는 원소 분자). III·IV는 서로 다른 분자(또는 원자)가 섞여 있어 <b>혼합물</b>. → <b>②</b></p>
-    <div class="tip">상자 안 입자가 <b>모두 같은 모양의 분자</b>면 순물질, <b>두 종류 이상</b>이면 혼합물. 분자의 종류 수만 세면 된다.</div>
-  </div>
+    <div class="tip">상자 안 입자가 <b>모두 같은 모양의 분자</b>면 순물질, <b>두 종류 이상</b>이면 혼합물. 분자의 종류 수만 세면 된다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 10</span><span class="area">동위원소 판별</span><span class="ans">정답 ②</span></div>
-  <div class="stem">아래 〈보기〉에 주어진 쌍들 중 동위원소 쌍은? (a. <sup>1</sup><sub>1</sub>H와 <sup>2</sup><sub>1</sub>H / b. <sup>3</sup><sub>2</sub>He와 <sup>4</sup><sub>2</sub>He / c. <sup>3</sup><sub>1</sub>H와 <sup>3</sup><sub>2</sub>He / d. <sup>2</sup><sub>1</sub>H와 <sup>4</sup><sub>2</sub>He)</div>
-  <div class="opts one"><div>① a</div><div>② a, b</div><div>③ c</div><div>④ c, d</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 10</span><span class="area">동위원소</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">동위원소 = <b>원자번호(양성자수) 같고 질량수 다른</b> 원자.</p>
     <p class="step">a: 둘 다 Z=1(H), 질량 1·2 → 동위원소 ✓. b: 둘 다 Z=2(He), 질량 3·4 → 동위원소 ✓. c·d: Z가 1↔2로 달라 서로 다른 원소(동위원소 아님). → <b>②</b></p>
-    <div class="tip">c(<sup>3</sup>H, <sup>3</sup>He)는 질량수만 같은 <b>동중원소</b>다. 동위원소는 "원소가 같아야" 한다 — 원자번호를 먼저 보라.</div>
-  </div>
+    <div class="tip">c(<sup>3</sup>H, <sup>3</sup>He)는 질량수만 같은 <b>동중원소</b>다. 동위원소는 "원소가 같아야" 한다 — 원자번호를 먼저 보라.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 11</span><span class="area">동위원소의 성질</span><span class="ans">정답 ③</span></div>
-  <div class="stem">탄소의 3가지 동위원소 <sup>12</sup>C, <sup>13</sup>C, <sup>14</sup>C에 대한 설명으로 옳은 것은?</div>
-  <div class="opts"><div>① 양성자 수는 같고 전자 수는 다르다.</div><div>② 중성자 수는 같고 전자 수는 다르다.</div><div>③ 양성자 수는 같고 중성자 수는 다르다.</div><div>④ 양성자, 중성자, 전자 수는 같고, 원자량이 다르다.</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 11</span><span class="area">동위원소</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">동위원소는 양성자 수(6) 동일, 중성자 수만 다름(6·7·8). 중성 원자라 전자 수도 모두 6으로 동일.</p>
     <p class="step">양성자 같고 중성자 다름 → <b>③</b>. (①②는 전자가 다르다고 해서 틀림, ④는 중성자가 같다고 해서 틀림)</p>
-    <div class="tip">동위원소의 차이는 오직 <b>중성자 수</b>. 전자·양성자 수는 같고, 그래서 화학적 성질도 거의 같다.</div>
-  </div>
+    <div class="tip">동위원소의 차이는 오직 <b>중성자 수</b>. 전자·양성자 수는 같고, 그래서 화학적 성질도 거의 같다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 12</span><span class="area">질량비 · 화합물 변환</span><span class="ans">정답 ④</span></div>
-  <div class="stem">어떤 물질 A<sub>2</sub>B는 60% A, 40% B의 질량비로 구성되어 있다. AB<sub>2</sub>의 질량비는 얼마인가?</div>
-  <div class="opts one"><div>① 45% A, 55% B</div><div>② 40% A, 60% B</div><div>③ 33% A, 67% B</div><div>④ 27% A, 73% B</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 12</span><span class="area">질량비</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① A<sub>2</sub>B에서 A:B 질량 = 60:40 = 3:2. 원자 2개:1개이므로 <span class="eq">2·a : b = 3:2</span> → <span class="eq">4a = 3b</span>, b = 4a/3.</p>
     <p class="step">② AB<sub>2</sub>는 A 1개·B 2개 → 질량비 <span class="eq">a : 2b = a : 8a/3 = 3 : 8</span>.</p>
     <p class="step">③ A% = 3/11 ≈ 27%, B% = 8/11 ≈ 73%. → <b>④</b></p>
-    <div class="tip">원자량 자체가 아니라 <b>원자량의 비</b>(b=4a/3)만 알면 충분. 화학식이 바뀌면 원자 개수에 맞춰 질량비를 다시 계산.</div>
-  </div>
+    <div class="tip">원자량 자체가 아니라 <b>원자량의 비</b>(b=4a/3)만 알면 충분. 화학식이 바뀌면 원자 개수에 맞춰 질량비를 다시 계산.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 13</span><span class="area">평균 원자량 · 가중평균</span><span class="ans">정답 ④</span></div>
-  <div class="stem">자연에는 구리의 동위원소 두 종이 존재하고, 구리의 평균 원자량은 63.5 amu이다. 첫 번째 동위원소는 구리 원자의 69%를 차지하고, 질량이 62.9 amu이다. 다른 동위원소의 질량은 얼마인가?</div>
-  <div class="opts one"><div>① 63.2 amu</div><div>② 63.9 amu</div><div>③ 64.1 amu</div><div>④ 64.8 amu</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 13</span><span class="area">평균원자량</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① 가중평균: <span class="eq">0.69 × 62.9 + 0.31 × m<sub>2</sub> = 63.5</span>.</p>
     <p class="step">② <span class="eq">43.40 + 0.31 m<sub>2</sub> = 63.5</span> → <span class="eq">m<sub>2</sub> = 20.10/0.31 ≈ 64.8 amu</span>. → <b>④</b></p>
-    <div class="tip">평균은 존재비를 가중치로 한 합. 한 동위원소(69%)가 평균보다 가벼우니 다른 쪽은 평균보다 무거워야 한다.</div>
-  </div>
+    <div class="tip">평균은 존재비를 가중치로 한 합. 한 동위원소(69%)가 평균보다 가벼우니 다른 쪽은 평균보다 무거워야 한다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 14</span><span class="area">질량 스펙트럼 · 동위원소 조합</span><span class="ans">정답 ④</span></div>
-  <div class="stem">자연에는 원자량이 각각 35와 37인 Cl 동위원소가 3:1 존재한다. 이염화탄소(CH<sub>2</sub>Cl<sub>2</sub>)의 질량 스펙트럼에서 분자 피크를 [M]<sup>+</sup>(m/e=84)라 할 때, [M]<sup>+</sup> : [M+2]<sup>+</sup> : [M+4]<sup>+</sup> 피크들의 상대적인 크기는?</div>
-  <div class="opts one"><div>① 6 : 3 : 1</div><div>② 6 : 4 : 1</div><div>③ 9 : 3 : 1</div><div>④ 9 : 6 : 1</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 14</span><span class="area">동위원소</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① Cl 2개의 조합. <sup>35</sup>Cl 확률 3/4, <sup>37</sup>Cl 확률 1/4.</p>
     <p class="step">② [M]<sup>+</sup>(35,35) = <span class="eq">(3/4)<sup>2</sup> = 9</span>. [M+2]<sup>+</sup>(35,37 순서 2가지) = <span class="eq">2×(3/4)(1/4) = 6</span>. [M+4]<sup>+</sup>(37,37) = <span class="eq">(1/4)<sup>2</sup> = 1</span>.</p>
     <p class="step">③ 9 : 6 : 1. → <b>④</b></p>
-    <div class="tip">두 동위원소가 섞이는 [M+2]에는 <b>순서 2가지</b>가 있어 ×2 — 이항분포(3:1)<sup>2</sup>가 9:6:1을 만든다.</div>
-  </div>
+    <div class="tip">두 동위원소가 섞이는 [M+2]에는 <b>순서 2가지</b>가 있어 ×2 — 이항분포(3:1)<sup>2</sup>가 9:6:1을 만든다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 15</span><span class="area">동위원소 분별 · 고기후</span><span class="ans">정답 ③</span></div>
-  <div class="stem">빙하 속 물 분자의 <sup>2</sup>H/<sup>1</sup>H 비와 공기방울 분석으로 과거 지구 환경을 연구한다. 이와 관련된 내용 중 옳지 <u>않은</u> 것은?</div>
-  <div class="opts"><div>① <sup>2</sup>H/<sup>1</sup>H 비는 바닷물보다 빙하에서 더 작다.</div><div>② <sup>2</sup>H/<sup>1</sup>H 비는 대기 중 수증기보다 바닷물에서 더 크다.</div><div>③ 온도가 높을수록 대기 중 수증기의 <sup>2</sup>H/<sup>1</sup>H 비가 작아진다.</div><div>④ 대기 중 이산화탄소의 농도가 높아지면 대기 온도가 높아진다.</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 15</span><span class="area">분산력</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">무거운 <sup>2</sup>H(중수소)는 증발이 덜 되고 먼저 응결한다. 따라서 증발로 만들어진 수증기·빙하는 바닷물보다 <sup>2</sup>H이 적다(①·② 옳음). ④ CO<sub>2</sub> 온실효과(옳음).</p>
     <p class="step"><span class="x">③</span> 온도가 높으면 무거운 <sup>2</sup>H도 잘 증발해 수증기의 <sup>2</sup>H/<sup>1</sup>H가 <b>커진다</b>. "작아진다"는 거꾸로 — 거짓. → <b>③</b></p>
-    <div class="tip">동위원소 분별의 핵심: 온도↑ → 분별 효과↓ → 수증기의 무거운 동위원소 비율↑. 그래서 빙하의 <sup>2</sup>H/<sup>1</sup>H로 당시 기온을 읽는다.</div>
-  </div>
+    <div class="tip">동위원소 분별의 핵심: 온도↑ → 분별 효과↓ → 수증기의 무거운 동위원소 비율↑. 그래서 빙하의 <sup>2</sup>H/<sup>1</sup>H로 당시 기온을 읽는다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 16</span><span class="area">몰 · 원자 총수</span><span class="ans">정답 ④</span></div>
-  <div class="stem">500 mL 생수가 포함하는 <u>원자</u>의 총 개수는?</div>
-  <div class="opts one"><div>① 1.3×10<sup>22</sup></div><div>② 4.0×10<sup>22</sup></div><div>③ 1.7×10<sup>25</sup></div><div>④ 5.0×10<sup>25</sup></div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 16</span><span class="area">원자의개수</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① 물 500 mL ≈ 500 g, 몰수 = <span class="eq">500/18 ≈ 27.8 mol</span>.</p>
     <p class="step">② H<sub>2</sub>O 1개에 원자 3개(H 2 + O 1) → 원자 = <span class="eq">3 × 27.8 = 83.3 mol</span>.</p>
     <p class="step">③ <span class="eq">83.3 × 6.0×10<sup>23</sup> ≈ 5.0×10<sup>25</sup></span>. → <b>④</b></p>
-    <div class="tip">"원자"를 물으면 분자당 원자 3개를 곱해야 한다. ③(1.7×10<sup>25</sup>)은 분자 수로 멈춘 함정.</div>
-  </div>
+    <div class="tip">"원자"를 물으면 분자당 원자 3개를 곱해야 한다. ③(1.7×10<sup>25</sup>)은 분자 수로 멈춘 함정.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 17</span><span class="area">몰 · 분자 수 추정</span><span class="ans">정답 ③</span></div>
-  <div class="stem">인체의 70%는 물로 이루어져 있다. 체중 50kg인 사람 몸속에 있는 물 분자의 수와 가장 가까운 값은?</div>
-  <div class="opts one"><div>① 10<sup>25</sup></div><div>② 10<sup>26</sup></div><div>③ 10<sup>27</sup></div><div>④ 10<sup>28</sup></div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 17</span><span class="area">분자수</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① 물 질량 = 50 × 0.7 = 35 kg = 35000 g. 몰수 = <span class="eq">35000/18 ≈ 1944 mol</span>.</p>
     <p class="step">② 분자 수 = <span class="eq">1944 × 6.0×10<sup>23</sup> ≈ 1.2×10<sup>27</sup></span> → <b>10<sup>27</sup></b>. → <b>③</b></p>
-    <div class="tip">자릿수만 맞추면 되는 추정 문제. kg→g(×1000)와 몰질량 18을 정확히 쓰면 10<sup>27</sup>이 나온다.</div>
-  </div>
+    <div class="tip">자릿수만 맞추면 되는 추정 문제. kg→g(×1000)와 몰질량 18을 정확히 쓰면 10<sup>27</sup>이 나온다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 18</span><span class="area">최외각 전자 · 몰</span><span class="ans">정답 ②</span></div>
-  <div class="stem">물 18 그램에 들어 있는 최외각전자의 몰수는?</div>
-  <div class="opts one"><div>① 3</div><div>② 8</div><div>③ 10</div><div>④ 18</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 18</span><span class="area">최외각전자수</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① 물 18 g = 1몰. H<sub>2</sub>O 1개의 최외각전자: O는 6개(2s²2p⁴), H는 각 1개.</p>
     <p class="step">② 분자당 <span class="eq">6 + 1 + 1 = 8개</span> → 1몰이면 <b>8몰</b>. → <b>②</b></p>
-    <div class="tip">최외각(원자가) 전자만 센다. O의 6개 + H 2개 = 8. 총 전자 10개(④는 함정)와 구별할 것.</div>
-  </div>
+    <div class="tip">최외각(원자가) 전자만 센다. O의 6개 + H 2개 = 8. 총 전자 10개(④는 함정)와 구별할 것.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 19</span><span class="area">몰 · 단위 시간당 배출</span><span class="ans">정답 ①</span></div>
-  <div class="stem">시속 60 km로 달리는 자동차는 1 km당 0.350 kg의 CO 기체를 발생한다. 이 운행조건에서 매분 발생하는 CO 기체의 몰수는?</div>
-  <div class="opts one"><div>① 12.5</div><div>② 0.125</div><div>③ 1.25×10<sup>−2</sup></div><div>④ 29.1</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 19</span><span class="area">양적관계</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① 시속 60 km = <span class="eq">1 km/분</span>. 즉 1분에 1 km 주행 → CO 0.350 kg = 350 g 발생.</p>
     <p class="step">② CO(28) 몰수 = <span class="eq">350/28 = 12.5 mol</span>. → <b>①</b></p>
-    <div class="tip">"시속 60 = 분속 1 km" 환산이 첫 단추. 그다음 질량/몰질량으로 몰수. CO의 몰질량은 28.</div>
-  </div>
+    <div class="tip">"시속 60 = 분속 1 km" 환산이 첫 단추. 그다음 질량/몰질량으로 몰수. CO의 몰질량은 28.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 20</span><span class="area">밀도 · 분자 간 거리</span><span class="ans">정답 ③</span></div>
-  <div class="stem">액체 수소의 밀도는 0.069 g/cm<sup>3</sup>이다. 액체 수소에서 분자들이 고르게 분포되어 있다고 가정할 때 가장 가까운 수소 분자 중심 사이의 거리와 가장 가까운 값은?</div>
-  <div class="opts one"><div>① 0.05 nm</div><div>② 0.1 nm</div><div>③ 0.5 nm</div><div>④ 1 nm</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 20</span><span class="area">원자의크기</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① 단위 부피당 분자 수: <span class="eq">(0.069/2) × 6.0×10<sup>23</sup> ≈ 2.1×10<sup>22</sup></span>개/cm<sup>3</sup>.</p>
     <p class="step">② 분자 1개가 차지하는 부피 = <span class="eq">1/2.1×10<sup>22</sup> ≈ 4.8×10<sup>−23</sup> cm<sup>3</sup></span>.</p>
     <p class="step">③ 분자 간 거리 ≈ 부피의 세제곱근 = <span class="eq">(4.8×10<sup>−23</sup>)<sup>1/3</sup> ≈ 3.6×10<sup>−8</sup> cm = 0.36 nm</span> → 가장 가까운 <span class="k">0.5 nm</span>. → <b>③</b></p>
-    <div class="tip">"분자당 부피의 세제곱근 = 분자 간 거리"가 핵심 발상(각 분자가 정육면체 한 칸을 차지). cm→nm(×10<sup>7</sup>) 환산 주의.</div>
-  </div>
+    <div class="tip">"분자당 부피의 세제곱근 = 분자 간 거리"가 핵심 발상(각 분자가 정육면체 한 칸을 차지). cm→nm(×10<sup>7</sup>) 환산 주의.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 21</span><span class="area">농도 · 1차원 간격</span><span class="ans">정답 ①</span></div>
-  <div class="stem">정상인의 공복 시 혈중 포도당(분자량 180) 농도는 100 mg/100mL 이하이다. 혈중 포도당 농도가 100 mg/100mL인 사람의 피에서는 한 방향으로 볼 때 물분자 몇 개마다 포도당 분자가 한 개씩 있는 셈인가?</div>
-  <div class="opts one"><div>① 20</div><div>② 200</div><div>③ 2000</div><div>④ 20000</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 21</span><span class="area">원자의크기</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① 100 mL 기준: 포도당 0.1 g → <span class="eq">0.1/180 = 5.6×10<sup>−4</sup> mol</span>, 물 100 g → <span class="eq">100/18 = 5.6 mol</span>.</p>
     <p class="step">② 전체 개수비(물:포도당) = <span class="eq">5.6 / 5.6×10<sup>−4</sup> = 10<sup>4</sup></span>(부피비).</p>
     <p class="step">③ "한 방향"은 1차원 간격이므로 세제곱근: <span class="eq">(10<sup>4</sup>)<sup>1/3</sup> ≈ 21.5 ≈ 20</span>. → <b>①</b></p>
-    <div class="tip">"한 방향으로 몇 개마다"는 전체 개수비가 아니라 그 <b>세제곱근</b>(3차원→1차원). 20번과 같은 발상이다.</div>
-  </div>
+    <div class="tip">"한 방향으로 몇 개마다"는 전체 개수비가 아니라 그 <b>세제곱근</b>(3차원→1차원). 20번과 같은 발상이다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 22</span><span class="area">몰 · 작은 단위 환산</span><span class="ans">정답 ③</span></div>
-  <div class="stem">아드레날 세포는 에피네프린이라는 호르몬을 포함하는 3.0×10<sup>4</sup>개의 작은 주머니(vesicle)로 이루어져 있다. 하나의 주머니에 3.8×10<sup>6</sup>개의 에피네프린을 포함하고 있다면 주머니와 세포 전체에서의 에피네프린의 몰수로 각각 맞는 것은? (1 amol = 1×10<sup>−18</sup> mol, 1 fmol = 1×10<sup>−15</sup> mol)</div>
-  <div class="opts one"><div>① 6.3 fmol/vesicle과 190 amol/cell</div><div>② 6.3 fmol/vesicle과 190 fmol/cell</div><div>③ 6.3 amol/vesicle과 190 fmol/cell</div><div>④ 6.3 amol/vesicle과 190 amol/cell</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 22</span><span class="area">단위</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① 주머니: <span class="eq">3.8×10<sup>6</sup> / 6.0×10<sup>23</sup> = 6.3×10<sup>−18</sup> mol = 6.3 amol</span>.</p>
     <p class="step">② 세포: <span class="eq">6.3 amol × 3.0×10<sup>4</sup> = 1.9×10<sup>−13</sup> mol = 190 fmol</span>. → <b>③</b></p>
-    <div class="tip">amol(10<sup>−18</sup>)·fmol(10<sup>−15</sup>) 접두어 환산이 핵심. 주머니 수(3×10<sup>4</sup>)를 곱하면 자릿수가 amol→fmol로 세 칸 이동.</div>
-  </div>
+    <div class="tip">amol(10<sup>−18</sup>)·fmol(10<sup>−15</sup>) 접두어 환산이 핵심. 주머니 수(3×10<sup>4</sup>)를 곱하면 자릿수가 amol→fmol로 세 칸 이동.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 23</span><span class="area">기체상수의 의미</span><span class="ans">정답 ③</span></div>
-  <div class="stem">이상 기체 방정식 PV = nRT에서 기체 상수 R의 물리적 의미는?</div>
-  <div class="opts"><div>① 이상 기체 1몰을 1°C 올리는 데 필요한 힘</div><div>② 이상 기체 1몰을 1°C 올리는 데 필요한 압력</div><div>③ 이상 기체 1몰을 1°C 올리는 데 필요한 에너지</div><div>④ 이상 기체 1몰을 1°C 올리는 데 필요한 엔트로피</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 23</span><span class="area">기체상수</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">PV의 차원은 (압력×부피) = 에너지(J). 따라서 <span class="eq">R = PV/(nT)</span>의 단위는 <b>J/(mol·K)</b> = 에너지/(몰·온도).</p>
     <p class="step">즉 R은 1몰을 1 K 올리는 데 관련된 에너지 규모. → <b>③</b></p>
-    <div class="tip">단위 분석이 답을 준다: R = 8.314 J/(mol·K). 힘·압력·엔트로피는 차원이 맞지 않는다.</div>
-  </div>
+    <div class="tip">단위 분석이 답을 준다: R = 8.314 J/(mol·K). 힘·압력·엔트로피는 차원이 맞지 않는다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 24</span><span class="area">기체 법칙 · 종합</span><span class="ans">정답 ④</span></div>
-  <div class="stem">소양강호의 바닥 온도가 8°C, 압력은 6.4 atm에서 공기방울의 부피가 2.1mL일 때, 소양강호 표면의 온도가 25°C, 압력이 1.0 atm이라면 표면에서의 공기방울의 부피는 대략 얼마인가?</div>
-  <div class="opts one"><div>① 0.7 mL</div><div>② 6 mL</div><div>③ 21 mL</div><div>④ 14 mL</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 24</span><span class="area">PV=nRT</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① 결합 법칙 <span class="eq">P<sub>1</sub>V<sub>1</sub>/T<sub>1</sub> = P<sub>2</sub>V<sub>2</sub>/T<sub>2</sub></span>, T는 절대온도(281 K → 298 K).</p>
     <p class="step">② <span class="eq">V<sub>2</sub> = 2.1 × (6.4/1.0) × (298/281) ≈ 2.1 × 6.4 × 1.06 ≈ 14 mL</span>. → <b>④</b></p>
-    <div class="tip">압력이 6.4배 줄어 부피가 크게 늘고(×6.4), 온도 상승은 소폭(×1.06) 보탠다. 바닥→표면에서 기포가 커지는 현상.</div>
-  </div>
+    <div class="tip">압력이 6.4배 줄어 부피가 크게 늘고(×6.4), 온도 상승은 소폭(×1.06) 보탠다. 바닥→표면에서 기포가 커지는 현상.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 25</span><span class="area">초고진공 · 분자 수</span><span class="ans">정답 ④</span></div>
-  <div class="stem">현재 인간이 얻을 수 있는 초고진공 상태는 대략 1×10<sup>−10</sup> Pa라고 한다. 이러한 상태에 있는 27°C의 공기 1 mL에 포함된 공기 분자 수와 가장 가까운 값은? (1기압 = 약 100,000 Pa)</div>
-  <div class="opts one"><div>① 3×10<sup>1</sup></div><div>② 3×10<sup>2</sup></div><div>③ 3×10<sup>3</sup></div><div>④ 3×10<sup>4</sup></div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 25</span><span class="area">PV=nRT</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① 27°C·1기압에서 1 mL의 분자 수: <span class="eq">n/V = P/RT</span> → 약 <span class="eq">2.4×10<sup>19</sup></span>개/mL.</p>
     <p class="step">② 압력 비율 = <span class="eq">10<sup>−10</sup>/10<sup>5</sup> = 10<sup>−15</sup></span> → <span class="eq">2.4×10<sup>19</sup> × 10<sup>−15</sup> ≈ 2.4×10<sup>4</sup> ≈ 3×10<sup>4</sup></span>. → <b>④</b></p>
-    <div class="tip">1회 25번의 0°C 버전과 같은 논리(분자 수 ∝ 압력). 온도가 0→27°C로 올라 1기압 기준값이 2.7×10<sup>19</sup>→2.4×10<sup>19</sup>로 약간 줄 뿐.</div>
-  </div>
+    <div class="tip">1회 25번의 0°C 버전과 같은 논리(분자 수 ∝ 압력). 온도가 0→27°C로 올라 1기압 기준값이 2.7×10<sup>19</sup>→2.4×10<sup>19</sup>로 약간 줄 뿐.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 26</span><span class="area">기체 법칙 · 등압</span><span class="ans">정답 ①</span></div>
-  <div class="stem">에틸렌(C<sub>2</sub>H<sub>4</sub>)은 폴리에틸렌의 원료이다. 25°C에서 부피가 40L인 피스톤 용기에 에틸렌 1kg을 채운 후, 내부 압력을 일정하게 유지하면서 피스톤 용기의 부피를 30L로 줄였다. 피스톤 용기의 최종 온도는?</div>
-  <div class="opts one"><div>① −50°C</div><div>② −23°C</div><div>③ 19°C</div><div>④ 67°C</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 26</span><span class="area">PV=nRT</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① 압력 일정 → 샤를의 법칙 <span class="eq">V/T = 일정</span>, T는 절대온도(298 K).</p>
     <p class="step">② <span class="eq">T<sub>2</sub> = 298 × (30/40) = 223.5 K = −49.5°C ≈ −50°C</span>. → <b>①</b></p>
-    <div class="tip">질량 1 kg은 이 계산에 불필요한 정보(함정). 부피가 줄면 등압에서 온도도 같은 비율로 내려간다.</div>
-  </div>
+    <div class="tip">질량 1 kg은 이 계산에 불필요한 정보(함정). 부피가 줄면 등압에서 온도도 같은 비율로 내려간다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 27</span><span class="area">증기압 · 원자 수</span><span class="ans">정답 ③</span></div>
-  <div class="stem">2500°C에서 텅스텐의 증기압은 7.0×10<sup>−9</sup> 기압이다. 2500°C의 온도에서 작동하는 0.20 L 부피의 전구 안에 들어있는 기체 텅스텐 원자의 수는?</div>
-  <div class="opts one"><div>① 5.4×10<sup>21</sup></div><div>② 4.1×10<sup>12</sup></div><div>③ 3.7×10<sup>12</sup></div><div>④ 1.9×10<sup>10</sup></div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 27</span><span class="area">PV=nRT</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① <span class="eq">n = PV/RT</span>, T = 2773 K. <span class="eq">n = (7.0×10<sup>−9</sup> × 0.20)/(0.082 × 2773) ≈ 6.2×10<sup>−12</sup> mol</span>.</p>
     <p class="step">② 원자 수 = <span class="eq">6.2×10<sup>−12</sup> × 6.0×10<sup>23</sup> ≈ 3.7×10<sup>12</sup></span>. → <b>③</b></p>
-    <div class="tip">증기압이 곧 텅스텐 기체의 압력. 백열전구 필라멘트가 증발해 원자가 기체로 떠도는 상황을 정량화한 문제.</div>
-  </div>
+    <div class="tip">증기압이 곧 텅스텐 기체의 압력. 백열전구 필라멘트가 증발해 원자가 기체로 떠도는 상황을 정량화한 문제.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 28</span><span class="area">기체 밀도</span><span class="ans">정답 ④</span></div>
-  <div class="stem">이산화탄소는 온실효과 기체이며, 단열재 스티로폼을 부풀리는 데도 쓰인다. 표준 상태(1 기압, 25°C) 이산화탄소 기체의 밀도와 가장 가까운 값은?</div>
-  <div class="opts one"><div>① 0.1 g/L</div><div>② 0.5 g/L</div><div>③ 1 g/L</div><div>④ 2 g/L</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 28</span><span class="area">d=PM/RT</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① CO<sub>2</sub> 몰질량 44 g/mol. 25°C·1기압의 몰부피 ≈ <span class="eq">24.5 L/mol</span>.</p>
     <p class="step">② 밀도 = <span class="eq">44/24.5 ≈ 1.8 g/L</span> → 가장 가까운 <span class="k">2 g/L</span>. → <b>④</b></p>
-    <div class="tip">d = M/V<sub>m</sub>(또는 PM/RT). CO<sub>2</sub>가 공기(약 1.2 g/L)보다 무거워 바닥에 깔리는 이유.</div>
-  </div>
+    <div class="tip">d = M/V<sub>m</sub>(또는 PM/RT). CO<sub>2</sub>가 공기(약 1.2 g/L)보다 무거워 바닥에 깔리는 이유.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 29</span><span class="area">기체 운동론 · 충돌 빈도</span><span class="ans">정답 ③</span></div>
-  <div class="stem">다음 중 '용기벽 단위 면적에, 단위 시간 당 충돌하는 기체의 수'를 증가시키는 경우가 <u>아닌</u> 것은?</div>
-  <div class="opts"><div>① 용기의 온도를 일정하게 유지하면서 기체 압력을 증가시킨다.</div><div>② 용기의 온도를 일정하게 유지하면서 기체가 담긴 용기의 부피를 줄인다.</div><div>③ 용기의 압력을 일정하게 유지하면서 온도를 높인다.</div><div>④ 용기의 온도와 부피를 일정하게 유지하면서 추가로 기체를 주입한다.</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 29</span><span class="area">PV=nRT</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">벽 충돌 빈도 ∝ (수밀도 n/V) × (평균속력 ∝ √T).</p>
     <p class="step">①②④는 모두 수밀도를 키워(압력↑·부피↓·기체 추가) 충돌이 늘어난다.</p>
     <p class="step"><span class="x">③</span> 압력 일정에서 온도↑면 <span class="eq">n/V ∝ 1/T</span>로 감소, 속력은 <span class="eq">√T</span>로 증가 → 충돌 ∝ <span class="eq">(1/T)·√T = 1/√T</span>로 <b>감소</b>. → <b>③</b></p>
-    <div class="tip">두 효과(밀도↓, 속력↑)가 경쟁할 때 밀도(1/T)가 이긴다. 등압 가열은 오히려 벽 충돌을 줄인다.</div>
-  </div>
+    <div class="tip">두 효과(밀도↓, 속력↑)가 경쟁할 때 밀도(1/T)가 이긴다. 등압 가열은 오히려 벽 충돌을 줄인다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 30</span><span class="area">흡착 · 표면적 측정</span><span class="ans">정답 ③</span></div>
-  <div class="stem">촉매 표면에 질소 기체의 흡·탈착 실험을 했다. 77K에서 8g의 촉매 표면이 모두 덮이도록 질소를 한 층으로 흡착시켰고, 질소 분자 한 개가 차지하는 면적은 2×10<sup>−19</sup> m²이다. 온도를 올려 모든 질소를 탈착시킨 후 273K, 1기압에서 부피를 측정하니 22.4 cm³였다. 이 촉매의 표면적은 대략 몇 m²·g<sup>−1</sup>인가?</div>
-  <div class="opts one"><div>① 5</div><div>② 10</div><div>③ 15</div><div>④ 20</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 30</span><span class="area">PV=nRT</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① 탈착된 N<sub>2</sub>: <span class="eq">22.4 cm³ / 22400 cm³/mol = 1.0×10<sup>−3</sup> mol</span> → 분자 수 <span class="eq">6.0×10<sup>20</sup></span>개.</p>
     <p class="step">② 전체 표면적 = <span class="eq">6.0×10<sup>20</sup> × 2×10<sup>−19</sup> = 120 m²</span>.</p>
     <p class="step">③ 단위질량당 = <span class="eq">120/8 = 15 m²/g</span>. → <b>③</b></p>
-    <div class="tip">흡착된 분자 수 × 분자 1개의 면적 = 표면적(BET법의 핵심). 한 층(단분자층) 흡착이라는 가정이 전제다.</div>
-  </div>
+    <div class="tip">흡착된 분자 수 × 분자 1개의 면적 = 표면적(BET법의 핵심). 한 층(단분자층) 흡착이라는 가정이 전제다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 31</span><span class="area">상태 · 기체 분포</span><span class="ans">정답 ②</span></div>
-  <div class="stem">그림은 20°C 3기압의 수소를 포함하고 있는 금속 통의 단면(검은 점 = 수소 분자, 고르게 분포)이다. 이 금속 통을 −5°C로 냉각시켰을 때의 상황을 가장 잘 나타내는 그림은? (수소의 끓는점은 −242.8°C이다. ① 벽에 밀집 ② 고르게 분포 ③ 바닥에 가라앉음 ④ 중앙에 응축)</div>
-  <div class="opts one"><div>① 벽 쪽 고리</div><div>② 고르게 분포</div><div>③ 바닥에 응축</div><div>④ 중앙에 뭉침</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 31</span><span class="area">기체분자운동</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">−5°C는 수소 끓는점(−242.8°C)보다 <b>훨씬 높다</b>. 따라서 수소는 여전히 <b>기체</b>로 응축되지 않는다.</p>
     <p class="step">기체는 용기 전체에 고르게 퍼지고 분자 수도 변하지 않으므로 <span class="k">②</span>가 맞다. (③·④는 응축된 그림이라 틀림)</p>
-    <div class="tip">"−5°C"라는 낮은 온도에 속지 말 것. 끓는점이 −242.8°C라 상온이든 −5°C든 수소는 기체 상태다.</div>
-  </div>
+    <div class="tip">"−5°C"라는 낮은 온도에 속지 말 것. 끓는점이 −242.8°C라 상온이든 −5°C든 수소는 기체 상태다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 32</span><span class="area">반응 유형 분류</span><span class="ans">정답 ③</span></div>
-  <div class="stem">반 고흐의 노란색 안료 주성분 PbCr<sub>2</sub>O<sub>7</sub>은 Pb(NO<sub>3</sub>)<sub>2</sub> 수용액과 Na<sub>2</sub>Cr<sub>2</sub>O<sub>7</sub> 수용액을 섞어 앙금으로 얻는다. 이 반응과 가장 유사하게 분류되는 반응은?</div>
-  <div class="opts"><div>① Zn(s) + 2HCl(aq) → ZnCl<sub>2</sub>(aq) + H<sub>2</sub>(g)</div><div>② HI(aq) + KOH(aq) → KI(aq) + H<sub>2</sub>O(l)</div><div>③ BaCl<sub>2</sub>(aq) + Na<sub>2</sub>SO<sub>4</sub>(aq) → BaSO<sub>4</sub>(s) + 2NaCl(aq)</div><div>④ 2MnO<sub>4</sub><sup>−</sup> + Br<sup>−</sup> + H<sub>2</sub>O → 2MnO<sub>2</sub>(s) + BrO<sub>3</sub><sup>−</sup> + 2OH<sup>−</sup></div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 32</span><span class="area">앙금생성반응</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">PbCr<sub>2</sub>O<sub>7</sub> 생성은 두 수용액을 섞어 고체 앙금을 얻는 <b>앙금 생성(복분해) 반응</b>이다.</p>
     <p class="step">① 금속+산(치환/산화환원), ② 산+염기(중화), ④ 산화환원. <span class="k">③ BaSO<sub>4</sub> 앙금 생성</span>이 같은 유형. → <b>③</b></p>
-    <div class="tip">④도 고체(MnO<sub>2</sub>)가 생기지만 산화수가 변하는 산화환원이다. 분류 기준은 "앙금이 생기는가"가 아니라 "반응의 본질(이온교환 vs 전자이동)".</div>
-  </div>
+    <div class="tip">④도 고체(MnO<sub>2</sub>)가 생기지만 산화수가 변하는 산화환원이다. 분류 기준은 "앙금이 생기는가"가 아니라 "반응의 본질(이온교환 vs 전자이동)".</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 33</span><span class="area">실험식 (3원소)</span><span class="ans">정답 ①</span></div>
-  <div class="stem">담배 잎 속 니코틴을 분석하면 74.0%의 탄소, 17.3%의 질소, 8.65%의 H로 구성되어 있다. 니코틴의 실험식은?</div>
-  <div class="opts one"><div>① C<sub>5</sub>H<sub>7</sub>N</div><div>② C<sub>5</sub>H<sub>8</sub>N</div><div>③ C<sub>6</sub>H<sub>7</sub>N</div><div>④ C<sub>10</sub>H<sub>12</sub>N</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 33</span><span class="area">실험식구하기</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① 100 g 기준 몰수: C <span class="eq">74.0/12 = 6.17</span>, N <span class="eq">17.3/14 = 1.24</span>, H <span class="eq">8.65/1 = 8.65</span>.</p>
     <p class="step">② 가장 작은 N(1.24)으로 나눔: C <span class="eq">6.17/1.24 ≈ 5</span>, H <span class="eq">8.65/1.24 ≈ 7</span>, N 1 → <b>C<sub>5</sub>H<sub>7</sub>N</b>. → <b>①</b></p>
-    <div class="tip">질소처럼 몰수가 가장 작은 원소를 기준(1)으로 잡으면 비가 깔끔하게 정수로 떨어진다.</div>
-  </div>
+    <div class="tip">질소처럼 몰수가 가장 작은 원소를 기준(1)으로 잡으면 비가 깔끔하게 정수로 떨어진다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 34</span><span class="area">실험식 · 원자 총수</span><span class="ans">정답 ①</span></div>
-  <div class="stem">글루코스와 아세트산은 모두 40.0%의 탄소, 6.67%의 수소, 53.3%의 산소를 포함한다. 이 화합물들의 실험식에 포함된 원자들의 총 수는?</div>
-  <div class="opts one"><div>① 4</div><div>② 5</div><div>③ 6</div><div>④ 7</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 34</span><span class="area">실험식구하기</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① 100 g 기준: C <span class="eq">40/12 = 3.33</span>, H <span class="eq">6.67/1 = 6.67</span>, O <span class="eq">53.3/16 = 3.33</span>.</p>
     <p class="step">② 비 = 3.33 : 6.67 : 3.33 = <span class="eq">1 : 2 : 1</span> → 실험식 <b>CH<sub>2</sub>O</b>, 원자 수 = 1+2+1 = <span class="k">4</span>. → <b>①</b></p>
-    <div class="tip">글루코스(C<sub>6</sub>H<sub>12</sub>O<sub>6</sub>)·아세트산(C<sub>2</sub>H<sub>4</sub>O<sub>2</sub>) 모두 실험식이 CH<sub>2</sub>O로 같다 — 조성%가 같으면 실험식도 같다.</div>
-  </div>
+    <div class="tip">글루코스(C<sub>6</sub>H<sub>12</sub>O<sub>6</sub>)·아세트산(C<sub>2</sub>H<sub>4</sub>O<sub>2</sub>) 모두 실험식이 CH<sub>2</sub>O로 같다 — 조성%가 같으면 실험식도 같다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 35</span><span class="area">연소 분석 · 실험식</span><span class="ans">정답 ③</span></div>
-  <div class="stem">어떤 알코올 화합물은 탄소, 수소, 산소로 구성되어 있다. 이 화합물 92g을 완전 연소하였을 때 이산화탄소 176g와 물 108g이 생성되었다. 이 알코올 화합물의 실험식은?</div>
-  <div class="opts one"><div>① C<sub>2</sub>H<sub>5</sub>O</div><div>② CH<sub>3</sub>O</div><div>③ C<sub>2</sub>H<sub>6</sub>O</div><div>④ C<sub>3</sub>H<sub>8</sub>O</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 35</span><span class="area">실험식구하기</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① C = <span class="eq">176/44 = 4 mol</span>(질량 48 g), H = <span class="eq">2×(108/18) = 12 mol</span>(질량 12 g).</p>
     <p class="step">② O = (92 − 48 − 12)/16 = <span class="eq">32/16 = 2 mol</span>.</p>
     <p class="step">③ 비 C:H:O = 4:12:2 = <span class="eq">2:6:1</span> → <b>C<sub>2</sub>H<sub>6</sub>O</b>(에탄올). → <b>③</b></p>
-    <div class="tip">산소는 직접 못 구하니 "전체 질량 − C − H"로 역산. CO<sub>2</sub>·H<sub>2</sub>O에서 C·H 질량을 먼저 뽑는다.</div>
-  </div>
+    <div class="tip">산소는 직접 못 구하니 "전체 질량 − C − H"로 역산. CO<sub>2</sub>·H<sub>2</sub>O에서 C·H 질량을 먼저 뽑는다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 36</span><span class="area">기체 밀도 · 분자식</span><span class="ans">정답 ④</span></div>
-  <div class="stem">0°C, 1기압에서 C·H·X로 이루어진 기체 A, B, C, D의 밀도와 질량% 조성이 아래와 같다. 화합물 C의 분자식으로 가능한 것은? (모든 기체는 이상기체)</div>
-  <table class="qt"><thead><tr><th scope="col">화합물</th><th scope="col">밀도(g/L)</th><th scope="col">C(%)</th><th scope="col">H(%)</th><th scope="col">X(%)</th></tr></thead>
-  <tbody><tr><td>A</td><td>4.30</td><td>12.7</td><td>3.20</td><td>84.1</td></tr><tr><td>B</td><td>7.80</td><td>6.90</td><td>1.20</td><td>91.9</td></tr><tr><td>C</td><td>11.3</td><td>4.80</td><td>0.40</td><td>95.8</td></tr><tr><td>D</td><td>14.8</td><td>3.60</td><td>−</td><td>96.4</td></tr></tbody></table>
-  <div class="opts one"><div>① CH<sub>2</sub>X<sub>2</sub></div><div>② C<sub>2</sub>H<sub>3</sub>X<sub>3</sub></div><div>③ C<sub>2</sub>H<sub>4</sub>X<sub>2</sub></div><div>④ CHX<sub>3</sub></div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 36</span><span class="area">원소분석장치</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① C의 몰질량 = <span class="eq">11.3 × 22.4 ≈ 253 g/mol</span>.</p>
     <p class="step">② 원자 수: C <span class="eq">253×0.048/12 ≈ 1</span>, H <span class="eq">253×0.004/1 ≈ 1</span> → C 1·H 1.</p>
     <p class="step">③ C 1·H 1을 만족하는 보기는 <b>CHX<sub>3</sub></b>. → <b>④</b></p>
-    <div class="tip">1회 37번과 동일 데이터. 밀도→몰질량(×22.4)→원자 수가 정량 분석의 정석.</div>
-  </div>
+    <div class="tip">1회 37번과 동일 데이터. 밀도→몰질량(×22.4)→원자 수가 정량 분석의 정석.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 37</span><span class="area">기체 밀도 · 원자량</span><span class="ans">정답 ③</span></div>
-  <div class="stem">위 표에서 원소 X의 상대원자량과 가장 가까운 것은?</div>
-  <div class="opts one"><div>① 60</div><div>② 70</div><div>③ 80</div><div>④ 90</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 37</span><span class="area">원소분석장치</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">C = CHX<sub>3</sub>(몰질량 253). C·H 합 13 → <span class="eq">X<sub>3</sub> = 240</span> → <span class="eq">X = 80</span>(Br). → <b>③</b></p>
     <p class="step">검산: D는 몰질량 <span class="eq">14.8×22.4 ≈ 332</span> = C 1 + X<sub>4</sub> → X<sub>4</sub> = 320, X = 80(CBr<sub>4</sub>)으로 일치.</p>
-    <div class="tip">여러 화합물에서 X = 80이 일관되게 나오는지 교차 검산하면 확신이 선다.</div>
-  </div>
+    <div class="tip">여러 화합물에서 X = 80이 일관되게 나오는지 교차 검산하면 확신이 선다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 38</span><span class="area">실험식 (산화물)</span><span class="ans">정답 ③</span></div>
-  <div class="stem">31 g의 인이 산소 기체와 결합하여 71 g의 인산화물을 만들었다. 이 산화물의 실험식은 다음 중 어느 것인가?</div>
-  <div class="opts one"><div>① PO<sub>3</sub></div><div>② PO<sub>2</sub></div><div>③ P<sub>2</sub>O<sub>5</sub></div><div>④ P<sub>3</sub>O<sub>4</sub></div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 38</span><span class="area">실험식구하기</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① P = 31/31 = 1 mol. O = (71−31)/16 = <span class="eq">40/16 = 2.5 mol</span>.</p>
     <p class="step">② P:O = 1 : 2.5 = <span class="eq">2 : 5</span> → <b>P<sub>2</sub>O<sub>5</sub></b>. → <b>③</b></p>
-    <div class="tip">소수비 1:2.5는 ×2 해서 2:5로. 결합한 산소 질량 = 생성물 − 인 질량(질량 보존).</div>
-  </div>
+    <div class="tip">소수비 1:2.5는 ×2 해서 2:5로. 결합한 산소 질량 = 생성물 − 인 질량(질량 보존).</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 39</span><span class="area">반응식 균형 (로켓 연료)</span><span class="ans">정답 ③</span></div>
-  <div class="stem">다음은 우주왕복선에 쓰이는 연료의 연소 반응에 대한 불균형 반응식이다. N<sub>2</sub>O<sub>4</sub>의 계수를 2로 맞추었을 때 (CH<sub>3</sub>)<sub>2</sub>N<sub>2</sub>H<sub>2</sub>와 N<sub>2</sub> 계수의 합은?</div>
-  <div style="font-size:14px;background:#f7f4ee;border-radius:7px;padding:9px 12px;margin:6px 0" class="eq">(CH<sub>3</sub>)<sub>2</sub>N<sub>2</sub>H<sub>2</sub>(l) + N<sub>2</sub>O<sub>4</sub>(g) → N<sub>2</sub>(g) + H<sub>2</sub>O(g) + CO<sub>2</sub>(g)</div>
-  <div class="opts one"><div>① 2</div><div>② 3</div><div>③ 4</div><div>④ 6</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 39</span><span class="area">계수맞추기</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① 연료 = C<sub>2</sub>H<sub>8</sub>N<sub>2</sub>. N<sub>2</sub>O<sub>4</sub> 계수 = 2이므로 O: <span class="eq">4×2 = 8 = (H<sub>2</sub>O) + 2(CO<sub>2</sub>)</span>.</p>
     <p class="step">② 연료 계수 a로 두면 H: 8a = 2(물), C: 2a = (CO<sub>2</sub>). O식: <span class="eq">8 = 4a + 4a = 8a</span> → a = 1. 물 4, CO<sub>2</sub> 2.</p>
     <p class="step">③ N: 좌 <span class="eq">2a + 2×2 = 6</span> → N<sub>2</sub> 계수 = 3. 합 = 연료(1) + N<sub>2</sub>(3) = <span class="k">4</span>. → <b>③</b></p>
-    <div class="tip">고정된 N<sub>2</sub>O<sub>4</sub>=2에서 산소 균형으로 연료 계수 a를 먼저 확정. 디메틸하이드라진/사산화이질소는 실제 우주선 추진제다.</div>
-  </div>
+    <div class="tip">고정된 N<sub>2</sub>O<sub>4</sub>=2에서 산소 균형으로 연료 계수 a를 먼저 확정. 디메틸하이드라진/사산화이질소는 실제 우주선 추진제다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 40</span><span class="area">반응식 균형 · 계수 합</span><span class="ans">정답 ②</span></div>
-  <div class="stem">다음 화학반응의 계수 a + b + c + d의 값은? (4NaCl + a SO<sub>2</sub> + b H<sub>2</sub>O + c O<sub>2</sub> → d Na<sub>2</sub>SO<sub>4</sub> + 4HCl)</div>
-  <div class="opts one"><div>① 5</div><div>② 7</div><div>③ 9</div><div>④ 11</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 40</span><span class="area">계수맞추기</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① Na: 4 = 2d → d = 2. S: a = d → a = 2. H: 2b = 4 → b = 2.</p>
     <p class="step">② O: <span class="eq">2a + b + 2c = 4d</span> → <span class="eq">4 + 2 + 2c = 8</span> → c = 1.</p>
     <p class="step">③ a+b+c+d = 2+2+1+2 = <span class="k">7</span>. → <b>②</b></p>
-    <div class="tip">한 곳에만 등장하는 Na·S·H로 a·b·d를 먼저 잡고, 마지막에 O로 c를 맞춘다.</div>
-  </div>
+    <div class="tip">한 곳에만 등장하는 Na·S·H로 a·b·d를 먼저 잡고, 마지막에 O로 c를 맞춘다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 41</span><span class="area">반응식 균형의 의의</span><span class="ans">정답 ④</span></div>
-  <div class="stem">화학반응식의 균형을 맞추어야 하는 이유에 대한 학생들의 생각이다. 〈보기〉에서 옳은 것만을 모두 고른 것은? (ㄱ. 정확한 몰비만큼 시약을 넣지 않으면 화학 반응이 일어나지 않기 때문 / ㄴ. 한계 시약을 찾기 위해서 / ㄷ. 여러 생성물이 생길 때 생성물 사이의 비를 정확히 알 수 있기 때문 / ㄹ. 이론적 수율을 구하기 위해서)</div>
-  <div class="opts one"><div>① ㄱ, ㄴ</div><div>② ㄴ, ㄷ</div><div>③ ㄷ, ㄹ</div><div>④ ㄴ, ㄷ, ㄹ</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 41</span><span class="area">계수의의미</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step"><span class="x">ㄱ</span> 몰비가 안 맞아도 반응은 일어난다(한 쪽이 남을 뿐). 거짓.</p>
     <p class="step"><span class="k">ㄴ·ㄷ·ㄹ</span> 균형식은 한계 시약 판별, 생성물 비, 이론적 수율 계산의 기초 — 모두 옳다. → <b>④</b></p>
-    <div class="tip">균형식의 본질은 "양적 관계(몰비)를 정확히 아는 것". 반응 발생 여부와는 별개다.</div>
-  </div>
+    <div class="tip">균형식의 본질은 "양적 관계(몰비)를 정확히 아는 것". 반응 발생 여부와는 별개다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 42</span><span class="area">양적 관계 · 대규모</span><span class="ans">정답 ④</span></div>
-  <div class="stem">한 화력 발전소에서 하루 10,000 톤의 석탄(100% 탄소)을 태우고, 이때 만들어지는 이산화탄소를 6CO<sub>2</sub> + 6H<sub>2</sub>O → C<sub>6</sub>H<sub>12</sub>O<sub>6</sub> + 6O<sub>2</sub> 반응으로 제거한다고 가정할 때 하루 동안 이 반응에 필요한 물의 양은?</div>
-  <div class="opts one"><div>① 6,000 톤</div><div>② 9,000 톤</div><div>③ 12,000 톤</div><div>④ 15,000 톤</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 42</span><span class="area">한계반응물</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① C + O<sub>2</sub> → CO<sub>2</sub>이므로 <span class="eq">몰(C) = 몰(CO<sub>2</sub>)</span>. 제거 반응에서 <span class="eq">CO<sub>2</sub> : H<sub>2</sub>O = 6:6 = 1:1</span>.</p>
     <p class="step">② 따라서 <span class="eq">몰(H<sub>2</sub>O) = 몰(C)</span>. 질량(H<sub>2</sub>O) = <span class="eq">(10000/12) × 18 = 15,000 톤</span>. → <b>④</b></p>
-    <div class="tip">몰 관계가 1:1:1(C→CO<sub>2</sub>→H<sub>2</sub>O)이므로 질량은 몰질량 비(18/12 = 1.5)만큼 늘어난다.</div>
-  </div>
+    <div class="tip">몰 관계가 1:1:1(C→CO<sub>2</sub>→H<sub>2</sub>O)이므로 질량은 몰질량 비(18/12 = 1.5)만큼 늘어난다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 43</span><span class="area">연소 · 필요 산소</span><span class="ans">정답 ③</span></div>
-  <div class="stem">뷰테인(C<sub>4</sub>H<sub>10</sub>) 0.1몰을 완전히 연소시키기 위해서 최소로 필요한 산소는 몇 몰인가?</div>
-  <div class="opts one"><div>① 0.10 몰</div><div>② 0.40 몰</div><div>③ 0.65 몰</div><div>④ 1.3 몰</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 43</span><span class="area">계수맞추기</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① 연소: <span class="eq">2C<sub>4</sub>H<sub>10</sub> + 13O<sub>2</sub> → 8CO<sub>2</sub> + 10H<sub>2</sub>O</span> → C<sub>4</sub>H<sub>10</sub> 1몰당 O<sub>2</sub> 6.5몰.</p>
     <p class="step">② 0.1몰 × 6.5 = <span class="eq">0.65몰</span>. → <b>③</b></p>
-    <div class="tip">탄화수소 연소 산소 계수: C<sub>n</sub>H<sub>m</sub>는 (n + m/4)몰 O<sub>2</sub>. C<sub>4</sub>H<sub>10</sub> → 4 + 2.5 = 6.5.</div>
-  </div>
+    <div class="tip">탄화수소 연소 산소 계수: C<sub>n</sub>H<sub>m</sub>는 (n + m/4)몰 O<sub>2</sub>. C<sub>4</sub>H<sub>10</sub> → 4 + 2.5 = 6.5.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 44</span><span class="area">분해 반응 · 기체 부피</span><span class="ans">정답 ③</span></div>
-  <div class="stem">자동차 에어백에 쓰이는 아지드화나트륨(NaN<sub>3</sub>)은 폭발적으로 분해하여 고체 나트륨과 질소 기체를 발생시킨다(2NaN<sub>3</sub> → 2Na + 3N<sub>2</sub>). 25°C, 1기압에서 50.0g의 아지드화나트륨이 완전 분해할 때 발생하는 질소기체의 부피는?</div>
-  <div class="opts one"><div>① 10.3 L</div><div>② 22.4 L</div><div>③ 28.1 L</div><div>④ 30.5 L</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 44</span><span class="area">한계반응물</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① NaN<sub>3</sub>(65) 몰수 = <span class="eq">50.0/65 = 0.769 mol</span>. <span class="eq">2NaN<sub>3</sub> → 3N<sub>2</sub></span> → N<sub>2</sub> = <span class="eq">0.769 × 3/2 = 1.15 mol</span>.</p>
     <p class="step">② <span class="eq">V = nRT/P = 1.15 × 0.082 × 298 ≈ 28.1 L</span>. → <b>③</b></p>
-    <div class="tip">에어백의 원리: 충격 → NaN<sub>3</sub> 순간 분해 → N<sub>2</sub> 기체가 백을 부풀린다. 계수비(2:3)와 몰부피(298 K)에 주의.</div>
-  </div>
+    <div class="tip">에어백의 원리: 충격 → NaN<sub>3</sub> 순간 분해 → N<sub>2</sub> 기체가 백을 부풀린다. 계수비(2:3)와 몰부피(298 K)에 주의.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 45</span><span class="area">폭발 반응 · 기체 부피</span><span class="ans">정답 ④</span></div>
-  <div class="stem">니트로글리세린 폭발: 4C<sub>3</sub>H<sub>5</sub>(NO<sub>3</sub>)<sub>3</sub>(l) → 12CO<sub>2</sub>(g) + 6N<sub>2</sub>(g) + O<sub>2</sub>(g) + 10H<sub>2</sub>O(g). 227 g의 니트로글리세린(분자량 227) 폭발 시 발생하는 기체가 600°C, 1기압으로 바뀐다면 부피는?</div>
-  <div class="opts one"><div>① 22리터</div><div>② 160리터</div><div>③ 320리터</div><div>④ 480리터</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 45</span><span class="area">PV=nRT</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① 니트로글리세린 = 227/227 = 1몰. 4몰당 기체 = 12+6+1+10 = 29몰 → 1몰당 <span class="eq">7.25몰</span>(물도 600°C에선 기체).</p>
     <p class="step">② <span class="eq">V = 7.25 × 0.082 × 873 ≈ 520 L</span> → 가장 가까운 <span class="k">480리터</span>. → <b>④</b></p>
-    <div class="tip">폭발의 위력은 "고체 1몰 → 기체 7.25몰"의 급격한 부피 팽창 + 고온에서 나온다. H<sub>2</sub>O까지 기체로 세는 게 포인트.</div>
-  </div>
+    <div class="tip">폭발의 위력은 "고체 1몰 → 기체 7.25몰"의 급격한 부피 팽창 + 고온에서 나온다. H<sub>2</sub>O까지 기체로 세는 게 포인트.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 46</span><span class="area">기체 혼합 · 분압</span><span class="ans">정답 ④</span></div>
-  <div class="stem">세 개 플라스크에 기체를 담아 두었다가 일정 온도에서 밸브를 모두 열어 평형에 도달했을 때 압력은? N<sub>2</sub>(1.0 L, 0.5기압), Ne(1.0 L, 1.5기압), H<sub>2</sub>(0.5 L, 3기압). (연결관 부피 무시, 화학반응 없음)</div>
-  <div class="opts one"><div>① 0.8 기압</div><div>② 1.0 기압</div><div>③ 1.2 기압</div><div>④ 1.4 기압</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 46</span><span class="area">PV=nRT</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① 같은 온도에서 몰수 ∝ PV. <span class="eq">ΣPV = 0.5×1.0 + 1.5×1.0 + 3×0.5 = 3.5</span>.</p>
     <p class="step">② 전체 부피 = 1.0 + 1.0 + 0.5 = 2.5 L. 최종 압력 = <span class="eq">3.5/2.5 = 1.4기압</span>. → <b>④</b></p>
-    <div class="tip">혼합 후 압력 = (각 PV의 합)/(전체 부피). 분압의 합이 전체 압력(돌턴 법칙)이라는 것과 동일한 계산.</div>
-  </div>
+    <div class="tip">혼합 후 압력 = (각 PV의 합)/(전체 부피). 분압의 합이 전체 압력(돌턴 법칙)이라는 것과 동일한 계산.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 47</span><span class="area">질량 변화 · 원자량 역산</span><span class="ans">정답 ④</span></div>
-  <div class="stem">다음 반응에서 PbX<sub>4</sub> 25.00g이 반응하여 PbX<sub>2</sub> 16.12 g이 생성되었다면 X는 무엇인가? (PbX<sub>4</sub> → PbX<sub>2</sub> + X<sub>2</sub>)</div>
-  <div class="opts one"><div>① F</div><div>② Cl</div><div>③ Br</div><div>④ I</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 47</span><span class="area">한계반응물</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① 1:1 반응이므로 <span class="eq">25.00/(207+4M) = 16.12/(207+2M)</span> (M = X의 원자량).</p>
     <p class="step">② 풀면 <span class="eq">25.00(207+2M) = 16.12(207+4M)</span> → <span class="eq">14.48 M ≈ 1838</span> → <span class="eq">M ≈ 127</span> = 아이오딘(I). → <b>④</b></p>
-    <div class="tip">빠진 질량(X<sub>2</sub> = 25−16.12 = 8.88 g)을 이용해도 된다. 비례식을 세워 미지 원자량을 푸는 전형적 역산.</div>
-  </div>
+    <div class="tip">빠진 질량(X<sub>2</sub> = 25−16.12 = 8.88 g)을 이용해도 된다. 비례식을 세워 미지 원자량을 푸는 전형적 역산.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 48</span><span class="area">결정수 · 기체 부피</span><span class="ans">정답 ③</span></div>
-  <div class="stem">황산구리 1몰에는 물 5몰이 결정수로 포함되어 있다(CuSO<sub>4</sub>·5H<sub>2</sub>O). 5 g을 가열하여 결정수가 모두 수증기로 바뀌었을 때 수증기의 부피와 가장 가까운 값은? (300°C, 1기압)</div>
-  <div class="opts one"><div>① 1L</div><div>② 3L</div><div>③ 5L</div><div>④ 7L</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 48</span><span class="area">PV=nRT</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① CuSO<sub>4</sub>·5H<sub>2</sub>O 몰질량 ≈ 250. 몰수 = <span class="eq">5/250 = 0.02 mol</span> → 결정수 = <span class="eq">5 × 0.02 = 0.1 mol</span>.</p>
     <p class="step">② <span class="eq">V = 0.1 × 0.082 × 573 ≈ 4.7 L ≈ 5L</span>. → <b>③</b></p>
-    <div class="tip">결정수(붙어 있던 물 분자)가 가열로 떨어져 나와 수증기가 된다. 1몰당 물 5몰이라는 비가 핵심.</div>
-  </div>
+    <div class="tip">결정수(붙어 있던 물 분자)가 가열로 떨어져 나와 수증기가 된다. 1몰당 물 5몰이라는 비가 핵심.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 49</span><span class="area">동위원소 표지 · 그래프</span><span class="ans">정답 ②</span></div>
-  <div class="stem">어떤 꿀의 탄소 동위원소 표지를 측정하였더니 −14.3이었다. 이 꿀의 순도는 대략 얼마인가? (순도 0%에서 δ<sup>13</sup>C = −10, 순도 100%에서 −25인 직선)</div>
-  <div class="opts one"><div>① 20%</div><div>② 30%</div><div>③ 40%</div><div>④ 50%</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 49</span><span class="area">그래프해석</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">직선식 <span class="eq">δ = −10 − 0.15·순도</span> → <span class="eq">−14.3 = −10 − 0.15·순도</span> → 순도 = <span class="eq">4.3/0.15 ≈ 28.7 ≈ 30%</span>. → <b>②</b></p>
-    <div class="tip">1회 50번과 동일. 두 끝점으로 직선식을 세우고 대입한다.</div>
-  </div>
+    <div class="tip">1회 50번과 동일. 두 끝점으로 직선식을 세우고 대입한다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 50</span><span class="area">동위원소 표지 · 경계값</span><span class="ans">정답 ③</span></div>
-  <div class="stem">꿀 순도(%) = [(δ<sup>13</sup>C<sub>시료</sub> − δ<sup>13</sup>C<sub>설탕</sub>)/(δ<sup>13</sup>C<sub>꽃꿀</sub> − δ<sup>13</sup>C<sub>설탕</sub>)] × 100, 설탕 −10, 꽃꿀 −25. 꽃꿀로 인정받으려면 100% 꽃꿀 값(−25)에서 1 이상 벗어나지 않아야 한다. 꽃꿀로 인정받는 꿀의 최소 순도는?</div>
-  <div class="opts one"><div>① 99%</div><div>② 96%</div><div>③ 93%</div><div>④ 90%</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 50</span><span class="area">자료해석</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">경계값 <span class="eq">δ = −24</span> 대입 → 순도 = <span class="eq">[(−24+10)/(−25+10)]×100 = (14/15)×100 ≈ 93%</span>. → <b>③</b></p>
-    <div class="tip">1회 51번과 동일. 설탕(−10)이 섞이면 δ가 커지므로 허용 한계는 −24다.</div>
-  </div>
+    <div class="tip">1회 51번과 동일. 설탕(−10)이 섞이면 δ가 커지므로 허용 한계는 −24다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 51</span><span class="area">빅뱅 핵합성</span><span class="ans">정답 ②</span></div>
-  <div class="stem">우주의 나이가 약 150억년이라는 사실은 잘 알려졌다. 150억 년 전 빅뱅 우주에서 만들어진 원소는?</div>
-  <div class="opts"><div>① 수소 뿐</div><div>② 수소, 헬륨</div><div>③ 수소, 헬륨, 산소</div><div>④ 수소, 헬륨, 탄소, 산소, 질소, 인</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 51</span><span class="area">우주의원소</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">빅뱅 핵합성(최초 몇 분)에서는 가장 가벼운 <b>수소와 헬륨</b>(미량의 리튬)이 만들어졌다. → <b>②</b></p>
-    <div class="tip">"빅뱅 = H, He / 별 = 무거운 원소"가 핵심 구도. 산소·탄소 등은 이후 별에서 만들어진다.</div>
-  </div>
+    <div class="tip">"빅뱅 = H, He / 별 = 무거운 원소"가 핵심 구도. 산소·탄소 등은 이후 별에서 만들어진다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 52</span><span class="area">원소의 기원</span><span class="ans">정답 ①</span></div>
-  <div class="stem">다음 중 별의 내부에서 만들어진 원소가 <u>아닌</u> 것은?</div>
-  <div class="opts one"><div>① 수소</div><div>② 탄소</div><div>③ 철</div><div>④ 인</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 52</span><span class="area">별의원소</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">수소는 <b>빅뱅</b>에서 만들어진 원시 원소다. 탄소·철·인은 별 내부 핵융합(철까지)으로 만들어진다. → <b>①</b></p>
-    <div class="tip">51번과 짝을 이루는 문제. 별에서 안 만들어진 것 = 수소(빅뱅 기원).</div>
-  </div>
+    <div class="tip">51번과 짝을 이루는 문제. 별에서 안 만들어진 것 = 수소(빅뱅 기원).</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 53</span><span class="area">지각·인체 조성</span><span class="ans">정답 ④</span></div>
-  <div class="stem">지각과 인체를 구성하는 원소 중 무게 비율로 가장 많은 조성을 차지하는 원소는 동일하다(둘 다 산소). 두 번째로 많은 무게 비율을 차지하는 지각의 구성 원소와 인체의 구성원소를 순서대로 적은 것은?</div>
-  <div class="opts one"><div>① Si, H</div><div>② Al, H</div><div>③ Fe, C</div><div>④ Si, C</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 53</span><span class="area">지각과인체의원소</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">지각(질량): O &gt; <b>Si</b> &gt; Al &gt; Fe. 인체(질량): O &gt; <b>C</b> &gt; H. 둘 다 1위는 산소.</p>
     <p class="step">2위는 지각 Si, 인체 C → <b>④</b></p>
-    <div class="tip">지각은 규산염 광물(SiO<sub>2</sub> 계열)이라 Si가 많고, 인체는 유기물(탄소 골격)이라 C가 많다.</div>
-  </div>
+    <div class="tip">지각은 규산염 광물(SiO<sub>2</sub> 계열)이라 Si가 많고, 인체는 유기물(탄소 골격)이라 C가 많다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 54</span><span class="area">원자 · 종합 판단</span><span class="ans">정답 ②</span></div>
-  <div class="stem">다음 중 옳은 설명을 모두 고르면? (a. 원자번호가 큰 원자는 원자번호가 작은 원자보다 항상 무겁다. / b. 거의 대부분의 원자들은 빅뱅 직후 만들어졌다. / c. 원자핵에 있는 중성자의 수가 양성자의 수보다 적은 원자도 있다.)</div>
-  <div class="opts one"><div>① a</div><div>② c</div><div>③ b, c</div><div>④ a, c</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 54</span><span class="area">빅뱅</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step"><span class="x">a</span> "항상"이 거짓 — 예: Ar(Z=18, 질량 40)이 K(Z=19, 질량 39)보다 무겁다.</p>
     <p class="step"><span class="x">b</span> 빅뱅 직후엔 가장 가벼운 H·He만 만들어졌고, 그 외 대부분의 원소(종류)는 이후 별에서 생성 — 거짓.</p>
     <p class="step"><span class="k">c</span> <sup>1</sup>H은 양성자 1, 중성자 0(0 &lt; 1) → 참. 따라서 c만 옳다. → <b>②</b></p>
-    <div class="tip">a의 반례(Ar vs K)는 원자번호와 질량이 항상 비례하지 않음을 보여준다. c는 가장 가벼운 수소(<sup>1</sup>H)를 떠올리면 즉시 참.</div>
-  </div>
+    <div class="tip">a의 반례(Ar vs K)는 원자번호와 질량이 항상 비례하지 않음을 보여준다. c는 가장 가벼운 수소(<sup>1</sup>H)를 떠올리면 즉시 참.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 55</span><span class="area">핵결합에너지 · 질량결손</span><span class="ans">정답 ④</span></div>
-  <div class="stem">자연계에 한 종류의 동위원소만 존재하는 불소의 원자핵은 9개의 양성자와 10개의 중성자로 이루어져 있다. 불소의 원자량은 18.9984 amu이며, 양성자와 중성자의 질량이 각각 1.0073과 1.0087 amu이다. 불소 원자핵의 핵결합 에너지와 가장 가까운 값은? (1 amu = 1.6605×10<sup>−27</sup> kg)</div>
-  <div class="opts one"><div>① 1×10<sup>1</sup> kJ/mol</div><div>② 1×10<sup>3</sup> kJ/mol</div><div>③ 1×10<sup>6</sup> kJ/mol</div><div>④ 1×10<sup>10</sup> kJ/mol</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 55</span><span class="area">결합에너지</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① 질량결손 = (구성 입자 질량 합) − (실제 질량) = <span class="eq">(9×1.0073 + 10×1.0087) − 18.9984 = 19.153 − 18.998 ≈ 0.154 amu</span>.</p>
     <p class="step">② 1몰당 <span class="eq">Δm = 0.154 g/mol = 1.54×10<sup>−4</sup> kg/mol</span>. E = Δmc² = <span class="eq">1.54×10<sup>−4</sup> × (3×10<sup>8</sup>)<sup>2</sup> ≈ 1.4×10<sup>13</sup> J/mol = 1.4×10<sup>10</sup> kJ/mol</span>. → <b>④</b></p>
-    <div class="tip">핵에너지가 화학에너지(보통 10<sup>2</sup>~10<sup>3</sup> kJ/mol)보다 약 1000만 배 큰 이유 — E=mc²의 c²(9×10<sup>16</sup>)이 그 규모를 만든다.</div>
-  </div>
+    <div class="tip">핵에너지가 화학에너지(보통 10<sup>2</sup>~10<sup>3</sup> kJ/mol)보다 약 1000만 배 큰 이유 — E=mc²의 c²(9×10<sup>16</sup>)이 그 규모를 만든다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 56</span><span class="area">핵반응 종합</span><span class="ans">정답 ①</span></div>
-  <div class="stem">다음 원자핵 반응에 관한 내용들 중에서 옳은 것을 있는 대로 고른 것은? (가. <sup>195</sup>Au + e → <sup>195</sup>Pt / 나. 핵분열 반응은 상온에서 일어나지만 핵융합반응은 상온에서 일어나지 않는다. / 다. 방사능 붕괴과정에서 생성되는 α 입자, β 입자, γ-선 중에서 인체에 대한 투과력은 α &gt; β &gt; γ 순서이다.)</div>
-  <div class="opts one"><div>① 가, 나</div><div>② 가, 다</div><div>③ 나, 다</div><div>④ 가, 나, 다</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 56</span><span class="area">투과력</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step"><span class="k">가</span> 전자포획: Au(Z=79) + e<sup>−</sup> → Pt(Z=78), 질량 195 불변. 참.</p>
     <p class="step"><span class="k">나</span> 핵분열은 상온에서도 가능(중성자 유도)하나 핵융합은 쿨롱 장벽 때문에 초고온 필요. 참.</p>
     <p class="step"><span class="x">다</span> 투과력은 <b>γ &gt; β &gt; α</b>(α가 가장 약함). 순서가 거꾸로 — 거짓. → <b>①</b></p>
-    <div class="tip">투과력 γ&gt;β&gt;α, 전리(이온화)력은 반대로 α&gt;β&gt;γ. 두 성질을 헷갈리지 말 것.</div>
-  </div>
+    <div class="tip">투과력 γ&gt;β&gt;α, 전리(이온화)력은 반대로 α&gt;β&gt;γ. 두 성질을 헷갈리지 말 것.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 57</span><span class="area">β 붕괴 · 균형</span><span class="ans">정답 ③</span></div>
-  <div class="stem"><sup>140</sup>Cs 동위원소는 중성자가 매우 많은 동위원소로, β 붕괴를 하는 경향이 있다. 아래의 핵반응식을 완성할 때, (x + y + z) 합은? (<sup>140</sup>Cs → <sup>x</sup><sub>y</sub>β + <sup>z</sup>Ba)</div>
-  <div class="opts one"><div>① 137</div><div>② 138</div><div>③ 139</div><div>④ 140</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 57</span><span class="area">방사성붕괴</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① β<sup>−</sup> 입자: 질량수 0, 전하 −1 → <span class="eq">x = 0, y = −1</span>.</p>
     <p class="step">② Cs(Z=55) → Ba(Z=56), 질량수 140 불변 → <span class="eq">z = 140</span>. (전하: 55 = −1 + 56 ✓)</p>
     <p class="step">③ x + y + z = 0 + (−1) + 140 = <span class="k">139</span>. → <b>③</b></p>
-    <div class="tip">β<sup>−</sup> 붕괴는 중성자→양성자 변환(Z+1), 질량수 불변. 중성자 과잉 핵이 안정해지는 방향이다.</div>
-  </div>
+    <div class="tip">β<sup>−</sup> 붕괴는 중성자→양성자 변환(Z+1), 질량수 불변. 중성자 과잉 핵이 안정해지는 방향이다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 58</span><span class="area">핵변환 · 부산물</span><span class="ans">정답 ③</span></div>
-  <div class="stem">원자력 발전의 연료인 <sup>238</sup>U는 중성자 한 개를 흡수하면 방사성 동위원소인 <sup>239</sup>Pu로 변환한다. <sup>238</sup>U이 중성자 한 개를 흡수하여 <sup>239</sup>Pu로 변환할 때 생기는 부산물은 무엇인가?</div>
-  <div class="opts one"><div>① 중성자</div><div>② 알파입자</div><div>③ 전자</div><div>④ 감마선</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 58</span><span class="area">방사성붕괴</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① <span class="eq"><sup>238</sup>U + n → <sup>239</sup>U</span>(Z=92) → 이후 <b>β<sup>−</sup> 붕괴 2회</b>로 <span class="eq"><sup>239</sup>U → <sup>239</sup>Np → <sup>239</sup>Pu</span>(Z: 92→93→94).</p>
     <p class="step">② 전하 균형: 92 = 94 + (부산물 전하) → 부산물 전하 = −2 → <b>전자 2개</b>(β<sup>−</sup>). → <b>③</b></p>
-    <div class="tip">U→Pu는 원자번호가 2 증가하므로 β<sup>−</sup>(전자 방출)가 두 번 일어나야 한다. 증식로(고속로)의 핵심 반응.</div>
-  </div>
+    <div class="tip">U→Pu는 원자번호가 2 증가하므로 β<sup>−</sup>(전자 방출)가 두 번 일어나야 한다. 증식로(고속로)의 핵심 반응.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 59</span><span class="area">안정성 구역 · 붕괴 양식</span><span class="ans">정답 ③</span></div>
-  <div class="stem">안정성 구역(belt of stability) 밖의 핵은 α-방출, β-방출, 양전자 방출, 전자포획으로 붕괴한다. 불안정한 <sup>84</sup><sub>40</sub>Zr 원자핵에서 가능하다고 판단되는 방사성 붕괴만을 모두 모은 것은? (양전자 방출 = 양성자가 중성자로 변하며 +전하 입자 방출, 전자포획 = 양성자가 중성자로 변하며 전자 흡수)</div>
-  <div class="opts one"><div>① α-방출, β-방출</div><div>② β-방출, 양전자 방출</div><div>③ 양전자 방출, 전자포획</div><div>④ β-방출, 전자포획</div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 59</span><span class="area">N-Z그래프</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① <sup>84</sup>Zr: Z=40, N=44. 안정한 Zr은 N≈50(<sup>90</sup>Zr)이므로 <sup>84</sup>Zr은 <b>중성자가 부족(양성자 과잉)</b> → 안정성 구역의 <b>아래쪽</b>.</p>
     <p class="step">② 양성자 과잉 핵은 <b>양성자를 중성자로</b> 바꿔 안정해진다 = 양전자 방출 또는 전자포획. (β<sup>−</sup>·α는 해당 안 됨) → <b>③</b></p>
-    <div class="tip">N=Z 선 기준: 위(중성자 과잉)면 β<sup>−</sup>, 아래(양성자 과잉)면 β<sup>+</sup>/전자포획. <sup>84</sup>Zr은 N&lt;안정값이라 아래쪽이다.</div>
-  </div>
+    <div class="tip">N=Z 선 기준: 위(중성자 과잉)면 β<sup>−</sup>, 아래(양성자 과잉)면 β<sup>+</sup>/전자포획. <sup>84</sup>Zr은 N&lt;안정값이라 아래쪽이다.</div></div>
 </div>
-
-<div class="q">
-  <div class="qh"><span class="qno">문제 60</span><span class="area">방사능 단위 환산</span><span class="ans">정답 ④</span></div>
-  <div class="stem">1Ci는 <sup>226</sup>Ra 1g에 포함된 원자핵이 붕괴할 때 방출되는 방사능 세기로 정의된다. 1 Bq는 초당 1개 원자핵이 붕괴할 때의 세기다. <sup>226</sup>Ra의 방사능 붕괴 속도는 반감기(1601년)로부터 1.4×10<sup>−11</sup> sec<sup>−1</sup>로 측정되었다. 1 Ci를 Bq 단위로 환산할 때 가장 가까운 값은?</div>
-  <div class="opts one"><div>① 3.7×10<sup>−5</sup></div><div>② 3.7</div><div>③ 3.7×10<sup>5</sup></div><div>④ 3.7×10<sup>10</sup></div></div>
-  <div class="sol">
-    <h4>사고과정</h4>
+<div class="q"><div class="qh"><span class="qno">문제 60</span><span class="area">방사성붕괴단위</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① <sup>226</sup>Ra 1 g의 원자 수 = <span class="eq">(1/226) × 6.02×10<sup>23</sup> ≈ 2.66×10<sup>21</sup></span>개.</p>
     <p class="step">② 활성도 = <span class="eq">λN = 1.4×10<sup>−11</sup> × 2.66×10<sup>21</sup> ≈ 3.7×10<sup>10</sup></span> 붕괴/초 = <b>3.7×10<sup>10</sup> Bq</b>. → <b>④</b></p>
-    <div class="tip">붕괴율 = (붕괴상수 λ) × (원자 수 N). 잘 알려진 환산값 <b>1 Ci = 3.7×10<sup>10</sup> Bq</b>가 이렇게 유도된다.</div>
-  </div>
+    <div class="tip">붕괴율 = (붕괴상수 λ) × (원자 수 N). 잘 알려진 환산값 <b>1 Ci = 3.7×10<sup>10</sup> Bq</b>가 이렇게 유도된다.</div></div>
 </div>
-
-</main>
-<footer>Chemistreal Final · JMChC 2회 해설지 · 전체 60문항 완료 · 정답은 원본 채점표와 대조 검증함 · (추후 HWP 공식 해설과 교차 검증 예정)</footer>
-</body></html>
+</main></body></html>
