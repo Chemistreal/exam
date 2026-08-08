@@ -201,6 +201,19 @@ console.log('\n── 동명이인은 두 사람 ──');
 }
 
 console.log('\n── 회차마다 설정이 붙어 있다 ──');
+
+/* ── 50문항 회차를 골라 쓴다 ────────────────────────────────────────
+   여기에 회차 제목을 박아 두었더니 그 회차를 지우는 날 검사가 깨졌다
+   (2026-08-08, KMChC 일반과정 세 회차를 지웠을 때). 검사가 재는 것은
+   "문항 수가 60으로 박히지 않는가" 이지 특정 회차가 아니다. 목록에서
+   50문항짜리를 하나 골라 쓴다 — 지워도 다른 것이 대신 선다. */
+const EX50 = (() => {
+  const all = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'exams.json'), 'utf8'));
+  const e = all.find(x => x.nQ === 50);
+  if (!e) { console.log('실패: 50문항 회차가 하나도 없다 — 이 검사가 잴 것이 없어졌다'); process.exit(1); }
+  return e;
+})();
+
 {
   const gas = load(fakeSheet([]));
   const missing = exams.filter(e => !gas.EXAM_COHORT[e.title]).map(e => e.id);
@@ -209,7 +222,7 @@ console.log('\n── 회차마다 설정이 붙어 있다 ──');
   const badQ = exams.filter(e => gas.EXAM_COHORT[e.title].q !== e.nQ).map(e => e.id);
   chk('문항 수가 맞다', badQ, []);
   chk('50문항 회차도 잡힌다',
-      gas._recomputeConfigFor('KMChC 2026 제1차 · 일반').qCount, 50);
+      gas._recomputeConfigFor(EX50.title).qCount, 50);
 
   // 옛 제목으로 쌓인 행도 재계산 대상이어야 한다.
   chk('옛 제목에도 설정이 있다', !!gas._recomputeConfigFor('화올 2018'), true);

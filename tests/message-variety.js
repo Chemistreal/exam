@@ -107,11 +107,24 @@ console.log('\n── 예시 (같은 회차 · 세 학생) ──');
 [0, 1, 2].forEach(i => console.log('  · ' + sameRound[i].split('\n').slice(-2)[0]));
 
 console.log('\n── 회차마다 문항 수와 범위가 맞는다 ──');
+
+/* ── 50문항 회차를 골라 쓴다 ────────────────────────────────────────
+   여기에 회차 제목을 박아 두었더니 그 회차를 지우는 날 검사가 깨졌다
+   (2026-08-08, KMChC 일반과정 세 회차를 지웠을 때). 검사가 재는 것은
+   "문항 수가 60으로 박히지 않는가" 이지 특정 회차가 아니다. 목록에서
+   50문항짜리를 하나 골라 쓴다 — 지워도 다른 것이 대신 선다. */
+const EX50 = (() => {
+  const all = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'exams.json'), 'utf8'));
+  const e = all.find(x => x.nQ === 50);
+  if (!e) { console.log('실패: 50문항 회차가 하나도 없다 — 이 검사가 잴 것이 없어졌다'); process.exit(1); }
+  return e;
+})();
+
 {
   /* 문항 수를 60으로 박아 놨었다. 50문항 회차 학생이 40/50 을 맞히고도
      학부모는 "정답 40/60" 을 받았다 — 실제보다 못한 것처럼 읽힌다. */
-  const m50 = gas._buildReportMsg('KMChC 2026 제1차 · 일반', '홍길동', 40, 80, 72.5,
-                                  '산화환원 8/10', 'https://x', 0, 50);
+  const m50 = gas._buildReportMsg(EX50.title, '홍길동', 40, 80, 72.5,
+                                  '산화환원 8/10', 'https://x', 0, EX50.nQ);
   chk('50문항 회차는 /50', /정답 40\/50문항/.test(m50), true);
   chk('60이 새어 나오지 않는다', /\/60/.test(m50), false);
   const m60 = gas._buildReportMsg('JMChC 모의고사 6회', '홍길동', 42, 70, 80,
@@ -119,8 +132,8 @@ console.log('\n── 회차마다 문항 수와 범위가 맞는다 ──');
   chk('60문항 회차는 /60', /정답 42\/60문항/.test(m60), true);
 
   // 시트 9열(만점)에서 문항 수를 읽는다. 없으면 EXAM_COHORT 로 찾는다.
-  chk('만점 칸에서 문항 수를 읽는다', gas._qCountOf('KMChC 2026 제1차 · 일반', 50), 50);
-  chk('만점 칸이 비면 표에서 찾는다', gas._qCountOf('KMChC 2026 제1차 · 일반', ''), 50);
+  chk('만점 칸에서 문항 수를 읽는다', gas._qCountOf(EX50.title, 50), 50);
+  chk('만점 칸이 비면 표에서 찾는다', gas._qCountOf(EX50.title, ''), 50);
   chk('표에도 없으면 60', gas._qCountOf('있지도 않은 시험', ''), 60);
 
   /* 범위 문구. 38개 시험 중 2개만 표에 있어서 나머지는 전부
@@ -139,7 +152,7 @@ console.log('\n── 회차마다 문항 수와 범위가 맞는다 ──');
   /* 원점수는 **앱이 보내 준 값만** 쓴다. 예전에는 correct*3 으로 계산했는데,
      오답 감점이 있는 회차(KMChC·동형 등 23개)에서는 그만큼 부풀려 나간다.
      50문항·40정답·오답 8개면 40*3−8 = 112 이지 120 이 아니다. */
-  const T50 = 'KMChC 2026 제1차 · 일반';
+  const T50 = EX50.title;
   const m112 = gas._buildReportMsg(T50, '홍길동', 40, 80, 72.5, '', 'https://x', 0, 50, 112);
   chk('감점 반영 원점수를 그대로 쓴다', /원점수 112\/150점/.test(m112), true);
   chk('correct*3 으로 지어내지 않는다', /원점수 120/.test(m112), false);
