@@ -24,12 +24,23 @@
   ② 제목이 exams.json 과 같은가
   ③ 문항 수(nQ)를 적어 둔 화면은 그 값이 맞는가
 
-  --fix 는 ①②③ 만 고친다. 빠진 회차를 **채워 넣지는 않는다** — 그 화면이
-  쓰는 문항별 배열(정답키·개념 코드)을 지어낼 수는 없기 때문이다. 어디가
-  비었는지 알리기만 한다.
+  --fix 는 빠진 회차도 채운다. 다만 **지어내지 않는 것만** 채운다.
+
+    key       exams.json 의 정답키 그대로
+    nQ · q    exams.json 의 문항 수 그대로
+    concepts  전부 null
+
+  개념 코드는 화면마다 손으로 붙여 온 것이라 exams.json 에 없다. 없는 것을
+  지어내면 분석이 거짓말을 한다. 그래서 null 로 둔다 — 이미 2024 제2차부터
+  다섯 회차가 그렇게 들어가 있다. 회차가 목록에 뜨고 정답키로 되는 분석은
+  되고, 개념별 분석만 비는 것이 목록에서 아예 빠지는 것보다 낫다.
+
+  diagnosis-v1.html 은 예외다. 그 화면은 개념 코드 **하나로** 돌아가서,
+  전부 null 인 회차를 넣으면 고르는 순간 빈 화면이 된다 — 이 검사가 막으려던
+  바로 그 증상이다. 그래서 개념 코드가 없는 회차는 넣지 않는다.
 
     python3 tools/page_exams.py            # 어긋난 곳을 보여 준다
-    python3 tools/page_exams.py --fix      # 회차·제목·문항 수를 맞춘다
+    python3 tools/page_exams.py --fix      # 회차·제목·문항 수를 맞추고 빠진 회차를 채운다
     python3 tools/page_exams.py --check    # 어긋나면 빨간불 (CI용)
 """
 import glob
@@ -93,12 +104,54 @@ def entries(body):
         k = p
 
 
+def fields(ent):
+    """항목 하나가 쓰는 칸 이름을 적힌 차례대로. 배열·글자열 속은 안 본다."""
+    out, depth, p = [], 0, 0
+    while p < len(ent):
+        c = ent[p]
+        if c in '{[':
+            depth += 1
+        elif c in '}]':
+            depth -= 1
+        elif c in '\'"':
+            q, p = c, p + 1
+            while p < len(ent) and ent[p] != q:
+                p += 2 if ent[p] == '\\' else 1
+        elif depth == 1 and (p == 0 or ent[p-1] in '{,'):
+            m = re.match(r'(\w+):', ent[p:])
+            if m:
+                out.append(m.group(1))
+        p += 1
+    return out
+
+
+def build(ex, order, group):
+    """빠진 회차 하나를 그 화면이 쓰는 칸 차례대로 짓는다.
+
+    지어내는 값은 없다 — 정답키·문항 수는 exams.json 에서 그대로 오고,
+    개념 코드는 없으니 null 이다.
+    """
+    nQ = int(ex['nQ'])
+    nulls = '[' + ','.join(['null'] * nQ) + ']'
+    val = {
+        'id': "'%s'" % ex['id'],
+        'title': "'%s'" % ex['title'],
+        'group': "'%s'" % group,
+        # exams.json 의 정답은 0부터 세고, 화면의 key 는 1부터 센다(①=1).
+        'key': '[' + ','.join(str(int(k) + 1) for k in ex['key']) + ']',
+        'nQ': str(nQ),
+        'concepts': nulls,
+        'q': nulls,
+    }
+    return '{' + ','.join('%s:%s' % (f, val[f]) for f in order if f in val) + '}'
+
+
 def main():
     fix = '--fix' in sys.argv
     check = '--check' in sys.argv
     real = {e['id']: e for e in json.load(open(os.path.join(ROOT, 'exams.json'),
                                               encoding='utf-8'))}
-    bad, gaps, fixed = [], [], 0
+    bad, gaps, fixed, added = [], [], 0, 0
 
     for path in sorted(glob.glob(os.path.join(ROOT, '*.html'))):
         name = os.path.basename(path)
@@ -127,13 +180,18 @@ def main():
             if m and int(m.group(1)) != int(ex['nQ']):
                 renq.append((eid, int(m.group(1)), int(ex['nQ'])))
 
+        order = fields(body[ents[0][0]:ents[0][1]])
+        # 개념 코드 하나로만 도는 화면(diagnosis-v1)은 전부 null 인 회차를 넣으면
+        # 고르는 순간 빈 화면이 된다. 넣지 않는 편이 낫다.
+        concept_only = 'key' not in order and 'nQ' not in order
+
         missing = [i for i in real if i not in {e[2] for e in ents}]
         if drop or retitle or renq:
             bad.append((name, drop, retitle, renq))
         if missing:
-            gaps.append((name, missing))
+            gaps.append((name, missing, concept_only))
 
-        if fix and (drop or retitle or renq):
+        if fix and (drop or retitle or renq or (missing and not concept_only)):
             nb = body
             for eid, _, want in retitle:
                 nb = re.sub(r"(\{id:'%s',title:')[^']*(')" % re.escape(eid),
@@ -157,6 +215,36 @@ def main():
                             s -= 1
                     nb = nb[:s] + nb[e2:]
                     break
+            if missing and not concept_only:
+                # 회차 묶음 이름은 화면마다 다르게 붙여 왔다(exams.json '이전' ↔
+                # 화면 '화올'). 새 회차는 같은 묶음의 이웃이 쓰는 이름을 따른다.
+                seen = {}
+                for s, e, i in entries(nb):
+                    if i not in real:
+                        continue
+                    m = re.search(r"group:'([^']*)'", nb[s:e])
+                    if m:
+                        seen.setdefault(real[i].get('group'), m.group(1))
+                ids = list(real)
+                for eid in missing:
+                    ex = real[eid]
+                    ent = build(ex, order, seen.get(ex.get('group'), ex.get('group') or ''))
+                    here = {i: (s, e) for s, e, i in entries(nb)}
+                    k = ids.index(eid)
+                    at = None
+                    for j in range(k - 1, -1, -1):      # exams.json 차례를 따른다
+                        if ids[j] in here:
+                            at, ent = here[ids[j]][1], ',' + ent
+                            break
+                    if at is None:
+                        for j in range(k + 1, len(ids)):
+                            if ids[j] in here:
+                                at, ent = here[ids[j]][0], ent + ','
+                                break
+                    if at is None:
+                        continue
+                    nb = nb[:at] + ent + nb[at:]
+                    added += 1
             open(path, 'w', encoding='utf-8').write(src[:a] + nb + src[b:])
             fixed += 1
 
@@ -173,18 +261,26 @@ def main():
                 print('     문항 수가 다름: %s  %d → %d' % (eid, got, want))
         print()
 
-    if gaps:
-        print('회차가 빠진 화면 %d장 — 문항별 배열(정답키·개념 코드)을 지어낼 수 '
-              '없어 채우지 않는다.' % len(gaps))
-        for name, miss in gaps:
+    fillable = [g for g in gaps if not g[2]]
+    if fillable:
+        print('회차가 빠진 화면 %d장%s' % (len(fillable), ' → 채웠다' if fix else ''))
+        for name, miss, _ in fillable:
+            print('  %-26s %d개: %s' % (name, len(miss), ', '.join(sorted(miss)[:5])
+                                        + (' …' if len(miss) > 5 else '')))
+        print()
+    skipped = [g for g in gaps if g[2]]
+    if skipped:
+        print('개념 코드로만 도는 화면 %d장 — 코드가 없는 회차는 넣지 않는다 '
+              '(넣으면 고르는 순간 빈 화면이 된다).' % len(skipped))
+        for name, miss, _ in skipped:
             print('  %-26s %d개: %s' % (name, len(miss), ', '.join(sorted(miss)[:5])
                                         + (' …' if len(miss) > 5 else '')))
         print()
 
     if fix:
-        print('%d장을 맞췄다. 빠진 회차는 손으로 채워야 한다.' % fixed)
+        print('%d장을 맞췄다 (회차 %d개를 채웠다).' % (fixed, added))
         return 0
-    if bad:
+    if bad or fillable:
         print('python3 tools/page_exams.py --fix 로 맞춘다.')
         return 1 if check else 0
     print('분석 화면의 회차 목록이 exams.json 과 맞는다.')
