@@ -87,12 +87,16 @@ def run(path, write):
     data = json.load(open(path, encoding='utf-8'))
     qs = data.get('questions') or {}
     made = missing = 0
-    stale = []
+    stale, blank = [], []
     for k in sorted(qs, key=int):
         q = qs[k]
         expl = str(q.get('explanation') or '').strip()
         cur = str(q.get('explanationHtml') or '').strip()
         if not expl:
+            # 글이 아예 없으면 오답 카드가 **빈칸**으로 나간다. 학생은 왜 틀렸는지
+            # 한 줄도 못 본다. 출제 취소된 문항도 '왜 취소됐는지' 는 적어야 한다 —
+            # kmchc-2025-1-simhwa 38·41번이 그렇게 비어 있었다.
+            blank.append(k)
             continue
         if not cur:
             missing += 1
@@ -110,7 +114,7 @@ def run(path, write):
         with open(path, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
             f.write('\n')
-    return missing, made, stale
+    return missing, made, stale, blank
 
 
 def main():
@@ -121,22 +125,30 @@ def main():
     paths = ([os.path.join(ROOT, 'answers', '%s.json' % a) for a in args]
              if args else sorted(glob.glob(os.path.join(ROOT, 'answers', '*.json'))))
 
-    total = old = 0
+    total = old = empty = 0
     for p in paths:
-        missing, made, stale = run(p, write)
+        missing, made, stale, blank = run(p, write)
         name = os.path.basename(p)
         if missing:
             total += missing
             print('  %-34s 글은 있는데 꼴이 없는 문항 %d개%s'
                   % (name, missing, ' → 만들었다' if made else ''))
+        if blank:
+            empty += len(blank)
+            print('  %-34s 해설 글이 비어 있는 문항 %d개 (%s)'
+                  % (name, len(blank), ', '.join(b + '번' for b in blank[:8])))
         if stale:
             old += len(stale)
             print('  %-34s 꼴이 옛 글을 들고 있는 문항 %d개 (%s)%s'
                   % (name, len(stale), ', '.join(s + '번' for s in stale[:8]),
                      ' → 다시 만들었다' if write else ''))
-    if not total and not old:
-        print('해설 글이 있는 문항은 모두 해설지 꼴을 갖췄고, 글과 같은 말을 한다')
+    if not total and not old and not empty:
+        print('해설 글이 모든 문항에 있고, 해설지 꼴도 글과 같은 말을 한다')
         return 0
+    if empty:
+        print('\n빈 해설은 만들어 줄 수 없다 — 사람이 쓴다. 출제 취소된 문항도 '
+              '왜 취소됐는지는 적는다.')
+        return 1 if check else 0
     if write:
         return 0
     if old:
