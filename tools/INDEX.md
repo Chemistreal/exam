@@ -6,7 +6,7 @@
 - ✓ CI 에 걸려 있다 (`.github/workflows/tests.yml`)
 - `--check` 를 받는 자는 어긋나면 종료 코드 1 을 낸다
 
-## 재는 자 (45)
+## 재는 자 (46)
 
 | | 자 | `--check` | 무엇을 |
 |---|---|---|---|
@@ -49,6 +49,7 @@
 | ✓ | `rate_check.py` | ○ | 문제지에 적혀 있던 **공식 정답률**이 성한지 본다 — `exams.json` 의 `rate`. |
 |  | `regen_seed_cohort.py` |  | 동형 2종(kch1to3-b, kch1to2-b) 시드 코호트 영역벡터 재생성. |
 |  | `regrade_kch1to3b_q11.py` |  | kch1to3-b Q11 재채점 스크립트 (2026-07-07) |
+| ✓ | `sci_notation.py` | ○ | 학생이 읽는 글의 **과학 표기**가 한 벌인지 잰다 — 그리고 함부로 안 고친다. |
 | ✓ | `seed_stats.py` | ○ | index.html 의 두 코호트가 서로 어긋나지 않는지 본다 — SEEDS 와 STATIC_STATS. |
 | ✓ | `start_index.py` | ○ | `START_HERE_index.html` 이 실제 파일과 맞는지 본다. |
 | ✓ | `theme.py` | ○ | 화면 261장에 **같은 옷**을 입힌다. |
@@ -77,4 +78,4 @@
 
 ---
 
-자 59개 · CI 에 걸린 것 46개 · `--check` 를 받는 것 36개
+자 60개 · CI 에 걸린 것 47개 · `--check` 를 받는 것 37개
