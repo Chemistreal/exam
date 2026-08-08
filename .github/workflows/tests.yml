@@ -520,6 +520,17 @@ jobs:
       - name: 오개념 라이브러리가 두 화면에서 한 벌인가
         timeout-minutes: 5
         run: python3 tools/gen_omlib.py --check
+      # 125 개념표가 화면 스물넷에 따로 적혀 있다. 이름을 한 장에서만 고치면
+      # 나머지 스물셋이 옛 이름을 든 채 남고, 학생은 같은 개념을 화면마다 다른
+      # 이름으로 만난다. 강의 파일이 실제로 있는지도 같이 본다.
+      - name: 125 개념표가 화면 스물넷에서 같은 말을 하는가
+        timeout-minutes: 5
+        run: python3 tools/concept_table.py --check
+      # index.html 의 두 코호트. 문항통계는 답이 온전한 학생만 세므로 늘
+      # 영역벡터 무리 안에 있어야 한다. 뒤집히면 둘 중 하나가 낡은 것이다.
+      - name: 문항통계 무리가 영역벡터 무리 안에 있는가
+        timeout-minutes: 5
+        run: python3 tools/seed_stats.py --check
       # 낱개 검사는 저마다 한 조각만 본다. 성적표는 시험 데이터·오답 카드·강의
       # 링크·확률이 한 화면에서 만나는 자리라, 조각이 다 멀쩡해도 합치면 깨질
       # 수 있다 — 회차를 새로 넣을 때 특히 그렇다. 그래서 전 회차를 실제로 채점한다.
