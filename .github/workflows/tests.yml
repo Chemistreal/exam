@@ -508,6 +508,12 @@ jobs:
       - name: 크롭이 제 문항 자리에서 잘리는가
         timeout-minutes: 5
         run: python3 tools/crop_align.py --check
+      # Q-행렬 편집기는 유형 태그 목록을 화면 안에 통째로 품고 있는데 다시 뽑아
+      # 주는 것이 없었다. 태그 160종이 목록에 아예 없어 선생님이 이을 수가
+      # 없었고, 덮임 비율도 옛 분모(1860)로 셈하고 있었다.
+      - name: Q-행렬 편집기의 유형 태그가 exams.json 과 맞는가
+        timeout-minutes: 5
+        run: python3 tools/gen_qmatrix_tags.py --check
       # 낱개 검사는 저마다 한 조각만 본다. 성적표는 시험 데이터·오답 카드·강의
       # 링크·확률이 한 화면에서 만나는 자리라, 조각이 다 멀쩡해도 합치면 깨질
       # 수 있다 — 회차를 새로 넣을 때 특히 그렇다. 그래서 전 회차를 실제로 채점한다.
