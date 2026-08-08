@@ -50,6 +50,44 @@ const chk = (n, got, want) => {
   if (!ok) fail++;
 };
 
+/* ── 기다리는 법 ──────────────────────────────────────────────────────
+   "이쯤이면 다 됐겠지" 하고 재우면 빠른 기계에서는 낭비고 느린 기계에서는
+   실패다. 한때 이 파일에만 고정 대기가 여든아홉 군데, 합쳐 46초였다 — CI 가
+   이따금 까닭 없이 빨간불이던 뿌리가 여기다. 코드는 그대로인데 검사가
+   흔들리면 사람은 빨간불을 믿지 않게 되고, 그러면 진짜 고장도 같이 묻힌다.
+
+   두 가지로 바꾼다.
+
+   until    조건이 참이 될 때까지만 기다린다. 언제 참이 되는지 아는 자리에.
+   settled  값이 **더 이상 안 바뀔 때까지** 기다린다. 언제 끝나는지 모르는
+            자리에. 기대값으로 기다리면 안 된다 — 두 줄을 기대하면서 두 줄이
+            될 때까지 기다리면 '두 줄인가' 는 언제나 참이 되어, 검사가 스스로
+            답을 맞춰 주는 꼴이 된다.
+
+   지치면 무엇을 기다렸는지 적고 실패시킨다. 조용히 넘어가면 그다음 검사가
+   엉뚱한 자리에서 깨져 원인을 못 찾는다. */
+async function until(p, label, fn, arg, ms) {
+  try { await p.waitForFunction(fn, arg, { timeout: ms || 15000, polling: 50 }); return true; }
+  catch (e) { console.log('  FAIL  기다리다 지쳤다: ' + label); fail++; return false; }
+}
+async function settled(p, label, fn, arg, ms) {
+  const t0 = Date.now(), max = ms || 15000;
+  let prev = '\u0000<아직>', same = 0;   // 어떤 값과도 같지 않은 첫 표식
+  while (Date.now() - t0 < max) {
+    let cur;
+    try { cur = JSON.stringify(await p.evaluate(fn, arg)); } catch (e) { cur = '\u0000<읽히지않음>'; }
+    same = (cur === prev) ? same + 1 : 0;
+    prev = cur;
+    /* 여섯 번(≈360ms) 잇달아 같으면 다 그려진 것으로 본다. 짧게 잡으면 응답이
+       띄엄띄엄 오는 화면에서 그 틈을 '끝났다' 로 잘못 읽는다. */
+    if (same >= 6) return true;
+    await p.waitForTimeout(60);
+  }
+  console.log('  FAIL  끝내 안 멎었다: ' + label);
+  fail++;
+  return false;
+}
+
 (async () => {
   const b = seal(await chromium.launch({ executablePath: process.env.CHROMIUM_PATH, args: ['--no-sandbox'] }));
   /* 서비스 워커를 막는다. 여기서는 오프라인 캐시를 보지 않는데(그건 offline.js),
@@ -197,11 +235,11 @@ const chk = (n, got, want) => {
   /* networkidle 은 쓰지 않는다 — 셸이 시트·DT 를 부르므로 영영 조용해지지 않는다. */
   await p.goto(`http://localhost:${PORT}/hub.html`, { waitUntil: 'domcontentloaded' });
   await p.waitForFunction(() => typeof EXAMS !== 'undefined' && EXAMS.length, null, { timeout: 20000 });
-  await p.waitForTimeout(1500);
 
   console.log('── 회차 표가 기록과 맞는다 ──');
   await p.evaluate(() => show('rnd'));
-  await p.waitForTimeout(300);
+  await settled(p, '회차 표가 다 그려진다',
+    () => document.querySelectorAll('#rndTable tbody tr').length);
   const rnd = await p.evaluate(() => [].map.call(document.querySelectorAll('#rndTable tbody tr'),
     r => [].map.call(r.querySelectorAll('td'), td => td.textContent)));
   chk('회차 두 줄', rnd.length, 2);
@@ -215,9 +253,12 @@ const chk = (n, got, want) => {
     raw: localStorage.getItem('final:roster:jmchc-1'),
   }));
   await p.evaluate(() => { show('stu'); });
-  await p.waitForTimeout(400);
+  await until(p, '학생 목록이 뜬다', () => !!document.querySelector('#stuList .row'));
   await p.evaluate(() => document.querySelector('#stuList .row').click());
-  await p.waitForTimeout(400);
+  await until(p, '학생 카드가 다 찬다',
+    () => !!document.getElementById('dlgName') &&
+          !!document.getElementById('dlgName').textContent.trim() &&
+          document.querySelectorAll('#dlgBody .cards .card b').length > 0);
   const card = await p.evaluate(() => ({
     name: document.getElementById('dlgName').textContent,
     stats: [].map.call(document.querySelectorAll('#dlgBody .cards .card b'), x => x.textContent),
@@ -230,7 +271,15 @@ const chk = (n, got, want) => {
   chk('추세가 그려진다', card.spark, 2);
 
   await p.evaluate(() => document.querySelector('#dlgBody .mini[data-act="open"]').click());
-  await p.waitForTimeout(6000);
+  /* 여기서 '성적표가 떴는가' 로 기다리면 안 된다. 바로 다음 줄이 재는 것이
+     **뜬 뒤에 파이널의 hashchange 가 덮지 않는가** 라, 뜨자마자 통과시키면
+     덮이는 순간을 놓친다. 화면이 멎을 때까지 기다린 뒤에 본다. */
+  await settled(p, '연 성적표 화면이 멎는다', () => {
+    const f = document.querySelector('#p-exam iframe');
+    if (!f || !f.contentDocument) return null;
+    const a = f.contentDocument.getElementById('app');
+    return [f.contentWindow.location.hash.slice(0, 12), a ? a.innerText.length : 0];
+  }, null, 20000);
   const opened = await p.evaluate(() => {
     const f = document.querySelector('#p-exam iframe');
     return {
@@ -266,9 +315,14 @@ const chk = (n, got, want) => {
 
   console.log('\n── 자료에서 채점으로 바로 ──');
   await p.evaluate(() => show('mat'));
-  await p.waitForTimeout(400);
+  await until(p, '자료 목록이 뜬다', () => !!document.querySelector('#matBody .mini[data-grade]'));
   await p.evaluate(() => document.querySelector('#matBody .mini[data-grade]').click());
-  await p.waitForTimeout(3000);
+  await settled(p, '채점 화면이 멎는다', () => {
+    const f = document.querySelector('#p-exam iframe');
+    if (!f || !f.contentDocument) return null;
+    const h = f.contentDocument.querySelector('h2');
+    return [f.contentDocument.querySelectorAll('.omr-grid .ansin').length, h ? h.textContent : ''];
+  }, null, 20000);
   const graded = await p.evaluate(() => {
     const f = document.querySelector('#p-exam iframe');
     return {
@@ -327,12 +381,19 @@ const chk = (n, got, want) => {
        storage 이벤트로 오는지는 띄워 봐야만 안다. 안 오면 셸의 숫자는
        새로고침 전까지 거짓말을 한다 — 채점하는 날 내내. */
     await p.evaluate(() => show('dash'));
-    await p.waitForTimeout(500);
+    await settled(p, '대시보드 숫자가 멎는다',
+      () => (document.getElementById('todayCnt') || {}).textContent);
     const before = await p.evaluate(() =>
       (document.getElementById('todayCnt') || {}).textContent);
 
     await p.evaluate(() => show('exam'));
-    await p.waitForTimeout(4500);
+    /* 파이널이 iframe 안에서 다 뜰 때까지. 밖에서 부를 함수가 생겼는지로 안다 —
+       'iframe 이 있는가' 로는 껍데기만 보고 지나간다. */
+    await until(p, '파이널이 iframe 안에 다 뜬다', () => {
+      const f = document.querySelector('#p-exam iframe');
+      return !!(f && f.contentWindow && typeof f.contentWindow.openExam === 'function'
+                && f.contentDocument && f.contentDocument.getElementById('nm'));
+    }, null, 30000);
     await p.evaluate(() => {
       const f = document.querySelector('#p-exam iframe'), w = f.contentWindow, d = f.contentDocument;
       w.openExam('jmchc-5');
@@ -340,7 +401,11 @@ const chk = (n, got, want) => {
       for (let q = 1; q <= 60; q++) w.setAns(q, 1);
       w.scoreAuto();
     });
-    await p.waitForTimeout(1500);
+    /* storage 이벤트가 건너오기를 기다린다. 안 건너오면 여기서 '기다리다
+       지쳤다' 로 멎는데, 그것이 곧 이 검사가 잡으려는 고장이다 — 고정 시간을
+       재고 지나가는 것보다 정확하고, 빠른 기계에서 헛되이 기다리지도 않는다. */
+    await until(p, '채점이 셸의 숫자로 건너온다', (b) =>
+      (document.getElementById('todayCnt') || {}).textContent !== b, before, 20000);
     /* 대시보드 탭으로 가지도 않았는데 이미 바뀌어 있어야 한다.
        ⚠ 자리 번호(첫 칸)로 짚지 않는다. 카드 차례를 바꾸는 날 조용히 엉뚱한
          칸을 보게 된다 — 실제로 그랬다(급한 것을 앞으로 옮기니 첫 칸이
@@ -350,7 +415,8 @@ const chk = (n, got, want) => {
     chk('대시보드로 가지 않아도 숫자가 바뀐다', Number(after) > Number(before), true);
 
     await p.evaluate(() => show('rnd'));
-    await p.waitForTimeout(400);
+    await settled(p, '회차 표가 다시 멎는다',
+      () => document.querySelectorAll('#rndTable tbody tr').length);
     chk('회차 표에도 새 회차가 늘었다', await p.evaluate(() =>
       [].some.call(document.querySelectorAll('#rndTable tbody tr td:first-child'),
         td => /5회/.test(td.textContent))), true);
@@ -1122,7 +1188,7 @@ const chk = (n, got, want) => {
     await p3.goto(`http://localhost:${PORT}/final.html`, { waitUntil: 'domcontentloaded' });
     await p3.evaluate(() => localStorage.removeItem('chemistreal:gate'));
     await p3.goto(`http://localhost:${PORT}/hub.html`, { waitUntil: 'domcontentloaded' });
-    await p3.waitForTimeout(400);
+    await until(p3, '잠금 화면이 뜬다', () => !!document.getElementById('gateGo'));
     /* 이 창은 열쇠칸이 비어 있다 — 먼저 잠금이 뜨는지 본다. */
     chk('처음 들어오면 코드를 묻는다', await p3.evaluate(() => !!document.getElementById('gate')), true);
     chk('잠긴 동안에는 창구를 안 부른다',
@@ -1132,13 +1198,35 @@ const chk = (n, got, want) => {
     chk('틀린 코드로는 안 열린다', await p3.evaluate(() => !!document.getElementById('gate')), true);
     await p3.fill('#gateIn', '0000');
     await p3.click('#gateGo');
-    await p3.waitForTimeout(2200);
+    /* 잠금이 풀리면 그제야 창구를 부른다. 둘 다 멎을 때까지 기다린다 —
+       '잠금이 없어졌는가' 로만 기다리면 창구 세는 다음 줄이 이르게 0 을 본다. */
+    await settled(p3, '잠금이 풀리고 창구가 붙는다',
+      () => [!!document.getElementById('gate'),
+             document.querySelectorAll('#connBar .conn').length], null, 30000);
     chk('맞히면 열린다', await p3.evaluate(() => !!document.getElementById('gate')), false);
     chk('열리면 그제야 부른다',
         await p3.evaluate(() => document.querySelectorAll('#connBar .conn').length > 0), true);
 
     await p3.evaluate(() => show('cls'));
-    await p3.waitForTimeout(600);
+    /* 반 화면은 창구를 **여러 번 나눠** 부른다(명단·미응시·통과·재시가 저마다
+       온다). 그래서 '멎었나' 만으로는 이르다 — 부하가 걸리면 응답 사이가
+       벌어져 그 틈을 다 그려진 것으로 잘못 읽는다. 실제로 CPU 를 여섯 배로
+       물리면 여덟 번 중 여섯 번이 여기서 깨졌다.
+       올 것이 다 왔는지 먼저 보고, 그다음에 멎기를 기다린다. */
+    await until(p3, '반 화면에 올 것이 다 온다', () =>
+      document.querySelectorAll('#clsTabs .chip').length >= 2 &&
+      document.querySelectorAll('#clsList .row').length >= 4 &&
+      [].every.call(document.querySelectorAll('#clsList .row'),
+                    r => r.querySelector('.nm') && r.querySelector('.tag')) &&
+      document.querySelectorAll('#clsHead .legend button.lg').length > 0 &&
+      document.querySelectorAll('#clsHead .stack i').length > 0 &&
+      !!document.querySelector('#clsHead .donut span'), null, 30000);
+    await settled(p3, '반 화면이 멎는다', () => [
+      [].map.call(document.querySelectorAll('#clsTabs .chip'), e => e.textContent),
+      [].map.call(document.querySelectorAll('#clsList .row'),
+                  r => r.querySelector('.nm').textContent + '/' + r.querySelector('.tag').textContent),
+      document.querySelectorAll('#clsHead .stack i').length,
+    ], null, 30000);
     const cls = await p3.evaluate(() => ({
       tabs: [].map.call(document.querySelectorAll('#clsTabs .chip'), e => e.textContent),
       rows: [].map.call(document.querySelectorAll('#clsList .row'), r => [
@@ -1244,10 +1332,12 @@ const chk = (n, got, want) => {
   {
     const p4 = await ctx.newPage();
     await p4.goto(`http://localhost:${PORT}/hub.html`, { waitUntil: 'domcontentloaded' });
-    await p4.waitForTimeout(700);
+    await until(p4, '셸이 다 뜬다(초점 검사)',
+      () => typeof show === 'function' && typeof EXAMS !== 'undefined' && EXAMS.length);
     /* 줄은 학생 탭에 있다. 대시보드에서는 Tab 이 닿지 않는다. */
     await p4.evaluate(() => show('stu'));
-    await p4.waitForTimeout(400);
+    await settled(p4, '학생 목록이 다 그려진다', () =>
+      [].filter.call(document.querySelectorAll('.row'), r => r.getBoundingClientRect().width > 0).length);
     /* 줄이 아예 없으면 이 검사는 아무것도 안 본 채 통과할 수 있다. 먼저 센다. */
     const rowN = await p4.evaluate(() =>
       [].filter.call(document.querySelectorAll('.row'), r => r.getBoundingClientRect().width > 0).length);
@@ -1278,9 +1368,11 @@ const chk = (n, got, want) => {
   {
     const p5 = await ctx.newPage();
     await p5.goto(`http://localhost:${PORT}/hub.html`, { waitUntil: 'domcontentloaded' });
-    await p5.waitForTimeout(900);
+    await until(p5, '셸이 다 뜬다(초성 검사)',
+      () => typeof show === 'function' && typeof EXAMS !== 'undefined' && EXAMS.length);
     await p5.evaluate(() => show('stu'));
-    await p5.waitForTimeout(300);
+    await settled(p5, '명단이 다 그려진다',
+      () => document.querySelectorAll('#stuList .row .nm').length);
     const named = async () => p5.evaluate(() =>
       [].map.call(document.querySelectorAll('#stuList .row .nm'), e => e.textContent));
     console.log('  명단 ' + JSON.stringify(await named()));
@@ -1369,7 +1461,8 @@ const chk = (n, got, want) => {
         { key: 'ch1', name: '화학Ⅰ', rounds: [{ round: 1 }, { round: 2 }, { round: 3 }] }] }),
     }));
     await p6.goto(`http://localhost:${PORT}/hub.html`, { waitUntil: 'domcontentloaded' });
-    await p6.waitForTimeout(900);
+    await until(p6, '셸이 다 뜬다(회차 글 검사)',
+      () => typeof show === 'function' && typeof EXAMS !== 'undefined' && EXAMS.length);
     /* 앞 검사가 남긴 회차 글이 있으면 셈이 어긋난다 — 빈 상태에서 시작한다. */
     await p6.evaluate(() => localStorage.removeItem('chemistreal:lessons'));
     await p6.evaluate(() => show('cls'));
