@@ -145,7 +145,12 @@ def equations(text):
     for m in EQ.finditer(text):
         span = m.group(0)
         # 이온: 위첨자 +/− (strip_tags 가 ^ 로 남겨 둔다)
-        if re.search(r'[⁺⁻]|\^\s*\d*\s*[+-]', span):
+        # ⚠ span 안만 보면 못 잡는다. `CaCl₂ → Ca²⁺ + 2Cl⁻` 는 위첨자 ² 에서
+        #   식 찾기가 끊겨 **`CaCl₂ → Ca` 까지만** 잡히고, 그 토막에는 ⁺ 가 없다.
+        #   그래서 멀쩡한 이온화 식을 "Cl 2→0" 이라고 걸었다(2026-08-09).
+        #   분수 계수와 같은 방식으로 **앞뒤를 조금 넓혀** 본다.
+        around = text[max(0, m.start() - 4):m.end() + 8]
+        if re.search(r'[⁺⁻]|\^\s*\d*\s*[+-]', around):
             continue
         # 분수 계수(½O₂)는 원자 수를 정수로 못 센다 — 판정하지 않는다
         if re.search(r'[½⅓⅔¼¾]', text[max(0, m.start() - 6):m.end() + 6]):

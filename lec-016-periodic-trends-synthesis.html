@@ -4,6 +4,11 @@
 .serif{font-family:"Nanum Myeongjo",Georgia,serif}
 header{background:linear-gradient(180deg,#0E5A4C,#0b4a3f);color:#fff;padding:24px 20px;text-align:center}
 header .logo{font-size:12px;letter-spacing:.18em;opacity:.82;font-weight:600}header h1{margin:6px 0 4px;font-size:23px}header .sub{font-size:12.5px;opacity:.86}
+/* 읽는 데 걸리는 시간(어림). 제목 옆에 흐리게 둔다 — 시작 전에 알아야 시작한다. */
+/* ⚠ 머리는 짙은 옥색 바탕에 흰 글씨다. 회색(--muted)을 얹으면 1.78:1 로
+   사실상 안 보인다 — tests/theme.js 가 잡았다. 옆의 .sub 와 같은 방식으로,
+   흰 글씨를 살짝 낮춰 쓴다(같은 바탕에서 8:1 이 넘는다). */
+.rt{color:#fff;opacity:.72;font-size:12.5px;white-space:nowrap}
 main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .back{display:inline-flex;gap:5px;color:var(--teal);text-decoration:none;font-size:14px;font-weight:600;padding:8px 0}
 .hw{background:#fff;border:1px solid var(--line);border-left:3px solid var(--brass);border-radius:9px;padding:12px 15px;font-size:13.5px;color:var(--ink-2);margin:12px 0}
@@ -58,7 +63,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
   header .sub{letter-spacing:.01em}
 }</style>
 </head>
-<body><header><div class="logo">CHEMISTREAL · 개념강의</div><h1 class="serif">주기·족 경향 종합</h1><div class="sub">016 · 주기율</div></header><main>
+<body><header><div class="logo">CHEMISTREAL · 개념강의</div><h1 class="serif">주기·족 경향 종합</h1><div class="sub">016 · 주기율<span class="rt">읽는 데 약 10분</span></div></header><main>
 <a class="back" href="final.html">‹ 파이널로</a>
 <div class="hw">이번 진단에서 <b>주기적 경향</b>(여러 성질을 한꺼번에 묻는 문제)이 보강으로 잡혔어. 이 1강을 끝까지 읽고 <b>직접 해보기</b>까지. 지금까지 따로 본 반지름·이온화에너지·전자친화도·전기음성도를 단 하나의 원리로 묶는 정리 강의야. 이걸 잡으면 경향 문제는 외울 게 없어져.</div>
 
@@ -92,6 +97,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="trap"><span class="lab">예외 ② 전자친화도 Cl &gt; F</span><br>전자친화도는 경향이 들쭉날쭉해. F는 너무 작아 전자를 받을 때 좁은 공간의 반발로 손해를 봐서, 오히려 한 칸 아래 Cl이 더 커. 2주기(F·O)가 의외로 작다는 게 포인트. (014)</div>
 <div class="trap"><span class="lab">예외 ③ 등전자종 반지름은 양성자 수로</span><br>전자 수가 같은 입자들(O²⁻·F⁻·Na⁺·Mg²⁺ 등)은 주기·족 경향이 아니라 양성자 수(Z)로 비교해. Z가 클수록 작아. 전하 부호로 판단하면 틀려. (012)</div>
 <div class="trap"><span class="lab">예외 ④ 18족 처리</span><br>전기음성도는 18족을 보통 제외(결합을 안 해서). 이온화에너지는 18족이 가장 큰 편(꽉 찬 안정 배치). 18족은 성질마다 다르게 취급하니 주의.</div>
+<div class="eg"><span class="lab">예제 · 한 문제에 네 성질이 같이 나올 때</span> Na · Mg · Al · Cl 을 두고 ① 반지름 ② 1차 이온화에너지 ③ 전기음성도 ④ 금속성을 한 번에 세워 봐. 같은 3주기라 껍질 수가 같으니 오른쪽으로 갈수록 <span class="fm">Z_eff</span> 가 커지는 것 하나로 다 갈려. ① 반지름 <b>Na &gt; Mg &gt; Al &gt; Cl</b> (오른쪽이 작다) ② IE <b>Cl &gt; Al &gt; Mg &gt; Na</b> — 다만 <b>Mg &gt; Al</b> 이라 실제로는 Cl &gt; Mg &gt; Al &gt; Na (2족·13족 예외) ③ 전기음성도 <b>Cl &gt; Al &gt; Mg &gt; Na</b> ④ 금속성 <b>Na &gt; Mg &gt; Al &gt; Cl</b>. <b>반지름과 금속성은 한 편, IE·전자친화도·전기음성도는 반대 편</b> — 두 줄로 외우면 끝이야.</div>
 </div>
 
 <div class="sec">
@@ -100,7 +106,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"오른쪽으로 Z_eff↑, 아래로 껍질↑ · 이 두 축이 모든 경향을 낳는다 · 예외 넷만 따로 챙겨라."</div>
 <p>반지름·금속성은 오른쪽으로 감소, 이온화에너지·전자친화도·전기음성도는 오른쪽으로 증가. 성질을 외우지 말고 두 축에서 유도해. 깨지는 건 IE의 Be&gt;B·N&gt;O, 전자친화도 Cl&gt;F, 등전자종(양성자 수로), 18족 처리, 이 넷뿐.</p>
 <p>다음 강(017 금속·비금속·준금속)에서는 오늘 표의 마지막 줄(금속성)을 더 깊이 다뤄서 주기율 영역을 닫아. 금속성이 왼쪽 아래로 커진다는 걸 물성(전도성·반응성)과 연결하고, 금속과 비금속의 경계에 있는 준금속(반도체)까지 정리하면 이 단원이 완성돼. 오늘 만든 종합 지도 위에 마지막 한 조각을 얹는 거지.</p>
-<div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 경향 문제를 두 축으로 다시 풀어봐. ① 묻는 성질이 "크기형(반지름·금속성)"인지 "전자 좋아하기형(IE·전자친화도·전기음성도)"인지 분류 ② 두 축으로 방향 결정 ③ 예외 넷에 걸리는지 확인. 그리고 매번 "오른쪽으로 핵이 세지고 아래로 멀어진다"를 입으로 되뇌며 유도해. 한 바퀴 돌리면 경향은 통째로 네 거다.</div>
+<div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 경향 문제를 두 축으로 다시 풀어봐. ① 묻는 성질이 "크기형(반지름·금속성)"인지 "전자 좋아하기형(IE·전자친화도·전기음성도)"인지 분류 ② 두 축으로 방향 결정 ③ 예외 넷에 걸리는지 확인. 그리고 매번 "오른쪽으로 핵이 세지고 아래로 멀어진다"를 입으로 되뇌며 유도해. 그리고 입으로 말해. "오른쪽으로 Z_eff↑, 아래로 껍질↑ · 이 두 축이 모든 경향을 낳는다 · 예외 넷만 따로 챙겨라." 한 바퀴 돌리면 경향은 통째로 네 거다.</div>
 </div>
 
 <footer>Chemistreal · 개념강의 016 · 주기·족 경향 종합</footer>

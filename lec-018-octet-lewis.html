@@ -4,6 +4,11 @@
 .serif{font-family:"Nanum Myeongjo",Georgia,serif}
 header{background:linear-gradient(180deg,#0E5A4C,#0b4a3f);color:#fff;padding:24px 20px;text-align:center}
 header .logo{font-size:12px;letter-spacing:.18em;opacity:.82;font-weight:600}header h1{margin:6px 0 4px;font-size:23px}header .sub{font-size:12.5px;opacity:.86}
+/* 읽는 데 걸리는 시간(어림). 제목 옆에 흐리게 둔다 — 시작 전에 알아야 시작한다. */
+/* ⚠ 머리는 짙은 옥색 바탕에 흰 글씨다. 회색(--muted)을 얹으면 1.78:1 로
+   사실상 안 보인다 — tests/theme.js 가 잡았다. 옆의 .sub 와 같은 방식으로,
+   흰 글씨를 살짝 낮춰 쓴다(같은 바탕에서 8:1 이 넘는다). */
+.rt{color:#fff;opacity:.72;font-size:12.5px;white-space:nowrap}
 main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .back{display:inline-flex;gap:5px;color:var(--teal);text-decoration:none;font-size:14px;font-weight:600;padding:8px 0}
 .hw{background:#fff;border:1px solid var(--line);border-left:3px solid var(--brass);border-radius:9px;padding:12px 15px;font-size:13.5px;color:var(--ink-2);margin:12px 0}
@@ -59,7 +64,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
   header .sub{letter-spacing:.01em}
 }</style>
 </head>
-<body><header><div class="logo">CHEMISTREAL · 개념강의</div><h1 class="serif">옥텟 규칙과 루이스 구조</h1><div class="sub">018 · 분자의 모양</div></header><main>
+<body><header><div class="logo">CHEMISTREAL · 개념강의</div><h1 class="serif">옥텟 규칙과 루이스 구조</h1><div class="sub">018 · 분자의 모양<span class="rt">읽는 데 약 11분</span></div></header><main>
 <a class="back" href="final.html">‹ 파이널로</a>
 <div class="hw">이번 진단에서 <b>루이스 구조 · 옥텟</b>이 보강으로 잡혔어. 이 1강을 끝까지 읽고 <b>직접 해보기</b>까지. 분자를 그림으로 그리는 첫걸음이고, 이게 안 되면 다음 강들(공명·분자 모양)을 손도 못 대. 그리는 절차를 손에 익히는 게 오늘 목표야.</div>
 
@@ -103,6 +108,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <tr><td>홀수 전자</td><td>총 전자가 홀수라 옥텟 불가</td><td class="mono">NO, NO₂</td></tr></table>
 <div class="trap"><span class="lab">함정 · 확장 옥텟은 3주기부터</span><br>옥텟을 초과(9개 이상)할 수 있는 건 3주기 이상의 원소뿐이야(빈 d 오비탈을 쓸 여지가 있어서). 2주기 원소(C, N, O, F)는 절대 옥텟을 넘지 못해. 그러니 질소나 산소를 중심에 두고 전자 10개, 12개를 그리면 틀려. "확장은 인(P)·황(S) 같은 3주기부터"로 기억해.</div>
 <p>붕소(BF₃)나 베릴륨(BeCl₂)은 반대로 8개를 못 채워. 그래서 이런 분자들은 전자가 부족한 상태라, 전자쌍을 받아들이려는 성질(다음 단원의 산·염기 개념과도 연결)이 강해. 옥텟이 "규칙"이긴 해도 절대 법칙은 아니라는 걸 알아두자.</p>
+<div class="eg"><span class="lab">예제 · SO₂ 를 다섯 단계로 그려 보기</span> ① 총 원자가 전자: S 6 + O 6×2 = <b>18개</b>. ② 골격: 중심은 전기음성도가 작은 <b>S</b>, 양옆에 O. ③ 결합 둘에 4개 쓰고 남은 14개를 주변 O 부터 옥텟 채우기 — O 하나에 6개씩 12개, 남은 2개는 S 에. ④ 세어 보면 S 는 6개(결합 4 + 고립쌍 2)라 <b>옥텟이 모자라</b>. ⑤ 그러니 O 의 고립쌍 하나를 끌어와 <b>이중 결합</b>을 만든다 → <span class="fm">O=S–O</span> (공명으로 반대쪽도 가능). 이러면 S 는 8개, O 도 각각 8개. <b>전자 총수 18개가 그대로 보존되는지</b>가 마지막 검산이야.</div>
 </div>
 
 <div class="sec">
@@ -111,7 +117,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"옥텟(H는 2)을 향해 전자를 공유한다 · 다섯 단계로 그리고, 모자라면 다중결합."</div>
 <p>전자는 공유쌍(결합)과 고립쌍으로만 존재하고, 공유쌍은 양쪽 원자가 모두 세. 절차는 총 전자 세기 → 골격 → 주변 옥텟 → 중심 → 다중결합. 예외는 옥텟 미만(BF₃)·초과(SF₆, 3주기+)·홀수 전자.</p>
 <p>다음 강(019 화학 결합 3종)에서는 오늘 본 "공유"를 포함해 결합의 세 종류(공유·이온·금속)를 전기음성도 차이(015)로 갈라 정리해. 그리고 오늘 그린 루이스 구조는 곧 분자의 모양(022 VSEPR)으로 직결돼. 중심 원자 주변의 전자쌍(결합쌍+고립쌍)이 몇 개냐가 모양을 정하거든. 오늘 그리기를 손에 익히는 게 그 출발점이야.</p>
-<div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 분자들을 다섯 단계로 직접 그려봐. ① 총 원자가 전자 세고 ② 골격 잡고 ③ 주변 옥텟·④ 중심·⑤ 모자라면 다중결합. 각 원자가 옥텟(H는 듀엣)인지, 전자 총수가 맞는지 검산까지. 예외 유형이면 어디에 해당하는지 적어. 한 바퀴 돌리면 이 절차는 네 거다.</div>
+<div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 분자들을 다섯 단계로 직접 그려봐. ① 총 원자가 전자 세고 ② 골격 잡고 ③ 주변 옥텟·④ 중심·⑤ 모자라면 다중결합. 각 원자가 옥텟(H는 듀엣)인지, 전자 총수가 맞는지 검산까지. 예외 유형이면 어디에 해당하는지 적어. 그리고 입으로 말해. "옥텟(H는 2)을 향해 전자를 공유한다 · 다섯 단계로 그리고, 모자라면 다중결합." 한 바퀴 돌리면 이 절차는 네 거다.</div>
 </div>
 
 <footer>Chemistreal · 개념강의 018 · 옥텟 규칙과 루이스 구조</footer>

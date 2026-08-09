@@ -75,12 +75,92 @@ def eul(word):
     return '을' if (c - 0xAC00) % 28 else '를'
 
 
+# ── msg_ledger: 가르치는 글과 사람에게 하는 말 ──────────────────────
+# 이 자는 처음에 어미(`…입니다`)로만 갈래를 매겨, 해설 문장을 **아이를 평가하는
+# 문장**으로 셌다("평가 문장 347개"). 열어 보니 대부분이 화학 설명이었다.
+# 같은 어미가 전혀 다른 말을 한다 — 화면의 쓰임으로 먼저 갈라야 한다.
+import msg_ledger                                          # noqa: E402
+
+
+def ledger_kind(pair):
+    """(화면 이름, 문장) → 갈래."""
+    page, text = pair
+    return msg_ledger.kind_of(text, page)
+
+
+CASES.append(('msg_ledger 갈래', ledger_kind, [
+    ('해설의 "…입니다" 는 평가가 아니다',
+     ('sol-final-hwol-2024.html', '대칭 구조는 결합 쌍극자가 상쇄돼 무극성입니다'), '가르치는 글'),
+    ('강의의 "…하세요" 도 아니다',
+     ('lec-072-gibbs-free-energy.html', '단위를 맞춰서 계산해 보세요'), '가르치는 글'),
+    ('성적표의 "…습니다" 는 평가다',
+     ('report.html', '통과선을 꾸준히 지키고 있습니다'), '평가'),
+    ('성적표의 약속은 약속으로 센다',
+     ('report.html', '이 영역의 오답을 메우면 도달선을 넘습니다'), '약속'),
+    ('못 불러온 것은 실패로 센다',
+     ('hub.html', '명단을 불러오지 못했습니다'), '실패'),
+]))
+
+
 CASES.append(('조사 고르기(eul)', eul, [
     ('받침이 있으면 을', 'DT 명단', '을'),
     ('받침이 없으면 를', 'DT 통과', '를'),
     ('받침이 없으면 를 (2)', '재시 대기', '를'),
     ('한글이 아니면 둘 다 적는다', 'sheet', '을(를)'),
     ('비어 있어도 안 죽는다', '', '을(를)'),
+]))
+
+
+# ── audit_pages: 바탕 고르기와 '좁은 단추' ─────────────────────────
+# 이 자는 이 문서에서 두 번 더 거짓말했다.
+#   ⑥ --bg0 처럼 **번호 붙은 바탕 이름**을 못 알아봐, 어두운 화면의 흰 글씨를
+#      흰 종이에 얹어 재고 1.04:1 이라고 했다(세 번째 거짓말과 같은 종류다)
+#   ⑦ 작고 여백 좁은 것을 전부 '단추' 로 쳤다 — 실제로는 누를 수 없는 표시용
+#      딱지였다. 안 눌리는 것에 손가락 자리를 요구하면 사람이 경고를 무시한다
+import importlib.util as _ilu                                # noqa: E402
+_spec = _ilu.spec_from_file_location('ap', os.path.join(ROOT, 'tools', 'audit_pages.py'))
+audit_pages = _ilu.module_from_spec(_spec)
+_spec.loader.exec_module(audit_pages)
+
+_PAGE = ('<!doctype html><html lang="ko"><head><meta charset="utf-8">'
+         '<meta name="viewport" content="width=device-width,initial-scale=1">'
+         '<title>ㄱ</title><style>%s</style></head><body><h1>ㄱ</h1><p>가나다</p></body></html>')
+
+
+def _hits(css, kind):
+    import tempfile
+    d = tempfile.mkdtemp()
+    p = os.path.join(d, 't.html')
+    open(p, 'w', encoding='utf-8').write(_PAGE % css)
+    return bool([h for h in audit_pages.audit(p) if kind in h[0]])
+
+
+def contrast_hit(css):
+    return _hits(css, '대비')
+
+
+def button_hit(css):
+    return _hits(css, '좁은 단추')
+
+
+CASES.append(('audit_pages 바탕 고르기', contrast_hit, [
+    ('번호 붙은 어두운 바탕을 알아본다',
+     ':root{--bg0:#040612;--bg1:#08162b;--text:#f7fbff}', False),
+    ('어느 바탕에서도 안 읽히면 잡는다',
+     ':root{--paper:#ffffff;--card:#f7f7f7;--muted:#eeeeee}', True),
+    ('상태 띠는 종이가 아니다',
+     ':root{--paper:#FAFAF7;--ok-bg:#E7F5EC;--brass-ink:#866A20}', False),
+]))
+
+CASES.append(('audit_pages 좁은 단추', button_hit, [
+    ('안 눌리는 딱지는 안 센다',
+     ':root{--paper:#fff;--ink:#111}'
+     '.pill1{padding:2px 7px;font-size:12px}.pill2{padding:2px 7px;font-size:12px}'
+     '.pill3{padding:2px 7px;font-size:12px}.pill4{padding:2px 7px;font-size:12px}', False),
+    ('누르는 자리는 센다',
+     ':root{--paper:#fff;--ink:#111}'
+     '.btn1{padding:2px 7px;font-size:12px}.btn2{padding:2px 7px;font-size:12px}'
+     '.btn3{padding:2px 7px;font-size:12px}.btn4{padding:2px 7px;font-size:12px}', True),
 ]))
 
 

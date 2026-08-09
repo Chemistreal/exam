@@ -4,6 +4,11 @@
 .serif{font-family:"Nanum Myeongjo",Georgia,serif}
 header{background:linear-gradient(180deg,#0E5A4C,#0b4a3f);color:#fff;padding:24px 20px;text-align:center}
 header .logo{font-size:12px;letter-spacing:.18em;opacity:.82;font-weight:600}header h1{margin:6px 0 4px;font-size:23px}header .sub{font-size:12.5px;opacity:.86}
+/* 읽는 데 걸리는 시간(어림). 제목 옆에 흐리게 둔다 — 시작 전에 알아야 시작한다. */
+/* ⚠ 머리는 짙은 옥색 바탕에 흰 글씨다. 회색(--muted)을 얹으면 1.78:1 로
+   사실상 안 보인다 — tests/theme.js 가 잡았다. 옆의 .sub 와 같은 방식으로,
+   흰 글씨를 살짝 낮춰 쓴다(같은 바탕에서 8:1 이 넘는다). */
+.rt{color:#fff;opacity:.72;font-size:12.5px;white-space:nowrap}
 main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .back{display:inline-flex;gap:5px;color:var(--teal);text-decoration:none;font-size:14px;font-weight:600;padding:8px 0}
 .hw{background:#fff;border:1px solid var(--line);border-left:3px solid var(--brass);border-radius:9px;padding:12px 15px;font-size:13.5px;color:var(--ink-2);margin:12px 0}
@@ -63,7 +68,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
   header .sub{letter-spacing:.01em}
 }</style>
 </head>
-<body><header><div class="logo">CHEMISTREAL · 개념강의</div><h1 class="serif">화학 전지</h1><div class="sub">104 · 산화 환원</div></header><main>
+<body><header><div class="logo">CHEMISTREAL · 개념강의</div><h1 class="serif">화학 전지</h1><div class="sub">104 · 산화 환원<span class="rt">읽는 데 약 11분</span></div></header><main>
 <a class="back" href="final.html">‹ 파이널로</a>
 <div class="hw">이번 진단에서 <b>화학 전지</b>가 보강으로 잡혔어. 이 1강을 끝까지 읽고 <b>직접 해보기</b>까지. "반응성 큰 금속이 (-)극(산화), 작은 금속이 (+)극(환원), 전자는 (-)극→(+)극으로 흐른다"가 핵심이야.</div>
 
@@ -106,6 +111,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="sec">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">함정 정리</span></div>
 <div class="trap"><span class="lab">함정 · (-)극에서 환원이 일어난다?</span><br>화학 전지에서는 <b>(-)극에서 산화, (+)극에서 환원</b>이야. (-)극(반응성 큰 금속)이 전자를 내놓으며 산화되고, 그 전자를 받는 (+)극에서 환원이 일어나지. "(-)극=산화, (+)극=환원"을 기억해(다음 강의 전기 분해는 반대니 헷갈리지 마). 그리고 전자는 (-)극→(+)극으로 흐르고, 반응성 큰 금속이 (-)극이야. 전류 방향((+)→(-))과 전자 방향((-)→(+))이 반대인 것도 챙겨.</div>
+<div class="eg"><span class="lab">예제 · 전지 전위와 방향 한 번에</span> <span class="fm">Zn | Zn²⁺ ‖ Cu²⁺ | Cu</span> 전지를 읽어 봐. (E° : Zn²⁺/Zn −0.76 V, Cu²⁺/Cu +0.34 V) ① <b>표준 환원 전위가 큰 쪽이 환원</b>된다 → Cu²⁺ 가 환원(<b>양극·환원전극</b>), Zn 이 산화(<b>음극·산화전극</b>). ② <span class="fm">E°cell = E°(환원전극) − E°(산화전극) = 0.34 − (−0.76) = <b>+1.10 V</b></span>. ③ 양수니까 <b>이 방향으로 저절로 간다</b>(ΔG° = −nFE° &lt; 0). ④ 전자는 <b>Zn 판에서 Cu 판 쪽으로</b> 흐르고, Zn 판은 <b>깎이고</b> Cu 판은 <b>두꺼워져</b>. ⚠ 전지에서는 산화가 (−)극인데 <b>전기 분해에서는 산화가 (+)극</b>이야(105) — 이름이 엇갈리니 <b>anode = 산화</b> 로 붙잡아.</div>
 </div>
 
 <div class="sec">
