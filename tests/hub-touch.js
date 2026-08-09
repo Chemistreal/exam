@@ -139,6 +139,9 @@ async function look(browser, { width, height, touch }) {
         .map(c => { const b = c.querySelector('b'); return b ? b.id : ''; })
         .filter(Boolean),
       급한카드Y: ab ? Math.round(ab.getBoundingClientRect().top + scrollY) : null,
+      /* 머리가 세로를 얼마나 먹는가. 폰을 눕히면 이 값이 51% 까지 갔다. */
+      머리: Math.round((document.querySelector('header') || { getBoundingClientRect: () => ({ height: 0 }) })
+        .getBoundingClientRect().height),
     };
   }, TAP_MIN);
 
@@ -244,6 +247,19 @@ async function look(browser, { width, height, touch }) {
     chk('반 탭에 줄이 실제로 그려졌다', 폰.반줄수 > 0, true);
     chk('글자가 한 글자씩 세로로 쪼개지지 않는다', 폰.쪼개진칸, []);
     chk('단추가 칸 밖으로 안 나간다', 폰.칸밖단추, []);
+
+    /* ── 폰을 가로로 눕혔을 때 ────────────────────────────────────────
+       좁은 화면 규칙은 **폭**으로 가른다(560px). 그런데 폰을 눕히면 폭이
+       844px 이 되어 그 규칙이 통째로 풀린다 — 재어 보니 머리가 197px,
+       **화면의 51%** 였다(세로일 때는 120px·14%). 반이 머리인 화면에서는
+       숫자 하나 보려고 스크롤해야 한다. 높이로도 가르게 고쳤다. */
+    console.log('\n── 폰을 눕혔을 때 844×390 ──');
+    const 가로 = await look(browser, { width: 844, height: 390, touch: true });
+    console.log(`  머리 ${가로.머리}px (화면의 ${Math.round(가로.머리 / 390 * 100)}%)`);
+    chk('눕혀도 머리가 화면의 3분의 1을 안 넘는다', 가로.머리 <= 130, true);
+    chk('눕혀도 가로 스크롤이 안 생긴다', 가로.가로스크롤, false);
+    chk('눕혀도 급한 것이 앞이다', 가로.카드순서.slice(0, 3), ['abCnt', 'pdCnt', 'dtCnt']);
+    chk('눕혀도 콘솔에 예외가 없다', 가로.errs, []);
 
     console.log('\n── 노트북 (마우스) 1280×900 ──');
     const 노트북 = await look(browser, { width: 1280, height: 900, touch: false });
