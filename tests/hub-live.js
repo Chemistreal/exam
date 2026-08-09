@@ -762,8 +762,24 @@ async function settled(p, label, fn, arg, ms) {
                              history.replaceState(null, '', location.pathname);
                              show('dash'); renderViews(); });
     await p.waitForTimeout(300);
-    chk('처음에는 비어 있다고 말해 준다', await p.evaluate(() =>
-      /자주 보는 화면을 여기 걸어 두세요/.test(document.getElementById('views').textContent)), true);
+    /* ⚠ 여기는 한동안 문장을 통째로 붙들고 있었다. 그래서 문구를 사람이
+       알아듣는 말로 고친 순간(2026-08-09) 이 자가 울렸다 — 나빠진 것이
+       없는데 울린 것이다. 자가 지켜야 할 것은 **철자가 아니라 약속**이다:
+       비어 있을 때는 (가) 걸어 두면 무엇이 좋아지는지 말하고,
+       (나) 설명하는 대신 **실제로 하는 일 하나를 예로 든다.**
+       예가 없으면 "걸어 두세요" 가 무엇을 걸라는 말인지 알 수 없다. */
+    const empty = await p.evaluate(() => {
+      const el = document.getElementById('views');
+      return { lab: (el.querySelector('.vlab') || {}).textContent || '',
+               note: (el.querySelector('.dim') || {}).textContent || '',
+               eg: !!el.querySelector('.dim b') };
+    });
+    console.log('  ' + JSON.stringify(empty));
+    chk('처음에는 비어 있다고 말해 준다', /저장|걸어 두|한 번에/.test(empty.note), true);
+    chk('말 대신 실제로 하는 일을 예로 든다', empty.eg && /예:/.test(empty.note), true);
+    /* 이름은 시스템 말이 아니라 사람이 알아보는 말이어야 한다 —
+       '저장된 보기' 로 불렀을 때 선생님이 무엇인지 모르셨다. */
+    chk('이름에 화면이라는 말이 들어간다', /화면/.test(empty.lab), true);
 
     /* 반 하나를 골라 둔 상태를 그대로 저장한다. 주소가 곧 상태라 담을 것이
        주소 한 줄뿐이다. */

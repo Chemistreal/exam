@@ -69,6 +69,20 @@
 }
 
 
+/* ── 접은 안내문 ─────────────────────────────────────────────────────
+   첫 문장만 보이고 나머지는 눌러야 나온다. 삼각형은 브라우저마다 다르게
+   생겨서 직접 그린다 — 누르는 자리라는 것이 보여야 한다. */
+.hintfold{margin:0 0 10px}
+.hintfold>summary{cursor:pointer;list-style:none;display:flex;gap:6px;align-items:baseline}
+.hintfold>summary::-webkit-details-marker{display:none}
+/* 삼각형도 글자다 — 이 저장소의 바닥은 11.5px 이고 자가 잰다(audit_pages.py).
+   장식이라고 예외를 두면 다음에 진짜 글씨가 그 틈으로 내려온다. */
+.hintfold>summary::before{content:'▸';color:var(--teal);font-size:11.5px;flex:0 0 auto;
+  transform:translateY(-1px)}
+.hintfold[open]>summary::before{content:'▾'}
+.hintfold>summary:hover{color:var(--ink-2)}
+.hintfold>div{padding:6px 0 0 14px}
+
 /* ── 낭독기에게만 들리는 자리 ────────────────────────────────────────
    화면에서는 안 보이고 낭독기만 읽는 칸이다. `display:none` 이나
    `visibility:hidden` 으로 숨기면 **낭독기도 같이 못 읽는다** — 그래서 1px
@@ -1606,7 +1620,10 @@ function renderViews(){
                  !v.some(function(x){ return x.hash === here; });
   if(!v.length && !canAdd){ el.innerHTML = ''; el.hidden = true; return; }
   el.hidden = false;
-  el.innerHTML = '<span class="vlab">저장된 보기</span>' +
+  /* ⚠ 이름을 '저장된 보기' 라고 불렀는데, 선생님이 **무엇인지 모르셨다**
+     (2026-08-09). 저장된 것이 0개였던 까닭이 안 쓰는 것이 아니라 **뭔지 몰라서**
+     였던 것이다. 시스템 말이 아니라 사람이 알아보는 말로 부른다. */
+  el.innerHTML = '<span class="vlab">자주 보는 화면</span>' +
     v.map(function(x){
       const on = x.hash === here;
       return '<span class="v"'+(on?' style="border-color:var(--teal)"':'')+'>'+
@@ -1618,7 +1635,10 @@ function renderViews(){
         esc(x.name)+' 지우기">×</button></span>';
     }).join('') +
     (canAdd ? '<button class="add" id="viewAdd">+ 지금 화면 저장</button>' : '') +
-    (!v.length ? '<span class="dim" style="white-space:nowrap">· 자주 보는 화면을 여기 걸어 두세요</span>' : '');
+    /* '여기 걸어 두세요' 만으로는 **무엇이 좋아지는지**가 안 보인다.
+       실제로 매일 하는 일을 예로 든다 — 그러면 무엇인지 설명할 필요가 없다. */
+    (!v.length ? '<span class="dim">· 지금 화면을 걸어 두면 다음부터 한 번에 옵니다 '+
+       '<b>(예: 3반 미응시만 보기 → 저장 → 내일은 한 번 눌러서)</b></span>' : '');
 }
 /* ── 막대에서 목록으로 ────────────────────────────────────────────
    여태 막대는 보기만 하는 것이었다. "미응시 4명" 을 보고 그 넷이 누구인지
@@ -2581,9 +2601,50 @@ function nudges(){
   return out.filter(function(n){ return !isSnoozed(n.key); })
             .sort(function(a,b){ return b.days - a.days; });
 }
+/* ── 넛지가 뜬 것을 남긴다 ──────────────────────────────────────────
+   "넛지가 잔소리가 되지 않는가" 를 재려면 **뜬 횟수**가 있어야 한다. 처리한
+   것은 이미 안다 — 문자를 보내면 `SENT` 에, 무시하면 미루기에 남고 둘 다
+   시트에 간다. 없는 것은 '떴다' 뿐이었다.
+
+   선생님 결정(2026-08-09): **남긴다.**
+
+   ⚠ 그래도 시트에는 안 쓴다. 이 셸은 남의 기록을 고치지 않는다 — 그 성질을
+     지키려고, 뜬 날짜만 **이 브라우저 안에** 적는다. 저장된 보기·방금 본 것·
+     수업 문자 초안과 같은 자리다(없어져도 남의 기록은 그대로다).
+   ⚠ 이름을 적지 않는다. 열쇠에는 이미 이름이 들어 있으므로 **해시**로만 적는다 —
+     이 칸이 새더라도 누구인지는 안 나온다.
+   ⚠ 90일이 지난 것은 지운다. 안 지우면 이 칸이 끝없이 자란다. */
+const NDG_SEEN_KEY = 'chemistreal:nudge:seen';
+const NDG_SEEN_DAYS = 90;
+function ndgHash(k){
+  let h = 2166136261;
+  for(let i=0;i<k.length;i++){ h ^= k.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return (h>>>0).toString(36);
+}
+function ndgSeenLoad(){
+  try{ return JSON.parse(localStorage.getItem(NDG_SEEN_KEY)||'{}') || {}; }catch(e){ return {}; }
+}
+function ndgSeenMark(keys){
+  const m = ndgSeenLoad(), now = Date.now(), cut = now - NDG_SEEN_DAYS*864e5;
+  let touched = false;
+  Object.keys(m).forEach(function(h){ if(!(m[h] > cut)){ delete m[h]; touched = true; } });
+  keys.forEach(function(k){ const h = ndgHash(k); if(!m[h]){ m[h] = now; touched = true; } });
+  if(touched){ try{ localStorage.setItem(NDG_SEEN_KEY, JSON.stringify(m)); }catch(e){} }
+  return m;
+}
+/* 뜬 것 가운데 몇을 처리했나. 지금 목록에 안 남아 있으면 처리한 것이다 —
+   문자를 보냈거나(SENT) 무시했거나(미루기) 저절로 사라졌거나. */
+function ndgTally(now){
+  const m = ndgSeenLoad(), live = new Set(now.map(function(n){ return ndgHash(n.key); }));
+  const seen = Object.keys(m).length;
+  let done = 0;
+  Object.keys(m).forEach(function(h){ if(!live.has(h)) done++; });
+  return { seen:seen, done:done };
+}
 function renderNudge(){
   const el = document.getElementById('nudge'); if(!el) return;
   const all = nudges();
+  ndgSeenMark(all.map(function(n){ return n.key; }));
   /* 이름이 겹치는데 학교를 몰라 주인을 못 정한 기록. 말없이 빼 두면
      "왜 내 성적이 없지" 가 되고, 아무 데도 안 나오니 영영 모른다. */
   const orph = orphanRows();
@@ -2611,7 +2672,18 @@ function renderNudge(){
       '<button class="mini undo" data-ndgoff="'+esc(n.key)+'">무시</button>'+
       '</span></div>';
   }).join('') +
-  (all.length > NDG_MAX ? '<div class="ndgmore">외 '+(all.length-NDG_MAX)+'건</div>' : '');
+  (all.length > NDG_MAX ? '<div class="ndgmore">외 '+(all.length-NDG_MAX)+'건</div>' : '') +
+  /* 넛지가 잔소리인지 아닌지는 이 한 줄로 보인다. 처리 비율이 낮으면
+     문턱(NDG_SENT_DAYS·NDG_PEND_DAYS·NDG_ABS_RUN)이 너무 헐거운 것이다.
+     ⚠ 처음 며칠은 뜬 것이 적어 비율이 흔들린다 — **몇 개짜리 숫자인지**를
+       같이 적는다(이 저장소의 약속). */
+  (function(){
+    const t = ndgTally(all);
+    if(t.seen < 3) return '';
+    return '<div class="ndgmore">최근 '+NDG_SEEN_DAYS+'일 동안 뜬 넛지 <b>'+t.seen+
+      '건</b> 가운데 <b>'+t.done+'건</b>을 처리하셨습니다'+
+      ' <span class="dim">· 이 브라우저 기록입니다(이름은 안 적습니다)</span></div>';
+  })();
 }
 document.addEventListener('click', function(e){
   const b = e.target.closest ? e.target.closest('[data-ndgoff],[data-ndgstu]') : null;
@@ -4195,6 +4267,34 @@ function printSheet(r){
       }).join('')+'</table>';
   }
 
+  /* ── DT 진행을 낱낱이 ────────────────────────────────────────────
+     여태 상담지에는 **숫자만** 있었다(통과 2 · 재시 1 · 미응시 0). 학부모가
+     "어느 회차요?" 라고 물으면 종이를 놓고 화면을 다시 봐야 했다.
+     선생님 결정(2026-08-09): 상담지에 **전부** 넣는다. */
+  const dtRows = [];
+  d.absent.forEach(function(a){
+    const c = ABS_ROWS[a.i]; if(!c) return;
+    dtRows.push(['미응시', (DT_COURSE[c.course]||c.course)+' '+c.round+'회', c.label, '']);
+  });
+  d.pending.forEach(function(i){
+    const x = PEND_ROWS[i]; if(!x) return;
+    dtRows.push(['재시 대기', (DT_COURSE[x.course]||x.course)+' '+x.round+'회',
+      (x.lastAttempt||'')+(x.score!=null?(' '+x.score+'점'):''),
+      (x.days!=null? x.days+'일째' : '')]);
+  });
+  d.passed.forEach(function(i){
+    const x = PASS_ROWS[i]; if(!x) return;
+    dtRows.push(['통과', (DT_COURSE[x.course]||x.course)+' '+x.round+'회',
+      (x.attempt||'')+(x.score!=null?(' '+x.score+'점'):''),
+      ((Number(x.tries)||1)>1 ? '재시로 마무리' : '한 번에')]);
+  });
+  if(dtRows.length){
+    h += '<h2>DT 진행</h2><table><tr><th scope="col" style="width:16%">상태</th>'+
+      '<th scope="col" style="width:26%">회차</th><th scope="col">자세히</th>'+
+      '<th scope="col" style="width:20%">비고</th></tr>'+
+      dtRows.map(function(x){ return '<tr>'+x.map(function(c){
+        return '<td>'+esc(c)+'</td>'; }).join('')+'</tr>'; }).join('')+'</table>';
+  }
   if(km && km.kmLink) h += '<h2>화학 정밀 학습진단</h2><table><tr><td>'+esc(km.grade||'응시함')+'</td></tr></table>';
 
   h += '<h2>상담 메모</h2><div class="memo"></div>';
@@ -5398,7 +5498,11 @@ document.addEventListener('click', function(e){
    학생이 모든 파이널 회차를 봐야 하는 것은 아니므로 숫자 자체가 할 일 목록은
    아니다 — 빠진 사람이 있는지 눈으로 훑는 용도다. */
 /* 지금 채점 중인 회차로 볼 기간 · 지금 배우는 학생으로 볼 기간 */
-const RECENT_ROUND = 30*DAY, ACTIVE_WINDOW = 60*DAY;
+/* '안 본 학생' 을 세는 기간. 옛 회차에 지금 반 학생을 견주면 그 해에 있지도
+   않던 아이들이 뜬다 — 그래서 최근에 채점한 회차에서만 센다.
+   ⚠ 30일이었다. **14일로 줄인다**(2026-08-09, 선생님 결정). 한 달은 이미
+   지나간 회차까지 '안 봤다' 고 부르는 셈이라, 오늘 챙길 것과 섞였다. */
+const RECENT_ROUND = 14*DAY, ACTIVE_WINDOW = 60*DAY;
 function roundStats(){
   const fin = FIN || (FIN = examLocal());
   const now = Date.now();
@@ -6166,8 +6270,44 @@ document.getElementById('syncNow').addEventListener('click', function(){ syncShe
 
 /* 잠금을 지나야 비로소 움직인다. 코드를 못 맞힌 사람 때문에 앱스크립트를
    두드릴 이유가 없고, 못 들어온 화면에 반 명단이 잠깐 스치는 것도 안 된다. */
+/* ── 안내문을 접는다 ────────────────────────────────────────────────
+   탭마다 안내가 서너 줄이다. 처음 쓰는 사람에게는 필요하고, 매일 쓰는
+   사람에게는 자리만 먹는다 — 그리고 이 화면을 매일 쓰는 사람은 한 분이다.
+   선생님 결정(2026-08-09): **접는다.**
+
+   통째로 감추지는 않는다. **첫 문장은 남기고** 나머지를 접는다 — 그 탭이
+   무엇인지는 늘 보여야 하기 때문이다. 짧은 안내(한 문장짜리)는 그대로 둔다.
+   접은 것을 펴면 그 화면에서는 계속 펴져 있다.
+
+   ⚠ 글자를 잘라 붙이지 않는다. 안내 안에는 <b>·<span> 이 들어 있어서, 글자
+     자리로 자르면 태그가 반토막 난다. **요약은 글자만**(textContent) 쓰고,
+     펼친 자리에는 원래 것을 통째로 넣는다. */
+const HINT_MIN = 70;                 // 이보다 짧으면 접을 것이 없다
+function foldHints(){
+  [].forEach.call(document.querySelectorAll('p.hint'), function(p){
+    if(p.dataset.folded) return;
+    const txt = (p.textContent||'').replace(/\s+/g,' ').trim();
+    if(txt.length < HINT_MIN) { p.dataset.folded = 'skip'; return; }
+    /* 첫 문장까지가 요약이다. 마침표가 없으면 앞 60자로 끊는다. */
+    const cut = txt.indexOf('. ');
+    const head = cut > 0 ? txt.slice(0, cut+1) : (txt.slice(0, 60) + '…');
+    const d = document.createElement('details');
+    /* ⚠ 원래 붙어 있던 이름표를 **그대로 가져간다.** 처음에 'hint hintfold' 로만
+       두었더니 `.kbdhint`(휴대폰에서 감추는 표)가 사라져, 키보드가 없는 기기에
+       키보드 안내가 도로 떴다 — 접으려다 되레 늘린 셈이었다. */
+    d.className = p.className + ' hintfold';
+    const sm = document.createElement('summary');
+    sm.textContent = head;
+    const rest = document.createElement('div');
+    rest.innerHTML = p.innerHTML;
+    d.appendChild(sm); d.appendChild(rest);
+    d.dataset.folded = '1';
+    p.parentNode.replaceChild(d, p);
+  });
+}
 function boot(){
   BOOTED = true;
+  foldHints();
   /* 첫 탭은 글에 박혀 있어(aria-selected="true") show() 를 안 거친다. 그래서
      여기서 한 번 걸어 준다 — 안 걸면 열두 탭이 전부 탭 순서에 선 채로 남는다. */
   rovingTabs(curTab());

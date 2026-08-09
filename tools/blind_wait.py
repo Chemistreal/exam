@@ -55,6 +55,7 @@ CEIL = {
     'tests/theme.js': (3, 1900),
     'tests/report-all.js': (1, 900),
     'tests/first-paint.js': (1, 700),
+    'tests/page-health.js': (1, 600),
     'tests/print-lec.js': (1, 700),
 }
 # 표에 없는 새 검사가 처음부터 마흔 군데씩 재우면서 시작하면 안 된다.
