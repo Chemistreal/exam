@@ -76,6 +76,25 @@ def build(exam_id: str) -> str:
     data = json.loads((ROOT / "answers" / f"{exam_id}.json").read_text(encoding="utf-8"))
     q = data["questions"]
 
+    # ── 삭제된 문항의 '정답' 은 ⓪ 이 아니라 '전원정답' 이다 ──────────────
+    # 정답 칸이 `정답 0` 으로 찍히는 자리가 넷 있었다(2009 51 · 2010 38·42 ·
+    # 2018 34). 학생에게 0 은 아무 뜻이 아니다. 더 나쁜 것은 그 반대쪽이다 —
+    # 2019 23·42 와 kmchc-2025 38·41 은 폐기 문항인데 `정답 ①` 이라고 적혀
+    # 있었다. 무엇을 골라도 맞는 문항을 하나만 맞는 것처럼 보여 준 셈이다.
+    # 채점 규칙(final.html allc)과 같은 기준으로 여기서도 '전원정답' 이라 적는다.
+    allc = set(exam.get("miss") or []) | set(exam.get("voided") or [])
+    for qq, v in (exam.get("multi") or {}).items():
+        if len(v) >= 4:
+            allc.add(int(qq))
+    for i, kk in enumerate(exam.get("key") or [], 1):
+        if kk in (0, "", None, "X", "x"):
+            allc.add(i)
+
+    def ansOf(num, r):
+        if int(num) in allc:
+            return "전원정답"
+        return CIRC.get(int(r["answer"]), r["answer"])
+
     unreviewed = [k for k in q if not str(q[k].get("verificationStatus", "")).startswith("verified")]
     has_exp = [k for k in q if str(q[k].get("explanation") or "").strip()]
 
@@ -120,7 +139,7 @@ def build(exam_id: str) -> str:
                "<th scope=\"col\">영역</th><th scope=\"col\">개념(유형)</th></tr></thead><tbody>")
     for k in sorted(q, key=int):
         r = q[k]
-        out.append(f"<tr><td>{k}</td><td>{CIRC.get(int(r['answer']), r['answer'])}</td>"
+        out.append(f"<tr><td>{k}</td><td>{ansOf(k, r)}</td>"
                    f"<td>{esc(r.get('area',''))}</td><td>{esc(r.get('concept',''))}</td></tr>")
     out.append("</tbody></table>")
 
@@ -134,7 +153,8 @@ def build(exam_id: str) -> str:
             out.append("<div class=\"q\"><div class=\"qh\">"
                        f"<span class=\"qno\">문제 {k}</span>"
                        f"<span class=\"area\">{esc(r.get('concept',''))}</span>"
-                       f"<span class=\"ans\">정답 {CIRC.get(int(r['answer']), r['answer'])}</span></div>"
+                       # '정답 전원정답' 은 말이 겹친다 — 전원정답은 그 자체로 답 자리다
+                       f"<span class=\"ans\">{ansOf(k, r) if int(k) in allc else '정답 ' + str(ansOf(k, r))}</span></div>"
                        f"<div class=\"sol\">{body}</div>")
             if r.get("reviewNote"):
                 out.append(f"<div class=\"rev\"><b>확인 필요</b> {esc(r['reviewNote'])}</div>")

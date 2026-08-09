@@ -903,9 +903,16 @@ const accSet=(e,q)=>(e.multi&&e.multi[q])?e.multi[q]:[e.key[q-1]];
 
    빼지 않고 더한다. 예전에는 miss 를 분모에서 통째로 빼서 60문항짜리가
    59문항이 되었는데, 시험은 60문항으로 치렀고 삭제된 문항도 모두가 맞은
-   것으로 처리하는 것이 채점의 관례다. 분모는 문항 수 그대로 둔다. */
+   것으로 처리하는 것이 채점의 관례다. 분모는 문항 수 그대로 둔다.
+
+   ⚠ `voided`(원본 정답표에 '문제삭제' 로 적힌 문항)를 **여기서 직접 본다.**
+   여태는 안 봤다 — 폐기 문항 여섯에 마침 `multi:[1,2,3,4]` 나 `key:0` 이
+   같이 적혀 있어서 그 갈래로 걸렸을 뿐이다. 우연이었다. 다음에 폐기 문항을
+   `voided` 에만 적으면 그 문항은 조용히 **보통 문항으로 채점된다** — 답을
+   안 쓴 학생 전원이 오답이 된다. 삭제는 곧 전원정답이라고 못박는다. */
 const allc=(e,q)=>{
   if(e&&e.miss&&e.miss.indexOf(q)>=0) return true;
+  if(e&&e.voided&&e.voided.indexOf(+q)>=0) return true;
   const m=e&&e.multi&&e.multi[q];
   if(m&&m.length>=4) return true;
   /* 정답이 X 로 적힌 문항 — 정답키 자리가 비어 있다. 답이 정해지지 않은
@@ -938,7 +945,7 @@ const okq=(e,q,a)=>allc(e,q)||accSet(e,q).indexOf(a)>=0;
    23·42번, kmchc-2025-1-simhwa 38·41번). */
 const isVoid=(e,q)=>!!(e&&e.voided&&e.voided.indexOf(+q)>=0);
 const ansLabel=(e,q)=>{const s=accSet(e,q);
-  return isVoid(e,q)?'출제 취소':(s.length>=4?'전원정답':s.map(x=>CIRC[x]).join('·'));};
+  return isVoid(e,q)?'출제 취소':(allc(e,q)||s.length>=4?'전원정답':s.map(x=>CIRC[x]).join('·'));};
 /* ── 같은 시험이 두 ID 로 등록된 쌍: 또래 통계를 한 곳에 모은다 ──────────────
    화올 2018·2019·2024 와 KMChC 2018·2019·2024 제1차는 같은 시험이 두 번 등록된
    것이다(문항 크롭 이미지까지 바이트 단위로 같다). 문항 수·정답·복수정답·제외
@@ -1876,7 +1883,7 @@ function methodSec(exam){
    <details style="margin:9px 0 2px"><summary class="muted" style="cursor:pointer">진단 기준 · 채점 규칙 · 신뢰 근거 자세히 보기</summary>
    <div style="font-size:13px;line-height:1.75;color:var(--ink-2);margin-top:9px">
      <p style="margin:7px 0"><b>① 영역 분류.</b> ${hasArea?`각 문항을 <b>${nA}개</b> 개념 영역으로 분류하고, 정답률이 낮은 영역부터 정렬해 학습 우선순위를 제시한다. 총점이 같아도 약점의 위치가 보인다.`:`<span style="color:var(--ms)">이 시험은 영역 분류가 준비 중이며, 총점·백분위·문항별 분석으로 진단을 제공한다.</span>`}</p>
-     <p style="margin:7px 0"><b>② 채점 규칙.</b> 공식 정답표를 기준으로 하되 특수 문항을 명시적으로 처리해 공정성을 지킨다 — <b>복수정답</b>(둘 이상의 답을 모두 정답 인정), <b>전원정답</b>(문제 오류 시 모두 정답 처리), <b>채점 제외</b>(정답 미확정 문항은 분모에서 제외).</p>
+     <p style="margin:7px 0"><b>② 채점 규칙.</b> 공식 정답표를 기준으로 하되 특수 문항을 명시적으로 처리해 공정성을 지킨다 — <b>복수정답</b>(둘 이상의 답을 모두 정답 인정), <b>전원정답</b>(문제 오류·정답 미확정 시 모두 정답 처리), <b>문제삭제</b>(출제 취소된 문항도 <b>분모에서 빼지 않고</b> 전원정답으로 처리한다 — 시험은 원래 문항 수대로 치렀기 때문이다).</p>
      <p style="margin:7px 0"><b>③ 신뢰 근거.</b> 정답표는 공식 출처를 기준으로 하며, 모의 시험군은 공식 성적표 원본과 전수 대조해 검증했다. 검증 중 정답표 자체의 오류가 발견되면 화학적으로 옳은 답으로 정정하고 그 사유를 해설에 명시했다. 정답·풀이는 1,560문항 해설지로 교차 확인된다.</p>
      <p style="margin:7px 0"><b>④ 리포트 읽는 법.</b> <b>백분위</b> = 응시 집단 내 상대 위치 · <b>영역 막대</b> = 영역별 정답률(짧을수록 약점) · <b>오개념 분석</b> = 오답 선택지가 가리키는 개념 결손 · <b>처방</b> = 약점을 메우는 다음 학습.</p>
      ${_coh?`<p style="margin:7px 0"><b>⑤ 또래 모집단.</b> ${_coh}</p>`:''}
@@ -3820,10 +3827,19 @@ function trendSec(exam){
   return `<div class="sec">${secH('여러 시험에 걸친 성취 추이')}<div class="sub">${esc(nm)} 학생의 파이널 응시 추이입니다.</div>
    ${rows.map(r=>`<div class="barrow"><span class="ba" style="width:150px">${esc(r.t)}</span><span class="bar"><i style="width:${r.pct}%;background:var(--teal)"></i></span><span class="bp">${r.pct}%</span></div>`).join('')}</div>`;
 }
+/* ── 정오표에서 '제외' 를 없앤다 ────────────────────────────────────────
+   삭제된 문항을 정오 칸에 **'제외'** 라고 적고 정답 칸을 '-' 로 비워 두었다.
+   그런데 점수는 그 문항을 맞은 것으로 세고 있다 — 표와 점수가 서로 다른
+   말을 했다. 60문항짜리에서 '제외' 둘을 본 학부모는 58문항으로 친 줄 안다.
+
+   삭제는 빼는 것이 아니라 **모두 맞은 것으로 처리하는 것**이다(선생님 결정,
+   2026-08-09). 그러니 정오 칸에는 O 가 서고, 왜 O 인지는 정답 칸이 말한다
+   ('전원정답' · '출제 취소'). 학생이 실제로 풀어서 맞힌 것과는 정답 칸에서
+   갈린다. */
 function tableSec(exam,selv){
-  const ac=allcSet(exam); let rows='';
-  for(let q=1;q<=exam.nQ;q++){const m=ac.has(q);const my=selv[q]||0;const k=exam.key[q-1];const ok=okq(exam,q,my);
-    rows+=`<tr><td class="mono">${q}</td><td class="mono">${m?'-':ansLabel(exam,q)}</td><td class="mono">${my?CIRC[my]:'·'}</td><td>${m?'<span class="muted">제외</span>':`<span class="ox ${ok?'o':'x'}">${ok?'O':'X'}</span>`}</td><td><span class="pill">${exam.area?esc(exam.area[q-1]):''}</span></td></tr>`;}
+  let rows='';
+  for(let q=1;q<=exam.nQ;q++){const my=selv[q]||0;const ok=okq(exam,q,my);
+    rows+=`<tr><td class="mono">${q}</td><td class="mono">${ansLabel(exam,q)}</td><td class="mono">${my?CIRC[my]:'·'}</td><td><span class="ox ${ok?'o':'x'}">${ok?'O':'X'}</span></td><td><span class="pill">${exam.area?esc(exam.area[q-1]):''}</span></td></tr>`;}
   return `<div class="sec">${secH('문항별 정오표')}<details><summary class="muted" style="cursor:pointer;margin-bottom:6px">전체 ${exam.nQ}문항 펼치기</summary>
    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="gtbl"><thead><tr><th scope="col">문항</th><th scope="col">정답</th><th scope="col">내 답</th><th scope="col">정오</th><th scope="col">영역</th></tr></thead><tbody>${rows}</tbody></table></div></details></div>`;
 }
@@ -5831,13 +5847,15 @@ async function downloadReportDOCX(){
   body.push(P([
     run('■ ',{color:EM,size:20}),run('정답    ',{color:MUT,size:16}),
     run('■ ',{color:RED,size:20}),run('오답    ',{color:MUT,size:16}),
-    run('■ ',{color:'B9B3A4',size:20}),run('채점 제외',{color:MUT,size:16})
+    run('■ ',{color:'B9B3A4',size:20}),run('전원정답',{color:MUT,size:16})
   ],{after:120}));
   var GPR=10, gcw=Math.floor(CW/GPR), gcwArr=[]; for(var gi=0;gi<GPR;gi++) gcwArr.push(gi===GPR-1?(CW-gcw*(GPR-1)):gcw);
   var gRows=[], gCells=[];
   for(var qn=1;qn<=cur.nQ;qn++){
+    /* 삭제된 문항도 O 다 — 빼는 것이 아니라 모두 맞은 것으로 처리한다.
+       바탕색만 회색으로 두어 '스스로 풀어서 맞힌 칸' 과 눈으로 갈린다. */
     var ex=allc(cur,qn), ok=okq(cur,qn,sel[qn]||0);
-    var fill=ex?'EDEAE2':(ok?EMT:'F7E3DC'), numC=ex?'9A9486':(ok?EM:RED), mark=ex?'–':(ok?'O':'X');
+    var fill=ex?'EDEAE2':(ok?EMT:'F7E3DC'), numC=ex?'6F6A5E':(ok?EM:RED), mark=ex?'O':(ok?'O':'X');
     gCells.push(C([
       P([run(''+qn,{bold:true,color:numC,size:17})],{align:AlignmentType.CENTER,after:6,before:0}),
       P([run(mark,{bold:true,color:numC,size:15})],{align:AlignmentType.CENTER,after:0,before:0})

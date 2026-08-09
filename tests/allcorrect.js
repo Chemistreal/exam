@@ -80,6 +80,20 @@ console.log('── 답이 없어도 맞은 것이다 ──');
   chk('삭제된 문항은 오답이 될 수 없다', F.okq(e, 3, 1), true);
 }
 {
+  /* 원본 정답표에 '문제삭제' 로 적힌 문항(voided)이다. 여태 채점 규칙은 이
+     칸을 **안 봤다** — 폐기 문항 여섯에 마침 multi:[1,2,3,4] 나 key:0 이 같이
+     적혀 있어서 그 갈래로 걸렸을 뿐이다. 우연이 규칙 노릇을 하고 있었다.
+     voided 에만 적힌 문항은 조용히 보통 문항으로 채점된다 — 답을 안 쓴
+     학생 전원이 오답이 된다. 삭제는 곧 전원정답이라고 못박는다. */
+  const e = { nQ: 3, key: [1, 2, 3], voided: [2] };
+  chk('삭제(voided)만 적혀 있어도 전원정답', F.allc(e, 2), true);
+  chk('삭제된 문항은 안 써도 정답', F.okq(e, 2, 0), true);
+  chk('삭제된 문항은 무엇을 써도 정답', [1, 2, 3, 4].map(a => F.okq(e, 2, a)), [true, true, true, true]);
+  chk('삭제 문항이 목록에 들어간다', [...F.allcSet(e)].sort(), [2]);
+  chk('학생 화면도 같은 규칙', [...load(SUB).allcSet(e)].sort(), [2]);
+  chk('옆 문항은 그대로', [F.okq(e, 1, 1), F.okq(e, 1, 2)], [true, false]);
+}
+{
   // 보기 둘만 인정하는 복수정답은 전원정답이 아니다
   const e = { nQ: 2, key: [1, 2], multi: { 1: [1, 3] } };
   chk('복수정답은 전원정답이 아니다', F.allc(e, 1), false);
@@ -198,11 +212,41 @@ console.log('\n── 실제 회차 데이터로 ──');
     'hwol-2021': [60], 'hwol-2019': [23, 42], 'hwol-2018': [34],
     'hwol-2017': [60], 'hwol-2015': [20], 'hwol-2014': [57],
     'hwol-2010': [38, 42],   // 대회 원본 정답표에 '삭제' 로 적힌 두 문항
-    'hwol-2009': [51],       // 옳은 보기가 하나뿐인데 그 답지가 없어 채점 제외
+    'hwol-2009': [51],       // 옳은 보기가 하나뿐인데 그 답지가 없어 전원정답
   };
   const actual = {};
   EXAMS.forEach(e => { const s = [...F.allcSet(e)].sort((a, b) => a - b); if (s.length) actual[e.id] = s; });
   chk('전원정답 문항 목록이 그대로다', actual, PINNED);
+}
+
+console.log('\n── 읽는 쪽에도 "빠졌다" 고 말하지 않는다 ──');
+{
+  /* 채점은 더하는데 화면은 빼는 것처럼 말하고 있었다.
+
+       문항별 정오표    정오 칸에 '제외' · 정답 칸은 '-'
+       DOCX 정오표      칸 표시가 '–' · 범례가 '채점 제외'
+       방법론 ②         "정답 미확정 문항은 분모에서 제외" ← 사실과 다르다
+       해설지           '→ 채점 제외' (hwol-2009 51번)
+       해설 목차        딱지가 '삭제' 와 '전원' 으로 갈려 있었다
+
+     60문항짜리에서 '제외' 둘을 본 학부모는 58문항으로 친 줄 안다. 삭제는
+     빼는 것이 아니라 **모두 맞은 것으로 처리하는 것**이다(선생님 결정,
+     2026-08-09). 읽는 쪽 문서에서 그 말이 되살아나면 여기서 잡는다. */
+  const FILES = ['final.html', 'sample_report.html', 'index_haeseol.html'];
+  fs.readdirSync(ROOT).forEach(f => { if (/^sol-final-.*\.html$/.test(f)) FILES.push(f); });
+  /* ⚠ 처음에는 '채점 제외' 다섯 글자만 막았는데, 해설 본문은 띄어쓰기가
+     달라서(채점**에서** 제외 · 채점**서** 제외) 그대로 빠져나갔다. 학생이
+     읽는 것은 문구지 상수가 아니다 — 어미가 붙은 꼴까지 막는다. */
+  const BAN = [/채점\s*(?:에서\s*|서\s*)?제외/, /채점제외/, />제외</, /분모에서\s*제외/];
+  const hits = [];
+  FILES.forEach(f => {
+    const t = fs.readFileSync(path.join(ROOT, f), 'utf8');
+    BAN.forEach(w => { const m = t.match(w); if (m) hits.push(`${f}: ${m[0]}`); });
+  });
+  chk('성적표·해설지에 "채점에서 제외" 라는 말이 없다', hits, []);
+  // 해설 목차의 딱지 이름은 한 가지다
+  const idx = fs.readFileSync(path.join(ROOT, 'index_haeseol.html'), 'utf8');
+  chk('목차 딱지에 "삭제" 가 없다', /<span class="sp">삭제/.test(idx), false);
 }
 
 console.log(fail ? `\n${fail}개 실패` : '\n모두 통과');
