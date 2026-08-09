@@ -332,6 +332,67 @@ catch (e) {
     chk('이름이 실제로 누르는 자리다', 약속.이름이누르는자리, true);
     chk('누르면 카드가 열리는 자리로 이어진다', 약속.처리기가받는다, true);
 
+    console.log('\n── 팔레트가 하루 일을 찾아 주는가 ──');
+    /* 팔레트로 하루 일 스무 가지를 찾아 보니 **넷을 못 찾았다**(2026-08-09):
+       상담 · 미응시 · 통과 · 수업 문자. 학생·반·회차·자료·화면은 다 드는데
+       **할 일**은 하나도 안 들어 있었다 — 정작 매일 하는 쪽이다. */
+    const pal = await p.evaluate(async () => {
+      const 찾을것 = ['미응시', '재시', '통과', '상담', '수업 문자',
+                      '개념', '합쳐야', '대시보드', '자료', '수입'];
+      const out = {};
+      for (const q of 찾을것) {
+        if (!document.getElementById('pal').open) openPal();
+        const inp = document.getElementById('palIn');
+        inp.value = q; inp.dispatchEvent(new Event('input'));
+        await new Promise(r => setTimeout(r, 90));
+        out[q] = document.querySelectorAll('#palList .row').length;
+      }
+      const d = document.getElementById('pal'); if (d.open) d.close();
+      return out;
+    });
+    const 못찾음 = Object.entries(pal).filter(([, v]) => v === 0).map(([k]) => k);
+    console.log('  ' + Object.entries(pal).map(([k, v]) => k + ':' + v).join(' · '));
+    chk('하루 일을 다 찾아 준다', 못찾음, []);
+    /* ⚠ 이름을 팔레트에 **베껴 쓰면** 한쪽만 고쳐져 없는 자리를 가리킨다.
+       대시보드의 할 일 칸(JUMPS)을 그대로 든다. */
+    const 베낌 = await p.evaluate(() => {
+      const src = [...document.querySelectorAll('script')].map(s => s.textContent).join('\n');
+      return /JUMPS\.forEach\(function\(j\)\{[\s\S]{0,200}label:j\.label/.test(src);
+    });
+    chk('할 일 이름을 베끼지 않고 든다', 베낌, true);
+
+    console.log('\n── 이 숫자가 어디까지의 숫자인지 적는가 ──');
+    /* 이 문장은 대시보드에만 있었다. 그런데 **학생 탭과 반 탭도** 파이널 회차
+       수와 성적을 보여 준다 — 그것은 이 브라우저에 쌓인 기록이라, 다른 기기에서
+       채점한 것은 시트와 맞추기 전까지 없다. 재어 보니 일곱 탭 가운데 그 문장이
+       붙은 것은 대시보드와 회차 둘뿐이었다.
+       ⚠ 문장을 베끼지 않는다 — `sourceLine()` 하나가 만들고 나눠 건다. */
+    const 출처 = await p.evaluate(async () => {
+      const out = {};
+      for (const t of ['dash', 'stu', 'cls']) {
+        show(t);
+        await new Promise(r => setTimeout(r, 300));
+        const pane = document.getElementById('p-' + t);
+        out[t] = /시트|브라우저 기록|맞춘 지|받아오는 중/.test(pane.innerText || '');
+      }
+      return out;
+    });
+    chk('숫자를 보여 주는 탭이 출처를 적는다', 출처, { dash: true, stu: true, cls: true });
+    const 한벌 = await p.evaluate(() => {
+      const src = [...document.querySelectorAll('script')].map(s => s.textContent).join('\n');
+      return /querySelectorAll\('\.srcnote'\)/.test(src) &&
+             (src.match(/이 브라우저 기록만<\/b>일 수 있습니다/g) || []).length === 1;
+    });
+    chk('출처 문장을 한곳에서만 만든다', 한벌, true);
+
+    /* 또래와 크게 벗어난 점수(MAD)는 **몇 명 중의 중앙값인지**를 같이 말해야
+       한다. 다섯 명으로 잰 중앙값은 흔들린다 — 표본을 감추면 숫자만 남는다. */
+    const mad = await p.evaluate(() => {
+      const src = [...document.querySelectorAll('script')].map(s => s.textContent).join('\n');
+      return /같이 본 '\+x\.n\+'명 중앙값/.test(src);
+    });
+    chk('또래 대비 경고에 표본 크기가 붙는다', mad, true);
+
     chk('콘솔에 예외가 없다', errs, []);
   } finally {
     await browser.close();

@@ -722,7 +722,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
       <div id="dash3d"></div>
       <!-- "이번 달 몇 명이지" 는 매일 나오는 물음인데, 반 탭까지 들어가야 알 수 있었다. -->
       <div id="dashRoster"></div>
-      <p class="hint" id="srcNote"></p>
+      <p class="hint srcnote" id="srcNote"></p>
       <div id="connBar" class="connbar"></div>
       <div id="syncBar" class="note" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <span id="syncMsg">시트 상태를 확인하는 중…</span>
@@ -805,6 +805,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
       </div>
       <!-- "DT 반에는 있는데 파이널을 한 번도 안 본 학생" 같은 물음은 검색으로는 못 낸다. -->
       <div class="chips" id="stuFilter"></div>
+      <p class="hint srcnote"></p>
       <div id="stuNote"></div>
       <div class="list" id="stuList"><div class="spin" style="padding:16px">불러오는 중…</div></div>
     </section>
@@ -819,6 +820,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
       <!-- 반이 여덟이면 칩을 여덟 번 눌러야 전체가 보인다. 한 화면에서 견준다. -->
       <div id="clsMult"></div>
       <div class="chips" id="clsTabs"></div>
+      <p class="hint srcnote"></p>
       <div id="clsHead"></div>
       <div class="list" id="clsList"><div class="spin" style="padding:16px">반 명단을 부르는 중…</div></div>
     </section>
@@ -4344,11 +4346,20 @@ function sourceLine(){
     ? {warn:true, html:'<b>이 브라우저 기록만</b>일 수 있습니다 — 시트와 맞춘 지 '+ago(at)+'입니다.'}
     : {warn:false, html:'시트까지 반영된 숫자입니다 <span class="dim">· '+ago(at)+' 맞춤</span>'};
 }
+/* ── "어디까지의 숫자인가" 를 숫자가 있는 탭마다 ─────────────────────
+   이 문장은 대시보드에만 있었다. 그런데 **학생 탭과 반 탭도** 파이널 회차 수와
+   성적을 보여 준다 — 그것은 이 브라우저에 쌓인 기록이라, 다른 기기에서 채점한
+   것은 시트와 맞추기 전까지 없다. 재어 보니(2026-08-09) 일곱 탭 가운데 그
+   문장이 붙은 것은 대시보드와 회차 둘뿐이었다.
+
+   ⚠ 문장을 베껴 두지 않는다. `sourceLine()` 하나가 만들고 여기서 나눠 건다 —
+     베끼면 한 곳만 고쳐져 두 탭이 다른 말을 한다. */
 function renderSourceNote(){
-  const el=document.getElementById('srcNote'); if(!el) return;
   const s=sourceLine();
-  el.innerHTML=s.html;
-  el.style.color = s.warn ? '#8a2f1d' : '';
+  [].forEach.call(document.querySelectorAll('.srcnote'), function(el){
+    el.innerHTML=s.html;
+    el.style.color = s.warn ? '#8a2f1d' : '';
+  });
 }
 function renderSyncBar(){
   renderSourceNote();
@@ -5864,6 +5875,28 @@ function palSources(){
     const b = document.getElementById('t-'+t);
     out.push({ kind:'화면', label:(b.textContent||t), sub:'', go:function(){ show(t); } });
   });
+  /* ── 오늘 하는 일도 찾을 수 있어야 한다 ────────────────────────────
+     팔레트로 하루 일 스무 가지를 찾아 보니 **넷을 못 찾았다**(2026-08-09):
+     상담 · 미응시 · 통과 · 수업 문자. 학생·반·회차·자료·화면은 다 드는데
+     **할 일**은 하나도 안 들어 있었던 것이다 — 정작 매일 하는 쪽이다.
+
+     대시보드의 할 일 칸은 이미 이름을 갖고 있다(JUMPS). 그것을 그대로 든다.
+     ⚠ 이름을 여기 베껴 쓰지 않는다. 베끼면 한쪽만 고쳐져 팔레트가 없는
+       자리를 가리킨다. */
+  JUMPS.forEach(function(j){
+    out.push({ kind:'할 일', label:j.label, sub:'대시보드',
+      go:function(){ show('dash');
+        const el = document.getElementById(j.id);
+        if(el){ el.hidden = false; el.scrollIntoView({ behavior:'smooth', block:'start' }); } } });
+  });
+  /* 상담지와 수업 문자는 **누구/어느 반**이 정해져야 열린다. 팔레트에서는
+     그 자리까지 데려다 준다 — 학생 탭·반 탭이 각각 그 문이다. */
+  out.push({ kind:'할 일', label:'상담지', sub:'학생 카드에서 뽑는다',
+    go:function(){ show('stu');
+      const q=document.getElementById('q'); if(q) q.focus(); } });
+  out.push({ kind:'할 일', label:'수업 문자', sub:'반을 고르면 열두 통이 한 번에',
+    go:function(){ show('cls'); } });
+
   viewsLoad().forEach(function(v){
     out.push({ kind:'보기', label:v.name, sub:'저장해 둔 화면',
       go:function(){ try{ history.replaceState(null,'',v.hash); }catch(e){}
