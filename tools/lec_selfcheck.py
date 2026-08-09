@@ -85,6 +85,22 @@ def add(src, m, line):
     return src[:m.start(2)] + body + said + closer + src[m.end(2):]
 
 
+# ── 예제 · 함정 ────────────────────────────────────────────────────
+# 선생님 결정(2026-08-09): **예제는 모두 만든다.** 37편이 비어 있었고 채웠다.
+# 처음 배우는 사람에게는 다 풀린 예제가 스스로 풀기보다 크게 남는다 —
+# 규칙을 볼 여유가 생기기 때문이다(worked-example effect).
+# 함정도 같이 본다. 다섯 편이 비어 있었고 16회차에서 채웠다.
+def parts_missing():
+    out = []
+    for p in sorted(glob.glob(os.path.join(ROOT, 'lec-*.html'))):
+        s = open(p, encoding='utf-8').read()
+        lack = [n for n, pat in (('예제', 'class="eg"'), ('함정', 'class="trap"'))
+                if pat not in s]
+        if lack:
+            out.append((os.path.basename(p), ' · '.join(lack)))
+    return out
+
+
 def main():
     write = '--write' in sys.argv
     check = '--check' in sys.argv
@@ -104,6 +120,12 @@ def main():
             open(p, 'w', encoding='utf-8').write(add(src, m, line))
 
     print('강의 %d장 · 숙제에 스스로 확인할 기준이 있는 것 %d장' % (len(files), done))
+    lack = parts_missing()
+    print('예제·함정이 다 있는 강의 %d장' % (len(files) - len(lack)))
+    if lack:
+        print('\n비어 있는 것 %d장' % len(lack))
+        for n, w in lack:
+            print('   %-44s %s 없음' % (n, w))
     if write and missing:
         print('넣었다 %d장' % len(missing))
         for n in missing:
@@ -116,7 +138,7 @@ def main():
         print('\n사람이 봐야 하는 것 %d장' % len(blocked))
         for n, w in blocked:
             print('   %-44s %s' % (n, w))
-    if check and (missing or blocked):
+    if check and (missing or blocked or lack):
         print('\nFAIL')
         return 1
     if check:
