@@ -652,9 +652,16 @@ async function settled(p, label, fn, arg, ms) {
     console.log('  ' + JSON.stringify(other.titles));
     /* 여태 이 자리는 "DT 명단에도 있습니다" 한 줄이었다. 정작 물어보고 싶은
        것은 그쪽인데 — 통과했나, 재시가 밀렸나, 진단은 봤나. */
-    chk('세 앱 기록이 한 카드에 선다', other.titles,
+    /* ⚠ 이 둘은 카드 줄을 **통째로** 견줬다. 그래서 맨 위에 '아직 못 잡은
+       개념' 한 줄이 늘자 뜻은 그대로인데 둘 다 빨간불이 됐다. 개념 줄은
+       앱 기록이 아니라 **요약**이니 따로 세고, 나머지의 차례를 본다. */
+    const 요약 = t => /아직 못 잡은 개념/.test(t);
+    const 앱기록 = other.titles.filter(t => !요약(t));
+    const 앱갈래 = other.kinds.filter((k, i) => !요약(other.titles[i]));
+    chk('요약이 맨 위에 선다', 요약(other.titles[0]), true);
+    chk('세 앱 기록이 한 카드에 선다', 앱기록,
         ['DT 시험 미응시', 'DT 통과 · 96점', '화학 정밀 학습진단']);
-    chk('급한 것이 위에 선다', other.kinds.map(k => k.replace(' sent','')), ['miss', 'pass', 'km']);
+    chk('급한 것이 위에 선다', 앱갈래.map(k => k.replace(' sent','')), ['miss', 'pass', 'km']);
     /* 앞 화면(대시보드)에서 이 학생의 통과 문자를 이미 복사했다. 그 표시가
        학생 카드까지 따라와야 "보냈나?" 를 다시 세지 않는다. */
     chk('보낸 표시가 화면을 넘어 따라온다', other.kinds.filter(k => / sent/.test(k)), ['pass sent']);
@@ -900,6 +907,43 @@ async function settled(p, label, fn, arg, ms) {
        (김도윤 2일 · 김지성 5일). 여기서 보는 것은 **누가 서는가**다. */
     chk('개념을 바꾸면 그 사람들이 선다', (other || {}).names, ['김도윤', '김지성']);
     chk('바꾼 것도 주소에 남는다', /tag=%EC%99%84%EC%B6%A9/.test((other || {}).hash || ''), true);
+
+    /* ── 상담에서 먼저 나오는 물음이 카드 안에 있는가 ─────────────────
+       "무엇이 부족한가" 는 상담에서 가장 많이 나오는 물음인데, 카드에는
+       회차와 점수뿐이었다. 개념은 **개념 탭**에 개념별로 있어서, 학부모 앞에서
+       카드를 닫고 열몇 개를 하나씩 눌러 이 아이가 들었는지 봐야 했다.
+       자료는 이미 와 있었다(mistags) — 학생 쪽으로 뒤집어 놓지 않았을 뿐이다. */
+    const stuCon = await p.evaluate(async () => {
+      const d = document.getElementById('dlg'); if (d.open) d.close();
+      show('stu');
+      await new Promise(r => setTimeout(r, 500));
+      const row = [].filter.call(document.querySelectorAll('#stuList .row'),
+                                 e => /김지성/.test(e.textContent))[0];
+      if (!row) return null;
+      row.click();
+      await new Promise(r => setTimeout(r, 900));
+      const box = [].filter.call(document.querySelectorAll('#dlgBody .trk__i'),
+                                 e => /아직 못 잡은 개념/.test(e.textContent))[0];
+      return box ? box.innerText.replace(/\s+/g, ' ').trim() : '';
+    });
+    console.log('  카드 안: ' + stuCon);
+    chk('카드에 못 잡은 개념이 선다', /아직 못 잡은 개념/.test(stuCon || ''), true);
+    /* 되풀이한 것이 먼저다 — 보충 자리는 위에서부터 찬다. */
+    chk('되풀이한 개념이 앞이다', /몰농도\s*2회/.test(stuCon || ''), true);
+    /* 거기서 개념 탭으로 넘어가면 **같은 개념을 못 잡은 다른 아이들**이 같이
+       보인다(보충 묶기). 카드는 닫아야 한다 — 덮고 있으면 넘어간 뜻이 없다. */
+    const jump2 = await p.evaluate(async () => {
+      const b2 = document.querySelector('#dlgBody [data-constu]');
+      if (!b2) return null;
+      b2.click();
+      await new Promise(r => setTimeout(r, 900));
+      return { 탭: document.querySelector('.pane.on').id,
+               카드: document.getElementById('dlg').open,
+               고른개념: (document.querySelector('#conTabs .chip.on') || {}).textContent };
+    });
+    chk('카드에서 개념 탭으로 넘어간다', (jump2 || {}).탭, 'p-con');
+    chk('넘어가면 카드는 닫는다', (jump2 || {}).카드, false);
+    chk('가장 많이 걸린 개념이 골라져 있다', /^몰농도/.test((jump2 || {}).고른개념 || ''), true);
 
     /* 한 번 틀린 아이와 두 회차 내리 걸린 아이는 다른 아이다. 김지성은
        ch2#7 · ch1#4 두 회차에서 몰농도에 걸렸다. */

@@ -314,6 +314,24 @@ catch (e) {
         /45명/.test(cap.넘칠때) && /학생<\/b> 탭/.test(cap.넘칠때), true);
     chk('안 넘치면 조용하다', cap.안넘칠때, '');
 
+    console.log('\n── 화면에 적어 둔 약속을 지키는가 ──');
+    /* 반 탭 안내문에 "이름을 누르면 그 학생 카드가 열립니다" 라고 적혀 있는데
+       재어 보니 **안 열렸다.** 열리는 것은 오른쪽 끝의 '카드' 단추뿐이었다 —
+       학생 탭·회차 창에서는 줄을 누르면 열리는데 반 탭만 달랐다.
+       적어 놓고 안 지키는 약속은 없느니만 못하다. */
+    const 약속 = await p.evaluate(() => {
+      const hint = (document.querySelector('#p-cls .hint') || {}).textContent || '';
+      const src = [...document.querySelectorAll('script')].map(s => s.textContent).join('\n');
+      return {
+        적어둠: /이름을 누르면 그 학생 카드가 열립니다/.test(hint),
+        이름이누르는자리: /class="nm asname" data-clsrow=/.test(src),
+        처리기가받는다: /closest\('\.mini\[data-clsact\],\[data-clsrow\]'\)/.test(src),
+      };
+    });
+    chk('반 탭이 그 약속을 적어 두고 있다', 약속.적어둠, true);
+    chk('이름이 실제로 누르는 자리다', 약속.이름이누르는자리, true);
+    chk('누르면 카드가 열리는 자리로 이어진다', 약속.처리기가받는다, true);
+
     chk('콘솔에 예외가 없다', errs, []);
   } finally {
     await browser.close();

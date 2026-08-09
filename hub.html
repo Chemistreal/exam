@@ -550,6 +550,11 @@ tr.pick:hover td{background:var(--wash)}
 .histx span{flex:1;min-width:3px;text-align:center}
 /* 있다/없다/반쯤. 색만 다르면 색약인 눈에는 셋이 같다 —
    **채움 · 반채움 · 빈칸**으로 모양을 다르게 한다. */
+/* 줄 안의 이름은 **누르는 자리**다(카드가 열린다). 그렇다고 단추처럼
+   보이면 줄이 시끄러워진다 — 글자 그대로 두되 손가락 표시만 준다. */
+.row .nm.asname{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;
+  cursor:pointer;text-align:left}
+.row .nm.asname:hover{text-decoration:underline}
 .dots{display:inline-flex;gap:4px}
 .dot{width:10px;height:10px;border-radius:2px;display:inline-block;
   background:transparent;border:1.5px solid var(--line-2)}
@@ -4106,6 +4111,31 @@ function lesLatestFor(cls){
     .sort(function(a,b){ return (Number(b.round)||0) - (Number(a.round)||0); })[0] || null;
 }
 
+/* ── 이 아이가 아직 못 잡은 개념 ────────────────────────────────────
+   상담에서 가장 많이 나오는 물음은 "무엇이 부족한가" 다. 그런데 카드에는
+   회차와 점수뿐이었다 — 개념은 **개념 탭**에 개념별로 있어서, 학부모 앞에서
+   카드를 닫고 개념 탭으로 가 열몇 개를 하나씩 눌러 이 아이가 들었는지 봐야
+   했다. 자료는 이미 와 있는데(mistags) 학생 쪽으로 뒤집어 놓지 않았을 뿐이다.
+
+   개념 탭과 **같은 자료·같은 뜻**을 쓴다: 마지막 시도에 틀린 것만, 되풀이한
+   것이 먼저. 정시에서 틀렸다가 재시에서 잡은 것은 여기에도 안 나온다. */
+function conForStudent(r){
+  const rows = dtCached('mistags');
+  if(!rows || !rows.length) return null;          // 아직 안 왔다 — 없는 것과 다르다
+  const out = [];
+  conTags(rows).forEach(function(t){
+    t.rows.forEach(function(e){
+      if(!sameStudent({ name:e.name, school:e.school }, r)) return;
+      out.push({ tag:t.tag, hits:conHits(e), days:Number(e.days)||0,
+                 course:e.course, round:e.round });
+    });
+  });
+  /* 되풀이한 것이 먼저다 — 보충 자리는 위에서부터 찬다. */
+  return out.sort(function(a,b){
+    return b.hits-a.hits || a.days-b.days ||
+           String(a.tag).localeCompare(String(b.tag),'ko'); });
+}
+
 function renderStuOther(){
   const host = document.getElementById('stuOther');
   if(!host || !DLG_STU) return;
@@ -4160,6 +4190,19 @@ function renderStuOther(){
     rows.push('<div class="trk__i km"><div><div class="trk__t">화학 정밀 학습진단</div>'+
       '<div class="trk__m">'+esc(km.grade||'')+'</div></div><span class="acts">'+
       linkBtns(km.kmLink, '성적표 열기')+'</span></div>');
+  }
+
+  /* 못 잡은 개념을 맨 앞에 세운다. 상담에서 먼저 나오는 물음이다. */
+  const cons = conForStudent(r);
+  if(cons && cons.length){
+    const top = cons.slice(0, 8);
+    rows.unshift('<div class="trk__i miss"><div><div class="trk__t">아직 못 잡은 개념 · '+
+      cons.length+'개</div><div class="trk__m">'+
+      top.map(function(c){
+        return esc(c.tag) + (c.hits>1 ? ' <b>'+c.hits+'회</b>' : ''); }).join(' · ') +
+      (cons.length>top.length ? ' 외 '+(cons.length-top.length)+'개' : '') +
+      '</div></div><span class="acts">'+
+      '<button class="mini" data-constu="1">개념 탭에서 보기</button></span></div>');
   }
 
   const waiting = !dtCached('passed') && !dtCached('pending') && !dtCached('absentees');
@@ -4547,7 +4590,14 @@ function renderClassTab(){
              : '';
     const canSnz = sk && st !== 'ok';   // 통과한 학생을 미룰 일은 없다
     return '<div class="row'+(sk?sentCls(sk):'')+(canSnz?snzCls(sk):'')+'" style="cursor:default"'+(sk?sentAttr(sk):'')+'>'+
-      '<span class="nm">'+esc(r.who.name)+'</span>'+
+      /* 안내문이 "이름을 누르면 그 학생 카드가 열립니다" 라고 적혀 있는데,
+         재어 보니 **안 열렸다**(2026-08-09). 열리는 것은 오른쪽 끝의 '카드'
+         단추뿐이었다. 학생 탭·회차 창에서는 줄을 누르면 열리는데 반 탭만
+         달랐던 것이다 — 안내문 쪽이 맞으니 동작을 맞춘다.
+         ⚠ 줄 전체가 아니라 **이름만** 누르는 자리로 둔다. 이 줄에는 문자
+           복사·무르기·미루기 단추가 같이 있어서, 줄 전체를 누르는 자리로
+           만들면 그것들을 누르려다 카드가 열린다. */
+      '<button type="button" class="nm asname" data-clsrow="'+i+'">'+esc(r.who.name)+'</button>'+
       '<span class="where">'+esc([r.who.school, r.who.grade?r.who.grade+'학년':''].filter(Boolean).join(' '))+'</span>'+
       '<span class="tags"><span class="tag '+CLS_TONE[st]+'">'+CLS_LABEL[st]+'</span></span>'+
       '<span class="cnt">'+esc(score)+'</span>'+
@@ -4805,6 +4855,18 @@ document.addEventListener('click', function(e){
   ta.value = ta.value.slice(0, s) + mk + ta.value.slice(t);
   ta.focus(); ta.selectionStart = ta.selectionEnd = s + mk.length;
 });
+/* 카드에서 개념 탭으로. 이 아이가 가장 많이 걸린 개념을 골라 놓고 넘어간다 —
+   거기서는 같은 개념을 못 잡은 **다른 아이들**이 같이 보인다(보충 묶기).
+   카드는 닫는다: 개념 탭을 카드가 덮고 있으면 넘어간 뜻이 없다. */
+document.addEventListener('click', function(e){
+  const b = e.target.closest ? e.target.closest('[data-constu]') : null;
+  if(!b || !DLG_STU) return;
+  const cons = conForStudent(DLG_STU);
+  if(!cons || !cons.length){ flash(b, '개념 기록이 없음'); return; }
+  CON_PICK = cons[0].tag;
+  DLG.close();
+  show('con'); renderConcept(); writeHash();
+});
 /* 카드에서 그 학생 한 통만. 반 탭에서 만드는 것과 **같은 함수**를 쓴다 —
    갈라 두면 한쪽만 고쳐져 두 곳이 다른 글을 낸다. */
 document.addEventListener('click', function(e){
@@ -4928,7 +4990,8 @@ document.addEventListener('click', function(e){
          return; }
   const t = e.target.closest ? e.target.closest('.chip[data-cls]') : null;
   if(t){ CLS_PICK = t.dataset.cls; renderClassTab(); writeHash(); return; }
-  const b = e.target.closest ? e.target.closest('.mini[data-clsact],.mini[data-clsrow]') : null;
+  /* 이름(.nm.asname)도 '카드' 단추와 같은 자리를 가리킨다 — 둘 다 data-clsrow 다. */
+  const b = e.target.closest ? e.target.closest('.mini[data-clsact],[data-clsrow]') : null;
   if(!b) return;
   if(b.dataset.clsrow != null){
     const i = +b.dataset.clsrow; if(!CLS_ROWS[i]) return;
