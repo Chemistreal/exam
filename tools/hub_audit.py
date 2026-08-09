@@ -43,12 +43,27 @@ LOCK = {
 }
 
 
+def strip_code(src):
+    """글 본문만 남긴다 — `<script>`·`<style>` 안은 화면에 안 나오는 글이다.
+
+    ⚠ 이 함수가 이 자의 **거짓말이 났던 자리**다. 파일 전체에서 세니 JS 안의
+      선택자 문자열('[role="tab"]')까지 세어 탭이 13개·tablist 4줄로 나왔다.
+      `tools/lie_check.py` 가 이 함수에 참·거짓 예시를 물어 지킨다 —
+      거기서 규칙을 베끼지 않고 **여기 것을 그대로 부른다.**
+    """
+    return re.sub(r'<script>.*?</script>|<style>.*?</style>', '', src, flags=re.S)
+
+
+def count_tabs(src):
+    return len(re.findall(r'role="tab"', strip_code(src)))
+
+
 def main():
     check = '--check' in sys.argv
     src = open(PAGE, encoding='utf-8').read()
     js = '\n'.join(re.findall(r'<script>(.*?)</script>', src, re.S))
     css = '\n'.join(re.findall(r'<style>(.*?)</style>', src, re.S))
-    body = re.sub(r'<script>.*?</script>|<style>.*?</style>', '', src, flags=re.S)
+    body = strip_code(src)
 
     comment = sum(len(m) for m in re.findall(r'/\*.*?\*/', js + css, re.S))
     got = {

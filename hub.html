@@ -5453,6 +5453,18 @@ function renderRounds(){
   const q = normName(document.getElementById('rq').value||'');
   const rows = RNDS.filter(function(g){ return !q || normName(examTitle(g.id)).indexOf(q)>=0; });
   const body = document.querySelector('#rndTable tbody');
+  /* ── 없는 것을 없다고 말한다 ────────────────────────────────────────
+     이 표는 **채점 기록이 있는 회차만** 세운다(힌트에 그렇게 적혀 있다).
+     그런데 시험은 서른아홉 회차가 있고, 기록이 없는 회차는 **조용히 빠진다** —
+     "화올 2011 은 왜 없지" 를 알 길이 없었다. 몇 개가 빠졌는지 적는다.
+     빠진 것이 없으면 이 줄도 없다 — 늘 떠 있으면 아무도 안 읽는다. */
+  const nRec = RNDS.length, nAll = (typeof EXAMS !== 'undefined' && EXAMS.length) || 0;
+  const nGone = Math.max(0, nAll - nRec);
+  const nb = document.getElementById('rndNote');
+  if(nb) nb.innerHTML = (nRec && nGone)
+    ? ('<div class="note"><b>채점 기록이 있는 '+nRec+'회차</b>만 여기 섭니다 · '+
+       '기록이 아직 없는 '+nGone+'회차는 <b>자료</b> 탭에 있습니다.</div>')
+    : '';
   if(!rows.length){
     body.innerHTML = '<tr><td colspan="7" class="spin">'+
       (RNDS.length? '찾는 회차가 없습니다.'

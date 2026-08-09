@@ -246,6 +246,20 @@ async function settled(p, label, fn, arg, ms) {
   chk('최근 채점한 회차가 위에', rnd[0][0], 'JMChC 모의고사 2회');
   chk('1회는 두 명', rnd[1][1], '2');
   chk('내부 이름이 새지 않는다', /jmchc/.test(rnd.map(r => r[0]).join(' ')), false);
+  /* ── 없는 것을 없다고 말한다 ────────────────────────────────────
+     이 표는 **채점 기록이 있는 회차만** 세운다. 그런데 시험은 서른아홉 회차가
+     있고, 기록이 없는 회차는 조용히 빠졌다 — "화올 2011 은 왜 없지" 를 알
+     길이 없었다. 몇 개가 빠졌는지 적는다. */
+  const 빠짐 = await p.evaluate(() => ({
+    글: ((document.getElementById('rndNote') || {}).innerText || '').replace(/\s+/g, ' ').trim(),
+    선회차: document.querySelectorAll('#rndTable tbody tr').length,
+    전체: (typeof EXAMS !== 'undefined' && EXAMS.length) || 0,
+  }));
+  console.log('  ' + 빠짐.글);
+  chk('기록이 있는 회차 수를 적는다', 빠짐.글.includes(빠짐.선회차 + '회차'), true);
+  chk('기록이 없는 회차 수도 적는다',
+      빠짐.글.includes((빠짐.전체 - 빠짐.선회차) + '회차'), true);
+  chk('어디로 가야 하는지도 적는다', /자료/.test(빠짐.글), true);
 
   console.log('\n── 성적표를 열어도 기록이 늘지 않는다 ──');
   const before = await p.evaluate(() => ({
