@@ -55,6 +55,17 @@ def audit(path):
     out = []
     name = os.path.basename(path)
 
+    # ⚠ 여덟 번째 거짓말. **조각 파일**에 한 장의 뼈대를 요구했다.
+    #   study64-report 의 `eng2p/app/body/*.html` 은 합쳐져서 한 화면이 되는
+    #   토막인데, lang·viewport·charset·title 이 없다고 열여덟 장을 걸었다.
+    #   토막에 <title> 을 넣으면 오히려 합친 화면에 제목이 여럿 생긴다.
+    #   <html> 이 없으면 한 장이 아니다 — 뼈대는 합쳐지는 쪽에서 본다.
+    #   그리고 <html> 을 **여는** 토막도 있다(00_head.html) — 닫는 </html> 는
+    #   다른 토막에 있다. 여는 것만 보고 한 장이라고 하면 그 토막에 <h1> 이
+    #   없다고 걸린다. 한 장은 열고 **닫기까지** 한 것이다.
+    if not (re.search(r'<html[\s>]', s) and '</html>' in s):
+        return []
+
     # ── 뼈대 ──────────────────────────────────────────────
     if not re.search(r'<html[^>]*\blang=', s):
         out.append(('lang 없음', '화면 낭독기가 어느 말인지 모른다'))
@@ -96,9 +107,15 @@ def audit(path):
     # **261장**이 빨간불이었다. 그런 자리는 화면에 없다.
     # 바탕은 **이름 그 자체가 바탕인 것**만 친다. 'ok-bg' 처럼 앞에 무언가
     # 붙은 것은 그 색의 옅은 띠지 종이가 아니다.
+    # ⚠ 여섯 번째 거짓말. 이름을 **그대로** 맞춰 보느라 번호 붙은 바탕을
+    #   못 알아봤다 — study64-report/index.html 은 --bg0 #040612 인 어두운
+    #   화면인데, bg0 가 목록에 없어 바탕이 하나도 없는 것으로 보고 흰 종이로
+    #   쳤다. 그래서 그 화면의 흰 글씨(--text #f7fbff)를 1.04:1 이라고 했다.
+    #   (세 번째 거짓말과 같은 종류다. 이번엔 이름 끝의 숫자 때문이었다.)
     SURFACE = {'bg', 'paper', 'cream', 'surface', 'card', 'sunk', 'page',
-               'white', 'canvas'}
-    allbg = [v for k, v in vs.items() if k.lower() in SURFACE]
+               'white', 'canvas', 'panel'}
+    allbg = [v for k, v in vs.items()
+             if re.sub(r'\d+$', '', k.lower()) in SURFACE]
     dark_page = bool(allbg) and sum(1 for v in allbg if lum(v) <= .5) > len(allbg) / 2
     bgs = [v for v in allbg if (lum(v) <= .5) == dark_page]
     if not bgs:
@@ -112,12 +129,34 @@ def audit(path):
         stem = re.sub(r'[-_]?(ink|text|sub|muted|faint|fg)\d*$', '', k, flags=re.I)
         pair = [w for kk, w in vs.items() if stem and re.fullmatch(
             re.escape(stem) + r'[-_]?bg\d*', kk, re.I)]
-        worst = min(ratio(v, b) for b in (pair or bgs))
-        if worst < AA_TEXT:
-            out.append(('--%s 대비 %.2f:1' % (k, worst), '본문 글씨는 %.1f:1 필요' % AA_TEXT))
+        # ⚠ 아홉 번째. 한 파일에 밝은 팔레트와 어두운 팔레트가 **둘 다** 있는
+        #   화면이 있다(DT roster.html — --bg #0f1216 인데 --paper #FAFAF7 도
+        #   갖고 있다). 다수결로 한쪽을 고르면 반대쪽 글자색이 통째로 거짓
+        #   경고가 된다(--ink 1.07:1 이라고 했다 · 실제 15.17:1). 밝기로
+        #   짝지어도 **중간 회색**에서 깨진다(--muted #9aa0a8 은 어두운 바탕에서
+        #   7.12, 흰 바탕에서 2.52 — 어느 쪽으로 붙여도 한쪽은 틀린다).
+        #
+        #   여기서 멈추고 사실을 적는다: 글자색이 어느 바탕에 얹히는지는 CSS
+        #   글만 보고 알 수 없다. 그래서 **이 화면이 가진 바탕 어느 하나에서도**
+        #   4.5 를 못 넘을 때만 결함으로 센다. "이 화면 어디에 놓아도 안 읽힌다"
+        #   는 사람 판단이 필요 없는 사실이다.
+        best = max(ratio(v, b) for b in (pair or allbg or bgs))
+        if best < AA_TEXT:
+            out.append(('--%s 대비 %.2f:1' % (k, best), '어느 바탕에서도 %.1f:1 미만' % AA_TEXT))
 
     # ── 손가락 자리 ───────────────────────────────────────
-    tiny = re.findall(r'padding:\s*[0-3]px\s+\d+px[^;}]*;[^}]*font-size:\s*(?:[0-9.]+)px', s)
+    # ⚠ 일곱 번째 거짓말. 작고 여백 좁은 것을 전부 '단추' 로 쳤다. 그런데
+    #   `.qdGapPill` · `.prRel` 같은 것은 **누르는 자리가 아니라 표시용 딱지**다.
+    #   손가락이 닿을 일이 없는 것에 손가락 자리를 요구하면, 사람은 그 경고를
+    #   무시하는 법부터 배운다. 규칙 이름이 **누르는 것**을 가리킬 때만 센다.
+    TAPPY = re.compile(r'(btn|button|\btab\b|chip|link|nav|menu|toggle|pill-?btn|'
+                       r'\ba[:.]|cursor:\s*pointer)', re.I)
+    tiny = []
+    for m in re.finditer(r'([^{}]{0,120})\{([^}]*padding:\s*[0-3]px\s+\d+px[^}]*'
+                         r'font-size:\s*[0-9.]+px[^}]*)\}', s):
+        sel, body = m.group(1), m.group(2)
+        if TAPPY.search(sel) or 'cursor:pointer' in body.replace(' ', ''):
+            tiny.append(sel.strip()[-40:])
     if len(tiny) > 3:
         out.append(('좁은 단추 %d곳' % len(tiny), '손가락 자리는 32px 이상이 좋다'))
 

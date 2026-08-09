@@ -111,6 +111,59 @@ CASES.append(('조사 고르기(eul)', eul, [
 ]))
 
 
+# ── audit_pages: 바탕 고르기와 '좁은 단추' ─────────────────────────
+# 이 자는 이 문서에서 두 번 더 거짓말했다.
+#   ⑥ --bg0 처럼 **번호 붙은 바탕 이름**을 못 알아봐, 어두운 화면의 흰 글씨를
+#      흰 종이에 얹어 재고 1.04:1 이라고 했다(세 번째 거짓말과 같은 종류다)
+#   ⑦ 작고 여백 좁은 것을 전부 '단추' 로 쳤다 — 실제로는 누를 수 없는 표시용
+#      딱지였다. 안 눌리는 것에 손가락 자리를 요구하면 사람이 경고를 무시한다
+import importlib.util as _ilu                                # noqa: E402
+_spec = _ilu.spec_from_file_location('ap', os.path.join(ROOT, 'tools', 'audit_pages.py'))
+audit_pages = _ilu.module_from_spec(_spec)
+_spec.loader.exec_module(audit_pages)
+
+_PAGE = ('<!doctype html><html lang="ko"><head><meta charset="utf-8">'
+         '<meta name="viewport" content="width=device-width,initial-scale=1">'
+         '<title>ㄱ</title><style>%s</style></head><body><h1>ㄱ</h1><p>가나다</p></body></html>')
+
+
+def _hits(css, kind):
+    import tempfile
+    d = tempfile.mkdtemp()
+    p = os.path.join(d, 't.html')
+    open(p, 'w', encoding='utf-8').write(_PAGE % css)
+    return bool([h for h in audit_pages.audit(p) if kind in h[0]])
+
+
+def contrast_hit(css):
+    return _hits(css, '대비')
+
+
+def button_hit(css):
+    return _hits(css, '좁은 단추')
+
+
+CASES.append(('audit_pages 바탕 고르기', contrast_hit, [
+    ('번호 붙은 어두운 바탕을 알아본다',
+     ':root{--bg0:#040612;--bg1:#08162b;--text:#f7fbff}', False),
+    ('어느 바탕에서도 안 읽히면 잡는다',
+     ':root{--paper:#ffffff;--card:#f7f7f7;--muted:#eeeeee}', True),
+    ('상태 띠는 종이가 아니다',
+     ':root{--paper:#FAFAF7;--ok-bg:#E7F5EC;--brass-ink:#866A20}', False),
+]))
+
+CASES.append(('audit_pages 좁은 단추', button_hit, [
+    ('안 눌리는 딱지는 안 센다',
+     ':root{--paper:#fff;--ink:#111}'
+     '.pill1{padding:2px 7px;font-size:12px}.pill2{padding:2px 7px;font-size:12px}'
+     '.pill3{padding:2px 7px;font-size:12px}.pill4{padding:2px 7px;font-size:12px}', False),
+    ('누르는 자리는 센다',
+     ':root{--paper:#fff;--ink:#111}'
+     '.btn1{padding:2px 7px;font-size:12px}.btn2{padding:2px 7px;font-size:12px}'
+     '.btn3{padding:2px 7px;font-size:12px}.btn4{padding:2px 7px;font-size:12px}', True),
+]))
+
+
 def run_tool(rel, args, text=None):
     """자를 실제로 돌려 종료 코드를 본다."""
     cmd = [sys.executable, os.path.join(ROOT, rel)] + args
