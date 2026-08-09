@@ -334,7 +334,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
    <details style="margin:9px 0 2px"><summary class="muted" style="cursor:pointer">진단 기준 · 채점 규칙 · 신뢰 근거 자세히 보기</summary>
    <div style="font-size:13px;line-height:1.75;color:var(--ink-2);margin-top:9px">
      <p style="margin:7px 0"><b>① 영역 분류.</b> 각 문항을 <b>13개</b> 개념 영역으로 분류하고, 정답률이 낮은 영역부터 정렬해 학습 우선순위를 제시한다. 총점이 같아도 약점의 위치가 보인다.</p>
-     <p style="margin:7px 0"><b>② 채점 규칙.</b> 공식 정답표를 기준으로 하되 특수 문항을 명시적으로 처리해 공정성을 지킨다 — <b>복수정답</b>(둘 이상의 답을 모두 정답 인정), <b>전원정답</b>(문제 오류 시 모두 정답 처리), <b>채점 제외</b>(정답 미확정 문항은 분모에서 제외).</p>
+     <p style="margin:7px 0"><b>② 채점 규칙.</b> 공식 정답표를 기준으로 하되 특수 문항을 명시적으로 처리해 공정성을 지킨다 — <b>복수정답</b>(둘 이상의 답을 모두 정답 인정), <b>전원정답</b>(문제 오류·정답 미확정 시 모두 정답 처리), <b>문제삭제</b>(출제 취소된 문항도 <b>분모에서 빼지 않고</b> 전원정답으로 처리한다 — 시험은 원래 문항 수대로 치렀기 때문이다).</p>
      <p style="margin:7px 0"><b>③ 신뢰 근거.</b> 정답표는 공식 출처를 기준으로 하며, 모의 시험군은 공식 성적표 원본과 전수 대조해 검증했다. 검증 중 정답표 자체의 오류가 발견되면 화학적으로 옳은 답으로 정정하고 그 사유를 해설에 명시했다. 정답·풀이는 1,560문항 해설지로 교차 확인된다.</p>
      <p style="margin:7px 0"><b>④ 리포트 읽는 법.</b> <b>백분위</b> = 응시 집단 내 상대 위치 · <b>영역 막대</b> = 영역별 정답률(짧을수록 약점) · <b>오개념 분석</b> = 오답 선택지가 가리키는 개념 결손 · <b>처방</b> = 약점을 메우는 다음 학습.</p>
      <p style="margin:7px 0;color:var(--teal-d)"><b>⑤ 데이터 품질.</b> 또래 통계 산출 시 신뢰할 수 없는 응답(단일 보기 반복·답안 패턴 복제) <b>2건</b>을 자동 제외해 통계 오염을 막았다.</p>
@@ -365,8 +365,11 @@ function saveToSheetFinal(cur,sel,correct,total,W,cs,nm,exno,pct){
   if(!SHEET_ENDPOINT) return;
   if(fShared) return;
   if(!(nm||exno)) return;
-  const miss=new Set(cur.miss||[]); const broad=a=>RX[a]?a:(RXMAP[a]||a); const ag={};
-  if(cur.area) for(let q=1;q<=cur.nQ;q++){ if(miss.has(q))continue; const bd=broad(cur.area[q-1]||''); if(!bd)continue; (ag[bd]=ag[bd]||{c:0,t:0}); ag[bd].t++; if(okq(cur,q,sel[q]||0))ag[bd].c++; }
+  /* 삭제된 문항도 영역 분모에 그대로 둔다 — 빼지 않고 전원정답으로 센다.
+     여기만 옛 규칙(miss 를 건너뛰기)이 남아 있어서 final.html 의 영역별 정답률과
+     분모가 달랐다(2026-08-09). okq 가 전원정답을 이미 맞은 것으로 돌려준다. */
+  const broad=a=>RX[a]?a:(RXMAP[a]||a); const ag={};
+  if(cur.area) for(let q=1;q<=cur.nQ;q++){ const bd=broad(cur.area[q-1]||''); if(!bd)continue; (ag[bd]=ag[bd]||{c:0,t:0}); ag[bd].t++; if(okq(cur,q,sel[q]||0))ag[bd].c++; }
   const areas=Object.keys(ag).map(d=>d+' '+ag[d].c+'/'+ag[d].t).join(', ');
   const ans=[]; for(let q=1;q<=cur.nQ;q++) ans.push(sel[q]||0);
   let perc=''; try{ if(cs&&cs.percReady&&cs.totals&&cs.totals.length) perc=percentile(cs.totals,correct); }catch(e){}

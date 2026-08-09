@@ -59,7 +59,10 @@ def main():
         if not ex:
             bad.append('%s: exams.json 에 없는 회차다' % eid)
             continue
-        sp = re.findall(r'<span class="sp">(?:삭제|전원)\s*([\d·, ]+)</span>', body)
+        # 딱지 이름은 **전원정답 한 가지**다. 예전에는 '삭제' 와 '전원' 으로 갈려
+        # 있었는데 채점은 둘을 똑같이 다룬다(빼지 않고 모두 정답). 이름이 갈리면
+        # 읽는 쪽은 '삭제' 를 빠진 문항으로 읽는다 — 한 이름으로 모았다(2026-08-09).
+        sp = re.findall(r'<span class="sp">전원정답\s*([\d·, ]+)</span>', body)
         listed = sorted(int(x) for x in re.findall(r'\d+', sp[0])) if sp else []
         real = allc(ex)
         if listed != real:
