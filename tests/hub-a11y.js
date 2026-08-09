@@ -519,6 +519,29 @@ catch (e) {
     });
     chk('옛 이름이 화면에 안 남았다', 옛이름.손이필요한것, false);
 
+    console.log('\n── 주소를 붙여 넣으면 그 화면이 열리는가 ──');
+    /* 주소를 **쓰기만 하고 읽지는 않고** 있었다(첫 화면에서 한 번 빼고).
+       이미 열려 있는 셸의 주소창에 `#cls?c=…` 를 붙여 넣어도 아무 일이 없었다 —
+       링크를 받아 쓰는 흔한 자리다. `hashchange` 를 듣게 했다.
+       ⚠ 되돌이가 안 나는 까닭: `writeHash` 는 `replaceState` 를 쓰고, 그것은
+         `hashchange` 를 안 일으킨다. 사람이 바꿀 때만 온다. */
+    const 붙여넣기 = [];
+    for (const h of ['#cls', '#mat?g=lec', '#stu?f=noexam', '#dash']) {
+      await p.evaluate(x => { location.hash = x; }, h);
+      await p.waitForFunction(want => {
+        const on = (document.querySelector('.pane.on') || {}).id || '';
+        return on === 'p-' + want;
+      }, h.replace(/^#/, '').split('?')[0], { timeout: 5000 }).catch(() => {});
+      붙여넣기.push(h + '→' + ((await p.evaluate(() =>
+        (document.querySelector('.pane.on') || {}).id)) || ''));
+    }
+    console.log('  ' + 붙여넣기.join(' · '));
+    chk('붙여 넣은 주소대로 열린다', 붙여넣기,
+        ['#cls→p-cls', '#mat?g=lec→p-mat', '#stu?f=noexam→p-stu', '#dash→p-dash']);
+    /* 걸러 보기까지 따라와야 링크 한 줄이 '저장된 보기' 노릇을 한다. */
+    const 딸린것 = await p.evaluate(() => ({ 갈래: MAT_PICK, 거르개: STU_FILTER }));
+    chk('걸러 보기도 주소에서 되살아난다', 딸린것, { 갈래: 'lec', 거르개: 'noexam' });
+
     chk('콘솔에 예외가 없다', errs, []);
   } finally {
     await browser.close();

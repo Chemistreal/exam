@@ -1843,6 +1843,14 @@ function applyHash(){
   }finally{ HASH_LOCK = false; }
   writeHash();
 }
+/* ── 주소가 바뀌면 따라간다 ──────────────────────────────────────────
+   주소를 쓰기만 하고 **읽지는 않고** 있었다(첫 화면에서 한 번 빼고). 그래서
+   이미 열려 있는 셸의 주소창에 `#cls?c=화학1` 을 붙여 넣어도 아무 일이
+   없었다 — 링크를 받아 쓰는 흔한 자리다.
+
+   ⚠ 여기서 되돌이가 나지 않는 까닭: `writeHash` 는 `replaceState` 를 쓰는데
+     그것은 `hashchange` 를 안 일으킨다. 사람이 바꿀 때만 온다. */
+window.addEventListener('hashchange', function(){ applyHash(); });
 TABS.forEach(function(t){
   document.getElementById('t-'+t).addEventListener('click', function(){ show(t); });
 });
