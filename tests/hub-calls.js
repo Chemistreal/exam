@@ -123,7 +123,23 @@ catch (e) {
   try {
     await p.goto(`http://localhost:${PORT}/hub.html`, { waitUntil: 'domcontentloaded' });
     await p.waitForFunction(() => typeof show === 'function', null, { timeout: 20000 });
-    await p.waitForTimeout(5000);
+    /* ⚠ '이쯤이면 됐겠지' 로 5초를 재우던 자리다. 빠른 기계에서는 4초를
+       헛되이 버리고 느린 기계에서는 아직 안 끝난 것을 센다. **더 안 늘 때까지**
+       기다린다 — 세는 값 자체를 기다리지 않으므로 검사가 답을 맞춰 주지 않는다. */
+    /* ⚠ `min` 이 필요하다. 셸은 **꾸미는 창구를 일부러 늦게** 부른다
+       (`laterOnce` — 급한 것이 끝난 뒤에). 조용해졌다고 바로 끊으면 그 늦은
+       한 번을 못 세고, 그것이 다음 탭 몫으로 넘어가 엉뚱한 탭이 늘어난 것처럼
+       보인다. 실제로 그렇게 잘못 셌다. */
+    const settle = async (quiet = 900, cap = 15000, min = 0) => {
+      const t0 = Date.now();
+      let last = calls.length, since = Date.now();
+      while (Date.now() - t0 < cap) {
+        await p.waitForTimeout(120);
+        if (calls.length !== last) { last = calls.length; since = Date.now(); }
+        else if (Date.now() - since >= quiet && Date.now() - t0 >= min) return;
+      }
+    };
+    await settle(900, 15000, 3000);
     const boot = calls.slice();
     console.log('  첫 화면 ' + boot.length + '번: ' + boot.join(' · '));
     chk('첫 화면에서 창구를 부르는 횟수', boot.length, LOCK.boot);
@@ -134,7 +150,7 @@ catch (e) {
     for (const t of ['stu', 'cls', 'rnd', 'con', 'mat']) {
       const n0 = calls.length;
       await p.evaluate(id => show(id), t);
-      await p.waitForTimeout(1800);
+      await settle(700, 8000);
       per[t] = calls.length - n0;
     }
     console.log('  탭마다 더 부른 횟수: ' +
@@ -148,9 +164,9 @@ catch (e) {
     for (const t of ['stu', 'cls', 'rnd', 'con', 'mat']) {
       const n0 = calls.length;
       await p.evaluate(id => show('dash'), t);
-      await p.waitForTimeout(200);
+      await settle(500, 5000);
       await p.evaluate(id => show(id), t);
-      await p.waitForTimeout(1200);
+      await settle(500, 5000);
       again[t] = calls.length - n0;
     }
     console.log('  두 번째로 들어갔을 때: ' +

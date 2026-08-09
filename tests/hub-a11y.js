@@ -96,7 +96,8 @@ catch (e) {
     await p.goto(`http://localhost:${PORT}/hub.html`, { waitUntil: 'domcontentloaded' });
     await p.waitForFunction(() => typeof say === 'function' && typeof rovingTabs === 'function',
       null, { timeout: 20000 });
-    await p.waitForTimeout(600);
+    await p.waitForFunction(
+      () => document.querySelectorAll('[role="tab"]').length > 0, null, { timeout: 10000 });
 
     console.log('── 탭 줄이 키보드를 받는가 ──');
     const t0 = await p.evaluate(() => ({
@@ -118,7 +119,14 @@ catch (e) {
     /* ── 화살표가 줄 안에서 돈다 ────────────────────────────────────── */
     const step = async (from, keys) => {
       await p.focus('#' + from);
-      for (const k of keys) { await p.keyboard.press(k); await p.waitForTimeout(60); }
+      for (const k of keys) {
+        const was = await p.evaluate(() => document.activeElement.id);
+        await p.keyboard.press(k);
+        /* 기대하는 **값**을 기다리면 검사가 스스로 답을 맞춰 준다. '달라졌다'
+           까지만 기다린다 — 안 달라지는 경우(Home 에서 Home)도 있으니 짧게 끊는다. */
+        await p.waitForFunction(w => document.activeElement.id !== w, was, { timeout: 1500 })
+          .catch(() => {});
+      }
       return p.evaluate(() => ({
         초점: document.activeElement.id,
         고른탭: [...document.querySelectorAll('[role="tab"][aria-selected="true"]')].map(x => x.id),
@@ -148,14 +156,19 @@ catch (e) {
     /* 화살표로 옮기면 탭 순서에 서는 자리도 따라와야 한다 — 안 그러면
        Tab 으로 나갔다 돌아올 때 엉뚱한 탭으로 온다. */
     await p.focus('#t-dash');
-    await p.keyboard.press('ArrowRight'); await p.waitForTimeout(60);
+    await p.waitForFunction(() => document.activeElement.id === 't-dash', null, { timeout: 2000 });
+    await p.keyboard.press('ArrowRight');
+    await p.waitForFunction(() => document.activeElement.id !== 't-dash', null, { timeout: 2000 });
     const r8 = await p.evaluate(() => [...document.querySelectorAll('nav[role="tablist"]')][0]
       .querySelectorAll('[role="tab"]')[1].tabIndex);
     chk('탭 순서에 서는 자리가 초점을 따라온다', r8, 0);
 
     /* 눌러야 열린다 — Enter 는 브라우저가 click 으로 바꿔 준다. */
     await p.focus('#t-stu');
-    await p.keyboard.press('Enter'); await p.waitForTimeout(400);
+    await p.keyboard.press('Enter');
+    await p.waitForFunction(
+      () => document.querySelector('[role="tab"][aria-selected="true"]').id !== 't-dash',
+      null, { timeout: 4000 }).catch(() => {});
     const r9 = await p.evaluate(() =>
       [...document.querySelectorAll('[role="tab"][aria-selected="true"]')].map(x => x.id));
     chk('Enter 로 열린다', r9, ['t-stu']);
@@ -168,13 +181,13 @@ catch (e) {
     await p.focus('#t-stu');
     const 열기전 = await p.evaluate(() => document.activeElement.id);
     await p.evaluate(() => openPal());
-    await p.waitForTimeout(250);
+    await p.waitForFunction(() => document.getElementById('pal').open, null, { timeout: 4000 });
     const 여는중 = await p.evaluate(() => ({
       초점: document.activeElement.id,
       갇힘: document.getElementById('pal').matches(':modal'),
     }));
     await p.keyboard.press('Escape');
-    await p.waitForTimeout(250);
+    await p.waitForFunction(() => !document.getElementById('pal').open, null, { timeout: 4000 });
     const 닫은뒤 = await p.evaluate(() => document.activeElement.id);
     console.log(`  ${열기전} → ${여는중.초점} → ${닫은뒤}`);
     chk('창이 초점을 가둔다', 여는중.갇힘, true);
@@ -206,6 +219,17 @@ catch (e) {
     /* display:none 으로 숨기면 낭독기도 같이 못 읽는다 — 1px 로 잘라야 한다. */
     chk('낭독기가 못 읽게 숨기지 않았다', live && live.숨김방식 !== 'none', true);
 
+    /* ⚠ 이 아래는 알림 칸을 직접 건드린다. 그런데 창구가 실패하면서 **뒤에서
+       계속 말을 밀어 넣는다**(dashDead). 조용해지기 전에 재면 내가 넣은 말이
+       그 말에 덮여, 검사가 까닭 없이 깨진다 — 실제로 그렇게 깨졌다.
+       칸이 안 바뀔 때까지 기다린 뒤에 잰다. */
+    await p.waitForFunction(() => {
+      const el = document.getElementById('sr');
+      const now = el.textContent;
+      if (window.__srLast === now) return (window.__srSame = (window.__srSame || 0) + 1) >= 4;
+      window.__srLast = now; window.__srSame = 0; return false;
+    }, null, { timeout: 15000, polling: 150 }).catch(() => {});
+
     const said = async (fn) => {
       await p.evaluate(fn);
       await p.waitForTimeout(160);
@@ -232,7 +256,8 @@ catch (e) {
        (채움 · 반채움 · 빈칸). 그런데 낭독기에게는 모양도 색도 안 보인다 —
        `<i>` 에 title 만 붙어 있어서 그 칸이 통째로 아무 말도 안 했다. */
     await p.evaluate(() => show('mat'));
-    await p.waitForTimeout(1800);
+    await p.waitForFunction(
+      () => document.querySelectorAll('.dots').length > 0, null, { timeout: 10000 });
     const dots = await p.evaluate(() => {
       const d = [...document.querySelectorAll('.dots')];
       return {
@@ -442,7 +467,8 @@ catch (e) {
       status: 200, contentType: 'text/html; charset=utf-8', body: '<!doctype html>' }));
     await p2.goto(`http://localhost:${PORT}/hub.html`, { waitUntil: 'domcontentloaded' });
     await p2.waitForFunction(() => typeof show === 'function', null, { timeout: 20000 });
-    await p2.waitForTimeout(1500);
+    await p2.waitForFunction(
+      () => document.querySelectorAll('#dashCards .card').length > 0, null, { timeout: 10000 });
     const g = await p2.evaluate(() => {
       let has = false;
       try { has = !!document.createElement('canvas').getContext('webgl'); } catch (e) {}

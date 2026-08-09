@@ -31,6 +31,10 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # 다음 사람이 도로 채워 넣어도 초록불이다.
 CEIL = {
     'tests/hub-live.js': (71, 27680),
+    # 허브를 쓰는 방법을 보는 두 자. 처음부터 조건 대기로 지었다 —
+    # 남은 것은 서버가 뜨기를 기다리는 한 줄뿐이다.
+    'tests/hub-a11y.js': (4, 1250),
+    'tests/hub-calls.js': (2, 820),
     'tests/web-store.js': (13, 23100),
     'tests/exams-fallback.js': (7, 16700),
     'tests/hero3d.js': (9, 16250),

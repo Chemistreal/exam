@@ -913,15 +913,25 @@ async function settled(p, label, fn, arg, ms) {
        회차와 점수뿐이었다. 개념은 **개념 탭**에 개념별로 있어서, 학부모 앞에서
        카드를 닫고 열몇 개를 하나씩 눌러 이 아이가 들었는지 봐야 했다.
        자료는 이미 와 있었다(mistags) — 학생 쪽으로 뒤집어 놓지 않았을 뿐이다. */
-    const stuCon = await p.evaluate(async () => {
+    /* ⚠ 고정 대기도, 화면 안에서 도는 폴링도 쓰지 않는다. 폴링은 그 자체가
+       또 하나의 짐작이고(`tools/blind_wait.py` 가 세어 준다), 브라우저 밖에서
+       `waitForFunction` 을 쓰면 그마저 없앨 수 있다. */
+    await p.evaluate(() => {
       const d = document.getElementById('dlg'); if (d.open) d.close();
       show('stu');
-      await new Promise(r => setTimeout(r, 500));
-      const row = [].filter.call(document.querySelectorAll('#stuList .row'),
-                                 e => /김지성/.test(e.textContent))[0];
-      if (!row) return null;
-      row.click();
-      await new Promise(r => setTimeout(r, 900));
+    });
+    await p.waitForFunction(() => [].some.call(
+      document.querySelectorAll('#stuList .row'), e => /김지성/.test(e.textContent)),
+      null, { timeout: 10000 });
+    await p.evaluate(() => {
+      [].filter.call(document.querySelectorAll('#stuList .row'),
+                     e => /김지성/.test(e.textContent))[0].click();
+    });
+    /* 카드가 열리고 **다른 앱 기록까지** 붙을 때까지 기다린다. 열린 것만 보고
+       재면 아직 비어 있는 카드를 재게 된다. */
+    await p.waitForFunction(() => document.getElementById('dlg').open &&
+      document.querySelectorAll('#dlgBody .trk__i').length > 0, null, { timeout: 10000 });
+    const stuCon = await p.evaluate(() => {
       const box = [].filter.call(document.querySelectorAll('#dlgBody .trk__i'),
                                  e => /아직 못 잡은 개념/.test(e.textContent))[0];
       return box ? box.innerText.replace(/\s+/g, ' ').trim() : '';
@@ -932,15 +942,17 @@ async function settled(p, label, fn, arg, ms) {
     chk('되풀이한 개념이 앞이다', /몰농도\s*2회/.test(stuCon || ''), true);
     /* 거기서 개념 탭으로 넘어가면 **같은 개념을 못 잡은 다른 아이들**이 같이
        보인다(보충 묶기). 카드는 닫아야 한다 — 덮고 있으면 넘어간 뜻이 없다. */
-    const jump2 = await p.evaluate(async () => {
+    await p.evaluate(() => {
       const b2 = document.querySelector('#dlgBody [data-constu]');
-      if (!b2) return null;
-      b2.click();
-      await new Promise(r => setTimeout(r, 900));
-      return { 탭: document.querySelector('.pane.on').id,
-               카드: document.getElementById('dlg').open,
-               고른개념: (document.querySelector('#conTabs .chip.on') || {}).textContent };
+      if (b2) b2.click();
     });
+    await p.waitForFunction(() => document.querySelector('.pane.on').id === 'p-con' &&
+      !document.getElementById('dlg').open, null, { timeout: 10000 }).catch(() => {});
+    const jump2 = await p.evaluate(() => ({
+      탭: document.querySelector('.pane.on').id,
+      카드: document.getElementById('dlg').open,
+      고른개념: (document.querySelector('#conTabs .chip.on') || {}).textContent,
+    }));
     chk('카드에서 개념 탭으로 넘어간다', (jump2 || {}).탭, 'p-con');
     chk('넘어가면 카드는 닫는다', (jump2 || {}).카드, false);
     chk('가장 많이 걸린 개념이 골라져 있다', /^몰농도/.test((jump2 || {}).고른개념 || ''), true);

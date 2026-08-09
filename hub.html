@@ -1697,6 +1697,9 @@ function show(id){
   if(app) mountFrame(app);
   /* 수입 탭은 들어올 때마다 다시 그린다 — 잠금 화면이 먼저 떠야 한다. */
   if(id === 'inc') renderIncome();
+  /* 자료 탭은 **처음 들어갈 때** 그린다(마디 614개). 첫 화면에서 미리 그리면
+     안 보는 탭 때문에 첫 그림이 늦어진다. */
+  if(id === 'mat') matEnsure();
   /* 개념은 **들어올 때** 부른다. 대시보드를 여는 것만으로 창구를 하나 더
      두드리면, 앱스크립트가 실행을 한 줄로 세우는 탓에 다른 숫자가 늦어진다. */
   if(id === 'con'){
@@ -5563,6 +5566,9 @@ function linkOr(path, label){
   return path ? '<a href="'+esc(path)+'">'+esc(label)+'</a>' : '<span class="dim">—</span>';
 }
 function renderMaterials(){
+  /* 어느 길로 그렸든 '이미 그렸다' 로 친다 — 팔레트·주소·검색칸에서도 그린다.
+     여기서 안 세우면 afterExams 가 다시 안 그려, 늦게 온 회차 이름이 안 붙는다. */
+  MAT_DRAWN = true;
   const body = document.getElementById('matBody'); if(!body) return;
   const q = normName((document.getElementById('mq')||{}).value||'');
   matChips();
@@ -5676,8 +5682,20 @@ document.getElementById('mq').addEventListener('input', function(){ renderMateri
 /* 회차 이름은 exams.json 에서 온다. 늦게 도착하므로, 오면 이름을 쓰는
    화면을 다시 그린다 — 안 그리면 'jmchc-1' 같은 내부 이름이 그대로 남는다. */
 let BOOTED = false;
+/* ── 안 보는 탭은 안 그린다 ──────────────────────────────────────────
+   자료 탭은 회차 39개 × 여러 칸이라 마디가 **614개**다 — 첫 화면 전체(928)의
+   3분의 2가 **안 보이는 탭**이었다(2026-08-09에 잼). 느린 3G 에서 DOM 이
+   준비되는 데 7.7초가 걸리는데, 그 일의 상당수가 아직 안 연 탭 몫이다.
+
+   그려 두는 값이 없지는 않다 — 탭을 누르면 이미 서 있다. 하지만 자료 탭은
+   하루에 한 번 열까 말까 한 자리이고, 첫 화면은 매번 뜬다. 처음 들어갈 때
+   그린다. 두 번째부터는 그대로 있으므로 다시 안 그린다. */
+let MAT_DRAWN = false;
+function matEnsure(){ if(!MAT_DRAWN) renderMaterials(); }
 function afterExams(){
-  renderMaterials();
+  /* 회차 이름이 늦게 와도, 이미 그려 둔 자료 탭은 그 이름으로 다시 그려야 한다.
+     아직 안 그렸으면 그냥 둔다 — 열 때 새 이름으로 그려진다. */
+  if(MAT_DRAWN) renderMaterials();
   /* 잠금을 지나기 전에는 창구를 부르지 않는다. 이 두 줄이 DT·시트를 두드린다. */
   if(!BOOTED) return;
   renderDash(); renderRounds();
