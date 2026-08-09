@@ -52,12 +52,22 @@ def build(text):
         head = '<h4>사고과정</h4>\n'
         t = t[m.end():]
 
-    # 맨 끝의 '→ ③' 은 따로 세운다.
+    # 맨 끝의 '→ ③' 은 따로 세운다. 그 뒤에 말이 더 있으면 그것은 오개념 한
+    # 줄이다 — 먼저 쓰인 회차들이 그렇게 적어 두었고(hwol-2013·2014), 해설지는
+    # 그것을 사고과정이 아니라 <div class="tip"> 으로 세운다. 여기서 '→' 만
+    # 끝으로 보면 오개념이 사고과정의 마지막 단계처럼 붙는다.
+    #
+    # ⚠ **마지막** 화살표를 잡는다. 보기를 하나씩 짚는 해설은 글 가운데에도
+    #   '④ … → ③' 처럼 동그라미가 나온다(donghyung-1 #23 외 여덟). 처음 것을
+    #   잡으면 답 표시가 문장 한가운데로 가고 뒤가 통째로 오개념이 된다.
     tail = ''
-    m = re.search(r'→\s*([①-⑤])\s*$', t)
+    m = re.search(r'^(.*)→\s*([①-⑤])\s*(.*)$', t, re.S)
     if m:
-        tail = '<p class="step">→ <b>%s</b></p>' % m.group(1)
-        t = t[:m.start()].strip()
+        tail = '<p class="step">→ <b>%s</b></p>' % m.group(2)
+        rest = m.group(3).strip()
+        if rest:
+            tail += '\n<div class="tip">%s</div>' % html.escape(rest, quote=False)
+        t = m.group(1).strip()
 
     # 문장마다 한 줄. 마침표 뒤가 공백이면 끊는다(소수점은 뒤에 숫자가 와서 안 끊긴다).
     parts = [s.strip() for s in re.split(r'(?<=[.。])\s+', t) if s.strip()]

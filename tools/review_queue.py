@@ -177,15 +177,23 @@ def main():
                  '| | |', '|---|---|',
                  '| 줄 세운 문항 | %d개 |' % len(q),
                  '| 이미 본 것 | %d개 |' % len(seen['본 것']),
-                 '| 하루 %d개면 | %d일 |' % (PER_DAY, (len(q) + PER_DAY - 1) // PER_DAY), '',
-                 '## 앞 200개', '', '| 점수 | 회차 | 번호 | 개념 | 왜 |', '|---|---|---|---|---|']
-        for r in q[:200]:
-            lines.append('| %.1f | `%s` | %d | %s | %s |'
-                         % (r['score'], r['exam'], r['q'], r['concept'] or '—', r['why']))
-        lines.append('')
+                 '| 하루 %d개면 | %d일 |' % (PER_DAY, (len(q) + PER_DAY - 1) // PER_DAY), '']
+        if not q:
+            # 빈 줄에 빈 표를 두면 "아직 안 만들었나" 로 읽힌다. 비었다고 적는다.
+            lines += ['## 줄이 비었다', '',
+                      '줄 세울 것이 없다 — %d개를 사람이 다 열어 봤다.' % len(seen['본 것']),
+                      '새 회차가 들어오거나 해설이 바뀌면 여기가 다시 찬다.', '']
+        else:
+            lines += ['## 앞 200개', '',
+                      '| 점수 | 회차 | 번호 | 개념 | 왜 |', '|---|---|---|---|---|']
+            for r in q[:200]:
+                lines.append('| %.1f | `%s` | %d | %s | %s |'
+                             % (r['score'], r['exam'], r['q'], r['concept'] or '—', r['why']))
+            lines.append('')
         p = os.path.join(ROOT, 'docs', '검수대장.md')
         open(p, 'w', encoding='utf-8').write('\n'.join(lines))
-        print('적었다 · %s (%d개 중 앞 200개)' % (os.path.relpath(p, ROOT), len(q)))
+        print('적었다 · %s (%s)' % (os.path.relpath(p, ROOT),
+                                  '줄이 비었다' if not q else '%d개 중 앞 200개' % len(q)))
         return 0
 
     print('오늘 볼 %d개 (남은 %d개)\n' % (min(a.n, len(q)), len(q)))
