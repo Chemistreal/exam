@@ -441,6 +441,41 @@ catch (e) {
     chk('이미 보낸 것은 안 미룬다', 일괄.남은것만, true);
     chk('낱개와 일괄이 같은 길로 나간다', 일괄.같은길, true);
 
+    console.log('\n── 새면 곤란한 것을 무엇이 막고 있는가 ──');
+    /* 성적표 화면은 **한 학생**이 뜨지만 통합 셸은 **반 명단 전부**가 뜬다 —
+       이름·학교·학년·점수, 그리고 반별 수입까지. 그런데 `tools/noindex.py` 의
+       목록에 허브가 **없었다**(2026-08-09). 첫 화면 잠금은 코드가 소스에 그대로
+       있는 '문고리' 라(그렇게 적혀 있다), 남는 보호막은 주소를 남이 모른다는 것
+       하나뿐이다 — 그 주소가 검색에 잡히면 보호막이 통째로 사라진다. */
+    const 막는것 = await p.evaluate(() => {
+      const m = document.querySelector('meta[name="robots"]');
+      return {
+        검색에서뺐나: !!(m && /noindex/i.test(m.getAttribute('content') || '')),
+        따라가지도않나: !!(m && /nofollow/i.test(m.getAttribute('content') || '')),
+      };
+    });
+    chk('허브가 검색 목록에 안 오른다', 막는것.검색에서뺐나, true);
+    chk('링크도 따라가지 않게 한다', 막는것.따라가지도않나, true);
+    /* 잠금은 **한 번만** 묻는다. 얹은 앱 다섯이 각자 또 물으면 화면이 여러
+       겹으로 잠긴다 — 열쇠칸을 같이 쓰기로 한 까닭이다. */
+    await p.evaluate(() => { ['exam', 'dt', 'dtp', 'dtr', 'km'].forEach(t => show(t)); });
+    /* 얹은 창 다섯이 다 붙을 때까지 — 고정 대기를 쓰지 않는다. */
+    await p.waitForFunction(
+      () => document.querySelectorAll('.pane.frame iframe').length === 5,
+      null, { timeout: 15000 }).catch(() => {});
+    const 얹은수 = await p.evaluate(() => {
+      show('dash');
+      return document.querySelectorAll('.pane.frame iframe').length;
+    });
+    chk('앱 다섯을 얹는다', 얹은수, 5);
+    let 또묻는창 = 0;
+    for (const f of p.frames()) {
+      if (f === p.mainFrame()) continue;
+      try { if (await f.evaluate(() => !!document.querySelector('#gateGo'))) 또묻는창++; }
+      catch (e) { /* 아직 안 뜬 창은 넘어간다 */ }
+    }
+    chk('얹은 창이 잠금을 또 묻지 않는다', 또묻는창, 0);
+
     chk('콘솔에 예외가 없다', errs, []);
   } finally {
     await browser.close();
