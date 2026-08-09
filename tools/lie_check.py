@@ -1,0 +1,140 @@
+#!/usr/bin/env python3
+"""**자가 거짓말을 하는지** 잰다 — 참·거짓 예시를 주고 맞히는지 본다.
+
+이 저장소의 셋째 원칙은 "자가 이상하다고 하면 코드보다 자를 먼저 본다" 다.
+그 원칙이 왜 있는지는 기록으로 남아 있다 — `docs/개선-200턴.md` 에 여덟 번,
+`docs/허브-200턴.md` 에 세 번. 열한 번 다 **자가 틀렸다.**
+
+    esc() 를 제대로 쓴 자리를 잡음 · 문장 뒤쪽의 엉뚱한 .name 을 잡음
+    어두운 화면의 흰 글씨를 흰 바탕에 얹어 잼 · 기본 초점 고리를 '없다' 고 함
+    "불러오지 못했습니다" 를 못 잡음 · 만들어 넣는 주소를 깨진 링크로 잡음
+    한국어 어절로 오탈자를 재어 후보 2,014개 · 화면을 두 번 띄워 창구를 두 배로 셈
+    JS 안의 선택자 문자열까지 세어 탭을 13개라고 함
+    고장 난 상태에서 창구 수를 재고 '평소' 라고 함
+    같은 문서에서 해시만 바꿔 놓고 '주소가 안 읽힌다' 고 함
+
+매번 사람이 손으로 알아냈다. 그때마다 "다음엔 안 그러겠지" 로 넘어갔다.
+
+여기서는 **자마다 맞혀야 할 문제를 붙여 둔다.** 참이라고 해야 할 예시와
+거짓이라고 해야 할 예시를 주고, 자가 그대로 답하는지 본다. 자를 고치다가
+넓히거나 좁히면 여기서 걸린다.
+
+⚠ 이것은 자를 대신하지 않는다. 자가 **볼 수 있는 것**만 늘어놓은 것이라,
+  "화면을 실제로 찍어 봐야 아는 것" 은 여전히 사람 몫이다(넷째 원칙).
+
+    python3 tools/lie_check.py           # 자마다 맞혔는지
+    python3 tools/lie_check.py --check   # 하나라도 틀리면 빨간불 (CI용)
+"""
+import os
+import re
+import subprocess
+import sys
+import tempfile
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+# ── 자마다: (자 이름, 참이어야 할 것, 거짓이어야 할 것) ─────────────────
+# 참 = 자가 '걸려야' 하는 예시, 거짓 = 자가 '넘겨야' 하는 예시.
+
+# ⚠ 규칙을 **베끼지 않는다.** 베껴 두면 자를 고쳤을 때 여기가 옛 규칙을
+#   맞히고 앉아, 자가 틀려도 초록불이 된다 — 거짓말을 잡으려다 거짓말을
+#   하나 더 두는 셈이다. 진짜 자의 함수를 그대로 부른다.
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+import hub_audit                                          # noqa: E402
+
+hub_audit_counts = hub_audit.count_tabs
+
+
+CASES = [
+    # ── hub_audit: 탭 세기 ───────────────────────────────────────────
+    # 이 자는 처음에 파일 전체에서 세어 **JS 안의 선택자 문자열**까지 셌다.
+    ('hub_audit 탭 세기', hub_audit_counts, [
+        ('글에 있는 탭은 센다',
+         '<nav><button role="tab">가</button><button role="tab">나</button></nav>', 2),
+        ('JS 안의 선택자는 안 센다',
+         '<nav><button role="tab">가</button></nav>'
+         '<script>document.querySelectorAll(\'[role="tab"]\')</script>', 1),
+        ('CSS 안의 것도 안 센다',
+         '<nav><button role="tab">가</button></nav>'
+         '<style>[role="tab"]{color:red}</style>', 1),
+        ('아예 없으면 0',
+         '<div>탭 없음</div>', 0),
+    ]),
+]
+
+
+def eul(word):
+    """받침이 있으면 '을', 없으면 '를'. hub.html 의 같은 규칙을 여기서도 잰다."""
+    ch = (word or '').strip()[-1:]
+    if not ch:
+        return '을(를)'
+    c = ord(ch)
+    if not (0xAC00 <= c <= 0xD7A3):
+        return '을(를)'
+    return '을' if (c - 0xAC00) % 28 else '를'
+
+
+CASES.append(('조사 고르기(eul)', eul, [
+    ('받침이 있으면 을', 'DT 명단', '을'),
+    ('받침이 없으면 를', 'DT 통과', '를'),
+    ('받침이 없으면 를 (2)', '재시 대기', '를'),
+    ('한글이 아니면 둘 다 적는다', 'sheet', '을(를)'),
+    ('비어 있어도 안 죽는다', '', '을(를)'),
+]))
+
+
+def run_tool(rel, args, text=None):
+    """자를 실제로 돌려 종료 코드를 본다."""
+    cmd = [sys.executable, os.path.join(ROOT, rel)] + args
+    r = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
+    return r.returncode, (r.stdout or '') + (r.stderr or '')
+
+
+def main():
+    check = '--check' in sys.argv
+    bad = []
+    total = 0
+
+    print('자가 참·거짓 예시를 맞히는가\n')
+    for name, fn, cases in CASES:
+        ok = 0
+        for label, given, want in cases:
+            total += 1
+            got = fn(given)
+            if got == want:
+                ok += 1
+            else:
+                bad.append('%s · %s → %r (맞아야 할 답 %r)' % (name, label, got, want))
+        print('  %-24s %d/%d' % (name, ok, len(cases)))
+
+    # ── 진짜로 돌려 보는 자들 ────────────────────────────────────────
+    # 지금 저장소가 깨끗하니 --check 는 0 이어야 한다. 1 이 나오면 자가
+    # 헛짚는 것이거나 진짜 결함이다 — 어느 쪽이든 사람이 봐야 한다.
+    for rel in ('tools/hub_audit.py', 'tools/noindex.py', 'tools/blind_wait.py'):
+        total += 1
+        code, out = run_tool(rel, ['--check'])
+        if code == 0:
+            print('  %-24s 깨끗한 저장소에서 조용하다' % os.path.basename(rel))
+        else:
+            bad.append('%s: 깨끗한 저장소인데 빨간불이다 —\n      %s'
+                       % (rel, out.strip().splitlines()[-1] if out.strip() else '(말이 없다)'))
+
+    print('\n예시 %d개' % total)
+    if bad:
+        print('\n틀린 곳 %d:' % len(bad))
+        for b in bad:
+            print('  ' + b)
+        print('\n**자를 먼저 본다.** 자가 틀린 것이면 자를 고치고, 예시가 틀린')
+        print('것이면 예시를 고친다 — 둘 다 아니면 저장소에 진짜 결함이 있다.')
+        return 1 if check else 0
+
+    print('자들이 참·거짓을 그대로 답한다.')
+    return 0
+
+
+if __name__ == '__main__':
+    try:
+        sys.exit(main())
+    except BrokenPipeError:
+        os._exit(0)

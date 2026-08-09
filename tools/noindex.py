@@ -41,7 +41,13 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # 한 학생의 이름·점수·등수가 뜨는 화면. 이름으로 고르지 않고 **손으로 적는다** —
 # 이름 규칙으로 넓히면 언젠가 대문까지 막는다.
 PERSONAL = {
-    'exam': ['final.html', 'note.html', 'batch-report.html',
+    # ⚠ `hub.html` 이 여기 없었다(2026-08-09에 셈). 성적표 화면은 **한 학생**이
+    #   뜨지만 통합 셸은 **반 명단 전부**가 뜬다 — 이름·학교·학년·점수, 그리고
+    #   반별 수입까지. 첫 화면 잠금은 코드가 소스에 그대로 있는 '문고리' 라
+    #   (그렇게 적혀 있다), 여기서도 남는 보호막은 주소를 남이 모른다는 것
+    #   하나뿐이다. 가장 많이 새면 곤란한 화면이 가장 늦게 들어왔다.
+    'exam': ['hub.html',
+             'final.html', 'note.html', 'batch-report.html',
              'integrated-report.html', 'grade-j0.html', 'sample_report.html',
              'final-submit.html'],
     'dt': ['report.html', 'parent_report.html', 'OX_grader.html',
