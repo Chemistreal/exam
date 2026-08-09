@@ -1959,18 +1959,25 @@ document.addEventListener('click', function(e){
   }
   const b = e.target.closest ? e.target.closest('.mini[data-snz]') : null;
   if(!b) return;
-  const k = b.dataset.snz, p = k.split('|'), off = b.dataset.off === '1';
-  const until = off ? '' : dayKey(SNZ_DAYS);
-  if(off) SNZ.delete(k); else SNZ.set(k, until);
+  const k = b.dataset.snz, off = b.dataset.off === '1';
   const row = b.closest('.row,.trk__i');
   if(row) row.classList.toggle('snz', !off);
-  b.outerHTML = snzBtn(k);
   /* 셸은 쓰지 않는다 — DT 의 재시·문자 화면이 대신 적는다. 못 적혀도 잃는
      것은 없다: 다음에 열면 그 줄이 그대로 목록에 있을 뿐이다. */
-  dtPendWindow().then(function(w){
-    if(typeof w.snoozeStu === 'function')
-      w.snoozeStu({ kind:p[0], name:p[1], course:p[2], round:p[3], until:until, off:off });
-  }).catch(function(){});
+  snoozeOne(k, off);
+  b.outerHTML = snzBtn(k);
+  refreshSoon();
+});
+/* 남은 것을 한 번에 미룬다. 보낸 것·이미 미룬 것은 건드리지 않는다. */
+document.addEventListener('click', function(e){
+  const b = e.target.closest ? e.target.closest('.mini[data-bulksnz]') : null;
+  if(!b) return;
+  const kind = b.dataset.bulksnz;
+  const rows = bulkRows(kind).filter(function(r){
+    return !SENT.has(r.key) && !isSnoozed(r.key); });
+  if(!rows.length){ flash(b, '미룰 것이 없음'); return; }
+  rows.forEach(function(r){ snoozeOne(r.key, false); });
+  flash(b, rows.length+'명 미룸', true);
   refreshSoon();
 });
 /* 문구 만드는 규칙이 낱개 단추와 일괄 단추 두 곳에 흩어지면 언젠가 갈라진다.
@@ -2037,24 +2044,46 @@ function copyBulk(btn, kind, rows){
 function bulkBar(kind, rows, label){
   const left = rows.filter(function(r){ return !SENT.has(r.key) && !isSnoozed(r.key); }).length;
   if(rows.length < 2) return '';
+  /* ── 미루기도 한 번에 ────────────────────────────────────────────
+     문자는 일괄인데 **미루기는 한 명씩**이었다. 시험 주간처럼 반째로 미루는
+     날에는 열두 번을 눌러야 했다 — 일괄로 문자를 보내는 손놀림과 갈렸다.
+     ⚠ **남은 것만** 미룬다. 이미 보낸 것을 미루면 목록에서 사라져, 보낸
+       사실을 확인할 자리가 없어진다. */
+  const snoozeBtn = left >= 2
+    ? '<button class="mini snzb" data-bulksnz="'+kind+'" data-orig="남은 것 미루기">남은 것 미루기</button>'
+    : '';
   return '<div class="selbar"><span>모두 <b>'+rows.length+'명</b>'+
     (left<rows.length ? ' · 남은 <b>'+left+'명</b>' : '')+'</span><span style="flex:1"></span>'+
+    snoozeBtn +
     '<button class="mini" data-bulk="'+kind+'" data-orig="'+esc(label)+'">'+esc(label)+'</button></div>';
+}
+/* 한 줄씩 미루는 것과 **같은 길**로 보낸다 — 갈라 두면 한쪽만 고쳐진다. */
+function snoozeOne(k, off){
+  const p = k.split('|'), until = off ? '' : dayKey(SNZ_DAYS);
+  if(off) SNZ.delete(k); else SNZ.set(k, until);
+  return dtPendWindow().then(function(w){
+    if(typeof w.snoozeStu === 'function')
+      w.snoozeStu({ kind:p[0], name:p[1], course:p[2], round:p[3], until:until, off:off });
+  }).catch(function(){});
 }
 document.addEventListener('click', function(e){
   const b = e.target.closest ? e.target.closest('.mini[data-bulk]') : null;
   if(!b) return;
-  const kind = b.dataset.bulk;
-  let rows = [];
-  if(kind === 'pend') rows = PEND_ROWS.map(function(r,i){
-    return { i:i, name:r.name||'', key:sentKey('pend', r.name, r.course, r.round) }; });
-  else if(kind === 'pass') rows = PASS_ROWS.map(function(r,i){
-    return { i:i, name:r.name||'', key:sentKey('pass', r.name, r.course, r.round) }; });
+  copyBulk(b, b.dataset.bulk, bulkRows(b.dataset.bulk));
+});
+/* 어느 줄들이 '일괄' 에 드는가 — **한곳에서만** 정한다. 일괄 문자와 일괄
+   미루기가 서로 다른 목록을 보면 "다 보냈는데 왜 남아 있지" 가 된다. */
+function bulkRows(kind){
+  const rows = [];
+  if(kind === 'pend') PEND_ROWS.forEach(function(r,i){
+    rows.push({ i:i, name:r.name||'', key:sentKey('pend', r.name, r.course, r.round) }); });
+  else if(kind === 'pass') PASS_ROWS.forEach(function(r,i){
+    rows.push({ i:i, name:r.name||'', key:sentKey('pass', r.name, r.course, r.round) }); });
   else if(kind === 'abs') ABS_ROWS.forEach(function(c,i){
     (c.absent||[]).forEach(function(nm,j){
       rows.push({ i:i, j:j, name:nm, key:sentKey('abs', nm, c.course, c.round, absSchool(c, j)) }); }); });
-  copyBulk(b, kind, rows);
-});
+  return rows;
+}
 
 /* 문자를 클립보드로. 버튼은 눌린 티가 나야 한다 — 복사됐는지 모르면 두 번 누른다.
    실패는 **누른 자리 근처**에 적는다. 학생 카드가 열려 있는데 대시보드에 적으면

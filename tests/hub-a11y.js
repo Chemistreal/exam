@@ -393,9 +393,77 @@ catch (e) {
     });
     chk('또래 대비 경고에 표본 크기가 붙는다', mad, true);
 
+    console.log('\n── 일괄로 되는 일과 한 명씩만 되는 일 ──');
+    /* 문자는 일괄인데 **미루기는 한 명씩**이었다. 시험 주간처럼 반째로 미루는
+       날에는 열두 번을 눌러야 했다 — 일괄로 문자를 보내는 손놀림과 갈렸다.
+       ⚠ 어느 줄이 '일괄' 에 드는지는 **한곳에서만** 정해야 한다(`bulkRows`).
+         문자와 미루기가 서로 다른 목록을 보면 "다 보냈는데 왜 남아 있지" 가 된다. */
+    const 일괄 = await p.evaluate(() => {
+      const src = [...document.querySelectorAll('script')].map(s => s.textContent).join('\n');
+      return {
+        한곳에서정한다: /function bulkRows\(kind\)\{/.test(src),
+        문자가그걸쓴다: /copyBulk\(b, b\.dataset\.bulk, bulkRows\(b\.dataset\.bulk\)\)/.test(src),
+        미루기도그걸쓴다: /data-bulksnz[\s\S]{0,400}bulkRows\(kind\)/.test(src),
+        /* 이미 보낸 것을 미루면 목록에서 사라져 보낸 사실을 확인할 자리가 없어진다. */
+        남은것만: /bulkRows\(kind\)\.filter\(function\(r\)\{\s*return !SENT\.has\(r\.key\) && !isSnoozed\(r\.key\)/.test(src),
+        /* 낱개와 일괄이 같은 길로 나간다 — 갈라 두면 한쪽만 고쳐진다. */
+        같은길: (src.match(/snoozeOne\(/g) || []).length >= 3,
+      };
+    });
+    chk('일괄에 드는 줄을 한곳에서 정한다', 일괄.한곳에서정한다, true);
+    chk('일괄 문자가 그것을 쓴다', 일괄.문자가그걸쓴다, true);
+    chk('일괄 미루기도 그것을 쓴다', 일괄.미루기도그걸쓴다, true);
+    chk('이미 보낸 것은 안 미룬다', 일괄.남은것만, true);
+    chk('낱개와 일괄이 같은 길로 나간다', 일괄.같은길, true);
+
     chk('콘솔에 예외가 없다', errs, []);
   } finally {
     await browser.close();
+  }
+
+  /* ── 그림이 유일한 통로가 되면 안 된다 ────────────────────────────────
+     띠 안의 분자와 반별 3D 는 **덤**이다. WebGL 이 없는 기기(오래된 노트북 ·
+     그래픽 드라이버가 막힌 회사 PC · 원격 화면)에서는 안 그려지는데, 그때
+     **할 수 없게 되는 일이 있으면 결함**이다. 주석에 그렇게 적어 두었으니
+     실제로 그런지 재어 둔다. */
+  console.log('\n── WebGL 이 없어도 같은 일이 되는가 ──');
+  const noGl = seal(await chromium.launch(Object.assign(
+    { args: ['--no-sandbox', '--disable-webgl', '--disable-3d-apis'] },
+    CHROMIUM ? { executablePath: CHROMIUM } : {})));
+  try {
+    const c2 = await noGl.newContext({ viewport: { width: 1280, height: 1400 }, serviceWorkers: 'block' });
+    const p2 = await c2.newPage();
+    const errs2 = [];
+    p2.on('pageerror', e => errs2.push(String(e).slice(0, 120)));
+    await p2.addInitScript(() => {
+      try { localStorage.setItem('chemistreal:gate', String(Date.now())); } catch (e) {}
+    });
+    await p2.route('**/DT/**', r => r.fulfill({
+      status: 200, contentType: 'text/html; charset=utf-8', body: '<!doctype html>' }));
+    await p2.goto(`http://localhost:${PORT}/hub.html`, { waitUntil: 'domcontentloaded' });
+    await p2.waitForFunction(() => typeof show === 'function', null, { timeout: 20000 });
+    await p2.waitForTimeout(1500);
+    const g = await p2.evaluate(() => {
+      let has = false;
+      try { has = !!document.createElement('canvas').getContext('webgl'); } catch (e) {}
+      return {
+        webgl: has,
+        띠그림: !!document.querySelector('.brand canvas'),
+        반3D: !!document.querySelector('#dash3d canvas'),
+        /* 그림이 없어도 남아야 하는 것들 */
+        급한칸: document.querySelectorAll('#dashCards .card').length,
+        탭: document.querySelectorAll('[role="tab"]').length,
+        제목: (document.querySelector('.brand h1') || {}).textContent,
+      };
+    });
+    console.log(`  webgl ${g.webgl ? '있음' : '없음'} · 띠 그림 ${g.띠그림 ? '그림' : '없음'} · 반 3D ${g.반3D ? '그림' : '없음'}`);
+    chk('이 브라우저에는 WebGL 이 없다(검사가 헛돌지 않는다)', g.webgl, false);
+    chk('없으면 조용히 안 그린다', [g.띠그림, g.반3D], [false, false]);
+    chk('화면은 그대로 산다', g.급한칸 > 0 && g.탭 === 12, true);
+    chk('제목도 그대로다', g.제목, 'Chemistreal 통합관리');
+    chk('WebGL 이 없다고 화면이 터지지 않는다', errs2, []);
+  } finally {
+    await noGl.close();
     srv.kill();
   }
 
