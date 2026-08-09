@@ -1,0 +1,325 @@
+/* ============================================================
+   허브를 **눈 말고 다른 것으로** 쓸 수 있는가
+   ------------------------------------------------------------
+   허브 검사는 833개였는데, 이름에 `aria`·`tabindex`·낭독·화살표·색약이 든
+   것이 **하나도 없었다.** 833개가 전부 동작과 자료를 본다 — 누가 무엇을
+   읽어 오고, 어떤 숫자가 찍히고, 캐시가 두 번 안 나가는지. **화면을 쓰는
+   방법은 아무도 안 보고 있었다.**
+
+   안 보고 있었으니 새고 있었다. 재어 보니 둘이다(2026-08-09).
+
+       탭 12개 가운데 tabindex 를 가진 것      0개
+       aria-live · role=status                0개 · 0개
+
+   ① **탭 줄이 화살표를 안 받았다.** `role="tablist"` 를 쓰면 좌우 화살표로
+      옮기고 고르지 않은 탭은 탭 순서에서 빠지는 것이 약속이다(ARIA APG).
+      둘 다 없어서, 탭 줄 하나를 지나가는 데 Tab 을 열두 번 눌러야 했다.
+      숫자 단축키(1~9·0·-·=)가 있어 손 빠른 사람은 안 겪는다. 낭독기를 쓰는
+      사람은 늘 겪는다.
+
+   ② **바뀌는 숫자를 낭독기가 몰랐다.** 대시보드 카드는 '불러오는 중' 으로
+      떴다가 창구가 대답하면 숫자로 바뀐다. 알리는 자리가 없어서, 낭독기는
+      처음에 읽은 말 그대로였다.
+
+   ⚠ 화살표는 **초점만 옮긴다.** 옮기는 족족 여는 방식을 먼저 해 봤는데 두
+     군데서 망가졌다 — 수입 탭은 들어가면 코드 칸으로 초점을 가져가 그다음
+     화살표가 안 먹었고, 앱 탭 다섯은 지나가기만 해도 iframe 이 다 붙었다.
+     그래서 **눌러야 열린다**(manual activation).
+
+   여기서 지키는 것:
+   - 줄마다 탭 순서에 서는 탭이 **하나씩**이다 (둘째 줄도 키보드로 닿는다)
+   - 좌우 화살표가 줄 안에서 돌고, Home·End 가 끝으로 간다
+   - 화살표는 **고른 탭을 바꾸지 않는다**
+   - 낭독기만 읽는 알림 칸이 있고, 같은 말은 되풀이하지 않는다
+   - **못 불러왔다는 말은 반드시 들린다**
+
+   실행:
+       node tests/hub-a11y.js
+   ============================================================ */
+'use strict';
+require('./_watchdog.js')(240);
+const seal = require('./_seal.js');
+const { spawn } = require('child_process');
+const path = require('path');
+
+const PLAYWRIGHT = process.env.PLAYWRIGHT_MODULE || 'playwright';
+const CHROMIUM = process.env.CHROMIUM_PATH || undefined;
+const PORT = Number(process.env.PORT || 8938);
+const ROOT = path.join(__dirname, '..');
+
+let fail = 0;
+const chk = (n, got, want) => {
+  const ok = JSON.stringify(got) === JSON.stringify(want);
+  console.log((ok ? '  PASS  ' : '  FAIL  ') + n +
+    (ok ? '' : `  → ${JSON.stringify(got)} (기대 ${JSON.stringify(want)})`));
+  if (!ok) fail++;
+};
+
+let chromium;
+try { ({ chromium } = require(PLAYWRIGHT)); }
+catch (e) {
+  if (process.env.REQUIRE_BROWSER) {
+    console.log('실패: playwright 를 찾지 못했다 (REQUIRE_BROWSER 가 켜져 있다)');
+    process.exit(1);
+  }
+  console.log('건너뜀: playwright 를 찾지 못했다'); process.exit(0);
+}
+
+(async () => {
+  const srv = spawn(process.execPath, ['-e', `
+    const http=require('http'),fs=require('fs'),p=require('path');
+    const T={'.html':'text/html; charset=utf-8','.js':'text/javascript','.json':'application/json','.css':'text/css'};
+    http.createServer((q,s)=>{
+      const f=p.join(${JSON.stringify(ROOT)}, decodeURIComponent(q.url.split('?')[0]));
+      fs.readFile(f,(e,d)=>e?(s.writeHead(404),s.end()):(s.writeHead(200,{'Content-Type':T[p.extname(f)]||'text/plain'}),s.end(d)));
+    }).listen(${PORT});
+  `], { stdio: 'ignore' });
+  await new Promise(r => setTimeout(r, 700));
+
+  const browser = seal(await chromium.launch(
+    Object.assign({ args: ['--no-sandbox'] }, CHROMIUM ? { executablePath: CHROMIUM } : {})));
+  const ctx = await browser.newContext({
+    viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
+  const p = await ctx.newPage();
+  const errs = [];
+  p.on('pageerror', e => errs.push(String(e)));
+  await p.addInitScript(() => {
+    try { localStorage.setItem('chemistreal:gate', String(Date.now())); } catch (e) {}
+  });
+  /* 창구는 안 부른다 — 여기서 보는 것은 자료가 아니라 **쓰는 방법**이다.
+     _seal 이 이미 구글로 나가는 길을 끊었고, 대답이 없어도 탭 줄은 선다. */
+  await p.route('**/DT/**', r => r.fulfill({
+    status: 200, contentType: 'text/html; charset=utf-8',
+    body: '<!doctype html><meta charset="utf-8">' }));
+
+  try {
+    await p.goto(`http://localhost:${PORT}/hub.html`, { waitUntil: 'domcontentloaded' });
+    await p.waitForFunction(() => typeof say === 'function' && typeof rovingTabs === 'function',
+      null, { timeout: 20000 });
+    await p.waitForTimeout(600);
+
+    console.log('── 탭 줄이 키보드를 받는가 ──');
+    const t0 = await p.evaluate(() => ({
+      줄: document.querySelectorAll('nav[role="tablist"]').length,
+      탭: document.querySelectorAll('[role="tab"]').length,
+      /* 줄마다 탭 순서에 서는 탭이 하나씩이어야 한다. 하나도 없으면 그 줄은
+         키보드로 아예 못 닿고, 전부 서 있으면 Tab 을 열두 번 눌러야 한다. */
+      줄별탭순서: [...document.querySelectorAll('nav[role="tablist"]')]
+        .map(n => [...n.querySelectorAll('[role="tab"]')].filter(b => b.tabIndex === 0).length),
+      /* 한 바퀴 도는 데 몇 곳을 지나는가 */
+      초점자리: [...document.querySelectorAll(
+        'a[href],button:not([disabled]),input:not([disabled]),select,textarea,[tabindex]')]
+        .filter(e => e.tabIndex >= 0 && e.getBoundingClientRect().width > 0).length,
+    }));
+    console.log(`  tablist ${t0.줄}줄 · 탭 ${t0.탭}개 · 줄마다 탭 순서에 선 것 ${JSON.stringify(t0.줄별탭순서)}`);
+    chk('tablist 가 둘이다', t0.줄, 2);
+    chk('줄마다 탭 순서에 서는 탭이 하나씩이다', t0.줄별탭순서, [1, 1]);
+
+    /* ── 화살표가 줄 안에서 돈다 ────────────────────────────────────── */
+    const step = async (from, keys) => {
+      await p.focus('#' + from);
+      for (const k of keys) { await p.keyboard.press(k); await p.waitForTimeout(60); }
+      return p.evaluate(() => ({
+        초점: document.activeElement.id,
+        고른탭: [...document.querySelectorAll('[role="tab"][aria-selected="true"]')].map(x => x.id),
+      }));
+    };
+    const r1 = await step('t-dash', ['ArrowRight']);
+    chk('오른쪽 화살표가 옆 탭으로 옮긴다', r1.초점, 't-stu');
+    chk('화살표는 고른 탭을 바꾸지 않는다', r1.고른탭, ['t-dash']);
+
+    const r2 = await step('t-dash', ['ArrowLeft']);
+    chk('왼쪽 화살표는 줄 끝으로 돈다', r2.초점, 't-inc');
+
+    const r3 = await step('t-dash', ['End']);
+    chk('End 가 줄 끝으로 간다', r3.초점, 't-inc');
+    const r4 = await step('t-inc', ['Home']);
+    chk('Home 이 줄 처음으로 간다', r4.초점, 't-dash');
+    const r5 = await step('t-inc', ['ArrowRight']);
+    chk('끝에서 한 번 더 누르면 처음으로 돈다', r5.초점, 't-dash');
+
+    /* 둘째 줄(앱 화면)은 첫째 줄과 **따로** 돈다. 넘나들면 '보기' 와 '작업'
+       두 줄이 한 줄처럼 읽힌다. */
+    const r6 = await step('t-exam', ['ArrowRight']);
+    chk('둘째 줄도 화살표를 받는다', r6.초점, 't-dt');
+    const r7 = await step('t-exam', ['ArrowLeft']);
+    chk('둘째 줄이 첫째 줄로 넘어가지 않는다', r7.초점, 't-km');
+
+    /* 화살표로 옮기면 탭 순서에 서는 자리도 따라와야 한다 — 안 그러면
+       Tab 으로 나갔다 돌아올 때 엉뚱한 탭으로 온다. */
+    await p.focus('#t-dash');
+    await p.keyboard.press('ArrowRight'); await p.waitForTimeout(60);
+    const r8 = await p.evaluate(() => [...document.querySelectorAll('nav[role="tablist"]')][0]
+      .querySelectorAll('[role="tab"]')[1].tabIndex);
+    chk('탭 순서에 서는 자리가 초점을 따라온다', r8, 0);
+
+    /* 눌러야 열린다 — Enter 는 브라우저가 click 으로 바꿔 준다. */
+    await p.focus('#t-stu');
+    await p.keyboard.press('Enter'); await p.waitForTimeout(400);
+    const r9 = await p.evaluate(() =>
+      [...document.querySelectorAll('[role="tab"][aria-selected="true"]')].map(x => x.id));
+    chk('Enter 로 열린다', r9, ['t-stu']);
+
+    console.log('\n── 창이 초점을 가두고, 닫으면 돌려주는가 ──');
+    /* `showModal()` 로 열면 가두는 것까지는 브라우저가 한다. 그런데 **닫을
+       때**는 아무 데도 안 돌려준다 — 재어 보니 닫은 뒤 초점이 <body> 로
+       흩어졌다. 키보드로 쓰는 사람은 학생 카드를 닫을 때마다 화면 맨 위에서
+       Tab 을 다시 눌러 내려와야 한다. 한 반을 훑는 상담 주간이면 스무 번이다. */
+    await p.focus('#t-stu');
+    const 열기전 = await p.evaluate(() => document.activeElement.id);
+    await p.evaluate(() => openPal());
+    await p.waitForTimeout(250);
+    const 여는중 = await p.evaluate(() => ({
+      초점: document.activeElement.id,
+      갇힘: document.getElementById('pal').matches(':modal'),
+    }));
+    await p.keyboard.press('Escape');
+    await p.waitForTimeout(250);
+    const 닫은뒤 = await p.evaluate(() => document.activeElement.id);
+    console.log(`  ${열기전} → ${여는중.초점} → ${닫은뒤}`);
+    chk('창이 초점을 가둔다', 여는중.갇힘, true);
+    chk('창을 열면 안쪽으로 초점이 간다', 여는중.초점, 'palIn');
+    chk('닫으면 열었던 자리로 돌아온다', 닫은뒤, 열기전);
+    /* 네 창이 다 `showModal()` 이어야 한다. `show()` 는 안 가둔다 — 뒤 화면으로
+       Tab 이 새어 나가고, 낭독기는 창 밖 글까지 읽는다. */
+    const 여는법 = await p.evaluate(() => {
+      const src = [...document.querySelectorAll('script')].map(s => s.textContent).join('\n');
+      return { 안가두는열기: (src.match(/\.show\(\)/g) || []).length };
+    });
+    chk('안 가두는 방식으로 여는 창이 없다', 여는법.안가두는열기, 0);
+
+    console.log('\n── 낭독기에게 알리는가 ──');
+    const live = await p.evaluate(() => {
+      const e = document.getElementById('sr');
+      if (!e) return null;
+      const b = e.getBoundingClientRect();
+      return { role: e.getAttribute('role'), live: e.getAttribute('aria-live'),
+               atomic: e.getAttribute('aria-atomic'),
+               보임: b.width > 2 || b.height > 2,
+               숨김방식: getComputedStyle(e).display };
+    });
+    chk('알림 칸이 있다', !!live, true);
+    chk('role=status 다', live && live.role, 'status');
+    chk('공손하게 알린다(polite)', live && live.live, 'polite');
+    chk('한 덩어리로 읽는다(atomic)', live && live.atomic, 'true');
+    chk('화면에는 안 보인다', live && live.보임, false);
+    /* display:none 으로 숨기면 낭독기도 같이 못 읽는다 — 1px 로 잘라야 한다. */
+    chk('낭독기가 못 읽게 숨기지 않았다', live && live.숨김방식 !== 'none', true);
+
+    const said = async (fn) => {
+      await p.evaluate(fn);
+      await p.waitForTimeout(160);
+      return p.evaluate(() => document.getElementById('sr').textContent);
+    };
+    chk('말을 적는다', await said(() => say('첫 말')), '첫 말');
+    /* 같은 말을 되풀이하면 낭독기가 쉬지 않고 떠들어 급한 말이 묻힌다.
+       이 셸은 화면을 자주 다시 그린다(storage 이벤트 · refreshSoon · 탭 이동). */
+    await p.evaluate(() => { document.getElementById('sr').textContent = '지움'; });
+    chk('같은 말은 흘려보낸다', await said(() => say('첫 말')), '지움');
+    chk('다른 말은 적는다', await said(() => say('둘째 말')), '둘째 말');
+    /* 못 불러왔다는 말은 반드시 들려야 한다. 눈으로 보는 사람에게는 붉은 칸이
+       뜨지만, 낭독기는 화면 아무 데나 새로 생긴 글을 저절로 읽지 않는다. */
+    chk('실패는 반드시 들린다',
+        await said(() => note('dashNote', '시트를 못 불러왔습니다', true)),
+        '시트를 못 불러왔습니다');
+    /* 성공은 조용해도 된다 — 눈앞에 이미 결과가 있다. */
+    await p.evaluate(() => { document.getElementById('sr').textContent = '지움'; });
+    chk('보통 안내까지 떠들지는 않는다',
+        await said(() => note('dashNote', '그냥 안내입니다', false)), '지움');
+
+    console.log('\n── 색·모양으로만 말하는 자리가 없는가 ──');
+    /* 자료 표의 '있다/없다' 점은 색약인 눈을 위해 **모양**으로도 갈라 두었다
+       (채움 · 반채움 · 빈칸). 그런데 낭독기에게는 모양도 색도 안 보인다 —
+       `<i>` 에 title 만 붙어 있어서 그 칸이 통째로 아무 말도 안 했다. */
+    await p.evaluate(() => show('mat'));
+    await p.waitForTimeout(1800);
+    const dots = await p.evaluate(() => {
+      const d = [...document.querySelectorAll('.dots')];
+      return {
+        칸: d.length,
+        이름없는칸: d.filter(x => !x.getAttribute('aria-label')).length,
+        보기: d.length ? d[0].getAttribute('aria-label') : '',
+        속점가려짐: d.length
+          ? [...d[0].querySelectorAll('i')].every(i => i.getAttribute('aria-hidden') === 'true')
+          : false,
+      };
+    });
+    console.log(`  점 칸 ${dots.칸}개 · 첫 칸이 하는 말: "${dots.보기}"`);
+    /* 칸이 아예 안 그려졌으면 아래 둘은 늘 통과다 — 안 재고 지나가는 것을 막는다. */
+    chk('자료 탭에 점 칸이 실제로 그려졌다', dots.칸 > 0, true);
+    chk('점 칸이 전부 말을 한다', dots.이름없는칸, 0);
+    chk('점 하나하나는 낭독기에서 가린다', dots.속점가려짐, true);
+    /* 반 표의 상태는 색 말고 **글자**로도 적혀 있어야 한다(미응시·재시 대기·통과·아직). */
+    const tags = await p.evaluate(() => {
+      const src = [...document.querySelectorAll('script')].map(s => s.textContent).join('\n');
+      return /CLS_LABEL\[st\]/.test(src);
+    });
+    chk('반 표의 상태에 글자 이름이 붙는다', tags, true);
+
+    console.log('\n── 창구가 죽었을 때 정직하게 말하는가 ──');
+    /* 여태는 DT 명단이 실패했을 때만 알렸고, 그 문구가 "나머지 숫자는
+       정상입니다" 였다. 창구를 다 끊고 재어 보니 다섯이 함께 죽는데 **하나만
+       대고, 그러고는 나머지가 멀쩡하다고 했다** — 미응시·미완료 칸도 '—' 인데
+       정상이라고 한 것이다. 못 믿을 자를 옆에 두면 진짜 경고도 안 읽힌다. */
+    const dead = await p.evaluate(() => {
+      dashDead('DT 명단', '연결 실패');
+      dashDead('DT 통과', '연결 실패');
+      return (document.getElementById('dashNote') || {}).innerText || '';
+    });
+    console.log('  ' + dead.replace(/\s+/g, ' ').trim());
+    chk('죽은 창구를 하나도 빠뜨리지 않고 댄다',
+        dead.includes('DT 명단') && dead.includes('DT 통과'), true);
+    chk('멀쩡하다고 거짓말하지 않는다', /나머지 숫자는 정상/.test(dead), false);
+    /* 받침을 보고 조사를 고른다 — "DT 통과을" 이 실제로 화면에 떴다. */
+    chk('조사가 맞다', /DT 통과를/.test(dead), true);
+    /* ⚠ 이 화면은 창구를 막아 둔 채 열었으므로 미완료·미응시도 이미 죽어
+       있다. 둘만 되살리고 "치웠나" 를 물으면 검사가 틀린 것을 묻는 셈이다 —
+       처음에 그렇게 짰다가 걸렸다. **살아 있는 것이 하나도 없을 때** 치우는지
+       본다. 하나라도 남아 있으면 그 이름은 계속 떠 있어야 한다. */
+    const 남음 = await p.evaluate(() => {
+      dashAlive('DT 명단');
+      return (document.getElementById('dashNote') || {}).innerText || '';
+    });
+    chk('하나 살아나도 나머지는 계속 뜬다',
+        !남음.includes('DT 명단') && 남음.includes('DT 통과'), true);
+    const back = await p.evaluate(() => {
+      ['DT 미완료', 'DT 미응시', 'DT 통과'].forEach(n => dashAlive(n));
+      return (document.getElementById('dashNote') || {}).innerText || '';
+    });
+    chk('다 살아나면 경고를 치운다', back.trim(), '');
+
+    console.log('\n── 빈 자리·잘린 자리가 다음 할 일을 말하는가 ──');
+    /* "없습니다" 로 끝나면 선생님은 다음에 뭘 해야 할지 모른다. 셋 다 다른
+       할 일로 이어진다 — 시트와 맞추기 · DT 명단 관리 · 걸러 보기 풀기. */
+    const 빈말 = await p.evaluate(() => {
+      const src = [...document.querySelectorAll('script')].map(s => s.textContent).join('\n');
+      return {
+        명단없음: /명단이 비어 있습니다 — .*연결 상태/.test(src),
+        반없음: /반 명단이 비어 있습니다 — .*명단 관리/.test(src),
+        회차없음: /아직 채점한 회차가 없습니다 — /.test(src),
+        기록없음: /파이널 채점 기록이 없습니다 — /.test(src),
+        거른뒤없음: /이 조건에 맞는 학생이 없습니다 — /.test(src),
+      };
+    });
+    chk('빈 상태가 다음 할 일까지 말한다', 빈말,
+        { 명단없음: true, 반없음: true, 회차없음: true, 기록없음: true, 거른뒤없음: true });
+
+    /* 40줄에서 자르는데 자른 줄을 안 알리면 "두 명뿐이네" 가 된다. */
+    const cap = await p.evaluate(() => {
+      const many = Array.from({ length: 45 }, (_, i) => ({ name: 'ㄱ' + i }));
+      const few = Array.from({ length: 40 }, (_, i) => ({ name: 'ㄱ' + i }));
+      return { 넘칠때: capNote(many), 안넘칠때: capNote(few) };
+    });
+    chk('40줄을 넘기면 잘랐다고 알린다',
+        /45명/.test(cap.넘칠때) && /학생<\/b> 탭/.test(cap.넘칠때), true);
+    chk('안 넘치면 조용하다', cap.안넘칠때, '');
+
+    chk('콘솔에 예외가 없다', errs, []);
+  } finally {
+    await browser.close();
+    srv.kill();
+  }
+
+  console.log(fail ? `\nFAIL ${fail}건` : '\nPASS');
+  process.exit(fail ? 1 : 0);
+})().catch(e => { console.error(e); process.exit(1); });

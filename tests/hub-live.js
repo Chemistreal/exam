@@ -1036,7 +1036,12 @@ async function settled(p, label, fn, arg, ms) {
       document.querySelector('#stuFilter .chip[data-stuf="noexam"]').click();
       return document.getElementById('stuList').textContent.trim();
     });
-    chk('비면 조건 때문이라고 말한다', none, '이 조건에 맞는 학생이 없습니다.');
+    /* ⚠ 예전에는 문장을 **글자 그대로** 견줬다. 그래서 빈 상태에 '다음에 할
+       일'(위의 전체를 누르면 다 보입니다)을 덧붙이자 뜻은 그대로인데 검사만
+       빨간불이 됐다. 자가 문구를 붙들면 문구를 못 고친다 — **가른다는 사실**만
+       본다: 검색이 없다고 하지 말고 조건 때문이라고 해야 한다. */
+    chk('비면 조건 때문이라고 말한다',
+        /이 조건에 맞는 학생이 없습니다/.test(none) && !/찾는 학생이 없습니다/.test(none), true);
     await p.evaluate(() => document.querySelector('#stuFilter .chip[data-stuf="all"]').click());
   }
 

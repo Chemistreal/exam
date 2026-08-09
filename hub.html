@@ -68,6 +68,13 @@
 }
 
 
+/* ── 낭독기에게만 들리는 자리 ────────────────────────────────────────
+   화면에서는 안 보이고 낭독기만 읽는 칸이다. `display:none` 이나
+   `visibility:hidden` 으로 숨기면 **낭독기도 같이 못 읽는다** — 그래서 1px
+   짜리로 잘라 두는 오래된 방법을 쓴다. */
+.sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+
 /* ── 움직임을 줄여 달라고 해 둔 기기 ────────────────────────────────
    어지럼증·멀미 때문에 운영체제에서 켜 두는 설정이다. 켜 두었으면 화면이
    미끄러지듯 움직이는 것을 멈춘다 — 자리는 그대로 가되 **한 번에** 간다. */
@@ -645,6 +652,11 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
   header .logo{letter-spacing:.16em;font-weight:700}
 }</style>
 </head><body>
+
+<!-- 숫자가 다 차오르면 여기에 한 줄로 적는다. 낭독기만 읽는다.
+     이것이 없으면 대시보드가 '불러오는 중' 에서 숫자로 바뀌어도 낭독기는
+     처음에 읽은 말 그대로다 — 화면을 새로 훑어야 알 수 있다. -->
+<p id="sr" class="sr" role="status" aria-live="polite" aria-atomic="true"></p>
 
 <header>
   <div class="brand">
@@ -1610,6 +1622,60 @@ document.addEventListener('scroll', function(e){
   if(e.target && e.target.tagName === 'NAV') navEdges();
 }, true);
 
+/* ── 탭 줄을 화살표로 옮긴다 ────────────────────────────────────────────
+   `role="tablist"` 를 쓰면 두 가지가 따라온다(ARIA APG). 좌우 화살표로 탭을
+   옮기고, **고르지 않은 탭은 탭 순서에서 빠진다.** 여태 둘 다 없었다.
+
+   그래서 탭 열둘이 전부 탭 순서에 서 있었다 — 탭 줄 하나를 지나가려면 Tab 을
+   열두 번 눌러야 했고, 화살표는 아무 일도 안 했다. 숫자 단축키(1~9·0·-·=)가
+   있어서 손이 빠른 사람은 안 겪는다. **낭독기를 쓰는 사람은 늘 겪는다.**
+
+   ⚠ 화살표는 **줄 안에서만** 돈다. '보기'(셸 화면)와 '작업'(앱 화면)은 서로
+     다른 tablist 다. 넘나들게 하면 두 줄이 한 줄처럼 읽힌다.
+   ⚠ 줄마다 **탭 순서에 서는 것이 하나씩** 있어야 한다. 고른 탭이 이 줄에
+     없으면(다른 줄을 고른 상태) 그 줄의 첫 탭이 그 자리를 맡는다. 안 그러면
+     두 번째 줄이 키보드로 아예 닿지 않는다. */
+function tabLists(){
+  return [].slice.call(document.querySelectorAll('nav[role="tablist"]'));
+}
+function tabsOf(nav){
+  return [].slice.call(nav.querySelectorAll('[role="tab"]'));
+}
+function rovingTabs(id){
+  tabLists().forEach(function(nav){
+    const list = tabsOf(nav);
+    let at = -1;
+    list.forEach(function(b, i){ if(b.id === 't-'+id) at = i; });
+    if(at < 0) at = 0;                       // 이 줄에 고른 탭이 없다 — 첫 탭이 맡는다
+    list.forEach(function(b, i){ b.tabIndex = (i === at) ? 0 : -1; });
+  });
+}
+/* ⚠ 화살표는 **초점만 옮긴다.** 옮기는 족족 그 화면을 여는 방식(automatic
+   activation)을 먼저 해 봤는데 두 군데서 망가졌다.
+
+     · 수입 탭은 들어가면 코드 칸으로 초점을 가져간다. 화살표로 지나가기만
+       해도 초점이 빨려 들어가, 그다음 화살표가 아예 안 먹었다.
+     · 앱 탭 다섯은 처음 열 때 iframe 을 붙인다. 지나가기만 해도 다섯 장이
+       다 붙는다.
+
+   그래서 **눌러야 열린다.** 단추(`<button>`)라 Enter·Space 는 브라우저가
+   알아서 click 으로 바꿔 주므로 여기서 따로 할 일이 없다. ARIA APG 도 여는
+   값이 비싸면 이쪽을 쓰라고 한다. */
+function tabArrow(e){
+  const K = e.key;
+  if(K!=='ArrowLeft' && K!=='ArrowRight' && K!=='Home' && K!=='End') return;
+  const nav = e.currentTarget, list = tabsOf(nav), at = list.indexOf(document.activeElement);
+  if(at < 0) return;
+  const to = K==='Home' ? 0
+           : K==='End'  ? list.length - 1
+           : (at + (K==='ArrowLeft' ? -1 : 1) + list.length) % list.length;
+  e.preventDefault();
+  /* 탭 순서에 서는 자리는 **초점을 따라간다.** 안 그러면 화살표로 옮긴 뒤
+     Tab 을 눌렀다가 되돌아올 때 엉뚱한 탭으로 온다. */
+  list.forEach(function(b, i){ b.tabIndex = (i === to) ? 0 : -1; });
+  list[to].focus();
+  navReveal(list[to].id.slice(2));           // 잘려 있으면 보이게 민다
+}
 function show(id){
   TABS.forEach(function(t){
     const b = document.getElementById('t-'+t), p = document.getElementById('p-'+t);
@@ -1617,6 +1683,7 @@ function show(id){
     b.setAttribute('aria-selected', on?'true':'false');
     p.classList.toggle('on', on);
   });
+  rovingTabs(id);
   navReveal(id); navEdges(); renderViews();
   // 앱 화면은 처음 열 때만 붙인다 — 미리 다 띄우면 느리다
   const app = frameOf(id) ? id : null;
@@ -1719,6 +1786,7 @@ function applyHash(){
 TABS.forEach(function(t){
   document.getElementById('t-'+t).addEventListener('click', function(){ show(t); });
 });
+tabLists().forEach(function(nav){ nav.addEventListener('keydown', tabArrow); });
 
 /* ── 성적표를 다시 여는 길 ──────────────────────────────────────────
    링크 만드는 규칙(#r=…)을 여기에 베껴 두면 언젠가 두 규칙이 갈라진다.
@@ -2207,11 +2275,19 @@ function histo(pcts){
              'px" title="'+(i*10)+'~'+(i*10+9)+'% · '+n+'명"></i>'; }).join('')+'</div>'+
     '<div class="histx">'+b.map(function(n,i){ return '<span>'+(i%2?'':(i*10))+'</span>'; }).join('')+'</div>';
 }
-/* 있다/없다. 자료 탭에서 "이 회차에 해설이 있나" 를 표를 읽지 않고 본다. */
+/* 있다/없다. 자료 탭에서 "이 회차에 해설이 있나" 를 표를 읽지 않고 본다.
+
+   색약인 눈을 위해 **모양**으로도 갈라 두었다(채움 · 반채움 · 빈칸). 그런데
+   낭독기에게는 모양도 색도 안 보인다. `<i>` 에 `title` 만 붙여 두면 읽는
+   기기마다 읽기도 하고 안 읽기도 한다 — 자료 표의 그 칸이 통째로 **아무 말도
+   안 하는 칸**이 된다. 칸 하나를 한 덩어리 그림으로 보고 말로 적어 준다. */
 function dotsOf(flags){
-  return '<span class="dots">'+flags.map(function(f){
-    return '<i class="dot '+(f.on===true?'on':(f.on==='half'?'half':''))+'" title="'+
-           esc(f.label)+'"></i>'; }).join('')+'</span>';
+  const said = flags.map(function(f){
+    return f.label + (f.on===true ? ' 있음' : (f.on==='half' ? ' 일부' : ' 없음'));
+  }).join(', ');
+  return '<span class="dots" role="img" aria-label="'+esc(said)+'">'+flags.map(function(f){
+    return '<i aria-hidden="true" class="dot '+(f.on===true?'on':(f.on==='half'?'half':''))+
+           '" title="'+esc(f.label)+'"></i>'; }).join('')+'</span>';
 }
 
 /* ── 대시보드 ───────────────────────────────────────────────────── */
@@ -3307,6 +3383,39 @@ function allRounds(fin){
   (fin.students||[]).forEach(function(s){ (s.rounds||[]).forEach(function(r){ out.push(r); }); });
   return out.sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
 }
+/* 받침이 있으면 '을', 없으면 '를'. 이름을 이어 붙여 문장을 만드는 자리가
+   늘어나면서 "DT 통과을" 같은 말이 나왔다 — 선생님이 매일 보는 화면이다. */
+function eul(word){
+  const ch = String(word||'').trim().slice(-1);
+  const c = ch.charCodeAt(0);
+  if(!(c >= 0xAC00 && c <= 0xD7A3)) return '을(를)';   // 한글이 아니면 둘 다 적는다
+  return ((c - 0xAC00) % 28) ? '을' : '를';
+}
+/* ── 무엇이 안 왔는지 한 줄로, 정직하게 ──────────────────────────────
+   여태는 DT 명단이 실패했을 때만 알렸고, 그 문구가 **"나머지 숫자는 정상입니다"**
+   였다. 창구를 다 끊고 재어 보니(2026-08-09) 다섯이 함께 죽는데 **하나만 대고,
+   그러고는 나머지가 멀쩡하다고 했다** — 미응시·미완료 칸도 '—' 인데 정상이라고
+   한 것이다. 못 믿을 자를 옆에 두면 진짜 경고가 와도 안 읽힌다.
+
+   못 온 것을 모아서 그대로 적는다. 안심시키는 말은 사실일 때만 한다. */
+const DASH_DEAD = new Map();          // 이름 → 까닭
+let DASH_NOTE_MINE = false;           // 지금 그 칸에 적힌 글이 내가 쓴 것인가
+function renderDashDead(){
+  const el = document.getElementById('dashNote'); if(!el) return;
+  if(!DASH_DEAD.size){
+    /* 시트 맞추기도 같은 칸을 쓴다 — 남의 글까지 지우지는 않는다. */
+    if(DASH_NOTE_MINE){ el.innerHTML = ''; DASH_NOTE_MINE = false; }
+    return;
+  }
+  const names = Array.from(DASH_DEAD.keys());
+  const why = Array.from(new Set(DASH_DEAD.values())).join(' · ');
+  DASH_NOTE_MINE = true;
+  note('dashNote', names.join(' · ') + eul(names[names.length-1]) + ' 불러오지 못했습니다 — ' + why +
+       '. 그 칸은 «—» 로 둡니다. 나머지 숫자는 이 브라우저에 쌓인 파이널 기록입니다.', true);
+}
+function dashDead(name, why){ DASH_DEAD.set(name, why || '연결 실패'); renderDashDead(); }
+function dashAlive(name){ if(DASH_DEAD.delete(name)) renderDashDead(); }
+
 function renderDash(){
   const fin = FIN || (FIN = examLocal());
   syncWorkRows(); renderJump();
@@ -3353,6 +3462,11 @@ function renderDash(){
     card(fin.rounds, '기록이 있는 회차', false, '', '', 'finRndCnt'),
   ];
   document.getElementById('dashCards').innerHTML = urgent + past.join('');
+  /* 숫자가 다 찼을 때 **한 번만** 알린다. 그리는 족족 알리면(refreshSoon 이
+     자주 부른다) 낭독기가 쉬지 않고 떠들어, 정작 급한 말이 묻힌다.
+     say() 가 같은 말이면 흘려보낸다. */
+  if(abN!=null && pdN!=null && dtKnown)
+    say('오늘 현황 — 시험 미응시 '+abN+'명, DT 미완료 '+pdN+'건, 반 명단 '+dtKnown.length+'명');
 
   /* ── 꾸미는 창구는 줄 뒤에 세운다 ────────────────────────────────
      ⚠ 앱스크립트는 실행을 **한 줄로 세운다.** 여기서 여덟 창구를 한꺼번에
@@ -3368,9 +3482,10 @@ function renderDash(){
   dtRoster().then(function(rows){
     document.getElementById('dtCnt').textContent = rows.length;
     renderClassTab(); renderRosterCount(); renderIncome();
+    dashAlive('DT 명단');
   }).catch(function(e){
     document.getElementById('dtCnt').textContent = '—';
-    note('dashNote', 'DT 명단을 불러오지 못했습니다 — '+e.message+'. 나머지 숫자는 정상입니다.', true);
+    dashDead('DT 명단', e.message);
   });
 
   dtPending().then(function(){
@@ -3379,6 +3494,7 @@ function renderDash(){
        "2건이라는데 하나만 보이네" 가 된다. 세는 것도 거른 뒤에 센다. */
     syncWorkRows(); renderJump(); renderClassTab();
     document.getElementById('pdCnt').textContent = PEND_ROWS.length;
+    dashAlive('DT 미완료');
     if(!PEND_ROWS.length){ const w0=document.getElementById('pendWrap'); if(w0) w0.hidden=true; return; }
     const w = document.getElementById('pendWrap'); w.hidden = false;
     const pendKeys = PEND_ROWS.map(function(r,i){ return { i:i, name:r.name||'',
@@ -3397,12 +3513,16 @@ function renderDash(){
              '<button class="mini msg" data-pend="'+i+'" data-orig="문자 복사">문자 복사</button>'+
              sentUndo(sk)+snzBtn(sk)+'</div>';
     }).join('');
-  }).catch(function(){ document.getElementById('pdCnt').textContent = '—'; });
+  }).catch(function(e){
+    document.getElementById('pdCnt').textContent = '—';
+    dashDead('DT 미완료', e && e.message);
+  });
 
   /* 시험 미응시. 반 단위라 '반 전체 공지' 한 번이면 끝나는 일이 대부분이다. */
   dtAbsentees().then(function(classes){
     const w = document.getElementById('absWrap'); if(!w) return;
     syncWorkRows(); renderJump(); renderClassTab();
+    dashAlive('DT 미응시');
     const ac = document.getElementById('abCnt');
     if(ac) ac.textContent = ABS_ROWS.reduce(function(t,c){ return t + c.absent.length; }, 0);
     w.hidden = !ABS_ROWS.length;
@@ -3424,9 +3544,10 @@ function renderDash(){
       }).join('');
       return head + stus;
     }).join('');
-  }).catch(function(){
+  }).catch(function(e){
     const w=document.getElementById('absWrap'); if(w) w.hidden=true;
     const ac=document.getElementById('abCnt'); if(ac) ac.textContent='—';
+    dashDead('DT 미응시', e && e.message);
   });
 
   /* 통과한 학생. 여태 셸이 보여 준 것은 안 한 학생뿐이라, 잘한 아이가 가장
@@ -3434,6 +3555,7 @@ function renderDash(){
   dtPassed().then(function(rows){
     const w = document.getElementById('passWrap'); if(!w) return;
     syncWorkRows(); renderJump(); renderClassTab();
+    dashAlive('DT 통과');
     w.hidden = !PASS_ROWS.length;
     if(!PASS_ROWS.length) return;
     document.getElementById('passList').innerHTML = bulkBar('pass',
@@ -3450,7 +3572,10 @@ function renderDash(){
              '<button class="mini msg" data-pass="'+i+'" data-orig="통과 문자">통과 문자</button>'+
              sentUndo(sk)+'</div>';
     }).join('');
-  }).catch(function(){ const w=document.getElementById('passWrap'); if(w) w.hidden=true; });
+  }).catch(function(e){
+    const w=document.getElementById('passWrap'); if(w) w.hidden=true;
+    dashDead('DT 통과', e && e.message);
+  });
 
   /* 요즘 반이 어려워하는 개념. 못 받아도 조용히 접는다 — 이건 참고 자료라
      안 보인다고 채점하는 날 일이 막히지는 않는다. */
@@ -3524,6 +3649,23 @@ function renderQuick(){
 function note(id, msg, isErr){
   const el = document.getElementById(id); if(!el) return;
   el.innerHTML = '<div class="note'+(isErr?' err':'')+'">'+esc(msg)+'</div>';
+  /* 못 불러왔다는 말은 **반드시** 들려야 한다. 눈으로 보는 사람에게는 붉은
+     칸이 뜨지만, 낭독기는 화면 아무 데나 새로 생긴 글을 저절로 읽지 않는다. */
+  if(isErr) say(msg);
+}
+/* ── 낭독기에게 알린다 ───────────────────────────────────────────────
+   같은 말이면 흘려보낸다. 이 셸은 화면을 자주 다시 그리는데(storage 이벤트 ·
+   refreshSoon · 탭 이동), 그릴 때마다 알리면 낭독기가 쉬지 않고 떠들어
+   **정작 급한 말이 묻힌다.** 값이 실제로 달라졌을 때만 말한다. */
+let SAY_LAST = '';
+function say(msg){
+  const el = document.getElementById('sr');
+  if(!el || !msg || msg === SAY_LAST) return;
+  SAY_LAST = msg;
+  /* 같은 칸의 글을 곧바로 갈면 낭독기가 못 알아채는 일이 있다. 한 번 비우고
+     다음 차례에 넣어 '바뀌었다' 를 확실히 만든다. */
+  el.textContent = '';
+  setTimeout(function(){ el.textContent = msg; }, 30);
 }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){
   return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
@@ -3722,9 +3864,11 @@ function renderStudents(){
   });
   const el = document.getElementById('stuList');
   if(!rows.length){ el.innerHTML = '<div class="spin" style="padding:16px">'+
-    (!ROSTER.length ? '명단이 비어 있습니다.'
-     : STU_FILTER!=='all' ? '이 조건에 맞는 학생이 없습니다.'
-     : '찾는 학생이 없습니다.')+'</div>'; return; }
+    /* 없다는 말만 하고 끝내면 선생님이 다음에 뭘 해야 할지 모른다. 세 곳에서
+       읽어 오는 화면이니 **어디를 봐야 하는지**까지 적는다. */
+    (!ROSTER.length ? '명단이 비어 있습니다 — 세 앱 어디에도 학생이 없거나, 아직 못 불러왔습니다. 아래 연결 상태를 보세요.'
+     : STU_FILTER!=='all' ? '이 조건에 맞는 학생이 없습니다 — 위의 <b>전체</b> 를 누르면 다 보입니다.'
+     : '찾는 학생이 없습니다 — 초성으로도 찾습니다(ㄱㅇㅈ → 김유정).')+'</div>'; return; }
   el.innerHTML = rows.slice(0,300).map(function(r,i){
     const where = [r.school, r.grade?r.grade+'학년':''].filter(Boolean).join(' ') || '—';
     const tags = Object.keys(r.apps).map(function(a){
@@ -3819,7 +3963,10 @@ function openStudent(r, list, at){
              (w? ' · '+w : '')+'</div></div>'+actBtns(i)+'</div>';
     }).join('')+'</div>';
   }
-  if(!html) html = '<div class="spin">이 브라우저에 파이널 채점 기록이 없습니다.</div>';
+  /* '없다' 가 '안 봤다' 는 뜻일 수도 있고 '이 브라우저가 아직 못 받았다' 는
+     뜻일 수도 있다. 둘은 할 일이 다르다 — 뒤엣것은 시트와 맞추면 나온다. */
+  if(!html) html = '<div class="spin">이 브라우저에 파이널 채점 기록이 없습니다 — '+
+    '다른 기기에서 채점했다면 대시보드의 <b>지금 시트와 맞추기</b> 를 누르세요.</div>';
   html += '<div id="stuOther"></div><div id="dlgNote"></div>';
   const body = document.getElementById('dlgBody');
   body.innerHTML = html;
@@ -3835,7 +3982,7 @@ function openStudent(r, list, at){
   /* 이미 열려 있는 창에 showModal 을 또 부르면 브라우저가 예외를 던진다 —
      이웃으로 넘길 때가 바로 그 경우다(안에 든 것만 갈아 끼운다). */
   const dlg = document.getElementById('dlg');
-  if(!dlg.open) dlg.showModal();
+  dlgOpen(dlg);
   dlg.querySelector('.dlg__b').scrollTop = 0;
 }
 /* ══════════════════════════════════════════════════════════════════
@@ -4036,6 +4183,31 @@ function examTitle(id){
   const e = EXAMS.filter(function(x){ return x.id===id; })[0];
   return e ? e.title : id;
 }
+/* ── 창을 닫으면 열었던 자리로 돌아온다 ──────────────────────────────
+   `<dialog>` 를 `showModal()` 로 열면 초점을 창 안에 가둬 주는 것까지는
+   브라우저가 한다(재어 보니 네 창 다 제대로 갇힌다). 그런데 **닫을 때**는
+   아무 데도 안 돌려준다 — 닫은 뒤 초점이 `<body>` 로 흩어졌다.
+
+   눈으로 보는 사람은 모른다. 키보드로 쓰는 사람은 학생 카드를 닫을 때마다
+   화면 맨 위에서 Tab 을 다시 눌러 목록까지 내려와야 한다. 한 반을 차례로
+   훑는 상담 주간이면 그 일이 스무 번이다.
+
+   여는 순간의 초점을 적어 두고 닫히면 그 자리로 돌려준다. 창마다 따로 쓰지
+   않고 한곳에 둔다 — 창이 넷이라 베껴 두면 언젠가 하나가 빠진다. */
+const DLG_BACK = new WeakMap();
+function dlgOpen(d){
+  if(!d || d.open) return;                 // 이미 열린 창에 또 부르면 예외가 난다
+  const from = document.activeElement;
+  if(from && from !== document.body) DLG_BACK.set(d, from);
+  d.showModal();
+}
+function dlgBack(d){
+  const el = DLG_BACK.get(d); DLG_BACK.delete(d);
+  /* 열어 준 자리가 그새 지워졌을 수 있다(목록을 다시 그린 경우). 없는 자리로
+     초점을 보내면 조용히 <body> 로 떨어지므로, 있을 때만 돌려준다. */
+  if(!el || !el.isConnected) return;
+  try{ el.focus({ preventScroll:true }); }catch(e){}
+}
 const DLG = document.getElementById('dlg');
 document.getElementById('dlgX').addEventListener('click', function(){ DLG.close(); });
 document.getElementById('dlgPrev').addEventListener('click', function(){ dlgStep(-1); });
@@ -4045,6 +4217,7 @@ document.getElementById('dlgNext').addEventListener('click', function(){ dlgStep
 DLG.addEventListener('click', function(e){ if(e.target===DLG) DLG.close(); });
 /* 닫힌 카드를 계속 들고 있으면, 뒤늦게 온 DT 응답이 이미 사라진 자리를 그린다. */
 DLG.addEventListener('close', function(){
+  dlgBack(DLG);
   DLG_STU = null; RND_OPEN = null; DLG_LIST = null; DLG_AT = -1;
   document.getElementById('dlgNav').hidden = true;
 });
@@ -4157,11 +4330,15 @@ function syncSheet(){
   }).then(function(r){
     SYNCING=false;
     refreshLocal();
-    note('dashNote', r
+    const done = r
       ? (r.failed
           ? ('시트와 맞췄습니다 · 새 기록 '+r.added+'건 · '+r.failed+'개 회차는 못 받았습니다')
           : (r.added? ('시트에서 '+r.added+'건을 새로 받았습니다') : '시트와 이미 같습니다'))
-      : '시트와 맞췄습니다', !!(r&&r.failed));
+      : '시트와 맞췄습니다';
+    note('dashNote', done, !!(r&&r.failed));
+    /* 맞추기는 뒤에서 도는 일이라 눈으로도 놓치기 쉽다. 끝났다는 말은
+       성공이든 실패든 들려야 한다 — 실패는 note 가 이미 알린다. */
+    if(!(r&&r.failed)) say(done);
     return r;
   }).catch(function(e){
     SYNCING=false; renderSyncBar();
@@ -4288,7 +4465,8 @@ function renderClassTab(){
     const c = DT_CACHE['dt:names'];
     body.innerHTML = '<div class="spin" style="padding:16px">'+
       (c && c.err ? esc('DT 반 명단을 불러오지 못했습니다 — '+c.err)
-                  : (c && c.val ? '반 명단이 비어 있습니다.' : '반 명단을 부르는 중…'))+'</div>';
+                  : (c && c.val ? '반 명단이 비어 있습니다 — DT 의 <b>명단 관리</b> 에서 반을 만들면 여기 뜹니다.'
+                                : '반 명단을 부르는 중…'))+'</div>';
     return;
   }
   if(!list.some(function(c){ return c.label===CLS_PICK; })) CLS_PICK = list[0].label;
@@ -4606,13 +4784,14 @@ function openLessons(cls){
      안 읽었다 — 창은 먼저 띄우고, 오면 칸을 세워 다시 그린다. */
   if(!DT_MAT) dtMaterials().then(function(){ lesRender(); }).catch(function(){});
   const d = document.getElementById('les');
-  if(!d.open) d.showModal();
+  dlgOpen(d);
 }
 document.getElementById('lesX').addEventListener('click', function(){
   document.getElementById('les').close(); });
 document.getElementById('les').addEventListener('click', function(e){
   if(e.target === this) this.close(); });
-document.getElementById('les').addEventListener('close', function(){ LES_EDIT = false; });
+document.getElementById('les').addEventListener('close', function(){
+  dlgBack(this); LES_EDIT = false; });
 
 document.addEventListener('change', function(e){
   if(e.target && e.target.id === 'lesPick'){ LES_AT = +e.target.value || 0; lesRender(); }
@@ -5074,7 +5253,9 @@ function renderRounds(){
   const body = document.querySelector('#rndTable tbody');
   if(!rows.length){
     body.innerHTML = '<tr><td colspan="7" class="spin">'+
-      (RNDS.length? '찾는 회차가 없습니다.' : '아직 채점한 회차가 없습니다.')+'</td></tr>';
+      (RNDS.length? '찾는 회차가 없습니다.'
+                  : '아직 채점한 회차가 없습니다 — 다른 기기에서 채점했다면 대시보드의 '+
+                    '<b>지금 시트와 맞추기</b> 를 누르세요.')+'</td></tr>';
     return;
   }
   body.innerHTML = rows.map(function(g){
@@ -5173,7 +5354,7 @@ function openRound(id){
   const body = document.getElementById('dlgBody');
   body.innerHTML = html;
   wireActs(body, g.rows);
-  document.getElementById('dlg').showModal();
+  dlgOpen(document.getElementById('dlg'));
 }
 /* 회차 창에서 안 본 학생의 카드로. 카드에는 미응시·재시·통과 문자가 모두
    있으므로, 여기서 한 번 더 찾아 헤맬 일이 없어진다. 회차 창은 닫는다 —
@@ -5683,7 +5864,7 @@ function palRun(i){
 function openPal(){
   if(PAL.open) return;
   document.getElementById('palIn').value = ''; PAL_AT = 0;
-  renderPal(); PAL.showModal();
+  renderPal(); dlgOpen(PAL);
   setTimeout(function(){ try{ document.getElementById('palIn').focus(); }catch(e){} }, 30);
 }
 document.getElementById('palIn').addEventListener('input', function(){ PAL_AT = 0; renderPal(); });
@@ -5697,6 +5878,9 @@ document.getElementById('palList').addEventListener('click', function(e){
   if(r) palRun(+r.dataset.pal);
 });
 PAL.addEventListener('click', function(e){ if(e.target===PAL) PAL.close(); });
+/* 팔레트는 Esc 로 닫는 일이 가장 많다 — 찾다가 아니다 싶으면 바로 닫는다.
+   그때 초점이 흩어지면 하던 자리를 잃는다. */
+PAL.addEventListener('close', function(){ dlgBack(PAL); });
 
 /* ── 손이 빠른 사람을 위해 ──────────────────────────────────────────
    채점하는 날은 탭을 하루에 수십 번 오간다. 숫자키로 곧장 간다.
@@ -5733,6 +5917,9 @@ document.getElementById('syncNow').addEventListener('click', function(){ syncShe
    두드릴 이유가 없고, 못 들어온 화면에 반 명단이 잠깐 스치는 것도 안 된다. */
 function boot(){
   BOOTED = true;
+  /* 첫 탭은 글에 박혀 있어(aria-selected="true") show() 를 안 거친다. 그래서
+     여기서 한 번 걸어 준다 — 안 걸면 열두 탭이 전부 탭 순서에 선 채로 남는다. */
+  rovingTabs(curTab());
   navEdges();          // 잠금이 풀린 뒤라야 탭 줄의 진짜 폭을 잴 수 있다
   heroStart();         // 띠 안의 분자 — 없으면 그냥 안 그려진다
   renderViews();

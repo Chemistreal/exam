@@ -929,8 +929,17 @@ console.log('\n── 학생 카드에서 옆 사람으로 ──');
   chk('끝에서는 못 누른다', /disabled = DLG_AT <= 0/.test(cut('dlgNavShow')) &&
                             /disabled = DLG_AT >= n-1/.test(cut('dlgNavShow')), true);
   chk('범위를 넘지 않는다', /at < 0 \|\| at >= DLG_LIST\.length/.test(cut('dlgStep')), true);
-  /* 이미 열린 창에 showModal 을 또 부르면 브라우저가 예외를 던진다. */
-  chk('열린 창을 다시 열지 않는다', /if\(!dlg\.open\) dlg\.showModal\(\);/.test(body), true);
+  /* 이미 열린 창에 showModal 을 또 부르면 브라우저가 예외를 던진다.
+     ⚠ 예전에는 `if(!dlg.open) dlg.showModal();` 이라는 **글자 그대로**를 봤다.
+     창 여는 자리가 넷이라 그 줄을 `dlgOpen()` 한곳으로 모았더니, 규칙은
+     그대로인데 검사만 빨간불이 됐다 — 자가 뜻이 아니라 철자를 붙들고 있었다.
+     이제 **뜻**을 본다: 여는 문은 하나뿐이고, 그 문이 이미 열린 창을 막는다. */
+  chk('창을 여는 문은 하나다', (body.match(/\.showModal\(\)/g) || []).length, 1);
+  chk('그 문이 열린 창을 다시 열지 않는다',
+      /function dlgOpen\(d\)\{[\s\S]{0,160}if\(!d \|\| d\.open\) return;/.test(body), true);
+  /* 닫으면 열었던 자리로 돌아온다 — 안 그러면 초점이 <body> 로 흩어진다. */
+  chk('닫으면 초점을 돌려준다', /function dlgBack\(d\)\{/.test(body) &&
+      (body.match(/dlgBack\(/g) || []).length >= 4, true);
   /* 같은 창을 회차와 학생이 나눠 쓴다. 회차 창에 학생용 단추가 남으면
      누를 때 엉뚱한 학생이 열린다. */
   chk('회차 창에는 안 남는다', /DLG_LIST = null; DLG_AT = -1; dlgNavShow\(\);/.test(cut('openRound')), true);
