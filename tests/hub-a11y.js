@@ -219,37 +219,47 @@ catch (e) {
     /* display:none 으로 숨기면 낭독기도 같이 못 읽는다 — 1px 로 잘라야 한다. */
     chk('낭독기가 못 읽게 숨기지 않았다', live && live.숨김방식 !== 'none', true);
 
-    /* ⚠ 이 아래는 알림 칸을 직접 건드린다. 그런데 창구가 실패하면서 **뒤에서
-       계속 말을 밀어 넣는다**(dashDead). 조용해지기 전에 재면 내가 넣은 말이
-       그 말에 덮여, 검사가 까닭 없이 깨진다 — 실제로 그렇게 깨졌다.
-       칸이 안 바뀔 때까지 기다린 뒤에 잰다. */
-    await p.waitForFunction(() => {
-      const el = document.getElementById('sr');
-      const now = el.textContent;
-      if (window.__srLast === now) return (window.__srSame = (window.__srSame || 0) + 1) >= 4;
-      window.__srLast = now; window.__srSame = 0; return false;
-    }, null, { timeout: 15000, polling: 150 }).catch(() => {});
+    /* ⚠ 이 칸은 **나만 쓰는 것이 아니다.** 창구가 실패할 때마다 화면이 다시
+       그려지며 같은 안내를 또 밀어 넣는다(renderDash 안의 catch). 조용해지길
+       기다려도, 되살려 놔도 다음 그리기에서 또 온다 — 두 방법 다 깨졌다.
 
-    const said = async (fn) => {
+       그래서 **한 순간을 재지 않는다.** 칸이 거쳐 간 말을 모두 적어 두고,
+       내가 넣은 말이 그중에 있는지 · 같은 말이 두 번 적혔는지를 본다.
+       끼어드는 말이 있어도 흔들리지 않는다. */
+    await p.evaluate(() => {
+      window.__saidLog = [];
+      const el = document.getElementById('sr');
+      new MutationObserver(() => {
+        const t = el.textContent;
+        if (t && window.__saidLog[window.__saidLog.length - 1] !== t) window.__saidLog.push(t);
+      }).observe(el, { childList: true, characterData: true, subtree: true });
+    });
+    const 거쳐간말 = async (fn) => {
       await p.evaluate(fn);
       await p.waitForTimeout(160);
-      return p.evaluate(() => document.getElementById('sr').textContent);
+      return p.evaluate(() => window.__saidLog.slice());
     };
-    chk('말을 적는다', await said(() => say('첫 말')), '첫 말');
+
+    const L1 = await 거쳐간말(() => say('첫 말'));
+    chk('말을 적는다', L1.includes('첫 말'), true);
     /* 같은 말을 되풀이하면 낭독기가 쉬지 않고 떠들어 급한 말이 묻힌다.
-       이 셸은 화면을 자주 다시 그린다(storage 이벤트 · refreshSoon · 탭 이동). */
-    await p.evaluate(() => { document.getElementById('sr').textContent = '지움'; });
-    chk('같은 말은 흘려보낸다', await said(() => say('첫 말')), '지움');
-    chk('다른 말은 적는다', await said(() => say('둘째 말')), '둘째 말');
+       ⚠ 거르는 것은 **연달아 같은 말**이지 '한 번이라도 한 말' 이 아니다.
+         처음에는 두 번을 따로 불러 세었는데, 그 사이에 화면이 실패 안내를
+         끼워 넣으면 두 번째가 **제대로** 다시 말한다 — 검사가 다섯 번에 세 번
+         깨졌다. 틀린 것을 묻고 있었던 것이다.
+         끼어들 틈이 없게 **한 번에 두 번** 부른다. */
+    const L2 = await 거쳐간말(() => { say('되풀이 말'); say('되풀이 말'); });
+    chk('연달아 같은 말은 한 번만 적는다',
+        L2.filter(x => x === '되풀이 말').length, 1);
+    const L3 = await 거쳐간말(() => { say('앞말'); say('뒷말'); });
+    chk('다른 말은 적는다', L3.includes('뒷말'), true);
     /* 못 불러왔다는 말은 반드시 들려야 한다. 눈으로 보는 사람에게는 붉은 칸이
        뜨지만, 낭독기는 화면 아무 데나 새로 생긴 글을 저절로 읽지 않는다. */
-    chk('실패는 반드시 들린다',
-        await said(() => note('dashNote', '시트를 못 불러왔습니다', true)),
-        '시트를 못 불러왔습니다');
+    const L4 = await 거쳐간말(() => note('dashNote', '시트를 못 불러왔습니다', true));
+    chk('실패는 반드시 들린다', L4.includes('시트를 못 불러왔습니다'), true);
     /* 성공은 조용해도 된다 — 눈앞에 이미 결과가 있다. */
-    await p.evaluate(() => { document.getElementById('sr').textContent = '지움'; });
-    chk('보통 안내까지 떠들지는 않는다',
-        await said(() => note('dashNote', '그냥 안내입니다', false)), '지움');
+    const L5 = await 거쳐간말(() => note('dashNote', '그냥 안내입니다', false));
+    chk('보통 안내까지 떠들지는 않는다', L5.includes('그냥 안내입니다'), false);
 
     console.log('\n── 색·모양으로만 말하는 자리가 없는가 ──');
     /* 자료 표의 '있다/없다' 점은 색약인 눈을 위해 **모양**으로도 갈라 두었다
@@ -287,28 +297,28 @@ catch (e) {
        대고, 그러고는 나머지가 멀쩡하다고 했다** — 미응시·미완료 칸도 '—' 인데
        정상이라고 한 것이다. 못 믿을 자를 옆에 두면 진짜 경고도 안 읽힌다. */
     const dead = await p.evaluate(() => {
-      dashDead('DT 명단', '연결 실패');
-      dashDead('DT 통과', '연결 실패');
+      dashDead('반 명단', '연결 실패');
+      dashDead('통과', '연결 실패');
       return (document.getElementById('dashNote') || {}).innerText || '';
     });
     console.log('  ' + dead.replace(/\s+/g, ' ').trim());
     chk('죽은 창구를 하나도 빠뜨리지 않고 댄다',
-        dead.includes('DT 명단') && dead.includes('DT 통과'), true);
+        dead.includes('반 명단') && dead.includes('통과'), true);
     chk('멀쩡하다고 거짓말하지 않는다', /나머지 숫자는 정상/.test(dead), false);
     /* 받침을 보고 조사를 고른다 — "DT 통과을" 이 실제로 화면에 떴다. */
-    chk('조사가 맞다', /DT 통과를/.test(dead), true);
+    chk('조사가 맞다', /통과를/.test(dead), true);
     /* ⚠ 이 화면은 창구를 막아 둔 채 열었으므로 미완료·미응시도 이미 죽어
        있다. 둘만 되살리고 "치웠나" 를 물으면 검사가 틀린 것을 묻는 셈이다 —
        처음에 그렇게 짰다가 걸렸다. **살아 있는 것이 하나도 없을 때** 치우는지
        본다. 하나라도 남아 있으면 그 이름은 계속 떠 있어야 한다. */
     const 남음 = await p.evaluate(() => {
-      dashAlive('DT 명단');
+      dashAlive('반 명단');
       return (document.getElementById('dashNote') || {}).innerText || '';
     });
     chk('하나 살아나도 나머지는 계속 뜬다',
-        !남음.includes('DT 명단') && 남음.includes('DT 통과'), true);
+        !남음.includes('반 명단') && 남음.includes('통과'), true);
     const back = await p.evaluate(() => {
-      ['DT 미완료', 'DT 미응시', 'DT 통과'].forEach(n => dashAlive(n));
+      ['재시 대기', '시험 미응시', '통과'].forEach(n => dashAlive(n));
       return (document.getElementById('dashNote') || {}).innerText || '';
     });
     chk('다 살아나면 경고를 치운다', back.trim(), '');
@@ -475,6 +485,39 @@ catch (e) {
       catch (e) { /* 아직 안 뜬 창은 넘어간다 */ }
     }
     chk('얹은 창이 잠금을 또 묻지 않는다', 또묻는창, 0);
+
+    console.log('\n── 한 뜻에 한 이름인가 ──');
+    /* 이 목록은 **세 이름**으로 불리고 있었다 — 카드는 'DT 미완료', 할 일 칩은
+       '재시 대기', 자리 제목은 '손이 필요한 것'. 선생님은 카드를 보고 칩을 눌러
+       그 자리로 오는데 셋이 다 달랐다. 칩과 반 표가 이미 쓰던 '재시 대기' 로 모았다.
+       실패 안내도 카드 이름을 쓴다 — 카드는 '재시 대기' 인데 안내가 'DT 미완료'
+       라고 하면 둘을 잇지 못한다. */
+    await p.evaluate(() => show('dash'));
+    await p.waitForFunction(
+      () => document.querySelector('#dashCards .card b#pdCnt'), null, { timeout: 8000 });
+    const 이름 = await p.evaluate(() => {
+      const card = [...document.querySelectorAll('#dashCards .card')]
+        .filter(c => (c.querySelector('b') || {}).id === 'pdCnt')[0];
+      return {
+        카드: card ? (card.querySelector('span') || {}).textContent : '',
+        제목: (document.querySelector('#pendWrap h2') || {}).textContent || '',
+        칩: (() => {
+          const src = [...document.querySelectorAll('script')].map(s => s.textContent).join('\n');
+          const m = src.match(/id:'pendWrap',\s*label:'([^']+)'/);
+          return m ? m[1] : '';
+        })(),
+      };
+    });
+    console.log(`  카드 "${이름.카드}" · 칩 "${이름.칩}" · 제목 "${이름.제목}"`);
+    chk('카드·칩·제목이 한 이름이다',
+        [이름.카드, 이름.칩, 이름.제목], ['재시 대기', '재시 대기', '재시 대기']);
+    /* 옛 이름이 되살아나면 잡는다. 연결 칩(창구 이름)에는 남아 있어도 된다 —
+       그쪽은 "어느 창구가 대답했나" 라서 다른 축이다. */
+    const 옛이름 = await p.evaluate(() => {
+      const t = document.body.innerText;
+      return { 손이필요한것: /손이 필요한 것/.test(t) };
+    });
+    chk('옛 이름이 화면에 안 남았다', 옛이름.손이필요한것, false);
 
     chk('콘솔에 예외가 없다', errs, []);
   } finally {
