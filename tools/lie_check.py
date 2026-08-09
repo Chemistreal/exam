@@ -164,6 +164,70 @@ CASES.append(('audit_pages 좁은 단추', button_hit, [
 ]))
 
 
+# ── gen_expl_html: 답 표시와 오개념 한 줄을 가르기 ─────────────────
+# 해설 글은 '사고과정 … → ③ <오개념 한 줄>' 꼴이다. 해설지는 오개념을
+# 사고과정의 마지막 단계가 아니라 tip 으로 세운다. 그런데 보기를 하나씩 짚는
+# 해설은 **글 가운데에도** '④ … → ③' 처럼 동그라미가 나온다(donghyung-1 #23
+# 외 여덟). 처음 화살표를 잡으면 답 표시가 문장 한가운데로 가고 뒤가 통째로
+# 오개념이 된다. 마지막 화살표를 잡아야 한다.
+import importlib.util as _ilu2                                # noqa: E402
+_gs = _ilu2.spec_from_file_location('geh', os.path.join(ROOT, 'tools', 'gen_expl_html.py'))
+gen_expl_html = _ilu2.module_from_spec(_gs)
+_gs.loader.exec_module(gen_expl_html)
+
+
+def expl_shape(text):
+    """글 → (답 표시, tip 이 생겼나)."""
+    h = gen_expl_html.build(text)
+    m = re.search(r'→ <b>([①-⑤])</b>', h)
+    return ((m.group(1) if m else None), '<div class="tip">' in h)
+
+
+CASES.append(('gen_expl_html 답과 오개념', expl_shape, [
+    ('화살표로 끝나면 tip 이 없다',
+     '사고과정 하나씩 본다. → ③', ('③', False)),
+    ('화살표 뒤의 말은 tip 으로 간다',
+     '사고과정 하나씩 본다. → ③ 기체가 나오면 산화환원이라 여김.', ('③', True)),
+    ('글 가운데의 동그라미에 안 속는다',
+     "사고과정 ④ 셋 모두 LUMO 는 π* 다(옳음). → ③", ('③', False)),
+    ('가운데 동그라미가 있어도 뒤의 오개념은 tip 이다',
+     '사고과정 ④ 는 옳다. → ② 부호를 뒤바꿔 셈.', ('②', True)),
+    ('화살표가 아예 없으면 답 표시도 없다',
+     '사고과정 원본 채점표를 그대로 옮겼다.', (None, False)),
+]))
+
+
+# ── rate_check: 정답률이 제자리에 있나 ──────────────────────────────
+# 이 자는 여덟 회차의 정답률이 **한 칸씩 밀린 채로** "자료가 성하다" 고 했다.
+# 길이도 60, 값도 0~100, 회차도 열 개였으니 재던 셋은 다 통과했다.
+# 잴 방법은 있었다 — 폐기된 문항에는 정답률이 인쇄되지 않는다('삭제처리').
+# 그러니 빈칸은 폐기 문항 위에 있어야 한다.
+import rate_check                                            # noqa: E402
+
+
+def rate_aligned(given):
+    """(회차, 정답률, 폐기 목록) → 자리가 성한가."""
+    eid, rate, void = given
+    return not rate_check.align_bad(eid, rate, void)
+
+
+_R = [None if i in (25, 33) else 50 for i in range(1, 61)]    # 25·33번이 빈칸
+_OK = [None if i in (26, 34) else 50 for i in range(1, 61)]   # 26·34번이 빈칸
+
+CASES.append(('rate_check 자리', rate_aligned, [
+    ('폐기 문항에 빈칸이 있으면 성하다',
+     ('hwol-2018', _OK, [26, 34]), True),
+    ('한 칸 밀리면 잡는다',
+     ('hwol-2018', _R, [26, 34]), False),
+    ('폐기 문항에 값이 적혀 있으면 잡는다',
+     ('hwol-2018', [50] * 60, [34]), False),
+    ('폐기가 없고 빈칸도 없으면 성하다',
+     ('hwol-2012', [50] * 60, []), True),
+    ('원본에 정답률이 안 적힌 자리는 적어 두었으니 넘긴다',
+     ('hwol-2013', [None if i == 31 else 50 for i in range(1, 61)], []), True),
+]))
+
+
 def run_tool(rel, args, text=None):
     """자를 실제로 돌려 종료 코드를 본다."""
     cmd = [sys.executable, os.path.join(ROOT, rel)] + args
