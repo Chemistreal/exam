@@ -52,6 +52,7 @@ node tests/run.js                       # 브라우저 검사는 playwright 없�
 |---|---|
 | `tools/crop_align.py` | 문제지에 섞인 딱지 때문에 크롭이 한 칸씩 밀리는 것 |
 | `tools/ci_deps.py` | **자가 CI 에서 못 도는 것** (걸어 뒀는데 안 돌아가는 것) |
+| `tools/cohort_cover.py` | **연도누적 인원이 빠지거나 조용히 줄어드는 것** (지금 여덟 회차가 비었다 — ⚖ A8) |
 | `tests/weak-first.js` | **학생이 풀어 나가는 자리**(오답 클리닉·오답 정밀 분석)가 취약한 단원부터가 아니게 되는 것 |
 | `tests/hub-a11y.js` | 통합 셸을 키보드·낭독기로 못 쓰게 되는 것 |
 | `tests/hub-calls.js` | 줄여 놓은 창구 호출이 말없이 도로 늘어나는 것 |

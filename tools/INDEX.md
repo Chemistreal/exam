@@ -6,7 +6,7 @@
 - ✓ CI 에 걸려 있다 (`.github/workflows/tests.yml`)
 - `--check` 를 받는 자는 어긋나면 종료 코드 1 을 낸다
 
-## 재는 자 (62)
+## 재는 자 (63)
 
 | | 자 | `--check` | 무엇을 |
 |---|---|---|---|
@@ -16,6 +16,7 @@
 | ✓ | `blind_wait.py` | ○ | 검사가 "이쯤이면 됐겠지" 하고 재우는 시간을 잰다. |
 |  | `build_wrongbook_assets.py` |  | Build and audit wrong-answer review assets for final.html. |
 | ✓ | `ci_deps.py` | ○ | CI 가 부르는 자가 **거기서 실제로 돌 수 있는지** 본다. |
+| ✓ | `cohort_cover.py` | ○ | **모든 시험에 기준 기록(연도누적 인원)이 들어 있는지** 본다. |
 | ✓ | `concept_table.py` | ○ | 125 개념표가 **화면 스물넷에 따로** 적혀 있다 — 다 같은 말을 하는지 본다. |
 | ✓ | `const_sync.py` | ○ | 한 회차 안에서 **문제지와 해설이 같은 상수**를 쓰는지 본다. |
 | ✓ | `crop_align.py` | ○ | 문항 크롭이 **그 문항 자리에서** 잘렸는지 본다. |
@@ -94,4 +95,4 @@
 
 ---
 
-자 76개 · CI 에 걸린 것 62개 · `--check` 를 받는 것 52개
+자 77개 · CI 에 걸린 것 63개 · `--check` 를 받는 것 53개

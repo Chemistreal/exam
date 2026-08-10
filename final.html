@@ -1713,6 +1713,20 @@ function rankPool(exam,cs){
   var live=liveTotals(exam&&exam.id);
   var loc=live||((cs&&cs.totals)||[]);
   var pool=base?base.concat(loc):loc;
+  /* ⚠ **여기를 한 번 고치려다 되돌렸다.** 기준 기록이 없는 회차에서 한 명만
+       채점하면 "연도누적 총석차 1/1 · 백분위 100" 이 나가는 것이 눈에 걸려,
+       바로 아래 `rankPoolYear` 처럼 `>=2` 로 올렸다.
+
+       `tests/rank-baseline.js` 가 잡았고, 그 주석에 까닭이 적혀 있었다 —
+       **MINP 는 "8명 미만이라도 다 보여 달라" 는 선생님 주문으로 8에서 1로
+       내린 것**이고, 대신 *몇 명짜리 숫자인지 반드시 같이 보인다* 는 약속이
+       붙어 있다. 1/1 은 실수가 아니라 **정해 둔 것**이다.
+
+       사람이 정한 것을 자가 보기 안 좋다고 뒤집으면 안 된다. 되돌렸다.
+
+     ※ 그러니 뿌리는 여기가 아니다 — **그 회차에 기준 기록이 없는 것**이다.
+       `tools/cohort_cover.py` 가 어느 회차가 비었는지, 그리고 있던 것이
+       줄지는 않았는지 매번 본다. 기준 기록은 성적표 엑셀에서만 나온다. */
   return {pool:pool, N:pool.length, baseN:base?base.length:0, locN:loc.length,
           live:!!live, fromBaseline:!!base, ready:pool.length>=MINP};
 }
