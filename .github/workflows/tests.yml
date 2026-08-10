@@ -90,9 +90,13 @@ jobs:
       - name: CI 가 부르는 자가 여기서 돌 수 있다
         timeout-minutes: 5
         run: python3 tools/ci_deps.py --check
-      - name: Pillow · PyMuPDF 설치
+      # ⚠ numpy·lxml 은 `crop_align.py` 가 **직접** 안 쓴다. 그 안에서 부르는
+      #   `build_wrongbook_assets.py` 가 쓴다. 그래서 PyMuPDF 를 넣은 뒤에도
+      #   판은 `ModuleNotFoundError: numpy` 로 죽었다 — ci_deps 가 파일 하나만
+      #   열고 그 안이 부르는 자를 안 따라갔기 때문이다. 지금은 따라간다.
+      - name: Pillow · PyMuPDF · numpy · lxml 설치
         timeout-minutes: 5
-        run: python3 -m pip install --quiet Pillow PyMuPDF
+        run: python3 -m pip install --quiet Pillow PyMuPDF numpy lxml
 
       # ── 브라우저 ──────────────────────────────────────────
       # 여태 CI 에는 브라우저가 없었다. 그래서 브라우저가 필요한 검사 열두 개가

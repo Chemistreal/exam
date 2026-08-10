@@ -66,9 +66,20 @@ NEEDS_PW = re.compile(r'require\([\'"]?[^\'")]*playwright|PLAYWRIGHT_MODULE')
 REQUIRE = re.compile(r'REQUIRE_BROWSER')
 
 
-def third_party(path):
-    """이 파일이 쓰는 바깥 꾸러미 이름들(표준 라이브러리·같은 저장소 파일은 뺀다)."""
+def third_party(path, seen=None):
+    """이 파일이 **끝까지 따라가** 쓰는 바깥 꾸러미 이름들.
+
+    ⚠ **한 번 얕게 봤다.** 처음에는 CI 가 이름을 적어 둔 파일 하나만 열었다.
+      그런데 exam 의 `crop_align.py` 는 제 안에서 `build_wrongbook_assets` 를
+      부르고, 그쪽이 `numpy` 를 쓴다. 그래서 이 자가 초록불을 주고도 CI 는
+      `ModuleNotFoundError: numpy` 로 죽었다 — **자가 거짓말을 했다.**
+      같은 저장소의 자를 만나면 넘어가지 말고 **그 안으로 들어간다.**
+    """
     std = set(sys.stdlib_module_names)
+    seen = seen if seen is not None else set()
+    if path in seen:
+        return set()                       # 서로 부르는 자들이 있어도 안 돈다
+    seen.add(path)
     out = set()
     try:
         s = open(os.path.join(ROOT, path), encoding='utf-8').read()
@@ -78,9 +89,14 @@ def third_party(path):
         mod = a or b
         if not mod or mod in std:
             continue
-        if os.path.exists(os.path.join(ROOT, 'tools', mod + '.py')):
-            continue                       # 같은 저장소의 자를 부르는 것
-        if os.path.exists(os.path.join(ROOT, 'tests', mod + '.py')):
+        here = None
+        for d in ('tools', 'tests'):
+            p = os.path.join(d, mod + '.py')
+            if os.path.exists(os.path.join(ROOT, p)):
+                here = p
+                break
+        if here:
+            out |= third_party(here, seen)  # 같은 저장소의 자 — 그 안까지 본다
             continue
         out.add(mod)
     return out
