@@ -69,9 +69,16 @@ NO_COHORT = {
 #   같이 못 보게 된다. 초록불이 뜻하는 것은 "다 있다" 가 아니라 **"알고 있는
 #   것 말고 더 빠지거나 줄어든 것은 없다"** 이다.
 #   여기서 이름을 지우려면 엑셀을 받아 `gen_cohort_baseline.py` 를 돌린다.
-WAITING = {i: '⚖ A8 — 성적표 엑셀을 아직 못 받았다'
-           for i in ('hwol-2009', 'hwol-2010', 'hwol-2011', 'hwol-2012',
-                     'hwol-2013', 'hwol-2014', 'hwol-2015', 'hwol-2016')}
+WAITING = dict(
+    # 선생님이 정하셨다(2026-08-10) — "화올 2009-2016은 엑셀없는대로 놔두고".
+    # 엑셀이 없으니 만들 수 없다. **그대로 두기로 한 것**이지 잊은 것이 아니다.
+    {i: '엑셀이 없다 — 그대로 두기로 정함(2026-08-10)'
+     for i in ('hwol-2009', 'hwol-2010', 'hwol-2011', 'hwol-2012',
+               'hwol-2013', 'hwol-2014', 'hwol-2015', 'hwol-2016')},
+    # 2017~2026 은 엑셀이 있으면 다 들어가야 한다. 이 셋은 아직 못 받았다.
+    **{i: '⚖ A8 — 2017~2026 인데 엑셀을 아직 못 받았다'
+       for i in ('kmchc-2025-1-simhwa', 'kmchc-2025-2-simhwa',
+                 'kmchc-2026-1-simhwa')})
 
 
 def alias_map():
@@ -123,6 +130,21 @@ def main():
 
     print('시험 %d개 · 기준 기록 %d개 · 응시 인원 합 %d명'
           % (len(lst), len(base), sum(now.values())))
+
+    # 회차마다 몇 명인지 눈으로 볼 수 있게 적는다. 합계만 적으면 한 회차가
+    # 통째로 얇아도 안 보인다 — 그게 이번에 걸린 자리다.
+    if not check:
+        title = {e.get('id'): (e.get('title') or e.get('id')) for e in lst}
+        rows = []
+        for e in lst:
+            i = e.get('id')
+            k = ali.get(i, i)
+            if k in base:
+                rows.append((now.get(k, 0), i, title.get(i)))
+        print('\n회차별 인원 (적은 순 — 얇은 곳이 위로 온다)')
+        for n, i, t in sorted(rows):
+            mark = '  ← 얇다' if n < 10 else ''
+            print('  %5d명  %-22s %s%s' % (n, i, t, mark))
 
     if known:
         print('\n아직 응시 전이라 없는 것이 맞는 시험 %d개' % len(known))
