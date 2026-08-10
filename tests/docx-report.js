@@ -181,8 +181,18 @@ let fail=0; const chk=(n,g,w)=>{const ok=JSON.stringify(g)===JSON.stringify(w);
   chk('모집단이 다르다',pre.ranks.tot[0].split('/')[1]!==pre.ranks.yr[0].split('/')[1],true);
   chk('올해 쪽이 더 작다',
       Number(pre.ranks.yr[0].split('/')[1])<Number(pre.ranks.tot[0].split('/')[1]),true);
-  chk('작년 셋이 빠진 만큼이다',
-      Number(pre.ranks.tot[0].split('/')[1])-Number(pre.ranks.yr[0].split('/')[1]),3);
+  /* 누적 쪽에는 **기준 기록(지난 회차 응시자)** 이 들어가고 올해 쪽에는 안
+     들어간다(rankPoolYear 의 주석 그대로). 그러니 두 모집단의 차이는
+     '작년 셋' + '기준 기록 인원' 이다. 여기 숫자를 박아 두면 기준 기록이
+     늘 때마다 이 검사가 걸린다 — 자료에서 읽어 견준다.
+     (2026-08-10: hwol-2018 에 103명이 들어와 3 → 106 이 됐다.) */
+  const baseN = (() => {
+    try { const j = JSON.parse(require('fs').readFileSync(
+      require('path').join(__dirname, '..', 'cohort', 'baseline.json'), 'utf8'));
+      return (j.exams['hwol-2018'] || {}).n | 0; } catch (e) { return 0; }
+  })();
+  chk('작년 셋과 기준 기록이 빠진 만큼이다',
+      Number(pre.ranks.tot[0].split('/')[1])-Number(pre.ranks.yr[0].split('/')[1]), 3 + baseN);
   chk('Word 에도 석차가 있다',/석차/.test(txt),true);
   chk('화면과 Word 의 누적 석차가 같다',
       new RegExp('연도누적 총석차\\s*'+(pre.ranks.tot[0]||'x').replace('/','\\s*/\\s*')).test(txt.replace(/\s+/g,' ')),true);
