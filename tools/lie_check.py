@@ -228,6 +228,33 @@ CASES.append(('rate_check 자리', rate_aligned, [
 ]))
 
 
+# ── store_ledger: 브라우저에 남기는 칸 ──────────────────────────────
+# 이 자는 래퍼(`X.set(KEY,…)`)를 풀려고 파일 안의 모든 `.set(…)` 호출을 훑다가
+# **배지 이름을 담은 소문자 지역 변수**까지 저장 칸으로 셌다 — index.html 의
+# `const key='starb'` 가 그것이다. 저장 칸 이름은 이 저장소들에서 대문자
+# 상수로 두므로, 래퍼를 풀 때는 그것만 본다.
+import store_ledger                                          # noqa: E402
+
+
+def store_keys(src):
+    """이 글이 브라우저에 남긴다고 자가 세는 칸 이름들."""
+    return sorted(store_ledger.keys_in(src))
+
+
+CASES.append(('store_ledger 저장 칸', store_keys, [
+    ('따옴표로 바로 적은 칸은 잡는다',
+     "localStorage.setItem('chemistreal_session_v1', v)", ['chemistreal_session_v1']),
+    ('상수에 담아 둔 칸도 값을 찾아 푼다',
+     "const KEY='j0_state';localStorage.setItem(KEY,v)", ['j0_state']),
+    ('래퍼를 거쳐도 대문자 상수면 잡는다',
+     "const PAL_KEY='chemistreal_pal_v1';function set(k,v){localStorage.setItem(k,v)}"
+     "S.set(PAL_KEY,1)", ['chemistreal_pal_v1']),
+    ('배지 이름을 담은 소문자 지역 변수는 저장 칸이 아니다',
+     "const map=[['전 문항','check'],['상위','starb']];const key='starb';"
+     "function set(k,v){localStorage.setItem(k,v)}x.set(key)", []),
+]))
+
+
 def run_tool(rel, args, text=None):
     """자를 실제로 돌려 종료 코드를 본다."""
     cmd = [sys.executable, os.path.join(ROOT, rel)] + args

@@ -56,6 +56,7 @@ node tests/run.js                       # 브라우저 검사는 playwright 없�
 | `tools/hub_audit.py` | 통합 셸이 잰 값에서 되돌아가는 것 |
 | `tools/lie_check.py` | **자가 거짓말하는 것** (참·거짓 예시를 맞히는지) |
 | `tools/noindex.py` | 성적·명단이 뜨는 화면이 검색에 잡히는 것 |
+| `tools/store_ledger.py` | 브라우저에 무엇을 남기는지 적어 두지 않는 것 |
 | `tools/msg_ledger.py` | 사람에게 하던 말이 조용히 사라지는 것 |
 | `tools/term_drift.py` | 정한 용어 표기를 어기는 것 |
 | `tools/lec_selfcheck.py` | 숙제에 스스로 확인할 기준이 빠지는 것 |
