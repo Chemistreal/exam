@@ -5459,8 +5459,11 @@ async function downloadReportDOCX(){
   var _rp=rankPool(cur,cs), _ry=rankPoolYear(cur,cs);
   if(_rp.ready){ perc=percentile(_rp.pool, correct); Nn=_rp.N; rank=rankIn(_rp.pool, correct); }
   if(_ry.ready){ yN=_ry.N; yrank=rankIn(_ry.pool, correct); yYear=_ry.year; }
-  var ag={}; if(cur.area) for(var q2=1;q2<=cur.nQ;q2++){ var bd0=bkBroad(cur.area[q2-1]||''); if(!bd0)continue; (ag[bd0]=ag[bd0]||{c:0,t:0}); ag[bd0].t++; if(okq(cur,q2,sel[q2]||0))ag[bd0].c++; }
-  var areas=Object.keys(ag).map(function(k){return {name:k,c:ag[k].c,t:ag[k].t,r:ag[k].t?ag[k].c/ag[k].t:0};}).sort(function(a,b){return a.r-b.r||b.t-a.t;});
+  /* `qs` 는 그 영역에 든 문항 번호와 정오. 오답 노트(HTML)는 진작 모으고
+     있었는데 **워드 쪽만 안 모으고 있었다** — 그래서 워드 표에 번호가 없었다.
+     같은 자리에서 같이 모은다(두 통로가 다른 것을 세면 안 된다). */
+  var ag={}; if(cur.area) for(var q2=1;q2<=cur.nQ;q2++){ var bd0=bkBroad(cur.area[q2-1]||''); if(!bd0)continue; (ag[bd0]=ag[bd0]||{c:0,t:0,qs:[]}); ag[bd0].t++; var _ok2=okq(cur,q2,sel[q2]||0); if(_ok2)ag[bd0].c++; ag[bd0].qs.push({q:q2,ok:_ok2}); }
+  var areas=Object.keys(ag).map(function(k){return {name:k,c:ag[k].c,t:ag[k].t,qs:ag[k].qs||[],r:ag[k].t?ag[k].c/ag[k].t:0};}).sort(function(a,b){return a.r-b.r||b.t-a.t;});
   var strong=areas.filter(function(a){return a.t>=2&&a.r>=0.8;}).sort(function(a,b){return b.r-a.r;});
   var weak=areas.filter(function(a){return a.t>=2&&a.r<0.6;});
   var rxAreas=(weak.length?weak:areas);  // 분량 제한 없음 — 전 취약 영역(없으면 전 영역)
@@ -5897,8 +5900,35 @@ async function downloadReportDOCX(){
     function barCell(pct,wk,st,w){ var seg=12, fill=Math.max(0,Math.min(seg,Math.round(pct/100*seg))); var c=wk?RED:(st?EM:GOLD);
       return C([P([run('█'.repeat(fill),{color:c,size:18}),run('░'.repeat(seg-fill),{color:'E3D9BE',size:18}),run('  '+pct+'%',{bold:true,color:wk?RED:EM,size:20})],{after:0,before:0})],{w:w,ml:120,mr:120}); }
     var arows=[ROW([cellT('영역',{w:cols[0],bold:true,color:EM,fill:CREAMH}),cellT('성취도',{w:cols[1],bold:true,color:EM,fill:CREAMH}),cellT('정오',{w:cols[2],bold:true,color:EM,fill:CREAMH,align:AlignmentType.CENTER}),cellT('판정',{w:cols[3],bold:true,color:EM,fill:CREAMH,align:AlignmentType.CENTER})],{header:true})];
-    areas.forEach(function(a){ var p=Math.round(a.r*100); var wk=a.t>=2&&a.r<0.5; var st=a.t>=2&&a.r>=0.8; var v=wk?'취약':(st?'강점':'');
-      arows.push(ROW([ cellT(a.name,{w:cols[0],bold:true}), barCell(p,wk,st,cols[1]), cellT(a.c+'/'+a.t,{w:cols[2],align:AlignmentType.CENTER,color:MUT}), cellT(v,{w:cols[3],align:AlignmentType.CENTER,fill:wk?'F7E3DC':(st?EMT:undefined),color:wk?RED:(st?EM:MUT),bold:!!v}) ])); });
+    /* 영역 이름 아래에 **그 영역에 든 문항 번호**를 적는다(틀린 것은 ✗).
+       2026-08-10, 선생님 — "영역별성취 성적표에 각 영역에 해당하는 문제번호도 표기".
+
+       ⚠ 오답 정리 노트(HTML)에는 진작 실려 있었다(`bk-qs`). **워드에만 빠져
+         있었다** — 그런데 학생·학부모는 화면과 워드파일을 **둘 다** 쓴다.
+         같은 표가 통로에 따라 다른 것을 말하고 있었다.
+
+       왜 필요한가 — 표만 보고는 "산과염기 4/11" 이 몇 번 문제였는지 알 수
+       없어서, 학생이 문항별 정오표를 따로 뒤져야 했다. 번호가 여기 있으면
+       약한 영역에서 곧바로 그 문항으로 간다.
+
+       ※ `qs` 는 이미 모아 두고 있었다(ag[bd].qs). 새로 세는 것이 아니라
+         **이미 있는 것을 워드에도 싣는** 것이다 — 두 통로가 갈릴 수 없다. */
+    function areaCell(a, w){
+      var chips = a.qs.map(function(x, i){
+        return run((i ? ' ' : '') + x.q + (x.ok ? '' : '✗'),
+                   {color: x.ok ? MUT : RED, bold: !x.ok, size: 15});
+      });
+      var kids = [P([run(a.name, {bold:true, color:INK, size:20})], {after: 20, before: 0})];
+      if (chips.length) kids.push(P(chips, {after: 0, before: 0}));
+      return C(kids, {w: w});
+    }
+    areas.forEach(function(a){ var p=Math.round(a.r*100); var wk=a.t>=2&&a.r<0.5; var st=a.t>=2&&a.r>=0.8;
+      /* 문항이 하나뿐이면 0% 아니면 100% 라 우연이 그대로 판정이 된다. 여태
+         빈칸이었는데(스크린샷의 '분자간인력 0/1'), 빈칸은 "왜 아무 말도 없지"
+         가 된다 — 오답 노트가 이미 쓰는 문구를 그대로 쓴다. */
+      var v=wk?'취약':(st?'강점':(a.t<2?'문항 1개 · 판정 안 함':''));
+      var lone=a.t<2;
+      arows.push(ROW([ areaCell(a,cols[0]), barCell(p,wk,st,cols[1]), cellT(a.c+'/'+a.t,{w:cols[2],align:AlignmentType.CENTER,color:MUT}), cellT(v,{w:cols[3],align:AlignmentType.CENTER,size:lone?14:undefined,fill:wk?'F7E3DC':(st?EMT:undefined),color:wk?RED:(st?EM:MUT),bold:!!v&&!lone}) ])); });
     body.push(TBL(cols,arows,{top:bdr(GOLDL,4),bottom:bdr(GOLDL,4),left:NB,right:NB,insideHorizontal:bdr('E6DDC8',2),insideVertical:NB}));
   }
 

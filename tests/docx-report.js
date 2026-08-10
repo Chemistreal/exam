@@ -143,6 +143,21 @@ let fail=0; const chk=(n,g,w)=>{const ok=JSON.stringify(g)===JSON.stringify(w);
   chk('되풀이되는 오개념 섹션',/되풀이되는 오개념/.test(txt),true);
   chk('목차에 수상 확률',/베이지안 추정/.test(txt),true);
   chk('기존 섹션 유지',/문항별 정오표/.test(txt)&&/영역별 성취/.test(txt),true);
+  /* 2026-08-10, 선생님 — "영역별성취 성적표에 각 영역에 해당하는 문제번호도 표기".
+     오답 정리 노트(HTML)에는 진작 있었는데 **워드에만 빠져 있었다.** 학생은
+     화면과 워드파일을 둘 다 쓰므로, 같은 표가 통로에 따라 다른 말을 하면 안 된다.
+     영역 이름 바로 아래 줄에 번호가 오고, 틀린 것은 ✗ 가 붙는다. */
+  const qsRe=/^\d+✗?( \d+✗?)+$/;
+  const areaIx=lines.findIndex(l=>/^영역$/.test(l));
+  const qsLine=areaIx>=0 ? lines.slice(areaIx,areaIx+60).find(l=>qsRe.test(l)) : null;
+  chk('영역별 성취에 문항 번호가 실린다', !!qsLine, true);
+  if(qsLine) console.log('        예: '+qsLine.slice(0,60));
+  chk('틀린 문항에 ✗ 가 붙는다',
+      lines.some(l=>qsRe.test(l) && l.indexOf('✗')>=0), true);
+  /* 문항이 하나뿐인 영역은 판정에서 빠지는데 그 자리가 **빈칸**이라
+     "왜 아무 말도 없지" 가 됐다(선생님이 보내신 성적표의 '분자간인력 0/1').
+     오답 노트가 이미 쓰는 문구를 워드에도 쓴다. */
+  chk('문항 1개인 영역에 까닭이 적힌다', /문항 1개 · 판정 안 함/.test(txt), true);
   chk('부록 3종 유지',/오답 정리/.test(txt)&&/개념 강의/.test(txt)&&/동형 미니 시험지/.test(txt),true);
   // 로고가 실제로 문서에 박혔는지 — 표지·마무리 두 번 들어간다
   const logoBytes=fs.statSync(path.join(__dirname,'..','dawon_logo_trim.png')).size;
