@@ -70,6 +70,7 @@ node tests/run.js                       # 브라우저 검사는 playwright 없�
 | `tools/gen_expl_html.py` | 해설이 비거나, 글과 해설지 꼴이 다른 말을 하는 것 |
 | `tools/dh_validate.py` · `dh_lint.py` · `dh_number.py` | 동형문항의 구조·정답 쏠림·셈이 답에 안 닿는 것 |
 | `tools/void_check.py` · `rate_check.py` | 폐기 문항·공식 정답률이 조용히 사라지는 것 |
+| `tools/pdf_answer_leak.py` | **문제지 PDF 에 답이 실려 나가는 것** |
 | `tools/page_exams.py` · `concept_table.py` | 화면마다 품은 회차 목록·개념표가 갈라지는 것 |
 | `tools/audit_pages.py` · `theme.py` | 글자 대비 4.5:1 미달, 옷이 갈라지는 것 |
 | `tests/page-health.js` | 화면이 열리다가 터지는 것 (258장 전수) |

@@ -77,16 +77,21 @@ GROUPED = {
 
 # 문제지에 **잘못 박힌 딱지**. 회색 상자인데 문항 딱지가 아니다.
 #
-# hwol-2018 은 문항이 예순인데 상자가 예순하나다. 스물여섯째 상자에 '문제 52'
-# 라고 적혀 있다 — 25번과 26번 사이에 엉뚱한 딱지가 하나 끼어 있는 것이다.
-# 그래서 26번부터 크롭이 한 칸씩 밀렸고 60번은 크롭이 아예 없었다.
-#
 # 넓이로 가려지지 않는다(폭이 보통 딱지와 같다). 딱지 글자를 읽어야 아는데
 # 이 문제지들은 글자가 자모로 흩어져 텍스트로 안 잡힌다. 그래서 사람이 한 번
 # 읽어 여기 적어 둔다. 값은 **상자 차례**(1부터)다.
-STRAY = {
-    'hwol-2018': [26],      # '문제 52' 라고 적힌 딱지가 25번과 26번 사이에 있다      # '문제 52' 라고 적힌 딱지가 25번과 26번 사이에 있다
-}
+#
+# [지금은 비어 있다] hwol-2018 에 `[26]` 이 적혀 있었다 — 스물여섯째 상자에
+# '문제 52' 라고 적혀 있어 26번부터 크롭이 한 칸씩 밀렸다. 그런데 그것은
+# **문제지가 아니라 해설편**이었다. `kmchc-2018-problem.pdf` 로 실려 있던
+# 파일은 앞 네 쪽이 표지·주의사항, 다섯째 쪽이 **정답표 전체**, 그 뒤가
+# 정답률과 답이 붙은 해설이었다(2026-08-10 에 드러났다). 크롭 예순 장이
+# 전부 그 해설 쪽에서 잘려 나와 **학생이 답을 보고 있었다.**
+#
+# 선생님이 진짜 문제지를 주셔서 갈아 끼웠다. 새 파일은 회색 상자가 예순
+# 개이고 스물여섯째가 '문제 26', 예순째가 '문제 60' 이다(그림으로 뽑아
+# 눈으로 읽었다). 그래서 이 줄은 지운다 — 옛 파일에만 있던 결함이다.
+STRAY: dict[str, list[int]] = {}
 
 
 def utc_now() -> str:
@@ -94,14 +99,29 @@ def utc_now() -> str:
 
 
 def read_exams() -> list[dict[str, Any]]:
+    """시험 목록. **`exams.json` 이 원본이다.**
+
+    [한 번 못 돌던 곳] 여기는 `final.html` 안의 `const FINAL_EXAMS=[…]` 를
+    잘라 읽고 있었다. 그 자리는 진작에 `exams.json` 으로 옮겨 갔고
+    (화면은 `let FINAL_EXAMS=[]` 로 두고 받아서 채운다), 그래서 이 자는
+    **부를 때마다 그 자리에서 멈췄다** — 크롭을 다시 만들 길이 없었다.
+    2026-08-10 에 답이 실린 문제지를 갈아 끼우면서 드러났다.
+
+    화면 안에는 창구가 죽었을 때 쓰는 `const FALLBACK_EXAMS=[…]` 가 아직
+    있다. `exams.json` 이 없을 때만 그것을 쓴다."""
+    path = ROOT / "exams.json"
+    if path.exists():
+        exams = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(exams, list) and exams:
+            return exams
     source = FINAL_HTML.read_text(encoding="utf-8")
-    marker = "const FINAL_EXAMS="
+    marker = "const FALLBACK_EXAMS="
     if marker not in source:
-        raise RuntimeError("FINAL_EXAMS was not found in final.html")
+        raise RuntimeError("exams.json 도 FALLBACK_EXAMS 도 없다")
     raw = source.split(marker, 1)[1].split(";\n", 1)[0]
     exams = json.loads(raw)
     if not isinstance(exams, list) or not exams:
-        raise RuntimeError("FINAL_EXAMS is empty or malformed")
+        raise RuntimeError("시험 목록이 비어 있다")
     return exams
 
 
@@ -701,7 +721,17 @@ def build_answer_files(
     fallback = 0
     fallback_questions: list[dict[str, Any]] = []
     for exam in exams:
-        questions: dict[str, Any] = {}
+        questions = {}
+        # ⚠ **한 번 지워 버린 곳.** 이 자는 answers/<회차>.json 을 해설지에서
+        #   다시 만든다. 그런데 그 파일에는 해설지에 없는 **손으로 쓴 오개념**
+        #   한 줄이 문항마다 들어 있다. 2026-08-10 에 답 실린 문제지를 갈아
+        #   끼우려고 크롭만 다시 만들었더니, 서른아홉 회차 2,310문항의 그
+        #   한 줄이 통째로 빈 문자열이 됐다(커밋 전에 알아채고 되돌렸다).
+        #   해설지에서 안 나오는 말은 **있던 것을 그대로 둔다**.
+        kept = {}
+        _prev = ANSWER_DIR / f"{exam['id']}.json"
+        if _prev.exists():
+            kept = (json.loads(_prev.read_text(encoding="utf-8")) or {}).get("questions", {})
         solution_data = solved.get(exam["id"], {})
         miss = set(exam.get("miss") or [])
         for number in range(1, exam["nQ"] + 1):
@@ -726,6 +756,8 @@ def build_answer_files(
                 )
                 explanation = {}
                 status = "answer_key_and_concept_only"
+            # 이미 적혀 있던 것 — 해설지에서 안 나오는 **손으로 쓴 말**은 지우지 않는다.
+            had = kept.get(str(number), {})
             questions[str(number)] = {
                 "answer": key,
                 "acceptableAnswers": multi or ([key] if key else []),
@@ -735,9 +767,11 @@ def build_answer_files(
                 "learningPoint": (
                     verified.get("areaLabel") if verified else (qtype or area)
                 ),
-                "explanation": explanation.get("explanation", ""),
-                "explanationHtml": explanation.get("explanationHtml", ""),
-                "misconception": explanation.get("misconception", ""),
+                "explanation": explanation.get("explanation", "") or had.get("explanation", ""),
+                "explanationHtml": (explanation.get("explanationHtml", "")
+                                    or had.get("explanationHtml", "")),
+                "misconception": (explanation.get("misconception", "")
+                                  or had.get("misconception", "")),
                 "sourceSolution": solution_files.get(exam["id"], ""),
                 "verificationStatus": status,
             }
