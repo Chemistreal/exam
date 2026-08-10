@@ -2077,7 +2077,27 @@ function conceptClinicSec(exam, sel, wrong, cs){
     return {q,my,ar,bd,ty,cohOpt,cMis}; });
   const groups={}; items.forEach(it=>{(groups[it.bd]=groups[it.bd]||[]).push(it);});
   const domHasCommon=bd=>groups[bd].some(it=>it.cohOpt!=null&&it.cohOpt>=TH);
-  const order=Object.keys(groups).sort((a,b)=>{ const ca=domHasCommon(a)?1:0, cb=domHasCommon(b)?1:0; if(ca!==cb)return cb-ca; return groups[b].length-groups[a].length; });
+  /* ⚠ **여기가 '많이 틀린 순' 이었다.** 2026-08-10 에 실제 사용자가
+       "취약단원 순서대로 배열해줬으면 좋겠다" 고 했는데, 영역별 성취
+       (areaSec)·학습 처방(rxSec)은 이미 약한 순이라 무슨 말인가 했다.
+       이 자리였다 — **학생이 실제로 풀어 나가는 곳**인데 여기만 오답
+       **개수**로 늘어놓고 있었다. 둘은 다르다.
+
+           단원 A  12문항 중 5개 틀림   정답률 58%   오답 5
+           단원 B   4문항 중 4개 틀림   정답률  0%   오답 4
+
+       개수로 세면 A 가 먼저다. 그런데 무너진 것은 B 다. 문항이 많은 단원이
+       늘 앞에 오고, 통째로 모르는 단원은 뒤로 밀린다.
+       이제 **정답률이 낮은 단원부터** 놓는다(같으면 오답이 많은 쪽 먼저).
+     ※ '또래도 많이 틀린 묶음을 맨 앞에' 는 그대로 둔다 — 화면 안내문에
+       적어 둔 약속이고, 개인 실수가 아니라 개념 함정이라는 다른 뜻이다. */
+  const rate={};
+  Object.keys(groups).forEach(bd=>{ let c=0,t=0;
+    for(let q=1;q<=exam.nQ;q++){ const a=exam.area?(exam.area[q-1]||'기타'):'기타';
+      if(broad(a)!==bd) continue; t++; if(okq(exam,q,sel[q]||0)) c++; }
+    rate[bd]=t?c/t:0; });
+  const order=Object.keys(groups).sort((a,b)=>{ const ca=domHasCommon(a)?1:0, cb=domHasCommon(b)?1:0; if(ca!==cb)return cb-ca;
+    return rate[a]-rate[b] || groups[b].length-groups[a].length; });
   const anyCommon=items.some(it=>it.cohOpt!=null&&it.cohOpt>=TH);
   const body=order.map(bd=>{ const its=groups[bd].sort((a,b)=>(b.cohOpt||0)-(a.cohOpt||0)); const r=RX[bd], lec=LEC[bd];
     /* 묶음 이름은 **이번 시험이 실제로 물은 것**으로 부른다.
@@ -5068,7 +5088,15 @@ function buildBook(exam, selv, cs, correct, total, W, wrong, dh, answers){
   // 오답 그룹(영역별)
   var wg={};
   (wrong||[]).forEach(function(w){ var ar=(exam.area&&exam.area[w.q-1])||'기타'; var bd=bkBroad(ar); (wg[bd]=wg[bd]||[]).push(w); });
-  var wgKeys=Object.keys(wg).sort(function(a,b){return wg[b].length-wg[a].length;});
+  /* ⚠ 화면의 오답 클리닉과 **똑같이** 여기도 오답 개수 순이었다. 학생이
+       종이·워드로 받아 풀어 나가는 「오답 정밀 분석」인데, 문항이 많은
+       단원이 늘 앞에 오고 통째로 모르는 단원이 뒤로 밀렸다.
+       바로 위 유형 순서(tyOrder)는 진작 `ra-rb` 로 **약한 것부터**인데
+       영역 묶음만 개수였다 — 한 문서 안에서 두 기준이 섞여 있었다.
+       `ag` 에 영역별 정답률이 이미 있으므로 그걸 그대로 쓴다. */
+  var wgRate=function(bd){ var g=ag[bd]; return (g&&g.t)?g.c/g.t:0; };
+  var wgKeys=Object.keys(wg).sort(function(a,b){
+    return wgRate(a)-wgRate(b) || wg[b].length-wg[a].length; });
 
   var esc2=esc, CI=CIRC;
   var _sn=0, no=function(){ _sn++; return _sn<10?('0'+_sn):(''+_sn); };
