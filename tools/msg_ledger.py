@@ -69,7 +69,18 @@ READER = [
     (r'^(chemistreal_app|home|exam|retake_entry|challenge)', '학생'),
     (r'^(OX_grader|OMR_|hw_grader|admin_console|roster|pending|letters|pdfs|'
      r'concept_map|dualcoding|diagnosis_app)', '선생님'),
-    (r'^(answers|v2|english|관리자)', '학생'),
+    (r'^(answers|v2|english)', '학생'),
+    # ⚠ **한 번 잘못 갈랐던 곳.** `관리자` 를 위 줄에 같이 넣어 두어 '학생' 으로
+    #   세고 있었다. 이름이 '관리자' 인 화면을 학생 것으로 센 것이다 — 제목이
+    #   '관리자 · 오프라인 수기 입력' 이다. 자가 갈래를 틀리면 "학생이 읽는
+    #   평가 문장 몇 개" 라는 수 자체가 틀린다.
+    #
+    #   KMChC·study64-report 의 세 도구 화면도 이름만으로는 안 갈렸다.
+    #   README 가 무엇인지 적고 있어 그것을 보고 정했다(2026-08-10).
+    #     리포트_고급_미리보기  내부 미리보기            → 선생님
+    #     분석_v2               문항 검증 대시보드        → 선생님
+    #     리포트링크생성기       학부모 링크를 만드는 도구  → 선생님
+    (r'^(관리자|리포트_고급_미리보기|리포트링크생성기|분석_v2)', '선생님'),
 ]
 
 # ── 가르치는 글과 사람에게 하는 말을 먼저 가른다 ──────────────────
