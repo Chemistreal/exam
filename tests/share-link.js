@@ -203,7 +203,7 @@ async function yearRankSnapshot(browser, errs) {
     const kept = bex ? mergeBaselineQ(bex, { N: 3, ready: true, estimated: false, percReady: true,
         qp: [], qopt: [], qcnt: new Array(bex.nQ).fill([0, 0, 0, 0]),
         totals: [10, 20, 30], yearTotals: [10, 20], yearOf: 2025, fromLink: true }) : null;
-    return { N: cs.N, totals: cs.totals.slice().sort((a, b) => a - b),
+    return { N: cs.N, localN: cs.totals.length, totals: cs.totals.slice().sort((a, b) => a - b),
              baseEx: bex && bex.id, keptYear: kept && kept.yearOf,
              keptYearTotals: kept && (kept.yearTotals || []).length,
              yearTotals: (cs.yearTotals || []).slice().sort((a, b) => a - b),
@@ -250,7 +250,12 @@ async function yearRankSnapshot(browser, errs) {
 
   // 이미 나간 v2 링크 — 반석차만 빠지고 나머지는 살아 있어야 한다
   chk('v2 링크가 계속 읽힌다', made.v2ok, true);
-  chk('v2 인원수 그대로', made.v2N, made.N);
+  /* 링크가 싣는 인원은 **이 브라우저에 채점해 둔 사람**뿐이다. 기준 기록은
+     링크에 안 싣고 받는 쪽이 baseline.json 으로 얹는다(주소를 늘릴 이유가
+     없다). 그래서 cs.N 은 기준 기록까지 더한 수라 링크 쪽 수와 다르다 —
+     hwol-2018 에 103명이 들어오자 12 vs 115 가 되어 걸렸다. 링크가 싣기로 한
+     것과 견준다. */
+  chk('v2 인원수 그대로', made.v2N, made.localN);
   chk('v2 점수 분포 그대로', made.v2totals, made.totals);
   chk('v2 에는 올해 분포가 없다', made.v2year, 0);
 }

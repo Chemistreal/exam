@@ -13,6 +13,24 @@
 
     실행:  python3 tools/audit_pages.py [경로...]     # 기본: 이 저장소
            python3 tools/audit_pages.py --tier a      # 매일 여는 화면만
+
+■ 네 저장소가 나눠 쓰는 자다 — 판 2026-08-10
+
+exam · DT · study64-report · KMChC 가 이 파일을 **한 벌**로 쓴다. TIER_A/B 만
+저장소마다 다르고 나머지는 글자 하나까지 같아야 한다. 갈라지면 한쪽만 고쳐진다.
+
+실제로 갈라져 있었다(2026-08-10 에 다시 모았다).
+
+    study64-report  270줄  고침 다 있음
+    DT              270줄  고침은 있는데 **커밋이 안 되어 있었다**
+    exam            259줄  열한 번째 거짓말 고침이 없다
+    KMChC           200줄  --check 도 종료 코드도 없다 — 아무것도 못 막았다
+
+CI 는 다른 저장소를 볼 수 없다. **이 줄은 자가 아니라 약속이다.** 손댈 때는
+네 곳에 같이 넣고, 위 날짜를 고친다. 다른지 보려면 —
+
+    diff <(sed 's/^TIER_[AB] = .*//' A/tools/audit_pages.py) \
+         <(sed 's/^TIER_[AB] = .*//' B/tools/audit_pages.py)
 """
 import os, re, sys, json, math, collections, urllib.parse
 
@@ -99,7 +117,18 @@ def audit(path):
     # --bg #060817 위 흰 글씨)에서 흰 글씨를 흰 바탕에 얹어 재고 1.04:1 이라고
     # 했다 — 실제로는 가장 잘 읽히는 화면이다.
     # 그 장이 밝은 화면인지 어두운 화면인지 먼저 정하고, **그 쪽 바탕**으로 잰다.
-    vs = dict(VAR.findall(s))
+    # ⚠ 열한 번째 거짓말. `dict()` 로 모으면 **같은 이름의 값이 하나만 남는다.**
+    #   테마를 두 벌 가진 화면(study64-report/english.html 은 밝은 판과 어두운
+    #   판을 둘 다 갖고 있다)에서는 한쪽 팔레트가 통째로 사라져,
+    #   어두운 판의 --sub #eeeef6 를 밝은 판의 --bg #fff 에 얹어 재고
+    #   1.00:1 이라고 했다. 이름마다 **값을 다 모은다.**
+    pairs = VAR.findall(s)
+    vs = {}
+    for k, v in pairs:
+        vs.setdefault(k, []).append(v)
+    vs = {k: v[-1] for k, v in vs.items()}          # 아래 짝짓기용(대표값)
+    ALL = {k: list(dict.fromkeys(v)) for k, v in
+           {k: [v for kk, v in pairs if kk == k] for k, _ in pairs}.items()}
     # ⚠ 네 번째 거짓말. 이름에 'bg' 가 들어가면 다 바탕으로 쳤다. 그래서
     # --ok-bg(맞은 문항의 연둣빛 띠), --ms-bg, --warn-bg 같은 **상태 색**까지
     # 바탕이 되었고, 거기에 아무 글자색이나 얹어 재고는 모자란다고 했다.
@@ -114,21 +143,21 @@ def audit(path):
     #   (세 번째 거짓말과 같은 종류다. 이번엔 이름 끝의 숫자 때문이었다.)
     SURFACE = {'bg', 'paper', 'cream', 'surface', 'card', 'sunk', 'page',
                'white', 'canvas', 'panel'}
-    allbg = [v for k, v in vs.items()
-             if re.sub(r'\d+$', '', k.lower()) in SURFACE]
+    allbg = [v for k, vals in ALL.items()
+             if re.sub(r'\d+$', '', k.lower()) in SURFACE for v in vals]
     dark_page = bool(allbg) and sum(1 for v in allbg if lum(v) <= .5) > len(allbg) / 2
     bgs = [v for v in allbg if (lum(v) <= .5) == dark_page]
     if not bgs:
         bgs = ['#000000'] if dark_page else ['#FFFFFF']
-    fgs = [(k, v) for k, v in vs.items()
-           if re.search(r'ink|text|sub|muted|faint|fg', k, re.I)]
+    fgs = [(k, v) for k, vals in ALL.items()
+           if re.search(r'ink|text|sub|muted|faint|fg', k, re.I) for v in vals]
     for k, v in fgs:
         # --brand-ink 는 종이가 아니라 --brand-bg 위에 얹힌다. 짝이 있으면
         # 그 짝 위에서 잰다 — 안 그러면 hub 의 크림색 제목을 흰 종이에 얹어
         # 재고 1.00:1 이라고 한다(실제로는 가장 잘 읽히는 자리다).
         stem = re.sub(r'[-_]?(ink|text|sub|muted|faint|fg)\d*$', '', k, flags=re.I)
-        pair = [w for kk, w in vs.items() if stem and re.fullmatch(
-            re.escape(stem) + r'[-_]?bg\d*', kk, re.I)]
+        pair = [w for kk, ws in ALL.items() if stem and re.fullmatch(
+            re.escape(stem) + r'[-_]?bg\d*', kk, re.I) for w in ws]
         # ⚠ 아홉 번째. 한 파일에 밝은 팔레트와 어두운 팔레트가 **둘 다** 있는
         #   화면이 있다(DT roster.html — --bg #0f1216 인데 --paper #FAFAF7 도
         #   갖고 있다). 다수결로 한쪽을 고르면 반대쪽 글자색이 통째로 거짓

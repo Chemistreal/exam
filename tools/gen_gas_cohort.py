@@ -79,10 +79,22 @@ def build() -> dict[str, dict]:
         scores: list[int] = []
         rec = base.get(exam["id"])
         if rec:
-            # 채점 제외 문항이 있으면 앱은 그 문항을 빼고 세는데 기준 기록은 전
-            # 문항으로 셌다 — 단위가 어긋나므로 싣지 않는다.
-            if exam.get("miss"):
-                print(f"  ! 기준 기록을 건너뜀(채점 제외 문항 있음): {exam['id']}", file=sys.stderr)
+            # `miss`(채점 제외)가 있으면 여태 통째로 건너뛰었다 — "앱은 그
+            # 문항을 빼고 세는데 기준 기록은 전 문항으로 셌다" 는 이유였다.
+            # **지금은 안 그렇다.** 앱의 allc() 는 miss 를 voided 와 똑같이
+            # 전원정답으로 보고 분모(nQ)에서도 빼지 않는다 —
+            # tests/allcorrect.js 가 그 약속을 지킨다("빼지 않고 더한다").
+            # 기준 기록 쪽도 정답 행에 숫자가 없는 문항(전원정답·문제삭제)은
+            # 누구나 맞은 것으로 센다. 두 쪽이 같은 단위다.
+            #
+            # 건너뛰면 그 회차만 문자에 석차가 안 실린다 — 화면은 말하는데
+            # 문자는 말하지 않는 상태가 된다. hwol-2021(57명)이 그랬다.
+            # 대신 **넘치는지**만 본다. 맞은 개수가 문항 수를 넘으면 단위가
+            # 어긋난 것이니 그때는 싣지 않는다(3을 곱한 값이 섞인 경우).
+            over = sorted({int(k) for k in rec["hist"] if int(k) > exam["nQ"]})
+            if over:
+                print(f"  ! 기준 기록을 건너뜀(맞은 개수 {over[:3]} 가 문항 수 "
+                      f"{exam['nQ']} 를 넘는다): {exam['id']}", file=sys.stderr)
             else:
                 for correct, count in sorted(rec["hist"].items(), key=lambda kv: int(kv[0])):
                     scores += [int(correct)] * int(count)

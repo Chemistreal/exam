@@ -147,14 +147,17 @@ const LATER_ALLC = {
     return !(sum === b.n && acc(exam, +qs).reduce((a, kk) => a + (o[kk - 1] || 0), 0) !== b.qc[+qs - 1]);
   });
   chk('쓸모없어진 예외가 남아 있지 않다', stale, []);
-  chk('문항 수', cells, 960);
+  /* 2026-08-10 에 화올·기출동형 열두 회차(827명)가 들어와 수가 크게 늘었다.
+     16회차 387명 → 28회차 1214명. 여기 박아 둔 값은 **줄면 걸리라고** 있는
+     것이지 늘지 말라는 것이 아니다 — 늘 때는 이 줄도 같이 올린다. */
+  chk('문항 수', cells, 1680);
   /* 한 칸도 안 남은 문항. 전부 전원정답·모두정답 처리된 문항이라 분포를 따질
      것이 없다. 늘어나면 원본이 바뀌었거나 칸을 통째로 버리고 있다는 뜻이다. */
-  chk('선택 분포가 없는 문항', holes, 5);
+  chk('선택 분포가 없는 문항', holes, 11);
   // 일부만 덮인 문항은 남은 사람으로 센다. 통째로 버리면 이 수가 0이 된다.
   chk('일부만 남은 문항', Object.keys(BASE).reduce((a, k) =>
-    a + BASE[k].q.filter(o => o && o.reduce((x, y) => x + y, 0) !== BASE[k].n).length, 0), 3);
-  chk('기준 기록 인원', Object.keys(BASE).reduce((a, k) => a + BASE[k].n, 0), 387);
+    a + BASE[k].q.filter(o => o && o.reduce((x, y) => x + y, 0) !== BASE[k].n).length, 0), 8);
+  chk('기준 기록 인원', Object.keys(BASE).reduce((a, k) => a + BASE[k].n, 0), 1214);
 }
 
 console.log('\n── 나중에 전원정답이 된 문항의 또래 정답률 ──');
