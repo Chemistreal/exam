@@ -31,12 +31,24 @@ PyMuPDF 를 설치하는 줄이 없었다. 즉 크롭이 한 칸 밀리는 것�
   ② CI 가 부르는 `node tests/*.js` 가 playwright 를 쓰면
      ㄱ. 설치하는 줄이 있는가
      ㄴ. 그 줄이 **이 단계보다 앞에** 있는가 (뒤면 못 찾는다)
+  ③ `--check` 를 가진 자를 판이 **부르기는 하는가**
 
 ⚠ 빨간불이 아니라 **못 도는 것**을 잡는 자다. 검사가 통째로 안 돌면 그 아래
   자들도 다 안 돈다 — 한 줄 때문에 판 전체가 죽는다.
 
+③ 은 같은 날 손으로 찾다 나온 것이다. KMChC 에 `audit_pages`·`input_labels`·
+`js_syntax`·`theme` 넷이 들어와 있고 README 자물쇠 표에도 적혀 있는데,
+**판이 한 번도 안 불렀다.** 앞서 `print_ink` 도 같은 상태였다. 지어서 넣어
+두고 거는 것을 잊으면 표만 늘고 막는 것은 없다.
+
+    돌 수 있는 것과 걸어 둔 것은 다르다  ← ①②
+    걸지 않은 자는 없는 자와 같다        ← ③
+
+짓기만 하는 자(`--check` 가 없는 것 — exam 의 dh_* 처럼 자료를 만드는 것)는
+안 센다. 판에 있을 것이 아니기 때문이다.
+
     python3 tools/ci_deps.py           # 판마다 무엇이 필요한가
-    python3 tools/ci_deps.py --check   # 못 도는 자가 있으면 빨간불
+    python3 tools/ci_deps.py --check   # 못 도는 자·안 걸린 자가 있으면 빨간불
 """
 import glob
 import os
@@ -164,6 +176,26 @@ def main():
                     if not job_env and 'NODE_PATH' not in text[max(0, at - 200):at]:
                         bad.append('%s: `%s` 에 NODE_PATH=tests/node_modules 가 '
                                    '없다 — 설치해도 못 찾는다' % (name, f))
+
+    # ③ `--check` 가 있는데 **어느 판도 안 부르는** 자. 지어서 넣어 두고 거는
+    #    것을 잊으면 자물쇠 표만 늘고 막는 것은 없다.
+    all_ci = '\n'.join(open(w, encoding='utf-8').read() for w in workflows())
+    idle = []
+    for t in sorted(glob.glob(os.path.join(ROOT, 'tools', '*.py'))):
+        base = os.path.basename(t)
+        if base == os.path.basename(__file__):
+            continue
+        try:
+            src = open(t, encoding='utf-8').read()
+        except OSError:
+            continue
+        if '--check' not in src:
+            continue                   # 짓기만 하는 자 — 판에 있을 것이 아니다
+        if base not in all_ci:
+            idle.append('tools/' + base)
+    if idle:
+        bad.append('판이 **한 번도 안 부르는** 자 %d개 — 걸지 않은 자는 없는 자와 '
+                   '같다:\n    %s' % (len(idle), '\n    '.join(idle)))
 
     if not seen:
         print('이 저장소의 판에는 부르는 자가 없다.')
