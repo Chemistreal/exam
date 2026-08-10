@@ -109,9 +109,19 @@ console.log('\n── 앱이 그 이름과 다운로드를 붙인다 ──');
      가짜 회차를 하나 지어 **이름 규칙만** 확인한다(파일 검사는 진짜로 한다). */
   const thinExam = EXAMS.find(e => !e.solFull)
     || Object.assign({}, EXAMS[0], { id: '__풀이없음__', solFull: false });
-  const thin = ctx.examAssetsHTML(thinExam);
-  const full = ctx.examAssetsHTML(EXAMS.find(e => e.id === 'jmchc-6'));
-  const latest = ctx.examAssetsHTML(EXAMS.find(e => e.id === 'kmchc-2026-1-simhwa'));
+  /* ⚠ **자리가 바뀌었다**(2026-08-10). 이 검사는 여태 '답 넣는 화면에
+     정답·해설 링크가 걸리는가' 를 지키고 있었다. 그런데 그 화면이 바로
+     답안지 위다 — 선생님이 문제지 PDF 에 답이 실려 있다고 알려 주셔서
+     열어 보다가, 화면 쪽에도 같은 구멍이 있는 것을 봤다.
+
+     그래서 `examAssetsHTML(exam, graded)` 로 갈랐다. 검사도 같이 옮긴다 —
+     **없애는 것이 아니라 자리를 옮기는 것**이므로, 채점 뒤에는 그대로
+     있어야 한다는 것까지 여기서 지킨다. (답 넣기 전에 없다는 것은
+     `tests/answer-not-before.js` 가 실제 브라우저에서 본다.) */
+  const thin = ctx.examAssetsHTML(thinExam, true);
+  const full = ctx.examAssetsHTML(EXAMS.find(e => e.id === 'jmchc-6'), true);
+  const latest = ctx.examAssetsHTML(EXAMS.find(e => e.id === 'kmchc-2026-1-simhwa'), true);
+  const before = ctx.examAssetsHTML(EXAMS.find(e => e.id === 'kmchc-2026-1-simhwa'), false);
   chk('풀이 없는 회차는 개념표라고 적는다', /정답 · 개념표/.test(thin), true);
   chk('풀이 없는 회차를 해설이라 하지 않는다', /문항별 해설/.test(thin), false);
   chk('풀이 있는 회차는 문항별 해설이라 적는다', /정답 · 문항별 해설/.test(full), true);
@@ -120,17 +130,26 @@ console.log('\n── 앱이 그 이름과 다운로드를 붙인다 ──');
   const realExam = EXAMS.find(e => e.id === 'jmchc-6');
   chk('문제지가 걸린다',
       new RegExp(`href="${realExam.pdf}" download`).test(full), true);
-  chk('새 회차 공식 정답을 직접 받는다',
+  chk('채점 뒤 공식 정답을 직접 받는다',
       /href="kmchc-2026-1-simhwa-answer\.pdf" download/.test(latest), true);
-  chk('새 회차 문제편·해설편을 직접 받는다',
+  chk('채점 뒤 문제편·해설편을 직접 받는다',
       /href="kmchc-2026-1-simhwa-solution-book\.pdf" download/.test(latest), true);
-  chk('해설이 내려받아진다',
+  chk('채점 뒤 해설이 내려받아진다',
       new RegExp(`href="sol-final-${realExam.id}\\.html" download`).test(full), true);
   chk('브라우저로 열어 볼 수도 있다', /target="_blank"/.test(full), true);
   chk('새 창 링크에 rel=noopener 가 있다', /rel="noopener"/.test(full), true);
 
+  // ── 답 넣기 전에는 문제지뿐이다 ────────────────────────────────
+  chk('답 넣기 전에도 문제지는 걸린다', /kmchc-2026-1-simhwa-problem\.pdf/.test(before), true);
+  chk('답 넣기 전에는 공식 정답이 없다', /answer\.pdf/.test(before), false);
+  chk('답 넣기 전에는 문제편·해설편이 없다', /solution-book\.pdf/.test(before), false);
+  chk('답 넣기 전에는 해설 링크가 없다', /sol-final-/.test(before), false);
+
   // 답안 입력 화면에 실제로 꽂혀 있는지 — 함수만 있고 안 부르면 화면엔 없다
   chk('답안 입력 화면이 이 줄을 그린다', /\$\{examAssetsHTML\(cur\)\}/.test(SRC), true);
+  // 성적표에도 정답·해설이 남아 있는지 — 옮긴 것이지 없앤 것이 아니다
+  chk('성적표가 공식 정답을 건다', /cur\.answerPdf\?/.test(SRC), true);
+  chk('성적표가 문제편·해설편을 건다', /cur\.bookPdf\?/.test(SRC), true);
   chk('성적표 링크도 같은 이름을 쓴다', /\$\{examSolLabel\(cur\)\}/.test(SRC), true);
   // 인쇄물에는 넣지 않는다(종이에 찍힌 링크는 누를 수 없다)
   chk('인쇄할 때는 숨긴다', /@media print\{\.assets\{display:none\}\}/.test(SRC), true);
