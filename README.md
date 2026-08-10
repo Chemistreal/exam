@@ -55,6 +55,7 @@ node tests/run.js                       # 브라우저 검사는 playwright 없�
 | `tests/hub-calls.js` | 줄여 놓은 창구 호출이 말없이 도로 늘어나는 것 |
 | `tools/hub_audit.py` | 통합 셸이 잰 값에서 되돌아가는 것 |
 | `tools/lie_check.py` | **자가 거짓말하는 것** (참·거짓 예시를 맞히는지) |
+| `tools/page_doors.py` | 아무 데서도 안 걸리는 화면이 조용히 남는 것 |
 | `tools/noindex.py` | 성적·명단이 뜨는 화면이 검색에 잡히는 것 |
 | `tools/store_ledger.py` | 브라우저에 무엇을 남기는지 적어 두지 않는 것 |
 | `tools/msg_ledger.py` | 사람에게 하던 말이 조용히 사라지는 것 |
