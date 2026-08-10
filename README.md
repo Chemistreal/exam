@@ -56,6 +56,9 @@ node tests/run.js                       # 브라우저 검사는 playwright 없�
 | `tools/hub_audit.py` | 통합 셸이 잰 값에서 되돌아가는 것 |
 | `tools/lie_check.py` | **자가 거짓말하는 것** (참·거짓 예시를 맞히는지) |
 | `tools/page_doors.py` | 아무 데서도 안 걸리는 화면이 조용히 남는 것 |
+| `tools/pages_budget.py` | 배포 한도(1GB)에 벽으로 닿는 것 |
+| `tools/name_key.py` | 같은 학생이 앱마다 다른 이름으로 갈리는 것 (정한 뒤부터) |
+| `tests/narrow.js` | 휴대폰 폭(360px)에서 화면이 옆으로 밀리는 것 |
 | `tools/noindex.py` | 성적·명단이 뜨는 화면이 검색에 잡히는 것 |
 | `tools/store_ledger.py` | 브라우저에 무엇을 남기는지 적어 두지 않는 것 |
 | `tools/msg_ledger.py` | 사람에게 하던 말이 조용히 사라지는 것 |
