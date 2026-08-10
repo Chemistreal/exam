@@ -75,9 +75,28 @@ jobs:
         with:
           python-version: '3.11'
       # wrongbook-assets.py 가 크롭 PNG 2400장이 실제로 열리는지 확인할 때 쓴다.
-      - name: Pillow 설치
+      # ⚠ PyMuPDF 가 빠져 있었다. `crop_align.py` 와 `pdf_answer_leak.py` 가
+      #   `import fitz` / `import pymupdf` 를 하는데 CI 에는 그것이 없어서,
+      #   **두 자가 여기서 한 번도 돈 적이 없다** — 매번 ModuleNotFoundError 로
+      #   빨간불이었고 그래서 판마다 빨간불이었다(2026-08-10 에 찾음).
+      #   크롭이 한 칸 밀리는 것도, 문제지에 답이 실리는 것도 CI 는 못 막고
+      #   있었다. 사람이 손으로 돌릴 때만 걸렸다.
+      # ⚠ 이 판은 2026-08-10 에 열어 보니 **여섯 번 가운데 여섯 번이 빨간불**
+      #   이었고 아무도 안 보고 있었다. 까닭은 자가 틀려서가 아니라 **자가 여기서
+      #   돌 수 없어서**였다 — crop_align 의 `import fitz` 를 설치하는 줄이 없었다.
+      #   즉 크롭 밀림도 문제지 답 유출도 CI 는 한 번도 막은 적이 없다.
+      #   "재는 것과 막는 것은 다르다" 의 한 칸 앞 — **돌 수 있는 것과 걸어 둔 것은
+      #   다르다.** 이 자를 맨 앞에 둬서 그것부터 본다.
+      - name: CI 가 부르는 자가 여기서 돌 수 있다
         timeout-minutes: 5
-        run: python3 -m pip install --quiet Pillow
+        run: python3 tools/ci_deps.py --check
+      # ⚠ numpy·lxml 은 `crop_align.py` 가 **직접** 안 쓴다. 그 안에서 부르는
+      #   `build_wrongbook_assets.py` 가 쓴다. 그래서 PyMuPDF 를 넣은 뒤에도
+      #   판은 `ModuleNotFoundError: numpy` 로 죽었다 — ci_deps 가 파일 하나만
+      #   열고 그 안이 부르는 자를 안 따라갔기 때문이다. 지금은 따라간다.
+      - name: Pillow · PyMuPDF · numpy · lxml 설치
+        timeout-minutes: 5
+        run: python3 -m pip install --quiet Pillow PyMuPDF numpy lxml
 
       # ── 브라우저 ──────────────────────────────────────────
       # 여태 CI 에는 브라우저가 없었다. 그래서 브라우저가 필요한 검사 열두 개가
