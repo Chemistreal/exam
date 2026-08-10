@@ -344,6 +344,18 @@ summary::-webkit-details-marker{display:none}
 .bk-pctn{font-family:"Nanum Myeongjo",serif;font-weight:800;font-size:15px;color:#17130C}
 .bk-tagS{font-size:11.5px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border:1px solid #14432F;color:#14432F}
 .bk-tagW{font-size:11.5px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border:1px solid #B0512F;color:#B0512F}
+/* 판정을 안 하는 영역(문항 1개). 빈칸으로 두면 "왜 아무 말도 없지" 가 된다. */
+.bk-tagN{font-size:11.5px;font-weight:600;letter-spacing:.02em;color:#6b6456;white-space:nowrap}
+/* 영역에 든 문항 번호와 유형 — 표만 보고도 갈래를 되짚을 수 있게 */
+.bk-qs{margin-top:5px;display:flex;flex-wrap:wrap;gap:3px}
+.bk-qch{font-size:11.5px;font-weight:600;color:#6b6456;background:#F1ECE0;border-radius:3px;padding:1px 5px;font-variant-numeric:tabular-nums}
+.bk-qch.x{color:#8A2E1A;background:#F7E5DE;font-weight:700}
+.bk-tys{margin-top:4px;font-size:11.5px;color:#8a8271;line-height:1.5}
+.bk-rule{margin:10px 0 2px;padding:9px 12px;background:#F5F1E6;border-left:3px solid #B0873A;font-size:12px;line-height:1.65;color:#5a544a}
+/* 오답 노트의 유형 띠 — 여기부터 이 유형이라는 표시 */
+.bk-tyband{margin:24px 0 8px;padding:7px 12px;background:#17130C;color:#F7F2E6;border-radius:4px;display:flex;justify-content:space-between;align-items:baseline;gap:10px;break-inside:avoid;break-after:avoid}
+.bk-tyband-n{font-weight:800;font-size:13.5px;letter-spacing:.02em}
+.bk-tyband-s{font-size:11.5px;color:#CFC6B2;white-space:nowrap}
 /* ── 오답 정밀 분석 ── */
 .bk-agroup{margin:22px 0 4px;break-inside:avoid}
 .bk-ah{font-family:"Nanum Myeongjo",serif;font-size:18px;font-weight:800;color:#14432F;padding-bottom:6px;border-bottom:1px solid #c9bd9f;margin-bottom:4px}
@@ -4502,6 +4514,12 @@ function finalHero(nm, exam, correct, total, W, pct){
       +'<div class="fhero__stats">'
       +'<div class="fhds"><b>'+_rs.score+'/'+_max+'</b><span>원점수'+(_rs.pen?' · 오답 −1':'')+'</span></div>'
       +'<div class="fhds"><b>'+correct+'/'+total+'</b><span>맞은 개수</span></div>'
+      /* 오답에 −1 이 붙는 회차는 **비운 것과 찍고 틀린 것이 다른 일**이다.
+         비우면 0점, 찍고 틀리면 −1점이다. 그런데 화면은 둘을 '틀린 문항'
+         하나로 묶어 보여 주고 있었다 — 학생은 자기가 점수를 흘린 것인지
+         내준 것인지 알 수 없었다. 감점이 있는 회차에서만 갈라 적는다. */
+      +(_rs.pen?'<div class="fhds"><b>'+_rs.wrongAns+'개</b><span>오답 · −'+_rs.pen+'점씩</span></div>'
+              +'<div class="fhds"><b>'+(total-correct-_rs.wrongAns)+'개</b><span>무응답 · 0점</span></div>':'')
       +'<div class="fhds"><b>'+pct+'%</b><span>정답률</span></div>'
       +'<div class="fhds"><b>'+nT+'개</b><span>틀린 유형</span></div>'
       +rk
@@ -5023,8 +5041,19 @@ function buildBook(exam, selv, cs, correct, total, W, wrong, dh, answers){
   if(_ry.ready){ yN=_ry.N; yrank=rankIn(_ry.pool, correct); yYear=_ry.year; }
   // 영역 집계
   var ag={};
-  if(exam.area) for(var q=1;q<=exam.nQ;q++){ var bd=bkBroad(exam.area[q-1]||''); if(!bd)continue; (ag[bd]=ag[bd]||{c:0,t:0}); ag[bd].t++; if(okq(exam,q,selv[q]||0))ag[bd].c++; }
-  var areas=Object.keys(ag).map(function(k){return {name:k,c:ag[k].c,t:ag[k].t,r:ag[k].t?ag[k].c/ag[k].t:0};}).sort(function(a,b){return a.r-b.r || b.t-a.t;});
+  /* 영역마다 **어떤 문항이 들어갔는지**도 같이 모은다. 여태는 c/t 만 있어서
+     "성취도 100% 인데 왜 강점이 아니냐" 를 화면에서 답할 수 없었다
+     (문항이 하나뿐인 영역은 판정에서 빠지는데 그 말이 어디에도 없었다).
+     문항 번호와 유형을 같이 실어, 표만 보고도 갈래를 되짚을 수 있게 한다. */
+  if(exam.area) for(var q=1;q<=exam.nQ;q++){ var bd=bkBroad(exam.area[q-1]||''); if(!bd)continue;
+    (ag[bd]=ag[bd]||{c:0,t:0,qs:[]}); ag[bd].t++;
+    var _ok=okq(exam,q,selv[q]||0); if(_ok)ag[bd].c++;
+    ag[bd].qs.push({q:q,ok:_ok,ty:(exam.type&&exam.type[q-1])||''}); }
+  var areas=Object.keys(ag).map(function(k){return {name:k,c:ag[k].c,t:ag[k].t,qs:ag[k].qs,r:ag[k].t?ag[k].c/ag[k].t:0};}).sort(function(a,b){return a.r-b.r || b.t-a.t;});
+  /* 유형(type)마다의 성적. 오답 노트를 **취약한 유형부터** 늘어놓는 데 쓴다. */
+  var tg={};
+  if(exam.type) for(var q2=1;q2<=exam.nQ;q2++){ var ty2=exam.type[q2-1]||''; if(!ty2)continue;
+    (tg[ty2]=tg[ty2]||{c:0,t:0}); tg[ty2].t++; if(okq(exam,q2,selv[q2]||0))tg[ty2].c++; }
   var strong=areas.filter(function(a){return a.t>=2&&a.r>=0.8;}).slice().sort(function(a,b){return b.r-a.r;});
   var weak=areas.filter(function(a){return a.t>=2&&a.r<0.6;});
   // 오답 그룹(영역별)
@@ -5054,7 +5083,7 @@ function buildBook(exam, selv, cs, correct, total, W, wrong, dh, answers){
      DT 성적표는 반대로 '바로잡은 개념' 으로 말하는데, 갈린 것이 아니라 각자
      맞는 말이다 — 파이널은 수상권까지 몇 문항인지가 곧 목표이고, DT 는 주마다
      쌓이는 회복을 보여 주는 자리다. 한쪽으로 모으지 않는다. */
-  if(aw.inA){ lead='<b>'+esc2(nm||'학생')+'</b> 학생은 이번 「'+esc2(exam.title)+'」에서 '+total+'문항 중 <b>'+correct+'문항</b>을 맞혀 원점수 <b>'+rs.score+'점</b>을 기록했습니다. 틀린 문항 '+W+'개로 현재 <b>'+esc2(aw.name)+'권</b>'+(aw.nextTier&&aw.reach?(', '+aw.nextTier+'권까지 '+aw.gap+'문항을 남겨두고 있습니다.'):'에 위치합니다.'); }
+  if(aw.inA){ lead='<b>'+esc2(nm||'학생')+'</b> 학생은 이번 「'+esc2(exam.title)+'」에서 '+total+'문항 중 <b>'+correct+'문항</b>을 맞혀 원점수 <b>'+rs.score+'점</b>을 기록했습니다. '+(rs.pen?('오답 '+rs.wrongAns+'개 · 무응답 '+(W-rs.wrongAns)+'개로'):('틀린 문항 '+W+'개로'))+' 현재 <b>'+esc2(aw.name)+'권</b>'+(aw.nextTier&&aw.reach?(', '+aw.nextTier+'권까지 '+aw.gap+'문항을 남겨두고 있습니다.'):'에 위치합니다.'); }
   else { var need=Math.max(1,W-(cut[4]||18)); lead='<b>'+esc2(nm||'학생')+'</b> 학생은 이번 「'+esc2(exam.title)+'」에서 '+total+'문항 중 <b>'+correct+'문항</b>을 맞혀 원점수 <b>'+rs.score+'점</b>을 기록했습니다. 장려상까지 <b>'+need+'문항</b> — 아래에서 짚은 취약 개념을 회복하면 수상권 진입이 가능합니다.'; }
   H+='<div class="bk-sec"><div class="bk-kicker">Overview</div><div class="bk-h"><span class="no">'+no()+'</span><span class="tt">진단 개요</span></div>'
     +'<div class="bk-lead">'+lead+'</div>'
@@ -5063,7 +5092,9 @@ function buildBook(exam, selv, cs, correct, total, W, wrong, dh, answers){
     +'<div class="bk-stats">'
     +'<div class="st"><b>'+correct+' / '+total+'</b><span>맞은 문항</span></div>'
     +'<div class="st"><b>'+pct+'%</b><span>정답률</span></div>'
-    +'<div class="st"><b>'+W+'</b><span>틀린 문항</span></div>'
+    +(rs.pen?'<div class="st"><b>'+rs.wrongAns+'</b><span>오답 · −'+rs.pen+'점씩</span></div>'
+            +'<div class="st"><b>'+(W-rs.wrongAns)+'</b><span>무응답 · 0점</span></div>'
+           :'<div class="st"><b>'+W+'</b><span>틀린 문항</span></div>')
     +(perc!=null?'<div class="st"><b>'+perc+'</b><span>백분위</span></div>':'')
     +(rank!=null?'<div class="st"><b>'+rank+'/'+Nn+'</b><span>연도누적 총석차</span></div>':'')
     +(yrank!=null?'<div class="st"><b>'+yrank+'/'+yN+'</b><span>'+yYear+'년 반석차</span></div>':'')
@@ -5081,8 +5112,17 @@ function buildBook(exam, selv, cs, correct, total, W, wrong, dh, answers){
   // ── 03 영역별 성취 ──
   if(areas.length){
     var rows=areas.map(function(a){ var p=Math.round(a.r*100); var cls=a.r>=0.8?'':(a.r<0.5?'warn':'mid');
-      var tag=a.t>=2&&a.r>=0.8?'<span class="bk-tagS">강점</span>':(a.t>=2&&a.r<0.5?'<span class="bk-tagW">취약</span>':'');
-      return '<tr><td class="anm">'+esc2(a.name)+'</td>'
+      /* 판정은 **문항이 둘 이상**인 영역에만 붙인다. 하나뿐이면 맞고 틀리고가
+         0% 아니면 100% 라 우연이 그대로 판정이 된다. 여태는 그 자리를 빈칸으로
+         뒀는데, 빈칸은 "왜 아무 말도 없지" 가 된다 — 까닭을 적는다. */
+      var tag=a.t<2?'<span class="bk-tagN">문항 1개 · 판정 안 함</span>'
+        :(a.r>=0.8?'<span class="bk-tagS">강점</span>':(a.r<0.5?'<span class="bk-tagW">취약</span>':''));
+      /* 어느 문항이 이 영역에 들어갔고 각각 어떤 유형인지. 틀린 것은 ✗ 로 짚는다. */
+      var qlist=a.qs.map(function(x){ return '<span class="bk-qch'+(x.ok?'':' x')+'">'+x.q+(x.ok?'':'✗')+'</span>'; }).join('');
+      var tys=[]; a.qs.forEach(function(x){ if(x.ty&&tys.indexOf(x.ty)<0)tys.push(x.ty); });
+      return '<tr><td class="anm">'+esc2(a.name)
+        +'<div class="bk-qs">'+qlist+'</div>'
+        +(tys.length?'<div class="bk-tys">'+tys.map(esc2).join(' · ')+'</div>':'')+'</td>'
         +'<td><div class="bk-bar"><i class="'+cls+'" style="width:'+Math.max(3,p)+'%"></i></div></td>'
         +'<td class="r"><span class="bk-pctn">'+p+'</span><span style="color:#9a917f;font-size:11.5px">%</span></td>'
         +'<td class="r" style="color:#6b6456">'+a.c+'/'+a.t+'</td><td class="r">'+tag+'</td></tr>'; }).join('');
@@ -5090,6 +5130,10 @@ function buildBook(exam, selv, cs, correct, total, W, wrong, dh, answers){
     var weakTxt = weak.length? '보완이 필요한 영역은 '+weak.slice(0,3).map(function(a){return a.name;}).join(', ')+'입니다.':'뚜렷한 취약 영역 없이 고르게 응답했습니다.';
     H+='<div class="bk-sec"><div class="bk-kicker">By Area</div><div class="bk-h"><span class="no">'+no()+'</span><span class="tt">영역별 성취</span></div>'
       +'<div class="bk-lead">'+strTxt+weakTxt+'</div>'
+      +'<div class="bk-rule">판정 기준 — <b>문항이 2개 이상</b>인 영역만 판정합니다. '
+      +'정답률 <b>80% 이상이면 강점</b>, <b>50% 미만이면 취약</b>입니다. '
+      +'문항이 하나뿐인 영역은 맞고 틀리고가 곧 0% 또는 100% 라 우연이 그대로 판정이 되므로 비워 둡니다. '
+      +'영역 이름 아래의 숫자가 그 영역에 든 문항 번호이고(<b>✗</b> 는 못 맞힌 문항), 그 아래가 문항의 유형입니다.</div>'
       +'<table class="bk-areatbl"><thead><tr><th scope="col">영역</th><th scope="col">성취도</th><th scope="col" class="r">정답률</th><th scope="col" class="r">정오</th><th scope="col" class="r">판정</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
   }
 
@@ -5119,7 +5163,23 @@ function buildBook(exam, selv, cs, correct, total, W, wrong, dh, answers){
   }
   // ── 부록 · 오답 정리 (틀린 문항: 왜 틀렸나 + 동형문제·정답·해설을 바로 표시) ──
   if((wrong||[]).length){
-    var wqCards=(wrong||[]).slice().sort(function(a,b){return a.q-b.q;}).map(function(w){
+    /* ── 유형별로 묶어 **취약한 유형부터** 늘어놓는다 ──────────────────
+       여태는 문항 번호 순이었다. 그러면 같은 유형이 3·17·41번으로 흩어져,
+       학생은 "내가 이 유형을 못 하는구나" 를 스스로 이어 붙여야 했다.
+       유형으로 묶고 그 유형의 정답률이 낮은 것부터 놓으면, 맨 앞이 곧
+       가장 급한 자리가 된다. 같은 정답률이면 오답이 많은 유형이 먼저다. */
+    var wq0=(wrong||[]).slice().sort(function(a,b){return a.q-b.q;});
+    var byTy={}, tyOrder=[];
+    wq0.forEach(function(w){ var t=(exam.type&&exam.type[w.q-1])||'기타';
+      if(!byTy[t]){ byTy[t]=[]; tyOrder.push(t); } byTy[t].push(w); });
+    tyOrder.sort(function(a,b){
+      var ra=tg[a]&&tg[a].t?tg[a].c/tg[a].t:0, rb=tg[b]&&tg[b].t?tg[b].c/tg[b].t:0;
+      return ra-rb || byTy[b].length-byTy[a].length || byTy[a][0].q-byTy[b][0].q; });
+    var wqOrdered=[];
+    tyOrder.forEach(function(t){ byTy[t].forEach(function(w,i){
+      wqOrdered.push({w:w, ty:t, head:i===0, n:byTy[t].length,
+                      c:(tg[t]||{}).c|0, tt:(tg[t]||{}).t|0}); }); });
+    var wqCards=wqOrdered.map(function(_g){ var w=_g.w;
       var ty=(exam.type&&exam.type[w.q-1])||'', ar=(exam.area&&exam.area[w.q-1])||'', bd=bkBroad(ar);
       var ck=exam.key?exam.key[w.q-1]:0;
       var mis=(ty?omFor(ty):null)||(RX[bd]&&RX[bd].t)||'';
@@ -5150,7 +5210,9 @@ function buildBook(exam, selv, cs, correct, total, W, wrong, dh, answers){
       } else {
         dhHTML='<div class="bk-dh"><div class="bk-dh-h">동형문제</div><div class="bk-dh-stem">이 문항의 동형문제는 준비 중입니다. 위 원문과 개념 강의로 복습하세요.</div></div>';
       }
-      return '<div class="bk-wq">'
+      var _head=_g.head?('<div class="bk-tyband"><span class="bk-tyband-n">'+esc2(_g.ty)+'</span>'
+        +'<span class="bk-tyband-s">이 유형 '+_g.c+'/'+_g.tt+' 맞음 · 여기 '+_g.n+'문항</span></div>'):'';
+      return _head+'<div class="bk-wq">'
         +'<div class="bk-wq-h"><span class="bk-wq-no">'+w.q+'번</span>'+(ar?'<span class="bk-wq-ar">'+esc2(ar)+'</span>':'')+(ty?'<span class="bk-wq-ty">'+esc2(ty)+'</span>':'')+'<span class="bk-wq-first">처음 <b class="x">'+(w.a?CI[w.a]:'무응답')+'</b> · 정답 <b class="o">'+(ck?CI[ck]:'·')+'</b></span></div>'
         +cropImg
         +(why?'<div class="bk-wq-mis"><b>왜 틀렸나</b> '+esc2(why)+'</div>':'')
@@ -5158,7 +5220,7 @@ function buildBook(exam, selv, cs, correct, total, W, wrong, dh, answers){
         +'</div>';
     }).join('');
     H+='<div class="bk-apxcover bk-full"><div class="bk-apxkicker">APPENDIX · 오답 정리</div><div class="bk-apxtitle">오답 정리 노트</div>'
-      +'<div class="bk-apxsub">이번 시험에서 틀린 '+W+'문항입니다. 왜 틀렸는지와, 숫자·조건만 바꾼 동형문제를 정답·해설과 함께 정리했습니다.</div></div>'
+      +'<div class="bk-apxsub">이번 시험에서 못 맞힌 '+W+'문항을 <b>유형으로 묶어 취약한 유형부터</b> 늘어놓았습니다. 맨 앞이 가장 급한 자리입니다. 왜 틀렸는지와, 숫자·조건만 바꾼 동형문제를 정답·해설과 함께 정리했습니다.</div></div>'
       +'<div class="bk-apx">'+wqCards+'<div class="bk-foot">Chemistreal · 조준모 화학 — 오답 정리 노트</div></div>';
   }
   // 최종 마무리 문구는 downloadReportPDF에서 강의 부록까지 붙인 뒤 문서 맨 끝에 추가한다(중간 삽입 방지).

@@ -108,6 +108,18 @@ jobs:
       - name: 원점수 채점 규칙
         timeout-minutes: 5
         run: node tests/final-score.js
+      # 오답 −1 인 회차에서 비우면 0점, 찍고 틀리면 −1점이다. 채점은 갈라 세고
+      # 있었는데 **화면만 둘을 '틀린 문항' 으로 묶어** 보여 주고 있었다.
+      # (2026-08-10, 선생님이 짚으셨다)
+      - name: 무응답과 오답을 갈라 적는다
+        timeout-minutes: 5
+        run: node tests/blank-vs-wrong.js
+      # 「분자간인력 1/1 · 100%」 이 아무 딱지 없이 나오니 "성취도 100인데 왜
+      # 강점이 아니냐" 가 됐다. 규칙(문항 2개 이상만 판정)은 맞았는데 그 규칙이
+      # 화면 어디에도 없었다. (2026-08-10, 선생님이 짚으셨다)
+      - name: 판정 기준이 적혀 있다 · 오답 노트가 유형으로 묶인다
+        timeout-minutes: 5
+        run: node tests/area-verdict.js
       - name: 학생제출 ↔ 교사용 동기화
         timeout-minutes: 5
         run: node tests/final-submit-sync.js
