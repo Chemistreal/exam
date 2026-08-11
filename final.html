@@ -255,13 +255,16 @@ summary::-webkit-details-marker{display:none}
 .fhero__ey{font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:#D8B978;margin-bottom:12px}
 .fhero__tier{font-family:'Nanum Myeongjo',Georgia,serif;font-size:40px;font-weight:700;color:#EAC983;line-height:1.1;margin-bottom:8px}
 .fhero__head{font-family:'Nanum Myeongjo',Georgia,serif;font-size:22px;font-weight:600;line-height:1.45;color:#FBFAF6}
+/* 수상권 밖일 때 — 위치는 작은 딱지로 한 번, 길이 큰 글씨가 된다(B11). */
+.fhero__now{display:inline-block;font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:#D8B978;border:1px solid rgba(216,185,120,.45);border-radius:14px;padding:3px 11px;margin-bottom:11px}
+.fhero__head--lead{font-size:30px;line-height:1.28}
 .fhero__head b{color:#EAC983;font-weight:700}
 .fhero__stats{display:flex;gap:0;margin-top:20px;border-top:1px solid rgba(255,255,255,.13);padding-top:16px;flex-wrap:wrap}
 .fhds{padding:4px 24px;border-left:1px solid rgba(255,255,255,.13)}
 .fhds:first-child{padding-left:0;border-left:none}
 .fhds b{display:block;font-family:'Nanum Myeongjo',Georgia,serif;font-size:21px;color:#EAC983}
 .fhds span{font-size:11.5px;color:rgba(244,241,232,.72)}
-@media(max-width:560px){.fhero{padding:20px 18px}.fhero__tier{font-size:30px}.fhero__head{font-size:17px}.fhds{padding:4px 14px}}
+@media(max-width:560px){.fhero{padding:20px 18px}.fhero__tier{font-size:30px}.fhero__head{font-size:17px}.fhero__head--lead{font-size:21px}.fhds{padding:4px 14px}}
 @media print{.fhero{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 /* 학부모님께 · 총평 */
 .fpn{background:linear-gradient(135deg,rgba(63,92,140,.06),rgba(14,90,76,.05));border:1px solid #cdd6e4;border-radius:14px;padding:20px 22px;margin:14px 0}
@@ -1713,6 +1716,20 @@ function rankPool(exam,cs){
   var live=liveTotals(exam&&exam.id);
   var loc=live||((cs&&cs.totals)||[]);
   var pool=base?base.concat(loc):loc;
+  /* ⚠ **여기를 한 번 고치려다 되돌렸다.** 기준 기록이 없는 회차에서 한 명만
+       채점하면 "연도누적 총석차 1/1 · 백분위 100" 이 나가는 것이 눈에 걸려,
+       바로 아래 `rankPoolYear` 처럼 `>=2` 로 올렸다.
+
+       `tests/rank-baseline.js` 가 잡았고, 그 주석에 까닭이 적혀 있었다 —
+       **MINP 는 "8명 미만이라도 다 보여 달라" 는 선생님 주문으로 8에서 1로
+       내린 것**이고, 대신 *몇 명짜리 숫자인지 반드시 같이 보인다* 는 약속이
+       붙어 있다. 1/1 은 실수가 아니라 **정해 둔 것**이다.
+
+       사람이 정한 것을 자가 보기 안 좋다고 뒤집으면 안 된다. 되돌렸다.
+
+     ※ 그러니 뿌리는 여기가 아니다 — **그 회차에 기준 기록이 없는 것**이다.
+       `tools/cohort_cover.py` 가 어느 회차가 비었는지, 그리고 있던 것이
+       줄지는 않았는지 매번 본다. 기준 기록은 성적표 엑셀에서만 나온다. */
   return {pool:pool, N:pool.length, baseN:base?base.length:0, locN:loc.length,
           live:!!live, fromBaseline:!!base, ready:pool.length>=MINP};
 }
@@ -2077,7 +2094,27 @@ function conceptClinicSec(exam, sel, wrong, cs){
     return {q,my,ar,bd,ty,cohOpt,cMis}; });
   const groups={}; items.forEach(it=>{(groups[it.bd]=groups[it.bd]||[]).push(it);});
   const domHasCommon=bd=>groups[bd].some(it=>it.cohOpt!=null&&it.cohOpt>=TH);
-  const order=Object.keys(groups).sort((a,b)=>{ const ca=domHasCommon(a)?1:0, cb=domHasCommon(b)?1:0; if(ca!==cb)return cb-ca; return groups[b].length-groups[a].length; });
+  /* ⚠ **여기가 '많이 틀린 순' 이었다.** 2026-08-10 에 실제 사용자가
+       "취약단원 순서대로 배열해줬으면 좋겠다" 고 했는데, 영역별 성취
+       (areaSec)·학습 처방(rxSec)은 이미 약한 순이라 무슨 말인가 했다.
+       이 자리였다 — **학생이 실제로 풀어 나가는 곳**인데 여기만 오답
+       **개수**로 늘어놓고 있었다. 둘은 다르다.
+
+           단원 A  12문항 중 5개 틀림   정답률 58%   오답 5
+           단원 B   4문항 중 4개 틀림   정답률  0%   오답 4
+
+       개수로 세면 A 가 먼저다. 그런데 무너진 것은 B 다. 문항이 많은 단원이
+       늘 앞에 오고, 통째로 모르는 단원은 뒤로 밀린다.
+       이제 **정답률이 낮은 단원부터** 놓는다(같으면 오답이 많은 쪽 먼저).
+     ※ '또래도 많이 틀린 묶음을 맨 앞에' 는 그대로 둔다 — 화면 안내문에
+       적어 둔 약속이고, 개인 실수가 아니라 개념 함정이라는 다른 뜻이다. */
+  const rate={};
+  Object.keys(groups).forEach(bd=>{ let c=0,t=0;
+    for(let q=1;q<=exam.nQ;q++){ const a=exam.area?(exam.area[q-1]||'기타'):'기타';
+      if(broad(a)!==bd) continue; t++; if(okq(exam,q,sel[q]||0)) c++; }
+    rate[bd]=t?c/t:0; });
+  const order=Object.keys(groups).sort((a,b)=>{ const ca=domHasCommon(a)?1:0, cb=domHasCommon(b)?1:0; if(ca!==cb)return cb-ca;
+    return rate[a]-rate[b] || groups[b].length-groups[a].length; });
   const anyCommon=items.some(it=>it.cohOpt!=null&&it.cohOpt>=TH);
   const body=order.map(bd=>{ const its=groups[bd].sort((a,b)=>(b.cohOpt||0)-(a.cohOpt||0)); const r=RX[bd], lec=LEC[bd];
     /* 묶음 이름은 **이번 시험이 실제로 물은 것**으로 부른다.
@@ -3520,7 +3557,28 @@ function winProbSec(exam, sel, cs, correct, total, W){
       marg=`<div class="note" style="margin-top:9px;font-size:12.5px"><b>한계 이득.</b> 쉬운데 틀린 <b>${careless}문항</b>을 고치면 ${top}. 가장 큰 점수 여력이 여기 있습니다.</div>`; } }
   const rows=TIERS.map((t,i)=>{const p=Math.round(probs[i]*100); return `<div class="barrow" style="margin:5px 0"><span class="ba" style="width:52px">${t} 이상</span><span class="bar" style="height:11px"><i style="width:${p}%;background:${i<=1?'var(--brass)':i<=3?'var(--teal)':'var(--teal-d)'}"></i></span><span class="bp">${p}%</span></div>`;}).join('');
   return `<div class="sec">${secH('수상 확률 · 베이지안 추정')}<div class="sub">이번 성적을 바탕으로, 비슷한 난이도의 실전에서 각 등급 이상을 받을 확률입니다. <b>확률이지 판정이 아닙니다</b> — 시험지마다 난이도와 단원 구성이 달라 점수는 회차마다 흔들리고, 그 폭을 그대로 반영했습니다. 응시가 쌓일수록 정밀해집니다.</div>
-   <div style="text-align:center;margin:11px 0 7px"><div style="font-size:12px;color:var(--muted)">수상(장려상 이상) 확률</div><div style="font-size:30px;font-weight:800;color:var(--teal);line-height:1.1">${Math.round(pAward*100)}%</div><div style="font-size:11.5px;color:var(--muted);margin-top:2px">지금 실력 그대로일 때</div></div>
+   ${(()=>{
+     /* ⚠ 여기서 큰 숫자가 `0%` 로 찍히면, 아래 작은 글씨("확률이지 판정이
+        아닙니다")를 아무리 정직하게 적어도 **작은 글씨는 큰 숫자를 못 이긴다.**
+        열네 살에게 0% 는 '가능성이 없다' 로 읽힌다.
+        (선생님 결정 B13 · `docs/성적표를-읽는-사람.md` 3절)
+
+        숫자를 바꾸지 않는다 — 그건 거짓말이다. **시점**을 붙인다.
+        `0%` 는 '영원히' 가 아니라 '지금 실력 그대로일 때' 다. 그리고 0 일
+        때는 몇 문항을 회복하면 얼마가 되는지 **바로 옆에** 적는다.
+        그 값은 이미 계산돼 있다(belowAwardKick 이 쓰는 사다리와 같은 식). */
+     const pA=Math.round(pAward*100), zero=(pA===0);
+     let lift='';
+     if(zero){
+       const gap=Math.max(1,(total-correct)-cut[4]);
+       const k=Math.min(total-correct, gap);
+       const p2=Math.round(winProb(total, Math.min(total,correct+k), cut)[4]*100);
+       if(k>0&&p2>0) lift=`<div style="font-size:12.5px;color:var(--teal-d);margin-top:5px"><b>${k}문항</b>을 회복하면 <b>${p2}%</b>가 됩니다.</div>`;
+     }
+     return `<div style="text-align:center;margin:11px 0 7px"><div style="font-size:12px;color:var(--muted)">수상(장려상 이상) 확률</div>`
+       +`<div style="font-size:30px;font-weight:800;color:var(--teal);line-height:1.1">${zero?'<span style="font-size:17px;font-weight:600;color:var(--muted)">아직 </span>':''}${pA}%</div>`
+       +`<div style="font-size:11.5px;color:var(--muted);margin-top:2px">지금 실력 그대로일 때</div>${lift}</div>`;
+   })()}
    ${relax}${grow}
    ${rows}
    ${marg}</div>`;
@@ -3533,7 +3591,11 @@ function belowAwardKick(exam, correct, total, weak){
     var steps=[gap, gap+3, gap+6].filter(function(k){ return correct+k<=total; });
     if(!steps.length) steps=[Math.min(gap, total-correct)];
     var ladder=steps.map(function(k){ var p=Math.round(winProb(total, Math.min(total,correct+k), cut)[4]*100); return '+'+k+'문항 <b>'+p+'%</b>'; }).join(' → ');
-    var s='아쉽게 이번엔 수상권 밖이지만, <b>장려상까지 '+gap+'문항</b>입니다. 회복할수록 입상 가능성이 오릅니다 — '+ladder+'.';
+    /* ⚠ 여기가 '아쉽게 이번엔 **수상권 밖**이지만…' 으로 시작했다. 바로 위
+         큰 글씨가 이미 `수상권 밖` 이라, 한 화면에서 두 번 같은 말을 들었다.
+         그 위치는 히어로가 작은 딱지로 이미 말한다 — 여기서는 **길만 말한다.**
+         (선생님 결정 B10 · `docs/성적표를-읽는-사람.md` 1절) */
+    var s='<b>장려상까지 '+gap+'문항</b>입니다. 회복할수록 입상 가능성이 오릅니다 — '+ladder+'.';
     if(weak) s+=' 열쇠는 <b>'+esc(weak)+'</b> 영역입니다.';
     return s;
   }catch(e){ return null; }
@@ -3572,7 +3634,24 @@ function motivationSec(exam,sel){
   for(let q=1;q<=exam.nQ;q++){ans.push(sel[q]||0); t++; if(okq(exam,q,sel[q]||0))c++;}
   const W=t-c, aw=award(W,effCut(exam));
   const ds=domScoresBroad(exam,ans)||{}; const doms=Object.entries(ds);
-  const conquered=doms.filter(x=>x[1]>=80).map(x=>x[0]); const totalD=doms.length;
+  /* ⚠ 여기에 **문항 수 바닥이 없었다.** 문항이 하나뿐인 영역은 찍어 맞히면
+       100% 라 그대로 '정복' 이 됐다. 실제로 `분자간인력`(1문항)이 정복 목록에
+       올라와 있었다.
+
+       같은 파일이 다른 자리에서는 그것을 이미 거부한다 —
+         final.html:5169  a.t<2 ? '문항 1개 · 판정 안 함' : …
+         "하나뿐이면 맞고 틀리고가 0% 아니면 100% 라 우연이 그대로 판정이 된다"
+       **선생님이 정해 두신 규칙을 여기서만 안 지키고 있었다.**
+
+       그리고 사람 쪽으로도 나쁘다. 한 번 본 것을 '정복했다' 고 말해 주는 것은
+       칭찬이 아니라 가벼운 거짓말이고, 아이는 그걸 안다 — 진짜로 잡은 영역까지
+       같이 값이 떨어진다. `docs/성적표를-읽는-사람.md` 4절.
+
+       ※ 새 규칙을 만들지 않는다. 아래에 이미 `domJudgeable()` 이 있고
+         (DOM_MIN_Q = 2), 강·약점은 진작 그것으로 거른다. 여기만 안 쓰고
+         있었을 뿐이다 — 같은 자를 쓴다. */
+  const judg=Object.entries(domJudgeable(exam,ans));
+  const conquered=judg.filter(x=>x[1]>=80).map(x=>x[0]); const totalD=judg.length;
   const dw={}; for(let q=1;q<=exam.nQ;q++){ const a=exam.area[q-1]; const bd=RX[a]?a:(RXMAP[a]||a); if(!okq(exam,q,sel[q]||0))dw[bd]=(dw[bd]||0)+1;}
   const room=Object.entries(dw).sort((a,b)=>b[1]-a[1]);
   let goal;
@@ -3616,7 +3695,14 @@ function learnerTypeSec(exam, sel, cs, correct, total){
 }
 function narrativeSec(exam,sel){
   const nm=curName();
-  const who=nm?esc(nm)+' 학생':'학생';
+  /* ⚠ 이름이 없으면 `학생` 이었다 — "**학생은** 이번 진단에서…" 로 나갔다.
+       사람에게 보내는 글이 **부르는 이름 없이** 시작한다. 기계에게는 빈
+       변수지만 받는 사람에게는 '누구한테나 가는 종이' 다.
+       (선생님 결정 B14 · `docs/성적표를-읽는-사람.md` 6절)
+
+       이름을 지어내지 않는다. 부를 이름이 없으면 **그 사람을 주어로 삼지
+       않는다** — 문장을 사실 쪽으로 돌린다("이번 진단에서는 …"). */
+  const who=nm?esc(nm)+' 학생':'';
   let c=0,t=0; const ans=[];
   for(let q=1;q<=exam.nQ;q++){ans.push(sel[q]||0); t++; if(okq(exam,q,sel[q]||0))c++;}
   const pct=t?Math.round(c/t*100):0, W=t-c, aw=award(W,effCut(exam));
@@ -3624,7 +3710,9 @@ function narrativeSec(exam,sel){
   const ds=domJudgeable(exam,ans); const sorted=Object.entries(ds).sort((a,b)=>b[1]-a[1]);
   const strong=sorted.filter(x=>x[1]>=80).slice(0,3).map(x=>x[0]);
   const weak=sorted.slice().reverse().filter(x=>x[1]<70).slice(0,3).map(x=>x[0]);
-  const s1=`${who}은 이번 진단에서 ${exam.nQ}문항 중 <b>${c}문항</b>을 맞혀 정답률 <b>${pct}%</b>입니다.`;
+  const s1=who
+    ? `${who}은 이번 진단에서 ${exam.nQ}문항 중 <b>${c}문항</b>을 맞혀 정답률 <b>${pct}%</b>입니다.`
+    : `이번 진단에서는 ${exam.nQ}문항 중 <b>${c}문항</b>을 맞혀 정답률 <b>${pct}%</b>입니다.`;
   let s2; if(aw.inA)s2=`현재 <b>${aw.name}</b> 수준`+(aw.reach&&aw.nextTier?`이며, <b>${aw.nextTier}</b>까지 ${aw.gap}문항 차이로 근접해 있습니다.`:`입니다.`);
   else s2=`아직 수상권에는 못 들었으나, 약점 보완으로 진입을 노릴 수 있는 단계입니다.`;
   const s3=`${strong.length?`강점은 <b>${strong.join(', ')}</b> 영역`:`강점 영역은 아직 형성 중`}이고, ${weak.length?`보완이 필요한 영역은 <b style="color:var(--ms)">${weak.join(', ')}</b>`:`전 영역이 고르게 양호`}입니다.`;
@@ -4515,9 +4603,27 @@ function finalHero(nm, exam, correct, total, W, pct){
       if(rp0.ready) rk='<div class="fhds"><b>'+rankIn(rp0.pool,correct)+'/'+rp0.N+'</b><span>연도누적 총석차</span></div>';
       if(ry0.ready) rk+='<div class="fhds"><b>'+rankIn(ry0.pool,correct)+'/'+ry0.N+'</b><span>'+ry0.year+'년 반석차</span></div>';
     }catch(e){}
+    /* ⚠ 여기는 **판정이 40px 맨 위**였고 길은 그 아래 22px 였다.
+         `수상권 밖` 이 학생이 이 문서에서 만나는 첫 글자였다.
+
+         사람은 자기를 '어디에 있는가' 로 알지 않고 '어디로 가고 있는가' 로
+         안다. 아래쪽 학생에게 위치는 **전부 나쁜 소식**이다.
+         (선생님 결정 B11 · `docs/성적표를-읽는-사람.md` 2절)
+
+         ⚠ 다만 **수상권 안**이면 등급은 그 자체로 좋은 소식이다 — 금상권에
+           든 학생에게서 그 이름을 빼앗으면 안 된다. 그래서 갈라 놓는다.
+
+             수상권 안   등급을 크게 (지금 그대로)
+             수상권 밖   **길**을 크게, 위치는 작은 딱지로 한 번만
+
+         숨기는 게 아니다. 자리를 바꾸는 것이다 — 판정은 그대로 적혀 있다. */
+    var below = !a.inA;
     return '<div class="fhero"><div class="fhero__ey">핵심 진단</div>'
-      +'<div class="fhero__tier">'+a.name+'</div>'
-      +'<div class="fhero__head">'+kick+'</div>'
+      +(below
+        ? '<div class="fhero__now">현재 '+a.name+'</div>'
+          +'<div class="fhero__head fhero__head--lead">'+kick+'</div>'
+        : '<div class="fhero__tier">'+a.name+'</div>'
+          +'<div class="fhero__head">'+kick+'</div>')
       +'<div class="fhero__stats">'
       +'<div class="fhds"><b>'+_rs.score+'/'+_max+'</b><span>원점수'+(_rs.pen?' · 오답 −1':'')+'</span></div>'
       +'<div class="fhds"><b>'+correct+'/'+total+'</b><span>맞은 개수</span></div>'
@@ -4547,27 +4653,89 @@ function editFinalComment(){
     scoreAuto(true);
   }catch(e){}
 }
+/* ── 무응답이 무슨 뜻인지 말한다 ────────────────────────────────────────
+   비운 것과 찍고 틀린 것은 2026-08-10 에 갈라 세게 됐다(선생님이 짚으셨다).
+   그런데 **갈라 세기만 하고 그것이 무슨 뜻인지는 아무 데도 없었다.**
+
+   숫자를 갈라 세는 것까지가 기계의 일이고, 그 갈라짐이 무슨 뜻인지 말하는
+   것이 사람의 일이다. 반쪽만 하고 끝냈던 자리다.
+   (선생님 결정 B15 · `docs/성적표를-읽는-사람.md` 7절)
+
+   ⚠ **개수보다 어디에 몰렸는지가 뜻을 가른다.**
+
+       뒤쪽 3분의 1에 몰림   시간이 모자랐다 — 앞부분을 늦게 푼 것이다
+       고르게 흩어짐         모르는 문항을 건너뛴 것 — 실력의 문제다
+
+   둘은 처방이 다르다. 앞엣것은 푸는 순서와 시간 배분이고, 뒤엣것은 개념이다.
+   그래서 그냥 "무응답이 많습니다" 로 뭉뚱그리지 않는다.
+
+   말하지 않는 때 — 감점이 없는 회차(무응답과 오답이 같은 0점이라 가를 뜻이
+   없다), 그리고 무응답이 적을 때. 없는 걱정을 만들지 않는다.
+
+   ⚠ **한 번 틀렸다.** 처음에는 `window.sel` 을 읽었는데, `sel` 은 `let sel={}`
+     로 선언돼 있어 `window` 에 안 붙는다. 그래서 전부 무응답으로 세어
+     "비운 **60문항**" 이 나왔다 — 60문항짜리 시험에서. 성적표의 다른 자리가
+     쓰는 것과 **같은 출처**(`__fw`)를 쓴다. 거기 `a===0` 이 비운 것이다. */
+function blankNote(exam, wrongList){
+  try{
+    if(!finalPenalty(exam)) return null;
+    var blanks=(wrongList||[]).filter(function(w){ return w && !(w.a>=1&&w.a<=4); })
+                              .map(function(w){ return w.q; }).sort(function(a,b){return a-b;});
+    var n=blanks.length;
+    if(n < Math.max(5, Math.round(exam.nQ*0.1))) return null;   // 적으면 말하지 않는다
+    var tailFrom=Math.ceil(exam.nQ*2/3);
+    var tail=blanks.filter(function(q){ return q>tailFrom; }).length;
+    if(tail>=Math.ceil(n*0.6))
+      return {n:n, kind:'time',
+        s:'비운 '+n+'문항 가운데 <b>'+tail+'문항</b>이 뒤쪽('+ (tailFrom+1) +'번 이후)에 몰려 있습니다. '
+          +'실력보다 <b>시간 배분</b>일 수 있습니다 — 앞부분에서 오래 붙들지 않았는지 함께 확인해 주세요.'};
+    return {n:n, kind:'skip',
+      s:'비운 '+n+'문항이 시험지 전체에 고르게 흩어져 있습니다. 시간보다 <b>모르는 문항을 건너뛴</b> 쪽에 가깝습니다 — '
+        +'아래 약한 영역부터 메우면 비우는 문항이 함께 줄어듭니다.'};
+  }catch(e){ return null; }
+}
 function parentNoteFinal(nm, exam, correct, total, W, pct){
   try{
     var a=award(W, effCut(exam));
     var weak=finalWeakArea(exam, (window.__fw||[]));
-    var who=nm?esc(nm)+' 학생은':'이 학생은';
-    var p1=who+' 이번 기출 진단에서 <b>'+correct+'/'+total+'</b>('+pct+'%)로 <b>'+esc(a.name)+'</b>'+(a.inA?' 수상권':'')+'에 해당하는 위치입니다.'
-      +(a.inA&&a.idx>0?' 정답률이 높았던 오답만 회복해도 <b>'+a.nextTier+'</b>이 충분히 가시권입니다.':'');
-    var p2=(weak?'가장 먼저 보강할 영역은 <b>'+esc(weak)+'</b>입니다. ':'')
-      +'위 <b>오답 개념 클리닉</b>의 문항별 오개념과 개념 강의를 자녀와 함께 한 번 읽어 주시고, 같은 개념의 변형 문항을 다시 풀어보게 해 주세요. 점수 그 자체보다 <b>다시 풀어오는 과정</b>을 격려해 주시는 것이 이 시기에 가장 효과적입니다.';
+    /* 부모에게 하는 말이다. 이름을 모르면 '이 학생' 이 아니라 **자녀**가
+       그 자리의 말이다(B14). 원래 뒷문단도 "자녀와 함께" 였다. */
+    var who=nm?esc(nm)+' 학생':'자녀';
+    /* ⚠ 여기가 **판정으로 시작**했다 — "…수상권 밖에 해당하는 위치입니다."
+         가 첫 줄이었다. 좋은 말("점수 그 자체보다 다시 풀어오는 과정을
+         격려해 주세요")은 그 뒤에 있었다.
+
+         **부모는 첫 줄에서 마음이 정해진다.** 그리고 그 마음은 그날 저녁
+         아이에게 간다. 좋은 말이 뒤에 있으면 위로가 아니라 변명으로 읽힌다.
+         (선생님 결정 B12 · `docs/성적표를-읽는-사람.md` 5절)
+
+         숨기지 않는다. 숫자도 등급도 그대로 다 적는다 — **순서만 바꾼다.**
+         부탁을 먼저 하고, 위치는 그 다음 문단에 그대로 둔다. */
+    var p1='이 시기에 가장 효과가 큰 것은 점수를 올리는 일이 아니라 <b>다시 풀어오는 과정</b>입니다. '
+      +(weak?'아래 <b>'+esc(weak)+'</b> 영역부터, ':'아래 ')
+      +'<b>오답 개념 클리닉</b>의 문항별 오개념과 개념 강의를 '+who+'과 함께 한 번 읽어 주시고, '
+      +'같은 개념의 변형 문항을 다시 풀어보게 해 주세요.';
+    var p2=who+'은 이번 기출 진단에서 <b>'+correct+'/'+total+'</b>('+pct+'%)로 <b>'+esc(a.name)+'</b>'+(a.inA?' 수상권':'')+'에 해당합니다.'
+      +(a.inA&&a.idx>0?' 정답률이 높았던 오답만 회복해도 <b>'+a.nextTier+'</b>이 충분히 가시권입니다.':'')
+      +(!a.inA&&a.gap?' 지금 자리에서 <b>'+a.gap+'문항</b>을 회복하면 수상권에 닿습니다.':'');
+    /* 무응답이 무슨 뜻인지(B15). 학부모 쪽에 두는 까닭은 **여기서만 손을 쓸
+       수 있기** 때문이다 — 시간 배분은 집에서 같이 보는 일이다. */
+    var bn=blankNote(exam, (window.__fw||[]));
+    var bHtml=bn?'<p style="margin-top:9px">'+bn.s+'</p>':'';
     var cm=localStorage.getItem(fpcKey(exam,nm))||'';
     var cmHtml=cm?'<div class="cmt"><span class="clab">담당 강사 코멘트</span>'+esc(cm)+'</div>':'';
     // 코멘트 버튼은 뺐다(선생님 요청). 이미 적어 둔 코멘트는 그대로 나온다.
-    return '<div class="fpn"><span class="fpn__lab">학부모님께</span><p>'+p1+'</p><p>'+p2+'</p>'+cmHtml+'</div>';
+    return '<div class="fpn"><span class="fpn__lab">학부모님께</span><p>'+p1+'</p><p>'+p2+'</p>'+bHtml+cmHtml+'</div>';
   }catch(e){ return ''; }
 }
 function closingSecFinal(nm, exam, correct, total, W, pct){
   try{
     var a=award(W, effCut(exam));
     var weak=finalWeakArea(exam, (window.__fw||[]));
-    var who=nm?esc(nm)+' 학생':'이 학생';
-    var p1='이번 진단은 <b>'+esc(exam.title)+'</b> 기출 전 범위를 대상으로 했습니다. '+who+'은 <b>'+correct+'점/'+total+'문항</b>(정답률 '+pct+'%)으로 <b>'+esc(a.name)+'</b> 위치이며, '
+    /* 이름을 모르면 사람을 주어로 삼지 않는다(B14) — 지어낸 호칭 대신
+       문장을 사실 쪽으로 돌린다. `docs/성적표를-읽는-사람.md` 6절. */
+    var who=nm?esc(nm)+' 학생은':'결과는';
+    var p1='이번 진단은 <b>'+esc(exam.title)+'</b> 기출 전 범위를 대상으로 했습니다. '+who+' <b>'+correct+'점/'+total+'문항</b>(정답률 '+pct+'%)으로 <b>'+esc(a.name)+'</b> 위치이며, '
       +(a.inA&&a.idx>0?('다음 등급('+a.nextTier+')까지 <b>'+a.gap+'문항</b>이 남았습니다.'):a.idx===0?'최고 등급을 확보했습니다.':'수상권 진입이 다음 목표입니다.');
     var p2=(weak?('보완의 중심은 <b>'+esc(weak)+'</b> 영역입니다. '):'')
       +'위 약점별 학습 처방의 순서대로, 오답 문항을 개념 강의와 함께 복구한 뒤 같은 유형의 변형 문항으로 확인하는 사이클을 권합니다.';
@@ -5068,7 +5236,15 @@ function buildBook(exam, selv, cs, correct, total, W, wrong, dh, answers){
   // 오답 그룹(영역별)
   var wg={};
   (wrong||[]).forEach(function(w){ var ar=(exam.area&&exam.area[w.q-1])||'기타'; var bd=bkBroad(ar); (wg[bd]=wg[bd]||[]).push(w); });
-  var wgKeys=Object.keys(wg).sort(function(a,b){return wg[b].length-wg[a].length;});
+  /* ⚠ 화면의 오답 클리닉과 **똑같이** 여기도 오답 개수 순이었다. 학생이
+       종이·워드로 받아 풀어 나가는 「오답 정밀 분석」인데, 문항이 많은
+       단원이 늘 앞에 오고 통째로 모르는 단원이 뒤로 밀렸다.
+       바로 위 유형 순서(tyOrder)는 진작 `ra-rb` 로 **약한 것부터**인데
+       영역 묶음만 개수였다 — 한 문서 안에서 두 기준이 섞여 있었다.
+       `ag` 에 영역별 정답률이 이미 있으므로 그걸 그대로 쓴다. */
+  var wgRate=function(bd){ var g=ag[bd]; return (g&&g.t)?g.c/g.t:0; };
+  var wgKeys=Object.keys(wg).sort(function(a,b){
+    return wgRate(a)-wgRate(b) || wg[b].length-wg[a].length; });
 
   var esc2=esc, CI=CIRC;
   var _sn=0, no=function(){ _sn++; return _sn<10?('0'+_sn):(''+_sn); };
@@ -5417,8 +5593,11 @@ async function downloadReportDOCX(){
   var _rp=rankPool(cur,cs), _ry=rankPoolYear(cur,cs);
   if(_rp.ready){ perc=percentile(_rp.pool, correct); Nn=_rp.N; rank=rankIn(_rp.pool, correct); }
   if(_ry.ready){ yN=_ry.N; yrank=rankIn(_ry.pool, correct); yYear=_ry.year; }
-  var ag={}; if(cur.area) for(var q2=1;q2<=cur.nQ;q2++){ var bd0=bkBroad(cur.area[q2-1]||''); if(!bd0)continue; (ag[bd0]=ag[bd0]||{c:0,t:0}); ag[bd0].t++; if(okq(cur,q2,sel[q2]||0))ag[bd0].c++; }
-  var areas=Object.keys(ag).map(function(k){return {name:k,c:ag[k].c,t:ag[k].t,r:ag[k].t?ag[k].c/ag[k].t:0};}).sort(function(a,b){return a.r-b.r||b.t-a.t;});
+  /* `qs` 는 그 영역에 든 문항 번호와 정오. 오답 노트(HTML)는 진작 모으고
+     있었는데 **워드 쪽만 안 모으고 있었다** — 그래서 워드 표에 번호가 없었다.
+     같은 자리에서 같이 모은다(두 통로가 다른 것을 세면 안 된다). */
+  var ag={}; if(cur.area) for(var q2=1;q2<=cur.nQ;q2++){ var bd0=bkBroad(cur.area[q2-1]||''); if(!bd0)continue; (ag[bd0]=ag[bd0]||{c:0,t:0,qs:[]}); ag[bd0].t++; var _ok2=okq(cur,q2,sel[q2]||0); if(_ok2)ag[bd0].c++; ag[bd0].qs.push({q:q2,ok:_ok2}); }
+  var areas=Object.keys(ag).map(function(k){return {name:k,c:ag[k].c,t:ag[k].t,qs:ag[k].qs||[],r:ag[k].t?ag[k].c/ag[k].t:0};}).sort(function(a,b){return a.r-b.r||b.t-a.t;});
   var strong=areas.filter(function(a){return a.t>=2&&a.r>=0.8;}).sort(function(a,b){return b.r-a.r;});
   var weak=areas.filter(function(a){return a.t>=2&&a.r<0.6;});
   var rxAreas=(weak.length?weak:areas);  // 분량 제한 없음 — 전 취약 영역(없으면 전 영역)
@@ -5855,8 +6034,35 @@ async function downloadReportDOCX(){
     function barCell(pct,wk,st,w){ var seg=12, fill=Math.max(0,Math.min(seg,Math.round(pct/100*seg))); var c=wk?RED:(st?EM:GOLD);
       return C([P([run('█'.repeat(fill),{color:c,size:18}),run('░'.repeat(seg-fill),{color:'E3D9BE',size:18}),run('  '+pct+'%',{bold:true,color:wk?RED:EM,size:20})],{after:0,before:0})],{w:w,ml:120,mr:120}); }
     var arows=[ROW([cellT('영역',{w:cols[0],bold:true,color:EM,fill:CREAMH}),cellT('성취도',{w:cols[1],bold:true,color:EM,fill:CREAMH}),cellT('정오',{w:cols[2],bold:true,color:EM,fill:CREAMH,align:AlignmentType.CENTER}),cellT('판정',{w:cols[3],bold:true,color:EM,fill:CREAMH,align:AlignmentType.CENTER})],{header:true})];
-    areas.forEach(function(a){ var p=Math.round(a.r*100); var wk=a.t>=2&&a.r<0.5; var st=a.t>=2&&a.r>=0.8; var v=wk?'취약':(st?'강점':'');
-      arows.push(ROW([ cellT(a.name,{w:cols[0],bold:true}), barCell(p,wk,st,cols[1]), cellT(a.c+'/'+a.t,{w:cols[2],align:AlignmentType.CENTER,color:MUT}), cellT(v,{w:cols[3],align:AlignmentType.CENTER,fill:wk?'F7E3DC':(st?EMT:undefined),color:wk?RED:(st?EM:MUT),bold:!!v}) ])); });
+    /* 영역 이름 아래에 **그 영역에 든 문항 번호**를 적는다(틀린 것은 ✗).
+       2026-08-10, 선생님 — "영역별성취 성적표에 각 영역에 해당하는 문제번호도 표기".
+
+       ⚠ 오답 정리 노트(HTML)에는 진작 실려 있었다(`bk-qs`). **워드에만 빠져
+         있었다** — 그런데 학생·학부모는 화면과 워드파일을 **둘 다** 쓴다.
+         같은 표가 통로에 따라 다른 것을 말하고 있었다.
+
+       왜 필요한가 — 표만 보고는 "산과염기 4/11" 이 몇 번 문제였는지 알 수
+       없어서, 학생이 문항별 정오표를 따로 뒤져야 했다. 번호가 여기 있으면
+       약한 영역에서 곧바로 그 문항으로 간다.
+
+       ※ `qs` 는 이미 모아 두고 있었다(ag[bd].qs). 새로 세는 것이 아니라
+         **이미 있는 것을 워드에도 싣는** 것이다 — 두 통로가 갈릴 수 없다. */
+    function areaCell(a, w){
+      var chips = a.qs.map(function(x, i){
+        return run((i ? ' ' : '') + x.q + (x.ok ? '' : '✗'),
+                   {color: x.ok ? MUT : RED, bold: !x.ok, size: 15});
+      });
+      var kids = [P([run(a.name, {bold:true, color:INK, size:20})], {after: 20, before: 0})];
+      if (chips.length) kids.push(P(chips, {after: 0, before: 0}));
+      return C(kids, {w: w});
+    }
+    areas.forEach(function(a){ var p=Math.round(a.r*100); var wk=a.t>=2&&a.r<0.5; var st=a.t>=2&&a.r>=0.8;
+      /* 문항이 하나뿐이면 0% 아니면 100% 라 우연이 그대로 판정이 된다. 여태
+         빈칸이었는데(스크린샷의 '분자간인력 0/1'), 빈칸은 "왜 아무 말도 없지"
+         가 된다 — 오답 노트가 이미 쓰는 문구를 그대로 쓴다. */
+      var v=wk?'취약':(st?'강점':(a.t<2?'문항 1개 · 판정 안 함':''));
+      var lone=a.t<2;
+      arows.push(ROW([ areaCell(a,cols[0]), barCell(p,wk,st,cols[1]), cellT(a.c+'/'+a.t,{w:cols[2],align:AlignmentType.CENTER,color:MUT}), cellT(v,{w:cols[3],align:AlignmentType.CENTER,size:lone?14:undefined,fill:wk?'F7E3DC':(st?EMT:undefined),color:wk?RED:(st?EM:MUT),bold:!!v&&!lone}) ])); });
     body.push(TBL(cols,arows,{top:bdr(GOLDL,4),bottom:bdr(GOLDL,4),left:NB,right:NB,insideHorizontal:bdr('E6DDC8',2),insideVertical:NB}));
   }
 
@@ -5873,10 +6079,23 @@ async function downloadReportDOCX(){
              +'한 번의 시험에서 추정한 값이라 폭이 있으며, 응시가 쌓일수록 정밀해집니다.',{after:150}));
         // 수상(장려상 이상) 확률을 크게
         var pA=Math.round((wp[4]||0)*100);
+        /* 화면과 같은 규칙(B13). 0% 는 '영원히' 가 아니라 '지금 실력 그대로일
+           때' 다 — 시점을 붙이고, 몇 문항이면 얼마가 되는지 바로 옆에 적는다.
+           학생은 화면과 워드를 **둘 다** 쓴다. 한쪽만 고치면 반쪽이다. */
+        var _pcut=effCut(cur), _lift=null;
+        if(pA===0&&_pcut){
+          var _k=Math.min(total-correct, Math.max(1,(total-correct)-_pcut[4]));
+          var _p2=Math.round(winProb(total, Math.min(total,correct+_k), _pcut)[4]*100);
+          if(_k>0&&_p2>0) _lift=_k+'문항을 회복하면 '+_p2+'%가 됩니다.';
+        }
         body.push(TBL([CW],[ROW([C([
           P([run('수상(장려상 이상) 확률',{color:EMLBL,size:16,cs:30})],{align:AlignmentType.CENTER,after:30}),
-          P([run(pA+'%',{bold:true,color:'FFFFFF',size:64,serif:true})],{align:AlignmentType.CENTER,after:0})
-        ],{w:CW,fill:EM,mt:200,mb:200})])]),P([],{after:160}));
+          P((pA===0?[run('아직 ',{color:EMLBL,size:26,serif:true})]:[])
+            .concat([run(pA+'%',{bold:true,color:'FFFFFF',size:64,serif:true})]),
+            {align:AlignmentType.CENTER,after:_lift?40:0}),
+          P([run('지금 실력 그대로일 때',{color:EMLBL,size:15})],{align:AlignmentType.CENTER,after:_lift?30:0})
+        ].concat(_lift?[P([run(_lift,{color:'FFFFFF',size:17})],{align:AlignmentType.CENTER,after:0})]:[]),
+        {w:CW,fill:EM,mt:200,mb:200})])]),P([],{after:160}));
         // 등급별 막대. Word 에는 막대 도형이 없으니 채운 칸의 너비로 흉내 낸다.
         var barW=Math.floor(CW*0.56), labW=1500, pctW=CW-barW-labW;
         var wpRows=TIERS.map(function(t,i){

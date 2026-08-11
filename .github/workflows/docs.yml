@@ -1,0 +1,48 @@
+# 문서만 고쳤을 때 도는 작은 판.
+#
+# 왜 따로 있나
+# ------------
+# 본 판(`tests.yml`)은 `paths-ignore: ['**.md', 'docs/**']` 다. 문서만 고치면
+# 2400문항 검사를 12분씩 돌릴 이유가 없어서 그렇게 해 두었다.
+#
+# 그런데 2026-08-10 에 `tools/doc_links.py` 를 지어 본 판에 걸었다. 문서 안
+# 링크가 안 열리는지 보는 자다. **그러면 그 자는 문서가 바뀔 때 절대 안 돈다.**
+# 걸어 놓고 안 도는 자 — 오늘 종일 고친 바로 그 함정을 내가 다시 팔 뻔했다.
+#
+#     돌 수 있는 것과 걸어 둔 것은 다르다
+#     걸지 않은 자는 없는 자와 같다
+#     **거는 자리가 틀리면 걸어도 안 돈다**   ← 여기
+#
+# 그래서 문서 쪽에만 도는 판을 따로 낸다. 가볍다(몇 초).
+name: 문서 검사
+
+on:
+  push:
+    branches: [main]
+    paths: ['**.md', 'docs/**']
+  pull_request:
+    paths: ['**.md', 'docs/**']
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: CI 가 부르는 자가 여기서 돌 수 있다
+        timeout-minutes: 3
+        run: python3 tools/ci_deps.py --check
+      # 2026-08-10, 선생님 — "docs/… 라고만 적지말고 링크를 해줘야 읽어".
+      # 파일 이름만 적어 두면 휴대폰에서는 그냥 글자다. 그리고 걸어 놓고
+      # **안 열리는** 링크는 안 건 것만 못하다 — 열릴 줄 알고 눌렀다가 빈손이 된다.
+      - name: 적어 둔 문서 이름이 눌러서 열린다
+        timeout-minutes: 3
+        run: python3 tools/doc_links.py --check

@@ -6,7 +6,7 @@
 - ✓ CI 에 걸려 있다 (`.github/workflows/tests.yml`)
 - `--check` 를 받는 자는 어긋나면 종료 코드 1 을 낸다
 
-## 재는 자 (62)
+## 재는 자 (65)
 
 | | 자 | `--check` | 무엇을 |
 |---|---|---|---|
@@ -16,6 +16,7 @@
 | ✓ | `blind_wait.py` | ○ | 검사가 "이쯤이면 됐겠지" 하고 재우는 시간을 잰다. |
 |  | `build_wrongbook_assets.py` |  | Build and audit wrong-answer review assets for final.html. |
 | ✓ | `ci_deps.py` | ○ | CI 가 부르는 자가 **거기서 실제로 돌 수 있는지** 본다. |
+| ✓ | `cohort_cover.py` | ○ | **모든 시험에 기준 기록(연도누적 인원)이 들어 있는지** 본다. |
 | ✓ | `concept_table.py` | ○ | 125 개념표가 **화면 스물넷에 따로** 적혀 있다 — 다 같은 말을 하는지 본다. |
 | ✓ | `const_sync.py` | ○ | 한 회차 안에서 **문제지와 해설이 같은 상수**를 쓰는지 본다. |
 | ✓ | `crop_align.py` | ○ | 문항 크롭이 **그 문항 자리에서** 잘렸는지 본다. |
@@ -32,6 +33,7 @@
 |  | `dh_rebalance.py` |  | 한 번호에 몰린 정답을 고르게 흩는다. |
 |  | `dh_review.py` |  | 집필된 파트 JSON을 검수용 압축 형식으로 출력. |
 | ✓ | `dh_validate.py` |  | 집필된 동형문제(schemaVersion 2, strategy=original-authored) 구조 검증. |
+|  | `doc_links.py` | ○ | 문서에 적은 **다른 문서 이름이 눌러서 열리는지** 본다. |
 | ✓ | `dupe_pages.py` | ○ | 같은 화면이 두 이름으로 있는 것을 찾고, **한쪽만 고치는 것**을 막는다. |
 | ✓ | `editor_note.py` | ○ | 선생님께 남긴 메모가 학생 화면으로 새어 나가지 않는지 본다. |
 | ✓ | `font_block.py` | ○ | 바깥 글꼴이 **첫 화면을 인질로 잡는 것**을 푼다. |
@@ -67,6 +69,7 @@
 | ✓ | `seed_stats.py` | ○ | index.html 의 두 코호트가 서로 어긋나지 않는지 본다 — SEEDS 와 STATIC_STATS. |
 | ✓ | `start_index.py` | ○ | `START_HERE_index.html` 이 실제 파일과 맞는지 본다. |
 | ✓ | `store_ledger.py` | ○ | 이 브라우저에 **무엇을 남기는지** 적어 두고, 늘어나면 한 번 묻게 한다. |
+| ✓ | `sw_freshness.py` | ○ | **낡아도 되는 파일과 낡으면 안 되는 파일**을 서비스워커가 갈라 놓았는지 본다. |
 | ✓ | `term_drift.py` | ○ | **본문**이 같은 말을 두 가지로 적고 있지 않은지 잰다. |
 | ✓ | `theme.py` | ○ | 화면 261장에 **같은 옷**을 입힌다. |
 | ✓ | `type_norm.py` | ○ | 같은 말을 두 가지로 적고 있지 않은지 본다. |
@@ -94,4 +97,4 @@
 
 ---
 
-자 76개 · CI 에 걸린 것 62개 · `--check` 를 받는 것 52개
+자 79개 · CI 에 걸린 것 64개 · `--check` 를 받는 것 55개
