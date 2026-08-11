@@ -231,6 +231,21 @@ let fail=0; const chk=(n,g,w)=>{const ok=JSON.stringify(g)===JSON.stringify(w);
   chk('요약에 결론만 담는다는 안내',/이 장만 보셔도 됩니다/.test(txt),true);
   chk('미니 시험지 답안 기입란',/답안 기입란/.test(txt),true);
 
+  /* ── 2026-08-11 선생님 결정 (#9 · #12 · #14) ────────────────────────
+     ⚠ 여기 셋은 **학부모가 문서를 열었을 때 처음/마지막으로 보는 것**이다.
+       숫자가 아니라 사람에게 하는 말이라, 조용히 사라져도 아무 검사도 안
+       울린다. 그래서 여기에 박는다. */
+  // #9 — 표지가 이미 결론을 말한다. 한 장 요약은 그대로 두되, 표지에서
+  //      등급과 맞은 문항 수를 먼저 만나게 했다.
+  /* 표지 줄은 `<등급>      ·      12/60  (20%)` 꼴이다. 등급 이름은 회차마다
+     달라지므로 **모양**을 본다 — 가운뎃점 뒤에 «맞은 수/전체 (백분율)». */
+  chk('표지에 결론 한 줄이 있다 (#9)',
+      /·\s*\d+\/\d+\s*\(\d+%\)/.test(txt.replace(/\u00a0/g, ' ')), true);
+  // #12 — 강사 코멘트 자리는 걷어냈다("삭제" 로 정하셨다).
+  chk('강사 코멘트 자리가 없다 (#12)', /담당 강사 코멘트/.test(txt), false);
+  // #14 — 다 읽고 나서 "어디로 묻지" 가 남으면 학부모는 아무 데도 안 묻는다.
+  chk('연락할 곳이 적혀 있다 (#14)', /조준모T 카카오톡/.test(txt), true);
+
   // ── 배경 워터마크 ──
   const markBytes=fs.statSync(path.join(__dirname,'..','assets','report','logo-watermark.png')).size;
   const hasMark=media.some(f=>{try{return fs.statSync(path.join(dir,'media',f)).size===markBytes;}catch(e){return false;}});

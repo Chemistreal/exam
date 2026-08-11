@@ -122,6 +122,36 @@ catch (e) {
   chk('`공유용 HTML 저장` 이 안 보인다 — 선생님 단추다', !open.share, true);
   chk('`성적표 Word 저장` 은 그대로 있다 (학부모가 쓴다)', open.word, true);
 
+  /* ── 언제 본 시험인지 (#17) ───────────────────────────────────────────
+     발행일은 **파일을 만든 날**이라, 학부모가 두 달 뒤에 열면 오늘이 찍힌다.
+     그래서 채점한 날을 링크에 싣는다.
+
+     ⚠ **응시일은 아무 데도 기록돼 있지 않다.** 아는 것만 적는다 —
+       모르는 것을 오늘 날짜로 메우면 틀린 것처럼 보이지 않으면서 틀린다. */
+  const when = await p.evaluate(() => ({
+    on: window.__gradedOn,
+    line: (document.querySelector('#repPDF .muted') || {}).textContent || ''
+  }));
+  chk('링크에 채점일이 실려 온다', /^\d{4}-\d{2}-\d{2}$/.test(when.on || ''), when.on || '(없다)');
+  chk('그 날짜가 화면에 적힌다', when.on ? when.line.includes(when.on) : false,
+      when.line.trim());
+  chk('응시일이라고는 안 적는다 (기록에 없다)', !/응시일/.test(when.line), true);
+
+  /* 옛 링크에는 이 칸이 없다. **그때는 아무 말도 안 해야 한다.** */
+  const oldUrl = url.replace(/[#&]t=\d{8}&/, m => m[0] === '#' ? '#' : '&');
+  const op = await ctx.newPage();
+  op.on('pageerror', e => errs.push(String(e).slice(0, 90)));
+  await op.goto(oldUrl, { waitUntil: 'load' });
+  await op.waitForFunction(() => !!document.querySelector('.fhero'), null, { timeout: 30000 })
+    .catch(() => {});
+  const oldLine = await op.evaluate(() => ({
+    on: window.__gradedOn,
+    line: (document.querySelector('#repPDF .muted') || {}).textContent || ''
+  }));
+  chk('옛 링크는 그대로 열린다', /\S/.test(oldLine.line), oldLine.line.trim());
+  chk('옛 링크에 없는 날짜를 지어내지 않는다', !oldLine.on && !/채점/.test(oldLine.line), true);
+  await op.close();
+
   /* ── 성적표 밖으로 나가면 문고리를 다시 거는가 ────────────────── */
   await p.evaluate(() => { location.hash = ''; });
   const outside = await p.waitForSelector('#gate', { timeout: 15000 })
@@ -161,7 +191,12 @@ catch (e) {
     });
     chk(`${name} · 돌아올 자리가 주소에 실린다`, /\?from=/.test(r.url), true);
     chk(`${name} · 화면 안에 돌아가는 길이 있다`, !!r.t, r.t ? `"${r.t}"` : '(없다)');
-    chk(`${name} · 그 길이 자기 성적표를 가리킨다`, /#r=/.test(r.h || ''), true);
+    /* ⚠ `#r=` 를 글자 그대로 보면 안 된다. 해시 앞에는 또래 통계(`s=`)와
+       채점일(`t=`)이 붙을 수 있어서 `#t=…&r=…` 이 된다 — 실제 문고리는
+       처음부터 `[#&]r=` 로 보고 있었는데(tools/gen_sol_page.py) 이 자만
+       좁게 보다가, #17 을 넣자마자 셋이 한꺼번에 빨간불이 났다.
+       **자가 코드보다 좁으면, 코드가 자란 날 자가 먼저 운다.** */
+    chk(`${name} · 그 길이 자기 성적표를 가리킨다`, /[#&]r=/.test(r.h || ''), true);
     if (np) await np.close();
   }
 

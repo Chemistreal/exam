@@ -61,6 +61,9 @@ node tests/run.js                       # 브라우저 검사는 playwright 없�
 | `tests/hub-calls.js` | 줄여 놓은 창구 호출이 말없이 도로 늘어나는 것 |
 | `tools/hub_audit.py` | 통합 셸이 잰 값에서 되돌아가는 것 |
 | `tools/lie_check.py` | **자가 거짓말하는 것** (참·거짓 예시를 맞히는지) |
+| `tools/gen_tool_index.py` | 자 차례가 낡는 것 · **이 표에 있는데 저장소에 없는 자물쇠** · 걸어 놓고 아무 판도 안 부르는 자 |
+| `tools/verify_status.py` | **해설 검수가 뒤로 가는 것** (덜 본 문항이 느는 것 · 지금 350문항이 여섯 회차에 몰려 있다) |
+| `tests/_serve.js` | 검사끼리 **같은 포트에서 부딪히는 것** (겹치면 빈 화면을 '그게 없다' 로 읽는다) |
 | `tools/page_doors.py` | 아무 데서도 안 걸리는 화면이 조용히 남는 것 |
 | `tools/pages_budget.py` | 배포 한도(1GB)에 벽으로 닿는 것 |
 | `tools/name_key.py` | 같은 학생이 앱마다 다른 이름으로 갈리는 것 (정한 뒤부터) |

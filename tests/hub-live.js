@@ -300,12 +300,16 @@ async function settled(p, label, fn, arg, ms) {
     const f = document.querySelector('#p-exam iframe');
     return {
       tab: document.getElementById('t-exam').getAttribute('aria-selected'),
-      hash: f ? f.contentWindow.location.hash.slice(0, 12) : '',
+      /* ⚠ 앞을 12자만 떼면 안 된다. 해시 앞에 또래 통계(`s=`)와 채점일(`t=`)이
+         붙을 수 있어서 `#t=20260811&r=jmchc-…` 이 된다 — 12자면 `r=` 가
+         잘려 나간다. 셸은 규칙을 베끼지 않고 파이널의 shareLinkFinal 을
+         빌리므로, **저쪽이 자라면 이 자가 먼저 운다.** 넉넉히 뗀다. */
+      hash: f ? f.contentWindow.location.hash.slice(0, 60) : '',
       text: f ? (f.contentDocument.getElementById('app') || { innerText: '' }).innerText.replace(/\s+/g, ' ') : '',
     };
   });
   chk('파이널 탭으로 넘어간다', opened.tab, 'true');
-  chk('성적표 주소로 간다', /^#r=jmchc-/.test(opened.hash), true);
+  chk('성적표 주소로 간다', /[#&]r=jmchc-/.test(opened.hash), true);
   /* 파이널의 hashchange 가 우리가 연 화면을 덮으면 시험 목록이 뜬다 */
   chk('연 화면이 덮이지 않는다', /성적표|핵심 진단/.test(opened.text), true);
   chk('그 학생 이름이 성적표에 있다', /김지성/.test(opened.text), true);
@@ -327,7 +331,11 @@ async function settled(p, label, fn, arg, ms) {
              theirs: w.shareLinkFinal(ex, selOf(rec.ans, ex.nQ), rec.name, '') };
   });
   chk('셸이 만든 주소 = 파이널이 만든 주소', link.mine, link.theirs);
-  chk('성적표 주소 모양이다', /final\.html#(s=[^&]+&)?r=jmchc-1\./.test(link.mine), true);
+  /* ⚠ `r=` 앞에 붙는 칸을 **하나하나 적어 두면** 칸이 늘 때마다 이 자가 운다.
+     실제로 채점일(`t=`)을 들이자마자 여기가 빨간불이었다. 규칙은 하나다 —
+     `r=` 앞에 `이름=값&` 이 몇 개든 올 수 있다. 그 모양을 본다. */
+  chk('성적표 주소 모양이다',
+      /final\.html#([a-z]+=[^&]*&)*r=jmchc-1\./.test(link.mine), true);
 
   console.log('\n── 자료에서 채점으로 바로 ──');
   await p.evaluate(() => show('mat'));

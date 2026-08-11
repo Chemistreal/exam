@@ -90,7 +90,13 @@ async function cohortSnapshot(browser, errs) {
   });
   console.log(`  교사 쪽: N=${made.N} 1번 정답률=${made.qp0} · 링크 ${made.link.length}자 (스냅숏 ${made.snapLen}자)`);
   chk('교사 쪽 또래 통계 활성', made.ready, true);
-  chk('링크에 s= 스냅숏이 들어감', /#s=[A-Za-z0-9_-]+&r=/.test(made.link), true);
+  /* ⚠ `#s=…&r=` 로 **붙여서** 보면 안 된다. `r=` 앞에는 이름=값 칸이 몇 개든
+     온다(채점일 `t=` 가 2026-08-11 에 늘었다). 그날 이 자를 포함해 셋이
+     한꺼번에 빨간불이 났다 — 규칙은 final.html 의 shareLinkFinal 위에 적어
+     두었다. **자가 코드보다 좁으면, 코드가 자란 날 자가 먼저 운다.** */
+  chk('링크에 s= 스냅숏이 들어감',
+      /#([a-z]+=[^&]*&)*s=[A-Za-z0-9_-]+&/.test(made.link) && /[#&]r=/.test(made.link),
+      true);
   /* 처음 형식은 문항당 6바이트(정답률·①②③④·변별도)를 그대로 담아 60문항이면
      567자였다. 카톡으로 보내기에 너무 길다는 말을 들었다. 변별도는 아무 데서도
      안 읽었고, 정답률은 선택 분포에서 다시 나오고, 비율 대신 사람 수를 남은
