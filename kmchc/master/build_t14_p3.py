@@ -921,8 +921,24 @@ def local_checks(items):
     CMP, TGT = re.compile(r'더 |[가-힣]수록'), re.compile(r'보다|끼리|사이|서로|둘 다|양쪽')
     naked = [f"{x['id']}({i+1})" for x in items for i, c in enumerate(x['choices'])
              if i != x['answer'] and CMP.search(c) and not TGT.search(c)]
+    #    ▸ ★절대어가 오답에만 몰리는 문항★ (P8 2차에 신설 — defender 가 배치 충돌로 짚었다)
+    #      한 문항 안에서 절대어가 3:1 로 갈리며 정답을 홀로 남기면 ★화학을 모르는 학생도
+    #      요령으로 맞힌다.★ 국소검사 ⑮ 는 '더' 와 개시 두 어절만 세므로 이 축을 못 본다.
+    #      ★배치 안에서 몇 문항이 그 무늬를 함께 갖는지가 문제라 게이트가 아니라 보고다★ —
+    #      P8 2차에는 셋(M02209·M02210·M02214)이 걸렸고 그 가운데 하나는 오답 셋 전부였다.
+    #      ▸ ★오탐부터 세었다★ — T14 P1~P8 여든 문항에 걸어 보니 ★1건★ 이 울고 그것이
+    #        바로 defender 가 짚은 자리다(정밀도 1/1). ★그런데도 게이트로 세우지 않는다★ —
+    #        표본이 하나뿐이라 막을 근거가 얇고, 절대어 셋이 정당한 물음 꼴('언제나 …인가'
+    #        를 셋으로 나눠 묻는 자리)이 있을 수 있다. 두 배치를 더 재고 정한다.
+    #      ▸ 이 주석을 처음 쓸 때 재지 않고 '12 문항 중 넷이 오탐' 이라 적었다가 실측에서
+    #        틀렸다. ★검사 주석에 적는 수도 값 주장이다.★
+    ABSW = re.compile(r'언제나|늘 |모두|모든|항상|반드시|만 |뿐')
+    skew = [x['id'] for x in items
+            if sum(bool(ABSW.search(c)) for c in x['choices']) == 3
+            and not ABSW.search(x['choices'][x['answer']])]
     print(f"  ▸ 배치 요약 — 오답에만 3회 이상: {', '.join(lean) if lean else '없음'}"
-          f" | 비교 대상 없는 비교급 오답: {', '.join(naked) if naked else '없음'}")
+          f" | 비교 대상 없는 비교급 오답: {', '.join(naked) if naked else '없음'}"
+          f" | 절대어가 오답 셋에만: {', '.join(skew) if skew else '없음'}")
 
     if bad:
         print('\n  ❌ 저작 점검 실패')
