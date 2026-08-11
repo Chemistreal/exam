@@ -78,10 +78,26 @@ def write_inputs(items, d):
                 if j != a:
                     f.write(f"  {CIR[j]} {c}\n")
             f.write("\n")
-    # ③ factchecker — 해설만
+    # ③ factchecker — 문항 전체(발문·선지·근거·계산 줄)와 해설
+    #    ★검증자에게 시킨 일과 검증자에게 준 자료가 어긋나 있었다★ (T14 P6 2차에 잡힘)
+    #    이 파일은 오래도록 x['solution'] 만 썼다. 그런데 factchecker 에게 시킨 일에는
+    #    ★발문과 해설의 대조★ 와 ★발문·선지·해설·자가진단 사이의 낱말 어긋남 세기★ 가
+    #    들어 있다 — 발문이 없으면 물리적으로 할 수 없는 일이다. factchecker 가 두
+    #    회차에 걸쳐 "발문이 없어 판정 불가" 라고 적고서야 도구를 열어 보았다.
+    #    ▸ 독립성은 깨지지 않는다. factchecker 는 이미 정답과 해설을 받는 자리라
+    #      발문·선지를 더 준다고 새로 새는 것이 없다. 독립성 원칙 1('필요 최소 정보')의
+    #      ★최소★ 는 ★그 검증자가 시킨 일을 할 수 있는 만큼★ 이지 무조건 적게가 아니다.
+    #    ▸ 근거(answer_proof)와 계산 줄(calc_check)도 싣는다. 사실오류가 사는 자리이고
+    #      학생에게 보이지는 않아도 문항의 열세 자리 가운데 둘이다.
     with open(os.path.join(d, 'items_solution.md'), 'w', encoding='utf-8') as f:
         for x in items:
-            f.write(f"## {x['id']}\n\n{x['solution']}\n\n---\n\n")
+            a = x['answer']
+            f.write(f"## {x['id']}\n\n[발문] {x['stem']}\n\n[선지]\n")
+            for j, c in enumerate(x['choices']):
+                f.write(f"{CIR[j]} {c}{'   ← 정답' if j == a else ''}\n")
+            f.write(f"\n[근거] {x.get('answer_proof', '')}\n\n"
+                    f"[계산 줄] {x.get('calc_check', '')}\n\n"
+                    f"[도입 줄·해설·오답 단평·자가진단]\n{x['solution']}\n\n---\n\n")
     # ④ student-sim — solver 와 같은 정보(정답 모름)
     with open(os.path.join(d, 'items_sim.md'), 'w', encoding='utf-8') as f:
         f.write("# 가상 응시 대상\n\n")
