@@ -90,9 +90,23 @@ catch (e) {
   const errs = []; p.on('pageerror', e => errs.push(String(e).slice(0, 90)));
   await p.goto(url, { waitUntil: 'load', timeout: 40000 });
   /* 고정 대기를 쓰지 않는다(tools/blind_wait.py). 성적표는 exams.json 을 받아
-     온 뒤에 그려지므로, **그려졌다는 사실**을 기다린다. */
-  await p.waitForFunction(() => /해당|수상권|정답률/.test(document.body.innerText || ''),
-    null, { timeout: 30000 });
+     온 뒤에 그려지므로, **그려졌다는 사실**을 기다린다.
+
+     ⚠ 여기서 한 번 틀렸다(2026-08-11, main 이 빨간불). 처음에는 글자에
+       `/해당|수상권|정답률/` 이 나오면 그려진 것으로 봤는데, 그 말은 **화면
+       머리글에 이미 있다** — "파이널 · 수상권 진단". 그래서 exams.json 이
+       늦게 오면 자가 **머리글만 있는 140자짜리 화면**을 성적표로 읽고 지나갔다.
+       손에서는 파일이 즉시 와서 28,104자였고, CI 에서만 걸렸다.
+       exams.json 을 6초 늦춰 그대로 재현했다.
+
+       그래서 **성적표에만 있는 자리**(핵심 진단 히어로)를 기다리고, 길이도
+       아래 검사와 같은 기준으로 함께 본다. 자가 재는 것과 자가 기다리는 것이
+       달라지면, 자는 자기가 안 본 것을 통과시킨다. */
+  const drawn = await p.waitForFunction(
+    () => !!document.querySelector('.fhero') &&
+          (document.body.innerText || '').length > 3000,
+    null, { timeout: 30000 }).then(() => true).catch(() => false);
+  if (!drawn) console.log('  (성적표가 30초 안에 안 그려졌다 — 아래 값이 그 증거다)');
 
   console.log('\n── 학부모가 문자 링크를 열었다 ──');
   const open = await p.evaluate(() => ({
@@ -126,7 +140,10 @@ catch (e) {
                              ['a[href*="sol-final"]', '해설지'],
                              ['a[href*="lec-1"]', '개념 강의']]) {
     await p.goto(url, { waitUntil: 'load' });
-    await p.waitForFunction(() => !!document.querySelector('a[href*="lec-"],a[href*="sol-final"]'),
+    /* ⚠ 여기도 머리글에 걸렸다. `a[href*="lec-"]` 는 화면 꼭대기의
+       `개념강의 목차 →` 에도 맞으므로, 성적표가 안 그려져도 통과한다.
+       위와 같이 **성적표에만 있는 자리**를 기다린다. */
+    await p.waitForFunction(() => !!document.querySelector('.fhero'),
       null, { timeout: 30000 }).catch(() => {});
     const a = await p.$(sel);
     if (!a) { chk(`${name} 로 가는 링크가 있다`, false, '(못 찾음)'); continue; }
