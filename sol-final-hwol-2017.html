@@ -10,6 +10,9 @@ header{padding:26px 20px 16px;border-bottom:1px solid var(--line);background:#ff
 .logo{font-size:11.5px;letter-spacing:.14em;color:var(--teal);font-weight:700}
 h1{margin:6px 0 4px;font-size:23px;font-family:'Iropke Batang',serif}
 .sub{color:var(--ink2);font-size:13.5px}
+/* 돌아가는 길. 강의 페이지와 같은 모양으로 둔다 — 학부모가 두 화면을
+   오가므로 같은 자리에 같은 것이 있어야 헷갈리지 않는다. */
+.back{display:inline-block;margin-top:12px;color:var(--teal);text-decoration:none;font-size:14px;font-weight:600;padding:6px 0}
 .warn{margin:12px 20px 0;padding:10px 13px;border:1px solid #E0C9A6;background:#FFF8EC;
  border-radius:8px;font-size:13px;color:#7a5a22}
 main{max-width:860px;margin:0 auto;padding:16px 20px 60px}
@@ -44,7 +47,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <header><div class="logo">CHEMISTREAL · FINAL 해설지</div>
 <h1>KMChC 2017</h1>
 <div class="sub">문항별 정답 · 영역 · 개념 · 사고과정 해설 · 60문항</div>
-<div class="sub" style="margin-top:6px">문제 지문은 문제지(PDF)에 있습니다 — 성적표 화면에서 함께 내려받을 수 있습니다.</div></header>
+<div class="sub" style="margin-top:6px">문제 지문은 문제지(PDF)에 있습니다 — 성적표 화면에서 함께 내려받을 수 있습니다.</div><a class="back" href="final.html">‹ 파이널로</a></header>
 <main><h3>정답 · 영역 · 개념</h3><table><thead><tr><th scope="col">문항</th><th scope="col">정답</th><th scope="col">영역</th><th scope="col">개념(유형)</th></tr></thead><tbody>
 <tr><td>1</td><td>④</td><td>주기율</td><td>주기율표</td></tr>
 <tr><td>2</td><td>③</td><td>원자모형</td><td>원자의크기</td></tr>
@@ -368,4 +371,12 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
     <p class="step">원본 채점표에서 <b>전원정답</b>(모두정답)으로 처리된 문항. 의도된 해석: 정반응이 기체 몰수↑(1→2)이라 t<sub>1</sub> A↓·B·C↑는 <b>압력 감소</b>(가), t<sub>2</sub> 역반응 쪽 이동은 흡열의 반대라 <b>온도 감소</b>(나), t<sub>3</sub> A 제거는 역반응 유도라 <b>B 감소</b>(다) → ①에 해당하나, 출제 오류로 ①②③④ 모두 정답.</p>
     <div class="tip">기체 몰수가 느는 정반응은 감압 시 촉진. 흡열 정반응은 냉각 시 역행. 다만 이 문항은 공식적으로 전원정답 처리되었다.</div></div>
 </div>
+<script data-lec-back>
+(function(){function ok(raw){if(!raw)return null;try{var u=new URL(raw,location.href);
+if(u.origin!==location.origin)return null;if(!/(^|\/)final\.html$/.test(u.pathname))return null;
+if(!/[#&]r=/.test(u.hash))return null;return u.href;}catch(e){return null;}}
+try{var a=document.querySelector('a.back');if(!a)return;
+var to=ok(new URL(location.href).searchParams.get('from'));if(!to)return;
+a.href=to;a.textContent='\u2039 \uc131\uc801\ud45c\ub85c';}catch(e){}})();
+</script>
 </main></body></html>

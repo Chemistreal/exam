@@ -10,6 +10,9 @@ header{padding:26px 20px 16px;border-bottom:1px solid var(--line);background:#ff
 .logo{font-size:11.5px;letter-spacing:.14em;color:var(--teal);font-weight:700}
 h1{margin:6px 0 4px;font-size:23px;font-family:'Iropke Batang',serif}
 .sub{color:var(--ink2);font-size:13.5px}
+/* 돌아가는 길. 강의 페이지와 같은 모양으로 둔다 — 학부모가 두 화면을
+   오가므로 같은 자리에 같은 것이 있어야 헷갈리지 않는다. */
+.back{display:inline-block;margin-top:12px;color:var(--teal);text-decoration:none;font-size:14px;font-weight:600;padding:6px 0}
 .warn{margin:12px 20px 0;padding:10px 13px;border:1px solid #E0C9A6;background:#FFF8EC;
  border-radius:8px;font-size:13px;color:#7a5a22}
 main{max-width:860px;margin:0 auto;padding:16px 20px 60px}
@@ -52,7 +55,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <header><div class="logo">CHEMISTREAL · FINAL 해설지</div>
 <h1>JMChC 모의고사 4회</h1>
 <div class="sub">문항별 정답 · 영역 · 개념 · 사고과정 해설 · 60문항</div>
-<div class="sub" style="margin-top:6px">문제 지문은 문제지(PDF)에 있습니다 — 성적표 화면에서 함께 내려받을 수 있습니다.</div></header>
+<div class="sub" style="margin-top:6px">문제 지문은 문제지(PDF)에 있습니다 — 성적표 화면에서 함께 내려받을 수 있습니다.</div><a class="back" href="final.html">‹ 파이널로</a></header>
 <nav class="source-assets" aria-label="시험 자료 직접 다운로드"><a href="jmchc-4-problem.pdf" download>공식 문제 PDF ↓</a><a href="jmchc-4-answer.pdf" download>공식 정답 PDF ↓</a></nav>
 <main><h3>정답 · 영역 · 개념</h3><table><thead><tr><th scope="col">문항</th><th scope="col">정답</th><th scope="col">영역</th><th scope="col">개념(유형)</th></tr></thead><tbody>
 <tr><td>1</td><td>①</td><td>원자모형</td><td>톰슨</td></tr>
@@ -410,4 +413,12 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
     <p class="step">셋 다 혼성이 달라(sp³·sp²·sp) 같은 것이 없다. → <b>④</b></p>
     <div class="tip">전자영역 수 = 혼성: 4→sp³, 3→sp², 2→sp. 세 화학종이 영역 수가 모두 달라 혼성도 전부 다르다.</div></div>
 </div>
+<script data-lec-back>
+(function(){function ok(raw){if(!raw)return null;try{var u=new URL(raw,location.href);
+if(u.origin!==location.origin)return null;if(!/(^|\/)final\.html$/.test(u.pathname))return null;
+if(!/[#&]r=/.test(u.hash))return null;return u.href;}catch(e){return null;}}
+try{var a=document.querySelector('a.back');if(!a)return;
+var to=ok(new URL(location.href).searchParams.get('from'));if(!to)return;
+a.href=to;a.textContent='\u2039 \uc131\uc801\ud45c\ub85c';}catch(e){}})();
+</script>
 </main></body></html>
