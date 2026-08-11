@@ -875,19 +875,54 @@ def local_checks(items):
     #    ▸ ★면제 목록을 적는 것보다 검사의 뜻을 좁히는 것이 낫다★ 를 여기서도 지켰다 —
     #      '가·는·도·와' 를 예외로 적지 않고 ★사정거리에서 뺐다★. 못 잡는 자리가 생기지만
     #      그 넷은 오탐이 진짜보다 스무 배 많다.
-    JOSA = re.compile(r'([가-힣])\s(를|을|은|의|으로|로|에서|에|과|보다|처럼|까지|부터)'
+    #    ▸ ★7차에 ★ 뒤 서술격 조사까지 넓혔다★ — 6차에 '★…★ 는/의' 를 막았더니 다음
+    #      회차에 '★차★ 이고' · '★잴 값이 있느냐★ 야' 가 걸렸다. 검사가 덮지 않은
+    #      ★이웃 자리★ 가 바로 다음 회차의 지적이 된다. 은행 2,204 제로 재어 보니 그
+    #      둘뿐이라(오탐 0) 사정거리를 넓힌다.
+    JOSA = re.compile(r'([가-힣]★?)\s(를|을|은|의|으로|로|에서|에|과|보다|처럼|까지|부터)'
                       r'(?=[\s,.·)?!\'"]|$)')
+    COPULA = re.compile(r'([가-힣]★)\s(이고|이다|이야|이라|이지|인|야|다)'
+                        r'(?=[\s,.·)?!]|$)')
     LABEL = re.compile(r'^\s*(\d|>)')
     for x in items:
         for where, txt in ([('발문', x['stem']), ('근거', x.get('answer_proof', '')),
                             ('계산 줄', x.get('calc_check', '')),
                             ('해설', x['solution'])]
                            + [(f'선지 {i+1}', c) for i, c in enumerate(x['choices'])]):
-            for m in JOSA.finditer(txt or ''):
-                if m.group(2) in ('을', '은') and LABEL.match(txt[m.end():]):
+            for pat in (JOSA, COPULA):
+                for m in pat.finditer(txt or ''):
+                    if m.group(2) in ('을', '은') and LABEL.match(txt[m.end():]):
+                        continue
+                    bad.append(f"{x['id']} {where} 조사를 앞말에서 뗌 — "
+                               f"'{txt[max(0, m.start() - 8):m.end()]}'")
+
+    # ── ★배치 요약★ — 게이트가 아니라 ★보고★ 다 ────────────────────────────────
+    #    T14 P7 에서 solver 가 두 회차에 걸쳐 '양성자를 말하는 오답이 넷인데 넷 다
+    #    오답이라 함정어가 되었다' 고 짚었다. 조치 스크립트에 `양성자 선지 == 1` 을 걸어
+    #    두었는데 ★다음 회차 스크립트에서 빼먹자 조용히 셋으로 돌아왔다★.
+    #    ▸ ★새로 얻는다 — 기계로 세운 검사를 다음 회차 스크립트에서 빼면 그 자리는
+    #      조용히 되돌아간다. 배치 단위 검사는 조치 스크립트가 아니라 여기에 올린다.★
+    #    ▸ 그런데 ★오탐부터 세었더니★ 이 축은 게이트로 세울 수 없다. 은행 2,204 제로
+    #      재어 보니 '한 배치에서 오답에만 세 번 이상 나오는 낱말' 은 배치 198 개 중
+    #      ★102 개★ 가 울리고(같은 테마에서 '양성자·중성자' 가 되풀이되는 것은 정상),
+    #      '비교 대상 표지 없는 비교급 오답' 은 오답 6,612 자리 중 227 건(3.4%)인데
+    #      대부분 발문이 비교 대상을 이미 준 자리다.
+    #    ▸ ★오탐이 많은 축은 게이트가 아니라 보고로 세운다★ — 막지 않고 찍어만 둔다.
+    STOP = {'것은', '것이', '이다', '아니다', '있다', '없다', '같다', '다른', '서로',
+            '모두', '수가', '수는', '수를', '때문', '까닭', '자리', '원소', '원자'}
+    ww, rw = Counter(), set()
+    for x in items:
+        for i, c in enumerate(x['choices']):
+            for w in set(re.findall(r'[가-힣]{2,}', c)):
+                if w in STOP:
                     continue
-                bad.append(f"{x['id']} {where} 조사를 앞말에서 뗌 — "
-                           f"'{txt[max(0, m.start() - 8):m.end()]}'")
+                rw.add(w) if i == x['answer'] else ww.update([w])
+    lean = sorted(w for w, c in ww.items() if c >= 3 and w not in rw)
+    CMP, TGT = re.compile(r'더 |[가-힣]수록'), re.compile(r'보다|끼리|사이|서로|둘 다|양쪽')
+    naked = [f"{x['id']}({i+1})" for x in items for i, c in enumerate(x['choices'])
+             if i != x['answer'] and CMP.search(c) and not TGT.search(c)]
+    print(f"  ▸ 배치 요약 — 오답에만 3회 이상: {', '.join(lean) if lean else '없음'}"
+          f" | 비교 대상 없는 비교급 오답: {', '.join(naked) if naked else '없음'}")
 
     if bad:
         print('\n  ❌ 저작 점검 실패')
