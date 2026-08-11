@@ -3207,7 +3207,12 @@ function conceptNoteBtn(r){
     var hb=((window.App&&window.App.exam&&window.App.exam.haeseol)||'');
     var nm=((window.App&&window.App.idData&&window.App.idData.name)||'').trim();
     var esc1=function(t){return String(t).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});};
-    var url='note.html#'+(nm?('name='+encodeURIComponent(nm)+'&'):'')+(exam?('exam='+encodeURIComponent(exam)+'&'):'')+(hb?('hb='+encodeURIComponent(hb)+'&'):'')+'miss='+miss.map(encodeURIComponent).join(',')+(wrong.length?('&wrong='+wrong.join(',')):'');
+    /* 돌아올 자리를 주소에 싣는다. 노트는 해시로 제 값을 받으므로 `?from=`
+       은 **해시 앞**에 붙는다. 성적표(#r=)로 열려 있을 때만 싣는다 —
+       선생님이 채점 중인 화면에서는 돌아갈 '그 성적표' 가 아직 없다.
+       (해설지·강의에서 이미 같은 규칙을 쓴다.) */
+    var _from=/[#&]r=/.test(location.hash)?('?from='+encodeURIComponent(location.href)):'';
+    var url='note.html'+_from+'#'+(nm?('name='+encodeURIComponent(nm)+'&'):'')+(exam?('exam='+encodeURIComponent(exam)+'&'):'')+(hb?('hb='+encodeURIComponent(hb)+'&'):'')+'miss='+miss.map(encodeURIComponent).join(',')+(wrong.length?('&wrong='+wrong.join(',')):'');
     var who=nm?(esc1(nm)+' 학생이'):'이 학생이';
     return '<div class="sec sec--cta" style="background:linear-gradient(135deg,rgba(176,135,58,.07),rgba(58,122,107,.05));border:1px solid var(--brass,#B0873A);border-radius:14px;padding:22px 24px;margin-top:18px">'
       +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:11.5px;font-weight:700;letter-spacing:.04em;color:var(--brass-d,#7a5d20);background:rgba(176,135,58,.12);padding:3px 9px;border-radius:6px">다음 학습 가이드</span></div>'

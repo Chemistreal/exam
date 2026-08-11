@@ -34,12 +34,17 @@
 'use strict';
 require('./_watchdog.js')(240);
 const seal = require('./_seal.js');
-const { spawn } = require('child_process');
+/* 포트를 그 자리에서 받고, 서버가 **대답할 때까지** 기다린다.
+   고정 포트를 박아 두면 검사 두 벌이 겹칠 때 뒤엣것이 빈 화면을 보고
+   "그게 화면에 없다" 고 말한다 — tests/_serve.js 머리말. */
+const { serve } = require('./_serve.js');
 const path = require('path');
 
 const PLAYWRIGHT = process.env.PLAYWRIGHT_MODULE || 'playwright';
 const CHROMIUM = process.env.CHROMIUM_PATH || undefined;
-const PORT = Number(process.env.PORT || 8936);
+/* 번호를 안 박는다(0 이면 빈 포트를 받는다). `PORT` 를 준 자리는 그대로 쓴다.
+   **서버를 띄운 뒤 실제로 받은 번호로 채운다** — 아래 `serve()` 바로 다음. */
+let PORT = Number(process.env.PORT || 0);
 const ROOT = path.join(__dirname, '..');
 const DT_EP = 'AKfycbzvFaPXgEgCBQ8HowtP8tPTtdiIVFtmZSUf0KFXUOVOh3ektrFMkz4KSR4I52LDBzB8rw';
 /* 손가락으로 누르는 자리의 최소 크기. 44px 이 흔히 쓰는 권고지만, 이 화면은
@@ -208,15 +213,8 @@ async function look(browser, { width, height, touch }) {
 }
 
 (async () => {
-  const srv = spawn(process.execPath, ['-e', `
-    const http=require('http'),fs=require('fs'),p=require('path');
-    const T={'.html':'text/html; charset=utf-8','.js':'text/javascript','.json':'application/json','.css':'text/css'};
-    http.createServer((q,s)=>{
-      const f=p.join(${JSON.stringify(ROOT)}, decodeURIComponent(q.url.split('?')[0]));
-      fs.readFile(f,(e,d)=>e?(s.writeHead(404),s.end()):(s.writeHead(200,{'Content-Type':T[p.extname(f)]||'text/plain'}),s.end(d)));
-    }).listen(${PORT});
-  `], { stdio: 'ignore' });
-  await new Promise(r => setTimeout(r, 700));
+  const srv = await serve(ROOT, { port: PORT });
+  PORT = srv.port;
 
   const browser = seal(await chromium.launch(
     Object.assign({ args: ['--no-sandbox'] }, CHROMIUM ? { executablePath: CHROMIUM } : {})));
@@ -276,7 +274,7 @@ async function look(browser, { width, height, touch }) {
     chk('콘솔에 예외가 없다', 노트북.errs, []);
   } finally {
     await browser.close();
-    srv.kill();
+    srv.stop();
   }
 
   console.log(fail ? `\nFAIL ${fail}건` : '\nPASS');

@@ -44,6 +44,60 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
+  # ── 빠른 판 ──────────────────────────────────────────────────────────
+  # 2026-08-11, 선생님 결정 #44 — *"판이 12분이라 실패를 늦게 안다"*.
+  #
+  # 아래 `test` 는 브라우저를 깔고 258장을 열고 2400문항을 훑느라 12분이 걸린다.
+  # 그런데 실제로 깨지는 것의 상당수는 **파일 하나만 읽으면 아는 것**이다 —
+  # 자료가 갈라졌다, 문법이 깨졌다, 자를 걸어 놓고 안 돌린다.
+  # 그걸 12분 뒤에 알 이유가 없다.
+  #
+  # ⚠ 여기서 **차례를 바꾸지 않았다.** `test` 안의 순서를 빠른 것부터로
+  #   뒤집는 방법도 있지만, 그 파일은 «서버를 띄우고 → playwright 를 깔고 →
+  #   브라우저 검사» 라는 앞뒤가 있어서 잘못 건드리면 조용히 건너뛴다.
+  #   대신 **판을 하나 더 낸다** — 두 판은 같이 돈다(GitHub 기본).
+  #   `test` 는 그대로 12분을 돌고, 이쪽이 1분 안에 먼저 대답한다.
+  #
+  # ⚠ 이 판이 초록이어도 **통과가 아니다.** 브라우저로만 드러나는 것은 여기서
+  #   하나도 안 본다. 그래서 이름을 «빠른 판» 이라 적는다 — 이 저장소가 가장
+  #   경계하는 것이 «안 돌린 것을 초록으로 세는 것» 이다.
+  quick:
+    name: 빠른 판 (파일만 · 브라우저 없음)
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: CI 가 부르는 자가 여기서 돌 수 있다
+        run: python3 tools/ci_deps.py --check
+      - name: 화면 안 자바스크립트가 안 깨졌다
+        run: python3 tools/js_syntax.py --check
+      - name: 자가 참·거짓 예시를 맞힌다
+        run: python3 tools/lie_check.py --check
+      - name: 자 차례와 자물쇠 표가 실제 자와 맞는다
+        run: python3 tools/gen_tool_index.py --check
+      - name: 서비스워커 캐시 이름이 화면 내용과 맞는다
+        run: python3 tools/gen_sw_version.py --check
+      - name: 모든 시험에 기준 기록(연도누적 인원)이 있다
+        run: python3 tools/cohort_cover.py --check
+      # 2026-08-11, 선생님 결정 #46 — 해설 검수 상태가 넷으로 갈려 있는데
+      # **아무도 안 세고 있었다.** 재어 보니 2,310문항 중 1,620·240·223·127 이고,
+      # 덜 본 350은 흩어져 있지 않고 **여섯 회차 통째**다(동형 넷 · KMChC 둘).
+      # 흩어져 있으면 언젠가 할 일이지만, 회차로 몰려 있으면 한 회차씩 끝낼 일이다.
+      # 이 자는 **뒤로 가는 것만** 막는다 — 줄어드는 것은 언제나 반긴다.
+      - name: 해설 검수가 뒤로 가지 않았다
+        run: python3 tools/verify_status.py --check
+      - name: 낡으면 안 되는 자료가 캐시 먼저로 잡혀 있지 않다
+        run: python3 tools/sw_freshness.py --check
+      - name: 개인 성적 화면이 검색에 열려 있지 않다
+        run: python3 tools/noindex.py --check
+      - name: 모든 화면에 문이 있다
+        run: python3 tools/page_doors.py --check
+      - name: 배포 한도에 여유가 있다
+        run: python3 tools/pages_budget.py --check
+
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -761,6 +815,12 @@ jobs:
       # 걸어 보니 한 아이의 성적표 링크가 **모든 학생 명단으로 가는 문**이었다.
       # `‹ 시험 목록` 을 누르면 암호 없이 선생님 콘솔이 열렸다(암호 검사가
       # 열 때 한 번만 돌기 때문). 그리고 목차·해설지는 들어가면 못 나왔다.
+      # 2026-08-11, 선생님 결정 #28. `grading-input.js` 는 **갈아엎힘**만 봤다 —
+      # 손이 미끄러지는 쪽은 아무도 안 쟀다. 걸어 보니 뒤로가기·새로고침·목록
+      # 단추 **셋 다 묻지도 않고 날아갔다.** 선생님은 한 회차에 서른 명을 앉아서
+      # 친다. 60칸 중 마지막 한 칸을 남기고 날아가면 처음부터다.
+      - name: 채점하다 자리를 옮겨도 친 것이 안 날아간다
+        run: node tests/grading-lost.js
       - name: 학부모가 걷는 길 (남의 자리로 새지 않는다 · 돌아 나온다)
         timeout-minutes: 5
         run: node tests/parent-walk.js

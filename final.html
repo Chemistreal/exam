@@ -37,6 +37,10 @@ main{max-width:780px;margin:0 auto;padding:16px 15px 60px}
    버튼과 겹치는 **첫 줄에만** 자리를 비운다. padding-right 로 하면 짧은 제목까지
    폭이 좁아져 불필요하게 줄바꿈된다. */
 .card__t::before{content:'';float:right;width:72px;height:22px}
+.pend{background:rgba(176,135,58,.09);border:1px solid rgba(176,135,58,.45);border-radius:11px;padding:11px 14px;margin:6px 0 10px;font-size:13px;line-height:1.6}
+.pend__x{color:#9A2828;font-weight:600}
+.pend__s{font-size:12px;color:var(--ink-3,#857f74);margin-top:5px}
+.card__m .today{color:var(--teal);font-weight:600}
 .card__m{font-size:12.5px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .card{position:relative}
 .slink{position:absolute;top:10px;right:10px;font-size:11.5px;color:var(--teal,#3A7A6B);background:rgba(58,122,107,.08);border:1px solid rgba(58,122,107,.25);border-radius:7px;padding:4px 8px;cursor:pointer;font-weight:600}
@@ -268,10 +272,9 @@ summary::-webkit-details-marker{display:none}
 @media print{.fhero{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 /* 학부모님께 · 총평 */
 .fpn{background:linear-gradient(135deg,rgba(63,92,140,.06),rgba(14,90,76,.05));border:1px solid #cdd6e4;border-radius:14px;padding:20px 22px;margin:14px 0}
+.fpn__ask{margin-top:11px;padding-top:9px;border-top:1px solid rgba(120,95,35,.22);font-size:12.5px;color:#6a5a38}
 .fpn__lab{display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.04em;color:#3F5C8C;background:rgba(63,92,140,.1);padding:3px 9px;border-radius:6px;margin-bottom:10px}
 .fpn p{margin:8px 0;font-size:13.5px;line-height:1.75;color:var(--ink-2)}
-.fpn .cmt{background:#fff;border-left:3px solid var(--brass);border-radius:0 9px 9px 0;padding:11px 14px;margin-top:10px;font-size:13.5px;line-height:1.7}
-.fpn .cmt .clab{font-size:11.5px;font-weight:700;color:#7a5d20;display:block;margin-bottom:4px}
 .fclosing{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:14px 0}
 .fclosing h3{font-family:'Nanum Myeongjo',Georgia,serif;font-size:16px;margin:0 0 12px;color:var(--teal)}
 .fclosing p{font-size:13.5px;line-height:1.8;color:var(--ink-2);margin:10px 0}
@@ -999,6 +1002,26 @@ const ansLabel=(e,q)=>{const s=accSet(e,q);
 const COHORT_ALIAS={'kmchc-2018':'hwol-2018','kmchc-2019':'hwol-2019','kmchc-2024-1':'hwol-2024'};
 const cohortKey=id=>COHORT_ALIAS[id]||id;
 function subs(id){try{return JSON.parse(localStorage.getItem(PFX+cohortKey(id))||'[]')}catch(e){return[]}}
+/* ── 오늘 이 회차를 어디까지 채점했나 (선생님 결정 #29) ────────────────────
+   본디 물음은 *"30명 중 몇 명 남았는지"* 였다. 그런데 이 앱에는 **누가 볼
+   예정인지를 아는 자리가 없다** — 명단은 채점한 기록에서 거꾸로 만든 것이라,
+   아직 안 본 학생은 어디에도 없다. 그러니 «남은 수» 는 지어내는 수밖에 없고,
+   지어낸 분모는 **틀린 것처럼 보이지 않으면서 틀린다.**
+
+   대신 **아는 것**을 적는다: 오늘 몇 명을 쳤고 마지막이 언제였나. 선생님이
+   한 회차를 앉아서 치는 동안 실제로 궁금한 것이 그것이다 — 자리를 비웠다가
+   돌아왔을 때 "어디까지 했더라" 에 답이 된다.
+   (분모를 아시려면 명단을 먼저 넣는 자리가 있어야 한다 — 그건 ⚖ 다.) */
+function gradedToday(id){
+  try{
+    var t0=new Date(); t0.setHours(0,0,0,0); t0=t0.getTime();
+    var ts=subs(id).map(function(r){ return r.ts||0; }).filter(function(t){ return t>=t0; });
+    if(!ts.length) return null;
+    var last=Math.max.apply(null, ts), m=Math.round((Date.now()-last)/60000);
+    return {n:ts.length,
+            ago: m<1?'방금':(m<60?(m+'분 전'):(Math.round(m/60)+'시간 전'))};
+  }catch(e){ return null; }
+}
 function saveSubs(id,a){try{localStorage.setItem(PFX+cohortKey(id),JSON.stringify(a))}catch(e){}}
 /* 별칭 키에 이미 쌓여 있던 기록을 대표 키로 옮긴다(한 번만 돌면 된다).
    같은 응시가 양쪽에 있을 수 있으므로 답안+시각으로 중복을 거른다. */
@@ -1265,10 +1288,23 @@ function rosterDelName(key){
   var v=prompt('"'+L.full+'" 학생을 명단에서 지웁니다.\n\n'
     +'• 이 학생의 '+list.length+'개 회차 기록이 모두 없어집니다\n'
     +'• 구글 시트의 행도 함께 지웁니다 (같은 이름이 더 있으면 같이 지워집니다)\n'
-    +'• 되돌릴 수 없습니다 — 필요하면 먼저 백업을 내려받으세요\n\n'
+    +'• 지우기 전에 **명단 백업 파일을 자동으로 내려받습니다** — 잘못 지웠으면\n'
+    +'  그 파일을 [백업 가져오기] 로 되돌리면 됩니다\n\n'
     +'지우려면 학생 이름을 그대로 입력하세요.');
   if(v===null) return;
   if(v.trim()!==L.name){ fToast('이름이 달라 지우지 않았습니다'); return; }
+  /* ── 지우기 전에 백업을 뜬다 (선생님 결정 #30) ────────────────────────
+     본디 물음은 *"명단에서 학생 하나를 지우는 되돌리기가 없다"* 였다.
+
+     «실행 취소» 를 붙이는 길도 있었지만 그건 **거짓말이 된다.** 여기서 지우는
+     것은 이 브라우저의 기록만이 아니라 **구글 시트의 줄**도 함께이고, 시트
+     쪽은 이 화면이 되돌릴 수 없다. 되돌아가는 척하는 단추가 반만 되돌리면,
+     선생님은 다 돌아온 줄 알고 그 위에서 계속 일한다.
+
+     그래서 되돌리는 대신 **잃지 않게** 한다. 지우기 직전에 명단 전체를 파일로
+     내려받는다 — 되돌리는 길(백업 가져오기)은 이미 이 화면에 있다.
+     한 번 더 누르게 하지 않고, 묻지도 않고, 그냥 뜬다. */
+  try{ rosterExport(); }catch(e){}
   var n=0, done={};
   FINAL_EXAMS.forEach(function(e){
     var ck=cohortKey(e.id); if(done[ck]) return; done[ck]=1;
@@ -1279,6 +1315,20 @@ function rosterDelName(key){
   if(n) sheetCall({action:'deleteName',name:L.name,
                    school:(String(key).split('\u0001')[1]||''), grade:(String(key).split('\u0001')[2]||'')},
     function(res){ sheetEditToast(res,'지웠습니다'); });
+}
+/* 명단에서 그 학생·그 회차의 성적표 링크를 다시 만든다 (선생님 결정 #32).
+   답안이 기록에 그대로 있으므로 **다시 채점하지 않고** 만들 수 있다.
+   언제 복사했는지도 같이 남는다 — 다시 보낼 때 "저번에 보냈던가" 를 없앤다. */
+function rosterLinkCopy(examId,idx){
+  var arr=subs(examId), r=arr[idx];
+  var exam=FINAL_EXAMS.find(function(e){ return e.id===examId; });
+  if(!r||!exam||!r.ans){ fToast('답안 기록이 없어 링크를 못 만듭니다'); return; }
+  var sel2={}; r.ans.forEach(function(a,i){ sel2[i+1]=a; });
+  var url=shareLinkFinal(exam, sel2, r.name||'');
+  var ok=function(){ sentMark(examId, r.name||''); fToast('성적표 링크 복사됨 · '+(r.name||'')); renderRoster(); };
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(ok).catch(function(){ fallbackCopy(url,ok); });
+  } else fallbackCopy(url,ok);
 }
 function rosterEdit(examId,idx){
   var arr=subs(examId), r=arr[idx]; if(!r) return;
@@ -1425,7 +1475,9 @@ function renderRoster(){
         <td class="mono">${esc(when)}</td>
         <td>${esc([v.rec.school,v.rec.grade?v.rec.grade+'학년':''].filter(Boolean).join(' '))||'<span class="muted">-</span>'}</td>
         <td>${gone?`<button class="btn sm" onclick="rosterRepush('${esc(v.exam.id)}',${v.idx})">시트에 다시 올리기</button> `:''
-            }<button class="btn ghost sm" onclick="rosterEdit('${esc(v.exam.id)}',${v.idx})">수정</button>
+            }<button class="btn ghost sm" onclick="rosterLinkCopy('${esc(v.exam.id)}',${v.idx})" title="이 회차 성적표 링크를 복사합니다">링크 ⧉</button>
+            ${(function(){ var w=sentWhen(v.exam.id, v.rec.name); return w?`<span class="muted" style="font-size:11.5px;margin-left:4px">${w}</span>`:''; })()}
+            <button class="btn ghost sm" onclick="rosterEdit('${esc(v.exam.id)}',${v.idx})">수정</button>
             <button class="btn ghost sm" onclick="rosterDel('${esc(v.exam.id)}',${v.idx})">삭제</button></td></tr>`;
     }).join('');
     return `<details style="border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin:6px 0">
@@ -1510,18 +1562,37 @@ function renderQbank(){
   window.scrollTo(0,0);
   showExamQ(FINAL_EXAMS[0].id);
 }
+/* 치던 것을 두고 목록으로 나가려 할 때 한 번 붙잡는다(선생님 결정 #28).
+   적어 두기(draft)만으로도 살아나지만, **모르고 나갔다가 나중에 이상해지는
+   것**이 더 나쁘다. 나가는 것을 막지는 않는다 — 알고 나가게만 한다. */
+function leaveList(){
+  if(gradingDirty()){
+    var n=Object.keys(sel).filter(function(k){ return sel[k]; }).length;
+    if(!confirm('채점하던 '+n+'칸이 있습니다.\n\n목록으로 나가시겠습니까?\n'
+                +'(친 것은 남겨 두었다가, 이 회차를 다시 열면 이어서 하실 수 있습니다)')) return;
+  }
+  location.hash=''; renderList();
+}
 function renderList(){
   cur=null; sel={};
   const groups={}; FINAL_EXAMS.forEach(e=>{(groups[e.group]=groups[e.group]||[]).push(e)});
   const order=['JMChC','동형','산과염기','2026','2025','2024','이전'];
   const GLAB={'JMChC':['JMChC 모의고사','60문항 · 영역·개념'],'동형':['기출동형 모의고사','영역·개념'],'산과염기':['산·염기 60제','영역·개념']};
-  let h=`<div style="display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap;margin:2px 0 8px"><a class="btn ghost sm" href="hub.html" style="text-decoration:none" title="파이널·DT·KMChC 를 한 화면에서">통합관리 ⌂</a><button class="btn ghost sm" onclick="location.hash='#roster'">명단 관리 ⚙</button><button class="btn ghost sm" onclick="syncAllFromSheet()">시트에서 불러오기 ↓</button><button class="btn ghost sm" onclick="toggleCsLink()" title="성적표 링크에 또래 통계를 실을지. 끄면 주소가 짧아지는 대신 학부모 쪽에서 백분위·문항 정답률이 빠집니다.">또래 통계 링크 ${csLinkOn()?'켬':'끔'}</button><button class="btn ghost sm" onclick="copyStudentLink()">학생 제출 링크 복사 ⧉</button></div><div class="note">기출을 답안 입력만 하면 자동 채점하고 <b>수상권 + 영역·개념 진단</b>으로 분석합니다. 만점 대상 · 4틀림까지 금상 · 9틀림까지 은상 · 13틀림까지 동상 · 18틀림까지 장려상, 다음 등급까지 2문제 이내면 '○○권'. 응시가 누적되면 백분위·문항 정답률·선택지 분석이 더해집니다.</div>`;
+  let h=`<div style="display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap;margin:2px 0 8px"><a class="btn ghost sm" href="hub.html" style="text-decoration:none" title="파이널·DT·KMChC 를 한 화면에서">통합관리 ⌂</a><button class="btn ghost sm" onclick="location.hash='#roster'">명단 관리 ⚙</button><button class="btn ghost sm" onclick="syncAllFromSheet()">시트에서 불러오기 ↓</button><button class="btn ghost sm" onclick="toggleCsLink()" title="성적표 링크에 또래 통계를 실을지. 끄면 주소가 짧아지는 대신 학부모 쪽에서 백분위·문항 정답률이 빠집니다.">또래 통계 링크 ${csLinkOn()?'켬':'끔'}</button><button class="btn ghost sm" onclick="copyStudentLink()">학생 제출 링크 복사 ⧉</button></div>${(function(){
+    /* 밀린 것이 있을 때만 뜬다. 없을 때도 뜨면 며칠 만에 아무도 안 본다. */
+    var pd=pendingCount(); if(!pd.n) return '';
+    return `<div class="pend"><b>시트에 아직 안 올라간 기록 ${pd.n}건</b>`
+      + (pd.wait?` · 보내는 중 ${pd.wait}`:'')
+      + (pd.stuck?` · <span class="pend__x">여러 번 보냈는데 안 보이는 것 ${pd.stuck}</span>`:'')
+      + ` <button class="btn ghost sm" onclick="syncAllFromSheet()">지금 맞춰 보기 ↻</button>`
+      + `<div class="pend__s">${pd.stuck?'멈춘 것은 시트에서 지워졌거나 우리가 못 찾는 줄입니다 — 명단 관리에서 확인해 주세요.':'망이 느리면 잠시 뒤 저절로 올라갑니다.'}</div></div>`;
+  })()}<div class="note">기출을 답안 입력만 하면 자동 채점하고 <b>수상권 + 영역·개념 진단</b>으로 분석합니다. 만점 대상 · 4틀림까지 금상 · 9틀림까지 은상 · 13틀림까지 동상 · 18틀림까지 장려상, 다음 등급까지 2문제 이내면 '○○권'. 응시가 누적되면 백분위·문항 정답률·선택지 분석이 더해집니다.</div>`;
   order.forEach(g=>{ if(!groups[g])return;
     const gl=GLAB[g]||['KMChC '+(g==='이전'?'이전 연도':g+'년'),'자동 채점'];
     h+=`<div class="grp">${gl[0]}<span class="gt">${gl[1]}</span></div><div class="cards">`;
-    groups[g].forEach(e=>{ const n=subs(e.id).length;
+    groups[g].forEach(e=>{ const n=subs(e.id).length; const pg=gradedToday(e.id);
       h+=`<div class="card" onclick="openExam('${e.id}')"><div class="card__t">${esc(e.title)}</div>
-        <div class="card__m">${e.track&&e.track!=='-'?`<span class="tag ${e.track==='심화'?'s':''}">${e.track}</span>`:''}<span>${e.nQ}문항</span>${n?`<span>· ${n}명</span>`:''}</div>
+        <div class="card__m">${e.track&&e.track!=='-'?`<span class="tag ${e.track==='심화'?'s':''}">${e.track}</span>`:''}<span>${e.nQ}문항</span>${n?`<span>· ${n}명</span>`:''}${pg?`<span class="today">오늘 ${pg.n}명 · ${pg.ago}</span>`:''}</div>
         <button class="slink" title="이 회차 학생 제출 링크 복사" onclick="event.stopPropagation();copyStudentLink('${e.id}')">제출 링크 ⧉</button></div>`;});
     h+=`</div>`; });
   app.innerHTML=h; window.scrollTo(0,0);
@@ -1556,6 +1627,19 @@ function examAssetsHTML(exam, graded){
 }
 function openExam(id){
   fShared=false; cur=FINAL_EXAMS.find(e=>e.id===id); sel={};
+  /* 치다 만 것이 남아 있으면 이어서 한다(선생님 결정 #28).
+     ⚠ 묻지 않고 저절로 채우지 않는다. 앞사람 답이 다음 학생 칸에 떠 있으면
+       그건 살려 준 것이 아니라 **틀린 채점을 만드는 것**이다. */
+  var _d=draftLoad(id);
+  if(_d){
+    var _n=Object.keys(_d.sel).filter(function(k){ return _d.sel[k]; }).length;
+    var _mins=Math.round((Date.now()-(_d.ts||0))/60000);
+    var _ago=_mins<1?'방금':(_mins<60?_mins+'분 전':Math.round(_mins/60)+'시간 전');
+    if(confirm('치다 만 답안이 있습니다 — '+(_d.nm?_d.nm+' · ':'')+_n+'칸 · '+_ago+'\n\n'
+               +'이어서 하시겠습니까?\n(아니오를 누르면 지우고 새로 시작합니다)')) {
+      window.__draftRestore=_d;
+    } else { draftClear(id); }
+  }
   /* ── 어느 화면에서 열든 같은 인원을 본다 ────────────────────────────
      예전에는 모집단이 "이 브라우저에 채점해 둔 만큼" 이었다. 학교 컴퓨터와
      집 노트북이 서로 다른 숫자를 냈고, 학부모에게 나간 링크는 만든 순간에
@@ -1578,7 +1662,7 @@ function openExam(id){
          그 뒤 문항이 통째로 한 칸씩 밀린다. 무엇을 넣든 정답이다. */
       grid+=`<div class="qrow${m?' allc':''}"${m?` title="${isVoid(cur,q)?'출제 취소된 문항 · 비워 두어도 맞은 것으로 처리됩니다':'전원정답 · 비워 두어도 맞은 것으로 처리됩니다'}"`:''}><span class="qrow__n">${q}</span><input aria-label="${q}번 답" class="ansin" id="ai_${q}" inputmode="numeric" maxlength="1" autocomplete="off" placeholder="${m?'◎':'·'}" oninput="typeAns(${q},this)" onkeydown="keyNav(event,${q})" onpaste="pasteAns(event,${q})" onfocus="this.select()"></div>`; }
     grid+=`</div></div>`; }
-  app.innerHTML=`<button class="back" onclick="renderList()">‹ 시험 목록</button>
+  app.innerHTML=`<button class="back" onclick="leaveList()">‹ 시험 목록</button>
    <h2 class="serif" style="margin:6px 0 2px;font-size:20px">${esc(cur.title)}</h2>
    <div class="muted">${cur.nQ}문항 · 4지선다${acList.length?` · ${acList.join(', ')}번 전원정답(답을 비워도 정답 처리)`:''}</div>
    ${examAssetsHTML(cur)}
@@ -1589,6 +1673,18 @@ function openExam(id){
    <div class="toolbar"><button class="btn" onclick="scoreAuto()">채점하기</button><button class="btn ghost sm" onclick="clearSel()">초기화</button>
      </div>`;
   window.scrollTo(0,0);
+  /* 이어서 하기로 한 것을 **화면이 다 그려진 뒤에** 채운다(선생님 결정 #28).
+     `setAns` 가 칸(`ai_<번호>`)을 찾으므로 그 전에 부르면 아무것도 안 들어간다. */
+  if(window.__draftRestore){
+    var _r=window.__draftRestore; window.__draftRestore=null;
+    try{
+      Object.keys(_r.sel||{}).forEach(function(q){ if(_r.sel[q]) setAns(+q, _r.sel[q]); });
+      [['nm',_r.nm],['sch',_r.sch],['grd',_r.grd]].forEach(function(x){
+        var el=document.getElementById(x[0]); if(el&&x[1]) el.value=x[1]; });
+      updateProg();
+      fToast('치던 답안을 이어서 불러왔습니다');
+    }catch(e){}
+  }
   const f0=document.getElementById('ai_1')||document.querySelector('.ansin:not([disabled])'); if(f0)f0.focus();
 }
 /* 연속 채점: 채점 직후 같은 시험의 빈 입력 폼으로 돌아가 다음 학생을 바로 입력(이름 칸 포커스) */
@@ -1603,8 +1699,60 @@ function copyStudentLink(id){
 }
 function fallbackCopy(text,ok){ const t=document.createElement('textarea'); t.value=text; t.style.position='fixed'; t.style.opacity='0'; document.body.appendChild(t); t.select(); try{document.execCommand('copy');ok();}catch(e){fToast(text);} t.remove(); }
 function adjInput(q,dir){ let n=q+dir; while(n>=1&&n<=cur.nQ){ const el=document.getElementById('ai_'+n); if(el&&!el.disabled) return el; n+=dir; } return null; }
-function setAns(q,v){ const el=document.getElementById('ai_'+q); if(!el||el.disabled)return; if(v>=1&&v<=4){ sel[q]=v; el.value=v; el.classList.add('filled'); } else { delete sel[q]; el.value=''; el.classList.remove('filled'); } }
-function typeAns(q,el){ let v=el.value.replace(/[^1-4]/g,''); v=v?v.slice(-1):''; el.value=v; if(v){ sel[q]=+v; el.classList.add('filled'); const nx=adjInput(q,1); if(nx)nx.focus(); } else { delete sel[q]; el.classList.remove('filled'); } updateProg(); }
+/* ── 치던 답안이 날아가지 않게 (선생님 결정 #28) ─────────────────────────
+   자를 만들어 걸어 보니 **세 갈래 모두 묻지도 않고 날아갔다** —
+   뒤로가기 · 새로고침 · 시험 목록 단추(tests/grading-lost.js).
+   선생님은 한 회차에 서른 명을 앉아서 친다. 60칸을 넣고 마지막 한 칸을 남겼을
+   때 손이 미끄러지면 처음부터다. 한 번만 겪어도 못 믿는 앱이 된다.
+
+   두 겹으로 막는다.
+
+     ① **적어 둔다.** 한 칸 칠 때마다 이 브라우저에 남긴다. 같은 회차를 다시
+        열면 "치던 것이 있습니다" 하고 이어서 하게 한다.
+     ② **나가기 전에 묻는다.** 새로고침·탭 닫기는 ①로도 살아나지만, 묻는 편이
+        선생님이 사고를 **알아채는** 길이다(모르고 나갔다가 나중에 이상해지는
+        것이 더 나쁘다).
+
+   채점이 끝나 시트로 보내면 지운다 — 남겨 두면 다음 학생을 칠 때 앞사람 답이
+   떠오른다. 그건 살려 주는 게 아니라 **틀린 채점을 만드는 것**이다.
+
+   기록은 이 브라우저에만 남는다(`final:draft:`). 지워도 성적이 안 바뀐다. */
+const DRAFT_PFX='final:draft:';
+function draftSave(){
+  try{
+    if(!cur || fShared) return;
+    var n=Object.keys(sel).filter(function(k){ return sel[k]; }).length;
+    var nm=(document.getElementById('nm')||{}).value||'';
+    if(!n && !nm){ draftClear(cur.id); return; }
+    localStorage.setItem(DRAFT_PFX+cur.id, JSON.stringify({
+      sel:sel, nm:nm,
+      sch:(document.getElementById('sch')||{}).value||'',
+      grd:(document.getElementById('grd')||{}).value||'',
+      ts:Date.now() }));
+  }catch(e){}
+}
+function draftClear(id){ try{ localStorage.removeItem(DRAFT_PFX+id); }catch(e){} }
+function draftLoad(id){
+  try{ var d=JSON.parse(localStorage.getItem(DRAFT_PFX+id)||'null');
+       if(!d||!d.sel) return null;
+       var n=Object.keys(d.sel).filter(function(k){ return d.sel[k]; }).length;
+       return (n||d.nm)?d:null; }catch(e){ return null; }
+}
+/* 치던 것이 있는가 — 나가기 전에 물을지 정하는 자리. */
+function gradingDirty(){
+  try{ return !!(cur && !fShared &&
+    (Object.keys(sel).filter(function(k){ return sel[k]; }).length ||
+     ((document.getElementById('nm')||{}).value||'').trim())); }catch(e){ return false; }
+}
+window.addEventListener('beforeunload', function(e){
+  /* 학부모 성적표(#r=)에서는 절대 안 묻는다 — 거기서는 칠 것이 없다. */
+  if(!gradingDirty()) return;
+  e.preventDefault(); e.returnValue='';
+  return '';
+});
+
+function setAns(q,v){ const el=document.getElementById('ai_'+q); if(!el||el.disabled)return; if(v>=1&&v<=4){ sel[q]=v; el.value=v; el.classList.add('filled'); } else { delete sel[q]; el.value=''; el.classList.remove('filled'); } draftSave(); }
+function typeAns(q,el){ let v=el.value.replace(/[^1-4]/g,''); v=v?v.slice(-1):''; el.value=v; if(v){ sel[q]=+v; el.classList.add('filled'); const nx=adjInput(q,1); if(nx)nx.focus(); } else { delete sel[q]; el.classList.remove('filled'); } updateProg(); draftSave(); }
 function keyNav(e,q){ const el=document.getElementById('ai_'+q);
   if(e.key==='Backspace'&&!el.value){ const p=adjInput(q,-1); if(p)p.focus(); e.preventDefault(); }
   else if(e.key==='ArrowRight'||e.key==='ArrowDown'){ const x=adjInput(q,1); if(x){x.focus();e.preventDefault();} }
@@ -4257,6 +4405,67 @@ function resendPending(){
   });
   return sent;
 }
+/* ── 성적표 링크를 복사한다 · 언제 복사했는지 남긴다 (선생님 결정 #32) ──
+   *"성적표 링크를 누구에게 보냈는지 기록이 없다 — 다시 보내야 할 때 다시
+   만들어야 한다."*
+
+   재어 보니 더했다. **성적표 화면에 링크를 복사하는 자리가 아예 없었다.**
+   링크는 채점할 때 시트의 `link` 칸으로 들어가고 있어서, 선생님은 시트를 열어
+   그 줄을 찾아야 했다. 화면에서는 다시 만들 길도 없었다.
+
+   ⚠ **«보낸 때» 라고 적지 않는다.** 문자를 보내는 것은 카톡에서 일어나고
+     이 화면은 그것을 모른다. 우리가 아는 것은 «복사한 때» 뿐이다.
+     모르는 것을 아는 척 적으면 틀린 것처럼 보이지 않으면서 틀린다.
+
+   기록은 이 브라우저에만 남는다(`final:sent`). 지워도 성적은 안 바뀐다. */
+const SENT_KEY='final:sent';
+function sentLog(){ try{ return JSON.parse(localStorage.getItem(SENT_KEY)||'{}'); }catch(e){ return {}; } }
+function sentMark(examId,nm){
+  try{ var m=sentLog(); m[examId+'\u0001'+nameKey(nm||'')]=Date.now();
+       localStorage.setItem(SENT_KEY, JSON.stringify(m)); }catch(e){}
+}
+function sentWhen(examId,nm){
+  var t=sentLog()[examId+'\u0001'+nameKey(nm||'')];
+  if(!t) return '';
+  var d=Math.floor((Date.now()-t)/86400000);
+  return d<=0?'오늘 복사':(d===1?'어제 복사':d+'일 전 복사');
+}
+function copyReportLink(){
+  try{
+    if(!cur) return;
+    var nm=(window.__rpt&&window.__rpt.name)||'';
+    var url=shareLinkFinal(cur, sel, nm);
+    var ok=function(){ sentMark(cur.id,nm); fToast('성적표 링크 복사됨'+(nm?' · '+nm:'')); };
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(ok).catch(function(){ fallbackCopy(url,ok); });
+    } else fallbackCopy(url,ok);
+  }catch(e){ fToast('링크를 만들지 못했습니다'); }
+}
+
+/* ── 무엇이 밀려 있나 (선생님 결정 #31) ────────────────────────────────
+   *"시트가 느릴 때 무엇이 밀렸는지 안 보인다 — 실패한 저장이 조용히 쌓인다."*
+
+   재어 보니 **표시는 이미 하고 있었다.** 채점할 때 `up:0`(아직 확인 못 함) 을
+   달고, 세 번 보내도 시트에서 안 보이면 `up:2` 로 멈춘다(바로 위 resendPending).
+   그런데 그 표시를 **화면에 내놓는 자리가 없었다.** 재기만 하고 안 보여 주면
+   없는 것과 같다 — 이 저장소가 늘 경계하는 그 자리다.
+
+   여기서는 세기만 한다. 무엇을 할지는 부르는 쪽이 정한다. */
+function pendingCount(){
+  var wait=0, stuck=0, done={};
+  try{
+    FINAL_EXAMS.forEach(function(exam){
+      var ck=cohortKey(exam.id); if(done[ck]) return; done[ck]=1;
+      subs(exam.id).forEach(function(r){
+        if(!(r.name||r.school)) return;
+        if(r.up===0) wait++;
+        else if(r.up===2) stuck++;
+      });
+    });
+  }catch(e){}
+  return {wait:wait, stuck:stuck, n:wait+stuck};
+}
+
 /* ── 다 받은 뒤 화면을 다시 그린다 ─────────────────────────────────────
    여태는 무조건 renderList() 였다. 버튼을 눌러 부를 때는 목록 화면에 있으니
    맞는 말이었는데, 이제는 **열 때마다 저절로** 돈다. 답안을 절반쯤 입력한
@@ -4503,12 +4712,39 @@ function unpackCohortV1(exam,b){
           qp:qp,qopt:qopt,qdisc:null,qcnt:qcnt,totals:totals,flagged:0,fromLink:true,
           local:{N:N,qcnt:qcnt}};
 }
+/* ── 성적표 링크의 모양 ─────────────────────────────────────────────────
+   여기서 한 번만 적는다. 이 규칙이 여러 곳에 흩어져 있어서, 칸 하나를 늘리자
+   검사 셋이 한꺼번에 빨간불이 났다(2026-08-11, 채점일 `t=`).
+
+       final.html#[이름=값&]*r=<회차>.<답안36진법>[.<수험번호>.<이름>]
+
+   · `r=` 는 **맨 뒤**다. 뒤를 통째로 삼키는 규칙이라(hashStrFinal) 뒤에
+     아무것도 못 붙인다. 새 칸은 언제나 `r=` **앞**에 `이름=값&` 으로 붙인다.
+   · 지금 붙는 칸: `s=` 또래 통계 스냅숏 · `t=` 채점일
+   · 읽는 쪽은 `[#&]이름=` 으로 본다 — `#이름=` 으로 보면 앞에 다른 칸이
+     생긴 날 못 찾는다. 실제로 그렇게 세 군데가 걸렸다.
+   · 옛 링크에는 새 칸이 없다. **없을 때 조용한 것**까지가 규칙이다 —
+     모르는 것을 오늘 값으로 메우면 틀린 것처럼 보이지 않으면서 틀린다. */
 function shareLinkFinal(cur,sel,nm,exno){
   /* 또래 통계 스냅숏은 `r=` **앞**에 붙인다. 뒤에 붙이면 이름을 끝까지 집어삼키는
      기존 해시 규칙에 걸려 이름 안으로 들어가 버린다. */
   var snap='';
   try{ if(!fShared&&csLinkOn()){ var cs=cohortStats(cur); var packed=packCohort(cur,cs); if(packed) snap='s='+packed+'&'; } }catch(e){}
-  return location.origin+location.pathname+'#'+snap+hashStrFinal(cur,sel,nm,exno);
+  /* ── 언제 본 시험인지 링크에 싣는다 (#17) ────────────────────────────
+     성적표에는 발행일만 있었는데, 그 발행일은 **파일을 만든 날**이라 학부모가
+     두 달 뒤에 열면 오늘 날짜가 찍힌다. "두 달 전 시험인지 어제인지" 를 알
+     길이 없었다.
+
+     ⚠ **응시일은 아무 데도 기록돼 있지 않다**(rankPoolYear 주석 참고).
+       그러니 응시일이라고 적으면 그건 지어낸 말이다. 우리가 실제로 아는 것은
+       **채점한 날**이고, 그것만 적는다.
+
+     `r=` 는 뒤를 통째로 삼키는 규칙이라(hashStrFinal) `s=` 처럼 **앞**에 붙인다.
+     이미 나간 링크에는 이 칸이 없다 — 그때는 조용히 발행일만 나온다. */
+  var gd='';
+  try{ var d=new Date();
+       gd='t='+d.getFullYear()+('0'+(d.getMonth()+1)).slice(-2)+('0'+d.getDate()).slice(-2)+'&'; }catch(e){}
+  return location.origin+location.pathname+'#'+snap+gd+hashStrFinal(cur,sel,nm,exno);
 }
 /* 아무리 줄여도 또래 통계를 실으면 주소가 답안만 담을 때보다 길어진다.
    카톡으로 보내기에 너무 길면 통째로 끄는 스위치. 끄면 학부모 쪽 성적표에서
@@ -4663,19 +4899,17 @@ function finalHero(nm, exam, correct, total, W, pct){
       +'</div></div>';
   }catch(e){ return awardCard(W, effCut(exam)); }
 }
-function fpcKey(exam, nm){ return 'fpc_'+exam.id+'_'+(nm||'').trim(); }
-function editFinalComment(){
-  try{
-    var nm=(window.__rpt&&window.__rpt.name)||'';
-    var cur0=localStorage.getItem(fpcKey(cur,nm))||'';
-    var v=prompt('학부모 리포트에 실릴 강사 코멘트를 입력하세요 (비우면 삭제)', cur0);
-    if(v===null) return;
-    if(v.trim()) localStorage.setItem(fpcKey(cur,nm), v.trim()); else localStorage.removeItem(fpcKey(cur,nm));
-    /* 코멘트만 고쳐 놓고 성적표를 다시 그리는 자리다. 저장하는 갈래로 부르면
-       같은 채점이 시트로 한 번 더 가서 줄이 하나 더 쌓인다. */
-    scoreAuto(true);
-  }catch(e){}
-}
+/* ⚠ **강사 코멘트 자리를 걷어냈다**(2026-08-11, 선생님이 "삭제" 로 정하셨다).
+   여기에 `fpcKey` · `editFinalComment` 와 학부모 문단의 코멘트 칸이 있었다.
+
+   본디 물음은 "비어 있으면 아예 안 보이는데, 학부모는 «선생님이 뭐라 하셨나»
+   를 먼저 찾는다 — 빈칸이어도 자리를 남길까" 였다. 선생님 답은 자리를 남기는
+   쪽이 아니라 **없애는** 쪽이었다.
+
+   코멘트는 이 브라우저(localStorage `fpc_<회차>_<이름>`)에만 있었다. 그래서
+   채점한 기기에서만 보였고, 학부모가 링크로 열면 어차피 안 나왔다 —
+   **선생님 화면에서만 보이는 학부모용 칸**이었던 셈이다.
+   남아 있는 `fpc_*` 값은 아무도 안 읽는다. 지워도 되고 둬도 된다. */
 /* ── 무응답이 무슨 뜻인지 말한다 ────────────────────────────────────────
    비운 것과 찍고 틀린 것은 2026-08-10 에 갈라 세게 됐다(선생님이 짚으셨다).
    그런데 **갈라 세기만 하고 그것이 무슨 뜻인지는 아무 데도 없었다.**
@@ -4745,10 +4979,12 @@ function parentNoteFinal(nm, exam, correct, total, W, pct){
        수 있기** 때문이다 — 시간 배분은 집에서 같이 보는 일이다. */
     var bn=blankNote(exam, (window.__fw||[]));
     var bHtml=bn?'<p style="margin-top:9px">'+bn.s+'</p>':'';
-    var cm=localStorage.getItem(fpcKey(exam,nm))||'';
-    var cmHtml=cm?'<div class="cmt"><span class="clab">담당 강사 코멘트</span>'+esc(cm)+'</div>':'';
-    // 코멘트 버튼은 뺐다(선생님 요청). 이미 적어 둔 코멘트는 그대로 나온다.
-    return '<div class="fpn"><span class="fpn__lab">학부모님께</span><p>'+p1+'</p><p>'+p2+'</p>'+bHtml+cmHtml+'</div>';
+    /* 연락 자리(#14). 성적표를 다 읽고 나서 "이상한데 어디로 묻지" 가 남으면
+       학부모는 아무 데도 안 묻는다 — 그러면 틀린 채로 굳는다. 선생님이 정하신
+       창구는 **카카오톡 메시지** 하나다. 하나만 적는다(둘을 적으면 고른다). */
+    var askHtml='<p class="fpn__ask">성적표에 이상한 점이 있거나 더 여쭐 것이 있으시면 '
+      +'<b>조준모T 카카오톡 메시지</b>로 연락 주세요.</p>';
+    return '<div class="fpn"><span class="fpn__lab">학부모님께</span><p>'+p1+'</p><p>'+p2+'</p>'+bHtml+askHtml+'</div>';
   }catch(e){ return ''; }
 }
 function closingSecFinal(nm, exam, correct, total, W, pct){
@@ -5168,6 +5404,9 @@ function scoreAuto(again){
   if(!again) saveSubs(cur.id,arr);
   const cs=cohortStats(cur); SNO=0; window.__fw=wrong;
   if(!again) saveToSheetFinal(cur,sel,correct,total,W,cs,nm,sch,grd,pct);
+  /* 채점이 끝났으니 치다 만 것은 지운다 — 남겨 두면 다음 학생 칸에 앞사람
+     답이 떠오른다(선생님 결정 #28). */
+  if(!again) draftClear(cur.id);
   /* 이 학생의 전 회차를 시트에서 받아 둔다. 어느 기기에서 채점했든 시트에
      들어 있다 — 이 브라우저 기록만 세면 학부모 폰에서 '2회 응시' 가 된다.
      도착하면 rerenderReport 가 화면을 다시 그린다. */
@@ -5180,7 +5419,7 @@ function scoreAuto(again){
   app.innerHTML=`${window.__sharedReport?'':'<button class="back" onclick="renderList()">‹ 시험 목록</button>'}
    <div id="repPDF">
    <h2 class="serif" style="margin:6px 0 2px;font-size:20px">${esc(cur.title)} · 성적표</h2>
-   ${nm?`<div class="muted">${esc(nm)}${sch?' · '+esc(sch):''}${grd?' · '+esc(grd)+'학년':''}</div>`:''}
+   ${nm?`<div class="muted">${esc(nm)}${sch?' · '+esc(sch):''}${grd?' · '+esc(grd)+'학년':''}${window.__gradedOn?` · 채점 ${window.__gradedOn}`:''}</div>`:''}
    ${finalHero(nm,cur,correct,total,W,pct)}
    ${nextGuideCta(nm,cur,wrong)}
    ${narrativeSec(cur,sel)}
@@ -5217,7 +5456,7 @@ function scoreAuto(again){
         Word 저장과 미니 시험지는 남긴다 — 학부모가 실제로 쓰는 것들이다
         (선생님 확인: 학생은 화면과 워드파일을 둘 다 쓴다).
         `#r=` 로 열렸을 때만 뺀다 — 선생님 화면은 그대로다. */''}
-   <div class="toolbar"><button class="btn" onclick="downloadReportDOCX()">📝 성적표 Word 저장 ↓</button><button class="btn ghost sm" onclick="printRetest()">동형 미니 시험지 인쇄 🖨</button>${window.__sharedReport?'':'<button class="btn ghost sm" onclick="exportReportHTML()">공유용 HTML 저장 ↓</button>'}
+   <div class="toolbar"><button class="btn" onclick="downloadReportDOCX()">📝 성적표 Word 저장 ↓</button>${window.__sharedReport?'':'<button class="btn sm" onclick="copyReportLink()">성적표 링크 복사 ⧉</button>'}<button class="btn ghost sm" onclick="printRetest()">동형 미니 시험지 인쇄 🖨</button>${window.__sharedReport?'':'<button class="btn ghost sm" onclick="exportReportHTML()">공유용 HTML 저장 ↓</button>'}
      <a class="pdf" href="sol-final-${cur.id}.html" target="_blank" rel="noopener">${examSolLabel(cur)} ↗</a>
      ${cur.answerPdf?`<a class="pdf" href="${esc(cur.answerPdf)}" download>공식 정답 PDF ↓</a>`:''}
      ${cur.bookPdf?`<a class="pdf" href="${esc(cur.bookPdf)}" download>문제편·해설편 PDF ↓</a>`:''}
@@ -5940,7 +6179,29 @@ async function downloadReportDOCX(){
     txt(nm||'학생',{align:AlignmentType.CENTER,bold:true,size:38,serif:true,after:60}),
     txt([sch,grd?grd+'학년':''].filter(Boolean).join('  ·  '),{align:AlignmentType.CENTER,color:MUT,size:20,after:36}),
     txt('성취 지표 · 영역별 진단 · 오답 정밀 분석 · 학습 처방 · 개념 강의 교재',{align:AlignmentType.CENTER,color:GOLD,size:16,after:60}),
-    txt('발행일  '+(function(){try{return new Date().toLocaleDateString('ko-KR');}catch(e){return '';}})(),{align:AlignmentType.CENTER,color:MUT,size:14}),
+    /* ── 표지가 이미 답을 말한다 (#9) ──────────────────────────────────
+       한 장 요약은 표지 **바로 뒤**에 있었다. 그런데 이 문서는 60쪽이 넘고,
+       학부모가 열어서 처음 보는 장은 표지다. 거기 이름과 제목만 있으면
+       "그래서 어떻게 됐다는 건가" 를 들고 한 번 더 넘겨야 한다.
+
+       한 장 요약을 표지 앞으로 옮기지는 않는다 — 표지가 없는 성적표는 봉투
+       없이 온 편지 같다. 대신 **표지가 결론 한 줄을 이미 말하게** 한다.
+       숫자 셋만 둔다. 나머지는 다음 장이 한다. */
+    (function(){
+      try{
+        var bits=[aw.name, correct+'/'+total+'  ('+pct+'%)'];
+        var _rp0=rankPool(cur,cs);
+        if(_rp0.ready) bits.push('상위 '+(100-percentile(_rp0.pool,correct))+'%');
+        return txt(bits.join('      ·      '),
+                   {align:AlignmentType.CENTER,bold:true,color:EM,size:22,before:40,after:70});
+      }catch(e){ return P([],{after:0}); }
+    })(),
+    /* 발행일은 **이 파일을 만든 날**이다. 학부모가 두 달 뒤에 열어 저장하면
+       오늘이 찍힌다 — 그래서 언제 본 시험인지 알 수가 없었다(#17).
+       채점한 날은 링크에 실려 온다. 없으면(옛 링크) 아무 말도 안 한다. */
+    txt((window.__gradedOn?('채점일  '+window.__gradedOn+'      '):'')
+        +'발행일  '+(function(){try{return new Date().toLocaleDateString('ko-KR');}catch(e){return '';}})(),
+        {align:AlignmentType.CENTER,color:MUT,size:14}),
     PB());
 
 
@@ -6483,7 +6744,14 @@ async function downloadReportDOCX(){
   }catch(e){}
 
   // ── 마무리 ──
-  body.push(P([],{before:200}),logoPara(dawonLogo,120,{before:60,after:60}),P([run('이 리포트는 '+(nm||'학생')+' 학생을 위한 개인 맞춤 분석 자료입니다.  ·  Chemistreal · 조준모 화학',{color:MUT,size:16,i:true})],{align:AlignmentType.CENTER,before:200}));
+  /* 연락 자리(#14). 화면에는 학부모 문단 아래 붙였는데, **종이로 남는 것은
+     이쪽**이다 — 학부모가 Word 를 받아 두고 한 달 뒤에 의문이 생기면 화면이
+     아니라 이 파일을 연다. 창구는 하나만 적는다(둘을 적으면 고른다). */
+  body.push(P([],{before:200}),logoPara(dawonLogo,120,{before:60,after:60}),
+    P([run('성적표에 이상한 점이 있거나 더 여쭐 것이 있으시면  ',{color:MUT,size:17}),
+       run('조준모T 카카오톡 메시지',{bold:true,color:EM,size:17}),
+       run('  로 연락 주세요.',{color:MUT,size:17})],{align:AlignmentType.CENTER,before:120,after:40}),
+    P([run('이 리포트는 '+(nm||'학생')+' 학생을 위한 개인 맞춤 분석 자료입니다.  ·  Chemistreal · 조준모 화학',{color:MUT,size:16,i:true})],{align:AlignmentType.CENTER,before:80}));
 
   // 프레임/표지는 헤더 이미지로(모든 뷰어에서 안정적으로 모든 페이지에 표시)
   var firstHdr=new Header({children:[bgFullPara(coverBg,'jpg')]});
@@ -6515,6 +6783,11 @@ function boot(){
   /* 링크에 실려 온 또래 통계(합계만). 개인 기록은 들어 있지 않다. */
   window.__csLink=null;
   const sm=location.hash.match(/[#&]s=([A-Za-z0-9_-]+)&/);
+  /* 링크에 실려 온 채점일(#17). 없으면 옛 링크다 — 그때는 아무 말도 안 한다.
+     모르는 것을 오늘 날짜로 메우면 **틀린 것처럼 보이지 않으면서 틀린다.** */
+  window.__gradedOn=null;
+  try{ const tm=location.hash.match(/[#&]t=(\d{8})&/);
+       if(tm) window.__gradedOn=tm[1].slice(0,4)+'-'+tm[1].slice(4,6)+'-'+tm[1].slice(6,8); }catch(e){}
   if(m){ const ex=FINAL_EXAMS.find(e=>e.id===m[1]); if(ex){ if(sm) window.__csLink={id:ex.id,raw:sm[1]}; openExam(ex.id); fShared=true; let n=0n; for(const c of m[2]) n=n*36n+BigInt(parseInt(c,36)); for(let q=1;q<=ex.nQ;q++){ const v=Number(n%5n); n=n/5n; if(v) setAns(q,v); } const ne=document.getElementById('nm'), xe=document.getElementById('exno'); if(m[4]&&ne) ne.value=decName(m[4]); if(m[3]&&xe) xe.value=m[3]; scoreAuto();
     /* 링크에 실린 인원은 링크를 지은 순간의 것이다. 지금 몇 명인지 시트에
        물어 보고, 오면 그 숫자로 다시 그린다. 화면은 먼저 띄운다 —

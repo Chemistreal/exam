@@ -30,6 +30,9 @@ const { spawnSync } = require('child_process');
 
 const ROOT = path.join(__dirname, '..');
 const WF = path.join(ROOT, '.github', 'workflows', 'tests.yml');
+/* 검사마다 **몇 초 걸렸는지** 적어 둔다. 다음 번에 빠른 것부터 돌리려고
+   쓰고, `--fast` 가 무엇을 고를지도 여기서 정한다. 손으로 안 적는다. */
+const DUR = path.join(__dirname, 'durations.json');
 
 const C = { ok: '\x1b[32m', skip: '\x1b[33m', bad: '\x1b[31m', dim: '\x1b[2m', off: '\x1b[0m' };
 const pad = (s, n) => s + ' '.repeat(Math.max(0, n - [...s].length));
@@ -57,7 +60,11 @@ const orphan = nodeFiles.filter(f => !steps.some(c => c.includes('tests/' + f)))
 let ok = 0, skipped = 0, failed = 0;
 const skipNames = [], failNames = [];
 
+let durs = {};
+try { durs = JSON.parse(fs.readFileSync(DUR, 'utf8')); } catch (e) { durs = {}; }
+
 function run(cmd) {
+  const t0 = Date.now();
   const parts = cmd.split(/\s+/);
   /* 한 검사가 멈추면 스윕 전체가 멈춘다. 시간을 끊고 실패로 적는다 —
      '아직 도는 중' 과 '고장' 을 사람이 구분하려고 기다릴 이유가 없다. */
@@ -65,6 +72,8 @@ function run(cmd) {
   const out = (r.stdout || '') + (r.stderr || '') + (r.error ? '\n' + r.error.message : '');
   const skip = /^건너뜀:/m.test(out);
   const name = cmd.replace(/^(node|python3)\s+/, '');
+  const secs = Math.round((Date.now() - t0) / 100) / 10;
+  if (!skip) durs[cmd] = secs;
   if (r.status !== 0) {
     failed++; failNames.push(name);
     console.log(`${C.bad}실패${C.off}  ${pad(name, 34)}`);
@@ -79,15 +88,51 @@ function run(cmd) {
   }
 }
 
-console.log(`검사 ${steps.length}개 · tests/*.js ${nodeFiles.length}개\n`);
-steps.forEach(run);
+/* ── 빠른 판 ────────────────────────────────────────────────────────────
+   2026-08-11, 선생님 결정 #34·#44 — *"검사 116단계가 12분. 선생님이 손으로
+   돌리기엔 길다"*, *"판이 12분이라 실패를 늦게 안다"*.
+
+   ⚠ 빠른 판은 **전체 판이 아니다.** 이 저장소가 가장 경계하는 것이 «건너뛴
+     것을 초록으로 세는 것» 이라, 여기서는 끝에 반드시 무엇을 안 돌렸는지
+     적고 «통과» 라고 말하지 않는다.
+
+   무엇이 빠른지는 **지난번에 잰 값**(tests/durations.json)에서 고른다.
+   손으로 목록을 적으면 검사가 늘 때마다 갈라진다. */
+const FAST = process.argv.includes('--fast') || process.env.FAST === '1';
+const FAST_MAX = Number(process.env.FAST_MAX || 6);   // 초
+let plan = steps, held = [];
+if (FAST) {
+  const known = steps.filter(c => durs[c] != null);
+  if (!known.length) {
+    console.log('빠른 판을 고를 잰 값이 없습니다 — 이번에는 전부 돌리고 시간을 적어 둡니다.\n');
+  } else {
+    plan = steps.filter(c => durs[c] == null || durs[c] <= FAST_MAX);
+    held = steps.filter(c => !plan.includes(c));
+  }
+}
+
+console.log(`검사 ${plan.length}개${held.length ? ` (뒤로 미룬 것 ${held.length}개)` : ''}`
+  + ` · tests/*.js ${nodeFiles.length}개\n`);
+plan.forEach(run);
 
 if (orphan.length) {
   console.log(`\n${C.skip}CI 에 걸리지 않은 검사 파일${C.off} — 만들어 놓고 안 돌리면 없는 것과 같습니다`);
   orphan.forEach(f => console.log(`  tests/${f}`));
 }
 
+try { fs.writeFileSync(DUR, JSON.stringify(Object.keys(durs).sort()
+  .reduce((o, k) => (o[k] = durs[k], o), {}), null, 1) + '\n'); } catch (e) {}
+
 console.log(`\n통과 ${ok} · 건너뜀 ${skipped} · 실패 ${failed}`);
+if (held.length) {
+  /* 여기가 빠른 판의 존재 이유이자 위험이다. **안 돌린 것을 안 적으면**
+     빠른 판이 초록일 때 사람이 다 됐다고 믿는다. */
+  const mins = Math.round(held.reduce((s2, c) => s2 + (durs[c] || 0), 0) / 6) / 10;
+  console.log(`${C.skip}\n빠른 판입니다 — ${held.length}개(약 ${mins}분)를 안 돌렸습니다. 통과가 아닙니다.${C.off}`);
+  held.slice(0, 8).forEach(c => console.log(`${C.dim}  ${c.replace(/^(node|python3)\s+/, '')}  ${durs[c]}초${C.off}`));
+  if (held.length > 8) console.log(`${C.dim}  … 그리고 ${held.length - 8}개${C.off}`);
+  console.log(`${C.dim}  전부 돌리려면 --fast 를 빼고 돌립니다.${C.off}`);
+}
 if (skipped) {
   /* 여기가 이 파일의 존재 이유다. 건너뛴 것을 초록으로 적으면, 브라우저에서만
      드러나는 고장이 커밋 여러 개를 지나간다 — 실제로 그랬다. */
@@ -97,4 +142,6 @@ if (skipped) {
 }
 if (orphan.length) console.log(`${C.skip}CI 에 안 걸린 파일 ${orphan.length}개${C.off}`);
 
-process.exit(failed || orphan.length ? 1 : 0);
+/* 빠른 판에서는 «CI 에 안 걸린 파일» 로 빨간불을 켜지 않는다. 안 돌린 것이
+   있는 판이라 그 셈이 어차피 반쪽이다. */
+process.exit(failed || (!FAST && orphan.length) ? 1 : 0);
