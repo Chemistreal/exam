@@ -698,6 +698,17 @@ def local_checks(items):
     #      주기')을 이미 적은 문장★ 만 뺀다. '이온' 이 한 글자라도 들어 있으면 면제가
     #      풀리므로 '중성 원자와 달리 이온끼리는 …' 같은 문장은 그대로 걸린다.
     NEUTRAL_SCOPE = re.compile(r'중성 원자|같은 주기')
+    #    ▸ ★T14 P13 2차에 갈래를 하나 더 넣었다★ — factchecker 가 M02263 해설의 '그것은
+    #      껍질이 하나 더 있어서고' 를 짚었는데 ★이 검사가 못 잡았다★. 위 ION_CLAIM 은
+    #      '껍질 수가 많을수록 크' 같은 ★명시형★만 세고 '껍질이 하나 더 있어서' 꼴은 세지
+    #      않았다. ★사정거리를 좁게 세운 검사는 그 좁음이 곧 사각★(P2 21차·P3 1차에 이어
+    #      세 번째다).
+    #      ★오탐부터 세었다★ — 은행 2,264 제로 재어 보니 문면만으로 넓히면 3건이 울고
+    #      ★둘이 오탐★ 이었다(중성 원자의 요인 경합을 적은 M02190 · 반례를 적은 M02162).
+    #      → ★'이온' 이 든 문장★ 으로 좁히자 걸리는 것이 그 한 자리뿐이다(정밀도 1/1).
+    #      그래서 이 갈래는 ION_CLAIM 과 달리 ★'이온' 을 필수로 요구한다.★
+    SHELL_ONE = re.compile(r'껍질(이|을)? ?(하나|둘|한 개|두 개)( 더)? ?(많|있)')
+    SIZE_WORD = re.compile(r'크|커|작')
     #    ▸ ★선지 문면은 검사 대상이 아니다★ — 오답은 거짓이어야 하므로 금지 문면 그 자체일
     #      수 있고, wmap 이 압축 줄에 그 문면을 그대로 렌더링한다. 걷어낸 뒤에 센다.
     #      (P2 14차·17차에 같은 함정에 걸렸다.)
@@ -706,7 +717,9 @@ def local_checks(items):
         for c in x['choices']:
             sol = sol.replace(c.strip(), '')
         for sent in re.split(r'(?<=[.!?])\s+', sol):
-            if not ION_CLAIM.search(sent):
+            shell_one = ('이온' in sent and SHELL_ONE.search(sent)
+                         and SIZE_WORD.search(sent))
+            if not (ION_CLAIM.search(sent) or shell_one):
                 continue
             if '"' in sent or ION_SCOPE.search(sent):
                 continue
