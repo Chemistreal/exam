@@ -57,6 +57,16 @@ const EXAM = 'hwol-2018';   // 전국 공식 정답률(rate)이 실려 있는 �
   const errs = [];
   p.on('pageerror', e => errs.push(String(e).slice(0, 90)));
 
+  /* 오답노트를 그리는 `hydrateWrongbook` 은 **async** 다. 그 안에서 무엇이
+     던지면 화면에는 아무 일도 안 일어나고 `pageerror` 도 안 뜬다 — 삼켜진
+     약속이 되어 `unhandledrejection` 으로만 남는다. 그것도 같이 줍는다.
+     (2026-08-11: CI 에서 카드가 안 그려졌는데 자가 «60초 지났다» 밖에 못
+      말했다. **왜** 안 그려졌는지는 여기서 줍는 것들이 말해 준다) */
+  await p.addInitScript(() => {
+    window.__rej = [];
+    addEventListener('unhandledrejection', e =>
+      window.__rej.push(String((e.reason && e.reason.stack) || e.reason).slice(0, 300)));
+  });
   await p.goto(`http://localhost:${PORT}/final.html`, { waitUntil: 'load', timeout: 40000 });
   await p.waitForFunction(() => typeof FINAL_EXAMS !== 'undefined' && FINAL_EXAMS.length,
     null, { timeout: 30000 });
@@ -74,8 +84,27 @@ const EXAM = 'hwol-2018';   // 전국 공식 정답률(rate)이 실려 있는 �
     }
     scoreAuto();
   }, EXAM);
-  await p.waitForFunction(() => document.querySelectorAll('.wb-card').length > 0,
-    null, { timeout: 60000 });
+  /* ⚠ 여기서 그냥 기다리다 끊기면 자는 «60초 지났다» 만 남긴다. 그것은
+       고장난 곳을 안 짚는 말이라, 다음 사람이 처음부터 다시 뒤져야 한다.
+       못 그렸으면 **화면이 어디까지 갔는지**를 적고 죽는다. */
+  const drawn = await p.waitForFunction(() => document.querySelectorAll('.wb-card').length > 0,
+    null, { timeout: 60000 }).then(() => true, () => false);
+  if (!drawn) {
+    const d = await p.evaluate(() => ({
+      성적표: (document.getElementById('app') || {}).innerHTML ? 1 : 0,
+      오답수: (window.__fw || []).length,
+      오답노트틀: !!document.getElementById('wrongbook'),
+      카드자리: !!document.querySelector('[data-wb-cards]'),
+      카드자리글자: ((document.querySelector('[data-wb-cards]') || {}).innerHTML || '').length,
+      기다리는중표시: !!document.querySelector('[data-wb-loading]'),
+      삼켜진오류: window.__rej || [],
+    })).catch(e => ({ 못읽음: String(e).slice(0, 120) }));
+    console.log('  FAIL  오답노트 카드가 60초 안에 안 그려졌다');
+    console.log('        화면: ' + JSON.stringify(d, null, 0));
+    console.log('        페이지 오류: ' + (errs.length ? errs.join(' | ') : '없음'));
+    await ctx.close(); await browser.close(); srv.stop();
+    process.exit(1);
+  }
 
   const n = await p.evaluate(() => document.querySelectorAll('.wb-card').length);
   console.log(`\n오답 ${n}문항짜리 성적표\n`);
