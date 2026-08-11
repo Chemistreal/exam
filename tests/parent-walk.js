@@ -1,0 +1,156 @@
+/* ============================================================
+   **학부모가 걷는 길**을 그대로 걸어 본다 (브라우저 필요)
+   ------------------------------------------------------------
+   2026-08-10, 선생님 — *"한번더 학부모 관점에서 모든 페이지를 검수해줘"*.
+
+   258장을 다 읽는 게 아니라, **문자를 받고 손가락이 갈 수 있는 곳**을 걷는다.
+   걸어 보니 둘이 나왔다.
+
+   ① 한 아이의 성적표가 **모든 학생 명단으로 가는 문**이었다
+
+       학부모 링크(#r=…) 를 열면 암호를 안 묻는다 — 그건 맞다, 그 주소가
+       열쇠다. 그런데 화면에 `‹ 시험 목록` 단추가 그대로 있었고, 그것을
+       누르면 해시가 비면서 **선생님 콘솔이 암호 없이** 열렸다.
+
+           명단 관리 ⚙ · 시트에서 불러오기 ↓ · 학생 제출 링크 복사 ⧉
+           통합관리 ⌂ (DT·KMChC 까지) · 백업 내려받기 ↓
+
+       암호 검사는 **열 때 한 번만** 돌기 때문이다. 학부모가 나쁜 마음을
+       먹어야 열리는 것도 아니었다 — 단추가 눈에 보였다.
+
+   ② 들어가면 **못 돌아 나오는 화면**이 둘 있었다
+
+       강의 한 장(lec-*)에는 `‹ 성적표로` 가 진작 있었는데,
+       **개념강의 목차**와 **해설지**에는 없었다. 학부모는 휴대폰으로 연다.
+       화면 안에 길이 없으면 거기서 끝난다.
+
+   여기서 지키는 것
+   ----------------
+     · 학부모 화면에 **선생님 문이 안 보인다**(시험 목록 · 공유용 HTML 저장)
+     · 성적표 밖으로 나가면 **문고리를 다시 건다**
+     · 성적표에서 나가는 세 갈래(목차 · 해설 · 강의)가 모두
+       **자기 성적표로 돌아온다**
+
+   ⚠ 문고리는 자물쇠가 아니다(final.html 의 gate 주석). 이 검사가 지키는 것은
+     "잠갔다" 가 아니라 **"학부모에게 그 문을 보여 주지 않는다"** 이다.
+
+   실행:
+       PLAYWRIGHT_MODULE=… CHROMIUM_PATH=… node tests/parent-walk.js
+   ============================================================ */
+'use strict';
+require('./_watchdog.js')(180);
+
+const PLAYWRIGHT = process.env.PLAYWRIGHT_MODULE || 'playwright';
+const PORT = Number(process.env.PORT || 8931);
+const BASE = `http://localhost:${PORT}/`;
+
+let fail = 0;
+const chk = (n, ok, extra) => {
+  console.log((ok ? '  PASS  ' : '  FAIL  ') + n + (extra ? '  ' + extra : ''));
+  if (!ok) fail++;
+};
+
+let chromium;
+try { ({ chromium } = require(PLAYWRIGHT)); }
+catch (e) {
+  if (process.env.REQUIRE_BROWSER) {
+    console.log('실패: playwright 를 찾지 못했다 (REQUIRE_BROWSER 가 켜져 있다)');
+    process.exit(1);
+  }
+  console.log('건너뜀: playwright 를 찾지 못했다'); process.exit(0);
+}
+
+(async () => {
+  const browser = await chromium.launch(Object.assign({ args: ['--no-sandbox'] },
+    process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {}));
+
+  /* ── 선생님이 성적표 링크를 만든다 ────────────────────────────── */
+  let ctx = await browser.newContext({ serviceWorkers: 'block' });
+  await ctx.route('**://script.google.com/**', r => r.abort());
+  let p = await ctx.newPage(); p.on('pageerror', () => {});
+  await p.goto(BASE + 'final.html', { waitUntil: 'load', timeout: 40000 });
+  await p.waitForFunction(() => typeof FINAL_EXAMS !== 'undefined' && FINAL_EXAMS.length,
+    null, { timeout: 30000 });
+  const link = await p.evaluate(() => {
+    const ex = FINAL_EXAMS.find(e => e.id === 'hwol-2017'); openExam('hwol-2017');
+    let ok = 0;
+    for (let q = 1; q <= ex.nQ; q++) {
+      if (q > 45) { setAns(q, 0); continue; }
+      if (ok < 26) { setAns(q, ex.key[q - 1]); ok++; } else setAns(q, (ex.key[q - 1] % 4) + 1);
+    }
+    return shareLinkFinal(ex, sel, '박하람');
+  });
+  await ctx.close();
+  const url = link.replace(/^https?:\/\/[^/]+\//, BASE);
+
+  /* ── 학부모 기기: 아무 기록도 없는 새 브라우저 · 휴대폰 폭 ────── */
+  ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+  await ctx.route('**://script.google.com/**', r => r.abort());
+  p = await ctx.newPage();
+  const errs = []; p.on('pageerror', e => errs.push(String(e).slice(0, 90)));
+  await p.goto(url, { waitUntil: 'load', timeout: 40000 });
+  /* 고정 대기를 쓰지 않는다(tools/blind_wait.py). 성적표는 exams.json 을 받아
+     온 뒤에 그려지므로, **그려졌다는 사실**을 기다린다. */
+  await p.waitForFunction(() => /해당|수상권|정답률/.test(document.body.innerText || ''),
+    null, { timeout: 30000 });
+
+  console.log('\n── 학부모가 문자 링크를 열었다 ──');
+  const open = await p.evaluate(() => ({
+    gate: !!document.getElementById('gate'),
+    back: !!document.querySelector('button.back'),
+    share: [...document.querySelectorAll('button')].some(b => /공유용/.test(b.textContent || '')),
+    word: [...document.querySelectorAll('button')].some(b => /Word 저장/.test(b.textContent || '')),
+    len: (document.body.innerText || '').length
+  }));
+  chk('성적표는 암호를 묻지 않는다 (주소가 열쇠다)', !open.gate, true);
+  chk('성적표가 실제로 그려졌다', open.len > 3000, `(${open.len}자)`);
+  chk('`‹ 시험 목록` 이 안 보인다 — 선생님 문이다', !open.back, true);
+  chk('`공유용 HTML 저장` 이 안 보인다 — 선생님 단추다', !open.share, true);
+  chk('`성적표 Word 저장` 은 그대로 있다 (학부모가 쓴다)', open.word, true);
+
+  /* ── 성적표 밖으로 나가면 문고리를 다시 거는가 ────────────────── */
+  await p.evaluate(() => { location.hash = ''; });
+  const outside = await p.waitForSelector('#gate', { timeout: 15000 })
+    .then(() => true).catch(() => false);
+  chk('성적표 밖으로 나가면 다시 코드를 묻는다', outside, true);
+
+  /* ── 세 갈래가 모두 자기 성적표로 돌아오는가 ──────────────────────
+     ⚠ **새 창에서 건는다.** 바로 위에서 문고리를 시험하느라 이 창에는 암호
+       화면이 덮여 있다. 그 위에서 링크를 누르면 덮개가 눌린다 — 검사가
+       화면을 못 만지는 것을 '길이 없다' 로 잘못 읽는다(실제로 한 번 그랬다). */
+  await p.close();
+  p = await ctx.newPage();
+  p.on('pageerror', e => errs.push(String(e).slice(0, 90)));
+  console.log('\n── 성적표에서 나가는 세 갈래 ──');
+  for (const [sel, name] of [['a[href*="lecture-index"]', '개념강의 목차'],
+                             ['a[href*="sol-final"]', '해설지'],
+                             ['a[href*="lec-1"]', '개념 강의']]) {
+    await p.goto(url, { waitUntil: 'load' });
+    await p.waitForFunction(() => !!document.querySelector('a[href*="lec-"],a[href*="sol-final"]'),
+      null, { timeout: 30000 }).catch(() => {});
+    const a = await p.$(sel);
+    if (!a) { chk(`${name} 로 가는 링크가 있다`, false, '(못 찾음)'); continue; }
+    const [np] = await Promise.all([
+      ctx.waitForEvent('page').catch(() => null),
+      a.click().catch(() => {})
+    ]);
+    const t = np || p;
+    await t.waitForLoadState('load').catch(() => {});
+    await t.waitForSelector('a.back', { timeout: 10000 }).catch(() => {});
+    const r = await t.evaluate(() => {
+      const b = document.querySelector('a.back');
+      return { url: location.href, t: b ? (b.textContent || '').trim() : null,
+               h: b ? b.href : null };
+    });
+    chk(`${name} · 돌아올 자리가 주소에 실린다`, /\?from=/.test(r.url), true);
+    chk(`${name} · 화면 안에 돌아가는 길이 있다`, !!r.t, r.t ? `"${r.t}"` : '(없다)');
+    chk(`${name} · 그 길이 자기 성적표를 가리킨다`, /#r=/.test(r.h || ''), true);
+    if (np) await np.close();
+  }
+
+  console.log('\n' + (errs.length ? 'JS 오류: ' + errs.slice(0, 3).join(' | ') : 'JS 오류 없음'));
+  if (errs.length) fail++;
+  await browser.close();
+  console.log(fail ? `\n실패 ${fail}건` : '\n학부모가 걷는 길이 막히지도, 남의 자리로 새지도 않는다.');
+  process.exit(fail ? 1 : 0);
+})();

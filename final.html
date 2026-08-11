@@ -793,8 +793,31 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
       return (Date.now() - Number(v)) < DAYS * 864e5;
     } catch (e) { return false; }
   }
-  // 학부모 성적표 링크는 그대로 열어 준다
-  if (/[#&]r=/.test(location.hash) || passed()) return;
+  /* 학부모 성적표 링크는 그대로 열어 준다.
+
+     ⚠ **그런데 여기서 통과시키고 끝이었다.** 이 검사는 열 때 한 번만 돈다.
+       학부모가 성적표에서 `‹ 시험 목록` 을 누르면 해시가 비고, 그러면 선생님
+       콘솔이 **암호 없이** 그대로 열렸다 —
+
+           명단 관리 ⚙ · 시트에서 불러오기 ↓ · 학생 제출 링크 복사 ⧉
+           통합관리 ⌂ (DT·KMChC 까지) · 백업 내려받기 ↓
+
+       한 아이의 성적표로 보낸 주소가 **모든 학생 명단으로 가는 문**이었다.
+       학부모가 나쁜 마음을 먹어야 열리는 것도 아니다. 화면에 단추가 보인다.
+       (2026-08-10, 학부모 눈으로 훑다 찾음)
+
+     이 문고리는 자물쇠가 아니다(위 주석). 그래도 **문고리를 아예 떼어 두는
+     것**과는 다르다. 성적표 밖으로 나가면 다시 건다. */
+  window.__sharedReport = /[#&]r=/.test(location.hash);
+  if (window.__sharedReport) {
+    /* 성적표에서 벗어나는 순간 다시 묻는다. 이미 통과한 브라우저(선생님
+       기기)는 passed() 가 참이라 안 묻는다 — 선생님 일에는 방해가 없다. */
+    window.addEventListener('hashchange', function () {
+      if (!/[#&]r=/.test(location.hash) && !passed()) location.reload();
+    });
+    return;
+  }
+  if (passed()) return;
 
   var wrap = document.createElement('div');
   wrap.id = 'gate';
@@ -5149,7 +5172,12 @@ function scoreAuto(again){
      들어 있다 — 이 브라우저 기록만 세면 학부모 폰에서 '2회 응시' 가 된다.
      도착하면 rerenderReport 가 화면을 다시 그린다. */
   if(!again) loadHist(nm);
-  app.innerHTML=`<button class="back" onclick="renderList()">‹ 시험 목록</button>
+  /* ⚠ `‹ 시험 목록` 은 **선생님 문**이다. 여기서 목록으로 가면 명단 관리 ·
+       시트에서 불러오기 · 학생 제출 링크 · 통합관리가 나온다. 학부모가 받은
+       성적표 링크에 그 문이 보이면 안 된다 — 한 아이의 성적표가 모든 학생
+       명단으로 가는 길이 된다. `#r=` 로 열렸을 때만 뺀다.
+       (문고리도 같이 다시 걸어 뒀다 — 위 gate 주석) */
+  app.innerHTML=`${window.__sharedReport?'':'<button class="back" onclick="renderList()">‹ 시험 목록</button>'}
    <div id="repPDF">
    <h2 class="serif" style="margin:6px 0 2px;font-size:20px">${esc(cur.title)} · 성적표</h2>
    ${nm?`<div class="muted">${esc(nm)}${sch?' · '+esc(sch):''}${grd?' · '+esc(grd)+'학년':''}</div>`:''}
@@ -5184,7 +5212,12 @@ function scoreAuto(again){
    ${methodSec(cur)}
    ${wrongbookShell(cur,wrong)}
    </div>
-   <div class="toolbar"><button class="btn" onclick="downloadReportDOCX()">📝 성적표 Word 저장 ↓</button><button class="btn ghost sm" onclick="printRetest()">동형 미니 시험지 인쇄 🖨</button><button class="btn ghost sm" onclick="exportReportHTML()">공유용 HTML 저장 ↓</button>
+   ${/* ⚠ `공유용 HTML 저장` 은 **선생님 단추**다. 학부모는 이미 받은 사람이라
+        그 자리에서 할 일이 아니고, 있으면 "이걸 눌러야 하나" 를 만든다.
+        Word 저장과 미니 시험지는 남긴다 — 학부모가 실제로 쓰는 것들이다
+        (선생님 확인: 학생은 화면과 워드파일을 둘 다 쓴다).
+        `#r=` 로 열렸을 때만 뺀다 — 선생님 화면은 그대로다. */''}
+   <div class="toolbar"><button class="btn" onclick="downloadReportDOCX()">📝 성적표 Word 저장 ↓</button><button class="btn ghost sm" onclick="printRetest()">동형 미니 시험지 인쇄 🖨</button>${window.__sharedReport?'':'<button class="btn ghost sm" onclick="exportReportHTML()">공유용 HTML 저장 ↓</button>'}
      <a class="pdf" href="sol-final-${cur.id}.html" target="_blank" rel="noopener">${examSolLabel(cur)} ↗</a>
      ${cur.answerPdf?`<a class="pdf" href="${esc(cur.answerPdf)}" download>공식 정답 PDF ↓</a>`:''}
      ${cur.bookPdf?`<a class="pdf" href="${esc(cur.bookPdf)}" download>문제편·해설편 PDF ↓</a>`:''}
@@ -6514,7 +6547,16 @@ document.addEventListener('click', function(e){
   var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
   if(!a) return;
   var h = a.getAttribute('href') || '';
-  if(!/^lec-[\w-]+\.html/.test(h)) return;
+  /* ⚠ 여기가 `lec-*.html` 만 봤다. 학부모 눈으로 훑어 보니 **들어가면 못
+       돌아 나오는 화면이 둘 더** 있었다(2026-08-10).
+
+           lecture-index.html    헤더의 '개념강의 목차 →' — 돌아갈 길 없음
+           sol-final-*.html      성적표 아래 해설 링크 — 돌아갈 길 없음
+
+       강의 한 장에는 `‹ 성적표로` 가 붙는데 목차와 해설에는 없었다. 학부모는
+       휴대폰으로 연다 — 뒤로 가기를 눌러도 되지만, **화면 안에 길이 없으면
+       거기서 끝난다.** 같은 규칙을 셋에 다 준다. */
+  if(!/^(lec-[\w-]+|lecture-index|sol-final-[\w-]+)\.html/.test(h)) return;
   if(!/[#&]r=/.test(location.hash)) return;
   var base = h.split('?')[0].split('#')[0];
   a.setAttribute('href', base + '?from=' + encodeURIComponent(location.href));

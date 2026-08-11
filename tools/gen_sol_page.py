@@ -48,6 +48,9 @@ header{padding:26px 20px 16px;border-bottom:1px solid var(--line);background:#ff
 .logo{font-size:11.5px;letter-spacing:.14em;color:var(--teal);font-weight:700}
 h1{margin:6px 0 4px;font-size:23px;font-family:'Iropke Batang',serif}
 .sub{color:var(--ink2);font-size:13.5px}
+/* 돌아가는 길. 강의 페이지와 같은 모양으로 둔다 — 학부모가 두 화면을
+   오가므로 같은 자리에 같은 것이 있어야 헷갈리지 않는다. */
+.back{display:inline-block;margin-top:12px;color:var(--teal);text-decoration:none;font-size:14px;font-weight:600;padding:6px 0}
 .warn{margin:12px 20px 0;padding:10px 13px;border:1px solid #E0C9A6;background:#FFF8EC;
  border-radius:8px;font-size:13px;color:#7a5a22}
 main{max-width:860px;margin:0 auto;padding:16px 20px 60px}
@@ -122,7 +125,14 @@ def build(exam_id: str) -> str:
            f"<div class=\"sub\">문항별 정답 · 영역 · 개념"
            f"{' · 사고과정 해설' if has_exp else ''} · {exam['nQ']}문항</div>",
            "<div class=\"sub\" style=\"margin-top:6px\">문제 지문은 문제지(PDF)에 있습니다 — "
-           "성적표 화면에서 함께 내려받을 수 있습니다.</div></header>"]
+           "성적표 화면에서 함께 내려받을 수 있습니다.</div>"
+           # ⚠ 돌아가는 길이 없었다. 학부모가 성적표에서 '해설지' 를 누르면
+           #   11,000자짜리 이 화면이 열리는데 **화면 안에 나가는 문이 없다.**
+           #   휴대폰 뒤로 가기를 눌러도 되지만, 길이 안 보이면 거기서 끝난다.
+           #   강의 페이지(lec-*)는 진작 `‹ 성적표로` 를 달고 있었다 — 같은
+           #   규칙을 여기에도 준다(2026-08-10, 학부모 눈으로 훑다 찾음).
+           #   ?from= 이 실려 오면 아래 조각이 '‹ 성적표로' 로 바꾼다.
+           "<a class=\"back\" href=\"final.html\">‹ 파이널로</a></header>"]
 
     if exam.get("answerPdf") or exam.get("bookPdf"):
         links = "".join(
@@ -160,6 +170,17 @@ def build(exam_id: str) -> str:
                 out.append(f"<div class=\"rev\"><b>확인 필요</b> {esc(r['reviewNote'])}</div>")
             out.append("</div>")
 
+    # 성적표에서 왔으면 성적표로 돌려보낸다(lec-*.html 과 같은 규칙).
+    # 주소를 **받기만** 하고 믿지는 않는다 — 같은 곳의 final.html 이고
+    # 성적표(#r=)일 때만 쓴다. 남이 심어 둔 주소로 내보내지 않는다.
+    out.append("""<script data-lec-back>
+(function(){function ok(raw){if(!raw)return null;try{var u=new URL(raw,location.href);
+if(u.origin!==location.origin)return null;if(!/(^|\\/)final\\.html$/.test(u.pathname))return null;
+if(!/[#&]r=/.test(u.hash))return null;return u.href;}catch(e){return null;}}
+try{var a=document.querySelector('a.back');if(!a)return;
+var to=ok(new URL(location.href).searchParams.get('from'));if(!to)return;
+a.href=to;a.textContent='\\u2039 \\uc131\\uc801\\ud45c\\ub85c';}catch(e){}})();
+</script>""")
     out.append("</main></body></html>")
     return "\n".join(out) + "\n"
 

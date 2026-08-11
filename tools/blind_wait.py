@@ -43,6 +43,12 @@ CEIL = {
     'tests/grading-input.js': (8, 8300),
     'tests/prereq-drill.js': (4, 7000),
     'tests/gate.js': (6, 5150),
+    # 2026-08-10 — 표에 없어 기본 천장(4군데·4000ms)을 쓰고 있던 것들.
+    # 실제로는 훨씬 적게 자므로 그 값으로 박아 둔다. 그래야 도로 늘면 걸린다.
+    'tests/area-verdict.js': (1, 700),
+    'tests/narrow.js': (2, 1050),
+    # 학부모가 걷는 길. 처음부터 조건 대기로 지었다 — 고정 대기가 없다.
+    'tests/parent-walk.js': (0, 0),
     'tests/rank-baseline.js': (3, 5200),
     'tests/docx-report.js': (3, 4900),
     'tests/wrongbook-interactive.js': (4, 4600),

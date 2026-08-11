@@ -2,6 +2,9 @@
 :root{--cream:#FBFAF6;--paper:#fff;--ink:#23201b;--ink-2:#5a564d;--muted:#6f6a5e;--teal:#0E5A4C;--teal-d:#3A7A6B;--brass:#B08D57;--line:#E8E4DA;--ms:#C0603A;--ok-bg:#eef5f2;--mono:ui-monospace,Menlo,monospace}
 *{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:-apple-system,"Noto Sans KR",sans-serif;line-height:1.6}
 .serif{font-family:"Nanum Myeongjo",Georgia,serif}
+/* 돌아가는 길. 학부모가 성적표에서 이 목차로 들어오면 나가는 문이
+   없었다 — 강의 한 장에는 있는데 목차에는 없었다(2026-08-10). */
+.back{display:inline-block;margin-top:12px;color:#EAC983;text-decoration:none;font-size:14px;font-weight:600;padding:6px 0}
 header{background:linear-gradient(180deg,#0E5A4C,#0b4a3f);color:#fff;padding:30px 20px 26px;text-align:center}
 header .logo{font-size:12px;letter-spacing:.2em;opacity:.82;font-weight:600}
 header h1{margin:8px 0 6px;font-size:27px}
@@ -41,7 +44,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
   header .sub{letter-spacing:.01em}
 }</style>
 </head>
-<body><header><div class="logo">CHEMISTREAL · 개념강의</div><h1 class="serif">전체 목차</h1><div class="sub">진단 보강용 개념강의 · 16개 영역</div><div class="stat">125강 · 16영역 · 인라인 도해 52</div></header>
+<body><header><div class="logo">CHEMISTREAL · 개념강의</div><h1 class="serif">전체 목차</h1><div class="sub">진단 보강용 개념강의 · 16개 영역</div><div class="stat">125강 · 16영역 · 인라인 도해 52</div><a class="back" href="final.html">‹ 파이널로</a></header>
 <main>
 <div class="intro">진단 성적표에서 잡힌 보강 개념의 강의로 바로 이동할 수 있어. 각 영역은 개념 순서대로 배열돼 있고, 영역 끝에는 종합강이 있어. <span style="color:var(--brass)">◆</span> 표시는 도해(그림)가 포함된 강의야.</div>
 <section class="area" id="area-01"><div class="ah"><span class="abadge">01</span><div><div class="aname">원자모형</div><div class="arange">001–010 · 10강</div></div></div>
@@ -79,4 +82,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 </section>
 </main>
 <footer>Chemistreal · 개념강의 전체 목차 · 125강 완결<div class="legend">각 강의 카드를 누르면 해당 개념강의로 이동합니다 · <span style="color:var(--brass)">◆</span> 도해 포함</div></footer>
+<script data-lec-back>
+/* 성적표에서 왔으면 성적표로 돌려보낸다. 주소를 받기만 하고 믿지는 않는다 —
+   같은 곳의 final.html 이고 성적표(#r=)일 때만 쓴다. */
+(function(){function ok(raw){if(!raw)return null;try{var u=new URL(raw,location.href);
+if(u.origin!==location.origin)return null;if(!/(^|\/)final\.html$/.test(u.pathname))return null;
+if(!/[#&]r=/.test(u.hash))return null;return u.href;}catch(e){return null;}}
+try{var a=document.querySelector('a.back');if(!a)return;
+var to=ok(new URL(location.href).searchParams.get('from'));if(!to)return;
+a.href=to;a.textContent='\u2039 \uc131\uc801\ud45c\ub85c';}catch(e){}})();
+</script>
 </body></html>
