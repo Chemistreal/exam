@@ -22,6 +22,7 @@
 'use strict';
 const path = require('path');
 const { serve } = require('./_serve.js');
+const noSheet = require('./_nosheet.js');
 
 const PLAYWRIGHT = process.env.PLAYWRIGHT_MODULE || 'playwright';
 const CHROMIUM = process.env.CHROMIUM_PATH;
@@ -51,8 +52,22 @@ const EXAM = 'hwol-2018';   // 전국 공식 정답률(rate)이 실려 있는 �
   PORT = srv.port;
   const browser = await chromium.launch(Object.assign({ args: ['--no-sandbox'] },
     CHROMIUM ? { executablePath: CHROMIUM } : {}));
+  /* ⚠ 시트 창구는 **끊지 않는다 — 빈 답을 준다.** 처음에 이 자리를
+       `ctx.route('**://script.google.com/**', r => r.abort())` 로 손수 막았다.
+       내 컴퓨터에서는 열다섯 개가 다 초록불이었는데 CI 에서는 오답노트가
+       한 장도 안 그려졌다(2026-08-11, 60초 뒤 끊김).
+
+       `tests/_nosheet.js` 머리말에 이미 적혀 있던 말이다 —
+       *"창구는 막지 않고 빈 답을 준다. 앱스크립트는 CORS 가 없어 JSONP 로
+       부르는데, **그냥 끊으면 앱이 '맞추는 중' 에서 안 넘어가는 자리가 있다**"*.
+       그리고 그 자는 주소의 `macros/s` 자리로 막는다 — 내가 쓴
+       `script.google.com` 은 302 로 넘어가는 `script.googleusercontent.com`
+       을 못 덮는다.
+
+       이미 있는 자를 안 쓰고 손으로 다시 만들면, 그 자가 값 주고 배운 것도
+       같이 안 쓰는 것이 된다. */
+  await noSheet(browser);
   const ctx = await browser.newContext({ serviceWorkers: 'block' });
-  await ctx.route('**://script.google.com/**', r => r.abort());
   const p = await ctx.newPage();
   const errs = [];
   p.on('pageerror', e => errs.push(String(e).slice(0, 90)));
@@ -84,11 +99,22 @@ const EXAM = 'hwol-2018';   // 전국 공식 정답률(rate)이 실려 있는 �
     }
     scoreAuto();
   }, EXAM);
-  /* ⚠ 여기서 그냥 기다리다 끊기면 자는 «60초 지났다» 만 남긴다. 그것은
-       고장난 곳을 안 짚는 말이라, 다음 사람이 처음부터 다시 뒤져야 한다.
-       못 그렸으면 **화면이 어디까지 갔는지**를 적고 죽는다. */
-  const drawn = await p.waitForFunction(() => document.querySelectorAll('.wb-card').length > 0,
-    null, { timeout: 60000 }).then(() => true, () => false);
+  /* ⚠ 카드가 **한 장 뜬 순간**에 읽으면 안 된다. 시트가 빈 답을 주고 나면
+       앱은 성적표를 한 번 더 그린다(loadHist → rerenderReport). 그 틈에는
+       오답노트가 잠깐 비어 있다. 실제로 그 틈에서 읽고 «사흘로 안 나뉜다 ·
+       다시 풀었음이 0개다» 라고 말했다 — 화면은 멀쩡했고, 자가 지나가는
+       순간을 본 것이다. **더 안 바뀔 때까지** 기다린다(초를 세지 않는다).
+
+     ⚠ 여기서 끊기면 자는 «60초 지났다» 만 남긴다. 그것은 고장난 곳을 안
+       짚는 말이라, 못 그렸으면 화면이 어디까지 갔는지를 적고 죽는다. */
+  const drawn = await p.waitForFunction(() => {
+    const root = document.getElementById('wrongbook');
+    if (!root || !document.querySelectorAll('.wb-card').length) return false;
+    const n = root.innerHTML.length;
+    const w = (window.__wbStable = window.__wbStable || { n: -1, k: 0 });
+    if (w.n === n) w.k++; else { w.n = n; w.k = 0; }
+    return w.k >= 4;          // 같은 크기가 네 번 잇달아 나오면 다 그린 것이다
+  }, null, { timeout: 60000, polling: 250 }).then(() => true, () => false);
   if (!drawn) {
     const d = await p.evaluate(() => ({
       성적표: (document.getElementById('app') || {}).innerHTML ? 1 : 0,
