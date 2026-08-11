@@ -272,6 +272,22 @@ summary::-webkit-details-marker{display:none}
 @media print{.fhero{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 /* 학부모님께 · 총평 */
 .fpn{background:linear-gradient(135deg,rgba(63,92,140,.06),rgba(14,90,76,.05));border:1px solid #cdd6e4;border-radius:14px;padding:20px 22px;margin:14px 0}
+.wb-prog{margin:10px 0 6px}
+.wb-prog__bar{height:6px;border-radius:4px;background:var(--sunk,#F4F1E9);overflow:hidden}
+.wb-prog__bar i{display:block;height:100%;background:var(--teal);transition:width .2s}
+.wb-prog__t{font-size:12.5px;color:var(--muted);margin-top:5px}
+.wb-band{display:flex;align-items:center;gap:10px;margin:22px 0 4px;color:var(--brass-ink,#856738);font-size:12px;font-weight:700;letter-spacing:.04em}
+.wb-band::after{content:'';flex:1;height:1px;background:var(--line)}
+.wb-redo{margin-top:14px;font:inherit;font-size:13px;font-weight:600;color:var(--teal);background:none;border:1px solid var(--line-2,#D8D2C4);border-radius:9px;padding:8px 14px;cursor:pointer}
+.wb-redo[aria-pressed="true"]{color:#fff;background:var(--teal);border-color:var(--teal)}
+.wb-card.is-redone{opacity:.62}
+.wb-card.is-redone:hover,.wb-card.is-redone:focus-within{opacity:1}
+.onestep{background:linear-gradient(135deg,rgba(58,122,107,.08),rgba(176,135,58,.06));border:1px solid rgba(58,122,107,.4);border-radius:14px;padding:20px 22px;margin:14px 0}
+.onestep__ey{font-size:11.5px;font-weight:700;letter-spacing:.05em;color:#0E5A4C;background:rgba(14,90,76,.1);display:inline-block;padding:3px 10px;border-radius:6px;margin-bottom:10px}
+.onestep__q{font-family:var(--serif);font-size:24px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.onestep__tag{font-family:var(--sans,inherit);font-size:11.5px;font-weight:600;color:var(--muted);background:var(--sunk,#F4F1E9);padding:3px 9px;border-radius:6px}
+.onestep__why{font-size:13.5px;line-height:1.75;color:var(--ink-2);margin-bottom:14px}
+.onestep__go{cursor:pointer;display:inline-block;background:#0E5A4C;color:#fff;font-weight:700;font-size:14px;border-radius:10px;padding:10px 17px;text-decoration:none}
 .fpn__ask{margin-top:11px;padding-top:9px;border-top:1px solid rgba(120,95,35,.22);font-size:12.5px;color:#6a5a38}
 .fpn__lab{display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.04em;color:#3F5C8C;background:rgba(63,92,140,.1);padding:3px 9px;border-radius:6px;margin-bottom:10px}
 .fpn p{margin:8px 0;font-size:13.5px;line-height:1.75;color:var(--ink-2)}
@@ -2493,6 +2509,16 @@ function percSec(exam,my,cs){
   const curve=bellCurveSVG(rp.pool, my, exam.nQ);
   const bar=`<div class="barrow" style="margin-top:8px"><span class="ba">내 위치</span><span class="bar" style="height:12px;position:relative"><span style="position:absolute;left:${ci.lo}%;width:${Math.max(0,ci.hi-ci.lo)}%;top:0;bottom:0;background:var(--cobalt);opacity:0.18"></span><i style="width:${pc}%;background:var(--cobalt)"></i></span><span class="bp">${pc}</span></div>`;
   return `<div class="sec">${secH('점수 분포 속 나의 위치')}<div class="muted">연도누적 총석차 <b>${rank}/${Nn}</b>${ry.ready?` · ${ry.year}년 반석차 <b>${rankIn(ry.pool,my)}/${ry.N}</b>`:''} · <b>상위 ${100-pc}%</b> · 백분위 <b>${pc}</b> <span style="font-size:12px">(95% 구간 ${ci.lo}~${ci.hi})</span></div>
+   ${/* ── 위치를 말했으면 다음 걸음을 **그 옆에서** 말한다 (선생님 결정 #38) ──
+        DT 에 있던 `tools/report_msg.py` 를 옮겨 대 보니 이 절이 걸렸다 —
+        **위치만 말하고 끝났다.** 학부모가 그 줄에서 얻는 것은 «우리 아이가
+        저기 있구나» 뿐이고, 다음에 무엇을 하면 되는지는 다른 장에 있었다.
+
+        ⚠ 처음에는 이 문장을 절 **맨 끝**(그래프 아래)에 붙였다. 그랬더니 자가
+          그대로 빨간불이었다 — 위치와 다음 걸음 사이에 그래프가 통째로 들어가
+          «같은 덩이» 가 아니게 된 것이다. 자가 옳았다. 읽는 사람도 마찬가지다.
+        ⚠ 새 말을 지어내지 않았다. 이 성적표가 이미 쓰는 문장을 그대로 쓴다. */''}
+   <div style="font-size:12.5px;color:var(--ink-2);margin-top:6px">아래 <b>취약 개념</b>을 회복하면 이 자리는 그만큼 올라갑니다.</div>
    ${curve||bar}
    ${rp.fromBaseline?`<div style="font-size:11.5px;color:var(--muted);margin-top:5px">이 회차 응시 기록 ${rp.baseN}명${rp.locN?` + 이번에 채점한 ${rp.locN}명`:''} = <b>${N}명</b> 기준입니다.</div>`
      :(N<20?`<div style="font-size:11.5px;color:var(--muted);margin-top:5px">응시 ${N}명 기준의 잠정치 — 표본이 쌓이면 정밀해집니다.</div>`:'')}</div>`;
@@ -4828,6 +4854,85 @@ function nextGuideCta(nm, exam, wrong){
       +'</div>';
   }catch(e){ return ''; }
 }
+/* ── 가장 빨리 오르는 한 걸음 (선생님 결정 #18) ─────────────────────────
+   *"`0%` 뒤에 또 `0%`"* — 수상 확률이 0% 로 나오고, 바로 다음 자리인 오답 노트
+   첫 장의 회복률도 0% 다. 두 개의 0 이 붙어 있으면 학생이 읽는 것은 숫자가
+   아니라 «나는 안 되는구나» 다.
+
+   여기서 **하나만** 고른다. 여러 개를 늘어놓으면 그것도 0 앞에 선 사람에게는
+   또 하나의 벽이다. 한 문항이면 오늘 저녁에 할 수 있다.
+
+   무엇을 고르나 — **또래가 가장 많이 맞힌, 내가 틀린 문항.** 그게 가장 빨리
+   오르는 한 칸이다. 정답률은 실측이 없어도 회차 열의 전국 공식 정답률에서
+   온다(cohortStats 의 qp).
+
+   ⚠ 정답률을 모르면 «가장 빨리» 라고 말하지 않는다. 그때는 취약 영역의 첫
+     문항을 **«먼저 볼 한 문항»** 이라고만 적는다 — 근거 없이 최상급을 붙이면
+     그 말이 다음부터 안 읽힌다. */
+function oneStepSec(exam, sel, cs, wrong){
+  try{
+    wrong = wrong || [];
+    if(!wrong.length) return '';
+    var qp = (cs && cs.qp) ? cs.qp : null;
+    var pick = null, why = '';
+    if(qp){
+      wrong.forEach(function(w){
+        var v = qp[w.q-1];
+        if(v==null) return;
+        if(!pick || v > pick.v) pick = {q:w.q, v:v};
+      });
+      if(pick) why = '또래 <b>'+pick.v+'%</b>가 맞힌 문항입니다.';
+    }
+    var lead;
+    if(pick){ lead = '가장 빨리 오르는 한 걸음'; }
+    else {
+      var weak = finalWeakArea(exam, wrong);
+      var first = weak ? wrong.filter(function(w){ return (exam.area&&exam.area[w.q-1])===weak; })[0] : wrong[0];
+      if(!first) return '';
+      pick = {q:first.q, v:null};
+      lead = '먼저 볼 한 문항';
+      why = weak ? '<b>'+esc(weak)+'</b> 영역에서 처음 만나는 문항입니다.' : '';
+    }
+    var area = (exam.area && exam.area[pick.q-1]) || '';
+    var type = (exam.type && exam.type[pick.q-1]) || '';
+    return '<div class="onestep">'
+      +'<div class="onestep__ey">'+lead+'</div>'
+      +'<div class="onestep__q"><b>'+pick.q+'번</b>'
+        +(area?'<span class="onestep__tag">'+esc(area)+'</span>':'')
+        +(type?'<span class="onestep__tag">'+esc(type)+'</span>':'')+'</div>'
+      +'<div class="onestep__why">'+why+' 아래 <b>오답정리</b>에서 이 한 문항의 '
+      +'오개념과 개념 보충을 읽고, 같은 개념의 연습 문제까지만 풀어 보세요. '
+      +'<b>오늘은 여기까지면 충분합니다.</b></div>'
+      +'<a role="button" tabindex="0" class="onestep__go" '
+      +'onclick="scrollToWrong('+pick.q+');return false" '
+      +'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){scrollToWrong('+pick.q+');return false}">'
+      +pick.q+'번으로 →</a></div>';
+  }catch(e){ return ''; }
+}
+/* 그 한 문항의 오답정리 카드로 내려간다. 없으면 오답정리 첫머리로 간다 —
+   아무 데도 안 가는 단추가 가장 나쁘다. */
+function scrollToWrong(q){
+  try{
+    var el = document.querySelector('[data-wbq="'+q+'"]') || document.getElementById('wrongbook');
+    if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+  }catch(e){}
+}
+/* 취약한 순서로 영역 이름을 늘어놓는다(선생님 결정 #23).
+   `finalWeakArea` 는 **하나만** 돌려주는데, 목차에서는 몇 개가 필요하다.
+   세는 규칙은 같다 — 틀린 문항이 많은 영역이 앞이다. */
+function weakOrder(exam, wrong){
+  try{
+    /* ⚠ **묶음 이름으로 보낸다.** 시험의 영역은 106가지로 잘게 나뉘어 있고
+       (`계수맞추기` · `헨더슨하셀바흐식` …), 목차는 16묶음이다. 잘게 나뉜
+       이름을 그대로 보내면 목차에서 하나도 못 찾는다 — 실제로 처음엔
+       넷 중 하나만 붙었다. `bkBroad` 가 이미 그 묶기를 안다. */
+    var cnt={}; (wrong||[]).forEach(function(w){
+      var a=(exam.area&&exam.area[w.q-1])||''; if(!a) return;
+      var bd=bkBroad(a)||a; cnt[bd]=(cnt[bd]||0)+1; });
+    return Object.keys(cnt).filter(function(k){ return k && k!=='기타'; })
+      .sort(function(a,b){ return cnt[b]-cnt[a] || a.localeCompare(b); });
+  }catch(e){ return []; }
+}
 function finalWeakArea(exam, wrong){
   try{ var cnt={}; wrong.forEach(function(w){ var a=(exam.area&&exam.area[w.q-1])||''; if(a) cnt[a]=(cnt[a]||0)+1; });
     var best='', n=0; Object.keys(cnt).forEach(function(k){ if(cnt[k]>n){n=cnt[k];best=k;} }); return best;
@@ -5002,10 +5107,62 @@ function closingSecFinal(nm, exam, correct, total, W, pct){
     return '<div class="fclosing"><h3>총평 · 종합 소견</h3><p>'+p1+'</p><p>'+p2+'</p><p>'+p3+'</p><div class="sig">화학 조준모 올림</div></div>';
   }catch(e){ return ''; }
 }
+/* ── 오늘 할 몫 · 다시 풀었음 (선생님 결정 #19 · #20) ────────────────────
+   #19 *"오답 노트에 «오늘 할 분량» 이 없다 — 30문항이 한꺼번에 온다"*
+   #20 *"다시 풀었는지 확인할 자리가 없다 — 처방은 있는데 체크가 없다"*
+
+   둘은 사실 한 가지다. 서른 장이 한꺼번에 오면 학생은 «어디까지 했지» 를 스스로
+   못 세고, 못 세면 그날 그만둔다. 세는 자리를 주면 나누는 것도 뜻이 생긴다.
+
+   나누는 규칙 — **사흘.** 어느 날 몇 개가 아니라 **오늘 몫이 어디까지인지**만
+   보이게 한다(1일차 · 2일차 · 3일차 띠). 여덟 문항 아래면 안 나눈다. 나누는
+   것이 도움이 안 되고, 띠만 늘어난다.
+
+   ⚠ 표시는 이 브라우저에만 남는다(`final:redone:`). 성적에 아무 영향이 없다 —
+     학생이 스스로 세는 자리이지 선생님께 보고되는 자리가 아니다. 그래서
+     시트로도 안 보낸다. 보고가 되는 순간 그건 숙제 검사가 된다. */
+const REDONE_PFX='final:redone:';
+function redoneKey(exam){ return REDONE_PFX+exam.id+'_'+(curName()||''); }
+function redoneSet(exam){
+  try{ return JSON.parse(localStorage.getItem(redoneKey(exam))||'[]'); }catch(e){ return []; }
+}
+function redoneToggle(examId, q){
+  try{
+    var exam=FINAL_EXAMS.find(function(e){ return e.id===examId; }); if(!exam) return;
+    var k=redoneKey(exam), arr=redoneSet(exam), i=arr.indexOf(q);
+    if(i>=0) arr.splice(i,1); else arr.push(q);
+    localStorage.setItem(k, JSON.stringify(arr.sort(function(a,b){return a-b;})));
+    var card=document.querySelector('.wb-card[data-q="'+q+'"]');
+    if(card) card.classList.toggle('is-redone', i<0);
+    var btn=card&&card.querySelector('.wb-redo');
+    if(btn){ var on=i<0; btn.setAttribute('aria-pressed', on?'true':'false');
+             btn.textContent = on ? '✓ 다시 풀었음' : '다시 풀었음'; }
+    redoneProgress(exam);
+  }catch(e){}
+}
+/* 몇 개를 다시 풀었나. 학생이 스스로 보는 자리라 **칭찬도 재촉도 하지 않는다** —
+   숫자만 적는다. 다 하면 한 줄만 덧붙인다. */
+function redoneProgress(exam){
+  try{
+    var box=document.getElementById('wbProg'); if(!box) return;
+    var wrong=(window.__fw||[]), done=redoneSet(exam).length, tot=wrong.length;
+    if(!tot) return;
+    box.innerHTML='<div class="wb-prog__bar"><i style="width:'+Math.round(done/tot*100)+'%"></i></div>'
+      +'<div class="wb-prog__t">다시 푼 문항 <b>'+done+'</b> / '+tot
+      +(done>=tot?' · <b>다 돌았습니다.</b>':'')+'</div>';
+  }catch(e){}
+}
+/* 사흘로 나눈다. 오늘 몫이 어디까지인지만 보이면 된다. */
+function dayBands(n){
+  if(n<8) return null;                       // 여덟 아래는 안 나눈다
+  var per=Math.ceil(n/3);
+  return [per, per*2];                        // 이 자리 앞에서 띠를 넣는다
+}
 function wrongbookShell(exam, wrong){
   if(!(wrong||[]).length) return '<section class="wb"><h3 class="wb-title">부록 · 오답정리</h3><div class="wb-loading">이번 진단에는 다시 볼 오답이 없습니다.</div></section>';
   return '<section class="wb" id="wrongbook"><h3 class="wb-title">부록 · 오답정리</h3>'
     +'<div class="wb-sub">틀린 문항마다 <b>왜 틀렸는지</b> → <b>꼭 알아야 할 개념 보충</b> → <b>같은 개념 유형의 연습 문제</b>(정답·해설)까지 한 흐름으로 정리했습니다. 개념을 다시 잡고 바로 같은 개념 문항으로 확인하세요.</div>'
+    +'<div class="wb-prog" id="wbProg"></div>'
     +'<div class="wb-loading" data-wb-loading>오답 '+wrong.length+'문항을 불러오는 중…</div>'
     +'<div data-wb-cards></div></section>';
 }
@@ -5148,7 +5305,7 @@ function wbTrap(co,accepted,myAns){
   return {opt:co.opt,qp:co.qp,N:co.N,trap:trap,trapP:trapP,fell:(myAns===trap)};
 }
 /* 간단 오답 카드: 왜 틀렸나 한 줄 + (접힌)원문 + 동형문제·정답·해설을 바로 표시 */
-function wbCardHTML(exam,w,qd,dqs,co){
+function wbCardHTML(exam,w,qd,dqs,co,qpOnly){
   var q=w.q, area=(exam.area&&exam.area[q-1])||'', type=(exam.type&&exam.type[q-1])||'';
   var accepted=(qd&&qd.acceptableAnswers&&qd.acceptableAnswers.length?qd.acceptableAnswers:[w.k]).filter(Boolean);
   var correctLbl=accepted.map(function(n){return CIRC[n];}).join(', ')||'·';
@@ -5156,7 +5313,7 @@ function wbCardHTML(exam,w,qd,dqs,co){
   var why=(qd&&qd.misconception)||(type?omFor(type):'')||(rxo&&rxo.t)||'';
   var fix=(rxo&&rxo.k)||'';
   var cropSrc='crops/'+exam.id+'/'+q+'.png';
-  var head='<div class="wb-head"><span class="wb-qno">'+q+'번</span>'+(area?'<span class="wb-tag">'+esc(area)+'</span>':'')+(type?'<span class="wb-tag">'+esc(type)+'</span>':'')
+  var head='<div class="wb-head" data-wbq="'+q+'"><span class="wb-qno">'+q+'번</span>'+(area?'<span class="wb-tag">'+esc(area)+'</span>':'')+(type?'<span class="wb-tag">'+esc(type)+'</span>':'')
     +'<span class="wb-first">처음 <b class="x">'+(w.a?CIRC[w.a]:'무응답')+'</b> · 정답 <b class="o">'+correctLbl+'</b></span></div>';
   var whyHTML=why?'<div class="wb-why"><b>왜 틀렸나</b> '+esc(why)+'</div>':'';
   var fixHTML=fix?'<div class="wb-fix"><b>개념 보충</b> '+esc(fix)+'</div>':'';
@@ -5178,6 +5335,18 @@ function wbCardHTML(exam,w,qd,dqs,co){
     }
     peerHTML='<div class="wb-peer"><div class="wb-peer-h">또래 선택 분포<span>누적 '+tp.N+'명'+(tp.qp!=null?' · 또래 정답률 '+tp.qp+'%':'')+'</span></div>'+rows
       +(msg?'<div class="wb-peer-msg">'+msg+'</div>':'')+'</div>';
+  } else if(qpOnly!=null){
+    /* 분포는 모르고 **난이도만 아는** 자리(선생님 결정 #27 — 위 hydrate 주석).
+       그러니 분포 칸을 비워 두지 않고 아예 안 그린다. 빈 막대 넷은 "아무도
+       안 골랐다" 로 읽힌다 — 모르는 것을 0% 로 그리면 거짓말이 된다. */
+    var lv = qpOnly>=65 ? {t:'대부분이 맞힌 문항', c:'ms',
+                           m:'또래 정답률 <b>'+qpOnly+'%</b>. 다수가 맞힌 문항이라 <b>반드시 회복</b>해야 합니다.'}
+           : qpOnly<=40 ? {t:'고난도 문항', c:'',
+                           m:'또래 정답률 <b>'+qpOnly+'%</b>인 고난도 문항입니다. 개념부터 차분히 잡으면 됩니다.'}
+           : {t:'보통 난이도', c:'',
+              m:'또래 정답률 <b>'+qpOnly+'%</b>입니다.'};
+    peerHTML='<div class="wb-peer"><div class="wb-peer-h">이 문항의 난이도<span>'+lv.t+'</span></div>'
+      +'<div class="wb-peer-msg">'+lv.m+'</div></div>';
   }
   var origHTML='<div class="wb-orig"><div class="wb-orig-h">원문 문제</div>'
     +'<img class="wb-qimage" src="'+cropSrc+'" alt="'+esc(exam.title)+' '+q+'번 원문" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'">'
@@ -5221,7 +5390,12 @@ function wbCardHTML(exam,w,qd,dqs,co){
   var moreHTML='<details class="wb-more" data-pool="'+poolKey+'">'
     +'<summary>같은 개념 더 풀기</summary>'
     +'<div class="wb-more-body">불러오는 중…</div></details>';
-  return '<article class="wb-card" data-q="'+q+'">'+head+origHTML+whyHTML+fixHTML+peerHTML+dhHTML+moreHTML+'</article>';
+  /* 다시 풀었음(선생님 결정 #20). 학생이 스스로 세는 자리다 — 시트로 안 간다. */
+  var done=(redoneSet(exam)||[]).indexOf(q)>=0;
+  var redoHTML='<button type="button" class="wb-redo" aria-pressed="'+(done?'true':'false')+'" '
+    +'onclick="redoneToggle(\''+exam.id+'\','+q+')">'+(done?'✓ 다시 풀었음':'다시 풀었음')+'</button>';
+  return '<article class="wb-card'+(done?' is-redone':'')+'" data-q="'+q+'">'
+    +head+origHTML+whyHTML+fixHTML+peerHTML+dhHTML+moreHTML+redoHTML+'</article>';
 }
 /* ── 개념으로 문제 더 찾기 ────────────────────────────────────────────
    동형문제를 `시험 → 문항번호` 로만 찾을 수 있어서, 한 문항에 붙는 연습 문제는
@@ -5311,10 +5485,37 @@ async function hydrateWrongbook(exam,wrong){
   // 선택지 분포는 표본이 충분(MINP 이상)할 때만 — 소표본 추정치는 함정 판정에 쓰지 않는다
   var cs=null; try{ cs=cohortStats(exam); }catch(e){}
   var optOK=!!(cs&&cs.qopt&&cs.N>=MINP);
-  cards.innerHTML=wrong.slice().sort(function(a,b){return a.q-b.q;}).map(function(w){
+  /* ── 난이도만이라도 보여 준다 (선생님 결정 #27) ────────────────────────
+     *"틀린 문항의 난이도가 학생 화면에 안 보인다"*.
+
+     재어 보니 «없다» 가 아니라 **문이 하나뿐이었다.** 난이도(또래 정답률)는
+     선택지 분포와 **같은 상자에 묶여** 있어서, 분포를 못 그리면 난이도도 같이
+     사라졌다. 분포는 이 브라우저에 응시 기록이 있어야 그린다.
+
+     그런데 정답률은 그것 말고 다른 데서도 온다 — 회차 열에 실린 **전국 공식
+     정답률**이다(`exams.json` 의 `rate`, 서른아홉 중 열 회차). 학생이 혼자
+     성적표를 열어도 그 열 회차는 난이도를 알 수 있는데, 분포가 없다는 이유로
+     한 줄도 안 나오고 있었다.
+
+     ⚠ 분포를 **지어내지 않는다.** 아는 것(정답률)만 적고, 모르는 것(누가 무엇을
+       골랐나)은 안 적는다. 그래서 상자를 둘로 가른다. */
+  var qpOnly=!!(cs&&cs.qp&&!optOK);
+  var list=wrong.slice().sort(function(a,b){return a.q-b.q;});
+  /* 사흘로 나눈다(선생님 결정 #19). 서른 장이 한꺼번에 오면 «어디까지 했지» 를
+     스스로 못 세고, 못 세면 그날 그만둔다. 여덟 아래면 안 나눈다. */
+  var bands=dayBands(list.length);
+  var LAB=['1일차 · 오늘 여기까지','2일차','3일차'];
+  cards.innerHTML=list.map(function(w,i){
     var co=(optOK&&cs.qopt[w.q-1])?{opt:cs.qopt[w.q-1],qp:(cs.qp?cs.qp[w.q-1]:null),N:cs.N}:null;
-    return wbCardHTML(exam,w,answers[String(w.q)]||{},analogues[String(w.q)]||[],co);
+    var qpv=(qpOnly&&cs.qp[w.q-1]!=null)?cs.qp[w.q-1]:null;
+    var band='';
+    if(bands){
+      var d = i===0 ? 0 : (i===bands[0] ? 1 : (i===bands[1] ? 2 : -1));
+      if(d>=0) band='<div class="wb-band"><span>'+LAB[d]+'</span></div>';
+    }
+    return band+wbCardHTML(exam,w,answers[String(w.q)]||{},analogues[String(w.q)]||[],co,qpv);
   }).join('');
+  redoneProgress(exam);
   var loading=root.querySelector('[data-wb-loading]'); if(loading) loading.remove();
   warmOffline(exam,wrong);
 }
@@ -5438,6 +5639,7 @@ function scoreAuto(again){
    ${rxSec(cur,sel)}
    ${tierPathSec(cur,sel)}
    ${winProbSec(cur,sel,cs,correct,total,W)}
+   ${oneStepSec(cur,sel,cs,(window.__fw||[]))}
    ${adaptiveSec(cur,sel,cs,correct,total)}
    ${prereqSec(cur,sel,cs)}
    ${dashboardSec(cur)}
@@ -5563,7 +5765,9 @@ function buildBook(exam, selv, cs, correct, total, W, wrong, dh, answers){
       +'<div class="bk-p">누적 응시 <b>'+Nn+'명</b> 기준, '+esc2(nm||'학생')+' 학생은 상위 <b>'+(100-perc)+'%</b> 구간(백분위 '+perc+', 연도누적 총석차 '+rank+'/'+Nn+')에 있습니다.'
         +(yrank!=null?' 올해 채점한 <b>'+yN+'명</b> 안에서는 '+yYear+'년 반석차 <b>'+yrank+'/'+yN+'</b> 입니다.':'')+'</div>'
       +'<div class="bk-posline"><div class="bk-postrack"><div class="bk-posdot" style="left:'+perc+'%"></div><div class="bk-posflag" style="left:'+perc+'%">'+esc2(nm||'나')+' · 백분위 '+perc+'</div></div>'
-      +'<div class="bk-posends"><span>하위</span><span>상위</span></div></div></div>';
+      +'<div class="bk-posends"><span>하위</span><span>상위</span></div></div>'
+      /* 위치를 말했으면 다음 걸음을 같이 말한다(선생님 결정 #38 · 화면 percSec 과 같은 규칙). */
+      +'<div class="bk-p" style="margin-top:8px">아래 <b>취약 개념</b>을 회복하면 이 자리는 그만큼 올라갑니다.</div></div>';
   }
 
   // ── 03 영역별 성취 ──
@@ -6292,8 +6496,13 @@ async function downloadReportDOCX(){
   var sn=stat.length, sw=Math.floor(CW/sn), swArr=[]; for(var si=0;si<sn;si++) swArr.push(si===sn-1?(CW-sw*(sn-1)):sw);
   var stCells=stat.map(function(s,i){ return C([txt(s[1],{align:AlignmentType.CENTER,bold:true,size:30,color:EM}),txt(s[0],{align:AlignmentType.CENTER,size:15,color:MUT})],{w:swArr[i],fill:'FBF6E8',mt:140,mb:140}); });
   body.push(TBL(swArr,[ROW(stCells)],{top:bdr(GOLDL,6),bottom:bdr(GOLDL,6),left:bdr(GOLDL,6),right:bdr(GOLDL,6),insideVertical:bdr(GOLDL,6),insideHorizontal:NB}));
-  if(perc!=null) body.push(P([run('누적 응시 '+Nn+'명 중 상위 '+(100-perc)+'%  ·  백분위 '+perc+'  ·  연도누적 총석차 '+rank+'/'+Nn
-    +(yrank!=null?'  ·  '+yYear+'년 반석차 '+yrank+'/'+yN:''),{color:MUT,size:16})],{align:AlignmentType.CENTER,before:110}));
+  if(perc!=null){
+    body.push(P([run('누적 응시 '+Nn+'명 중 상위 '+(100-perc)+'%  ·  백분위 '+perc+'  ·  연도누적 총석차 '+rank+'/'+Nn
+      +(yrank!=null?'  ·  '+yYear+'년 반석차 '+yrank+'/'+yN:''),{color:MUT,size:16})],{align:AlignmentType.CENTER,before:110}));
+    /* 위치를 말했으면 다음 걸음을 같이 말한다(선생님 결정 #38). 화면·책과 같은 문장이다. */
+    body.push(P([run('아래 취약 개념을 회복하면 이 자리는 그만큼 올라갑니다.',{color:MUT,size:16})],
+      {align:AlignmentType.CENTER,before:30}));
+  }
   // 수상권 로드맵 — 등급 컷(허용 오답 수)과 현재 위치를 한 줄 밴드로 시각화
   body.push(P([run('수상권 로드맵',{bold:true,color:EM,size:20,serif:true}),run('   틀린 문항 수 기준 등급 컷',{color:MUT,size:15})],{before:210,after:70}));
   var rmW=Math.floor(CW/TIERS.length), rmWArr=[]; for(var ri=0;ri<TIERS.length;ri++) rmWArr.push(ri===TIERS.length-1?(CW-rmW*(TIERS.length-1)):rmW);
@@ -6591,8 +6800,24 @@ async function downloadReportDOCX(){
           else if(dhImgMap[w.q+':'+di]) dhInner.push(imgPara(dhImgMap[w.q+':'+di],440));
           // 보기에는 정답 표시를 하지 않는다(먼저 풀어 보게 한다).
           (dq.choices||[]).forEach(function(c,i){ dhInner.push(P([run(CI[i+1]+'  '+esc2(c),{color:INK,size:22})],{before:16,after:16})); });
-          // 정답·해설은 점선으로 가른 뒤 문제 아래에 따로 모은다.
-          dhInner.push(P([run('▾ 정답 · 해설',{bold:true,color:'8A6D1F',size:20,serif:true})],{before:180,after:60,border:{top:bdr(GOLD,6,BorderStyle.DASHED)}}));
+          /* ── 답이 바로 아래 있다 (선생님 결정 #21) ────────────────────
+             *"동형문제를 풀고 채점할 자리가 없다 — 워드에 답이 같이 있어
+             먼저 보인다"*.
+
+             재어 보니 **두 벌이 이미 있었다.** 여기 부록은 «읽는 것» 이라
+             왜 틀렸나 → 개념 보충 → 같은 개념 문제 → 정답·해설 이 한 흐름으로
+             이어져야 한다. 답을 멀리 보내면 그 흐름이 끊긴다.
+             «푸는 것» 은 문서 맨 뒤 **동형 미니 시험지**다 — 거기는 문제만
+             있고 답안 기입란이 있으며 정답은 그 뒤 장에 따로 있다.
+
+             그러니 고칠 것은 자리가 아니라 **그런 게 있다는 것을 모른다**는
+             쪽이다. 답 바로 앞에 한 줄로 알린다. 종이는 접을 수 없으니
+             «접기» 대신 **먼저 갈 곳을 알려 주는 것**이 할 수 있는 일이다. */
+          dhInner.push(P([run('먼저 풀어 보려면 — 문서 맨 뒤 ',{color:MUT,size:18}),
+                          run('«동형 미니 시험지»',{bold:true,color:'8A6D1F',size:18}),
+                          run(' 에 같은 문제가 답 없이 실려 있습니다.',{color:MUT,size:18})],
+                         {before:140,after:20}));
+          dhInner.push(P([run('▾ 정답 · 해설',{bold:true,color:'8A6D1F',size:20,serif:true})],{before:60,after:60,border:{top:bdr(GOLD,6,BorderStyle.DASHED)}}));
           dhInner.push(P([run('정답  ',{size:22}),run(ans?CI[ans]:'·',{bold:true,color:EM,size:26,serif:true})],{before:40,after:100}));
           var sol=dq.explanation||''; if(sol){ dhInner.push(P([run('해설',{bold:true,color:EM,size:22})],{before:60,after:40,border:{top:bdr('E6DDC8',4)}})); dhInner.push(txt(esc2(sol),{size:21})); }
           if(dq.misconception) dhInner.push(P([run('오개념  ',{bold:true,color:RED,size:21}),run(esc2(dq.misconception),{size:21,color:'4a4437'})],{before:60}));
@@ -6695,7 +6920,9 @@ async function downloadReportDOCX(){
       body.push(PB(),kicker('❖  APPENDIX · 동형 미니 시험지  ❖'),
         txt('동형 미니 시험지',{align:AlignmentType.CENTER,bold:true,color:EM,size:52,serif:true,after:50}),
         ornPara(dividerOrn,340,{before:16,after:120}),
-        txt('틀린 문항의 동형문제만 모았습니다. 이 부분만 인쇄해 다음 수업 입실고사로 쓰세요. 정답·해설은 맨 뒤에 따로 있습니다.',
+        txt('틀린 문항의 동형문제만 모았습니다. 앞의 «오답정리» 에 나온 것과 같은 문제인데 '
+            +'여기는 **답이 없습니다** — 먼저 풀어 보고 싶을 때 이쪽을 쓰세요. '
+            +'이 부분만 인쇄해 다음 수업 입실고사로 써도 됩니다. 정답·해설은 맨 뒤에 따로 있습니다.',
             {align:AlignmentType.CENTER,color:MUT,after:220}));
       rtItems.forEach(function(it,i){
         var dq=it.dq;
@@ -6832,7 +7059,25 @@ document.addEventListener('click', function(e){
   if(!/^(lec-[\w-]+|lecture-index|sol-final-[\w-]+)\.html/.test(h)) return;
   if(!/[#&]r=/.test(location.hash)) return;
   var base = h.split('?')[0].split('#')[0];
-  a.setAttribute('href', base + '?from=' + encodeURIComponent(location.href));
+  var q = '?from=' + encodeURIComponent(location.href);
+  /* ── 목차에 «어느 영역부터» 를 실어 보낸다 (선생님 결정 #23) ───────────
+     *"개념 강의 125강에 «몇 분» 만 있고 순서가 없다 — 어느 것부터 볼지
+     학생이 정해야 한다"*.
+
+     재어 보니 **영역 안의 순서는 있었다**(목차가 스스로 그렇게 적어 둔다:
+     «각 영역은 개념 순서대로 배열돼 있고, 영역 끝에는 종합강이 있어»).
+     없는 것은 **어느 영역부터** 다. 그건 학생마다 다르고, 이 성적표는 그걸
+     이미 알고 있다 — 그런데 목차로 건너갈 때 **안 들고 갔다.**
+
+     그래서 취약 영역 이름만 실어 보낸다. 성적은 안 보낸다 — 목차는 남이
+     열어 볼 수 있는 장이라, 거기 점수가 실릴 이유가 없다. */
+  if(/^lecture-index\.html/.test(base)){
+    try{
+      var wk = weakOrder(cur, (window.__fw||[]));
+      if(wk.length) q += '&w=' + encodeURIComponent(wk.slice(0,4).join('|'));
+    }catch(e){}
+  }
+  a.setAttribute('href', base + q);
 }, true);
 /* 시험 목록·채점 규칙을 받아 온 뒤에 화면을 그린다. */
 async function start(){

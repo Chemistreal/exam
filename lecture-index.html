@@ -25,7 +25,13 @@ main{max-width:920px;margin:0 auto;padding:18px 14px 60px}
 .lec .sv{color:var(--brass);font-size:11.5px;flex:none}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:26px 16px;line-height:1.7}
 footer .legend{font-size:11.5px;margin-top:6px}
-.soon{opacity:.5;pointer-events:none;cursor:default}.soonb{display:inline-block;font-size:11.5px;font-weight:600;color:#a08c3f;background:#faf6e8;border:1px solid #e8ddb8;border-radius:999px;padding:2px 7px;margin-left:6px;flex:none;vertical-align:middle}</style><style id="ct-theme" data-v="4" data-fam="tool" data-seal="1">/* 이 조각은 tools/theme.py 가 넣습니다. 손으로 고치지 마세요 —
+.soon{opacity:.5;pointer-events:none;cursor:default}.soonb{display:inline-block;font-size:11.5px;font-weight:600;color:#a08c3f;background:#faf6e8;border:1px solid #e8ddb8;border-radius:999px;padding:2px 7px;margin-left:6px;flex:none;vertical-align:middle}.weakfirst{background:linear-gradient(135deg,rgba(14,90,76,.08),rgba(176,141,87,.06));border:1px solid rgba(14,90,76,.38);border-radius:13px;padding:16px 18px;margin:14px 0}
+.weakfirst__ey{font-size:11.5px;font-weight:700;letter-spacing:.05em;color:#0E5A4C;margin-bottom:10px}
+.weakfirst__list{display:flex;flex-wrap:wrap;gap:8px}
+.weakfirst__list a{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--line,#E8E4DA);border-radius:9px;padding:8px 13px;font-size:14px;font-weight:600;color:var(--ink,#23201b);text-decoration:none}
+.weakfirst__list a b{font-family:var(--mono);font-size:11.5px;color:#fff;background:#0E5A4C;border-radius:5px;padding:2px 6px}
+.weakfirst__s{font-size:12px;color:var(--muted,#6f6a5e);margin-top:10px}
+</style><style id="ct-theme" data-v="4" data-fam="tool" data-seal="1">/* 이 조각은 tools/theme.py 가 넣습니다. 손으로 고치지 마세요 —
    다음 실행에서 덮어써집니다. 색을 바꾸려면 그 파일을 고치세요. */
 :root{--ink:#23201b;--ink-2:#5a564d;--muted:#6f6a5e;--line:#E8E4DA;--line-2:#D8D2C4;--paper:#fff;--cream:#FBFAF6;--bg:#FBFAF6;--sunk:#F4F1E9;--teal:#0E5A4C;--teal-d:#3A7A6B;--wash:#EDF4F1;--brass:#B08D57;--gold:#B08D57;/* 놋쇠는 두 가지 일을 한다. 밑선·테두리(그림, 3:1)는 밝은 쪽이 예쁘고,      흰 글씨를 얹는 바탕이나 글자색으로 쓰면 3.09:1 로 못 읽는다.      그래서 **글자용 놋쇠**를 따로 둔다. 흰 종이만 보고 4.95:1 로 맞춰      두었더니 가라앉은 바탕(--sunk #F4F1E9) 위에서 4.38:1 이라 모자랐다.      가장 어두운 바탕에서도 넘도록 조금 더 어둡게 잡는다 —      흰 5.26 · 크림 5.03 · 가라앉은 4.66. */   --brass-ink:#856738;--ms:#B8562F;--ok:#2F7A4F;--ok-bg:#eef5f2;--serif:"Hahmlet","Nanum Myeongjo",serif;--mono:ui-monospace,Menlo,monospace}
 html{color-scheme:light;-webkit-text-size-adjust:100%}
@@ -91,5 +97,55 @@ if(!/[#&]r=/.test(u.hash))return null;return u.href;}catch(e){return null;}}
 try{var a=document.querySelector('a.back');if(!a)return;
 var to=ok(new URL(location.href).searchParams.get('from'));if(!to)return;
 a.href=to;a.textContent='\u2039 \uc131\uc801\ud45c\ub85c';}catch(e){}})();
+</script>
+<script data-lec-weak>
+/* ── 성적표가 짚은 영역을 맨 위에 세운다 (선생님 결정 #23) ──────────────
+   *"개념 강의 125강에 «몇 분» 만 있고 순서가 없다 — 어느 것부터 볼지 학생이
+   정해야 한다"*.
+
+   영역 **안**의 순서는 원래 있었다(위 안내문이 그렇게 적어 두었다).
+   없던 것은 **어느 영역부터** 다. 그건 학생마다 다르고, 성적표는 이미 안다 —
+   그런데 여기로 건너올 때 안 들고 왔다.
+
+   ⚠ 점수는 안 받는다. 이 장은 남이 열어 볼 수 있으므로 **영역 이름만** 온다.
+   ⚠ 순서를 실제로 **바꾸지는 않는다.** 목차의 차례는 개념이 쌓이는 차례라
+     그 자체가 뜻이 있다. 대신 «먼저 볼 곳» 을 맨 위에 따로 세워, 학생이
+     고를 수 있게 한다 — 자리를 뒤섞으면 다음에 열었을 때 길을 잃는다. */
+(function(){
+  try{
+    var raw = new URL(location.href).searchParams.get('w');
+    if(!raw) return;
+    var want = raw.split('|').map(function(x){ return x.trim(); }).filter(Boolean).slice(0,4);
+    if(!want.length) return;
+
+    /* ⚠ 띄어쓰기를 지우고 맞춘다. 목차는 «산화 환원 · 분자 간 인력» 처럼 띄어
+       적고, 성적표는 «산화환원 · 분자간인력» 로 붙여 적는다. 같은 묶음인데
+       글자가 달라 하나도 못 찾은 적이 있다 — 사람 이름을 맞출 때와 같은 규칙
+       (공백을 모두 지운다)을 여기에도 쓴다. */
+    var flat = function(x){ return String(x||'').replace(/\s+/g,''); };
+    var secs = [].slice.call(document.querySelectorAll('section.area'));
+    var found = [];
+    want.forEach(function(nm){
+      for(var i=0;i<secs.length;i++){
+        var el = secs[i].querySelector('.aname');
+        if(el && flat(el.textContent) === flat(nm)){
+          found.push({nm:el.textContent.trim(), id:secs[i].id}); return; }
+      }
+    });
+    if(!found.length) return;
+
+    var box = document.createElement('div');
+    box.className = 'weakfirst';
+    box.innerHTML = '<div class="weakfirst__ey">성적표가 짚은 곳 — 여기부터</div>'
+      + '<div class="weakfirst__list">'
+      + found.map(function(f,i){
+          return '<a href="#'+f.id+'"><b>'+(i+1)+'</b>'+f.nm+'</a>';
+        }).join('')
+      + '</div>'
+      + '<div class="weakfirst__s">아래 목차는 그대로입니다 — 개념이 쌓이는 차례라 뒤섞지 않았습니다.</div>';
+    var intro = document.querySelector('.intro');
+    if(intro && intro.parentNode) intro.parentNode.insertBefore(box, intro.nextSibling);
+  }catch(e){}
+})();
 </script>
 </body></html>

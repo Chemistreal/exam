@@ -74,15 +74,119 @@ const HALF = 30;   // 60문항 가운데 서른 칸을 채운 상태에서 사�
 
   async function fillHalf() {
     await p.goto(`http://localhost:${PORT}/final.html`, { waitUntil: 'load', timeout: 40000 });
-    await p.waitForFunction(() => typeof FINAL_EXAMS !== 'undefined' && FINAL_EXAMS.length,
+    /* ⚠ FINAL_EXAMS 가 생긴 것과 **시동이 끝난 것은 다르다.**
+       start() 는 「시험 목록 로드 → 기준 기록 로드 → boot()」 차례인데,
+       시험 목록만 보고 달려들면 몇십 ms 뒤에 도착한 boot() 이 목록 화면을
+       그리며 cur·sel 을 지운다 — 친 30칸이 증발하고, 나가기 물음은 잡을
+       것이 없다고 본다. 스물다섯 판에 서너 번꼴로 그렇게 흔들렸다
+       (2026-08-11, 부른 기록: openExam → 39ms 뒤 boot → renderList).
+       실제 사람은 이 경주를 못 만난다 — boot 전엔 화면에 누를 것이 없다.
+       그러니 사람처럼 **목록이 화면에 그려질 때까지** 기다린다. */
+    await p.waitForFunction(() => typeof FINAL_EXAMS !== 'undefined' && FINAL_EXAMS.length &&
+      !!document.querySelector('#app .card'),
       null, { timeout: 30000 });
-    return p.evaluate((half) => {
+    const n = await p.evaluate((half) => {
+      /* 유령 잡기 2 — 화면을 그리는 함수의 **호출 자체**를 남긴다.
+         function 선언은 window 에 붙으므로 감쌀 수 있다. Date.now 로 적어
+         판을 건너도 차례가 보인다. 판정에는 안 쓴다. */
+      if (!window.__callTap) {
+        window.__callTap = 1;
+        ['renderList', 'openExam', 'leaveList', 'refreshScreen', 'boot', 'scoreAuto'].forEach(function (fn) {
+          var orig = window[fn];
+          if (typeof orig !== 'function') return;
+          window[fn] = function () {
+            try {
+              var log = JSON.parse(localStorage.getItem('__test_calls') || '[]');
+              log.push({ t: Date.now() % 1000000, f: fn,
+                누가: String(new Error().stack || '').split('\n').slice(2, 4)
+                  .map(function (x) { return x.trim().replace(/^at /, '').replace(/https?:\/\/[^)\s]*\//g, ''); })
+                  .join(' ← ') });
+              localStorage.setItem('__test_calls', JSON.stringify(log.slice(-30)));
+            } catch (_) {}
+            return orig.apply(this, arguments);
+          };
+        });
+        try {
+          var log0 = JSON.parse(localStorage.getItem('__test_calls') || '[]');
+          log0.push({ t: Date.now() % 1000000, f: '(fillHalf 시작)' });
+          localStorage.setItem('__test_calls', JSON.stringify(log0.slice(-30)));
+        } catch (_) {}
+      }
       openExam('hwol-2017');
       document.getElementById('nm').value = '홍길동';
       const ex = FINAL_EXAMS.find(e => e.id === 'hwol-2017');
       for (let q = 1; q <= half; q++) setAns(q, ex.key[q - 1]);
       return Object.keys(sel).filter(k => sel[k]).length;
     }, HALF);
+    /* ⚠ 「나가시겠습니까」 물음이 실제로 뜨는지는 **브라우저 재량**이다.
+       Chrome 은 사람 손길(user activation)이 없으면 물음을 조용히 건너뛸 수
+       있고, 이 검사는 답안을 전부 스크립트로 넣으니 손길이 0번이다. 재어
+       보니 열다섯 판에서 앱의 처리기는 15번 다 돌았는데 물음은 12번만 떴다
+       (2026-08-11) — 자가 앱이 아니라 **브라우저의 기분**을 재고 있었다.
+
+       앱이 할 수 있는 것은 막겠다고 손을 드는 것(preventDefault)까지다.
+       그래서 그 손을 들었는지를 적어 둔다. 앱의 자리(1763줄)가 먼저 등록돼
+       있어 이 청취자는 그 뒤에 돌고, e.defaultPrevented 로 앱이 손을
+       들었는지 보인다. 물음이 뜨면 그것대로 세고(asked), 안 떠도 손을
+       들었으면 앱은 제 몫을 다 한 것이다. */
+    await p.evaluate(() => {
+      localStorage.setItem('__test_bu', '');
+      addEventListener('beforeunload', (e) => {
+        /* '1' = 앱이 막으려 손을 들었다 · '0:…' = 이벤트는 왔는데 앱이 잡을
+           것이 없다고 봤다(그때의 더러움 상태를 같이 적는다) · '' = 이벤트
+           자체가 안 왔다. 셋을 갈라야 다음에 갈 곳이 보인다. */
+        try {
+          var why = '';
+          if (!e.defaultPrevented) {
+            try {
+              why = ':cur=' + !!window.cur + ' 칸=' +
+                (typeof sel !== 'undefined' ? Object.keys(sel).filter(function(k){ return sel[k]; }).length : '?') +
+                ' 이름=' + JSON.stringify(((document.getElementById('nm') || {}).value || ''));
+            } catch (_) { why = ':?'; }
+          }
+          localStorage.setItem('__test_bu', e.defaultPrevented ? '1' : '0' + why);
+        } catch (_) {}
+      });
+      /* 유령 잡기 — #app 이 다시 그려질 때마다 누가(스택) 그렸는지를
+         localStorage 에 남긴다. 화면이 떠나도 기록은 남는다.
+         판정에는 안 쓴다. 실패했을 때만 읽는다. */
+      if (!window.__tapOn) {
+        window.__tapOn = 1;
+        const app = document.getElementById('app');
+        const d = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
+        Object.defineProperty(app, 'innerHTML', {
+          get() { return d.get.call(this); },
+          set(v) {
+            try {
+              const log = JSON.parse(localStorage.getItem('__test_renders') || '[]');
+              log.push({
+                t: Math.round(performance.now()),
+                누가: String(new Error().stack || '').split('\n').slice(1, 4)
+                       .map(x => x.trim().replace(/^at /, '').replace(/https?:\/\/[^)\s]*\//g, ''))
+                       .join(' ← '),
+                앞부분: String(v).replace(/\s+/g, ' ').slice(0, 60),
+              });
+              localStorage.setItem('__test_renders', JSON.stringify(log.slice(-40)));
+            } catch (_) {}
+            return d.set.call(this, v);
+          },
+        });
+      }
+    });
+    return n;
+  }
+
+  /* 나간 뒤, 앱이 잡으려 손을 들었었는지(위 fillHalf 의 기록)를 읽는다.
+     나간 화면(about:blank)에는 이 저장소가 없어서 새 화면으로 잠깐 연다. */
+  async function heldHand() {
+    const p2 = await ctx.newPage();
+    try {
+      await p2.goto(`http://localhost:${PORT}/final.html`, { waitUntil: 'domcontentloaded', timeout: 20000 });
+      const raw = await p2.evaluate(() => localStorage.getItem('__test_bu'));
+      if (raw !== '1') console.log('        (손 기록: ' + JSON.stringify(raw) + ')');
+      return raw === '1';
+    } catch (e) { return false; }
+    finally { await p2.close().catch(() => {}); }
   }
 
   /* ── 초를 세지 않는다 ────────────────────────────────────────────────
@@ -118,9 +222,14 @@ const HALF = 30;   // 60문항 가운데 서른 칸을 채운 상태에서 사�
   await p.goBack({ waitUntil: 'load' }).catch(() => {});
   await settled();
   let r = await typed();
-  chk('뒤로가기 뒤 — 치던 화면이 남거나, 나가기 전에 물었다',
-      r.grading || asked > 0,
-      r.grading ? `그대로 (${r.inMem}칸)` : (asked ? '물었다' : '**묻지도 않고 날아갔다**'));
+  /* 물음이 안 떠도, 앱이 막겠다고 손을 들었으면(위 fillHalf) 앱의 몫은 다
+     한 것이다 — 물음을 띄울지는 브라우저가 정하고, 사람 손길이 있는 실제
+     화면에서는 띄운다. */
+  let held = (r.grading || asked > 0) ? false : await heldHand();
+  chk('뒤로가기 뒤 — 화면이 남거나, 물었거나, 앱이 잡으려 손을 들었다',
+      r.grading || asked > 0 || held,
+      r.grading ? `그대로 (${r.inMem}칸)` : (asked ? '물었다'
+        : (held ? '손은 들었다 (물음은 브라우저 재량)' : '**잡으려는 손짓조차 없었다**')));
 
   console.log('\n── ② 새로고침을 눌렀다 ──');
   await fillHalf();
@@ -130,9 +239,11 @@ const HALF = 30;   // 60문항 가운데 서른 칸을 채운 상태에서 사�
     null, { timeout: 30000 }).catch(() => {});
   await settled();
   r = await typed();
-  chk('새로고침 뒤 — 치던 화면이 남거나, 나가기 전에 물었다',
-      r.grading || asked > 0,
-      r.grading ? `그대로 (${r.inMem}칸)` : (asked ? '물었다' : '**묻지도 않고 날아갔다**'));
+  held = (r.grading || asked > 0) ? false : await heldHand();
+  chk('새로고침 뒤 — 화면이 남거나, 물었거나, 앱이 잡으려 손을 들었다',
+      r.grading || asked > 0 || held,
+      r.grading ? `그대로 (${r.inMem}칸)` : (asked ? '물었다'
+        : (held ? '손은 들었다 (물음은 브라우저 재량)' : '**잡으려는 손짓조차 없었다**')));
 
   console.log('\n── ③ 시험 목록 단추를 잘못 눌렀다 ──');
   await fillHalf();
@@ -188,6 +299,20 @@ const HALF = 30;   // 60문항 가운데 서른 칸을 채운 상태에서 사�
 
   console.log('\n' + (errs.length ? 'JS 오류: ' + errs.slice(0, 3).join(' | ') : 'JS 오류 없음'));
   if (errs.length) fail++;
+
+  /* 실패했을 때만 — 화면을 누가 언제 다시 그렸는지, 물음은 무엇이 왔는지. */
+  if (fail) {
+    try {
+      const p3 = await ctx.newPage();
+      await p3.goto(`http://localhost:${PORT}/final.html`, { waitUntil: 'domcontentloaded', timeout: 15000 });
+      const renders = await p3.evaluate(() => localStorage.getItem('__test_renders') || '[]');
+      const calls = await p3.evaluate(() => localStorage.getItem('__test_calls') || '[]');
+      console.log('\n다시 그린 기록: ' + renders);
+      console.log('\n부른 기록: ' + calls);
+      await p3.close();
+    } catch (e) { console.log('\n다시 그린 기록을 못 읽었다: ' + String(e).slice(0, 80)); }
+    console.log('물음 기록: ' + JSON.stringify(said.map(m => m.split('\n')[0])));
+  }
 
   await browser.close();
   srv.stop();
