@@ -71,6 +71,11 @@ const EXAM = 'hwol-2018';   // 전국 공식 정답률(rate)이 실려 있는 �
   const p = await ctx.newPage();
   const errs = [];
   p.on('pageerror', e => errs.push(String(e).slice(0, 90)));
+  /* 콘솔도 줍는다 — 앱이 try/catch 로 받아 console.error 로만 남기는 자리가
+     있다(loadHist 의 rerender 실패 등). 그건 pageerror 로 안 온다. */
+  const clogs = [];
+  p.on('console', m => { if (m.type() === 'error' || m.type() === 'warning')
+    clogs.push((m.type() + ': ' + m.text()).slice(0, 220)); });
 
   /* 오답노트를 그리는 `hydrateWrongbook` 은 **async** 다. 그 안에서 무엇이
      던지면 화면에는 아무 일도 안 일어나고 `pageerror` 도 안 뜬다 — 삼켜진
@@ -85,6 +90,29 @@ const EXAM = 'hwol-2018';   // 전국 공식 정답률(rate)이 실려 있는 �
   await p.goto(`http://localhost:${PORT}/final.html`, { waitUntil: 'load', timeout: 40000 });
   await p.waitForFunction(() => typeof FINAL_EXAMS !== 'undefined' && FINAL_EXAMS.length,
     null, { timeout: 30000 });
+
+  /* 화면을 갈아엎는 순간을 전부 적어 둔다 — CI 에서 채점까지 끝난 뒤
+     (__fw 36) 오답노트 틀이 화면에서 사라졌는데, 코드만 봐서는 누가 다시
+     그렸는지 못 짚었다. #app 의 innerHTML 이 바뀔 때마다 누가(스택) 무엇으로
+     (앞 80자) 바꿨는지 남긴다. 검사 판정에는 안 쓴다 — 실패했을 때만 읽는다. */
+  await p.evaluate(() => {
+    const app = document.getElementById('app');
+    const d = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
+    window.__renders = [];
+    Object.defineProperty(app, 'innerHTML', {
+      get() { return d.get.call(this); },
+      set(v) {
+        window.__renders.push({
+          t: Math.round(performance.now()),
+          누가: String(new Error().stack || '').split('\n').slice(1, 4)
+                 .map(s => s.trim().replace(/^at /, '').replace(/https?:\/\/[^)\s]*\//g, ''))
+                 .join(' ← '),
+          앞부분: String(v).replace(/\s+/g, ' ').slice(0, 80),
+        });
+        return d.set.call(this, v);
+      },
+    });
+  });
 
   /* 스물두 개만 맞힌 학생 — 오답이 서른여섯이라 사흘로 갈린다. */
   await p.evaluate((id) => {
@@ -123,11 +151,15 @@ const EXAM = 'hwol-2018';   // 전국 공식 정답률(rate)이 실려 있는 �
       카드자리: !!document.querySelector('[data-wb-cards]'),
       카드자리글자: ((document.querySelector('[data-wb-cards]') || {}).innerHTML || '').length,
       기다리는중표시: !!document.querySelector('[data-wb-loading]'),
+      입력칸: !!document.getElementById('nm'),
+      성적표틀: !!document.getElementById('repPDF'),
       삼켜진오류: window.__rej || [],
+      다시그린기록: window.__renders || [],
     })).catch(e => ({ 못읽음: String(e).slice(0, 120) }));
     console.log('  FAIL  오답노트 카드가 60초 안에 안 그려졌다');
-    console.log('        화면: ' + JSON.stringify(d, null, 0));
+    console.log('        화면: ' + JSON.stringify(d, null, 1));
     console.log('        페이지 오류: ' + (errs.length ? errs.join(' | ') : '없음'));
+    console.log('        콘솔: ' + (clogs.length ? clogs.join('\n              ') : '조용했다'));
     await ctx.close(); await browser.close(); srv.stop();
     process.exit(1);
   }
