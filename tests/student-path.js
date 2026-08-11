@@ -88,7 +88,16 @@ const EXAM = 'hwol-2018';   // 전국 공식 정답률(rate)이 실려 있는 �
       window.__rej.push(String((e.reason && e.reason.stack) || e.reason).slice(0, 300)));
   });
   await p.goto(`http://localhost:${PORT}/final.html`, { waitUntil: 'load', timeout: 40000 });
-  await p.waitForFunction(() => typeof FINAL_EXAMS !== 'undefined' && FINAL_EXAMS.length,
+  /* ⚠ FINAL_EXAMS 가 생긴 것과 **시동이 끝난 것은 다르다.**
+     start() 는 「시험 목록 로드 → 기준 기록 로드 → boot()」 차례라, 시험
+     목록만 보고 달려들면 뒤늦게 도착한 boot() 이 목록 화면을 그리며 방금
+     그린 성적표를 갈아엎는다. CI 가 그 자리였다 — 채점은 끝났는데(오답 36)
+     오답노트 틀이 화면에 없던 것은 boot → renderList 가 지운 것이다
+     (renderList 는 __fw 를 안 지워서 36 이 남아 있었다).
+     실제 학생·선생님은 이 경주를 못 만난다 — boot 전엔 누를 것이 없다.
+     그러니 사람처럼 **목록이 화면에 그려질 때까지** 기다린다. */
+  await p.waitForFunction(() => typeof FINAL_EXAMS !== 'undefined' && FINAL_EXAMS.length &&
+    !!document.querySelector('#app .card'),
     null, { timeout: 30000 });
 
   /* 화면을 갈아엎는 순간을 전부 적어 둔다 — CI 에서 채점까지 끝난 뒤
@@ -127,14 +136,15 @@ const EXAM = 'hwol-2018';   // 전국 공식 정답률(rate)이 실려 있는 �
     }
     scoreAuto();
   }, EXAM);
-  /* ⚠ 카드가 **한 장 뜬 순간**에 읽으면 안 된다. 시트가 빈 답을 주고 나면
+  /* ⚠ 카드가 **한 장 뜬 순간**에 읽으면 안 된다. 시트가 답을 주고 나면
        앱은 성적표를 한 번 더 그린다(loadHist → rerenderReport). 그 틈에는
        오답노트가 잠깐 비어 있다. 실제로 그 틈에서 읽고 «사흘로 안 나뉜다 ·
        다시 풀었음이 0개다» 라고 말했다 — 화면은 멀쩡했고, 자가 지나가는
        순간을 본 것이다. **더 안 바뀔 때까지** 기다린다(초를 세지 않는다).
 
      ⚠ 여기서 끊기면 자는 «60초 지났다» 만 남긴다. 그것은 고장난 곳을 안
-       짚는 말이라, 못 그렸으면 화면이 어디까지 갔는지를 적고 죽는다. */
+       짚는 말이라, 못 그렸으면 화면이 어디까지 갔는지를 적고 죽는다.
+       그 기록 덕에 위의 시동 경주(boot → renderList)를 잡았다. */
   const drawn = await p.waitForFunction(() => {
     const root = document.getElementById('wrongbook');
     if (!root || !document.querySelectorAll('.wb-card').length) return false;
