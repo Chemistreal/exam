@@ -66,9 +66,21 @@ def scan():
             continue
         if 'chromium' not in src:
             continue                      # 브라우저를 안 띄우는 검사
+        undefined = None
         # 머리말(주석)만 보고 «막았다» 고 치지 않는다 — 실제로 부르는지 본다.
-        wired = bool(re.search(r'\bnoSheet\s*\(', src))
+        call = re.search(r'\bnoSheet\s*\(\s*([A-Za-z_$][\w$]*)\s*\)', src)
+        wired = bool(call)
         required = "require('./_nosheet.js')" in src
+        # **부른 자와 도는 자는 다르다.** 2026-08-12, 열다섯 곳에 이 줄을 걸면서
+        # 두 곳에 `noSheet(browser)` 를 적었는데 그 파일이 브라우저를 담아 둔
+        # 이름은 `b` 였다. 판에서는 `ReferenceError: browser is not defined` 로
+        # 죽었고 — 다행히 죽었다 — 이 자는 그때도 «걸려 있다» 고 답했다.
+        # 넘겨주는 이름이 그 파일 안에 실제로 있는지 본다.
+        if call:
+            nm = call.group(1)
+            if not re.search(r'\b(?:const|let|var|function)\s+' + re.escape(nm) + r'\b', src):
+                wired = False
+                undefined = nm
         # 손으로 막아야만 하는 검사가 하나 있다 — **나가는 POST 를 세는 것**이
         # 목적인 검사다(`tests/silent-resend.js`). 그런 검사는 `_nosheet` 를
         # 쓰면 셀 것이 사라진다. 다만 **말없이 빠져나가지는 못하게** 한다:
@@ -83,6 +95,7 @@ def scan():
         opens = bool(DOORS.search(src))
         rows.append({'file': 'tests/' + base, 'wired': wired and required,
                      'handmade': handmade, 'opens': opens,
+                     'undefined': undefined,
                      'grades': 'scoreAuto' in src})
     return rows
 
@@ -101,6 +114,9 @@ def main():
                 why.append('**채점한다 — 시트에 줄을 쓴다**')
             elif r['opens']:
                 why.append('창구를 부르는 화면을 연다 — 진짜 명단을 읽는다')
+            if r['undefined']:
+                why.append('**noSheet(%s) 인데 이 파일에 «%s» 가 없다** — 판에서 터진다'
+                           % (r['undefined'], r['undefined']))
             if r['handmade']:
                 why.append('손으로 막아 두었지만 그것으로는 모자란다(머리말 참조)')
             print('   %-34s %s' % (r['file'], ' · '.join(why) or '확인 필요'))

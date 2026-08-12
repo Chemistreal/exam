@@ -97,7 +97,7 @@ async function settled(p, label, fn, arg, ms) {
      학원의 진짜 시트를 그대로 읽고 있었다 — 채점하는 자리는 거기에 줄까지
      쓴다. `tests/_nosheet.js` 는 그 일을 막으려고 진작에 만들어 둔 자인데
      여기 안 걸려 있었다. 걸지 않은 자는 없는 자와 같다. */
-  await noSheet(browser);
+  await noSheet(b);
   /* 서비스 워커를 막는다. 여기서는 오프라인 캐시를 보지 않는데(그건 offline.js),
      로컬 서버는 저장소 루트를 그대로 서빙해서 워커 범위가 '/' 가 된다. 그러면
      워커가 ../DT/ 요청까지 가로채 검사용 흉내 화면이 안 뜬다.
