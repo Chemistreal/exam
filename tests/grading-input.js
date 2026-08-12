@@ -45,6 +45,7 @@
 'use strict';
 require('./_watchdog.js')(240);
 const seal = require('./_seal.js');
+const noSheet = require('./_nosheet.js');
 const PLAYWRIGHT = process.env.PLAYWRIGHT_MODULE || 'playwright';
 const CHROMIUM = process.env.CHROMIUM_PATH || undefined;
 const PORT = Number(process.env.PORT || 8931);
@@ -72,6 +73,11 @@ const EXAM = 'jmchc-6';
 
 (async () => {
   const browser = seal(await chromium.launch({ executablePath: CHROMIUM, args: ['--no-sandbox'] }));
+  /* ⚠ **시트를 막고 시작한다**(2026-08-12). 이 검사는 `DT/**` 만 막고 있어서
+     학원의 진짜 시트를 그대로 읽고 있었다 — 채점하는 자리는 거기에 줄까지
+     쓴다. `tests/_nosheet.js` 는 그 일을 막으려고 진작에 만들어 둔 자인데
+     여기 안 걸려 있었다. 걸지 않은 자는 없는 자와 같다. */
+  await noSheet(browser);
   const page = await browser.newPage();
   const errs = [];
   page.on('pageerror', e => errs.push(e.message));

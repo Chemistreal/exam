@@ -108,6 +108,102 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"촉매 = 활성화 에너지 낮춤(새 경로) → 속도↑ · ΔH·평형·자신은 안 바뀜."</div>
 <p>촉매는 활성화 에너지가 낮은 새 경로를 제공해 반응을 빠르게 해(자신은 소모 안 됨). 하지만 반응 엔탈피(ΔH)나 평형 위치, 최종 생성물의 양은 바꾸지 않아(정·역반응을 똑같이 가속, 079). 온도가 넘는 입자 비율을 늘린 것과 달리, 촉매는 장벽 자체를 낮추지.</p>
 <p>다음 강(113 반응 속도 종합)이 이 영역의 마지막이야. 반응 속도에 영향을 주는 모든 요인(농도·온도·촉매·표면적)을 한 표로 종합하고, 모두가 "유효 충돌을 늘린다"로 설명된다는 걸 확인할 거야. 오늘의 촉매를 들고, 영역 전체를 마무리하러 가자.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 다음은 성층권에서 오존이 분해되는 반응의 두 단계 메커니즘이다.<br><br>1단계: Cl + O₃ → ClO + O₂<br>2단계: ClO + O → Cl + O₂<br><br>두 단계를 더한 전체 반응은 O₃ + O → 2O₂ 이다. 이 메커니즘에서 촉매와 반응 중간체를 옳게 짝지은 것은? (단, 촉매는 반응 전에 넣어 주고 반응이 끝난 뒤에도 그대로 남는 화학종이고, 반응 중간체는 메커니즘 도중에 생겼다가 소모되어 전체 반응식에는 나타나지 않는 화학종이다.)</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">촉매 ClO, 중간체 Cl</button></li>
+<li><button type="button" class="lq__opt">촉매 Cl, 중간체 ClO</button></li>
+<li><button type="button" class="lq__opt">촉매 Cl, 중간체 O₂</button></li>
+<li><button type="button" class="lq__opt">촉매 O, 중간체 ClO</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>각 화학종이 어느 단계에서 소모되고 어느 단계에서 생기는지 따라간다.
+Cl은 1단계에서 소모되었다가 2단계에서 다시 생긴다. 즉 반응 전후로 양이 변하지 않으므로 촉매다.
+ClO는 1단계에서 생겼다가 2단계에서 소모된다. 즉 도중에만 존재하므로 반응 중간체다.
+따라서 촉매 Cl, 중간체 ClO. → ②
+먼저 소모되고 나중에 생기면 촉매, 먼저 생기고 나중에 소모되면 중간체다. 순서가 판별 기준이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 촉매는 새로운 낮은 에너지 경로(같은 활성화 상태)를 제공하므로 정반응과 역반응의 활성화 에너지를 같은 크기만큼 낮추며, ΔH와 평형 상수는 바꾸지 않는다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 어떤 가역 반응의 정반응 활성화 에너지가 촉매가 없을 때 75.0 kJ/mol이고, 정촉매를 넣으면 50.0 kJ/mol로 낮아진다.<br>300 K에서 정촉매를 넣었을 때 정반응의 속도 상수 k와 이 반응의 평형 상수 K에 일어나는 변화를 옳게 짝지은 것은?<br>(아레니우스 식 k = A·exp(−Ea/RT)에서 앞자리 인자 A는 촉매를 넣어도 같다고 본다. R = 8.314 J/(mol·K), e¹⁰ = 2.20×10⁴)</div>
+<ol class="lq__opts" data-ans="4">
+<li><button type="button" class="lq__opt">k는 약 1.5배가 되고, 평형 상수는 변하지 않는다</button></li>
+<li><button type="button" class="lq__opt">k는 약 4.4×10⁻⁵배가 되고, 평형 상수는 변하지 않는다</button></li>
+<li><button type="button" class="lq__opt">k는 약 2.3×10⁴배가 되고, 평형 상수도 약 2.3×10⁴배가 된다</button></li>
+<li><button type="button" class="lq__opt">k는 약 2.3×10⁴배가 되고, 평형 상수는 변하지 않는다</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>④</b></div>
+<p>[속도 상수의 변화] A가 같으므로 두 속도 상수의 비는 지수 부분만 남는다.
+k(촉매) / k(무촉매) = exp(−Ea′/RT) ÷ exp(−Ea/RT) = exp((Ea − Ea′)/RT)
+Ea − Ea′ = 75.0 − 50.0 = 25.0 kJ/mol = 25000 J/mol
+RT = 8.314 × 300 = 2494.2 J/mol
+지수 = 25000 ÷ 2494.2 = 10.02
+k 비 = exp(10.02) = e¹⁰ × exp(0.02) = 2.20×10⁴ × 1.02 = 2.24×10⁴ ≈ 2.3×10⁴배.
+검산: ln(2.24×10⁴) = ln 2.24 + 4 × ln 10 = 0.806 + 9.210 = 10.02 ✓
+[평형 상수] 촉매는 정반응과 역반응의 활성화 에너지를 똑같은 크기(여기서는 25.0 kJ/mol)만큼 낮추므로 정·역 두 속도 상수가 같은 배수로 커진다. K = k(정)/k(역)이므로 그 비는 그대로이다. 열역학적으로 보아도 K는 ΔG°로만 정해지고 촉매는 반응물과 생성물의 에너지를 바꾸지 않으므로 ΔG°도, K도 변하지 않는다.
+즉 촉매는 평형에 &#x27;더 빨리&#x27; 도달하게 할 뿐 평형의 위치를 옮기지는 못한다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 촉매가 정반응만 빠르게 해 준다고 생각해, 촉매를 넣으면 생성물이 더 많이 생겨 평형 상수가 커진다고 본다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 촉매에 대한 설명으로 옳지 않은 것은?</div>
+<ol class="lq__opts" data-ans="4">
+<li><button type="button" class="lq__opt">촉매는 정반응과 역반응의 활성화 에너지를 모두 같은 크기만큼 낮추므로 평형 상수와 평형 조성을 바꾸지 않는다.</button></li>
+<li><button type="button" class="lq__opt">촉매를 넣어도 반응물과 생성물의 에너지 차이인 반응 엔탈피 ΔH는 변하지 않는다.</button></li>
+<li><button type="button" class="lq__opt">촉매를 쓰면 같은 온도에서도 활성화 에너지 문턱을 넘을 수 있는 분자의 비율이 커져 반응 속도가 빨라진다.</button></li>
+<li><button type="button" class="lq__opt">촉매는 원래의 반응 경로를 그대로 따라가면서 활성화 에너지 값만 낮추어 주므로, 반응 중간체는 촉매가 없을 때와 완전히 같다.</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>④</b></div>
+<p>촉매는 기존 경로의 언덕 높이만 깎아 주는 것이 아니라, 촉매가 반응물과 직접 결합하여 활성화 에너지가 더 낮은 &#x27;다른 경로&#x27;를 새로 제공한다. 그래서 촉매 반응의 중간체와 전이 상태는 무촉매 반응의 것과 다르며, 촉매는 중간 단계에서 소모되었다가 마지막 단계에서 재생되어 전체 반응식에는 나타나지 않는다. 나머지 세 설명은 모두 옳다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 촉매를 &#x27;반응 경로 그래프의 언덕만 낮춰 주는 장치&#x27;로 보고, 경로 자체와 중간체가 바뀐다는 점을 놓친다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 문제에서 ① 촉매는 활성화 에너지를 낮춰 속도↑ ② ΔH·평형·생성물 양은 안 바꿈(079) ③ 자신은 소모 안 됨. 그리고 입으로 말해. "촉매는 활성화 에너지를 낮춰 반응을 빠르게 하지만, ΔH와 평형은 바꾸지 않는다." 한 바퀴 돌리면 이 개념은 네 거다.</div>
 </div>
 

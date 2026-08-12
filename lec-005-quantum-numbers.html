@@ -120,6 +120,94 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"전자 주소는 네 글자 · n(껍질), l(모양 0~n−1), mₗ(방향 −l~+l), mₛ(스핀 ±½)."</div>
 <p>오비탈은 궤도가 아니라 확률 구름. 허용 범위(l<n, |mₗ|≤l, mₛ=±½)만 정확하면 양자수 조합 문제는 다 맞아. 껍질당 오비탈 n²개·전자 2n²개, s·p·d·f 정원은 2·6·10·14.</p>
 <p>다음 강(006 전자 배치)에서는 이 방들에 전자를 실제로 채워. 어느 방부터, 어떤 규칙으로 채우는지(쌓음·파울리·훈트)를 배우면, 임의의 원자의 전자 배치를 직접 쓸 수 있게 돼. 오늘 만든 "방 구조(어떤 오비탈이 몇 개)"가 그 채우기의 무대야. 무대를 머리에 그려놓고 넘어가자.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 양자수는 n = 1, 2, 3, …, ℓ = 0, 1, …, n−1, mℓ = −ℓ, …, 0, …, +ℓ, mₛ = ±½의 조건을 만족한다. 다음 중 옳은 설명은?</div>
+<ol class="lq__opts" data-ans="1">
+<li><button type="button" class="lq__opt">n = 3인 껍질에는 최대 18개의 전자가 들어갈 수 있고, 그중 mℓ = 0인 오비탈에 들어갈 수 있는 전자는 최대 6개이다.</button></li>
+<li><button type="button" class="lq__opt">n = 3인 껍질에는 ℓ = 3인 부껍질이 존재한다.</button></li>
+<li><button type="button" class="lq__opt">양자수 조합 (n, ℓ, mℓ, mₛ) = (3, 3, 0, +½)는 허용된다.</button></li>
+<li><button type="button" class="lq__opt">n = 4, ℓ = 3인 부껍질의 오비탈 수는 5개이다.</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>①</b></div>
+<p>n = 3에서 ℓ은 0, 1, 2를 가지므로 오비탈 수는 1 + 3 + 5 = 9개이고 전자는 최대 2 × 9 = 18개이다. 이 중 mℓ = 0인 오비탈은 3s(ℓ=0, mℓ=0), 3p 중 mℓ=0인 것, 3d 중 mℓ=0인 것으로 모두 3개이고, 각 오비탈에 전자 2개씩 들어가므로 최대 6개이다. n = 3에서는 ℓ ≤ 2이므로 ℓ = 3인 부껍질이나 (3, 3, 0, +½) 조합은 존재하지 않는다. n = 4, ℓ = 3(4f)에서는 mℓ이 −3부터 +3까지 7개이므로 오비탈은 7개이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> ℓ ≤ n−1과 |mℓ| ≤ ℓ이라는 제약을 잊고, 부껍질의 오비탈 수 2ℓ+1을 껍질 번호나 다른 규칙으로 대신 세는 것.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 양자수는 다음 규칙을 만족한다.<br><br>· 주양자수 n은 1, 2, 3, … 의 자연수이다.<br>· 방위(각운동량) 양자수 l은 0, 1, 2, …, n − 1의 값을 갖는다.<br>· 자기 양자수 mₗ은 −l, −l + 1, …, 0, …, l − 1, +l의 값을 갖는다.<br>· 각 (n, l, mₗ) 조합 하나가 오비탈 하나에 대응한다.<br><br>주양자수 n = 5인 전자 껍질에서 mₗ = +2인 오비탈은 모두 몇 개인가?</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">1개</button></li>
+<li><button type="button" class="lq__opt">2개</button></li>
+<li><button type="button" class="lq__opt">3개</button></li>
+<li><button type="button" class="lq__opt">5개</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>n = 5이므로 l은 0, 1, 2, 3, 4의 값을 가질 수 있다.
+mₗ = +2가 허용되려면 |mₗ| ≤ l, 즉 l ≥ 2여야 하므로 l = 2, 3, 4의 세 가지가 가능하다.
+따라서 (5, 2, +2), (5, 3, +2), (5, 4, +2)의 세 오비탈이 있으므로 3개이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> mₗ 값은 부껍질마다 따로 존재하므로, 같은 mₗ 값을 갖는 오비탈은 l ≥ |mₗ|인 모든 부껍질에 하나씩 있다. n = 5에서는 l = 4(g 부껍질)까지 존재한다는 점을 빠뜨리기 쉽다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 다전자 원자에서 주 양자수 n, 각운동량(방위) 양자수 l, 자기 양자수 mₗ, 스핀 양자수 mₛ 는 각각 n = 1, 2, 3, …, l = 0, 1, …, n−1, mₗ = −l, …, 0, …, +l, mₛ = +½ 또는 −½ 의 값만 가질 수 있다.<br><br>어떤 원자에서 n = 4 이고 mₗ = +1 인 전자가 존재할 수 있는 최대 개수는?</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">2개</button></li>
+<li><button type="button" class="lq__opt">6개</button></li>
+<li><button type="button" class="lq__opt">8개</button></li>
+<li><button type="button" class="lq__opt">14개</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>n = 4 이면 l 은 0, 1, 2, 3 의 값을 가질 수 있다. 이 중 mₗ = +1 이 허용되려면 |mₗ| ≤ l 이어야 하므로 l ≥ 1, 즉 l = 1(4p), 2(4d), 3(4f) 의 세 부껍질이다. l = 0(4s)은 mₗ = 0 뿐이므로 제외된다.
+각 부껍질에서 mₗ = +1 인 오비탈은 정확히 1개씩이므로 조건을 만족하는 오비탈은 3개이고, 오비탈 하나에는 mₛ = +½, −½ 인 전자가 최대 2개 들어간다(파울리 배타 원리).
+따라서 최대 전자 수는 3 × 2 = 6개이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> mₗ = +1 이 특정 부껍질(예: 4p)에만 있다고 생각하거나, 반대로 l = 0 인 4s에도 mₗ = +1 이 있다고 잘못 세어 오비탈 개수를 틀린다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 양자수 문제의 각 조합을 n → l → mₗ → mₛ 순서로 범위 체크해봐. 불가능한 게 있으면 "여기서 l이 n을 넘었다"처럼 이유를 적어. 그리고 n=2와 n=3 껍질의 오비탈을 직접 다 나열해봐(2s·2p 셋, 3s·3p 셋·3d 다섯). 그리고 입으로 말해. "전자 주소는 네 글자 · n(껍질), l(모양 0~n−1), mₗ(방향 −l~+l), mₛ(스핀 ±½)." 한 바퀴 돌리면 이 개념은 네 거다.</div>
 </div>
 

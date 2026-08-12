@@ -24,6 +24,7 @@
 'use strict';
 require('./_watchdog.js')(180);
 const seal = require('./_seal.js');
+const noSheet = require('./_nosheet.js');
 const PLAYWRIGHT = process.env.PLAYWRIGHT_MODULE || 'playwright';
 const CHROMIUM = process.env.CHROMIUM_PATH || undefined;
 const PORT = Number(process.env.PORT || 8931);
@@ -52,6 +53,12 @@ const chk = (n, got, want) => {
 
 (async () => {
   const browser = seal(await chromium.launch({ executablePath: CHROMIUM, args: ['--no-sandbox'] }));
+  /* ⚠ **시트를 막고 시작한다.** 안 막으면 검사가 학원의 진짜 시트를 읽고,
+     채점하는 검사는 **거기에 줄을 쓴다.** 2026-08-12 에 실제로 그랬다 —
+     이 검사가 판을 돌 때마다 «무응답점검·분류점검·자료링크점검» 같은 이름이
+     선생님 시트에 쌓이고 있었다(POST 를 세어서 확인했다).
+     `tests/_nosheet.js` 머리말이 처음부터 이르던 일이다. */
+  await noSheet(browser);
   const page = await browser.newPage();
   const errs = [];
   page.on('pageerror', e => errs.push(e.message));

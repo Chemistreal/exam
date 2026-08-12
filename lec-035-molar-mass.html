@@ -104,6 +104,90 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"몰질량은 1몰의 무게(g/mol) · 몰 = 질량 ÷ 몰질량 · 모든 변환은 몰을 거친다."</div>
 <p>몰질량은 분자량 숫자에 g/mol을 붙인 값(물 18 g/mol). 질량과 몰은 몰질량으로, 몰과 입자 수는 N<sub>A</sub>로 변환하고, 몰이 중심 허브야. 무게가 같아도 몰질량이 다르면 몰이 달라.</p>
 <p>그런데 몰질량의 숫자(18, 32, 12)는 분자량·원자량에서 나온다고 했지. 다음 강(036 화학식량)에서 그 분자량·원자량을 정확히 어떻게 구하는지, 이온 결합 물질은 왜 화학식량을 쓰는지를 잡아. 그러면 어떤 물질이든 몰질량을 직접 계산할 수 있게 돼. 오늘의 "질량 ↔ 몰 ↔ 입자 수" 변환 지도를 손에 익히고 가자.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 어떤 원소 X는 자연계에서 두 가지 동위원소로만 존재한다. 두 동위원소의 정확한 원자량은 각각 62.93과 64.93이고, X의 평균 원자량은 63.55이다. 원자량이 64.93인 동위원소의 존재비(원자 수 백분율)는?</div>
+<ol class="lq__opts" data-ans="1">
+<li><button type="button" class="lq__opt">31%</button></li>
+<li><button type="button" class="lq__opt">69%</button></li>
+<li><button type="button" class="lq__opt">50%</button></li>
+<li><button type="button" class="lq__opt">62%</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>①</b></div>
+<p>무거운 동위원소의 존재비를 x라 하면 평균 원자량 = 62.93(1 − x) + 64.93x = 62.93 + 2.00x = 63.55이므로 2.00x = 0.62, x = 0.31, 즉 31%다(가벼운 쪽이 69%). 평균 원자량이 두 값의 중간인 63.93보다 가벼운 쪽에 치우쳐 있으므로 가벼운 동위원소가 더 많다는 점으로도 검산할 수 있다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 평균 원자량이 어느 쪽에 가까운지로 많은 동위원소를 판단하는 감각이 없어, 구한 존재비를 반대 동위원소의 것으로 대응시킨다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 어떤 수소 기체 시료는 H₂, HD, D₂ 세 종류의 분자로만 이루어져 있다. 이 시료 안의 전체 분자는 1.00 mol이고, HD는 0.30 mol이 들어 있으며, 시료에 들어 있는 D 원자 수는 전체 수소 원자 수(H 원자와 D 원자의 합)의 20.0%이다. 이 시료의 평균 분자량은? (원자량: H = 1.00, D = 2.00)</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">2.00</button></li>
+<li><button type="button" class="lq__opt">2.20</button></li>
+<li><button type="button" class="lq__opt">2.40</button></li>
+<li><button type="button" class="lq__opt">3.00</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>평균 분자량 = (시료의 총 질량) ÷ (총 분자 몰수)이다. 모든 분자가 두 원자로 되어 있으므로 총 원자 몰수 = 2 × 1.00 = 2.00 mol. 이 중 D는 20.0%이므로 D = 0.400 mol, H = 1.600 mol. 총 질량 = 1.600 × 1.00 + 0.400 × 2.00 = 1.60 + 0.80 = 2.40 g. 따라서 평균 분자량 = 2.40 ÷ 1.00 = 2.40. H₂·HD·D₂의 개별 몰수는 알 필요가 없다(주어진 HD = 0.30 mol은 불필요한 정보이며, 실제로 H₂ 0.65 mol, HD 0.30 mol, D₂ 0.05 mol로 조건과 모순이 없다).</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> &#x27;전체 원자의 20%&#x27;를 &#x27;전체 분자의 20%&#x27;로 바꿔 읽고, 세 분자의 몰수를 굳이 구하려 한다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 가상의 원소 M은 두 가지 동위원소로만 존재한다. 각 동위원소의 정확한 원자량과 존재비는 다음과 같다. ²⁴M: 23.99, 80.0%. ²⁶M: 25.98, 20.0%. 이때 M의 평균 원자량과 화합물 M₃N₂의 평균 화학식량을 옳게 짝지은 것은? (N의 평균 원자량은 14.01로 하고, 답은 소수 둘째 자리까지 나타낸다.)</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">24.99, 102.98</button></li>
+<li><button type="button" class="lq__opt">24.39, 101.18</button></li>
+<li><button type="button" class="lq__opt">23.99, 99.99</button></li>
+<li><button type="button" class="lq__opt">25.58, 104.77</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>평균 원자량은 존재비를 가중치로 한 가중 평균이다. 평균 원자량 = 0.800 × 23.99 + 0.200 × 25.98 = 19.192 + 5.196 = 24.388 ≈ 24.39. 화학식량은 이 평균 원자량으로 계산한다. M₃N₂ = 3 × 24.388 + 2 × 14.01 = 73.164 + 28.02 = 101.184 ≈ 101.18. 존재비가 큰 쪽(23.99)에 가깝게 나오는지 검산하면 24.39는 23.99와 25.98 사이에서 가벼운 쪽으로 치우쳐 있어 타당하다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 존재비 가중 평균 대신 두 동위원소 원자량의 단순 산술 평균을 쓰거나, 가중치를 뒤바꾸는 것.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 문제를 변환 지도로 풀어봐. ① 질량을 몰질량으로 나눠 몰로 ② 몰에 N<sub>A</sub> 곱해 입자 수로(또는 그 반대) ③ 항상 몰을 거치는지 확인. 그리고 입으로 말해. "무게를 몰질량으로 나누면 몰이고, 몰이 모든 변환의 가운데다." 한 바퀴 돌리면 이 변환은 네 거다.</div>
 </div>
 

@@ -111,6 +111,96 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"연결이 다르면 구조, 배치만 다르면 입체. C=C는 시스·트랜스, 네 그룹 다르면 거울상."</div>
 <p>이성질체는 같은 분자식에 다른 구조·배열. 구조 이성질체(사슬·위치·작용기)는 연결 자체가 다르고, 입체 이성질체는 연결은 같되 공간 배치가 달라. 기하 이성질체는 C=C 회전 잠김 + 각 탄소에 다른 두 그룹이 조건이고, 광학 이성질체는 카이랄 중심(네 그룹 전부 다름)이 조건이야. 개수 세기는 긴 사슬부터, 중복 제거 원칙으로.</p>
 <p>다음 강(120)에서는 특별 손님, <b>벤젠과 방향족</b>이야. 불포화인데 첨가 반응을 싫어하는 이상한 고리, 그 비밀은 047에서 배운 공명에 있어.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 중심 금속 이온 M에 서로 다른 두 종류의 한 자리 리간드 A, B가 결합한 4배위 착물 X의 조성은 MA₂B₂이다. 실험에서 X를 성질이 서로 다른 두 가지 화합물로 완전히 분리해 낼 수 있었고, 두 화합물 모두 편광면을 회전시키지 않았다. X의 구조와 두 이성질체의 관계를 옳게 설명한 것은?</div>
+<ol class="lq__opts" data-ans="4">
+<li><button type="button" class="lq__opt">X는 정사면체 구조이고, 두 이성질체는 서로 거울상인 광학 이성질체이다</button></li>
+<li><button type="button" class="lq__opt">X는 정사면체 구조이고, A와 B의 배열 방식에 따라 두 가지 기하 이성질체가 생긴다</button></li>
+<li><button type="button" class="lq__opt">X는 평면 사각형 구조이고, 두 이성질체는 서로 거울상이어서 각각 광학 활성을 나타낸다</button></li>
+<li><button type="button" class="lq__opt">X는 평면 사각형 구조이고, 두 이성질체는 두 A가 서로 이웃한 cis형과 서로 마주 보는 trans형이다</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>④</b></div>
+<p>정사면체 MA₂B₂에서는 네 배위 자리가 모두 서로 인접하므로 A 두 개의 상대 위치를 바꾸어도 같은 분자이고, 대칭면도 있어 광학 이성질체도 생기지 않는다. 즉 이성질체가 존재하지 않는다. 반면 평면 사각형 MA₂B₂는 두 A가 인접한 cis형과 대각으로 마주 보는 trans형 두 가지가 존재하며, 둘 다 분자 평면을 포함한 대칭면을 가지므로 광학 활성이 없다. 실험 결과(두 종류 분리 + 광학 불활성)와 일치하는 구조는 평면 사각형이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 서로 다른 두 리간드가 2개씩 있으면 정사면체에서도 기하 이성질체가 생긴다고 생각하는 것, 그리고 cis/trans 이성질체를 거울상 이성질체와 혼동하는 것.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 분자식이 C₅H₁₁Br인 화합물 중 고리 구조가 없는 것의 구조 이성질체는 모두 몇 가지인가? (원자들의 연결 방식이 다른 것만 서로 다른 이성질체로 세며, 연결 방식이 같고 입체 배치만 다른 거울상 이성질체는 같은 것으로 본다. 단일 결합 둘레의 회전으로 겹쳐지는 것도 같은 것으로 본다.)</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">3가지</button></li>
+<li><button type="button" class="lq__opt">6가지</button></li>
+<li><button type="button" class="lq__opt">8가지</button></li>
+<li><button type="button" class="lq__opt">11가지</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>탄소 5개의 골격을 먼저 나누고, 각 골격에서 서로 다른 위치에 Br을 붙인다.
+[곧은 사슬 펜테인 골격] Br의 위치 1, 2, 3 → 3가지 (4번, 5번은 회전하면 2번, 1번과 같다)
+[2-메틸뷰테인 골격] Br의 위치가 서로 다른 탄소는 4가지 → 1-, 2-, 3-, 4-위치에 해당하는 4가지
+[2,2-다이메틸프로페인 골격] 네 개의 CH₃가 모두 같으므로 1가지
+3 + 4 + 1 = 8가지이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 탄소 골격을 나누어 세지 않으면 가짓수를 놓치고, 사슬을 회전시켜 겹쳐지는 위치를 별개로 세면 중복이 생긴다. 문제에서 거울상 이성질체를 제외하라고 했으면 부제 탄소를 가진 것도 한 가지로만 세야 한다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 다음 화합물의 입체 이성질체를 세려고 한다.<br><br>CH₃–CHCl–CHCl–CH₃<br><br>(단, 서로 겹쳐 놓을 수 있는 구조는 같은 것으로 하나만 센다. 즉 분자 안에 대칭면이 생겨 광학 활성이 사라지는 메소(meso) 화합물은 하나의 입체 이성질체로 센다. 단일 결합의 회전은 자유롭다.)<br><br>이 화합물의 입체 이성질체 총 개수와 그중 광학 활성인 것의 개수를 옳게 짝지은 것은?</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">총 2개, 광학 활성 2개</button></li>
+<li><button type="button" class="lq__opt">총 3개, 광학 활성 2개</button></li>
+<li><button type="button" class="lq__opt">총 4개, 광학 활성 2개</button></li>
+<li><button type="button" class="lq__opt">총 4개, 광학 활성 4개</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>2번과 3번 탄소가 각각 –CH₃, –H, –Cl, 그리고 나머지 탄소 사슬의 서로 다른 네 기를 가지므로 두 개의 입체 중심이 있다. 입체 중심이 n 개일 때 최대 2ⁿ = 4 개의 배열 (R,R), (S,S), (R,S), (S,R) 을 생각할 수 있다.
+그런데 이 분자는 두 입체 중심에 붙은 치환기가 완전히 같아 좌우 대칭이다. 그 결과 (R,S) 와 (S,R) 은 분자를 뒤집으면 서로 겹쳐지는 같은 화합물이며, 분자 가운데를 지나는 대칭면을 가지므로 자신의 거울상과 같다. 이것이 메소 화합물이고 광학 활성이 없다.
+따라서 실제 입체 이성질체는 (R,R), (S,S), 메소체의 3개이고, 이 중 서로 거울상 관계인 (R,R) 과 (S,S) 두 가지만 광학 활성이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 입체 중심 개수 n 만 보고 2ⁿ 공식을 기계적으로 적용해, 두 입체 중심의 치환기가 같아 (R,S) 와 (S,R) 이 같은 분자가 되는 대칭 상황을 놓친다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>① C₅H₁₂ 3개, C₃H₈O 3개를 직접 그려봐(중복 검사 포함). ② 프로펜과 2-뷰텐 중 기하 이성질체가 있는 쪽과 그 이유를 말해봐. ③ 뷰탄-2-올의 카이랄 중심에 붙은 네 그룹을 나열해봐. 마지막으로 가계도를 안 보고 그려. "구조(사슬·위치·작용기) / 입체(기하·광학)."</div>
 </div>
 

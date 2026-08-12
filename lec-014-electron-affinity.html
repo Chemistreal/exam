@@ -95,6 +95,90 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"전자친화도는 전자 받는 에너지 · 17족 최대, 18·2·15족 작음 · 그리고 Cl &gt; F."</div>
 <p>기본은 이온화에너지와 같은 방향(오른쪽 대체로 큼, 아래 대체로 작음)이지만 불규칙성이 커. 17족이 옥텟 완성이라 가장 크고, 너무 작은 2주기는 반발로 손해라 Cl&gt;F 같은 역전이 생겨. 부호 관행(방출=양수 또는 음의 ΔH)도 기억해.</p>
 <p>다음 강(015 전기음성도)에서 이온화에너지와 전자친화도가 하나로 합쳐져. 두 성질 모두 "전자를 얼마나 좋아하는가"의 측면이고, 그걸 결합 안에서의 능력으로 통합한 게 전기음성도거든. 오늘 잡은 "전자를 받고 싶어하는 정도"가 그 핵심 재료야. 결합 단원으로 가는 마지막 다리라고 보면 돼.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 이온화 에너지와 전자친화도에 대한 설명으로 옳은 것은?</div>
+<ol class="lq__opts" data-ans="1">
+<li><button type="button" class="lq__opt">Li⁺ 의 이온화 에너지는 Li²⁺ 의 전자친화도와 절댓값이 같고 부호가 반대다.</button></li>
+<li><button type="button" class="lq__opt">K 의 1차 이온화 에너지는 Ca 의 2차 이온화 에너지와 같다.</button></li>
+<li><button type="button" class="lq__opt">기체 원자에 전자를 넣을 때의 엔탈피 변화는 언제나 음수다.</button></li>
+<li><button type="button" class="lq__opt">전자친화도는 주기율표에서 아래로 갈수록 반드시 커진다.</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>①</b></div>
+<p>Li⁺ → Li²⁺ + e⁻ 가 1차 이온화이고, Li²⁺ + e⁻ → Li⁺ 는 그 역과정이라 크기가 같고 부호가 반대다. K 와 Ca 는 서로 다른 원소라 같을 까닭이 없다. 18족처럼 전자를 받으면 오히려 불안정해지는 원자는 엔탈피 변화가 양수다. 전자친화도는 아래로 갈수록 대체로 작아지고 F 보다 Cl 이 큰 예외도 있다. → ①</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 이온화 에너지와 전자친화도를 같은 과정의 두 이름으로 여긴다. 방향이 반대인 서로 다른 과정이다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 원소의 주기적 성질이 변하는 &#x27;방향&#x27;에 대한 다음 설명 중 옳지 않은 것은? (18족은 제외하고 전반적 경향만 따진다.)</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">같은 주기에서 오른쪽으로 갈수록 기체 상태의 원자가 전자 1개를 받아들일 때 방출하는 에너지는 대체로 커진다</button></li>
+<li><button type="button" class="lq__opt">같은 족에서 아래로 내려갈수록 전기음성도는 대체로 커진다</button></li>
+<li><button type="button" class="lq__opt">같은 족에서 아래로 내려갈수록 제1 이온화 에너지는 대체로 작아진다</button></li>
+<li><button type="button" class="lq__opt">같은 주기에서 오른쪽으로 갈수록 원자 반지름은 대체로 작아진다</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>이온화 에너지, 전자 친화도, 전기음성도는 모두 &#x27;원자핵이 전자를 붙잡는 힘&#x27;에 뿌리를 둔 성질이므로 변하는 방향이 같다. 즉 같은 주기에서 오른쪽으로 갈수록 유효 핵전하가 커져 세 값이 모두 커지고, 같은 족에서 아래로 내려갈수록 껍질 수가 늘어 원자가 커지고 안쪽 전자의 가려막기가 심해져 세 값이 모두 작아진다. 따라서 ②의 &#x27;아래로 갈수록 전기음성도가 커진다&#x27;는 방향이 반대이므로 옳지 않다(예: F 3.98 &gt; Cl 3.16 &gt; Br 2.96 &gt; I 2.66). 나머지 ①, ③, ④는 모두 올바른 방향이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 이온화 에너지·전자 친화도·전기음성도는 모두 오른쪽으로 증가, 아래로 감소한다. 전기음성도만 방향이 반대라고 기억하면 틀린다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 어떤 원소 M의 기체 상태 이온화 에너지가 다음과 같다. 1차 이온화 에너지 E₁ = 738 kJ/mol, 2차 이온화 에너지 E₂ = 1451 kJ/mol. 전자친화도는 &#x27;기체 상태 화학종이 전자 1개를 얻을 때 방출하는 에너지&#x27;로 정의하며, 방출이면 양의 값으로 나타낸다. 다음 설명 중 옳은 것은?</div>
+<ol class="lq__opts" data-ans="4">
+<li><button type="button" class="lq__opt">M(g)의 전자친화도가 738 kJ/mol이다.</button></li>
+<li><button type="button" class="lq__opt">M⁺(g)의 전자친화도가 1451 kJ/mol이다.</button></li>
+<li><button type="button" class="lq__opt">M²⁺(g)의 전자친화도는 1451 − 738 = 713 kJ/mol이다.</button></li>
+<li><button type="button" class="lq__opt">M²⁺(g)의 전자친화도가 1451 kJ/mol이다.</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>④</b></div>
+<p>전자친화도와 이온화 에너지는 같은 두 화학종을 잇는 정반대 과정이다. 2차 이온화는 M⁺(g) → M²⁺(g) + e⁻ (흡열 1451 kJ/mol)이므로, 그 역과정 M²⁺(g) + e⁻ → M⁺(g)는 1451 kJ/mol을 방출한다. 즉 M²⁺(g)의 전자친화도 = E₂ = 1451 kJ/mol이다. 같은 논리로 M⁺(g)의 전자친화도 = E₁ = 738 kJ/mol이며, M(g)의 전자친화도는 주어진 자료로는 알 수 없다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> Aⁿ⁺의 전자친화도는 A^(n+1)⁺의 이온화 에너지가 아니라 Aⁿ⁺→A^(n+1)⁺ 이온화 에너지, 즉 (n+1)차 이온화 에너지와 짝을 이룬다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 전자친화도 비교를 풀어봐. ① 기본은 오른쪽 대체로 큼(17족 최대), 18·2·15족은 작음 ② F vs Cl이 보이면 Cl&gt;F(작은 F의 반발) ③ 부호 관행 확인. 그리고 입으로 말해. "17족은 옥텟 완성이라 전자를 반기고, F는 너무 작아 반발로 손해본다." 한 바퀴 돌리면 이 개념은 네 거다.</div>
 </div>
 

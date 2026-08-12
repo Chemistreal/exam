@@ -103,6 +103,97 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"보일은 P·V 반비례(곡선), 샤를은 V·T 정비례(직선) · 온도는 절대온도."</div>
 <p>보일 법칙 PV=일정(P↑→V↓, 쌍곡선), 샤를 법칙 V/T=일정(원점 지나는 직선), 합치면 PV/T=일정. 온도는 반드시 켈빈(T(K)=°C+273)으로 써야 비례가 성립해.</p>
 <p>다음 강(046 이상기체 방정식)에서는 보일·샤를·아보가드로를 단 하나의 방정식 <span class="fm">PV = nRT</span>로 묶어. 네 변수(P·V·T·n)의 관계를 한 식에 다 담은 거지. 그러면 변수 중 셋만 알면 나머지 하나를 바로 계산할 수 있고, 039에서 본 22.4 L도 이 식에서 유도돼. 오늘의 두 법칙이 그 방정식의 뼈대야. 절대온도 습관을 들고 가자.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 일정량의 이상 기체가 27°C, 1.0 atm에서 6.0 L의 부피를 차지하고 있다. 이 기체의 상태를 다음과 같이 바꾸었을 때의 설명으로 옳지 않은 것은? (0°C = 273 K로 계산하며, 기체가 새어 나가지 않는다고 가정한다.)</div>
+<ol class="lq__opts" data-ans="4">
+<li><button type="button" class="lq__opt">온도를 27°C로 유지한 채 압력을 3.0 atm으로 올리면 부피는 2.0 L가 된다.</button></li>
+<li><button type="button" class="lq__opt">압력을 1.0 atm으로 유지한 채 온도를 327°C로 올리면 부피는 12.0 L가 된다.</button></li>
+<li><button type="button" class="lq__opt">부피를 6.0 L로 고정한 채 온도를 −123°C로 낮추면 압력은 0.50 atm이 된다.</button></li>
+<li><button type="button" class="lq__opt">압력을 1.0 atm으로 유지한 채 온도를 54°C로 올리면 섭씨 온도가 두 배가 되었으므로 부피도 두 배인 12.0 L가 된다.</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>④</b></div>
+<p>기체 법칙은 반드시 절대 온도(K)로 다루어야 한다. 처음 상태는 27°C = 300 K, 1.0 atm, 6.0 L이다.
+① 보일 법칙: V₂ = 6.0 × (1.0/3.0) = 2.0 L. 옳다.
+② 샤를 법칙: 327°C = 600 K이므로 V₂ = 6.0 × (600/300) = 12.0 L. 옳다.
+③ 부피 일정(게이뤼삭): −123°C = 150 K이므로 P₂ = 1.0 × (150/300) = 0.50 atm. 옳다.
+④ 54°C = 327 K이므로 V₂ = 6.0 × (327/300) = 6.54 L이지 12.0 L가 아니다. 섭씨 온도가 두 배라고 해서 절대 온도가 두 배가 되는 것이 아니므로 틀리다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 섭씨 온도를 그대로 비례 관계에 넣는다. 부피가 두 배가 되려면 절대 온도가 두 배(300 K → 600 K, 즉 27°C → 327°C)여야 한다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 수심 30.0 m에서 부피가 15.0 mL인 기포가 수면까지 천천히 떠올랐다.<br><br>수면에서 이 기포의 부피는? (단, 물속의 압력은 수면의 압력 1.00 atm에서 시작해 물의 깊이 10.0 m마다 1.00 atm씩 커지고, 떠오르는 동안 온도는 일정하며, 기포 속 기체는 이상 기체로 행동하고 물에 녹지 않는다.)</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">3.75 mL</button></li>
+<li><button type="button" class="lq__opt">60.0 mL</button></li>
+<li><button type="button" class="lq__opt">45.0 mL</button></li>
+<li><button type="button" class="lq__opt">5.00 mL</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>수심 30.0 m에서의 압력은 대기압 1.00 atm에 물기둥 몫 3.00 atm을 더한 4.00 atm이다.
+온도가 일정하므로 보일 법칙 P₁V₁ = P₂V₂를 쓴다.
+4.00 atm × 15.0 mL = 1.00 atm × V₂ → V₂ = 60.0 mL. → ②
+압력이 4분의 1로 줄었으므로 부피는 4배가 된다. 기포가 떠오르며 커지는 것이 실제 현상과도 맞는다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 압력은 부피 가중 평균이지 단순 평균도, 단순 합도 아니다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 일정량의 기체에 대해 &#x27;압력이 일정할 때 부피는 절대온도에 비례한다&#x27;는 샤를 법칙을 확인하려고 한다. 실험 설계로 가장 적절한 것은?</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">주사기 입구를 막고 온도를 25 °C로 유지한 채 피스톤을 눌러 가며, 갇힌 공기의 부피와 압력을 함께 측정한다.</button></li>
+<li><button type="button" class="lq__opt">단단한 강철 용기에 기체를 넣고 밀폐한 뒤, 물중탕 온도를 올려 가며 용기 안의 압력을 측정한다.</button></li>
+<li><button type="button" class="lq__opt">위쪽이 대기와 통하는 가느다란 유리관 속에 작은 수은 방울로 공기를 가둔 뒤, 관을 물중탕에 담가 온도를 바꿔 가며 갇힌 공기 기둥의 길이를 측정한다.</button></li>
+<li><button type="button" class="lq__opt">같은 온도와 같은 압력에서 서로 다른 종류의 기체를 각각 같은 부피만큼 모아 질량을 재어 비교한다.</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>법칙을 확인하려면 &#x27;검증하려는 두 변수(온도와 부피)만 변하게 하고 나머지는 고정&#x27;해야 한다. 샤를 법칙은 압력과 기체의 양을 일정하게 유지한 채 온도에 따른 부피 변화를 보아야 한다. 위쪽이 대기와 통하는 관에 수은 방울로 공기를 가두면 갇힌 공기의 압력은 항상 &#x27;대기압 + 수은 방울의 무게에 해당하는 압력&#x27;으로 일정하게 유지되고, 온도를 바꾸면 수은 방울이 움직이며 공기 기둥의 길이(= 부피)만 변한다. 따라서 이 설계가 샤를 법칙 확인에 적합하다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 온도·압력·부피 중 무엇을 고정했는지 확인하지 않고 &#x27;기체를 가열했으니 샤를 법칙&#x27;이라고 판단한다. 부피가 고정된 장치로는 샤를 법칙을 확인할 수 없다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 문제를 풀어봐. ① 무엇이 일정하고 무엇이 변하는지 보고 보일(PV)·샤를(V/T)·통합(PV/T) 중 골라 ② 온도가 있으면 켈빈으로 변환(+273) ③ 식에 대입. 그리고 입으로 말해. "보일은 반비례, 샤를은 정비례, 온도는 켈빈." 한 바퀴 돌리면 이 법칙들은 네 거다.</div>
 </div>
 

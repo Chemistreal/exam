@@ -112,6 +112,98 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"Eₙ=−13.6Z²/n² · 음수는 속박, n이 클수록 에너지는 0에 가까워(커져)."</div>
 <p>바닥상태 n=1이 가장 낮고 안정, 바깥으로 갈수록 높아지고 간격은 좁아져. 전이 에너지는 두 준위 차이, 그게 광자 에너지(<span class="fm">E=hν</span>)고. 이온화 에너지는 n=1에서 ∞까지(수소 13.6 eV), Z²은 핵전하 효과.</p>
 <p>다음 강(005 양자수와 오비탈)에서는 이 궤도 개념을 한 단계 업그레이드해. 사실 전자는 보어가 그린 깔끔한 원궤도를 도는 게 아니라, 확률 구름인 오비탈로 존재하거든. n 하나로는 부족하고 양자수가 네 개 필요해지지. 오늘의 n이 그 네 양자수 중 첫 번째라고 보면 돼. 에너지 준위 감각을 손에 쥐고 넘어가자.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 전자가 하나뿐인 수소 유사 이온의 에너지 준위는 Eₙ = −13.6 × Z²/n² eV로 주어진다(Z는 핵전하). He⁺ 이온에서 전자가 n = 3에서 n = 2로 전이할 때 방출되는 광자의 파장은? (hc = 1.240 × 10³ eV·nm)</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">41.0 nm</button></li>
+<li><button type="button" class="lq__opt">82.1 nm</button></li>
+<li><button type="button" class="lq__opt">164 nm</button></li>
+<li><button type="button" class="lq__opt">656 nm</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>He⁺는 Z = 2이므로 Z² = 4. ΔE = 13.6 × 4 × (1/2² − 1/3²) = 54.4 × (0.2500 − 0.1111) = 54.4 × 0.13889 = 7.556 eV. λ = hc/ΔE = 1.240 × 10³ eV·nm ÷ 7.556 eV = 164 nm.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> Z² 인자를 빠뜨려 수소 원자의 값을 그대로 쓰거나, Z를 잘못 거듭제곱하는 것.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 수소 원자의 전자가 가지는 에너지 준위는 다음과 같다.<br><br>Eₙ = −13.6/n² eV (n = 1, 2, 3, …)<br><br>들뜬 상태의 수소 원자에서 다음 네 가지 전자 전이가 각각 일어나며, 모두 빛을 방출한다.<br><br>(가) n = 3 → n = 1<br>(나) n = 5 → n = 2<br>(다) n = 4 → n = 3<br>(라) n = 6 → n = 5<br><br>방출되는 빛의 파장이 가장 짧은 것은?</div>
+<ol class="lq__opts" data-ans="1">
+<li><button type="button" class="lq__opt">(가)</button></li>
+<li><button type="button" class="lq__opt">(나)</button></li>
+<li><button type="button" class="lq__opt">(다)</button></li>
+<li><button type="button" class="lq__opt">(라)</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>①</b></div>
+<p>방출되는 빛의 에너지 ΔE = E(처음) − E(나중) = 13.6 × (1/n_나중² − 1/n_처음²) eV이고, 파장은 λ = hc/ΔE 이므로 ΔE가 가장 큰 전이가 파장이 가장 짧다.
+(가) 13.6 × (1/1² − 1/3²) = 13.6 × (1 − 0.1111) = 13.6 × 0.8889 = 12.09 eV
+(나) 13.6 × (1/2² − 1/5²) = 13.6 × (0.2500 − 0.0400) = 13.6 × 0.2100 = 2.86 eV
+(다) 13.6 × (1/3² − 1/4²) = 13.6 × (0.1111 − 0.0625) = 13.6 × 0.0486 = 0.66 eV
+(라) 13.6 × (1/5² − 1/6²) = 13.6 × (0.0400 − 0.0278) = 13.6 × 0.0122 = 0.17 eV
+가장 큰 것은 (가)의 12.09 eV이므로 파장이 가장 짧다(약 103 nm, 자외선 영역인 라이먼 계열).
+핵심은 에너지 준위 간격이 n이 커질수록 급격히 좁아진다는 점이다. n의 차이(Δn)가 아니라 &#x27;어느 준위로 떨어지는가&#x27;가 훨씬 크게 작용한다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 전이하는 준위의 차이 Δn이 클수록 방출 에너지가 크다고 생각하기 쉽지만, 에너지 준위는 n²에 반비례해 위로 갈수록 촘촘해지므로 낮은 n으로 떨어지는 전이가 훨씬 큰 에너지를 낸다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> He⁺ 이온은 전자가 1개뿐인 수소 유사 이온이다. 이러한 1전자계의 에너지 준위는 Eₙ = −Z²(13.6 eV)/n² 로 주어진다(Z는 핵전하, He의 경우 Z = 2). He⁺에 대한 설명으로 옳은 것은?</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">전자 간 차폐 효과 때문에 2s가 2p보다 에너지가 낮으므로, 2s → 1s 전이에서 나오는 광자가 2p → 1s 전이보다 에너지가 작다.</button></li>
+<li><button type="button" class="lq__opt">2s와 2p의 에너지가 같으며, n = 2 에서 n = 1 로 전이할 때 방출되는 광자의 에너지는 40.8 eV 이다.</button></li>
+<li><button type="button" class="lq__opt">He⁺의 n = 1 준위 에너지는 수소 원자와 같은 −13.6 eV 이다.</button></li>
+<li><button type="button" class="lq__opt">n = 2 에서 n = 1 로 전이할 때 방출되는 광자의 에너지는 수소 원자와 같은 10.2 eV 이다.</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>전자가 1개뿐이면 전자–전자 반발과 차폐가 존재하지 않으므로 에너지는 오직 주양자수 n에만 의존한다. 즉 2s와 2p는 완전히 축퇴되어 에너지가 같다(다전자 원자에서 같은 n에서 s &lt; p &lt; d 로 갈라지는 것은 차폐 때문이다).
+Z = 2 를 대입하면 E₁ = −2²(13.6)/1² = −54.4 eV, E₂ = −2²(13.6)/2² = −13.6 eV 이다.
+ΔE = E₂ − E₁ = −13.6 − (−54.4) = 40.8 eV 의 광자가 방출된다. 이는 수소의 대응 전이(10.2 eV)의 정확히 Z² = 4 배이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 다전자 원자의 부껍질 갈라짐(s &lt; p &lt; d)을 1전자계에도 적용하거나, Z² 인자를 빼먹고 수소 값을 그대로 쓴다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 전이 문제를 <span class="fm">Eₙ=−13.6/n²</span>로 직접 계산해봐. ① 두 준위 에너지 각각 구하기 ② 차이 내기 ③ 그게 광자 에너지. 그리고 입으로 말해. "n이 크니까 에너지가 더 큰(0에 가까운) 값이고, 아래로 떨어지니까 방출이다." 한 바퀴 돌리면 이 식은 네 거다.</div>
 </div>
 

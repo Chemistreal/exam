@@ -111,6 +111,100 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"안쪽 전자가 가리고(Z_eff=Z−S), 침투 잘 하는 s가 핵을 세게 느껴 에너지가 낮다."</div>
 <p>가림은 안쪽→바깥 방향, 침투는 s&gt;p&gt;d라 에너지는 s&lt;p&lt;d. 4s가 3d보다 먼저 채워지는 것도 4s의 강한 침투 덕분. 그리고 같은 주기 오른쪽으로 Z<sub>eff</sub>가 커지는 게 주기 경향의 씨앗.</p>
 <p>다음 강(008 드브로이 물질파와 불확정성)에서는 잠깐 방향을 틀어, "전자가 왜 정해진 궤도가 아니라 확률 구름(오비탈)으로 존재하는가"의 가장 깊은 근거를 다뤄. 002에서 빛이 입자이기도 했듯, 전자도 파동이라는 사실에서 오비탈이 정당화돼. 원자모형 영역의 마지막 이론 조각이야.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 다음 현상 중 유효 핵전하의 변화로 설명하기에 가장 거리가 먼 것은?</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">같은 주기에서 원자 번호가 커질수록 원자 반지름이 대체로 작아진다.</button></li>
+<li><button type="button" class="lq__opt">O²⁻, F⁻, Na⁺ 순서로 이온 반지름이 작아진다.</button></li>
+<li><button type="button" class="lq__opt">1족에서 Li → Na → K로 갈수록 원자 반지름이 커진다.</button></li>
+<li><button type="button" class="lq__opt">같은 주기에서 오른쪽으로 갈수록 제1 이온화 에너지가 대체로 커진다.</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>같은 족을 아래로 내려가면 전자가 채워지는 껍질의 주양자수 n이 커져 최외각 전자와 핵 사이 거리가 크게 늘어나므로, 반지름 증가의 주된 원인은 껍질 수(n)의 증가다. 유효 핵전하는 오히려 아래로 갈수록 다소 커지므로 이 현상을 설명해 주지 못한다. 나머지 셋은 모두 껍질 수가 같은 조건(같은 주기 또는 등전자 종)에서의 비교이므로 유효 핵전하 증가로 설명된다. 등전자 종 O²⁻(140 pm) &gt; F⁻(133 pm) &gt; Na⁺(102 pm)는 전자 수가 같고 핵전하만 8 → 9 → 11로 커진 결과다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> &#x27;주기율표의 모든 경향은 유효 핵전하로 설명된다&#x27;고 일반화해, 껍질 수(주양자수) 변화가 지배하는 같은 족 아래 방향의 경향까지 유효 핵전하로 돌린다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 다음 네 가지 사실 중, 그 주된 원인을 &#x27;유효 핵전하의 차이&#x27;로 설명하기 가장 어려운 것은? (원자 번호: Li 3, Be 4, O 8, F 9, Na 11, Mg 12, K 19)</div>
+<ol class="lq__opts" data-ans="1">
+<li><button type="button" class="lq__opt">K 원자의 반지름이 Na 원자의 반지름보다 크다.</button></li>
+<li><button type="button" class="lq__opt">Na 원자의 반지름이 Mg 원자의 반지름보다 크다.</button></li>
+<li><button type="button" class="lq__opt">Be의 제1 이온화 에너지가 Li의 제1 이온화 에너지보다 크다.</button></li>
+<li><button type="button" class="lq__opt">O²⁻의 이온 반지름이 F⁻의 이온 반지름보다 크다.</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>①</b></div>
+<p>선택지 2, 3, 4는 모두 전자가 들어 있는 껍질 수가 같은 상태에서 양성자 수만 달라지는 비교다. Na와 Mg는 같은 3주기여서 껍질 수가 같고 핵전하만 커지므로 유효 핵전하가 커져 반지름이 줄고, Li와 Be도 같은 2주기여서 유효 핵전하가 큰 Be의 이온화 에너지가 크다. O²⁻(양성자 8개)와 F⁻(양성자 9개)는 전자 수가 10개로 같은 등전자 화학종이므로 껍질 수·전자 수가 같고 오직 유효 핵전하만 다르며, 유효 핵전하가 작은 O²⁻가 더 크다(실측 약 140 pm 대 133 pm). 그러나 K와 Na는 같은 1족으로 전자가 들어 있는 껍질 수 자체가 3개에서 4개로 늘어난 것이 반지름 증가의 주된 원인이다. 오히려 아래로 갈수록 유효 핵전하는 조금 커지는데도 반지름은 커지므로, 유효 핵전하만으로는 설명할 수 없다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 주기 안에서 통하는 &#x27;유효 핵전하 → 반지름&#x27; 논리를 족을 따라 내려가는 비교에도 그대로 적용하는 것.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 다음은 원자 번호 11 부터 18 까지의 3주기 원소를 차례로 A ~ H 라 하고, 각 원소의 제1 이온화 에너지를 실측한 값이다. (단위: kJ/mol)<br><br>  A 496   B 738   C 578   D 786<br>  E 1012  F 1000  G 1251  H 1521<br><br>원자 번호가 커지면 유효 핵전하가 커져 제1 이온화 에너지도 대체로 커지지만, 이 자료에는 **바로 앞 원소보다 오히려 작아지는** 곳이 두 군데 있다. 그 원소와 까닭을 옳게 짝지은 것은?</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">C 와 F. 두 원소는 앞 원소보다 유효 핵전하가 작아 최외각 전자를 약하게 잡기 때문이다.</button></li>
+<li><button type="button" class="lq__opt">B 와 E. 두 원소의 최외각 부껍질이 각각 꽉 차거나 반만 차서 특히 안정하기 때문이다.</button></li>
+<li><button type="button" class="lq__opt">C 와 F. C 는 떼어낼 전자가 3s 가 아니라 침투가 덜한 3p 에 들어 있어서, F 는 3p 오비탈 하나에 전자 두 개가 짝지어 들어가 서로 반발하기 때문이다.</button></li>
+<li><button type="button" class="lq__opt">F 하나뿐이다. C 의 감소는 측정 오차 범위이며 실제로는 앞 원소보다 크다.</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>A ~ H 는 차례로 Na(11), Mg(12), Al(13), Si(14), P(15), S(16), Cl(17), Ar(18) 이다. 값을 순서대로 늘어놓으면
+
+  496 → 738 → **578** → 786 → 1012 → **1000** → 1251 → 1521
+
+로, C(Al) 와 F(S) 두 곳에서 값이 내려간다.
+
+**C(Al) 에서의 감소** — B(Mg) 의 배치는 3s² 이고 C(Al) 은 3s²3p¹ 이다. 떼어낼 전자가 3s 에서 3p 로 옮겨 갔는데, 같은 껍질이라도 3p 는 3s 보다 핵 가까이 침투하는 정도가 작아 안쪽 전자에 더 많이 가려진다. 그래서 유효 핵전하가 커졌는데도 3p 전자가 더 쉽게 떨어져 나간다.
+
+**F(S) 에서의 감소** — E(P) 는 3p³ 으로 세 개의 3p 오비탈에 전자가 하나씩 들어가 짝이 없다. F(S) 는 3p⁴ 이라 그중 한 오비탈에 두 전자가 짝지어 들어가고, 같은 좁은 공간에 놓인 두 전자 사이의 반발이 커서 그 전자 하나를 떼기가 오히려 쉬워진다.
+
+두 자리 모두 **부껍질이 바뀌는 곳**과 **전자쌍이 처음 만들어지는 곳**이며, 같은 이유로 2주기의 Be→B(899 → 801)와 N→O(1402 → 1314)에서도 똑같은 감소가 나타난다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 같은 주기서 왼쪽 원소(Na)가 반지름·금속성 최대, IE·전기음성도 최소다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 문제의 원자들에 대해, 최외각 전자가 느끼는 <span class="fm">Z<sub>eff</sub></span>를 대략 <span class="fm">Z − (안쪽 전자 수)</span>로 어림해봐. 같은 주기에서 오른쪽으로 갈수록 그 값이 커지는 걸 직접 확인해. 그리고 입으로 말해. "안쪽이 가리고, s가 침투를 잘 해서 핵을 세게 느낀다." 한 바퀴 돌리면 이 개념은 네 거다.</div>
 </div>
 

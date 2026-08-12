@@ -101,6 +101,100 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"몰농도 = 용질 몰 ÷ 용액 부피(L) · 분모는 용액(용매 아님) · 희석해도 용질 몰 불변."</div>
 <p>몰농도(M=mol/L)는 용액 1 L의 용질 몰수. 분모는 반드시 용액 전체 부피야(용매 아님). 용질 몰 = 농도×부피로 양을 구하고, 묽힐 땐 용질 몰이 일정해 M₁V₁=M₂V₂.</p>
 <p>다음 강(041 한계 반응물)에서는 다시 반응으로 돌아가, 좀 더 현실적인 상황을 다뤄. 지금까지는 반응물이 딱 맞게 들어온다고 가정했는데, 실제로는 한쪽이 모자라거나 남거든. 먼저 떨어지는 반응물이 생성물의 양을 정하는데, 그게 한계 반응물이야. 양적 관계의 핵심 응용이지. 오늘의 농도 개념도 그 계산에서 용질 몰을 구할 때 쓰여. 몰을 중심으로 도구가 하나씩 늘어가는 거야.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 부피가 2.00 L 로 일정한 밀폐 용기에 A(g) 4.00 mol 과 B(g) 6.00 mol 만을 넣고 일정한 온도에서 다음 반응이 평형에 도달할 때까지 두었다.<br><br>A(g) + 3 B(g) ⇌ 2 C(g)<br><br>평형에 도달했을 때 C(g)의 양은 2.00 mol 이었다. 이 온도에서 몰농도로 나타낸 평형 상수 K_c 는?</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">0.0427</button></li>
+<li><button type="button" class="lq__opt">0.0494</button></li>
+<li><button type="button" class="lq__opt">0.198</button></li>
+<li><button type="button" class="lq__opt">5.06</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>먼저 몰수 변화를 계수비대로 정리한다. C 가 2.00 mol 생성되었으므로 반응한 A 는 2.00 × (1/2) = 1.00 mol, 반응한 B 는 2.00 × (3/2) = 3.00 mol 이다.
+평형 몰수: A = 4.00 − 1.00 = 3.00 mol, B = 6.00 − 3.00 = 3.00 mol, C = 2.00 mol
+용기 부피가 2.00 L 이므로 평형 몰농도는
+[A] = 3.00/2.00 = 1.50 M, [B] = 3.00/2.00 = 1.50 M, [C] = 2.00/2.00 = 1.00 M
+K_c = [C]² / ([A][B]³) = (1.00)² / (1.50 × 1.50³) = 1.00 / (1.50 × 3.375) = 1.00 / 5.0625 = 0.198
+기체의 몰수 합이 변하는 반응(Δn ≠ 0)이므로 몰수를 그대로 넣으면 값이 달라진다. 반드시 부피로 나눈 몰농도를 써야 한다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 평형 상수 식에 몰농도 대신 몰수를 그대로 대입하거나, 반응 계수비를 무시하고 A와 B가 같은 몰수만큼 소모되었다고 본다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 시판되는 진한 황산은 질량 백분율이 98.0 %이고 밀도가 1.84 g/mL이다. H₂SO₄의 분자량은 98.0이다.<br><br>이 진한 황산의 몰 농도(M)에 가장 가까운 값은?</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">1.84×10⁻² M</button></li>
+<li><button type="button" class="lq__opt">10.0 M</button></li>
+<li><button type="button" class="lq__opt">18.4 M</button></li>
+<li><button type="button" class="lq__opt">18.8 M</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>몰 농도는 &#x27;용액 1 L 속 용질의 몰수&#x27;이므로, 용액 1 L를 기준으로 잡고 차례로 환산한다.
+① 용액 1 L(=1000 mL)의 질량 : 1000 mL × 1.84 g/mL = 1840 g
+② 그중 H₂SO₄의 질량 : 1840 g × 0.980 = 1803.2 g
+③ H₂SO₄의 몰수 : 1803.2 g ÷ 98.0 g/mol = 18.4 mol
+용액 1 L에 18.4 mol이 들어 있으므로 몰 농도는 18.4 M이다.
+검산: 18.4 mol × 98.0 g/mol = 1803 g이고, 이것이 전체 1840 g의 1803/1840 = 0.980, 즉 98.0 %로 주어진 조건과 일치한다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 질량 백분율에서 몰 농도로 바꾸려면 밀도로 &#x27;부피 → 질량&#x27;을 이어 주어야 하며, 질량 백분율과 밀도 중 하나만 써서는 안 된다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 어떤 용액 500 mL 에서 BaSO₄ 를 0.0233 g 얻었다. 원래 Ba²⁺ 의 몰농도는? (BaSO₄ 233 g/mol)</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">0.1 mM</button></li>
+<li><button type="button" class="lq__opt">0.2 mM</button></li>
+<li><button type="button" class="lq__opt">0.5 mM</button></li>
+<li><button type="button" class="lq__opt">1.0 mM</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>0.0233/233 = 1.0×10⁻⁴ mol 이고 0.5 L 로 나누면 2.0×10⁻⁴ M = 0.2 mM 이다. → ②</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 침전 질량을 부피로만 나눈다. 화학식량으로 먼저 몰수를 구해야 한다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 농도 문제를 풀어봐. ① 몰농도 = 용질 몰 / 용액 부피(L), 분모가 용액인지 확인 ② 농도×부피로 용질 몰, 필요하면 ×몰질량으로 질량 ③ 희석은 M₁V₁=M₂V₂. 그리고 입으로 말해. "몰농도의 분모는 용액 전체 부피고, 묽혀도 용질 몰은 그대로다." 한 바퀴 돌리면 이 개념은 네 거다.</div>
 </div>
 

@@ -114,6 +114,95 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"단위 세포 = 반복 최소 단위 · 입자 수: 꼭짓점 1/8, 면 1/2, 모서리 1/4, 중심 1."</div>
 <p>결정은 단위 세포가 반복돼 만들어져. 단위 세포 속 입자 수는 위치별 몫(꼭짓점 1/8·면 1/2·모서리 1/4·중심 1)을 곱해 더해서 구해. 꼭짓점만 있으면 1개, 꼭짓점+중심이면 2개야.</p>
 <p>다음 강(060 금속 결정 구조)에서는 이 입자 수 세기를 금속 결정에 적용해. 금속 원자가 쌓이는 대표적인 세 방식(단순입방·체심입방·면심입방)을 그림으로 보고, 각 구조의 단위 세포당 원자 수와 배위수를 계산할 거야. 오늘의 입자 수 세기가 거기서 바로 쓰여. 꼭짓점 1/8, 중심 1을 손에 익히고 가자.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 금속 M은 면심 입방(fcc) 구조로 결정을 이루고, 단위 세포 한 변의 길이는 0.3615 nm이다. M의 몰질량이 63.5 g/mol일 때 이 금속의 밀도는? (아보가드로수 = 6.022 × 10²³ /mol, 1 nm = 10⁻⁷ cm)</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">2.23 g/cm³</button></li>
+<li><button type="button" class="lq__opt">4.47 g/cm³</button></li>
+<li><button type="button" class="lq__opt">8.93 g/cm³</button></li>
+<li><button type="button" class="lq__opt">17.9 g/cm³</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>fcc 단위 세포에 든 원자 수 = 꼭짓점 8 × ⅛ + 면 6 × ½ = 1 + 3 = 4개. 단위 세포의 질량 = 4 × 63.5 g/mol ÷ (6.022 × 10²³ /mol) = 4.218 × 10⁻²² g. 한 변 = 0.3615 nm = 3.615 × 10⁻⁸ cm이므로 부피 = (3.615 × 10⁻⁸)³ = 4.724 × 10⁻²³ cm³. 밀도 = 4.218 × 10⁻²² ÷ 4.724 × 10⁻²³ = 8.93 g/cm³.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 단위 세포에 들어 있는 원자 수를 잘못 세는 것(꼭짓점·면 원자를 나누어 세지 않거나, 체심 입방과 혼동).</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 어떤 화합물의 정육면체 단위 세포에서 원자들의 위치는 다음과 같다.<br><br>· A 원자 : 여덟 꼭짓점과 몸 중심<br>· B 원자 : 열두 모서리의 중앙<br><br>이 화합물의 실험식과 단위 세포 하나에 들어 있는 화학식 단위 수 Z를 옳게 짝지은 것은? (단위 세포는 같은 배열이 3차원으로 반복되며, 꼭짓점의 원자는 이웃한 단위 세포 8개가, 모서리의 원자는 4개가 나누어 갖고, 몸 중심의 원자는 나누어 갖지 않는다.)</div>
+<ol class="lq__opts" data-ans="4">
+<li><button type="button" class="lq__opt">AB₃, Z = 2</button></li>
+<li><button type="button" class="lq__opt">A₃B, Z = 1</button></li>
+<li><button type="button" class="lq__opt">A₂B₃, Z = 2</button></li>
+<li><button type="button" class="lq__opt">A₂B₃, Z = 1</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>④</b></div>
+<p>자리마다 이 세포 몫을 세어 더한다.
+A : 꼭짓점 8 × 1/8 = 1, 몸 중심 1 × 1 = 1. 합해서 2개.
+B : 모서리 12 × 1/4 = 3개.
+A : B = 2 : 3 이므로 실험식은 A₂B₃.
+Z는 실험식 단위가 세포 하나에 몇 개 들어 있는지다. A₂B₃ 한 단위에 A 2개·B 3개가 들어가고 세포에 정확히 그만큼 있으므로 Z = 1. → ④
+원자 수와 화학식 단위 수는 다르다. 세포 안 원자가 5개여도 Z는 1일 수 있다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 꼭짓점은 1/8, 모서리는 1/4, 면 중심은 1/2, 몸 중심은 1로 센다. 자리마다 나누는 수가 달라 하나만 틀려도 비가 어긋난다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 어떤 이온 결정에서 음이온 X는 면심 입방(FCC) 배열을 이루고, 양이온 M은 이 배열이 만드는 사면체 구멍(tetrahedral hole)의 정확히 절반을 차지한다. 이 결정의 화학식과 M의 배위수를 옳게 짝지은 것은? (FCC 배열에서 사면체 구멍의 수는 구성 입자 수의 2배이다.)</div>
+<ol class="lq__opts" data-ans="1">
+<li><button type="button" class="lq__opt">화학식 MX, M의 배위수 4</button></li>
+<li><button type="button" class="lq__opt">화학식 M₂X, M의 배위수 8</button></li>
+<li><button type="button" class="lq__opt">화학식 MX₂, M의 배위수 4</button></li>
+<li><button type="button" class="lq__opt">화학식 MX, M의 배위수 8</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>①</b></div>
+<p>FCC 단위 세포 속 X의 개수는 8×1/8 + 6×1/2 = 4개이다. 사면체 구멍은 그 2배인 8개이고 그중 절반인 4개를 M이 채우므로 단위 세포 속 M도 4개이다. 따라서 M : X = 4 : 4 = 1 : 1이므로 화학식은 MX이다. 사면체 구멍에 들어간 이온은 정의상 이웃한 X 4개에 둘러싸이므로 M의 배위수는 4이다(섬아연광 구조). 만약 사면체 구멍 8개를 모두 채우면 M : X = 8 : 4 = 2 : 1이 되어 M₂X, 즉 역형석 구조가 된다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 구멍의 개수와 실제로 채워진 개수를 구분하지 않고, 구멍의 종류(사면체/팔면체)와 배위수를 연결하지 못한다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 문제에서 단위 세포당 입자 수를 세봐. ① 각 위치(꼭짓점·면·모서리·중심)의 입자 수 파악 ② 위치별 몫(1/8·1/2·1/4·1) 곱하기 ③ 다 더하기. 그리고 입으로 말해. "꼭짓점은 1/8, 면은 1/2, 중심은 통째로 1이다." 한 바퀴 돌리면 이 계산은 네 거다.</div>
 </div>
 

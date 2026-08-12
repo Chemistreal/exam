@@ -97,6 +97,90 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"전기음성도 = 결합 속 전자를 당기는 힘 · F가 최강 · 차이가 결합의 극성을 정한다."</div>
 <p>경향은 주기 오른쪽·족 위로 갈수록 커지고(18족 제외) F가 정점. 이온화에너지·전자친화도가 큰 원소가 전기음성도도 커. 두 원자의 전기음성도 차이가 곧 결합의 극성(0이면 무극성, 크면 극성·이온성).</p>
 <p>그리고 이게 주기율 영역의 마지막 경향 개념이야. 다음 강(016)에서 지금까지 본 반지름·이온화에너지·전자친화도·전기음성도를 Z_eff 하나로 묶어 한 장에 정리하고, 017에서 금속·비금속을 다루며 영역을 닫아. 무엇보다 오늘의 "전기음성도 차이 = 극성"은 바로 다음 영역(화학 결합과 분자의 모양)에서 핵심 도구로 쓰여. 결합 단원의 문을 여는 열쇠를 손에 쥔 셈이야.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 서로 다른 원자 A, B 의 결합 에너지에 대해 가장 옳은 것은? (E_A: A–A, E_B: B–B, E_AB: A–B)</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">E_AB = (E_A + E_B)/2 이다.</button></li>
+<li><button type="button" class="lq__opt">E_AB ≥ (E_A + E_B)/2 이며, 전기음성도 차가 클수록 더 커진다.</button></li>
+<li><button type="button" class="lq__opt">E_AB &lt; (E_A + E_B)/2 이다.</button></li>
+<li><button type="button" class="lq__opt">E_AB 는 A, B 의 결합 에너지와 무관하다.</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>A–B 결합에는 A–A·B–B 의 평균에 더해 전기음성도 차에서 오는 이온성 기여가 얹힌다. 폴링은 그 초과분으로 전기음성도 차를 정의했다. 그러므로 E_AB 는 산술 평균 이상이고, 두 원자의 전기음성도 차가 클수록 초과분이 커진다. → ②</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 서로 다른 원자 사이의 결합을 단순 평균으로 본다. 전기음성도 차가 있으면 평균보다 세진다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 질소(N), 산소(O), 황(S), 염소(Cl) 네 원소를 전기음성도가 큰 것부터 순서대로 옳게 나열한 것은?</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">O &gt; N &gt; Cl &gt; S</button></li>
+<li><button type="button" class="lq__opt">O &gt; Cl &gt; N &gt; S</button></li>
+<li><button type="button" class="lq__opt">Cl &gt; O &gt; S &gt; N</button></li>
+<li><button type="button" class="lq__opt">O &gt; S &gt; Cl &gt; N</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>전기음성도는 주기율표에서 오른쪽 위로 갈수록 커지며(F가 최대), 폴링 척도로 O 3.44, Cl 3.16, N 3.04, S 2.58이다. 따라서 O &gt; Cl &gt; N &gt; S이다. 핵심은 N과 Cl의 비교로, N이 2주기라 위쪽에 있지만 Cl은 17족으로 훨씬 오른쪽에 있어 Cl이 근소하게 더 크다(N ≈ Cl이지만 Cl이 위). 흔히 외우는 순서 F &gt; O &gt; N ≈ Cl &gt; Br &gt; C ≈ S &gt; H에서도 Cl이 N과 거의 같거나 약간 크다는 점을 확인할 수 있다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> &#x27;같은 주기면 오른쪽이 크다, 같은 족이면 위가 크다&#x27;만 적용하면 대각선 관계에 있는 N과 Cl의 비교를 틀린다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 멀리컨(Mulliken) 전기음성도는 원자의 이온화 에너지(IE)와 전자친화도(EA)를 eV 단위로 나타낸 뒤 χ = (IE + EA)/2 로 정의한다. 어떤 원소 X의 기체 상태 이온화 에너지는 1200 kJ/mol, 전자친화도는 350 kJ/mol(방출, 양의 값)이다. 1 eV/원자 = 96.5 kJ/mol일 때 X의 멀리컨 전기음성도는?</div>
+<ol class="lq__opts" data-ans="4">
+<li><button type="button" class="lq__opt">약 4.40 eV</button></li>
+<li><button type="button" class="lq__opt">약 16.1 eV</button></li>
+<li><button type="button" class="lq__opt">약 12.4 eV</button></li>
+<li><button type="button" class="lq__opt">약 8.03 eV</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>④</b></div>
+<p>먼저 평균을 구하면 (1200 + 350)/2 = 775 kJ/mol. 이를 eV로 환산하면 775 ÷ 96.5 = 8.03 eV. 순서를 바꿔 각각 환산해도 (12.44 + 3.63)/2 = 8.03 eV로 같다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 멀리컨 식은 IE와 EA의 &#x27;합의 절반&#x27;이며, 두 값을 반드시 같은 에너지 단위(eV)로 환산해야 한다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 결합들의 극성을 직접 판단해봐. ① 두 원자의 전기음성도 대소를 정하고(오른쪽 위가 큼, F 최강) ② 같으면 무극성, 차이 나면 더 큰 쪽으로 치우친 극성 ③ δ+, δ−를 표시. 그리고 입으로 말해. "전기음성도가 큰 쪽이 전자를 끌어와 부분 음전하를 띤다." 한 바퀴 돌리면 이 개념은 네 거다.</div>
 </div>
 

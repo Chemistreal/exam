@@ -36,6 +36,7 @@
        PLAYWRIGHT_MODULE=… CHROMIUM_PATH=… node tests/weak-first.js
    ============================================================ */
 'use strict';
+const noSheet = require('./_nosheet.js');
 const path = require('path');
 
 const PLAYWRIGHT = process.env.PLAYWRIGHT_MODULE || 'playwright';
@@ -61,6 +62,11 @@ catch (e) {
 (async () => {
   const browser = await chromium.launch(Object.assign(
     { args: ['--no-sandbox'] }, CHROMIUM ? { executablePath: CHROMIUM } : {}));
+  /* ⚠ **시트를 막고 시작한다**(2026-08-12). 이 검사는 `DT/**` 만 막고 있어서
+     학원의 진짜 시트를 그대로 읽고 있었다 — 채점하는 자리는 거기에 줄까지
+     쓴다. `tests/_nosheet.js` 는 그 일을 막으려고 진작에 만들어 둔 자인데
+     여기 안 걸려 있었다. 걸지 않은 자는 없는 자와 같다. */
+  await noSheet(browser);
   const ctx = await browser.newContext({ serviceWorkers: 'block' });
   await ctx.route('**://script.google.com/**', r => r.abort());
   const p = await ctx.newPage();

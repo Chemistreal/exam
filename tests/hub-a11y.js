@@ -39,6 +39,7 @@
 'use strict';
 require('./_watchdog.js')(240);
 const seal = require('./_seal.js');
+const noSheet = require('./_nosheet.js');
 /* 포트를 그 자리에서 받고, 서버가 **대답할 때까지** 기다린다.
    고정 포트를 박아 두면 검사 두 벌이 겹칠 때 뒤엣것이 빈 화면을 보고
    "그게 화면에 없다" 고 말한다 — tests/_serve.js 머리말. */
@@ -76,6 +77,12 @@ catch (e) {
 
   const browser = seal(await chromium.launch(
     Object.assign({ args: ['--no-sandbox'] }, CHROMIUM ? { executablePath: CHROMIUM } : {})));
+  /* ⚠ **시트를 막고 시작한다.** 안 막으면 검사가 학원의 진짜 시트를 읽고,
+     채점하는 검사는 **거기에 줄을 쓴다.** 2026-08-12 에 실제로 그랬다 —
+     이 검사가 판을 돌 때마다 «무응답점검·분류점검·자료링크점검» 같은 이름이
+     선생님 시트에 쌓이고 있었다(POST 를 세어서 확인했다).
+     `tests/_nosheet.js` 머리말이 처음부터 이르던 일이다. */
+  await noSheet(browser);
   const ctx = await browser.newContext({
     viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
   const p = await ctx.newPage();

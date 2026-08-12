@@ -113,6 +113,99 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"α는 (Z−2,A−4), β는 (Z+1,A동일), γ는 불변 · 남은 양 = N₀(½)^(t/t½)."</div>
 <p>불안정한 핵은 α·β·γ로 붕괴해 더 안정한 핵이 되고, 반감기마다 절반씩 줄어. 반감기는 외부 조건과 무관하게 일정해서, 남은 비율로 시간을 잴 수 있어.</p>
 <p>이걸로 <b>원자모형 영역 10강이 모두 끝났어.</b> 원자의 구성(001)에서 출발해 빛과 스펙트럼(002~003), 보어와 양자수·오비탈(004~005), 전자 배치와 가림(006~007), 물질파·불확정성(008), 그리고 원소의 기원과 핵의 붕괴(009~010)까지. 원자 한 알의 안과 밖을 한 바퀴 다 돈 거지. 이 뿌리 위에 다음 영역인 주기율이 곧장 쌓여(특히 007의 유효핵전하가 그 다리야). 여기까지 단단히 다졌으면, 그다음이 훨씬 수월할 거야.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 어떤 방사성 핵종 X만으로 이루어진 시료에서 X의 양이 처음의 12.5 %로 줄어드는 데 24일이 걸렸다. X의 붕괴는 반감기가 일정한 1차 과정이다. 이 시료에서 X의 양이 처음의 5.0 %가 되는 데 걸리는 시간은 처음부터 재어 약 얼마인가? (log 2 = 0.301)</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">약 24.0일</button></li>
+<li><button type="button" class="lq__opt">약 32.0일</button></li>
+<li><button type="button" class="lq__opt">약 34.6일</button></li>
+<li><button type="button" class="lq__opt">약 40.0일</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>12.5 % = 1/8 = (1/2)³이므로 24일은 반감기 3번에 해당하고 반감기는 24 ÷ 3 = 8.0일이다. 남은 비율이 0.050이 되려면 (1/2)를 t/8.0번 거듭제곱한 값이 0.050이어야 하므로 t/8.0 = log(1/0.050) ÷ log 2 = log 20 ÷ log 2 = (1 + 0.301) ÷ 0.301 = 4.32. 따라서 t = 8.0 × 4.32 = 34.6일.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 반감기를 24일 자체로 보거나, 남은 비율이 반감기의 정수배에서만 계산된다고 보아 6.25 %(4번)나 3.125 %(5번)에 해당하는 시간으로 근사해 버리는 것.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 질량수 228, 원자 번호 90인 방사성 핵종 X가 α 붕괴 3회와 β⁻ 붕괴 2회를 거쳐 핵종 Z가 되었다. 한편 X의 반감기는 3.6일이며, X 12.8 g으로 시작한 시료를 18일 동안 방치하였다.<br><br>Z의 질량수와 원자 번호, 그리고 18일 후 남아 있는 X의 질량을 옳게 짝지은 것은? (α 붕괴는 ⁴₂He 방출, β⁻ 붕괴는 핵 안의 중성자가 양성자와 전자로 바뀌며 전자를 방출하는 과정이다. 붕괴 순서는 결과에 영향을 주지 않는다.)</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">질량수 216, 원자 번호 82, 0.400 g</button></li>
+<li><button type="button" class="lq__opt">질량수 216, 원자 번호 86, 0.400 g</button></li>
+<li><button type="button" class="lq__opt">질량수 216, 원자 번호 86, 0.800 g</button></li>
+<li><button type="button" class="lq__opt">질량수 216, 원자 번호 84, 0.400 g</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>α 붕괴는 질량수 −4, 원자 번호 −2이고 β⁻ 붕괴는 질량수 변화 없이 원자 번호 +1이다.
+질량수: 228 − 3×4 = 216.
+원자 번호: 90 − 3×2 + 2×1 = 90 − 6 + 2 = 86.
+반감기 횟수: 18일/3.6일 = 5회 → 남은 질량 = 12.8/2⁵ = 12.8/32 = 0.400 g.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> β⁻ 붕괴는 전자를 내보내지만 핵 전하가 늘어나므로 원자 번호가 1 증가한다(감소가 아니다).</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 원자 번호 90, 질량수 232인 방사성 핵종이 붕괴 계열을 따라 붕괴하여, 최종적으로 α 붕괴를 4회, β⁻ 붕괴를 2회 겪은 뒤 어떤 핵종이 되었다.<br>이 핵종의 질량수와 원자 번호는? (붕괴가 일어난 순서는 최종 결과에 영향을 주지 않는다.)</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">질량수 216, 원자 번호 82</button></li>
+<li><button type="button" class="lq__opt">질량수 216, 원자 번호 84</button></li>
+<li><button type="button" class="lq__opt">질량수 216, 원자 번호 80</button></li>
+<li><button type="button" class="lq__opt">질량수 224, 원자 번호 84</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>α 붕괴는 ⁴₂He 핵을 방출하므로 질량수 −4, 원자 번호 −2이다.
+β⁻ 붕괴는 핵 안의 중성자 하나가 양성자와 전자로 바뀌어 전자가 방출되는 것이므로 질량수는 그대로이고 원자 번호는 +1이다(전하 보존: 0 → (+1) + (−1)).
+[질량수] 232 − 4 × 4 − 0 × 2 = 232 − 16 = 216.
+[원자 번호] 90 − 2 × 4 + 1 × 2 = 90 − 8 + 2 = 84.
+따라서 질량수 216, 원자 번호 84인 핵종이다.
+검산: 방출된 입자의 질량수 합은 4 × 4 = 16이고 216 + 16 = 232 ✓, 전하 합은 4 × (+2) + 2 × (−1) = +6이고 84 + 6 = 90 ✓.
+(실제로 원자 번호 90·질량수 232인 ²³²Th의 붕괴 계열에서 α 4회·β⁻ 2회를 지난 지점이 ²¹⁶Po로, 계산 결과와 일치한다.)</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> β⁻ 붕괴에서 방출되는 것이 음전하 전자이므로 원자 번호가 줄어든다고 보거나, 아예 원자 번호가 변하지 않는다고 본다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 붕괴 문제를 직접 따라가봐. ① 무슨 붕괴인지 보고 Z·A 변화를 적용해 결과 핵을 구하고 ② 반감기 문제는 <span class="fm">t/t½</span>(몇 번 지났나)를 먼저 구한 뒤 <span class="fm">(½)</span>를 그만큼 곱해. 그리고 입으로 말해. "α는 둘넷 빼고, β는 Z만 하나 늘고, γ는 그대로. 반감기마다 절반." 한 바퀴 돌리면 이 개념은 네 거다.</div>
 </div>
 

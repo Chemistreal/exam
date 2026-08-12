@@ -102,6 +102,92 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"증기압 = 액체와 증기가 평형일 때 증기의 압력 · 온도↑·분자 간 힘 약할수록 크다(양과 무관)."</div>
 <p>증발은 표면의 빠른 분자가 탈출하는 것, 닫힌 용기에서 증발=응축 평형의 증기 압력이 증기압이야. 온도가 높을수록, 분자 간 힘이 약할수록(휘발성 큼) 증기압이 커. 액체의 양·표면적과는 무관한 고유 성질이고.</p>
 <p>다음 강(051 끓는점과 상평형)에서는 이 증기압으로 끓는점을 정의해. 끓는다는 건 사실 "증기압이 외부 압력과 같아지는 것"이거든. 그래서 압력이 낮은 높은 산에서는 물이 100도 안 되게 끓고, 압력솥에서는 더 높은 온도에서 끓지. 오늘의 증기압을 들고, 끓음의 정체로 넘어가자.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 같은 몰랄 농도의 다음 수용액 중 증기압이 가장 낮은 것은?</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">포도당</button></li>
+<li><button type="button" class="lq__opt">NaCl</button></li>
+<li><button type="button" class="lq__opt">K₂SO₄</button></li>
+<li><button type="button" class="lq__opt">설탕</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>K₂SO₄ 는 이온 셋으로 갈라져 입자가 가장 많아 증기압 내림이 가장 크다. → ③</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 증기압 내림을 몰농도로만 견준다. 갈라지는 용질은 입자가 여럿이 된다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 휘발성 액체 A와 B는 서로 섞여 이상 용액을 만든다. 40 °C에서 순수한 A의 증기압은 300 torr, 순수한 B의 증기압은 100 torr이다. 40 °C에서 A와 B를 섞어 만든 용액과 평형에 있는 증기에서 A와 B의 몰분율이 각각 0.50으로 같아지려면, 액체 상태에서 A의 몰분율은 얼마여야 하는가? (단, 라울 법칙이 성립하고 증기는 이상 기체로 행동한다.)</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">0.33</button></li>
+<li><button type="button" class="lq__opt">0.50</button></li>
+<li><button type="button" class="lq__opt">0.25</button></li>
+<li><button type="button" class="lq__opt">0.75</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>라울 법칙에서 P_A = P°_A·x_A = 300x_A, P_B = P°_B·(1 − x_A) = 100(1 − x_A)이다. 증기 몰분율이 같으려면 분압이 같아야 하므로 300x_A = 100(1 − x_A) → 400x_A = 100 → x_A = 0.25이다. 확인하면 P_A = 300 × 0.25 = 75 torr, P_B = 100 × 0.75 = 75 torr로 같고, 증기 몰분율은 각각 0.50이다. 즉 덜 휘발성인 B가 액체에 3배나 많아야 두 성분의 증기 기여가 같아진다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 액체의 조성과 증기의 조성이 같다고 생각하거나, 더 휘발성인 성분이 액체에도 더 많아야 한다고 착각한다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 25°C에서 순수한 물의 증기압은 23.80 mmHg이다. 25°C에서 물 90.0 g에 비휘발성·비전해질 물질 X 18.0 g을 완전히 녹였더니 이 용액의 증기압이 23.33 mmHg가 되었다. X의 분자량에 가장 가까운 값은? (물의 분자량 18.0, 용액은 라울 법칙을 따른다.)</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">90</button></li>
+<li><button type="button" class="lq__opt">180</button></li>
+<li><button type="button" class="lq__opt">270</button></li>
+<li><button type="button" class="lq__opt">360</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>라울 법칙에 따라 용액의 증기압 P = X(물) × P°(물)이므로 물의 몰분율 X(물) = 23.33/23.80 = 0.9803. 따라서 용질의 몰분율 X(X) = 1 − 0.9803 = 0.0197.
+물의 몰수 = 90.0/18.0 = 5.00 mol이다. X(X) = n(X)/(n(X) + 5.00) = 0.0197이므로 n(X) = 0.0197/0.9803 × 5.00 = 0.101 mol.
+분자량 = 18.0 g / 0.101 mol = 179 g/mol ≈ 180.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 라울 법칙의 몰분율을 &#x27;용질의 몰분율&#x27;과 &#x27;용매의 몰분율&#x27; 중 어느 쪽으로 써야 하는지 뒤바꾸거나, 몰분율에서 몰수를 되돌릴 때 분모에 용질 몰수를 더하는 것을 잊는다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 증기압 문제를 풀어봐. ① 온도가 높을수록 증기압이 큼 ② 분자 간 힘이 약할수록(휘발성 큼) 증기압이 큼 ③ 양·표면적은 증기압과 무관. 그리고 입으로 말해. "증기압은 온도와 분자 간 힘으로 정해지는 고유 성질이고, 양과는 무관하다." 한 바퀴 돌리면 이 개념은 네 거다.</div>
 </div>
 

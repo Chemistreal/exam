@@ -118,6 +118,95 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"같은 C₂H₆O라도 –OH면 액체 에탄올, –O–면 기체 에터. O–H 하나가 운명을 가른다."</div>
 <p>알코올은 –OH 화합물로 1·2·3차 분류가 산화 반응의 운명을 정하고, 수소 결합 덕에 끓는점·용해도가 높아. Na과 반응해 H₂를 내지만 산은 아니야. 에터는 R–O–R′로 O–H가 없어 끓는점이 낮고 둔감한 용매지. 에탄올 vs 다이메틸에터 비교표는 통째로 외워둘 가치가 있어.</p>
 <p>다음 강(118)에서는 산화 사슬의 하류, <b>카보닐 가족(알데하이드·케톤)과 카복실산, 에스터</b>를 다뤄. C=O의 이웃이 어떻게 가족을 가르는지, 그리고 향기의 화학(에스터화)까지.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 다음 세 물질은 분자량이 46으로 모두 같다.<br><br>다이메틸에터 CH₃OCH₃<br>에탄올 C₂H₅OH<br>폼산(개미산) HCOOH<br><br>1 atm에서 이 세 물질의 끓는점을 높은 것부터 순서대로 옳게 나열한 것은?</div>
+<ol class="lq__opts" data-ans="1">
+<li><button type="button" class="lq__opt">HCOOH &gt; C₂H₅OH &gt; CH₃OCH₃</button></li>
+<li><button type="button" class="lq__opt">C₂H₅OH &gt; HCOOH &gt; CH₃OCH₃</button></li>
+<li><button type="button" class="lq__opt">HCOOH &gt; CH₃OCH₃ &gt; C₂H₅OH</button></li>
+<li><button type="button" class="lq__opt">CH₃OCH₃ &gt; C₂H₅OH &gt; HCOOH</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>①</b></div>
+<p>세 물질은 분자량이 46으로 같으므로 분산력의 크기는 서로 비슷하다. 따라서 끓는점 차이는 수소 결합을 할 수 있는가, 몇 군데에서 할 수 있는가로 결정된다.
+CH₃OCH₃ : 산소가 있어 수소 결합을 &#x27;받을&#x27; 수는 있지만, O나 N에 직접 결합한 H가 없어 수소 결합을 &#x27;내놓을&#x27; 수 없다. 순수한 상태에서는 분자끼리 수소 결합을 만들지 못하고 쌍극자–쌍극자 힘과 분산력만 작용한다 → 가장 낮다.
+C₂H₅OH : −OH가 있어 분자당 수소 결합 주개 1개, 받개 1개로 사슬 모양의 수소 결합망을 만든다 → 중간.
+HCOOH : −OH(주개)와 C=O(받개)를 함께 가져 두 분자가 두 개의 수소 결합으로 맞물린 이량체를 이룬다. 분자당 수소 결합 수가 더 많아 가장 강하게 붙잡힌다 → 가장 높다.
+따라서 HCOOH &gt; C₂H₅OH &gt; CH₃OCH₃ 이다.
+실제 끓는점도 HCOOH 100.8 °C, C₂H₅OH 78.4 °C, CH₃OCH₃ −24.8 °C로 간격이 매우 크다. 분자량이 모두 같으므로 이 차이는 오직 분자 사이 힘의 종류로만 설명된다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 수소 결합은 O·N·F에 &#x27;직접 결합한 H&#x27;가 있어야 만들 수 있다. 분자에 산소가 있다는 것만으로는 수소 결합 주개가 되지 못한다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 다이메틸에터, 에탄올, 프로페인의 끓는점이 높은 순서로 옳은 것은?</div>
+<ol class="lq__opts" data-ans="4">
+<li><button type="button" class="lq__opt">에탄올 &gt; 프로페인 &gt; 다이메틸에터</button></li>
+<li><button type="button" class="lq__opt">다이메틸에터 &gt; 에탄올 &gt; 프로페인</button></li>
+<li><button type="button" class="lq__opt">프로페인 &gt; 에탄올 &gt; 다이메틸에터</button></li>
+<li><button type="button" class="lq__opt">에탄올 &gt; 다이메틸에터 &gt; 프로페인</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>④</b></div>
+<p>분자량이 비슷하니 인력의 종류가 정한다. 에탄올은 수소 결합, 다이메틸에터는 쌍극자, 프로페인은 분산력뿐이다. → ④</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 분자량이 비슷하면 끓는점도 비슷하다고 여긴다. 인력의 종류가 갈라놓는다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 다음 네 가지 물질의 1기압에서의 끓는점을 높은 것부터 순서대로 옳게 나열한 것은?<br><br>1-프로판올 CH₃CH₂CH₂OH (분자량 60.1)<br>아세톤 CH₃COCH₃ (분자량 58.1)<br>뷰테인 CH₃CH₂CH₂CH₃ (분자량 58.1)<br>다이메틸 에터 CH₃OCH₃ (분자량 46.1)</div>
+<ol class="lq__opts" data-ans="1">
+<li><button type="button" class="lq__opt">1-프로판올 &gt; 아세톤 &gt; 뷰테인 &gt; 다이메틸 에터</button></li>
+<li><button type="button" class="lq__opt">1-프로판올 &gt; 뷰테인 &gt; 아세톤 &gt; 다이메틸 에터</button></li>
+<li><button type="button" class="lq__opt">다이메틸 에터 &gt; 아세톤 &gt; 1-프로판올 &gt; 뷰테인</button></li>
+<li><button type="button" class="lq__opt">뷰테인 &gt; 1-프로판올 &gt; 아세톤 &gt; 다이메틸 에터</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>①</b></div>
+<p>1-프로판올은 −OH를 가져 분자 사이에 수소 결합을 이루므로 끓는점이 압도적으로 높다(97.2°C). 아세톤은 카보닐기의 큰 쌍극자 모멘트(약 2.9 D) 때문에 강한 쌍극자-쌍극자 인력을 가져 그다음이다(56.1°C). 뷰테인과 다이메틸 에터는 남는데, 뷰테인은 무극성이지만 분자량이 58.1로 더 크고 사슬이 길어 분산력이 크며(−0.5°C), 다이메틸 에터는 약한 쌍극자를 갖지만 분자량이 46.1로 작아 분산력이 작아 가장 낮다(−24.8°C). 결국 1-프로판올 &gt; 아세톤 &gt; 뷰테인 &gt; 다이메틸 에터이다. 아세톤과 뷰테인은 분자량이 58.1로 사실상 같지만 극성 차이 때문에 끓는점이 56°C 넘게 벌어진다는 점이 이 문제의 핵심이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 분자량 순서만으로 끓는점을 매긴다. 분자량이 거의 같은 아세톤과 뷰테인에서 갈리며, 극성의 유무를 함께 보아야 한다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>① 에탄올과 다이메틸에터 비교표를 안 보고 재현해봐(분자식·작용기·수소 결합·끓는점·Na 반응). ② 프로판-1-올과 프로판-2-올이 각각 몇 차인지, 산화되면 무엇이 되는지 말해봐. ③ "알코올은 Na과 반응하니까 산성이다"가 왜 틀렸는지 두 문장으로 반박해봐. 마지막으로 말해. "1차는 알데하이드 거쳐 카복실산, 2차는 케톤, 3차는 안 된다."</div>
 </div>
 

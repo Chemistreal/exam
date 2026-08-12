@@ -101,6 +101,102 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"총괄성 = 입자 수에만 의존(종류 무관) · 전해질은 이온화로 입자 수가 늘어난다(×i)."</div>
 <p>총괄성은 용질 입자 수에만 의존하는 성질(증기압 내림·끓는점 오름·어는점 내림·삼투압)이야. 비휘발성 용질은 표면을 가로막아 증기압을 내리고, 그 정도는 몰분율에 비례해. 전해질은 이온화로 입자가 늘어(NaCl ×2, CaCl₂ ×3) 효과가 커지니, 입자 수를 셀 때 i를 곱해야 해.</p>
 <p>다음 강(056 끓는점 오름·어는점 내림)에서는 증기압 내림이 일으키는 가장 친숙한 두 현상을 봐. 바닷물이 100도 넘어 끓고, 소금 뿌린 길이 안 어는 이유지. 오늘의 "입자 수가 전부, 전해질은 ×i"를 들고, 그 정량 계산으로 넘어가자.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 물 1.00 kg에 다음 용질을 각각 녹여 네 가지 수용액을 만들었다. 염 A, B, C는 수용액에서 완전히 해리하며, 물의 어는점 내림 상수는 Kf = 1.86 °C/m이다.<br><br>(가) 비전해질 설탕 0.15 mol<br>(나) 1 : 1 형 전해질 염 A(양이온 1개 + 음이온 1개로 해리) 0.080 mol<br>(다) 1 : 2 형 전해질 염 B(양이온 1개 + 음이온 2개로 해리) 0.060 mol<br>(라) 1 : 3 형 전해질 염 C(양이온 1개 + 음이온 3개로 해리) 0.050 mol<br><br>어는점이 가장 낮은 용액은 무엇인가?</div>
+<ol class="lq__opts" data-ans="4">
+<li><button type="button" class="lq__opt">(가)</button></li>
+<li><button type="button" class="lq__opt">(나)</button></li>
+<li><button type="button" class="lq__opt">(다)</button></li>
+<li><button type="button" class="lq__opt">(라)</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>④</b></div>
+<p>총괄성은 입자 수(반트호프 인자 i를 곱한 유효 몰랄 농도)에 비례한다. 유효 몰랄 농도 = i × m: (가) 1 × 0.15 = 0.15, (나) 2 × 0.080 = 0.16, (다) 3 × 0.060 = 0.18, (라) 4 × 0.050 = 0.20. (라)가 가장 크므로 어는점 내림이 가장 크다. ΔTf = 1.86 × 0.20 = 0.372 °C → 어는점 −0.372 °C.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 녹인 용질의 몰수(또는 몰랄 농도)만 비교하고 해리로 생기는 입자 수(i)를 곱하지 않는 것. 여기서는 몰수가 가장 작은 (라)가 정답이다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 25 °C 에서 물 500 g 에 다음 물질을 각각 하나씩 녹여 네 가지 묽은 용액을 만들었다. 글루코스는 녹아도 이온화하지 않고, 나머지 세 가지 염은 물에서 완전히 이온화한다고 본다. 물의 어는점 내림 상수는 K_f = 1.86 °C·kg/mol 이고, 용액은 이상적으로 행동한다.<br><br>네 용액 중 어는점이 가장 낮은 것은?</div>
+<ol class="lq__opts" data-ans="4">
+<li><button type="button" class="lq__opt">글루코스(C₆H₁₂O₆) 0.30 mol</button></li>
+<li><button type="button" class="lq__opt">NaCl 0.20 mol</button></li>
+<li><button type="button" class="lq__opt">Al(NO₃)₃ 0.10 mol</button></li>
+<li><button type="button" class="lq__opt">CaCl₂ 0.15 mol</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>④</b></div>
+<p>어는점 내림 ΔT_f = K_f × m × i 이며, 총괄성을 결정하는 것은 녹은 화학식 단위의 몰수가 아니라 실제로 존재하는 입자의 총 몰수이다. 용매는 모두 0.500 kg 으로 같으므로 입자의 총 몰수만 비교하면 된다.
+· 글루코스: i = 1 → 0.30 × 1 = 0.30 mol → m 입자 = 0.60 mol/kg → ΔT_f = 1.12 °C
+· NaCl: i = 2 → 0.20 × 2 = 0.40 mol → 0.80 mol/kg → ΔT_f = 1.49 °C
+· Al(NO₃)₃: i = 4 → 0.10 × 4 = 0.40 mol → 0.80 mol/kg → ΔT_f = 1.49 °C
+· CaCl₂: i = 3 → 0.15 × 3 = 0.45 mol → 0.90 mol/kg → ΔT_f = 1.67 °C
+입자 총 몰수가 가장 큰 CaCl₂ 용액의 ΔT_f 가 가장 커서 어는점(−1.67 °C)이 가장 낮다. 녹인 몰수는 CaCl₂ 가 0.15 mol 로 글루코스(0.30 mol)의 절반이고, 이온 수 i 는 Al(NO₃)₃ 의 4 보다 작다는 점에 주의한다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 녹인 물질의 몰수만 비교하거나 반대로 화학식당 이온 수 i 만 비교해, 총괄성을 결정하는 값이 (몰수 × i)의 곱이라는 점을 놓친다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 다음은 물을 용매로 하여 만든 네 가지 묽은 용액이다. 전해질은 모두 완전히 해리한다고 본다.<br><br>(가) 0.10 m 포도당(C₆H₁₂O₆) 수용액<br>(나) 0.10 m NaCl 수용액<br>(다) 0.050 m Al₂(SO₄)₃ 수용액<br>(라) 0.10 m CaCl₂ 수용액<br><br>1 atm에서 어는점이 가장 낮은 것은?</div>
+<ol class="lq__opts" data-ans="4">
+<li><button type="button" class="lq__opt">(가)</button></li>
+<li><button type="button" class="lq__opt">(나)</button></li>
+<li><button type="button" class="lq__opt">(다)</button></li>
+<li><button type="button" class="lq__opt">(라)</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>④</b></div>
+<p>어는점 내림은 총괄성이므로 녹아 있는 입자의 &#x27;종류&#x27;가 아니라 &#x27;전체 입자 몰랄 농도&#x27;에만 비례한다.
+ΔTf = Kf × i × m (i는 화학식 1개가 내놓는 입자 수)
+(가) 포도당은 비전해질이므로 i = 1 → i×m = 1 × 0.10 = 0.10 m
+(나) NaCl → Na⁺ + Cl⁻, i = 2 → 2 × 0.10 = 0.20 m
+(다) Al₂(SO₄)₃ → 2Al³⁺ + 3SO₄²⁻, i = 5 → 5 × 0.050 = 0.25 m
+(라) CaCl₂ → Ca²⁺ + 2Cl⁻, i = 3 → 3 × 0.10 = 0.30 m
+가장 큰 것은 (라)의 0.30 m이므로 어는점 내림이 가장 크고, 따라서 어는점이 가장 낮다.
+검산: Kf(물) = 1.86 °C/m를 쓰면 (라)의 어는점은 0 − 1.86 × 0.30 = −0.56 °C, (다)는 −0.47 °C, (나)는 −0.37 °C, (가)는 −0.19 °C로 (라)가 가장 낮다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 총괄성은 입자 수만 따진다. 화학식 하나가 내놓는 이온 수(i)와 몰랄 농도(m)를 반드시 곱해서 비교해야 하며, 둘 중 하나만 보면 안 된다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 총괄성 문제에서 ① 녹은 입자 수를 세봐(몰 × 이온화 개수 i) ② 전해질이면 i 곱하기(NaCl 2, CaCl₂ 3, 설탕 1) ③ 증기압 내림은 용질 몰분율에 비례. 그리고 입으로 말해. "총괄성은 입자 수에만 의존하고, 전해질은 이온화로 입자가 늘어난다." 한 바퀴 돌리면 이 개념은 네 거다.</div>
 </div>
 

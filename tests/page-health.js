@@ -24,6 +24,7 @@
    (저장소 루트에서 python3 -m http.server 8931 이 떠 있어야 한다)
    ============================================================ */
 'use strict';
+const noSheet = require('./_nosheet.js');
 const fs = require('fs');
 const path = require('path');
 
@@ -38,6 +39,12 @@ const LANES = 4;                 // 한꺼번에 여는 창 수. 늘리면 빨�
 
   const files = fs.readdirSync(ROOT).filter(f => f.endsWith('.html')).sort();
   const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH });
+  /* ⚠ **시트를 막고 시작한다.** 안 막으면 검사가 학원의 진짜 시트를 읽고,
+     채점하는 검사는 **거기에 줄을 쓴다.** 2026-08-12 에 실제로 그랬다 —
+     이 검사가 판을 돌 때마다 «무응답점검·분류점검·자료링크점검» 같은 이름이
+     선생님 시트에 쌓이고 있었다(POST 를 세어서 확인했다).
+     `tests/_nosheet.js` 머리말이 처음부터 이르던 일이다. */
+  await noSheet(browser);
   const bad = [];
 
   const visit = async (ctx, f) => {

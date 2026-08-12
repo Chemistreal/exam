@@ -31,6 +31,7 @@ require('./_watchdog.js')(240);
    진짜 앱스크립트로 제출해서, 홍길동·예비본 같은 줄이 학생들 석차
    모집단에 섞여 들어갔다. 브라우저를 띄우자마자 그 길을 끊는다. */
 const seal = require('./_seal.js');
+const noSheet = require('./_nosheet.js');
 const fs = require('fs');
 const path = require('path');
 const ROOT = path.join(__dirname, '..');
@@ -198,20 +199,33 @@ async function pendingUpload(browser, errs) {
   chk('보낸 답안이 맞다', st.posts[0] && st.posts[0].answers, A60(3));
   chk('보낸 이름·학교도 맞다', [st.posts[0].name, st.posts[0].school], ['박하람', 'C중']);
 
-  // 시트에 안 보이면 다시 보낸다
-  const resync = async () => p.evaluate(() => new Promise(res => {
+  /* ── 시트에 안 보일 때 (선생님 결정 2026-08-12) ─────────────────────
+     예전에는 **자동으로** 다시 보냈다. 그것이 소동의 뿌리였다 — 선생님이
+     다른 회차를 보려고 앱을 연 순간 안 본 회차의 기록이 나갔고, 화면은
+     조용했고, 시트에는 7월 기록이 오늘 날짜로 앉았다.
+
+     이제 **자동으로는 안 보낸다.** 못 간 것은 화면이 세어서 보여 주고,
+     사람이 «지금 맞춰 보기» 를 누를 때만 나간다. 다시 보내기를 통째로
+     없애지는 않았다 — 없애면 못 간 것이 조용히 사라진다. */
+  const sync = async (quiet) => p.evaluate((q) => new Promise(res => {
     localStorage.setItem('chemistreal:final:lastsync', '0');
-    syncAllFromSheet(() => setTimeout(() => res(subs('jmchc-1').map(r => r.name + ':' + r.up + '/' + (r.upTry | 0))), 600), true);
-  }));
+    syncAllFromSheet(() => setTimeout(() => res(subs('jmchc-1').map(r => r.name + ':' + r.up + '/' + (r.upTry | 0))), 600), q);
+  }), quiet);
+
   st.posts.length = 0;
-  let s2 = await resync();
-  chk('시트에 없으면 다시 보낸다', st.posts.length, 1);
+  const auto = await sync(true);                 // 열기만 했다(자동 맞춤)
+  chk('자동으로는 **안 보낸다**', st.posts.length, 0);
+  chk('그래도 못 간 표는 그대로 남는다', auto, ['박하람:0/0']);
+
+  st.posts.length = 0;
+  const s2 = await sync(false);                  // 사람이 «지금 맞춰 보기» 를 눌렀다
+  chk('사람이 누르면 보낸다', st.posts.length, 1);
   chk('보낸 횟수를 센다', s2, ['박하람:0/1']);
 
-  st.posts.length = 0; await resync();
-  st.posts.length = 0; const s4 = await resync();
+  st.posts.length = 0; await sync(false);
+  st.posts.length = 0; const s4 = await sync(false);
   chk('세 번까지만 보낸다', s4, ['박하람:0/3']);
-  st.posts.length = 0; const s5 = await resync();
+  st.posts.length = 0; const s5 = await sync(false);
   // 계속 보내면 시트에 같은 줄이 쌓인다. 멈추고 표시만 남긴다.
   chk('네 번째는 안 보낸다', st.posts.length, 0);
   chk('멈췄다는 표시가 남는다', s5, ['박하람:2/3']);
@@ -435,6 +449,11 @@ async function oldSheetFallback(browser, errs) {
 
 (async () => {
   const browser = seal(await chromium.launch({ executablePath: CHROMIUM, args: ['--no-sandbox'] }));
+  /* ⚠ **시트를 막고 시작한다**(2026-08-12). 이 검사는 `DT/**` 만 막고 있어서
+     학원의 진짜 시트를 그대로 읽고 있었다 — 채점하는 자리는 거기에 줄까지
+     쓴다. `tests/_nosheet.js` 는 그 일을 막으려고 진작에 만들어 둔 자인데
+     여기 안 걸려 있었다. 걸지 않은 자는 없는 자와 같다. */
+  await noSheet(browser);
   const errs = [];
   await oneCall(browser, errs);
   await pendingUpload(browser, errs);

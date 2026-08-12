@@ -102,6 +102,90 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"온도↑ → 흡열 방향 이동, K 변함(발열↓·흡열↑) · 촉매는 빨리 도달만(위치 불변)."</div>
 <p>온도를 올리면 열을 소비하는 흡열 방향으로 이동해(발열은 역반응·K감소, 흡열은 정반응·K증가). 온도는 K를 바꾸는 유일한 요인이야. 촉매는 정·역반응을 똑같이 가속해 평형에 빨리 도달하게 할 뿐 평형 위치(K)는 안 바꿔.</p>
 <p>다음 강(080 평형 이동 종합)이 이 영역의 마지막이야. 지금까지 본 농도·압력·온도·촉매의 효과를 한 표로 종합해, 어떤 자극에 평형이 어떻게 이동하고 K가 변하는지(또는 변하지 않는지)를 완성할 거야. 그리고 암모니아 합성 같은 실제 공정에 이 모든 게 어떻게 적용되는지도 보고. 오늘의 온도·촉매를 들고, 평형 이동을 한눈에 정리하러 가자.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> N₂O₄(g) ⇌ 2NO₂(g) 에서 압력을 낮추면?</div>
+<ol class="lq__opts" data-ans="1">
+<li><button type="button" class="lq__opt">NO₂ 가 는다</button></li>
+<li><button type="button" class="lq__opt">N₂O₄ 가 는다</button></li>
+<li><button type="button" class="lq__opt">변화가 없다</button></li>
+<li><button type="button" class="lq__opt">평형 상수가 커진다</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>①</b></div>
+<p>압력을 낮추면 압력을 되올리는 쪽, 곧 기체 몰수가 느는 쪽으로 간다. → ①</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 압력을 낮추면 늘 역반응이라 여긴다. 기체 몰수가 느는 쪽이면 정반응이다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> N₂(g) + O₂(g) ⇌ 2NO(g), ΔH &gt; 0 인 평형에서 NO 가 늘어나는 것은?</div>
+<ol class="lq__opts" data-ans="4">
+<li><button type="button" class="lq__opt">촉매를 넣는다</button></li>
+<li><button type="button" class="lq__opt">전체 부피를 줄인다</button></li>
+<li><button type="button" class="lq__opt">아르곤을 넣어 전체 압력을 높인다</button></li>
+<li><button type="button" class="lq__opt">온도를 높인다</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>④</b></div>
+<p>흡열이므로 온도를 높이면 정반응으로 간다. 기체 몰수가 양쪽 같아 부피는 안 듣고, 아르곤은 부분압을 안 바꾸며, 촉매는 평형을 안 옮긴다. → ④</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 압력을 높이면 늘 정반응으로 간다고 여긴다. 양쪽 기체 몰수가 같으면 압력은 듣지 않는다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 다음 기체 반응이 밀폐 용기에서 평형을 이루고 있다.<br><br>H₂(g) + I₂(g) ⇌ 2HI(g)   ΔH° = −9.4 kJ<br><br>Ar은 반응에 참여하지 않는 비활성 기체이며, 모든 기체는 이상 기체로 행동한다. 이에 대한 설명으로 옳지 않은 것은?</div>
+<ol class="lq__opts" data-ans="1">
+<li><button type="button" class="lq__opt">온도와 전체 압력을 일정하게 유지하면서 Ar을 넣어 부피가 커지면 HI가 생성되는 쪽으로 평형이 이동한다.</button></li>
+<li><button type="button" class="lq__opt">온도를 일정하게 유지하면서 용기의 부피를 절반으로 줄여도 평형은 이동하지 않는다.</button></li>
+<li><button type="button" class="lq__opt">온도와 부피를 일정하게 유지하면서 Ar을 넣어도 평형은 이동하지 않는다.</button></li>
+<li><button type="button" class="lq__opt">온도를 높이면 평형 상수 K는 작아진다.</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>①</b></div>
+<p>이 반응은 기체 몰수가 반응물 2 mol, 생성물 2 mol로 Δn = 0이다. 따라서 부피나 전체 압력을 바꾸어도 반응 지수 Q = [HI]²/([H₂][I₂])에서 농도의 희석·농축 효과가 분자와 분모에서 정확히 상쇄되어 평형이 이동하지 않는다. 일정 압력에서 Ar을 넣어 부피가 커지는 것도 같은 이유로 평형을 이동시키지 못하므로 첫 번째 서술이 옳지 않다. 일정 부피에서 Ar을 넣으면 반응 기체들의 분압이 그대로여서 당연히 이동이 없다. 발열 반응이므로 온도를 높이면 K는 작아진다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 일정 압력에서 비활성 기체를 넣어 부피가 커지면 항상 기체 몰수가 많은 쪽으로 이동한다고 외워 Δn = 0인 경우를 확인하지 않는다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 문제에서 ① 반응이 발열인지 흡열인지 ② 온도↑이면 흡열 방향으로 이동(발열은 역반응·흡열은 정반응) ③ 온도는 K를 바꾸고(발열↓·흡열↑), 촉매는 위치 불변. 그리고 입으로 말해. "온도를 올리면 흡열 방향으로 가고 K가 바뀌며, 촉매는 평형 위치를 바꾸지 않는다." 한 바퀴 돌리면 이 개념은 네 거다.</div>
 </div>
 

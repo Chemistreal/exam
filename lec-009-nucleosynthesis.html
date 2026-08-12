@@ -105,6 +105,90 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"빅뱅은 수소·헬륨, 별은 철까지, 철 너머는 초신성. 철이 가장 안정한 핵이라 융합의 끝이다."</div>
 <p>우리 몸의 탄소·산소는 옛 별 속에서, 무거운 원소는 초신성에서 왔어. "우리는 별의 먼지로 만들어졌다"는 말이 과장이 아니라 사실인 거지. 그리고 그 모든 분류의 중심에 철의 특별한 안정성이 있어.</p>
 <p>다음 강(010 방사성 붕괴와 반감기)은 이 이야기와 바로 이어져. 초신성에서 만들어진 무거운 원소 중에는 불안정한 핵이 많아서, 시간이 지나며 입자를 내놓고 다른 원소로 변해(붕괴). 우라늄이 천천히 붕괴하고, 탄소-14로 유물 연대를 재는 그 원리야. 원자모형 영역의 마지막 강에서 핵의 불안정성을 다루며 마무리하자.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 어떤 원자의 반지름은 1.0 × 10⁻¹⁰ m이고, 그 원자핵의 반지름은 5.0 × 10⁻¹⁵ m이다. 이 원자를 모든 방향으로 똑같은 비율로 확대하여 원자핵의 반지름이 1 cm인 구슬만 해졌다고 하자. 이때 원자 전체의 반지름은 얼마인가?</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">약 2 m</button></li>
+<li><button type="button" class="lq__opt">약 20 m</button></li>
+<li><button type="button" class="lq__opt">약 200 m</button></li>
+<li><button type="button" class="lq__opt">약 2 km</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>원자 반지름 / 원자핵 반지름 = (1.0 × 10⁻¹⁰) / (5.0 × 10⁻¹⁵) = 2.0 × 10⁴배이다. 확대해도 이 비율은 그대로이므로, 핵이 1 cm가 되면 원자 반지름은 1 cm × 2.0 × 10⁴ = 2.0 × 10⁴ cm = 2.0 × 10² m = 200 m가 된다. 즉 핵을 구슬 하나로 놓으면 원자는 운동장 규모이며, 그 사이는 사실상 텅 빈 공간이다. 러더퍼드의 α입자 산란 실험에서 대부분의 α입자가 그대로 통과한 이유가 바로 이것이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 확대 배율만 구하고 cm → m 환산(÷100)을 빠뜨리거나, 2×10⁴라는 배율을 10³ 또는 10⁵로 어림해 자릿수를 놓친다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 수소 원자(¹H)의 지름은 약 1.0×10⁻¹⁰ m이고, 그 원자핵의 지름은 약 1.0×10⁻¹⁵ m이다. 수소 원자가 전자를 잃어 생성된 H⁺ 이온의 지름으로 가장 타당한 값은?</div>
+<ol class="lq__opts" data-ans="4">
+<li><button type="button" class="lq__opt">1.0×10⁻¹⁰ m</button></li>
+<li><button type="button" class="lq__opt">5.0×10⁻¹¹ m</button></li>
+<li><button type="button" class="lq__opt">1.0×10⁻¹² m</button></li>
+<li><button type="button" class="lq__opt">1.0×10⁻¹⁵ m</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>④</b></div>
+<p>수소 원자는 양성자 1개와 전자 1개로 이루어져 있고, 원자의 크기를 결정하는 것은 바깥쪽 전자 구름이다. H⁺는 그 유일한 전자를 잃은 것이므로 남는 것은 양성자 하나, 즉 원자핵 그 자체다. 따라서 H⁺의 지름은 원자가 아니라 핵의 척도인 약 1.0×10⁻¹⁵ m가 되며, 이는 원자보다 약 10만 배(10⁵배) 작다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> H⁺에는 전자가 하나도 남아 있지 않으므로 크기가 &#x27;조금&#x27; 줄어드는 것이 아니라 원자핵 수준까지 급격히 줄어든다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 어떤 원자의 지름은 2.0×10⁻¹⁰ m이고, 그 원자핵의 지름은 2.0×10⁻¹⁵ m이다. 이 원자를 통째로 확대하여 원자핵이 지름 1.0 mm인 좁쌀 크기가 되게 하였다면, 확대된 원자 전체의 지름은 얼마가 되는가?</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">1 m(사람의 키 정도)</button></li>
+<li><button type="button" class="lq__opt">10 m(3층 건물 높이 정도)</button></li>
+<li><button type="button" class="lq__opt">100 m(축구 경기장 길이 정도)</button></li>
+<li><button type="button" class="lq__opt">1000 m(작은 산의 높이 정도)</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>원자 지름과 핵 지름의 비는 (2.0×10⁻¹⁰ m)/(2.0×10⁻¹⁵ m) = 1.0×10⁵, 즉 원자는 핵보다 10만 배 크다. 확대는 원자와 핵 양쪽에 같은 배율로 적용되므로 이 비는 그대로 보존된다. 따라서 핵이 1.0 mm가 되면 원자 지름은 1.0 mm × 10⁵ = 1.0×10⁵ mm = 1.0×10² m = 100 m가 된다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 확대해도 핵:원자의 비(1:10⁵)는 변하지 않으므로, 확대된 핵 크기에 10⁵을 곱하면 된다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 문제의 원소들을 "빅뱅 / 별 융합 / 초신성" 세 칸으로 직접 분류해봐. 기준은 철이야. 철까지는 별, 철 너머는 초신성, 수소·헬륨은 빅뱅. 그리고 입으로 말해. "철이 가장 안정한 핵이라, 별의 융합은 철에서 멈춘다." 한 바퀴 돌리면 이 개념은 네 거다.</div>
 </div>
 

@@ -101,6 +101,95 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"결합은 분자 안(강함), 분자 간 힘은 분자 사이(약함) · 끓고 녹는 건 분자 간 힘을 이기는 것."</div>
 <p>화학 결합과 분자 간 힘은 전혀 다른 층위야. 상태 변화는 결합을 끊는 게 아니라 분자 간 힘을 이기는 것. 분자 간 힘은 분산력 &lt; 쌍극자-쌍극자 &lt; 수소 결합 순이고, 서로 쌓여. 강할수록 끓는점·녹는점이 높아.</p>
 <p>다음 강(029 분산력)부터 세 가지 힘을 하나씩 깊이 볼 거야. 가장 먼저, 모든 분자에 깔려 있는 기본 힘인 분산력. 무극성 분자도 액체가 되는 이유가 거기 있어. 오늘 만든 "결합 ≠ 분자 간 힘"이라는 구분을 단단히 들고 가자. 이게 영역 전체의 토대야.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 화학 결합과 분자간 힘에 대한 설명으로 옳은 것은?</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">드라이아이스(고체 CO₂)가 상온에서 쉽게 승화하는 것은 분자 안의 C=O 결합이 약하기 때문이다.</button></li>
+<li><button type="button" class="lq__opt">에텐(C₂H₄)의 탄소–탄소 결합은 에테인(C₂H₆)의 탄소–탄소 결합보다 짧고, 끊는 데 더 많은 에너지가 필요하다.</button></li>
+<li><button type="button" class="lq__opt">물이 끓을 때에는 물 분자 안의 O−H 결합이 끊어진다.</button></li>
+<li><button type="button" class="lq__opt">HF의 끓는점은 HCl의 끓는점보다 낮다.</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>에텐의 탄소–탄소 결합은 결합 차수 2, 에테인의 탄소–탄소 결합은 결합 차수 1이다. 결합 차수가 커지면 두 핵 사이의 전자 밀도가 커져 결합 길이가 짧아지고(약 134 pm &lt; 154 pm) 결합 에너지가 커진다(약 611 kJ/mol &gt; 368 kJ/mol). 승화나 끓음 같은 상태 변화에서 끊어지는 것은 분자 사이의 힘이지 분자 내부의 공유 결합이 아니며, HF는 수소 결합을 하므로 분자량이 더 큰 HCl(끓는점 약 −85°C)보다 끓는점이 훨씬 높다(약 20°C).</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 상태 변화에서 끊어지는 것은 분자간 힘인데도 이를 분자 내 공유 결합의 세기로 설명하려 한다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 다음 두 화합물은 분자식이 C₄H₁₀O로 같고 몰질량도 74.1 g/mol로 같다.<br>(가) CH₃CH₂CH₂CH₂OH  (나) CH₃CH₂OCH₂CH₃<br>1 atm에서 두 물질의 끓는점은 각각 118 °C와 34.5 °C로 측정되었다. 이에 대한 설명으로 옳은 것은?</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">몰질량과 분자식이 같으므로 두 물질의 분산력이 같고, 끓는점 차이는 측정 오차 때문이다.</button></li>
+<li><button type="button" class="lq__opt">(가)는 −OH의 H와 다른 분자 O의 비공유 전자쌍 사이에 분자 간 수소 결합을 이루므로 끓는점이 118 °C로 훨씬 높고, (나)는 O에 결합한 H가 없어 분자 간 수소 결합을 이루지 못한다.</button></li>
+<li><button type="button" class="lq__opt">(나)의 산소에는 비공유 전자쌍이 두 쌍 있어 수소 결합을 더 많이 만들 수 있으므로 (나)가 118 °C인 쪽이다.</button></li>
+<li><button type="button" class="lq__opt">두 물질 모두 탄화수소 골격이 커서 무극성이므로 분산력만 작용하고, 끓는점은 사슬 모양이 굽은 (나)가 더 높다.</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>분자량이 같으므로 분산력 기여는 비슷하고, 끓는점 차이 83.5 °C는 수소 결합 유무로 설명된다. 분자 간 수소 결합이 만들어지려면 F, O, N에 직접 결합한 H를 주는 쪽(수소 결합 주는 원자단)과 비공유 전자쌍을 받는 쪽이 모두 있어야 한다. (가)는 −OH가 있어 O–H⋯O 수소 결합을 이루지만, (나)의 에터 산소는 비공유 전자쌍을 받을 수는 있어도 내놓을 O–H가 없어 순수한 (나) 분자들 사이에서는 수소 결합이 생기지 않는다. 따라서 (가)가 118 °C, (나)가 34.5 °C이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 비공유 전자쌍만 있으면 수소 결합이 생긴다고 보아, 수소 결합에는 F·O·N에 직접 결합한 H가 반드시 필요하다는 조건을 잊는 것.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 다음 세 물질은 분자량이 46으로 모두 같다.<br><br>다이메틸에터 CH₃OCH₃<br>에탄올 C₂H₅OH<br>폼산(개미산) HCOOH<br><br>1 atm에서 이 세 물질의 끓는점을 높은 것부터 순서대로 옳게 나열한 것은?</div>
+<ol class="lq__opts" data-ans="1">
+<li><button type="button" class="lq__opt">HCOOH &gt; C₂H₅OH &gt; CH₃OCH₃</button></li>
+<li><button type="button" class="lq__opt">C₂H₅OH &gt; HCOOH &gt; CH₃OCH₃</button></li>
+<li><button type="button" class="lq__opt">HCOOH &gt; CH₃OCH₃ &gt; C₂H₅OH</button></li>
+<li><button type="button" class="lq__opt">CH₃OCH₃ &gt; C₂H₅OH &gt; HCOOH</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>①</b></div>
+<p>세 물질은 분자량이 46으로 같으므로 분산력의 크기는 서로 비슷하다. 따라서 끓는점 차이는 수소 결합을 할 수 있는가, 몇 군데에서 할 수 있는가로 결정된다.
+CH₃OCH₃ : 산소가 있어 수소 결합을 &#x27;받을&#x27; 수는 있지만, O나 N에 직접 결합한 H가 없어 수소 결합을 &#x27;내놓을&#x27; 수 없다. 순수한 상태에서는 분자끼리 수소 결합을 만들지 못하고 쌍극자–쌍극자 힘과 분산력만 작용한다 → 가장 낮다.
+C₂H₅OH : −OH가 있어 분자당 수소 결합 주개 1개, 받개 1개로 사슬 모양의 수소 결합망을 만든다 → 중간.
+HCOOH : −OH(주개)와 C=O(받개)를 함께 가져 두 분자가 두 개의 수소 결합으로 맞물린 이량체를 이룬다. 분자당 수소 결합 수가 더 많아 가장 강하게 붙잡힌다 → 가장 높다.
+따라서 HCOOH &gt; C₂H₅OH &gt; CH₃OCH₃ 이다.
+실제 끓는점도 HCOOH 100.8 °C, C₂H₅OH 78.4 °C, CH₃OCH₃ −24.8 °C로 간격이 매우 크다. 분자량이 모두 같으므로 이 차이는 오직 분자 사이 힘의 종류로만 설명된다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 수소 결합은 O·N·F에 &#x27;직접 결합한 H&#x27;가 있어야 만들 수 있다. 분자에 산소가 있다는 것만으로는 수소 결합 주개가 되지 못한다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 문제에서 "결합을 끊는 것"과 "분자 간 힘을 이기는 것"을 구분해봐. 어떤 상태 변화가 나오면, 끊어지는 게 결합인지 분자 간 힘인지 적어. 그리고 입으로 말해. "끓는다는 건 분자들이 떨어지는 것이지 결합이 끊기는 게 아니다." 한 바퀴 돌리면 이 구분은 네 거다.</div>
 </div>
 

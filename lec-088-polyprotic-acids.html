@@ -101,6 +101,92 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"다양성자산은 H⁺를 단계별로 · Ka1 > Ka2 > Ka3(음전하에서 떼기 어려움) · 첫 단계가 지배."</div>
 <p>다양성자산(황산·인산 등)은 H⁺를 단계별로 하나씩 내놓고, 각 단계에 Ka가 있어. Ka1 > Ka2 > Ka3로 뒤로 갈수록 작아지는데(음전하 이온에서 양전하 H⁺ 떼기가 어려워서), 보통 Ka1이 압도적이라 첫 단계가 [H⁺]를 거의 결정해.</p>
 <p>이걸로 085~088, 즉 산·염기의 세기 부분(세기·Ka·Kb·다양성자산)이 다 갖춰졌어. 다음 강(089 염의 액성)부터 마지막 묶음에서는 염이 물에 녹았을 때의 액성(가수분해), 완충 용액, 지시약 같은 걸 다뤄. 오늘까지의 Ka·Kb가 거기서 염의 액성을 판단하는 데 쓰여. 산·염기의 세기를 들고, 염과 완충 용액으로 넘어가자.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 25°C에서 인산(H₃PO₄)의 이온화 상수는 pKa₁ = 2.15, pKa₂ = 7.20, pKa₃ = 12.35이다. pH = 7.50인 완충 용액을 만들기 위해 H₃PO₄, NaH₂PO₄, Na₂HPO₄, Na₃PO₄ 중 두 가지 시약만 물에 녹여 쓰려고 한다. 활동도 효과는 무시하고 헨더슨-하셀바흐 식을 그대로 적용할 때, 가장 적절한 시약 조합과 그 몰비는? (log 2 = 0.30)</div>
+<ol class="lq__opts" data-ans="1">
+<li><button type="button" class="lq__opt">NaH₂PO₄와 Na₂HPO₄를 몰비 1 : 2로 섞는다</button></li>
+<li><button type="button" class="lq__opt">NaH₂PO₄와 Na₂HPO₄를 몰비 2 : 1로 섞는다</button></li>
+<li><button type="button" class="lq__opt">H₃PO₄와 NaH₂PO₄를 몰비 1 : 2로 섞는다</button></li>
+<li><button type="button" class="lq__opt">Na₂HPO₄와 Na₃PO₄를 몰비 2 : 1로 섞는다</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>①</b></div>
+<p>완충 능력이 가장 큰 조건은 목표 pH가 그 짝산-짝염기 쌍의 pKa에 가까운 경우다. 목표 pH = 7.50에 가장 가까운 것은 pKa₂ = 7.20이므로 H₂PO₄⁻(짝산, NaH₂PO₄)와 HPO₄²⁻(짝염기, Na₂HPO₄) 쌍을 골라야 한다.
+pH = pKa₂ + log([HPO₄²⁻]/[H₂PO₄⁻]) → 7.50 = 7.20 + log(비) → log(비) = 0.30 → [HPO₄²⁻]/[H₂PO₄⁻] = 2.0.
+즉 NaH₂PO₄ : Na₂HPO₄ = 1 : 2로 섞어야 한다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 목표 pH와 가장 가까운 pKa 쌍을 고르지 않거나, 헨더슨식에서 짝염기/짝산의 비를 뒤집는다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 어떤 삼양성자산 H₃A의 25 °C 이온화 상수는 Ka₁ = 7.5×10⁻³, Ka₂ = 6.2×10⁻⁸, Ka₃ = 4.8×10⁻¹³ 이다. 이에 대한 설명으로 옳은 것은?</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">H₂A⁻는 HA²⁻보다 약한 산이다.</button></li>
+<li><button type="button" class="lq__opt">단계마다 Ka가 약 10⁵배씩 작아지는 것은 H⁺가 떨어져 나갈수록 남은 화학종의 음전하가 커져 다음 H⁺를 떼어내기 어려워지기 때문이다.</button></li>
+<li><button type="button" class="lq__opt">Ka₃가 가장 작으므로 H₃A 수용액에서는 세 번째 양성자가 가장 먼저 떨어져 나간다.</button></li>
+<li><button type="button" class="lq__opt">0.10 M H₃A 수용액에서 [A³⁻]는 [H⁺]의 약 1/3이다.</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>H₃A에서 첫 H⁺가 떨어지면 H₂A⁻(전하 −1), 다음에는 HA²⁻(전하 −2)가 된다. 음전하가 커질수록 남은 양성자를 정전기적으로 더 강하게 붙잡으므로 다음 이온화는 점점 어려워지고, 그래서 Ka₁ ≫ Ka₂ ≫ Ka₃가 된다. H₂A⁻의 산 세기는 Ka₂ = 6.2×10⁻⁸, HA²⁻의 산 세기는 Ka₃ = 4.8×10⁻¹³ 이므로 H₂A⁻가 더 강한 산이다. 또 Ka₁이 압도적으로 크므로 [H⁺]는 사실상 1단계 이온화만으로 결정되고, [A³⁻]는 [H⁺]에 비해 극히 작다(대략 Ka₃ 정도 크기).</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 이온화 단계의 순서를 Ka의 크기 순이 아니라 임의로 뒤바꾸어 생각하는 것.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 삼양성자산 H₃Y의 25 °C 이온화 상수는 Ka₁ = 7.5 × 10⁻³, Ka₂ = 6.2 × 10⁻⁸, Ka₃ = 4.8 × 10⁻¹³ 이다. 다음 화학종 중 브뢴스테드-로우리 산으로서 가장 약한 것은?</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">H₃Y</button></li>
+<li><button type="button" class="lq__opt">H₂Y⁻</button></li>
+<li><button type="button" class="lq__opt">HY²⁻</button></li>
+<li><button type="button" class="lq__opt">Y³⁻</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>각 화학종이 산으로 작용할 때의 세기는 그 화학종이 H⁺ 하나를 내놓는 반응의 Ka로 정해진다. H₃Y → Ka₁ = 7.5 × 10⁻³, H₂Y⁻ → Ka₂ = 6.2 × 10⁻⁸, HY²⁻ → Ka₃ = 4.8 × 10⁻¹³ 이다. Ka가 작을수록 약한 산이므로 가장 약한 산은 HY²⁻이다. Y³⁻는 내줄 수 있는 H⁺가 없으므로 애초에 산이 아니라 이 계열에서 가장 센 염기이며, &#x27;가장 약한 산&#x27;의 후보가 될 수 없다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> &#x27;가장 약한 산&#x27;을 물으면 양성자를 다 잃은 최종 음이온을 고르는 것. 그 화학종은 산 자체가 아니다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 문제에서 ① 다양성자산의 단계별 이온화식(Ka1, Ka2) 쓰기 ② Ka1 &gt; Ka2 &gt; Ka3 이유(음전하에서 H⁺ 떼기 어려움) ③ 첫 단계가 [H⁺] 지배. 그리고 입으로 말해. "다양성자산은 단계별로 이온화하고, 음전하가 커져 뒤로 갈수록 Ka가 작아진다." 한 바퀴 돌리면 이 개념은 네 거다.</div>
 </div>
 

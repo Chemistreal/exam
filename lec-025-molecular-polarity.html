@@ -111,6 +111,99 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"분자 극성 = 결합 쌍극자의 벡터 합 · 대칭이면 상쇄(무극성), 비대칭이면 극성."</div>
 <p>극성 결합이 있어도 대칭(CO₂·CCl₄)이면 화살표가 상쇄되어 무극성, 비대칭(H₂O·NH₃)이면 극성. 그래서 모양(023)을 먼저 정하고 상쇄 여부를 봐야 해. 고립쌍이 상쇄를 깨는 주범이고.</p>
 <p>이 분자 극성은 다음 영역(분자 간 힘)에서 물질의 끓는점을 설명하는 핵심이 돼. 극성 분자끼리는 더 강하게 끌어당겨 끓는점이 높거든. 다음 강(026 혼성 오비탈)에서는 잠깐 오비탈 관점으로 돌아가, 분자 모양이 오비탈 수준에서 어떻게 만들어지는지를 보고, 027에서 시그마·파이 결합으로 이 영역을 닫아. 오늘의 "모양 → 극성" 흐름을 들고 가자.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 다음은 네 가지 분자이다. 네 분자 모두 중심 원자와 결합한 원자의 종류가 한 가지뿐이며, 각 결합은 모두 극성 공유 결합이다.<br><br>(가) BF₃<br>(나) NF₃<br>(다) XeF₄<br>(라) SF₄<br><br>분자 전체의 쌍극자 모멘트가 0인 것만을 모두 고른 것은?</div>
+<ol class="lq__opts" data-ans="4">
+<li><button type="button" class="lq__opt">(가), (나)</button></li>
+<li><button type="button" class="lq__opt">(나), (라)</button></li>
+<li><button type="button" class="lq__opt">(가), (다), (라)</button></li>
+<li><button type="button" class="lq__opt">(가), (다)</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>④</b></div>
+<p>각 분자의 중심 원자 주위 구조를 먼저 정한다.
+(가) BF₃: σ 3개, 고립 전자쌍 0개 → 평면 삼각형. 세 B−F 쌍극자가 120°로 고르게 배치되어 벡터 합이 0이다.
+(나) NF₃: σ 3개, 고립 전자쌍 1개 → 삼각뿔형. 세 쌍극자가 한쪽으로 치우쳐 합이 0이 아니다.
+(다) XeF₄: σ 4개, 고립 전자쌍 2개(위·아래 축) → 정사각 평면. 네 쌍극자가 서로 상쇄되어 0이다.
+(라) SF₄: σ 4개, 고립 전자쌍 1개 → 시소형. 대칭이 깨져 합이 0이 아니다.
+따라서 (가)와 (다)이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 결합한 원자가 모두 같은 종류여도 고립 전자쌍 때문에 배치가 비대칭이면 분자는 극성이다. 쌍극자 모멘트는 결합의 극성이 아니라 결합 쌍극자 벡터의 합으로 판단해야 한다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 다음 네 분자는 모두 전기음성도가 서로 다른 원자 사이의 결합, 즉 극성 결합을 포함하고 있다.<br><br>이 중 분자 전체의 쌍극자 모멘트가 0인 무극성 분자는? (1,2-다이클로로에텐 CHCl=CHCl은 C=C 결합을 축으로 회전할 수 없어 cis형과 trans형이 따로 존재한다)</div>
+<ol class="lq__opts" data-ans="4">
+<li><button type="button" class="lq__opt">SO₂</button></li>
+<li><button type="button" class="lq__opt">cis-1,2-다이클로로에텐</button></li>
+<li><button type="button" class="lq__opt">PCl₃</button></li>
+<li><button type="button" class="lq__opt">trans-1,2-다이클로로에텐</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>④</b></div>
+<p>결합에 극성이 있어도 결합 쌍극자들이 벡터적으로 완전히 상쇄되면 분자는 무극성이 된다. 상쇄 여부는 분자의 대칭성이 결정한다.
+trans-1,2-다이클로로에텐: 평면 분자이며 두 Cl가 C=C 축을 기준으로 서로 반대쪽에 있다. 두 C−Cl 결합 쌍극자의 크기가 같고 방향이 정반대여서 완전히 상쇄되고, C−H 쌍극자도 마찬가지로 상쇄된다. 따라서 쌍극자 모멘트가 0인 무극성 분자이다(실측 μ ≈ 0 D).
+SO₂: 중심 S에 비공유 전자쌍이 1개 있어 굽은 형이므로 두 S=O 쌍극자가 상쇄되지 않는다(μ ≈ 1.6 D).
+cis-1,2-다이클로로에텐: 두 Cl가 같은 쪽에 몰려 있어 쌍극자가 더해진다(μ ≈ 1.9 D).
+PCl₃: 중심 P에 비공유 전자쌍이 1개 있어 삼각뿔형이므로 세 P−Cl 쌍극자가 상쇄되지 않는다(μ ≈ 0.6 D).</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 극성 결합이 몇 개 있는지가 아니라, 그 결합 쌍극자들이 대칭적으로 배치되어 벡터 합이 0이 되는지를 따져야 한다. 같은 원자 조성이라도 기하 이성질체에 따라 극성이 달라진다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 다음 분자 가운데 결합의 극성이 서로 지워져 무극성이 되는 것은?</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">NH₃</button></li>
+<li><button type="button" class="lq__opt">H₂O</button></li>
+<li><button type="button" class="lq__opt">CO₂</button></li>
+<li><button type="button" class="lq__opt">SO₂</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>CO₂ 는 직선형이라 두 쌍극자가 서로 지운다. → ③</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 극성 결합이 있으면 분자도 극성이라 여긴다. 모양이 대칭이면 지워진다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 분자들의 극성을 판단해봐. ① 모양 결정(023) ② 결합 쌍극자 화살표를 그리고 ③ 대칭으로 상쇄되는지 확인. 특히 CO₂·CCl₄가 왜 무극성이고 H₂O·NH₃가 왜 극성인지 화살표로 설명해. 한 바퀴 돌리면 이 개념은 네 거다.</div>
 </div>
 

@@ -110,6 +110,96 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"정의(주개·받개) → 세기(Ka·Kb) → 정량(Kw·pH) → 응용(염·완충) · 정체 파악이 먼저."</div>
 <p>산·염기는 H⁺를 주고받는다는 정의에서 출발해 세기(Ka·Kb)·정량(Kw·pH)·응용(염·완충)으로 이어지는 한 줄기야. pH를 구할 땐 녹아 있는 게 강산/약산/염 중 무엇인지 먼저 파악하고 맞는 방법을 써.</p>
 <p>이걸로 <b>산과 염기 영역 12강이 모두 끝났어.</b> 가장 큰 영역을 정의(081)부터 종합(092)까지 완주했지. 다음 영역(중화 반응)에서는 산과 염기가 만나 서로를 상쇄하는 중화를, 그리고 그걸 이용한 적정을 다뤄. 오늘까지의 산·염기 개념(특히 pH, 지시약)이 거기서 바로 쓰여. 여기까지 단단히 다졌으면 중화 반응은 그 응용으로 술술 풀릴 거야.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 농도가 정확히 0.1000 M인 NaOH 표준 용액을 세 학생이 각각 4회 적정하여 다음 결과(단위: M)를 얻었다.<br>학생 A: 0.1042, 0.1044, 0.1043, 0.1043 (평균 0.1043)<br>학생 B: 0.0985, 0.1021, 0.0978, 0.1016 (평균 0.1000)<br>학생 C: 0.1001, 0.0999, 0.1000, 0.1000 (평균 0.1000)<br>이 결과에 대한 설명으로 옳은 것은?</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">A는 정확도가 높고 정밀도가 낮다.</button></li>
+<li><button type="button" class="lq__opt">B는 평균값이 참값과 일치하므로 세 학생 중 정밀도가 가장 높다.</button></li>
+<li><button type="button" class="lq__opt">A의 결과는 뷰렛 눈금 보정 잘못 같은 계통 오차(치우침)를, B의 결과는 큰 우연 오차를 시사한다.</button></li>
+<li><button type="button" class="lq__opt">C를 제외하고 비교하면 A가 B보다 정확도가 높다.</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>정확도는 참값 0.1000 M과의 차이, 정밀도는 측정값끼리의 흩어짐이다. A는 흩어짐이 0.0002 M로 매우 작으나(정밀도 높음) 평균이 0.1043 M로 참값보다 0.0043 M 치우쳐 있다 → 한 방향으로 일정하게 어긋나므로 계통 오차. B는 평균이 0.1000 M로 참값과 같지만(우연히 상쇄) 값이 0.0978~0.1021 M로 크게 흩어져 있다 → 우연 오차가 큼. C는 정확도·정밀도 모두 높다. 따라서 3이 옳다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 정밀하면 정확하다고 착각하거나, 평균이 참값과 같다는 사실을 정밀도의 근거로 삼는 것.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 약산 HA의 이온화 평형 HA(aq) ⇌ H⁺(aq) + A⁻(aq)에서 이온화 상수는 Kₐ = cα²/(1 − α)로 주어진다(c는 처음 농도, α는 이온화도). 이 문제에서는 α ≪ 1로 보아 근사식 Kₐ ≈ cα², 즉 α ≈ √(Kₐ/c)를 사용한다.<br><br>25 °C에서 0.100 M HA 수용액의 이온화도가 0.0100이었다. 같은 온도에서 이 용액을 물로 묽혀 1.00 × 10⁻³ M로 만들었을 때 이온화도는?</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">1.00 × 10⁻⁴</button></li>
+<li><button type="button" class="lq__opt">1.00 × 10⁻²</button></li>
+<li><button type="button" class="lq__opt">0.100</button></li>
+<li><button type="button" class="lq__opt">1.00</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>먼저 Kₐ를 구한다.
+Kₐ ≈ cα² = 0.100 × (0.0100)² = 1.00 × 10⁻⁵ (온도가 같으므로 묽혀도 변하지 않는다)
+묽힌 용액에서
+α ≈ √(Kₐ/c) = √(1.00 × 10⁻⁵ ÷ 1.00 × 10⁻³) = √(1.00 × 10⁻²) = 0.100
+농도를 100배 묽히면 이온화도는 √100 = 10배가 된다. 이것이 오스트발트 희석률이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 묽힐수록 이온화도는 커지지만 농도에 반비례하는 것이 아니라 농도의 제곱근에 반비례한다. 또 Kₐ는 온도만의 함수여서 묽힌다고 변하지 않는다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 산소산 (HO)ₘEOₙ 의 세기는 다음 두 가지로 판단한다.<br>(가) 중심 원자 E에 붙은 말단 산소(수산기에 속하지 않은 산소) 수 n 이 클수록 짝염기의 음전하가 더 넓게 퍼져 산이 강해진다.<br>(나) n 이 같으면 중심 원자 E의 전기음성도가 클수록 O–H 결합의 전자를 더 끌어당겨 산이 강해진다.<br><br>다음 네 가지 산의 세기를 강한 것부터 순서대로 옳게 나열한 것은?<br><br>HOCl,  HOBr,  HOI,  HClO₂</div>
+<ol class="lq__opts" data-ans="1">
+<li><button type="button" class="lq__opt">HClO₂ &gt; HOCl &gt; HOBr &gt; HOI</button></li>
+<li><button type="button" class="lq__opt">HOI &gt; HOBr &gt; HOCl &gt; HClO₂</button></li>
+<li><button type="button" class="lq__opt">HOCl &gt; HOBr &gt; HOI &gt; HClO₂</button></li>
+<li><button type="button" class="lq__opt">HClO₂ &gt; HOI &gt; HOBr &gt; HOCl</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>①</b></div>
+<p>먼저 기준 (가)를 적용한다. HClO₂ = (HO)ClO 이므로 말단 산소가 1개(n = 1)이고, HOCl·HOBr·HOI 는 모두 말단 산소가 없다(n = 0). 말단 산소가 하나 늘 때 Ka는 대략 10⁵배 커지므로 HClO₂ 가 압도적으로 가장 강하다.
+다음으로 n = 0 인 세 산은 기준 (나)로 비교한다. 전기음성도가 Cl(3.16) &gt; Br(2.96) &gt; I(2.66) 이므로 HOCl &gt; HOBr &gt; HOI 이다.
+따라서 HClO₂ &gt; HOCl &gt; HOBr &gt; HOI 이며, 실측 pKa 도 각각 약 1.9, 7.5, 8.6, 10.5 로 순서가 일치하고 간격도 충분히 크다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 중심 원자의 &#x27;크기가 클수록&#x27; 또는 &#x27;주기율표에서 아래로 갈수록&#x27; 산이 강해진다는 이수소산(HF &lt; HCl &lt; HBr &lt; HI) 규칙을 산소산에 그대로 옮겨 적용한다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 문제들을 흐름으로 정리해봐. ① 녹아 있는 게 강산/약산/염 중 무엇인지 파악 ② 그에 맞는 방법(직접/Ka/가수분해)으로 pH·액성 판단 ③ 위 여섯 함정 점검. 그리고 입으로 말해. "먼저 무엇이 녹았는지 파악하고, 강산은 직접·약산은 Ka·염은 가수분해로 푼다." 한 바퀴 돌리면 산·염기 전체가 네 거다.</div>
 </div>
 
