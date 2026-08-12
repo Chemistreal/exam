@@ -98,6 +98,95 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"몰은 입자를 세는 묶음 단위 · 1몰 = 6.02×10²³개(N_A)."</div>
 <p>몰은 "개수의 단위"로, 다스(12)처럼 입자를 6.02×10²³개씩 묶은 거야. 입자 수 = 몰 × N<sub>A</sub>로 변환해. 그리고 분자 1몰 안의 원자 수는 분자식을 보고 곱해야 해(물 1몰 = 원자 3몰).</p>
 <p>다음 강(035 몰질량)에서는 이 몰을 무게(g)와 연결해. 실험실에서는 개수를 못 세지만 무게는 잴 수 있잖아. 어떤 물질이 몇 g이면 몇 몰인지를 알면, 무게만 재고도 입자 수를 알 수 있게 돼. 그 다리가 몰질량이야. 오늘의 "몰 = 묶음 단위"를 단단히 들고 가자. 모든 화학 계산이 이 위에 쌓여.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 몸무게 60 kg 인 사람의 몸이 60 % 가 물이라면 몸속 물 분자 수와 가장 가까운 값은? (H₂O 18, N_A = 6.0×10²³)</div>
+<ol class="lq__opts" data-ans="4">
+<li><button type="button" class="lq__opt">10²⁵</button></li>
+<li><button type="button" class="lq__opt">10²⁶</button></li>
+<li><button type="button" class="lq__opt">10²⁸</button></li>
+<li><button type="button" class="lq__opt">10²⁷</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>④</b></div>
+<p>물은 60 × 0.60 = 36 kg = 36000 g 이다. 36000/18 = 2000 mol 이고 2000 × 6.0×10²³ = 1.2×10²⁷ 개다. → ④</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 몸무게를 그대로 물의 질량으로 쓴다. 백분율을 곱한 뒤 몰질량으로 나눈다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 다음 (가)~(라)에 들어 있는 탄소 원자의 수가 가장 많은 것은? (단, 원자량은 H = 1, C = 12, O = 16이고, 아보가드로수는 6.02×10²³/mol이며, 0 °C, 1 atm에서 기체 1 mol의 부피는 22.4 L이다.)<br>(가) 풀러렌 C₇₀ 8.4 g<br>(나) 흑연 7.2 g<br>(다) 벤젠 C₆H₆ 3.9 g<br>(라) 0 °C, 1 atm에서 CO₂ 기체 11.2 L</div>
+<ol class="lq__opts" data-ans="1">
+<li><button type="button" class="lq__opt">(가)</button></li>
+<li><button type="button" class="lq__opt">(나)</button></li>
+<li><button type="button" class="lq__opt">(다)</button></li>
+<li><button type="button" class="lq__opt">(라)</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>①</b></div>
+<p>입자 수는 몰수에 비례하므로 모두 탄소 원자의 몰수로 환산해 비교한다.
+(가) C₇₀의 화학식량은 70 × 12 = 840이므로 8.4/840 = 0.010 mol이고, 분자 1개에 탄소가 70개이므로 탄소 원자는 0.010 × 70 = 0.70 mol이다.
+(나) 흑연은 탄소 원자만으로 이루어져 있으므로 7.2/12 = 0.60 mol이다.
+(다) C₆H₆의 분자량은 6 × 12 + 6 × 1 = 78이므로 3.9/78 = 0.050 mol이고, 탄소 원자는 0.050 × 6 = 0.30 mol이다.
+(라) 기체 11.2/22.4 = 0.50 mol이고, CO₂ 1분자에 탄소가 1개이므로 탄소 원자는 0.50 mol이다.
+따라서 0.70 &gt; 0.60 &gt; 0.50 &gt; 0.30 mol로 (가)가 가장 많다. 질량이 가장 크거나 분자 수가 가장 많은 것이 아니라, 분자 1개에 들어 있는 탄소 원자 수까지 곱해야 한다는 점이 핵심이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 입자 수는 몰수에 비례하므로, 질량이나 부피가 아니라 분자 1개에 든 원자 수까지 곱한 몰수로 비교한다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 면심 입방(FCC) 구조를 갖는 금속 M은 몰질량이 60.0 g/mol, 밀도가 6.25 g/cm3이다. 한 학생이 X선 회절로 이 금속의 단위 세포 한 변의 길이를 a = 4.04×10⁻⁸ cm로 측정한 뒤, 밀도 = (단위 세포 속 원자의 질량) / (단위 세포의 부피) 관계를 이용해 아보가드로 수를 계산하였다. 이 학생의 계산 결과와 그 해석으로 옳은 것은? (실제 아보가드로 수 = 6.02×10²³ /mol)</div>
+<ol class="lq__opts" data-ans="1">
+<li><button type="button" class="lq__opt">계산값은 약 5.82×10²³으로 실제보다 작으며, 이는 측정한 a가 실제 값보다 컸기 때문이다.</button></li>
+<li><button type="button" class="lq__opt">계산값은 약 5.82×10²³으로 실제보다 작으며, 이는 측정한 a가 실제 값보다 작았기 때문이다.</button></li>
+<li><button type="button" class="lq__opt">계산값은 약 6.20×10²³으로 실제보다 크며, 이는 측정한 a가 실제 값보다 컸기 때문이다.</button></li>
+<li><button type="button" class="lq__opt">아보가드로 수는 격자 상수와 무관하게 정해지므로 a의 오차와 관계없이 6.02×10²³이 나온다.</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>①</b></div>
+<p>FCC의 단위 세포당 원자 수는 꼭짓점 8×1/8 + 면 6×1/2 = 4개이다. 밀도 = Z × M / (NA × a³)에서 NA = Z × M / (밀도 × a³) = (4×60.0) / (6.25 × (4.04×10⁻⁸)³) = 240 / (6.25×6.594×10⁻²³) = 5.82×10²³ /mol이다. 이 식에서 Z, M, 밀도가 고정되어 있으면 NA는 a³에 반비례하므로, 계산값이 실제보다 작게 나왔다는 것은 대입한 a가 실제보다 컸다는 뜻이다(실제 a는 4.00×10⁻⁸ cm이며 이 값을 쓰면 정확히 6.00×10²³이 나온다).</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> NA와 격자 상수의 반비례 관계를 반대로 읽어, 값이 작게 나온 원인을 a가 작았기 때문이라고 판단한다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 문제에서 ① 몰 ↔ 입자 수를 N<sub>A</sub>로 변환하고 ② 분자 몇 몰 안의 특정 원자가 몇 몰인지 분자식으로 계산해봐. 그리고 입으로 말해. "1몰은 6.02×10²³개고, 물 1몰 안에는 수소 원자가 2몰이다." 한 바퀴 돌리면 이 개념은 네 거다.</div>
 </div>
 

@@ -4409,8 +4409,11 @@ function syncOneShot(onDone){
    **이 브라우저가 보낸 것만** 다시 보낸다. up 이 아예 없는 옛 기록은 건드리지
    않는다 — 선생님이 시트에서 일부러 지운 줄을 되살릴 수 있기 때문이다.
    그런 것은 명단 관리에서 사람이 보고 올린다. */
+/* 다시 보낸 것이 **어느 회차 몇 건**인지. 아래에서 사람에게 말할 때 쓴다. */
+let RESENT_BY={};
 function resendPending(){
   var sent=0;
+  RESENT_BY={};
   if(!SHEET_ENDPOINT || fShared) return 0;
   FINAL_EXAMS.forEach(function(exam){
     var arr=subs(exam.id), hit=false;
@@ -4425,6 +4428,7 @@ function resendPending(){
       try{
         postToSheet(sheetPayloadFor(exam,sel2,cohortStats(exam),r.name,r.school,r.grade));
         sent++; r.upTry=(r.upTry|0)+1; hit=true;
+        RESENT_BY[exam.title||exam.id]=(RESENT_BY[exam.title||exam.id]||0)+1;
       }catch(e){}
     });
     if(hit) saveSubs(exam.id,arr);
@@ -4513,6 +4517,25 @@ function syncAllFromSheet(onDone, quiet){
       markSynced();
       var resent=resendPending();
       refreshScreen();
+      /* ── 쓰는 일은 조용히 하지 않는다 (2026-08-12) ──────────────────────
+         선생님이 물으셨다 — *"이런애들 지금 시험 안봤는데 왜 올라가있어?"*
+         2019 를 채점하려고 파이널을 여신 순간 자동 맞춤이 돌았고, 그 브라우저에
+         남아 있던 **2018 의 미확인 4건**이 다시 올라갔다. resendPending 은
+         지금 보는 회차만이 아니라 **모든 회차**를 돈다.
+
+         앱이 정해진 대로 한 일이다 — 망이 끊긴 채로 채점한 기록을 살리는
+         유일한 장치다. 잘못은 **아무 말도 안 한 것**이었다. «다시 올린 N건» 이
+         `if(!quiet)` 안에 있었고 자동 맞춤은 늘 quiet 이라, 시트에 줄이 생기는
+         동안 화면은 조용했다. 학원 시트에 오늘 날짜로 넉 줄이 생겼는데 사람은
+         이유를 알 길이 없었다.
+
+         `quiet` 은 «잘 맞았습니다» 같은 잔소리를 줄이려는 것이지 **쓴 것을
+         숨기려는 것이 아니다.** 읽는 것은 조용해도 되고, 쓰는 것은 안 된다.
+         그래서 조용한 판에서도 이것만은 말한다 — 어느 회차 몇 건인지까지. */
+      if(resent){
+        var wt=Object.keys(RESENT_BY).map(function(k){ return k+' '+RESENT_BY[k]+'건'; }).join(' · ');
+        fToast('못 올렸던 기록을 다시 올렸습니다 — '+wt+' (오늘 채점한 것이 아닙니다)');
+      }
       if(!quiet){
         var bits=[];
         if(one.added) bits.push('새 기록 '+one.added+'건');

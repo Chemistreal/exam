@@ -101,6 +101,92 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"동적 평형 = 정반응 속도 = 역반응 속도 · 농도 일정하지만 반응은 계속된다."</div>
 <p>가역 반응은 정반응·역반응이 모두 일어나(⇌). 진행되며 정반응은 느려지고 역반응은 빨라져 두 속도가 같아지면 평형이야. 평형에서는 농도가 일정하지만 반응이 멈춘 게 아니라 양방향으로 계속돼(동적). 속도가 같다는 것이지 0이 아니고, 농도가 일정하다는 것이지 같다는 게 아니야.</p>
 <p>다음 강(074 평형 상수)에서는 이 평형 상태에서 농도들 사이에 성립하는 일정한 관계를 배워. 평형에서 생성물과 반응물 농도를 특정 방식으로 조합하면, 온도가 같은 한 항상 일정한 값(평형 상수 K)이 나오거든. 평형을 숫자로 다루는 도구야. 오늘의 동적 평형을 들고, 평형 상수로 넘어가자.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 용질 S는 물층과 유기 용매층 사이를 오갈 수 있다. 물층에서 유기층으로 넘어가는 속도는 k₁[S]물, 유기층에서 물층으로 넘어가는 속도는 k₂[S]유기이며, 25 °C에서 k₁ = 4.0×10⁻² s⁻¹, k₂ = 1.0×10⁻² s⁻¹이다.<br><br>물 100 cm³에 S 0.50 mol을 녹인 뒤 섞이지 않는 유기 용매 100 cm³를 넣고 충분히 흔들어 평형에 도달시켰다. 두 층의 부피는 각각 100 cm³로 일정하다. 평형에서 유기층에 들어 있는 S의 양은? (S는 두 층에서 모두 같은 형태로 존재한다.)</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">0.10 mol</button></li>
+<li><button type="button" class="lq__opt">0.25 mol</button></li>
+<li><button type="button" class="lq__opt">0.40 mol</button></li>
+<li><button type="button" class="lq__opt">0.50 mol</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>동적 평형에서는 정방향과 역방향의 이동 속도가 같으므로 k₁[S]물 = k₂[S]유기이다. 따라서 [S]유기/[S]물 = k₁/k₂ = 4.0. 두 층의 부피가 같으므로 몰수의 비도 4 : 1이다. 전체 0.50 mol을 4 : 1로 나누면 유기층 0.50 × 4/5 = 0.40 mol, 물층 0.10 mol이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 평형에서 속도가 같다는 조건으로부터 농도비를 유도할 때 k의 비 방향을 뒤집어, 속도 상수가 큰 쪽에 용질이 많이 남는다고 착각한다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 부피와 온도를 조절할 수 있는 용기에서 다음 반응이 평형에 도달해 있다.<br><br>X(g) + 2Y(g) ⇌ 2Z(g)   ΔH = −100 kJ<br><br>다음 조작 중 평형이 정반응 쪽(Z가 많아지는 쪽)으로 이동하는 것은? (단, 세 기체는 모두 이상 기체로 행동한다.)</div>
+<ol class="lq__opts" data-ans="1">
+<li><button type="button" class="lq__opt">온도를 일정하게 유지한 채 용기의 부피를 절반으로 줄인다.</button></li>
+<li><button type="button" class="lq__opt">부피를 일정하게 유지한 채 온도를 높인다.</button></li>
+<li><button type="button" class="lq__opt">온도와 부피를 일정하게 유지한 채 반응하지 않는 아르곤 기체를 넣는다.</button></li>
+<li><button type="button" class="lq__opt">온도와 부피를 일정하게 유지한 채 정촉매를 넣는다.</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>①</b></div>
+<p>반응식에서 기체 몰수는 왼쪽 1 + 2 = 3몰, 오른쪽 2몰이다.
+부피를 절반으로 줄이면 전체 압력이 커지므로, 계는 압력을 낮추는 쪽 즉 기체 몰수가 적은 오른쪽(정반응)으로 이동한다. → ①
+르샤틀리에 원리는 &#x27;가해진 변화를 줄이는 쪽으로 이동한다&#x27;로 요약된다. 어떤 양이 실제로 바뀌었는지를 먼저 따져야 한다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 계수 1 : 2는 소모량 비와 평형 상수의 지수 양쪽에 모두 들어간다. 한쪽만 반영하면 틀린다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 온도 T 에서 반응 A(g) + B(g) ⇌ 2C(g) 의 농도 평형 상수는 Kc = 4.0 이다. 같은 온도의 밀폐 용기에 A, B, C 를 넣어 [A] = 0.20 M, [B] = 0.10 M, [C] = 0.50 M 인 혼합물을 만들었다. 이 혼합물에 대한 설명으로 옳은 것은?</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">Q = 0.080 으로 K 보다 작으므로 정반응이 우세하게 진행된다</button></li>
+<li><button type="button" class="lq__opt">Q = 12.5 로 K 보다 크므로 C 가 소모되면서 역반응이 우세하게 진행된다</button></li>
+<li><button type="button" class="lq__opt">Q = 12.5 로 K 보다 크므로 정반응이 우세하게 진행된다</button></li>
+<li><button type="button" class="lq__opt">Q = K 이므로 이 혼합물은 이미 평형 상태이며 농도가 변하지 않는다</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>반응 지수는 Q = [C]²/([A][B]) = (0.50)²/(0.20 × 0.10) = 0.25/0.020 = 12.5 이다. Q = 12.5 &gt; Kc = 4.0 이므로 생성물이 평형보다 과다한 상태다. 계는 Q 를 K 쪽으로 줄이는 방향, 즉 C 가 소모되고 A·B 가 생기는 역반응 쪽으로 진행한다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> Q 를 계산해도 Q &gt; K 일 때의 이동 방향을 거꾸로 판단하거나, Q 식의 분자·분모를 뒤집어 계산한다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 문제에서 ① 정반응·역반응 속도가 어떻게 변해 평형에 이르는지 ② 평형의 특징(속도 같음, 농도 일정, 반응 계속) ③ "멈췄다/속도 0/농도 같음" 같은 오해 피하기. 그리고 입으로 말해. "평형은 정반응과 역반응 속도가 같아진 것이지, 반응이 멈춘 게 아니다." 한 바퀴 돌리면 이 개념은 네 거다.</div>
 </div>
 

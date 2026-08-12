@@ -116,6 +116,97 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"완충 = 약산 + 짝염기 · H⁺는 A⁻가, OH⁻는 HA가 흡수 → pH 유지."</div>
 <p>완충 용액은 약산과 그 짝염기를 함께 섞은 것으로, 산·염기를 소량 넣어도 pH가 거의 안 변해. H⁺는 짝염기(A⁻)가, OH⁻는 약산(HA)이 흡수하기 때문이야. 혈액의 탄산-중탄산 완충이 대표적이고, 용량 한계는 있어.</p>
 <p>다음 강(091 지시약과 pH 측정)에서는 pH를 실제로 어떻게 알아내는지를 봐. pH에 따라 색이 변하는 지시약과, 정확하게 재는 pH 미터를 다루지. 084의 pH를 눈으로 보이게 하는 도구야. 오늘의 완충 용액을 들고, pH 측정으로 넘어가자.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 25 °C에서 약산 HA(K_a = 1.8×10⁻⁵)와 그 짝염기의 염 NaA를 각각 0.100 mol씩 녹여 전체 부피가 1.00 L인 완충 용액을 만들었다. 이 용액에 고체 NaOH 0.020 mol을 넣어 완전히 녹였을 때 용액의 pH는? (단, NaOH를 넣어도 부피는 변하지 않으며 헨더슨–하셀바흐 식 pH = pK_a + log([A⁻]/[HA])를 사용한다. pK_a = 4.74, log 2 = 0.30, log 3 = 0.48 이다.)</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">4.56</button></li>
+<li><button type="button" class="lq__opt">4.74</button></li>
+<li><button type="button" class="lq__opt">4.92</button></li>
+<li><button type="button" class="lq__opt">12.30</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>넣어 준 OH⁻ 0.020 mol은 완충 용액 속의 약산 HA와 정량적으로 반응한다: HA + OH⁻ → A⁻ + H₂O. 따라서 HA는 0.100 − 0.020 = 0.080 mol로 줄고 A⁻는 0.100 + 0.020 = 0.120 mol로 늘어난다. pH = 4.74 + log(0.120/0.080) = 4.74 + log 1.5 = 4.74 + (log 3 − log 2) = 4.74 + (0.48 − 0.30) = 4.74 + 0.18 = 4.92 이다. 강염기를 넣었는데도 pH가 0.18만 올라간 것이 완충 작용이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 완충 용액은 pH를 &#x27;고정&#x27;하는 것이 아니라 변화를 작게 억제하며, 강염기를 넣으면 약산이 줄고 짝염기가 그만큼 늘어난다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 다음은 25 °C에서 만든 네 가지 수용액이다. 네 용액의 부피는 모두 1.0 L이며, 괄호 안은 녹인 물질의 양(mol)이다.<br><br>각 용액에 HCl(g) 0.010 mol을 녹여 넣었다(부피 변화는 무시한다). 이때 pH 변화의 절댓값이 가장 작은 것은? (CH₃COOH의 Ka = 1.8×10⁻⁵, NH₃의 Kb = 1.8×10⁻⁵)</div>
+<ol class="lq__opts" data-ans="4">
+<li><button type="button" class="lq__opt">HCl(1.0×10⁻³)과 NaCl(0.10)을 녹인 용액</button></li>
+<li><button type="button" class="lq__opt">CH₃COOH(0.10)와 NaOH(0.10)를 녹인 용액</button></li>
+<li><button type="button" class="lq__opt">CH₃COOH(0.20)만 녹인 용액</button></li>
+<li><button type="button" class="lq__opt">NH₃(0.20)와 HCl(0.10)을 녹인 용액</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>④</b></div>
+<p>완충 용액은 &#x27;약산과 그 짝염기&#x27; 또는 &#x27;약염기와 그 짝산&#x27;이 둘 다 충분한 양으로 함께 있는 용액이다. 넣어 준 H⁺를 짝염기가 받아 주기 때문에 pH가 거의 변하지 않는다.
+
+4번: NH₃ 0.20 mol 중 0.10 mol이 HCl과 반응해 NH₄⁺ 0.10 mol이 되고 NH₃ 0.10 mol이 남는다. NH₄⁺의 Ka = Kw/Kb = 1.0×10⁻¹⁴/1.8×10⁻⁵ = 5.6×10⁻¹⁰이므로 pKa = 9.25이고 처음 pH = 9.25이다. HCl 0.010 mol을 넣으면 NH₃ 0.090 mol, NH₄⁺ 0.110 mol이 되어
+pH = 9.25 + log(0.090/0.110) = 9.25 − 0.087 = 9.16, 변화는 0.09에 그친다.
+
+1번: HCl은 강산이므로 1.0×10⁻³ M 용액의 pH는 3.00이다. NaCl은 산·염기 성질이 없어 아무 역할도 하지 않는다. HCl 0.010 mol을 더하면 [H⁺] = 1.1×10⁻² M, pH = 1.96이 되어 약 1.0이 변한다.
+2번: 아세트산과 NaOH가 같은 몰수여서 완전히 중화되어 CH₃COO⁻ 0.10 M만 남는다. Kb = 5.6×10⁻¹⁰이므로 [OH⁻] = √(5.6×10⁻¹⁰ × 0.10) = 7.5×10⁻⁶, 처음 pH = 8.87이다. HCl 0.010 mol을 넣으면 CH₃COO⁻ 0.090 / CH₃COOH 0.010의 완충계가 되어 pH = 4.74 + log 9 = 5.69, 변화가 3.2로 가장 크다.
+3번: 약산만 있고 짝염기가 없다. 처음 [H⁺] = √(1.8×10⁻⁵ × 0.20) = 1.9×10⁻³, pH = 2.72이고, HCl을 넣으면 [H⁺]가 약 1.03×10⁻²가 되어 pH = 1.99로 0.7 이상 변한다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 완충 용액은 &#x27;약산 + 그 짝염기&#x27; 쌍이 함께 있어야 하며, 약산만 있거나 짝염기만 있거나 강산이 들어 있는 용액은 완충 작용을 하지 못한다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 약산 HA 0.2 mol 에 강염기 0.05 mol 을 넣어 만든 완충 용액의 pH 는?</div>
+<ol class="lq__opts" data-ans="1">
+<li><button type="button" class="lq__opt">pKa − log3</button></li>
+<li><button type="button" class="lq__opt">pKa + log3</button></li>
+<li><button type="button" class="lq__opt">pKa − log4</button></li>
+<li><button type="button" class="lq__opt">pKa + log4</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>①</b></div>
+<p>남은 HA 는 0.15 mol, 생긴 A⁻ 는 0.05 mol 이니 pH = pKa + log(0.05/0.15) = pKa − log3 이다. → ①</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 완충 용액의 pH 를 산의 농도로 셈한다. 정하는 것은 짝염기와 산의 비다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 문제에서 ① 완충 용액의 조성(약산 + 짝염기) 확인 ② H⁺는 A⁻가, OH⁻는 HA가 흡수하는 과정 ③ 완충 용량의 한계. 그리고 입으로 말해. "완충 용액은 약산과 짝염기가 H⁺와 OH⁻를 각각 흡수해 pH를 유지한다." 한 바퀴 돌리면 이 개념은 네 거다.</div>
 </div>
 

@@ -117,6 +117,97 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"균형 → 몰로 → 한계 확인 → 계수비 → 원하는 단위 → 수득률 · 모든 길은 몰로 통한다."</div>
 <p>화학량론은 여섯 단계 마스터 절차로 풀려. 그리고 질량·부피·농도·개수는 모두 몰을 거쳐야 변환되고, 계수비는 오직 몰에서만 적용돼. 몰이 화학량론의 공용어야.</p>
 <p>이걸로 <b>몰과 양적 관계 영역 10강이 모두 끝났어.</b> 몰·아보가드로 수(034)에서 출발해 몰질량(035)·화학식량(036)으로 양을 세는 법을 익히고, 반응식(037)·양적 관계(038)로 반응을 계산하고, 기체(039)·농도(040)로 단위를 확장하고, 한계 반응물(041)·수득률(042)로 현실에 가까워진 뒤, 오늘 종합(043)으로 묶었지. 정성에서 정량으로 결을 바꾼 이 영역의 핵심은 "몰을 중심에 둔다"는 태도야. 다음 영역(기체)에서는 그 기체를 더 깊이 파고들어, 압력·온도·부피의 관계(기체 법칙)를 다뤄. 오늘 잠깐 본 22.4 L가 거기서 제대로 설명돼. 여기까지 단단히 다졌으면 정량 화학의 기초는 네 거다.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 이황화탄소는 산소와 다음과 같이 완전히 반응한다.<br>CS₂(l) + 3O₂(g) → CO₂(g) + 2SO₂(g)<br>밀폐 용기에 CS₂ 15.2 g과 O₂ 14.4 g을 넣고 반응을 완결시켰다. 생성된 SO₂의 질량은? (원자량: C 12.0, O 16.0, S 32.0)</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">12.8 g</button></li>
+<li><button type="button" class="lq__opt">19.2 g</button></li>
+<li><button type="button" class="lq__opt">25.6 g</button></li>
+<li><button type="button" class="lq__opt">28.8 g</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>CS₂의 몰질량 = 12.0 + 2×32.0 = 76.0 g/mol → 15.2 g ÷ 76.0 = 0.200 mol. O₂ = 14.4 g ÷ 32.0 = 0.450 mol. 계수비로 나누면 CS₂: 0.200/1 = 0.200, O₂: 0.450/3 = 0.150 이므로 O₂가 한계 반응물이다. O₂ 0.450 mol이 모두 소모될 때 SO₂ = 0.450 × (2/3) = 0.300 mol. SO₂의 몰질량 = 32.0 + 2×16.0 = 64.0 g/mol → 0.300 × 64.0 = 19.2 g.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 계수로 나누지 않고 몰수만 비교해 한계 반응물을 잘못 고르는 것.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 알루미늄 분말과 산화 철(Ⅲ)을 섞어 점화하면 다음과 같이 반응한다.<br><br>2Al(s) + Fe₂O₃(s) → Al₂O₃(s) + 2Fe(l)<br><br>Al 5.4 g과 Fe₂O₃ 24.0 g을 섞어 반응을 완결시켰다. 생성된 Fe의 질량은? (원자량: O = 16.0, Al = 27.0, Fe = 56.0. 두 반응물 중 한쪽만 남으며, 반응은 위 화학 반응식대로만 진행된다.)</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">8.4 g</button></li>
+<li><button type="button" class="lq__opt">11.2 g</button></li>
+<li><button type="button" class="lq__opt">16.8 g</button></li>
+<li><button type="button" class="lq__opt">22.4 g</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>Al: 5.4 g ÷ 27.0 g/mol = 0.20 mol, Fe₂O₃: 24.0 g ÷ 160.0 g/mol = 0.15 mol.
+반응식의 몰비는 Al : Fe₂O₃ = 2 : 1이므로 Al 0.20 mol이 모두 반응하려면 Fe₂O₃가 0.10 mol만 있으면 된다. 실제로는 0.15 mol이 있으므로 Fe₂O₃가 0.05 mol 남고, 한계 반응물은 Al이다.
+Al : Fe = 2 : 2 = 1 : 1이므로 Fe = 0.20 mol, 질량 = 0.20 mol × 56.0 g/mol = 11.2 g.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 질량이 적은 쪽·많은 쪽을 눈으로 비교하지 말고, 몰수를 계수비로 나눈 값이 작은 쪽이 한계 반응물임을 확인해야 한다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 탄소와 수소로만 이루어진 기체 화합물 X 4.40 g 을 충분한 산소에서 완전 연소시켰더니 CO₂ 13.2 g 과 H₂O 7.20 g 만 생성되었다. 또 X 의 증기 밀도로부터 구한 몰질량은 44 g/mol 이었다.<br>(단, 원자량은 H = 1.0, C = 12.0, O = 16.0 이다.)<br><br>X 의 분자식은?</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">C₃H₄</button></li>
+<li><button type="button" class="lq__opt">C₃H₈</button></li>
+<li><button type="button" class="lq__opt">C₆H₁₆</button></li>
+<li><button type="button" class="lq__opt">C₁₁H₈</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>생성물의 탄소는 모두 X 에서, 수소도 모두 X 에서 온다.
+· n(CO₂) = 13.2 g ÷ 44.0 g/mol = 0.300 mol → n(C) = 0.300 mol (질량 3.60 g)
+· n(H₂O) = 7.20 g ÷ 18.0 g/mol = 0.400 mol → n(H) = 2 × 0.400 = 0.800 mol (질량 0.800 g)
+질량 검산: 3.60 + 0.800 = 4.40 g 으로 X 의 질량과 정확히 같으므로 X 에 산소는 없다.
+원자 수 비 C : H = 0.300 : 0.800 = 3 : 8 이므로 실험식은 C₃H₈ 이고 실험식량은 3×12.0 + 8×1.0 = 44 이다.
+몰질량 44 g/mol ÷ 실험식량 44 = 1 이므로 분자식도 C₃H₈ 이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> H₂O 1 mol 에 H 가 2 mol 들어 있다는 점을 빠뜨려 수소 몰수를 절반으로 계산하거나, CO₂ 질량을 탄소 질량으로 그대로 쓴다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 종합 문제를 마스터 절차로 풀어봐. ① 반응식 균형 ② 주어진 양 → 몰 ③ 한계 반응물 ④ 계수비로 구할 몰 ⑤ 원하는 단위로 ⑥ 수득률. 매 단계가 몰을 거치는지 확인하면서. 그리고 입으로 말해. "일단 몰로 바꾸고, 계수비는 몰에서만 쓴다." 한 바퀴 돌리면 화학량론은 네 거다.</div>
 </div>
 

@@ -18,9 +18,15 @@
      (정적 서버가 8931 포트에 떠 있어야 한다)
    ============================================================ */
 'use strict';
+const noSheet = require('./_nosheet.js');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 (async () => {
   const b = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH, args: ['--no-sandbox'] });
+  /* ⚠ **시트를 막고 시작한다**(2026-08-12). 이 검사는 `DT/**` 만 막고 있어서
+     학원의 진짜 시트를 그대로 읽고 있었다 — 채점하는 자리는 거기에 줄까지
+     쓴다. `tests/_nosheet.js` 는 그 일을 막으려고 진작에 만들어 둔 자인데
+     여기 안 걸려 있었다. 걸지 않은 자는 없는 자와 같다. */
+  await noSheet(browser);
   const ctx = await b.newContext();
   await ctx.route('**://script.google.com/**', r => r.abort('blockedbyclient'));
   const p = await ctx.newPage();

@@ -108,6 +108,97 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"c=λν, E=hν · 그래서 에너지 큰 빛은 진동수 크고 파장 짧다."</div>
 <p>그리고 빛은 파동이면서 동시에 알갱이(광자)다. 광전효과가 그 증거고, 거기서 빛의 세기는 광자 개수, 진동수는 광자 한 알의 에너지라는 구분을 꼭 기억해.</p>
 <p>이게 왜 중요하냐면, 다음 두 강의가 전부 이 위에서 돌아가거든. 수소가 내는 빛(003강)은 특정 파장의 광자들이고, 그 광자 하나하나의 에너지(<span class="fm">E=hν</span>)가 전자의 에너지 준위 차이(004강 보어 모형)와 정확히 맞아떨어져. 즉 오늘의 <span class="fm">E=hν</span>가 다음 강의 전이 에너지로 곧장 이어져. 여기서 진동수·파장·에너지 관계가 흔들리면 스펙트럼 문제는 손도 못 대.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 다음은 네 가지 전자기파의 진공에서의 파장이다.<br><br>자외선 : 2.0×10² nm<br>가시광선(초록빛) : 5.0×10² nm<br>적외선 : 1.0×10³ nm<br>마이크로파 : 1.0×10⁷ nm<br><br>진공에서 전자기파는 c = λν 관계를 만족하고, 광자 1개의 에너지는 E = hν = hc/λ이다. 이에 대한 설명으로 옳은 것은?</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">진공에서 파장이 짧을수록 전자기파가 진행하는 속력이 빠르다.</button></li>
+<li><button type="button" class="lq__opt">적외선의 진동수는 마이크로파의 진동수보다 작다.</button></li>
+<li><button type="button" class="lq__opt">광자 1개의 에너지는 자외선이 가시광선의 2.5배이다.</button></li>
+<li><button type="button" class="lq__opt">마이크로파는 네 전자기파 중 파장이 가장 길므로 광자 1개의 에너지가 가장 크다.</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>E = hc/λ이므로 광자의 에너지는 파장에 반비례한다. 같은 h와 c를 쓰므로 두 빛의 에너지비는 파장의 역수비와 같다.
+E(자외선)/E(가시광선) = λ(가시광선)/λ(자외선) = (5.0×10² nm) ÷ (2.0×10² nm) = 2.5
+따라서 3번이 옳다.
+검산: h = 6.63×10⁻³⁴ J·s, c = 3.00×10⁸ m/s로 직접 계산하면
+ 자외선(2.0×10⁻⁷ m) : E = (6.63×10⁻³⁴ × 3.00×10⁸)/(2.0×10⁻⁷) = 9.9×10⁻¹⁹ J
+ 가시광선(5.0×10⁻⁷ m) : E = (6.63×10⁻³⁴ × 3.00×10⁸)/(5.0×10⁻⁷) = 4.0×10⁻¹⁹ J
+ 9.9×10⁻¹⁹ ÷ 4.0×10⁻¹⁹ = 2.5로 같다.
+한편 진공에서 모든 전자기파의 속력은 파장과 관계없이 c = 3.00×10⁸ m/s로 같고, ν = c/λ이므로 파장이 짧은 적외선(1.0×10³ nm)의 진동수가 마이크로파(1.0×10⁷ nm)보다 10⁴배 크다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 진공에서 전자기파의 속력은 파장에 관계없이 모두 c로 같다. 파장에 따라 달라지는 것은 속력이 아니라 진동수와 광자 에너지이며, 둘 다 파장에 반비례한다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 전자기파가 물질에 일으키는 변화를 에너지가 큰 것부터 늘어놓은 것은?</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">핵스핀 들뜸 &gt; 회전 &gt; 진동 &gt; 전자 들뜸</button></li>
+<li><button type="button" class="lq__opt">회전 &gt; 진동 &gt; 전자 들뜸 &gt; 핵스핀 들뜸</button></li>
+<li><button type="button" class="lq__opt">전자 들뜸 &gt; 진동 &gt; 회전 &gt; 핵스핀 들뜸</button></li>
+<li><button type="button" class="lq__opt">진동 &gt; 전자 들뜸 &gt; 핵스핀 들뜸 &gt; 회전</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>자외선은 전자를 들뜨게 하고, 적외선은 진동, 마이크로파는 회전, 라디오파는 핵스핀을 다룬다. → ③</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 파장이 길수록 에너지가 크다고 여긴다. 에너지는 진동수에 비례한다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 네 가지 전자기파 (가)~(라)의 자료다. (가) 진동수 6.0×10¹⁴ s⁻¹, (나) 파장 1.0 μm, (다) 진동수 3.0×10¹⁶ s⁻¹, (라) 파장 250 nm. 파장이 긴 것부터 순서대로 옳게 나열한 것은? (진공에서 빛의 속력 c = 3.0×10⁸ m/s, 1 μm = 10⁻⁶ m, 1 nm = 10⁻⁹ m)</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">(가) &gt; (나) &gt; (다) &gt; (라)</button></li>
+<li><button type="button" class="lq__opt">(다) &gt; (라) &gt; (가) &gt; (나)</button></li>
+<li><button type="button" class="lq__opt">(나) &gt; (가) &gt; (라) &gt; (다)</button></li>
+<li><button type="button" class="lq__opt">(라) &gt; (나) &gt; (가) &gt; (다)</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>λ = c/ν로 진동수를 파장으로 바꾼다. (가) λ = 3.0×10⁸ ÷ 6.0×10¹⁴ = 5.0×10⁻⁷ m = 500 nm, (다) λ = 3.0×10⁸ ÷ 3.0×10¹⁶ = 1.0×10⁻⁸ m = 10 nm이고, (나)는 1.0 μm = 1000 nm, (라)는 250 nm다. 따라서 파장은 1000 nm &gt; 500 nm &gt; 250 nm &gt; 10 nm, 즉 (나) &gt; (가) &gt; (라) &gt; (다) 순이다. 이는 적외선 &gt; 가시광선 &gt; 자외선 &gt; X선 순서와 같고, 진동수·광자 에너지 순서는 정확히 그 반대다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 진동수와 파장을 같은 방향의 양으로 취급해, 진동수 값이 큰 것을 파장도 긴 것으로 착각한다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 문제에 나온 빛(또는 두 빛 비교)에 대해, "파장·진동수·에너지" 세 칸의 대소를 직접 적어봐. 하나만 주어져도 나머지 둘이 자동으로 정해진다는 걸 손으로 확인해. 그리고 입으로 말해. "파장이 짧으니까 진동수가 크고, 그래서 에너지도 크다." 한 바퀴 돌리면 이 관계는 네 거다.</div>
 </div>
 

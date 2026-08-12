@@ -100,6 +100,90 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"Ka = [H⁺][A⁻]/[HA] · Ka 클수록 강한 산 · 산의 고유한 세기(온도에만 의존)."</div>
 <p>약산의 이온화 상수 Ka는 이온화 평형의 평형 상수야(Ka=[H⁺][A⁻]/[HA]). Ka가 클수록 이온화가 많이 되어 더 강한 산이고, 농도와 무관한 고유 값이야(온도에만 의존). Ka와 농도로 [H⁺]를 가늠할 수 있고.</p>
 <p>다음 강(087 약염기 Kb와 Ka·Kb 관계)에서는 약염기의 세기 Kb를 배우고, 짝산-짝염기의 Ka와 Kb를 곱하면 Kw가 된다는 멋진 관계를 봐. 082에서 본 "강산의 짝염기는 약하다"가 <span class="fm">Ka × Kb = Kw</span>로 정확히 설명되거든. 오늘의 Ka를 들고, Kb와 그 관계로 넘어가자.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 25°C에서 0.050 M 아지드화수소산(HN₃) 수용액의 pH를 측정하니 3.01이었다. HN₃는 일가 약산이고, 물의 자체 이온화는 무시한다. 이 산의 이온화 상수 Ka는?</div>
+<ol class="lq__opts" data-ans="1">
+<li><button type="button" class="lq__opt">1.9×10⁻⁵</button></li>
+<li><button type="button" class="lq__opt">3.8×10⁻⁵</button></li>
+<li><button type="button" class="lq__opt">9.5×10⁻⁷</button></li>
+<li><button type="button" class="lq__opt">2.0×10⁻²</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>①</b></div>
+<p>pH = 3.01이므로 [H⁺]는 10의 (−3.01)제곱, 즉 9.8×10⁻⁴ M. 약산의 이온화이므로 [N₃⁻] = [H⁺] = 9.8×10⁻⁴ M이고, 이온화된 양이 초기 농도의 2 % 정도로 작아 [HN₃] ≈ 0.050 M로 근사할 수 있다. Ka = [H⁺][N₃⁻]/[HN₃] = (9.8×10⁻⁴)²/0.050 = 9.6×10⁻⁷/0.050 = 1.9×10⁻⁵. (근사 없이 분모를 0.050 − 0.00098 = 0.0490으로 쓰면 1.9×10⁻⁵로 같다.) 문헌값 Ka(HN₃) ≈ 1.9×10⁻⁵와 일치한다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> Ka = [H⁺]²/C 형태로 정리되는 이유는 [H⁺] = [A⁻]이고 [HA] ≈ C이기 때문이다. 제곱을 빼먹거나 농도로 나누기를 잊으면 자릿수가 크게 틀린다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 25°C에서 어떤 일가 약염기 B의 수용액을 0.100 M 염산으로 적정하였다. 가한 염산의 부피가 당량점에서 필요한 부피의 정확히 절반일 때(반당량점) 용액의 pH는 9.25였다. 이 약염기의 pKb와, 그 짝산 BH⁺의 pKa를 옳게 짝지은 것은? (단, 25°C에서 pKw = 14.00이며, 헨더슨-하셀바흐 근사식이 성립한다고 본다.)</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">pKb = 9.25, pKa = 4.75</button></li>
+<li><button type="button" class="lq__opt">pKb = 4.75, pKa = 4.75</button></li>
+<li><button type="button" class="lq__opt">pKb = 4.75, pKa = 9.25</button></li>
+<li><button type="button" class="lq__opt">pKb = 9.25, pKa = 9.25</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>반당량점에서는 처음 있던 B의 절반이 BH⁺로 바뀌므로 [B] = [BH⁺]이다. 염기 형태의 헨더슨-하셀바흐 식 pOH = pKb + log([BH⁺]/[B])에서 로그 항이 log 1 = 0이 되어 pOH = pKb가 된다. 주어진 pH가 9.25이므로 pOH = 14.00 − 9.25 = 4.75이고, 따라서 pKb = 4.75다(Kb ≈ 1.8×10⁻⁵). 짝산과 짝염기 사이에는 pKa + pKb = pKw = 14.00이 성립하므로 BH⁺의 pKa = 14.00 − 4.75 = 9.25다. 참고로 산 형태의 식 pH = pKa + log([B]/[BH⁺])에 바로 넣어도 pKa = pH = 9.25로 같은 결과를 얻는다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 반당량점의 pH를 그대로 pKb로 읽어, 약염기 적정에서 pOH = pKb라는 점을 놓치는 것.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 25°C에서 어떤 일양성자 약산 HA를 물에 녹여 0.20 M 용액을 만들었더니 pH가 3.00이었다. 물의 자동 이온화 기여를 무시할 때, 이 약산의 Ka는? (Kw = 1.0 × 10⁻¹⁴)</div>
+<ol class="lq__opts" data-ans="1">
+<li><button type="button" class="lq__opt">5.0 × 10⁻⁶</button></li>
+<li><button type="button" class="lq__opt">1.0 × 10⁻⁶</button></li>
+<li><button type="button" class="lq__opt">5.0 × 10⁻³</button></li>
+<li><button type="button" class="lq__opt">2.0 × 10⁻⁴</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>①</b></div>
+<p>pH = 3.00이므로 [H⁺] = 1.0×10⁻³ M이다. HA ⇌ H⁺ + A⁻ 에서 물의 기여를 무시하면 [A⁻] = [H⁺] = 1.0×10⁻³ M이고, 이온화한 양이 초기 농도의 0.5%뿐이므로 [HA] ≈ 0.20 - 0.001 ≈ 0.20 M이다. 따라서 Ka = [H⁺][A⁻]/[HA] = (1.0×10⁻³)² / 0.20 = 1.0×10⁻⁶/0.20 = 5.0×10⁻⁶. 참고로 이온화도는 α = 1.0×10⁻³/0.20 = 0.0050 (0.50%)이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> Ka 식에서 분모의 초기 농도로 나누는 단계를 빠뜨리거나, [H⁺]를 제곱하지 않고 대입하는 것.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 문제에서 ① Ka = [H⁺][A⁻]/[HA] 식 세우기 ② Ka 크기로 산 세기 비교(클수록 강함) ③ Ka는 농도 무관 고유 값(이온화도와 구분). 그리고 입으로 말해. "Ka가 클수록 강한 산이고, Ka는 농도와 무관한 고유한 세기다." 한 바퀴 돌리면 이 개념은 네 거다.</div>
 </div>
 

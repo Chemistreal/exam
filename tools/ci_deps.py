@@ -191,6 +191,12 @@ def main():
             continue
         if '--check' not in src:
             continue                   # 짓기만 하는 자 — 판에 있을 것이 아니다
+        # 스스로 도는 자가 아니라 **불러 쓰는 표**는 여기 걸 것이 아니다.
+        # `tools/lecture_map.py` 는 강의↔개념 표라 실행 자리가 없는데, 제
+        # 머리말에 «`lecture_quiz.py --check` 가 센다» 고 적었다는 이유로
+        # 걸렸다. 글자가 아니라 **스스로 돌 수 있는가**로 가른다.
+        if "__main__" not in src:
+            continue
         if base not in all_ci:
             idle.append('tools/' + base)
     if idle:

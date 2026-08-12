@@ -98,6 +98,90 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"Q는 임의 순간의 K식 값 · Q&lt;K 정반응, Q&gt;K 역반응 · Q는 K를 향해 움직인다."</div>
 <p>반응 지수 Q는 K와 같은 식을 임의의 순간 농도로 계산한 값이야. Q&lt;K면 생성물 부족이라 정반응, Q&gt;K면 생성물 과잉이라 역반응, Q=K면 평형이지. 반응은 Q가 K에 맞춰지는 방향으로 진행돼.</p>
 <p>이걸로 073~076, 즉 평형의 기본(동적 평형·K·Q)이 다 갖춰졌어. 다음 강(077 르샤틀리에 원리)부터 후반부에서는 평형에 자극(농도·압력·온도 변화)을 줬을 때 평형이 어떻게 이동하는지를 다뤄. 평형을 흔들면 그 흔듦을 줄이는 방향으로 스스로 이동하거든. 오늘의 Q·K 비교가 그 이동을 이해하는 바탕이야. 평형의 기본을 들고, 평형 이동으로 넘어가자.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 반응 초기에 생성물만 넣고 시작하면 Q 와 K 의 관계는?</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">Q = K 라 평형이다</button></li>
+<li><button type="button" class="lq__opt">Q 가 0 이라 정반응이 우세하다</button></li>
+<li><button type="button" class="lq__opt">Q 가 무한대라 역반응이 우세하다</button></li>
+<li><button type="button" class="lq__opt">알 수 없다</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>분모에 반응물이 없어 Q 가 무한히 크므로 반응은 되돌아간다. → ③</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> Q 가 크면 정반응이 잘 간다고 여긴다. Q 가 크다는 것은 생성물이 이미 많다는 뜻이다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 298 K의 수용액에서 일어나는 반응 A(aq) ⇌ B(aq)의 표준 자유 에너지 변화는 ΔG° = +5.40 kJ/mol이다. 어느 순간 이 용액에서 [A] = 1.0 M, [B] = 1.0×10⁻² M이어서 반응 지수는 Q = [B]/[A] = 1.0×10⁻²이었다. 이 순간의 ΔG 값과 반응이 저절로 진행되는 방향을 옳게 짝지은 것은? (R = 8.314 J/(mol·K), ln 10 = 2.303)</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">ΔG ≈ −11.4 kJ/mol이며, 정반응이 자발적이다</button></li>
+<li><button type="button" class="lq__opt">ΔG ≈ +5.4 kJ/mol이며, 역반응이 자발적이다</button></li>
+<li><button type="button" class="lq__opt">ΔG ≈ −6.0 kJ/mol이며, 정반응이 자발적이다</button></li>
+<li><button type="button" class="lq__opt">ΔG ≈ +16.8 kJ/mol이며, 역반응이 자발적이다</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>ΔG = ΔG° + RT ln Q이다. RT = 8.314 × 298 = 2.478×10³ J/mol = 2.478 kJ/mol, ln Q = ln(1.0×10⁻²) = −2 × 2.303 = −4.606이므로 RT ln Q = 2.478 × (−4.606) = −11.41 kJ/mol. 따라서 ΔG = +5.40 + (−11.41) = −6.01 ≈ −6.0 kJ/mol. ΔG &lt; 0이므로 이 순간에는 정반응이 자발적이다. ΔG°가 양수여도 Q가 K보다 작으면(여기서 K = exp(−ΔG°/RT) = 0.113 &gt; Q = 0.010) 정반응이 진행된다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> ΔG°의 부호만 보고 진행 방향을 판단하거나, RT ln Q 항의 부호를 잘못 붙인다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 일정한 온도 T에서 X(g) ⇌ Y(g) + Z(g) 반응이 평형에 도달했을 때 농도를 측정하니 [X] = 0.20 M, [Y] = 0.30 M, [Z] = 0.40 M이었다. 같은 온도 T에서 이번에는 [X] = 0.10 M, [Y] = 0.50 M, [Z] = 0.60 M이 되도록 세 기체를 넣었다. 이 새로운 계에서 일어나는 변화로 옳은 것은?</div>
+<ol class="lq__opts" data-ans="1">
+<li><button type="button" class="lq__opt">Q = 3.0 으로 K = 0.60 보다 크므로 역반응이 진행되어 X가 증가한다</button></li>
+<li><button type="button" class="lq__opt">Q = 3.0 으로 K = 0.60 보다 크므로 정반응이 진행되어 X가 감소한다</button></li>
+<li><button type="button" class="lq__opt">Q = 0.60 으로 K와 같으므로 이미 평형 상태이며 아무 변화가 없다</button></li>
+<li><button type="button" class="lq__opt">Q = 0.33 으로 K = 0.60 보다 작으므로 정반응이 진행되어 Y와 Z가 증가한다</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>①</b></div>
+<p>먼저 첫 번째 평형 자료에서 평형상수를 구한다. K = [Y][Z]/[X] = (0.30 × 0.40)/0.20 = 0.120/0.20 = 0.60. 다음으로 새 조건의 반응지수를 구한다. Q = (0.50 × 0.60)/0.10 = 0.300/0.10 = 3.0. Q(3.0) &gt; K(0.60)이므로 생성물이 과잉이며, 계는 Q를 K까지 낮추는 방향, 즉 역반응 쪽으로 진행하여 Y와 Z가 줄고 X가 늘어난다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> Q와 K의 대소는 맞게 비교하고도 &#x27;큰 쪽으로 더 간다&#x27;며 진행 방향을 반대로 잡는 것.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 문제에서 ① 현재 농도로 Q 계산 ② Q와 K 비교 ③ Q&lt;K 정반응·Q&gt;K 역반응·Q=K 평형. 그리고 입으로 말해. "Q가 K보다 작으면 정반응, 크면 역반응으로 가서 Q를 K에 맞춘다." 한 바퀴 돌리면 이 개념은 네 거다.</div>
 </div>
 

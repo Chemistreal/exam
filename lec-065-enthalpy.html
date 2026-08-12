@@ -110,6 +110,101 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"ΔH = 생성물 − 반응물 · 발열 ΔH&lt;0, 흡열 ΔH&gt;0 · 계수에 비례, 역반응이면 부호 반대."</div>
 <p>반응 엔탈피 ΔH는 생성물에서 반응물 엔탈피를 뺀 변화량이야. 발열이면 음수, 흡열이면 양수. 열화학 반응식엔 ΔH와 상태를 함께 적고, ΔH는 계수(몰수)에 비례하며 역반응이면 부호가 반대야.</p>
 <p>다음 강(066 결합 에너지)에서는 이 ΔH를 결합 관점에서 계산해. 반응은 결합을 끊고(에너지 흡수) 만드는(에너지 방출) 과정이니, 끊는 에너지와 만드는 에너지를 따지면 ΔH를 구할 수 있거든. 064에서 말한 "결합 끊기·만들기"를 숫자로 계산하는 거야. 오늘의 ΔH 부호 규약을 들고, 결합 에너지로 넘어가자.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> −20.0 °C의 얼음 100.0 g을 20.0 °C의 물로 만들려고 한다. 필요한 열량은? (얼음의 비열 2.09 J/(g·°C), 물의 비열 4.18 J/(g·°C), 0 °C에서의 융해열 334 J/g. 얼음과 물의 온도 변화 구간에서 비열은 일정하고, 열은 모두 시료에만 전달된다.)</div>
+<ol class="lq__opts" data-ans="4">
+<li><button type="button" class="lq__opt">12.5 kJ</button></li>
+<li><button type="button" class="lq__opt">33.4 kJ</button></li>
+<li><button type="button" class="lq__opt">41.8 kJ</button></li>
+<li><button type="button" class="lq__opt">45.9 kJ</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>④</b></div>
+<p>온도가 변하는 구간과 상태가 변하는 구간을 나누어 더한다.
+(1단계) −20.0 °C 얼음 → 0 °C 얼음: 100.0 × 2.09 × 20.0 = 4180 J
+(2단계) 0 °C 얼음 → 0 °C 물(융해): 100.0 × 334 = 33 400 J (이 동안 온도는 변하지 않는다)
+(3단계) 0 °C 물 → 20.0 °C 물: 100.0 × 4.18 × 20.0 = 8360 J
+합계 = 4180 + 33 400 + 8360 = 45 940 J ≈ 45.9 kJ</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 융해가 일어나는 동안에는 열을 넣어도 온도가 오르지 않고 상태 변화에만 쓰이므로, 온도 변화에 따른 열량(비열 × 질량 × ΔT)과 융해열을 반드시 따로 계산해 더해야 한다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 다음은 원소 A(s)와 이원자 분자 기체 B₂(g)로부터 만들어지는 두 화합물에 대한 열화학 반응식이다.<br>(1) A(s) + B₂(g) → AB₂(g)　ΔH₁ = −250 kJ<br>(2) 2 AB₃(g) → 2 AB₂(g) + B₂(g)　ΔH₂ = +120 kJ<br>헤스 법칙을 이용할 때 반응 2 A(s) + 3 B₂(g) → 2 AB₃(g) 의 ΔH 는?</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">−380 kJ</button></li>
+<li><button type="button" class="lq__opt">−370 kJ</button></li>
+<li><button type="button" class="lq__opt">−620 kJ</button></li>
+<li><button type="button" class="lq__opt">+620 kJ</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>목표 반응은 (1)을 2배 한 식에서 (2)를 뺀 것과 같다. (1)×2: 2 A(s) + 2 B₂(g) → 2 AB₂(g), ΔH = 2 × (−250) = −500 kJ. −(2), 즉 (2)의 역반응: 2 AB₂(g) + B₂(g) → 2 AB₃(g), ΔH = −120 kJ. 두 식을 더하면 2 AB₂(g)가 소거되어 2 A(s) + 3 B₂(g) → 2 AB₃(g) 가 되고 ΔH = −500 + (−120) = −620 kJ 이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 헤스 법칙에서 반응식에 곱한 배수는 ΔH에도 그대로 곱해야 하고, 반응식을 뒤집으면 ΔH의 부호가 반대가 된다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 간이 열량계에 물 200.0 g을 넣고 온도를 재었더니 25.0 °C였다. 여기에 질산 암모늄 NH₄NO₃(s) 8.00 g을 넣고 저어 모두 녹였더니 용액의 온도가 22.0 °C까지 내려간 뒤 더 이상 변하지 않았다.<br><br>NH₄NO₃의 화학식량은 80.0이고, 용액의 비열은 4.18 J/(g·°C)이다. 용액의 질량은 물과 녹인 고체의 질량을 합한 값으로 보며, 열량계 자체가 주고받는 열과 외부와의 열 출입은 무시한다.<br><br>NH₄NO₃의 용해 엔탈피 ΔH(kJ/mol)에 가장 가까운 값은?</div>
+<ol class="lq__opts" data-ans="4">
+<li><button type="button" class="lq__opt">−26.1 kJ/mol</button></li>
+<li><button type="button" class="lq__opt">−25.1 kJ/mol</button></li>
+<li><button type="button" class="lq__opt">+25.1 kJ/mol</button></li>
+<li><button type="button" class="lq__opt">+26.1 kJ/mol</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>④</b></div>
+<p>용액의 온도가 내려갔다는 것은 용해 과정이 용액에서 열을 빼앗아 갔다는 뜻이므로 흡열 과정이고 ΔH &gt; 0이다.
+① 용액이 잃은 열
+ 용액의 질량 = 200.0 + 8.00 = 208.0 g
+ q(용액) = m × c × ΔT = 208.0 g × 4.18 J/(g·°C) × (22.0 − 25.0) °C = 208.0 × 4.18 × (−3.0) = −2608 J
+② 용해가 흡수한 열 = 용액이 잃은 열의 반대 부호 = +2608 J
+③ NH₄NO₃의 몰수 = 8.00 g ÷ 80.0 g/mol = 0.100 mol
+④ ΔH = +2608 J ÷ 0.100 mol = +26080 J/mol ≈ +26.1 kJ/mol
+검산: 208.0 × 4.18 = 869.4 J/°C이고 여기에 3.0 °C를 곱하면 2608 J, 0.100 mol로 나누면 26.1 kJ/mol이다. 실제 NH₄NO₃의 용해 엔탈피(약 +25.7 kJ/mol)와도 잘 맞는다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 열량계 실험에서 계(용해 과정)와 주위(용액)는 부호가 반대이며, 온도가 내려갔으면 흡열 반응이다. 또 열을 잃은 것은 물이 아니라 용질까지 포함한 용액 전체이다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 문제에서 ① 발열이면 ΔH 음수, 흡열이면 양수 ② ΔH = 생성물 − 반응물 ③ 계수 바꾸면 ΔH도 같은 배수, 역반응이면 부호 반대. 그리고 입으로 말해. "발열은 ΔH 음수, 흡열은 양수이고, 역반응이면 부호가 바뀐다." 한 바퀴 돌리면 이 개념은 네 거다.</div>
 </div>
 

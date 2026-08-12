@@ -111,6 +111,90 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"H가 N·O·F에 붙으면 수소 결합 · 분자 간 힘 중 가장 강하지만, 결합은 아니다."</div>
 <p>조건은 H가 N·O·F에 결합 + 옆 N·O·F 고립쌍. 강한 δ+ 수소가 δ− 고립쌍에 끌리는 거야. 물의 비정상적으로 높은 끓는점, 얼음이 뜨는 것이 다 수소 결합 때문. 이름은 결합이지만 분자 간 힘이라는 것 잊지 마.</p>
 <p>이걸로 세 가지 분자 간 힘을 다 봤어. 다음 강(032 분자 간 힘과 끓는점)에서는 이 셋을 종합해서, 어떤 물질의 끓는점이 더 높은지 판단하는 순서를 정리해. 수소 결합 그래프도 거기서 한눈에 볼 거야. 오늘의 수소 결합이 그 판단에서 가장 강한 카드라는 걸 들고 가자.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 14족 수소 화합물 CH₄, SiH₄, GeH₄ 의 끓는점 순서로 옳은 것은?</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">CH₄ &gt; SiH₄ &gt; GeH₄</button></li>
+<li><button type="button" class="lq__opt">GeH₄ &gt; SiH₄ &gt; CH₄</button></li>
+<li><button type="button" class="lq__opt">SiH₄ &gt; GeH₄ &gt; CH₄</button></li>
+<li><button type="button" class="lq__opt">셋이 거의 같다</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>14족은 수소 결합이 없어 분산력만 작용하니 분자량이 클수록 높다. → ②</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 주기가 작을수록 끓는점이 높다고 여긴다. 수소 결합이 없으면 분자량이 정한다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 16족 원소의 수소 화합물의 1기압에서의 끓는점은 다음과 같다.<br><br>H₂O 100 °C, H₂S -60 °C, H₂Se -41 °C, H₂Te -2 °C<br><br>이 자료와 결합의 성질에 대한 설명으로 옳은 것은?</div>
+<ol class="lq__opts" data-ans="4">
+<li><button type="button" class="lq__opt">끓는점이 높을수록 분자 안의 X-H 결합이 강하므로 H₂Te의 Te-H 결합은 H₂S의 S-H 결합보다 강하다.</button></li>
+<li><button type="button" class="lq__opt">H₂S는 H₂Se보다 분자량이 작아 끓는점이 더 높다.</button></li>
+<li><button type="button" class="lq__opt">H₂O의 끓는점이 유난히 높은 것은 O-H 결합의 결합 에너지가 크기 때문이다.</button></li>
+<li><button type="button" class="lq__opt">H₂Te는 H₂S보다 끓는점이 높지만, 중심 원자의 크기가 커서 X-H 결합 길이가 길고 결합은 더 약하다.</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>④</b></div>
+<p>끓는점은 분자 사이의 인력(분자간 힘)이 결정하고, 결합 세기는 분자 안의 공유 결합이 결정하는 별개의 양이다. S에서 Te로 갈수록 원자 반지름이 커져 X-H 결합 길이가 길어지고 결합 해리 에너지는 작아진다(H-S 약 380 kJ/mol &gt; H-Se 약 305 kJ/mol &gt; H-Te 약 270 kJ/mol). 반면 H₂S에서 H₂Te로 갈수록 분자량과 분극률이 커져 분산력이 강해지므로 끓는점은 -60 → -41 → -2 °C로 높아진다. 따라서 H₂Te는 끓는점이 더 높으면서 결합은 더 약하다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 끓는점(분자간 힘)과 결합 세기(분자 내 공유 결합)를 같은 것으로 보고 순서를 그대로 옮긴다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 17족 원소의 수소 화합물의 정상 끓는점은 다음과 같다. HF 20°C, HCl −85°C, HBr −66°C, HI −35°C. 이 자료를 가장 옳게 설명한 것은?</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">H−F 결합의 결합 에너지가 이 중에서 가장 크기 때문에 HF 의 끓는점이 가장 높다</button></li>
+<li><button type="button" class="lq__opt">HCl → HBr → HI 로 끓는점이 높아지는 것은 분자량(전자 수) 증가에 따른 분산력 증가 때문이고, HF 만 이 경향에서 벗어나 크게 높은 것은 분자 사이에 수십 kJ/mol 규모의 수소 결합이 작용하기 때문이다</button></li>
+<li><button type="button" class="lq__opt">HF 는 분자량이 가장 작아 분산력이 가장 크기 때문에 끓는점이 가장 높다</button></li>
+<li><button type="button" class="lq__opt">HF 의 끓는점은 큰 쌍극자 모멘트에 의한 쌍극자–쌍극자 힘만으로 충분히 설명되며, 수소 결합을 따로 고려할 필요는 없다</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>끓는 것은 분자를 서로 떼어내는 과정이므로 분자 내 공유 결합이 아니라 분자 간 힘의 크기가 기준이다. HCl &lt; HBr &lt; HI 는 전자 수가 늘어나 편극성이 커지고 분산력이 강해지는 정상 경향이다. HF 는 분자량이 가장 작아 분산력은 가장 약한데도 끓는점이 105°C 이상 뛰어오르는데, 이는 F 의 큰 전기음성도로 형성되는 F−H⋯F 수소 결합(약 20~40 kJ/mol)이 보통의 쌍극자–쌍극자 힘(수 kJ/mol)이나 분산력보다 훨씬 강하기 때문이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 끓는점을 결정하는 것을 분자 내 결합 세기로 착각하거나, 수소 결합을 보통의 쌍극자–쌍극자 힘과 같은 크기로 취급한다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 분자들이 수소 결합을 하는지 판단해봐. ① H가 N·O·F에 직접 결합했나 확인 ② 그렇다면 수소 결합으로 끓는점이 비슷한 분자보다 크게 높음 ③ H가 C에 붙은 분자는 수소 결합 안 함. 그리고 입으로 말해. "H가 N·O·F에 붙어야 수소 결합이고, 이건 분자 간 힘이다." 한 바퀴 돌리면 이 개념은 네 거다.</div>
 </div>
 

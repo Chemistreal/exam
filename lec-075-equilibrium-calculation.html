@@ -94,6 +94,95 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"평형 농도 대입해 K 계산 · K 크면 생성물 많음, K 작으면 반응물 많음(위치, 속도 아님)."</div>
 <p>K 값은 평형 농도를 K 식에 대입해 구해. K가 크면 생성물이 많고(평형 오른쪽), 작으면 반응물이 많아(평형 왼쪽). K는 평형의 위치를 알려주는 값이지, 반응 속도와는 무관해.</p>
 <p>다음 강(076 반응 지수 Q)에서는 아직 평형이 아닌 상태에서 반응이 어느 쪽으로 갈지를 예측해. K와 똑같은 식이지만 임의의 순간 농도로 계산한 Q를 K와 비교하는 거야. Q가 K보다 작으면 정반응, 크면 역반응으로 가지. 오늘의 K를 기준으로, 현재 상태를 판단하는 도구야. 오늘의 K 해석을 들고, Q로 넘어가자.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 부피가 변하지 않는 밀폐 용기를 300 K로 일정하게 유지하였다. 용기 안에는 액체 X가 충분히 남아 있고, 기체 X, 기체 Y, 기체 XY가 함께 들어 있으며 다음 두 평형이 모두 성립한다.<br><br>X(l) ⇌ X(g)<br>X(g) + Y(g) ⇌ XY(g)<br><br>300 K에서 X의 증기압은 0.20 atm이다. 평형 상태에서 Y의 분압은 0.50 atm, XY의 분압은 0.10 atm이었다. 모든 기체는 이상 기체로 행동하며, 액체에 녹아 들어가는 Y와 XY의 양은 무시한다. 다음 중 옳지 않은 것은?</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">300 K에서 X(g) + Y(g) ⇌ XY(g)의 평형 상수 Kp는 1.0 atm⁻¹이다.</button></li>
+<li><button type="button" class="lq__opt">온도와 부피를 그대로 두고 Y를 넣어 새 평형에서 Y의 분압이 1.0 atm이 되면 XY의 분압은 0.20 atm이 된다.</button></li>
+<li><button type="button" class="lq__opt">온도와 부피를 그대로 두고 액체 X를 더 넣어 주면 X(g)의 분압이 커지므로 XY의 분압도 커진다.</button></li>
+<li><button type="button" class="lq__opt">이 용기 안에서 X(g) 한 분자의 평균 운동 에너지와 Y(g) 한 분자의 평균 운동 에너지는 같다.</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>액체 X가 남아 있는 한 X(g)의 분압은 그 온도의 증기압 0.20 atm으로 고정된다. Kp = P(XY)/(P(X)·P(Y)) = 0.10/(0.20 × 0.50) = 1.0 atm⁻¹. Y를 넣어 새 평형에서 P(Y) = 1.0 atm이 되면 P(X)는 여전히 0.20 atm이므로 P(XY) = Kp·P(X)·P(Y) = 1.0 × 0.20 × 1.0 = 0.20 atm. 액체를 더 넣는 것은 순수 액체의 양만 늘리는 것이므로 증기압은 변하지 않고, 따라서 X(g)의 분압도 XY의 분압도 그대로다. 분자 한 개의 평균 운동 에너지는 (3/2)kT로 온도만의 함수이므로 종류에 무관하게 같다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 액체가 남아 있는 계에서 액체의 양을 늘리면 그 증기의 분압이 커진다고 착각하는 것.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 부피가 일정한 용기에 A(g) 0.60 atm 과 B(g) 0.40 atm 을 넣었더니 A(g) + B(g) ⇌ 2C(g) 로 평형에 이르렀고 C 의 부분 압력이 0.40 atm 이 되었다. 평형에서 A 의 부분 압력은?</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">0.20 atm</button></li>
+<li><button type="button" class="lq__opt">0.40 atm</button></li>
+<li><button type="button" class="lq__opt">0.60 atm</button></li>
+<li><button type="button" class="lq__opt">0.80 atm</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>C 가 0.40 생겼으므로 A 와 B 는 각각 0.20 씩 줄었다. A 는 0.60 − 0.20 = 0.40 atm 이다. → ②</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 평형에서 부분 압력을 초기값 그대로 쓴다. 계수에 맞춘 변화량을 빼야 한다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 어떤 온도에서 다음 반응의 평형 상수 K는 3.2×10⁻⁶이다.<br>2NOCl(g) ⇌ 2NO(g) + Cl₂(g)<br>이 온도에서 평형에 도달한 혼합물의 농도를 측정하였더니 [NOCl] = 0.80 M, [NO] = 4.0×10⁻³ M이었다. 평형에서 [Cl₂]는? (단, K는 농도로 나타낸 평형 상수이다.)</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">5.1×10⁻⁴ M</button></li>
+<li><button type="button" class="lq__opt">6.4×10⁻⁴ M</button></li>
+<li><button type="button" class="lq__opt">0.13 M</button></li>
+<li><button type="button" class="lq__opt">0.16 M</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>평형 상수식에는 화학 반응식의 계수가 그대로 지수로 들어간다.
+K = [NO]²[Cl₂] / [NOCl]²
+주어진 값을 대입하면
+3.2×10⁻⁶ = (4.0×10⁻³)² × [Cl₂] / (0.80)² = (1.6×10⁻⁵) × [Cl₂] / 0.64
+[Cl₂] = 3.2×10⁻⁶ × 0.64 / 1.6×10⁻⁵ = 2.048×10⁻⁶ / 1.6×10⁻⁵ = 0.128 M ≈ 0.13 M
+검산하면 (4.0×10⁻³)² × 0.128 / (0.80)² = 3.2×10⁻⁶으로 K와 일치한다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 평형 상수식에서 계수는 반드시 지수로 올려야 하며, 계수 2를 빠뜨리면 값이 수백 배 달라진다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 문제에서 ① 평형 농도를 K 식에 대입해 K 계산 ② K 크기로 평형 위치 해석(크면 생성물·작으면 반응물) ③ K는 속도가 아니라 위치임을 구분. 그리고 입으로 말해. "K가 크면 생성물이 많고, 이건 평형의 위치이지 속도가 아니다." 한 바퀴 돌리면 이 개념은 네 거다.</div>
 </div>
 

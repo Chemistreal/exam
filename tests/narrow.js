@@ -31,6 +31,7 @@
    고정 포트를 박아 두면 검사 두 벌이 겹칠 때 뒤엣것이 빈 화면을 보고
    "그게 화면에 없다" 고 말한다 — tests/_serve.js 머리말. */
 const { serve } = require('./_serve.js');
+const noSheet = require('./_nosheet.js');
 const fs = require('fs');
 const path = require('path');
 
@@ -59,6 +60,11 @@ catch (e) {
   const pages = fs.readdirSync(ROOT).filter(f => f.endsWith('.html')).sort();
   const browser = await chromium.launch(Object.assign(
     { args: ['--no-sandbox'] }, CHROMIUM ? { executablePath: CHROMIUM } : {}));
+  /* ⚠ **시트를 막고 시작한다**(2026-08-12). 이 검사는 `DT/**` 만 막고 있어서
+     학원의 진짜 시트를 그대로 읽고 있었다 — 채점하는 자리는 거기에 줄까지
+     쓴다. `tests/_nosheet.js` 는 그 일을 막으려고 진작에 만들어 둔 자인데
+     여기 안 걸려 있었다. 걸지 않은 자는 없는 자와 같다. */
+  await noSheet(browser);
 
   const bad = [];
   try {

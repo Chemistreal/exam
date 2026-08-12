@@ -37,13 +37,21 @@ PAUSE = 15         # 식·표에서 멈추는 시간(초)
 # ⚠ 붙일 때 ' · ' 를 같이 넣으므로, 뗄 때도 같이 떼야 한다. 안 그러면 세 글자가
 #   남아 경계에 걸린 장이 8분 ↔ 9분을 오간다(실제로 083 이 그랬다).
 MARK = re.compile(r'(?:\s*·\s*)?<span class="rt">[^<]*</span>')
+# ── 확인 문제는 **읽는 것이 아니라 푸는 것**이다 ────────────────────────
+#  화면에 적히는 말은 «읽는 데 약 12분» 이다. 확인 문제 세 문항을 분당
+#  350자로 세면 «17분» 이 되는데, 그건 두 번 거짓말이다 — 읽는 시간이라고
+#  해 놓고 푸는 것을 섞었고, 세 문항을 실제로 푸는 데 드는 시간은 그 어림보다
+#  훨씬 길다. 읽는 시간은 읽는 것만 센다. 문항이 몇 개인지는 그 덩이가
+#  제 머리말에서 스스로 말한다(«방금 배운 것으로 풀 수 있는 3문항입니다»).
+QUIZ = re.compile(r'<!-- 확인문제:시작.*?확인문제:끝 -->', re.S)
 
 
 def minutes(src):
-    b = re.sub(r'<(script|style)[\s\S]*?</\1>', '', src)
+    b = QUIZ.sub('', src)
+    b = re.sub(r'<(script|style)[\s\S]*?</\1>', '', b)
     b = MARK.sub('', b)
     t = re.sub(r'\s+', ' ', html.unescape(re.sub(r'<[^>]+>', ' ', b)))
-    stops = len(re.findall(r'class="(?:eqn|lv|big)"', src)) + len(re.findall(r'<table', src))
+    stops = len(re.findall(r'class="(?:eqn|lv|big)"', b)) + len(re.findall(r'<table', b))
     return max(1, math.ceil(len(t) / CPM + stops * PAUSE / 60))
 
 

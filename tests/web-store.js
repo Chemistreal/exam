@@ -31,6 +31,7 @@ require('./_watchdog.js')(240);
    진짜 앱스크립트로 제출해서, 홍길동·예비본 같은 줄이 학생들 석차
    모집단에 섞여 들어갔다. 브라우저를 띄우자마자 그 길을 끊는다. */
 const seal = require('./_seal.js');
+const noSheet = require('./_nosheet.js');
 const fs = require('fs');
 const path = require('path');
 const ROOT = path.join(__dirname, '..');
@@ -435,6 +436,11 @@ async function oldSheetFallback(browser, errs) {
 
 (async () => {
   const browser = seal(await chromium.launch({ executablePath: CHROMIUM, args: ['--no-sandbox'] }));
+  /* ⚠ **시트를 막고 시작한다**(2026-08-12). 이 검사는 `DT/**` 만 막고 있어서
+     학원의 진짜 시트를 그대로 읽고 있었다 — 채점하는 자리는 거기에 줄까지
+     쓴다. `tests/_nosheet.js` 는 그 일을 막으려고 진작에 만들어 둔 자인데
+     여기 안 걸려 있었다. 걸지 않은 자는 없는 자와 같다. */
+  await noSheet(browser);
   const errs = [];
   await oneCall(browser, errs);
   await pendingUpload(browser, errs);

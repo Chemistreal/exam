@@ -110,6 +110,95 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"PV = nRT · 네 변수를 묶은 만능 식 · 셋을 알면 하나가 나온다(단위는 atm·L·mol·K)."</div>
 <p>이상기체 방정식은 보일·샤를·아보가드로의 통합판이야. R=0.0821(atm·L·mol·K)이고, 온도는 켈빈. 변수 셋으로 나머지 하나를 계산하고, 22.4 L도 이 식에서 유도돼. n=m/M을 넣으면 질량·몰질량까지.</p>
 <p>다음 강(047 부분압력)에서는 기체가 섞여 있을 때를 다뤄. 여러 기체가 한 용기에 있으면 각자 압력을 더하는데(돌턴 법칙), 그 각각의 몫이 부분압력이야. PV=nRT가 혼합 기체에도 어떻게 적용되는지 보면, 공기 같은 혼합 기체를 다룰 수 있게 돼. 오늘의 만능 방정식을 손에 익히고 가자.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 어떤 순수한 기체 시료 1.10 g을 27 °C, 1.00 atm에서 부피가 0.615 L가 되도록 담았다. 이 기체를 이상 기체로 볼 때 몰질량은? (R = 0.08206 L·atm/(mol·K))</div>
+<ol class="lq__opts" data-ans="4">
+<li><button type="button" class="lq__opt">3.96 g/mol</button></li>
+<li><button type="button" class="lq__opt">22.0 g/mol</button></li>
+<li><button type="button" class="lq__opt">88.0 g/mol</button></li>
+<li><button type="button" class="lq__opt">44.0 g/mol</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>④</b></div>
+<p>T = 27 + 273 = 300 K. n = PV/RT = (1.00 atm × 0.615 L) ÷ (0.08206 L·atm/(mol·K) × 300 K) = 0.615 ÷ 24.618 = 0.02498 mol. 몰질량 = m/n = 1.10 g ÷ 0.02498 mol = 44.0 g/mol.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 섭씨 온도를 그대로 대입하거나, 몰질량 = 질량/몰수 대신 몰수/질량 방향으로 나누는 것.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 부피가 24.6 L인 단단한 강철 용기에 A₂(g) 0.40 mol과 B₂(g) 0.60 mol을 넣고 온도를 27 °C로 유지하였다. 촉매를 넣어 반응 A₂(g) + 3B₂(g) → 2AB₃(g)가 일어나 처음 넣은 B₂의 60 %가 소모되었다. 반응이 멈춘 뒤 용기의 온도를 다시 27 °C로 맞추었을 때, 용기 안 기체의 전체 압력(atm)은?<br><br>(기체 상수 R = 0.082 L·atm/(mol·K), 모든 물질은 기체 상태이며 이상 기체로 거동한다.)</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">0.60</button></li>
+<li><button type="button" class="lq__opt">0.76</button></li>
+<li><button type="button" class="lq__opt">0.88</button></li>
+<li><button type="button" class="lq__opt">1.00</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>소모된 B₂ = 0.60 × 0.60 = 0.36 mol이므로 반응 진척도는 0.36/3 = 0.12이다. 따라서 A₂는 0.12 mol 소모, AB₃는 0.24 mol 생성된다.
+남은 양: A₂ = 0.40 − 0.12 = 0.28 mol, B₂ = 0.60 − 0.36 = 0.24 mol, AB₃ = 0.24 mol → 전체 n = 0.76 mol.
+RT/V = 0.082 × 300/24.6 = 1.00 atm/mol이므로 P = nRT/V = 0.76 × 1.00 = 0.76 atm.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 부피가 일정한 강철 용기라도 반응으로 기체의 총 몰수가 변하면 압력이 변한다. 압력은 부피가 아니라 전체 몰수에 비례한다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 어떤 순수한 기체 X 1.34 g을 부피 1.00 L인 용기에 넣고 127 °C로 유지하였더니 압력이 1.00 atm이 되었다. X를 이상 기체로 볼 때, X의 분자량(g/mol)에 가장 가까운 값은? (R = 0.0821 L·atm/(mol·K))</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">14.0</button></li>
+<li><button type="button" class="lq__opt">30.0</button></li>
+<li><button type="button" class="lq__opt">44.0</button></li>
+<li><button type="button" class="lq__opt">74.0</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>절대 온도로 먼저 바꾼다. T = 127 + 273 = 400 K.
+n = PV/RT = (1.00 × 1.00) ÷ (0.0821 × 400) = 1.00 ÷ 32.84 = 0.03045 mol
+M = 질량 ÷ 몰수 = 1.34 g ÷ 0.03045 mol = 44.0 g/mol
+검산: 0.03045 mol × 44.0 g/mol = 1.340 g으로 주어진 질량과 일치한다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 기체 계산에서 온도는 반드시 켈빈으로 바꾸고, 몰 부피 22.4 L/mol은 0 °C·1 atm에서만 쓸 수 있다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 문제를 PV=nRT로 풀어봐. ① 주어진 변수 셋을 단위 맞춰 정리(atm·L·K) ② 구할 변수에 맞게 식 변형 ③ 대입. 표준 상태 1몰이 왜 22.4 L인지도 직접 계산해봐. 그리고 입으로 말해. "네 변수 중 셋을 알면 PV=nRT로 하나가 나온다." 한 바퀴 돌리면 이 식은 네 거다.</div>
 </div>
 

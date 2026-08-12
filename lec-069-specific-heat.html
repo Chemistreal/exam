@@ -100,6 +100,90 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"Q = cmΔT · 비열 크면 온도 변화 작음 · 반응 방출열 = 물 흡수열."</div>
 <p>비열은 1 g을 1°C 올리는 열량으로, 클수록 온도가 잘 안 변해(물 4.18). 열량은 Q=cmΔT로 구하고, 열량계는 반응이 방출한 열을 물의 온도 변화로 역산해(반응 방출열 = 물 흡수열). 물 100 g을 10°C 올리려면 4180 J이 들어.</p>
 <p>다음 강(070 상태 변화의 엔탈피)에서는 얼음이 녹거나 물이 끓을 때의 에너지를 다뤄. 그런데 신기하게도, 상태가 변하는 동안에는 열을 줘도 온도가 안 올라가. 그 에너지가 분자 간 힘을 끊는 데 쓰이거든. 가열 곡선으로 이걸 한눈에 볼 거야. 오늘의 <span class="fm">Q=cmΔT</span>를 들고, 상태 변화의 에너지로 넘어가자.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 냉찜질팩의 원리를 알아보기 위해 단열 용기에 25.0 °C의 물 150.0 g을 넣고 질산암모늄 NH₄NO₃ 16.0 g을 모두 녹였다. NH₄NO₃의 용해 엔탈피는 ΔH = +25.7 kJ/mol이고 몰질량은 80.0 g/mol이다. 용해에 필요한 열은 모두 용액에서 흡수되며, 용액의 질량은 물과 고체의 질량을 합한 값이고 용액의 비열은 4.18 J/(g·°C)이다. 용기와 외부로의 열 출입이 없을 때 최종 온도는?</div>
+<ol class="lq__opts" data-ans="1">
+<li><button type="button" class="lq__opt">약 17.6 °C</button></li>
+<li><button type="button" class="lq__opt">약 16.8 °C</button></li>
+<li><button type="button" class="lq__opt">약 32.4 °C</button></li>
+<li><button type="button" class="lq__opt">약 −12.0 °C</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>①</b></div>
+<p>용질의 양은 16.0 g ÷ 80.0 g/mol = 0.200 mol이므로 흡수한 열은 Q = 0.200 mol × 25.7 kJ/mol = 5.14 kJ = 5140 J이다. 용액의 질량은 150.0 + 16.0 = 166.0 g이므로 온도 강하 ΔT = 5140 J ÷ (166.0 g × 4.18 J/(g·°C)) = 5140 ÷ 693.9 = 7.41 °C. 흡열이므로 온도는 내려가 25.0 − 7.41 = 17.6 °C가 된다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 흡열 용해인데 온도가 올라간다고 보거나, 열을 흡수하는 질량에 녹은 고체의 질량을 포함하지 않는다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 고체 NaOH를 이용해 중화 엔탈피를 구하기 위해 단열 용기에서 두 실험을 하였다. NaOH의 화학식량은 40이고, 모든 용액의 비열은 4.0 J/(g·°C), 열량계와 주위로의 열 손실은 무시한다.<br>[실험 I] 고체 NaOH 4.0 g을 물 196 g에 녹였더니 용액(200 g)의 온도가 5.0 °C 올라갔다.<br>[실험 II] 고체 NaOH 4.0 g을 HCl 0.10 mol이 녹아 있는 묽은 염산 196 g에 넣어 완전히 녹이고 중화시켰더니 용액(200 g)의 온도가 12.0 °C 올라갔다.<br>이 자료로부터 구한 중화 엔탈피(H⁺ + OH⁻ → H₂O 1 mol당)는?</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">+56 kJ/mol</button></li>
+<li><button type="button" class="lq__opt">−40 kJ/mol</button></li>
+<li><button type="button" class="lq__opt">−56 kJ/mol</button></li>
+<li><button type="button" class="lq__opt">−96 kJ/mol</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>NaOH 4.0 g = 0.10 mol. 실험 I에서 방출된 열 Q₁ = 4.0 × 200 × 5.0 = 4000 J = 4.0 kJ (용해 과정만). 실험 II에서 방출된 열 Q₂ = 4.0 × 200 × 12.0 = 9600 J = 9.6 kJ (용해 + 중화). 중화만의 열량 = 9.6 − 4.0 = 5.6 kJ 이고, 생성된 물이 0.10 mol이므로 1 mol당 56 kJ이 방출된다. 발열이므로 중화 엔탈피는 −56 kJ/mol이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 고체 NaOH는 녹기만 해도 열을 내므로, 용해열을 빼지 않으면 중화열을 과대평가하게 된다는 점이 함정이다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 비열 0.90 J·g⁻¹·°C⁻¹ 인 알루미늄 50 g 을 20°C 에서 데우는 데 1800 J 이 들었다. 나중 온도는?</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">40°C</button></li>
+<li><button type="button" class="lq__opt">50°C</button></li>
+<li><button type="button" class="lq__opt">60°C</button></li>
+<li><button type="button" class="lq__opt">70°C</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>Δt = 1800/(0.90×50) = 40°C 이니 20 + 40 = 60°C 다. → ③</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 구한 Δt 를 곧바로 나중 온도로 쓴다. 처음 온도를 더해야 한다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 문제를 <span class="fm">Q=cmΔT</span>로 풀어봐. ① 비열·질량·온도 변화 확인 ② Q 계산 ③ 열량계 문제면 반응 방출열 = 물 흡수열. 그리고 입으로 말해. "열량은 비열 곱하기 질량 곱하기 온도 변화이고, 비열이 크면 온도가 덜 변한다." 한 바퀴 돌리면 이 계산은 네 거다.</div>
 </div>
 

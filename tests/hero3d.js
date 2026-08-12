@@ -20,6 +20,7 @@
 'use strict';
 require('./_watchdog.js')(300);
 const seal = require('./_seal.js');
+const noSheet = require('./_nosheet.js');
 /* 포트를 그 자리에서 받고, 서버가 **대답할 때까지** 기다린다.
    고정 포트를 박아 두면 검사 두 벌이 겹칠 때 뒤엣것이 빈 화면을 보고
    "그게 화면에 없다" 고 말한다 — tests/_serve.js 머리말. */
@@ -213,6 +214,11 @@ async function measureBrand(p) {
   const browser = seal(await chromium.launch(Object.assign(
     { args: ['--no-sandbox', '--use-gl=swiftshader', '--enable-unsafe-swiftshader'] },
     CHROMIUM ? { executablePath: CHROMIUM } : {})));
+  /* ⚠ **시트를 막고 시작한다**(2026-08-12). 이 검사는 `DT/**` 만 막고 있어서
+     학원의 진짜 시트를 그대로 읽고 있었다 — 채점하는 자리는 거기에 줄까지
+     쓴다. `tests/_nosheet.js` 는 그 일을 막으려고 진작에 만들어 둔 자인데
+     여기 안 걸려 있었다. 걸지 않은 자는 없는 자와 같다. */
+  await noSheet(browser);
 
   try {
     console.log('── ① 그림 위의 글씨 ──');

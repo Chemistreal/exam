@@ -111,12 +111,52 @@ function doPost(e) {
     var d = JSON.parse(e.postData.contents);
     // 9열(d.total)은 맞은 문항 수 — 석차의 기준이라 그대로 둔다.
     // 감점을 반영한 진짜 원점수는 맨 뒤 열에 따로 받는다(옛 행은 비어 있다).
-    sheet.appendRow([
+    var row = [
       d.exam, d.name, d.link || '', new Date(), d.examno, d.date, d.school, d.grade,
       d.total, d.max, d.pct100, d.percentile, d.rank, d.n,
       d.correct, d.areas, "'" + d.answers, '',
       (d.raw === 0 || d.raw) ? d.raw : ''
-    ]);
+    ];
+
+    /* ── 같은 응시는 **덧붙이지 않고 그 줄을 고친다** (2026-08-12) ─────────
+       선생님이 물으셨다 — *"이런애들 지금 시험 안봤는데 왜 올라가있어?"*
+       7월에 본 회차의 학생 넷이 오늘 날짜로 시트에 올라가 있었다. 그날 채점한
+       것은 다른 회차뿐이었다.
+
+       고리는 이랬다.
+
+         ① 앱은 `no-cors` 로 쏘므로 **갔는지 알 수가 없다**
+         ② 그래서 «아직 확인 못 함(up:0)» 을 달고, 열 때마다 **다시 보낸다**
+            (망이 끊긴 채 채점한 기록을 살리는 유일한 장치다)
+         ③ 여기서 무조건 appendRow 했다 → 다시 보낼 때마다 **새 줄**,
+            저장시각은 `new Date()` = 오늘
+         ④ 30초 뒤 재계산이 «이름+답안 같으면 최신 1건만 남김» 으로 정리하면서
+            **오늘 것을 남기고 원본을 지웠다**
+         ⑤ 그래서 7월 기록의 날짜가 오늘로 바뀌어, 오늘 본 것처럼 보였다
+
+       ②는 옳은 설계다. 다만 그 설계는 **다시 보내는 것이 무해하다**는 전제
+       위에 서 있는데, ③이 그 전제를 깨고 있었다. 전제를 지키게 고친다 —
+       같은 응시(같은 시험 + 같은 이름 + 같은 답안)면 그 줄을 고쳐 쓴다.
+
+       ⚠ **저장시각·응시일은 안 건드린다.** 그것이 이 병의 증상이었다.
+       ⚠ **빈 값으로는 안 덮는다.** 다시 보내는 기록에는 학교·학년이 비어 있을
+         수 있다(링크로 열린 성적표에는 그 칸이 없다). 덮으면 있던 것이 지워진다.
+
+       열쇠는 앱의 `subSig`(이름+답안)와 같다. 두 자가 같은 것을 같다고 해야
+       «시트에 있으니 그만 보내라» 가 통한다. */
+    var hit = _findSameAttempt_(sheet, d);
+    if (hit > 0) {
+      var old = sheet.getRange(hit, 1, 1, HEADER.length).getValues()[0];
+      row[3] = old[3];                       // 저장시각 — 처음 들어온 때 그대로
+      row[5] = old[5] || row[5];             // 응시일 — 처음 것 그대로
+      if (!row[6]) row[6] = old[6];          // 학교 — 빈 값으로 안 덮는다
+      if (!row[7]) row[7] = old[7];          // 학년 — 〃
+      if (!row[4]) row[4] = old[4];          // 수험번호 — 〃
+      if (!row[2]) row[2] = old[2];          // 링크 — 〃
+      sheet.getRange(hit, 1, 1, HEADER.length).setValues([row]);
+    } else {
+      sheet.appendRow(row);
+    }
 
     /* [자동 재계산] 시트에 쌓인 **모든 회차**의 석차·백분위·인원·성적표 문자를
        최종 코호트로 다시 맞춘다. 방금 저장한 회차만 맞추면 다른 회차의 옛 행은
@@ -675,6 +715,34 @@ var EXAM_COHORT = {
 var _SCHOOL_FIX = { '휘뭉중': '휘문중' };
 
 function _normName(s) { return String(s == null ? '' : s).replace(/\s+/g, '').trim(); }
+
+/* 같은 응시가 시트에 이미 있나 — 있으면 그 **행 번호**(1부터), 없으면 0.
+
+   같음의 열쇠는 **시험 + 이름 + 답안**이다. 앱의 `subSig` 와 같은 규칙이라야
+   «시트에 있으니 그만 보내라» 가 양쪽에서 같은 말이 된다. 저장시각은 안 본다 —
+   다시 보낸 것은 시각만 다르지 같은 응시다.
+
+   답안이 다르면 **다시 푼 것**이므로 다른 줄이다(그건 덧붙이는 게 맞다). */
+function _findSameAttempt_(sheet, d) {
+  try {
+    var last = sheet.getLastRow();
+    if (last <= 1) return 0;
+    var vals = sheet.getRange(2, 1, last - 1, HEADER.length).getValues();
+    var wantExam = String(d.exam || '');
+    var wantName = _normName(d.name);
+    var wantAns = String(d.answers || '').replace(/^'/, '').replace(/[^0-4]/g, '');
+    if (!wantAns || !wantName) return 0;
+    for (var i = vals.length - 1; i >= 0; i--) {     // 뒤에서부터 — 최근 것이 먼저
+      var r = vals[i];
+      if (String(r[0] || '') !== wantExam) continue;
+      if (_normName(r[1]) !== wantName) continue;
+      var ans = String(r[16] || '').replace(/^'/, '').replace(/[^0-4]/g, '');
+      if (ans !== wantAns) continue;
+      return i + 2;                                   // 머리글 한 줄을 더한다
+    }
+  } catch (err) {}
+  return 0;
+}
 
 /* 누가 같은 학생인가 — 이름·학교·학년이 **모두** 같아야 같은 사람이다.
    final.html 의 rosterKey 와 같은 규칙. 이름만 있고 학교·학년이 비면 다른 사람으로 센다. */

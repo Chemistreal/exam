@@ -106,6 +106,94 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big">"오른쪽으로 Z_eff↑, 아래로 껍질↑ · 이 두 축이 모든 경향을 낳는다 · 예외 넷만 따로 챙겨라."</div>
 <p>반지름·금속성은 오른쪽으로 감소, 이온화에너지·전자친화도·전기음성도는 오른쪽으로 증가. 성질을 외우지 말고 두 축에서 유도해. 깨지는 건 IE의 Be&gt;B·N&gt;O, 전자친화도 Cl&gt;F, 등전자종(양성자 수로), 18족 처리, 이 넷뿐.</p>
 <p>다음 강(017 금속·비금속·준금속)에서는 오늘 표의 마지막 줄(금속성)을 더 깊이 다뤄서 주기율 영역을 닫아. 금속성이 왼쪽 아래로 커진다는 걸 물성(전도성·반응성)과 연결하고, 금속과 비금속의 경계에 있는 준금속(반도체)까지 정리하면 이 단원이 완성돼. 오늘 만든 종합 지도 위에 마지막 한 조각을 얹는 거지.</p>
+<!-- 확인문제:시작 (tools/lecture_quiz.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lq-css>
+.lq__lead{font-size:14px;opacity:.85}
+.lq__q{border:1px solid var(--line,#E8E4DA);border-radius:12px;padding:14px 16px;margin:12px 0}
+.lq__stem{margin-bottom:10px;line-height:1.7}
+.lq__opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lq__opts li{margin:0}
+.lq__opt{display:block;width:100%;text-align:left;padding:9px 12px;font:inherit;line-height:1.55;
+  border:1px solid var(--line,#E8E4DA);border-radius:9px;background:transparent;cursor:pointer}
+.lq__opt:hover{border-color:var(--teal,#0E5A4C)}
+.lq__opt:focus-visible{outline:2px solid var(--teal,#0E5A4C);outline-offset:2px}
+.lq__opt.is-key{border-color:var(--teal,#0E5A4C);box-shadow:inset 3px 0 0 var(--teal,#0E5A4C)}
+.lq__opt.is-miss{opacity:.55;text-decoration:line-through}
+.lq__why{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line,#E8E4DA);font-size:14px;line-height:1.75}
+.lq__ans{font-weight:700;margin-bottom:6px}
+.lq__miss{margin-top:8px;font-size:13.5px;opacity:.88}
+.lq__src{font-size:12.5px;opacity:.6;margin-top:10px}
+@media print{.lq__why{display:block!important}}
+</style>
+<script data-lq-js>
+/* 고르면 그때 해설이 열린다. 처음부터 열어 두면 학생은 읽고 지나간다 —
+   자기 판단을 한 번 걸고 넘어가야 «왜 하필 그걸 골랐는지» 를 짚을 수 있다.
+   인쇄할 때는 CSS 가 해설을 펼친다(종이에는 누를 것이 없다). */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.lq__opt');
+  if (!b) return;
+  var ol = b.closest('.lq__opts'), q = b.closest('.lq__q');
+  if (!ol || !q || ol.dataset.done) return;
+  ol.dataset.done = '1';
+  var key = Number(ol.dataset.ans);
+  [].forEach.call(ol.querySelectorAll('.lq__opt'), function (o, i) {
+    if (i + 1 === key) o.classList.add('is-key');
+    else if (o === b) o.classList.add('is-miss');
+  });
+  var why = q.querySelector('.lq__why');
+  if (why) why.hidden = false;
+});
+</script>
+<div class="sec lq" data-lecture-quiz>
+<div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
+<p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
+<div class="lq__q" data-lq="1">
+<div class="lq__stem"><b>1.</b> 다음 네 이온은 모두 바닥상태 전자 배치가 1s² 2s² 2p⁶으로 같다.<br>O²⁻, F⁻, Na⁺, Mg²⁺<br>이들의 이온 반지름에 대한 설명으로 옳은 것은?</div>
+<ol class="lq__opts" data-ans="1">
+<li><button type="button" class="lq__opt">반지름은 O²⁻ &gt; F⁻ &gt; Na⁺ &gt; Mg²⁺ 순이며, 전자 수가 같을 때 핵전하가 커질수록 유효 핵전하가 커져 전자 구름이 더 강하게 당겨지기 때문이다.</button></li>
+<li><button type="button" class="lq__opt">전자 수와 전자 배치가 모두 같으므로 네 이온의 반지름은 거의 같다.</button></li>
+<li><button type="button" class="lq__opt">반지름은 Mg²⁺ &gt; Na⁺ &gt; F⁻ &gt; O²⁻ 순이며, 원자 번호가 클수록 전자 껍질이 더 두껍기 때문이다.</button></li>
+<li><button type="button" class="lq__opt">Na⁺가 F⁻보다 큰데, 이는 중성 원자에서 Na의 반지름이 F보다 크기 때문이다.</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>①</b></div>
+<p>등전자 계열에서는 전자 수(10개)와 가리움 효과가 사실상 같으므로 핵전하 Z가 클수록 유효 핵전하가 커져 반지름이 작아진다. Z는 O 8 &lt; F 9 &lt; Na 11 &lt; Mg 12이므로 반지름은 O²⁻ &gt; F⁻ &gt; Na⁺ &gt; Mg²⁺이다. 실측 이온 반지름도 O²⁻ 140 pm, F⁻ 133 pm, Na⁺ 102 pm, Mg²⁺ 72 pm로 이 순서와 일치한다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 등전자 계열에서 전자 수가 같으면 크기도 비슷하다고 보거나, 중성 원자의 주기적 경향(주기율표 아래·왼쪽이 크다)을 이온에 그대로 옮겨 적용하는 것.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 하버법의 암모니아 합성 반응은 다음과 같다.<br><br>N₂(g) + 3H₂(g) → 2NH₃(g)<br><br>기체 상태에서의 평균 결합 에너지가 다음과 같을 때, 위 화학 반응식 그대로의 ΔH는? (결합 에너지는 기체 상태에서 결합 1 mol을 끊는 데 필요한 에너지이다.)<br><br>N≡N: 945 kJ/mol, H−H: 436 kJ/mol, N−H: 391 kJ/mol</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">+93 kJ</button></li>
+<li><button type="button" class="lq__opt">−46.5 kJ</button></li>
+<li><button type="button" class="lq__opt">−93 kJ</button></li>
+<li><button type="button" class="lq__opt">−875 kJ</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>ΔH = (끊는 결합의 에너지 합) − (만드는 결합의 에너지 합)이다.
+끊는 결합: N≡N 1 mol + H−H 3 mol = 945 + 3 × 436 = 945 + 1308 = 2253 kJ
+만드는 결합: NH₃ 2 mol에는 N−H가 6 mol 들어 있으므로 6 × 391 = 2346 kJ
+ΔH = 2253 − 2346 = −93 kJ
+결합을 끊는 데 든 에너지보다 새로 만들 때 방출되는 에너지가 커서 발열 반응이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 결합 에너지로 ΔH를 구할 때는 &#x27;반응물 결합 − 생성물 결합&#x27; 순서이며(엔탈피 계산과 순서가 반대), NH₃ 2 mol에 N−H가 6 mol 들어 있다는 계수 처리를 빠뜨리면 안 된다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 3주기에 속하는 어떤 원소 M의 순차 이온화 에너지(kJ/mol)가 다음과 같다.<br><br>IE₁ = 610, IE₂ = 1840, IE₃ = 2760, IE₄ = 11500, IE₅ = 14900<br><br>M은 화합물에서 오직 하나의 안정한 산화 상태만 가진다고 할 때, M의 산화물과 염화물의 화학식으로 옳게 짝지어진 것은?</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">MO 와 MCl₂</button></li>
+<li><button type="button" class="lq__opt">M₂O₃ 와 MCl₃</button></li>
+<li><button type="button" class="lq__opt">MO₂ 와 MCl₄</button></li>
+<li><button type="button" class="lq__opt">M₂O₅ 와 MCl₅</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>순차 이온화 에너지에서 IE₃ = 2760 → IE₄ = 11500으로 약 4.2배의 급격한 도약이 나타난다. 도약은 원자가 껍질의 전자를 모두 떼어낸 뒤 안쪽 닫힌 껍질(1s² 2s² 2p⁶)의 전자를 떼어낼 때 생기므로, 도약 직전까지 떼어낸 전자 수 3개가 M의 원자가 전자 수이다. 따라서 M은 3주기 13족 원소이고 안정한 이온은 M³⁺이다. 전하 균형을 맞추면 산화물은 2 M³⁺ + 3 O²⁻ → M₂O₃, 염화물은 M³⁺ + 3 Cl⁻ → MCl₃ 이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 이온화 에너지의 급격한 도약이 &#x27;몇 번째 전자를 뗄 때&#x27; 일어나는지를 한 칸 어긋나게 세어 원자가 전자 수를 잘못 잡는다.</div>
+</div></div>
+<p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
+</div>
+<!-- 확인문제:끝 -->
+
 <div class="hw"><b>직접 해보기 (숙제)</b><br>오답 났던 경향 문제를 두 축으로 다시 풀어봐. ① 묻는 성질이 "크기형(반지름·금속성)"인지 "전자 좋아하기형(IE·전자친화도·전기음성도)"인지 분류 ② 두 축으로 방향 결정 ③ 예외 넷에 걸리는지 확인. 그리고 매번 "오른쪽으로 핵이 세지고 아래로 멀어진다"를 입으로 되뇌며 유도해. 그리고 입으로 말해. "오른쪽으로 Z_eff↑, 아래로 껍질↑ · 이 두 축이 모든 경향을 낳는다 · 예외 넷만 따로 챙겨라." 한 바퀴 돌리면 경향은 통째로 네 거다.</div>
 </div>
 
