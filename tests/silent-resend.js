@@ -20,10 +20,24 @@
    «다시 올린 N건» 이 `if(!quiet)` 안에 있었고 자동 맞춤은 늘 `quiet` 이라,
    시트에 줄이 생기는 동안 화면은 조용했다.
 
+   어떻게 정했나
+   -------------
+   선생님 말씀: *"기능 자체를 없애면 되지 않아? 처음에 입력하면 바로 보내고
+   끝!"* — 앱이 **사람 모르게** 시트를 고치는 것이 뿌리라는 말씀이 옳다.
+
+   다만 통째로 없애면 **못 간 것이 조용히 사라진다.** no-cors 라 갔는지 알 수가
+   없어서, 안 간 기록은 그 브라우저에만 남는다. 브라우저를 비우면 없어지고
+   아무도 모른다.
+
+   그래서 **자동은 끄고, 사람이 누르면 보낸다**(선생님 결정 2026-08-12).
+
    여기서 지키는 것
    ----------------
-   **읽는 것은 조용해도 되고, 쓰는 것은 안 된다.** `quiet` 은 «시트와 이미
-   같습니다» 같은 잔소리를 줄이려는 것이지 쓴 것을 숨기려는 것이 아니다.
+     · 열기만 해서는 시트에 **한 글자도 안 쓴다** — 놀랄 일이 없다
+     · 못 간 것이 있으면 화면이 **몇 건인지 말한다**
+     · 사람이 «지금 맞춰 보기» 를 누르면 그때 보내고, **무엇을 보냈는지 말한다**
+
+   **읽는 것은 조용해도 되고, 쓰는 것은 안 된다.**
 
    실행:
        PLAYWRIGHT_MODULE=… CHROMIUM_PATH=… node tests/silent-resend.js
@@ -105,16 +119,36 @@ catch (e) {
   }, OTHER);
   chk('어제 못 올린 기록 넷을 심었다', seeded === 4, seeded + '건');
 
-  /* 다른 회차를 보러 앱을 열었을 뿐인데 자동 맞춤이 돈다 — 그때가 그 순간이다. */
+  /* ── ① 다른 회차를 보러 열었을 뿐이다. 여기서 시트가 바뀌면 안 된다 ── */
+  console.log('\n── 앱을 열었을 뿐이다 ──');
   await p.evaluate(() => autoSync(true));
-  await p.waitForFunction(() => (window.__said || []).length > 0, null, { timeout: 30000 })
+  /* 자동 맞춤은 읽기는 한다 — 읽기가 끝날 때까지 기다린다(GET 이 돌아온 뒤). */
+  await p.waitForFunction(() => window.__lastSync !== undefined || true, null, { timeout: 5000 })
     .catch(() => {});
+  await p.waitForTimeout(3000);
+  chk('시트에 **한 글자도 안 썼다**', posts.length === 0, posts.length + '건 나감');
 
+  /* ── ② 못 간 것이 있으면 화면이 말한다 ── */
+  console.log('\n── 못 간 것이 있다고 화면이 말한다 ──');
+  const badge = await p.evaluate(() => {
+    const el = document.querySelector('.pend');
+    return el ? el.textContent.replace(/\s+/g, ' ').trim() : '';
+  });
+  chk('«아직 안 올라간 기록» 을 세어 보여 준다', /아직 안 올라간 기록/.test(badge), badge.slice(0, 70));
+  chk('몇 건인지 적는다', /4건/.test(badge), badge.slice(0, 70));
+  chk('저절로 올라간다고 **거짓말하지 않는다**', !/저절로 올라갑니다/.test(badge), badge.slice(0, 90));
+  chk('사람이 누를 자리가 있다', /지금 맞춰 보기/.test(badge), badge.slice(0, 90));
+
+  /* ── ③ 사람이 누르면 그때 보내고, 무엇을 보냈는지 말한다 ── */
+  console.log('\n── 사람이 «지금 맞춰 보기» 를 눌렀다 ──');
+  await p.evaluate(() => { window.__said = []; syncAllFromSheet(); });
+  await p.waitForFunction(() => (window.__said || []).some(m => /다시 올렸습니다/.test(m)),
+    null, { timeout: 30000 }).catch(() => {});
   const said = await p.evaluate(() => window.__said || []);
-  chk('안 본 회차의 기록이 실제로 시트로 나갔다', posts.length === 4, posts.length + '건');
+  chk('그때는 실제로 나갔다', posts.length === 4, posts.length + '건');
 
   const tell = said.find(m => /다시 올렸습니다/.test(m)) || '';
-  chk('나갔으면 **말한다** (조용한 자동 맞춤에서도)', !!tell, tell || '(아무 말도 없었다)');
+  chk('무엇을 보냈는지 **말한다**', !!tell, tell || '(아무 말도 없었다)');
   chk('어느 회차인지 적는다', /2018/.test(tell), tell);
   chk('몇 건인지 적는다', /4건/.test(tell), tell);
   /* 선생님이 처음 겪은 혼란이 «오늘 시험 안 봤는데» 였다. 그 오해를 그
@@ -127,6 +161,6 @@ catch (e) {
   await browser.close();
   srv.stop();
   console.log(fail ? `\n실패 ${fail}건`
-    : '\n시트에 줄이 생기면 사람이 그것을 안다.');
+    : '\n열기만 해서는 시트가 안 바뀌고, 사람이 누르면 무엇을 보냈는지 말한다.');
   process.exit(fail ? 1 : 0);
 })();

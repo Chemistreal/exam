@@ -1601,7 +1601,7 @@ function renderList(){
       + (pd.wait?` · 보내는 중 ${pd.wait}`:'')
       + (pd.stuck?` · <span class="pend__x">여러 번 보냈는데 안 보이는 것 ${pd.stuck}</span>`:'')
       + ` <button class="btn ghost sm" onclick="syncAllFromSheet()">지금 맞춰 보기 ↻</button>`
-      + `<div class="pend__s">${pd.stuck?'멈춘 것은 시트에서 지워졌거나 우리가 못 찾는 줄입니다 — 명단 관리에서 확인해 주세요.':'망이 느리면 잠시 뒤 저절로 올라갑니다.'}</div></div>`;
+      + `<div class="pend__s">${pd.stuck?'멈춘 것은 시트에서 지워졌거나 우리가 못 찾는 줄입니다 — 명단 관리에서 확인해 주세요.':'저절로 올라가지 않습니다 — 위 단추를 눌러 주세요.'}</div></div>`;
   })()}<div class="note">기출을 답안 입력만 하면 자동 채점하고 <b>수상권 + 영역·개념 진단</b>으로 분석합니다. 만점 대상 · 4틀림까지 금상 · 9틀림까지 은상 · 13틀림까지 동상 · 18틀림까지 장려상, 다음 등급까지 2문제 이내면 '○○권'. 응시가 누적되면 백분위·문항 정답률·선택지 분석이 더해집니다.</div>`;
   order.forEach(g=>{ if(!groups[g])return;
     const gl=GLAB[g]||['KMChC '+(g==='이전'?'이전 연도':g+'년'),'자동 채점'];
@@ -4515,7 +4515,27 @@ function syncAllFromSheet(onDone, quiet){
   syncOneShot(function(one){
     if(one){
       markSynced();
-      var resent=resendPending();
+      /* ── 자동으로는 **다시 안 보낸다** (선생님 결정 2026-08-12) ──────────
+         선생님 말씀: *"기능 자체를 없애면 되지 않아? 처음에 입력하면 바로
+         보내고 끝!"*
+
+         그 말이 옳은 자리가 있다. 앱이 **사람 모르게** 시트를 고치는 것이
+         이 소동의 뿌리였다 — 2019 를 채점하려고 연 순간 2018 넉 건이 나갔고,
+         화면은 조용했고, 시트에는 7월 기록이 오늘 날짜로 앉았다.
+
+         다만 다시 보내기를 통째로 없애면 **못 간 것이 조용히 사라진다.**
+         no-cors 라 갔는지 알 수가 없어서, 안 간 기록은 그 브라우저에만 남는다.
+         브라우저를 비우거나 다른 기계로 옮기면 그대로 없어지고, 아무도 모른다.
+
+         그래서 **자동은 끄고, 사람이 누르면 보낸다.**
+           · 열기만 해서는 시트에 한 글자도 안 쓴다 — 놀랄 일이 없다
+           · 못 간 것이 있으면 화면이 «시트에 아직 안 올라간 기록 N건» 이라고
+             말하고, 그 옆에 «지금 맞춰 보기» 단추가 있다
+           · 보낼지 말지는 **사람이 정한다**
+
+         quiet 은 자동으로 돌 때만 참이다(autoSync). 사람이 단추를 누르면
+         거짓이라 그때는 보낸다. */
+      var resent = quiet ? 0 : resendPending();
       refreshScreen();
       /* ── 쓰는 일은 조용히 하지 않는다 (2026-08-12) ──────────────────────
          선생님이 물으셨다 — *"이런애들 지금 시험 안봤는데 왜 올라가있어?"*
@@ -4565,7 +4585,7 @@ function syncPerExam(onDone, quiet){
       /* 한 회차도 못 받았으면 맞췄다고 할 수 없다. 그때 시각을 찍으면
          망이 끊긴 채로 '방금 맞춤' 이 되어 다음에도 안 맞춘다. */
       if(failed<list.length) markSynced();
-      if(failed<list.length) resendPending();
+      if(failed<list.length && !quiet) resendPending();   // 자동으로는 안 보낸다(위와 같은 규칙)
       refreshScreen();
       if(!quiet) fToast(gaveUp
         ? '시트에 닿지 못했습니다 — 연결을 확인하고 다시 시도하세요'
