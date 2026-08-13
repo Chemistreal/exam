@@ -118,6 +118,9 @@ console.log('\n── 앱이 그 이름과 다운로드를 붙인다 ──');
      **없애는 것이 아니라 자리를 옮기는 것**이므로, 채점 뒤에는 그대로
      있어야 한다는 것까지 여기서 지킨다. (답 넣기 전에 없다는 것은
      `tests/answer-not-before.js` 가 실제 브라우저에서 본다.) */
+  /* 자료 칸을 거는 자의 몸통. 여기만 따로 보아야 «성적표 어딘가에 그 글자가
+     있다» 가 아니라 «이 자가 그것을 건다» 를 재게 된다. */
+  const MAT = (SRC.match(/function examMaterialsHTML[\s\S]*?\n}/) || [''])[0];
   const thin = ctx.examAssetsHTML(thinExam, true);
   const full = ctx.examAssetsHTML(EXAMS.find(e => e.id === 'jmchc-6'), true);
   const latest = ctx.examAssetsHTML(EXAMS.find(e => e.id === 'kmchc-2026-1-simhwa'), true);
@@ -147,10 +150,24 @@ console.log('\n── 앱이 그 이름과 다운로드를 붙인다 ──');
 
   // 답안 입력 화면에 실제로 꽂혀 있는지 — 함수만 있고 안 부르면 화면엔 없다
   chk('답안 입력 화면이 이 줄을 그린다', /\$\{examAssetsHTML\(cur\)\}/.test(SRC), true);
-  // 성적표에도 정답·해설이 남아 있는지 — 옮긴 것이지 없앤 것이 아니다
-  chk('성적표가 공식 정답을 건다', /cur\.answerPdf\?/.test(SRC), true);
-  chk('성적표가 문제편·해설편을 건다', /cur\.bookPdf\?/.test(SRC), true);
-  chk('성적표 링크도 같은 이름을 쓴다', /\$\{examSolLabel\(cur\)\}/.test(SRC), true);
+  /* 성적표에도 정답·해설이 남아 있는지 — **옮긴 것이지 없앤 것이 아니다.**
+     2026-08-13 에 자리가 한 번 더 옮겨졌다. 아래 단추 줄에 낱개로 걸려 있던
+     것을 오답정리 바로 뒤 「시험지 · 해설 내려받기」 칸으로 모았다(선생님
+     요청 — 문제지도 같이 준다). 같은 링크가 두 자리에 있으면 한쪽만 고쳤을
+     때 갈리므로 단추 줄에서는 뺐다.
+
+     여기서 지키려는 것은 «성적표에서 정답·해설이 사라지지 않았나» 이지
+     «어느 줄에 적혀 있나» 가 아니다. 그래서 자리가 아니라 **거는 자를**
+     본다. 실제로 화면에 그려지는지는 `tests/exam-materials.js` 가 진짜
+     브라우저에서 본다 — 글자 찾기로는 «부르기만 하고 안 그리는» 것을
+     못 잡는다. */
+  chk('성적표가 자료 칸을 그린다', /\$\{examMaterialsHTML\(cur\)\}/.test(SRC), true);
+  chk('그 칸이 공식 정답을 건다', /exam\.answerPdf\)/.test(MAT), true);
+  chk('그 칸이 문제편·해설편을 건다', /exam\.bookPdf\)/.test(MAT), true);
+  chk('그 칸이 문제지를 건다', /exam\.pdf\)/.test(MAT), true);
+  chk('그 칸도 같은 이름을 쓴다', /examSolLabel\(exam\)/.test(MAT), true);
+  chk('아래 단추 줄에는 같은 링크가 안 남았다',
+      /class="pdf" href="sol-final-\$\{cur\.id\}/.test(SRC), false);
   // 인쇄물에는 넣지 않는다(종이에 찍힌 링크는 누를 수 없다)
   chk('인쇄할 때는 숨긴다', /@media print\{\.assets\{display:none\}\}/.test(SRC), true);
 }
