@@ -45,6 +45,13 @@ main{max-width:780px;margin:0 auto;padding:16px 15px 60px}
 .card{position:relative}
 .slink{position:absolute;top:10px;right:10px;font-size:11.5px;color:var(--teal,#3A7A6B);background:rgba(58,122,107,.08);border:1px solid rgba(58,122,107,.25);border-radius:7px;padding:4px 8px;cursor:pointer;font-weight:600}
 .slink:active{background:rgba(58,122,107,.18)}
+/* 회차 주소를 한자리에 모아 두는 칸 (화면 맨 밑). 39개를 그대로 펼치면
+   목록이 두 배로 길어지므로 **칸 안에서만 구른다** — 자리는 늘 그대로다. */
+.alink{margin:26px 0 4px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:13px 14px}
+.alink__h{font-size:13.5px;font-weight:700;margin:0 0 3px}
+.alink__s{font-size:12px;color:var(--muted);margin:0 0 9px;line-height:1.55}
+.alink__t{width:100%;height:172px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.5px;line-height:1.65;color:var(--ink-2);background:var(--cream,#F7F4EC);border:1px solid var(--line);border-radius:9px;padding:9px 10px;white-space:pre;overflow:auto}
+.alink__a{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
 #repPDF.pdfing{background:#fff;padding:10px 12px;border-radius:0}
 /* PDF 캡처 시: 페이지에 걸쳐 잘려도 지저분하지 않도록 큰 컨테이너의 테두리·그림자·둥근모서리·배경 제거(책처럼 흐르게).
    작은 색상 박스(핵심/함정/처방/문항)와 히어로·수상 카드는 그대로 둔다. */
@@ -1611,7 +1618,89 @@ function renderList(){
         <div class="card__m">${e.track&&e.track!=='-'?`<span class="tag ${e.track==='심화'?'s':''}">${e.track}</span>`:''}<span>${e.nQ}문항</span>${n?`<span>· ${n}명</span>`:''}${pg?`<span class="today">오늘 ${pg.n}명 · ${pg.ago}</span>`:''}</div>
         <button class="slink" title="이 회차 학생 제출 링크 복사" onclick="event.stopPropagation();copyStudentLink('${e.id}')">제출 링크 ⧉</button></div>`;});
     h+=`</div>`; });
-  app.innerHTML=h; window.scrollTo(0,0);
+  h+=allLinksHTML();
+  app.innerHTML=h;
+  fillAllLinks();
+  window.scrollTo(0,0);
+}
+/* ── 회차 주소를 한자리에 모은다 (선생님 요청 2026-08-13) ─────────────────
+   회차마다 「제출 링크 ⧉」 가 있지만, 서른아홉 개를 한 번에 어디다 적으려면
+   **서른아홉 번 눌러 서른아홉 번 붙여야 했다.** 공지 하나 쓰는 데 그렇다.
+
+   그래서 화면 맨 밑에 다 모아 두고 단추 하나로 가져가게 한다.
+
+     · **목록으로** — 시험명 한 줄, 주소 한 줄. 카카오톡·공지에 그대로 붙는다
+     · **표로**     — 시험명⇥주소. 엑셀·시트에 붙이면 두 칸으로 갈린다
+
+   칸 안의 글은 **보이는 그대로가 복사되는 것**이다. 눈으로 본 것과 손에
+   들어온 것이 다르면 안 된다 — 그래서 화면에 그리는 글과 복사하는 글을
+   **한 자리(`allLinksText`)에서** 만든다. */
+
+/* 학생에게 줄 주소는 **학생이 열 수 있는 주소**여야 한다.
+   선생님이 이 화면을 내 컴퓨터에서 열어 두고 복사하면 `file://…` 이나
+   `localhost:8931/…` 이 그대로 딸려 간다 — 받은 학생은 아무 데도 못 간다.
+   그런 자리에서는 이 파일이 이미 적어 둔 진짜 주소(og:url)를 쓴다. */
+function siteBase(){
+  var here=location.origin+location.pathname.replace(/[^/]*$/, '');
+  var local=/^(localhost|127\.|0\.0\.0\.0|\[::1\]|::1)/.test(location.host||'');
+  if(/^https?:$/.test(location.protocol) && !local) return here;
+  var og=document.querySelector('meta[property="og:url"]');
+  var u=og&&og.getAttribute('content');           // …/exam/final.html
+  return u ? u.replace(/[^/]*$/, '') : here;
+}
+function siteBaseIsHere(){
+  return siteBase()===location.origin+location.pathname.replace(/[^/]*$/, '');
+}
+function submitURL(id){ return siteBase()+'final-submit.html?exam='+encodeURIComponent(id); }
+
+/* 목록(list) 과 표(tsv) — 화면에 그리는 것도 복사하는 것도 여기서 나온다. */
+function allLinksText(fmt){
+  var order=['JMChC','동형','산과염기','2026','2025','2024','이전'];
+  var GLAB={'JMChC':'JMChC 모의고사','동형':'기출동형 모의고사','산과염기':'산·염기 60제'};
+  var groups={}; FINAL_EXAMS.forEach(function(e){ (groups[e.group]=groups[e.group]||[]).push(e); });
+  /* order 에 없는 묶음이 새로 생겨도 **빠지면 안 된다** — 뒤에 붙인다. */
+  Object.keys(groups).forEach(function(g){ if(order.indexOf(g)<0) order.push(g); });
+  var out=[];
+  order.forEach(function(g){
+    if(!groups[g]) return;
+    var lab=GLAB[g]||('KMChC '+(g==='이전'?'이전 연도':g+'년'));
+    if(fmt==='tsv'){ groups[g].forEach(function(e){ out.push(e.title+'\t'+submitURL(e.id)); }); return; }
+    if(out.length) out.push('');
+    out.push('['+lab+']');
+    groups[g].forEach(function(e){ out.push(e.title, submitURL(e.id)); });
+  });
+  return out.join('\n');
+}
+function allLinksHTML(){
+  if(!FINAL_EXAMS.length) return '';
+  return '<div class="alink">'
+    + '<p class="alink__h">회차별 학생 제출 주소 '+FINAL_EXAMS.length+'개</p>'
+    + '<p class="alink__s">아래 글이 <b>보이는 그대로</b> 복사됩니다. 카카오톡·공지에는 «목록으로», '
+    + '엑셀·시트에는 «표로» 를 누르세요.'
+    + (siteBaseIsHere() ? ''
+        : ' <b>지금 이 화면은 학생이 못 여는 자리에서 열려 있어</b>, 주소는 실제 배포 주소('
+          + esc(siteBase()) + ')로 적었습니다.')
+    + '</p>'
+    + '<textarea class="alink__t" id="alinkT" readonly spellcheck="false" '
+    + 'aria-label="회차별 학생 제출 주소"></textarea>'
+    + '<div class="alink__a">'
+    + '<button class="btn ghost sm" onclick="copyAllLinks(\'list\')">목록으로 전부 복사 ⧉</button>'
+    + '<button class="btn ghost sm" onclick="copyAllLinks(\'tsv\')">표로 전부 복사 (엑셀) ⧉</button>'
+    + '</div></div>';
+}
+function fillAllLinks(fmt){
+  var t=document.getElementById('alinkT'); if(!t) return;
+  t.value=allLinksText(fmt||'list');
+}
+function copyAllLinks(fmt){
+  /* 누른 모양으로 화면도 바꾼다 — 손에 들어온 것이 눈앞에 그대로 있어야 한다. */
+  fillAllLinks(fmt);
+  var text=allLinksText(fmt);
+  var n=FINAL_EXAMS.length;
+  var ok=function(){ fToast(n+'개 회차 제출 주소를 '+(fmt==='tsv'?'표로':'목록으로')+' 복사했습니다'); };
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(ok).catch(function(){ fallbackCopy(text,ok); });
+  } else fallbackCopy(text,ok);
 }
 /* 회차 자료(문제지·해설) 링크. 두 파일 다 저장소에 같이 올라간다.
    [문제지] exams.json 의 pdf 필드. 38개 회차 모두 있다.
@@ -1639,6 +1728,42 @@ function examAssetsHTML(exam, graded){
   out.push('<a class="pdf" href="sol-final-'+esc(exam.id)+'.html" download>'
     +examSolLabel(exam)+' ↓</a>');
   out.push('<a class="pdf" href="sol-final-'+esc(exam.id)+'.html" target="_blank" rel="noopener">브라우저에서 보기 ↗</a>');
+  return '<div class="assets">'+out.join('')+'</div>';
+}
+/* ── 시험을 본 **뒤** 학생이 받아 가는 자료 (선생님 요청 2026-08-13) ────────
+   *"각 시험 보고 나서 학생 성적표에 문제 pdf 와 해설 pdf 를 다운받을 수
+   있도록 버튼으로 만들어 달라"*
+
+   재어 보니 학생이 시험을 본 뒤 자료를 받을 길이 이랬다.
+
+       final-submit.html 제출 직후   문제 ✗   해설 ✗   ← 학생이 보는 첫 화면
+       final.html 성적표             문제 ✗   해설 O   ← 성적표 링크로 여는 화면
+       답 넣기 전 화면               문제 O   해설 ✗   (일부러 그렇다)
+
+   **문제지가 두 자리 다 빠져 있었다.** 틀린 문항을 다시 보려면 문제가 있어야
+   하는데, 답을 넣기 전 화면을 떠나는 순간 손에서 사라졌다.
+
+   ⚠ 여기 있는 것은 **채점이 끝난 뒤**에만 건다. 답을 넣기 전 화면은
+   `examAssetsHTML` 이고 거기는 문제지만 걸린다 — 2026-08-10 에 그 자리로
+   정답이 새던 것을 고쳤다. 두 자를 헷갈리면 그 구멍이 다시 열린다.
+
+   ⚠ **없는 것을 있다고 하지 않는다.** 「해설 PDF」 는 회차마다 다르다 —
+   서른아홉 중 공식 정답 PDF 가 있는 것이 스물다섯, 문제편·해설편 PDF 가
+   있는 것이 여섯이다. 나머지 열넷은 PDF 가 아예 없고 **해설 쪽(html)** 만
+   있다. 그래서 PDF 가 있는 것만 «PDF ↓» 라 부르고, 해설 쪽은 «↗» 로
+   여는 것이라 적는다. 서른아홉 회차 모두 문항별 해설이 들어 있다.
+
+   ⚠ 이 함수는 final-submit.html 에 **글자 그대로 같은 것이 있다.**
+   한쪽만 고치면 학생이 두 화면에서 다른 자료를 받는다 —
+   tests/final-submit-sync.js 가 두 벌을 맞대어 본다. */
+function examMaterialsHTML(exam){
+  if(!exam) return '';
+  var out=[];
+  if(exam.pdf) out.push('<a class="pdf" href="'+esc(exam.pdf)+'" download>문제지 PDF ↓</a>');
+  if(exam.answerPdf) out.push('<a class="pdf" href="'+esc(exam.answerPdf)+'" download>공식 정답 PDF ↓</a>');
+  if(exam.bookPdf) out.push('<a class="pdf" href="'+esc(exam.bookPdf)+'" download>문제편·해설편 PDF ↓</a>');
+  out.push('<a class="pdf" href="sol-final-'+esc(exam.id)+'.html" target="_blank" rel="noopener">'
+    +examSolLabel(exam)+' ↗</a>');
   return '<div class="assets">'+out.join('')+'</div>';
 }
 function openExam(id){
@@ -1707,8 +1832,10 @@ function openExam(id){
 function nextStudent(){ if(!cur)return; const id=cur.id; openExam(id); const f=document.getElementById('nm'); if(f)f.focus(); }
 /* 학생용 답안 제출 페이지(final-submit.html) 링크 복사 */
 function copyStudentLink(id){
-  let url=location.origin+location.pathname.replace(/[^/]*$/, 'final-submit.html');
-  if(id) url+='?exam='+encodeURIComponent(id);
+  /* 주소를 만드는 자리는 **한 곳뿐이다**(siteBase). 여기와 맨 밑 목록이 각자
+     만들면, 한쪽만 고쳤을 때 같은 회차가 두 주소를 갖게 된다 — 이 파일이
+     final-submit.html 과 사본을 나눠 들다 겪은 일이 그것이었다. */
+  let url=id ? submitURL(id) : siteBase()+'final-submit.html';
   const ok=()=>fToast((id?'회차별 ':'')+'학생 제출 링크 복사됨 · '+url);
   if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(ok).catch(()=>fallbackCopy(url,ok)); }
   else fallbackCopy(url,ok);
@@ -5695,6 +5822,12 @@ function scoreAuto(again){
    ${closingSecFinal(nm,cur,correct,total,W,pct)}
    ${methodSec(cur)}
    ${wrongbookShell(cur,wrong)}
+   ${/* 틀린 문항을 짚어 준 **바로 뒤**에 문제지와 해설을 둔다. 학생이
+        "이 문항 뭐였지" 하는 자리가 여기다 — 화면 맨 밑 단추 줄까지
+        내려가서 찾을 일이 아니다. */''}
+   <div class="sec"><h3>시험지 · 해설 내려받기</h3>
+     <p class="muted" style="margin:2px 0 8px">틀린 문항을 문제지에서 다시 읽고, 해설로 확인하세요.</p>
+     ${examMaterialsHTML(cur)}</div>
    </div>
    ${/* ⚠ `공유용 HTML 저장` 은 **선생님 단추**다. 학부모는 이미 받은 사람이라
         그 자리에서 할 일이 아니고, 있으면 "이걸 눌러야 하나" 를 만든다.
@@ -5702,9 +5835,8 @@ function scoreAuto(again){
         (선생님 확인: 학생은 화면과 워드파일을 둘 다 쓴다).
         `#r=` 로 열렸을 때만 뺀다 — 선생님 화면은 그대로다. */''}
    <div class="toolbar"><button class="btn" onclick="downloadReportDOCX()">📝 성적표 Word 저장 ↓</button>${window.__sharedReport?'':'<button class="btn sm" onclick="copyReportLink()">성적표 링크 복사 ⧉</button>'}<button class="btn ghost sm" onclick="printRetest()">동형 미니 시험지 인쇄 🖨</button>${window.__sharedReport?'':'<button class="btn ghost sm" onclick="exportReportHTML()">공유용 HTML 저장 ↓</button>'}
-     <a class="pdf" href="sol-final-${cur.id}.html" target="_blank" rel="noopener">${examSolLabel(cur)} ↗</a>
-     ${cur.answerPdf?`<a class="pdf" href="${esc(cur.answerPdf)}" download>공식 정답 PDF ↓</a>`:''}
-     ${cur.bookPdf?`<a class="pdf" href="${esc(cur.bookPdf)}" download>문제편·해설편 PDF ↓</a>`:''}
+     ${/* 해설 링크는 위 「시험지 · 해설 내려받기」 칸으로 옮겼다(2026-08-13).
+          두 자리에 같은 링크가 있으면 한쪽만 고쳤을 때 갈린다. */''}
      <button class="btn ghost sm" onclick="window.print()">인쇄</button>
      ${fShared?'':`<button class="btn sm" onclick="nextStudent()">다음 학생 입력 ▶</button>
      <button class="btn ghost sm" onclick="openExam('${cur.id}')">다시 채점</button>`}</div>`;

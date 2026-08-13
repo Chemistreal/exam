@@ -19,7 +19,12 @@ const ROOT = path.resolve(__dirname, '..');
 const A = fs.readFileSync(path.join(ROOT, 'final.html'), 'utf8');
 const B = fs.readFileSync(path.join(ROOT, 'final-submit.html'), 'utf8');
 
-const FN = ['finalPenalty', 'finalRawScore', 'percentile', 'award', 'hashStrFinal'];
+/* 채점이 갈리면 점수가 갈리고, 자료가 갈리면 **학생이 두 화면에서 다른 것을
+   받는다.** 둘 다 «한쪽만 고치면 조용히 어긋나는» 것이라 같이 본다.
+   (examSolLabel·examMaterialsHTML 은 2026-08-13 에 붙었다 — 시험을 본 뒤
+    문제지·해설을 주는 자리다) */
+const FN = ['finalPenalty', 'finalRawScore', 'percentile', 'award', 'hashStrFinal',
+  'examSolLabel', 'examMaterialsHTML'];
 const CO = ['RX', 'RXMAP', 'TIERS', 'accSet', 'okq', 'SHEET_ENDPOINT'];
 
 function grabFn(src, n) {
