@@ -68,6 +68,13 @@ def write_inputs(items, d):
                 f.write(f"{CIR[j]} {c}\n")
             f.write("\n")
     # ② defender — 정답이 무엇인지는 알려주되 오답을 변호하게 함
+    #    ★factchecker 에서 잡혔던 것과 같은 어긋남이 여기에도 있었다★ (T14 P16 1차에 잡힘)
+    #    defender 에게 시킨 일 둘째 항은 ★해설의 반박이 그 오답을 정말로 죽이는지★ 보는
+    #    것인데, 이 파일은 발문·선지·정답만 실었다. defender 가 "해설이 없어 출제자가
+    #    의도했을 반박을 복원해 검증했다" 고 적고서야 드러났다 — 한 회차가 반쯤 헛돌았다.
+    #    ▸ 독립성은 깨지지 않는다. defender 는 이미 정답을 받는 자리다.
+    #    ▸ ★시킨 일에 없는 자료를 주지 않는 것과, 시킨 일에 필요한 자료를 빠뜨리는 것은
+    #      다르다★ — 최소는 '그 검증자가 시킨 일을 할 수 있는 만큼' 이다(F2 와 같은 규약).
     with open(os.path.join(d, 'items_defend.md'), 'w', encoding='utf-8') as f:
         f.write("# 오답 변호 대상\n\n")
         for x in items:
@@ -77,7 +84,8 @@ def write_inputs(items, d):
             for j, c in enumerate(x['choices']):
                 if j != a:
                     f.write(f"  {CIR[j]} {c}\n")
-            f.write("\n")
+            f.write(f"\n출제자의 근거: {x.get('answer_proof', '')}\n\n"
+                    f"출제자의 해설(반박·단평 포함):\n{x['solution']}\n\n")
     # ③ factchecker — 문항 전체(발문·선지·근거·계산 줄)와 해설
     #    ★검증자에게 시킨 일과 검증자에게 준 자료가 어긋나 있었다★ (T14 P6 2차에 잡힘)
     #    이 파일은 오래도록 x['solution'] 만 썼다. 그런데 factchecker 에게 시킨 일에는
