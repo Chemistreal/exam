@@ -152,6 +152,36 @@ def verify(items):
         #   도구가 안 보면 사람은 잊는다 — 배치 검증에서 막는다.
         if not it.get('objective'):
             issues.append((it['id'], 'objective 없음 — mk(..., obj=) 로 출제 의도를 적을 것', [], 0))
+        # ★감사39 신설 — 은행이 읽히는 문면은 평문이다★
+        #   T14 가 P7(M02195)부터 해설에 강조 표기를 쓰기 시작해 ★96제★ 가 그대로 병합됐다.
+        #   저작 점검의 평문 항은 ★발문·선지만★ 보았고 해설은 사정거리 밖이었다 — 열여섯
+        #   배치가 지나서야 감사39 의 검사 B 가 잡았다.
+        #   ▸ ★한 필드에 건 규약은 같은 규약이 걸려야 할 다른 필드를 함께 적는다★ — 그래서
+        #     ★학생이 읽는 네 자리★ 를 한꺼번에 본다(테마 지역 검사가 아니라 은행 공통 자리에
+        #     건다 — 지역에 걸면 다음 테마가 새 local_checks 를 쓰면서 또 샌다).
+        #   ▸ `calc_check` 와 `verified.watch` 는 ★걸지 않는다★ — 출제자·검증자가 읽는 내부
+        #     주석이고 학생에게 나가는 문면이 아니다.
+        for _f in ('stem', 'solution', 'answer_proof'):
+            if '★' in (it.get(_f) or ''):
+                issues.append((it['id'], f'{_f} 에 강조 표기 — 은행이 읽히는 문면은 평문', [], 0))
+        for _i, _c in enumerate(it['choices']):
+            if '★' in _c:
+                issues.append((it['id'], f'{_i + 1}번 선지에 강조 표기 — 은행은 평문', [], 0))
+        # ★감사39 신설 — 감사에서만 보던 형식 단서 둘을 배치 검증으로 올린다★
+        #   감사39 가 T14 2차 84제에서 봉인된 문항 둘을 잡았다(M02233 정답만 부정형 ·
+        #   M02250 정답 꼬리말만 발문에). 둘 다 판정 오류가 아니라 ★형식 단서★ 이고, 되열어
+        #   고치기보다 ★다음 테마가 되풀이하지 못하게 상류로 올리는 것★ 이 값이 크다.
+        #   ▸ ★감사(사후)에서 걸리는 검사는 배치 검증(사전)으로 옮길 수 있는지 매번 센다★ —
+        #     감사가 잡을 때는 이미 봉인되어 있다.
+        _neg = [_i for _i, _c in enumerate(it['choices'])
+                if any(_t in _c for _t in ('않', '없', '아니', '못'))]
+        if _neg == [it['answer']]:
+            issues.append((it['id'], '정답만 부정형 — 극성으로 홀로 선다', [], it['answer']))
+        _tl = [_c.strip()[-3:] for _c in it['choices']]
+        if len(_tl[it['answer']]) == 3 and _tl[it['answer']] in it['stem'] and \
+                not any(_t in it['stem'] for _i, _t in enumerate(_tl) if _i != it['answer']):
+            issues.append((it['id'], f"정답의 꼬리말 「{_tl[it['answer']]}」 만 발문에 있다",
+                           [], it['answer']))
         ln, a = [len(x) for x in it['choices']], it['answer']
         if (ln[a] == max(ln) and ln.count(max(ln)) == 1):
             issues.append((it['id'], 'G3 정답 유일최장', ln, a))
