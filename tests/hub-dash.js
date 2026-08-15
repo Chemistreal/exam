@@ -144,11 +144,79 @@ const SHEET = {
   });
   chk('흐름 숫자 다섯이 다 있다', flow.miss.length === 0, flow.miss.join(' ') || '5개 다 있음');
   chk('흐름은 한 줄에 눕는다', flow.inLine === true);
-  /* 급한 칸만 카드로 선다 — 여덟이면 급한 것이 안 급해 보인다. */
-  chk('카드는 급한 셋뿐이다', flow.cards === 3, flow.cards + '칸');
+
+  /* ── ③-2 오늘 머리판 ── */
+  console.log('\n── 오늘 머리판 ──');
+  const hero = await p.evaluate(() => {
+    const h = document.querySelector('.hero');
+    const cells = [].map.call(document.querySelectorAll('.hn'), c => ({
+      tag: c.tagName.toLowerCase(), jump: c.dataset.jump || '',
+      v: (c.querySelector('.hn__v') || {}).textContent,
+      k: (c.querySelector('.hn__k') || {}).textContent,
+      h: Math.round(c.getBoundingClientRect().height),
+    }));
+    return { has: !!h, cells: cells,
+             ring: !!document.querySelector('.hero__ring b'),
+             pct: (document.querySelector('.hero__ring b') || {}).textContent,
+             say: (document.getElementById('heroSay') || {}).textContent.replace(/\s+/g,' ').trim(),
+             /* 옛 도넛 칸이 빈 채로 남아 자리를 먹지 않는지 */
+             oldFig: (document.getElementById('dashFig') || {}).innerHTML };
+  });
+  chk('머리판이 섰다', hero.has === true);
+  chk('큰 숫자가 셋이다', hero.cells.length === 3,
+    hero.cells.map(c => c.k + ' ' + c.v).join(' / '));
+  chk('통과율 고리가 있다', hero.ring === true, hero.pct || '');
+  chk('한 문장으로도 말한다', /남았습니다|남은 일이 없습니다/.test(hero.say), hero.say.slice(0, 44));
+  chk('옛 도넛 칸은 비었다', (hero.oldFig || '') === '');
+  /* ⚠ 화면이 «위 숫자를 누르면 간다» 고 적는다. 그러면 **실제로 눌려야 한다** —
+     처음엔 그냥 상자로 그려 놓아 그 말이 거짓이었다. */
+  const goCells = hero.cells.filter(c => c.jump);
+  chk('갈 데가 있는 칸은 단추다', goCells.length === 2 && goCells.every(c => c.tag === 'button'),
+    hero.cells.map(c => c.tag + (c.jump ? '→' + c.jump : '')).join(' / '));
+  chk('손가락에 맞는다 (32px 이상)', hero.cells.every(c => c.h >= 32),
+    hero.cells.map(c => c.h + 'px').join(' / '));
+  const heroGo = await p.evaluate(async () => {
+    const b = document.querySelector('.hn[data-jump="pendWrap"]');
+    if (!b) return { no: '재시 칸이 단추가 아니다' };
+    b.click();
+    await new Promise(z => setTimeout(z, 700));
+    const t = document.getElementById('pendWrap');
+    return { flashed: !!t && t.classList.contains('flashed') };
+  });
+  chk('머리판 숫자를 누르면 그 목록으로 간다', heroGo.flashed === true,
+    heroGo.no || '');
+
+  /* ── ③-3 반별 정렬 바꾸기 ── */
+  console.log('\n── 반 정렬을 바꾼다 ──');
+  const sorted = await p.evaluate(async () => {
+    const names = () => [].map.call(document.querySelectorAll('.clsrow__l'),
+      e => e.textContent.trim());
+    const before = names();
+    const btn = document.querySelector('[data-clssort="name"]');
+    if (!btn) return { no: '정렬 단추가 없다' };
+    btn.click();
+    await new Promise(z => setTimeout(z, 300));
+    const after = names();
+    const pressed = document.querySelector('[data-clssort="name"]').getAttribute('aria-pressed');
+    return { before: before, after: after, pressed: pressed,
+             bars: document.querySelectorAll('.clsrow__bar .stack').length };
+  });
+  chk('정렬 단추가 있다', !sorted.no, sorted.no || '');
+  chk('이름 순으로 다시 선다',
+    JSON.stringify(sorted.after) === JSON.stringify(sorted.after.slice().sort((a,b)=>a.localeCompare(b,'ko'))),
+    (sorted.after || []).join(' / '));
+  chk('고른 것이 눌린 표시로 남는다', sorted.pressed === 'true', String(sorted.pressed));
+  chk('반마다 몫 막대가 있다', sorted.bars === 3, sorted.bars + '개');
 
   /* ── ④ 반별 현황: 읽을 수 있고 누를 수 있다 ── */
   console.log('\n── 반별 현황 (3D 탑이 하던 일) ──');
+  /* ⚠ 바로 위에서 이름 순으로 바꿔 두었다. 여기서 보려는 것은 «기본이 급한
+     순인가» 이므로 되돌려 놓고 잰다 — 안 그러면 내가 바꿔 놓은 것을 앱
+     탓으로 세게 된다. */
+  await p.evaluate(() => {
+    const b = document.querySelector('[data-clssort="urgent"]'); if (b) b.click();
+  });
+  await p.waitForTimeout(300);
   const row = await p.evaluate(() => {
     const rs = [].map.call(document.querySelectorAll('.clsrow__r'), r => ({
       t: r.textContent.replace(/\s+/g, ' ').trim(),

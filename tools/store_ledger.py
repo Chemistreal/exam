@@ -42,9 +42,6 @@ KNOWN = {
     'chemistreal:gate':         '문고리를 지난 표. 지우면 다시 지나면 된다',
     'chemistreal:views':        '어느 화면을 몇 번 열었나. 취향이다',
     'chemistreal:pal:recent':   '최근 고른 옷(팔레트). 취향이다',
-    # 화면 옷(기계 설정/밝게/어둡게). 순전한 취향이라 지워도 잃을 것이
-    # 없다 — 기계 설정으로 돌아갈 뿐이다. 이름도 성적도 안 담는다.
-    'chemistreal:hub:theme':    '화면 옷(기계·밝게·어둡게). 취향이다',
     'chemistreal:lessons':      '강의에서 본 자리. 취향이다',
     'chemistreal:nudge:seen':   '넛지를 본 표. 같은 말을 두 번 안 하려고 둔다',
     'chemistreal:hint:gloss':   '용어 풀이를 한 번 펼쳐 봤나. 취향이다',

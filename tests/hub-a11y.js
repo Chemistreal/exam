@@ -498,13 +498,15 @@ catch (e) {
        실패 안내도 카드 이름을 쓴다 — 카드는 '재시 대기' 인데 안내가 'DT 미완료'
        라고 하면 둘을 잇지 못한다. */
     await p.evaluate(() => show('dash'));
+    /* [바뀐 것] 2026-08-15 — 숫자 칸이 흰 상자(.card)에서 「오늘 머리판」의
+       .hn 으로 바뀌었다. 재는 것은 그대로다: **한 뜻에 한 이름인가.** */
     await p.waitForFunction(
-      () => document.querySelector('#dashCards .card b#pdCnt'), null, { timeout: 8000 });
+      () => document.querySelector('#dashCards .hn .hn__v#pdCnt'), null, { timeout: 8000 });
     const 이름 = await p.evaluate(() => {
-      const card = [...document.querySelectorAll('#dashCards .card')]
-        .filter(c => (c.querySelector('b') || {}).id === 'pdCnt')[0];
+      const card = [...document.querySelectorAll('#dashCards .hn')]
+        .filter(c => (c.querySelector('.hn__v') || {}).id === 'pdCnt')[0];
       return {
-        카드: card ? (card.querySelector('span') || {}).textContent : '',
+        카드: card ? (card.querySelector('.hn__k') || {}).textContent : '',
         제목: (document.querySelector('#pendWrap h2') || {}).textContent || '',
         칩: (() => {
           const src = [...document.querySelectorAll('script')].map(s => s.textContent).join('\n');
@@ -574,23 +576,27 @@ catch (e) {
     await p2.goto(`http://localhost:${PORT}/hub.html`, { waitUntil: 'domcontentloaded' });
     await p2.waitForFunction(() => typeof show === 'function', null, { timeout: 20000 });
     await p2.waitForFunction(
-      () => document.querySelectorAll('#dashCards .card').length > 0, null, { timeout: 10000 });
+      () => document.querySelectorAll('#dashCards .hn').length > 0, null, { timeout: 10000 });
     const g = await p2.evaluate(() => {
       let has = false;
       try { has = !!document.createElement('canvas').getContext('webgl'); } catch (e) {}
       return {
         webgl: has,
         띠그림: !!document.querySelector('.brand canvas'),
-        반3D: !!document.querySelector('#dash3d canvas'),
+        반3D: !!document.querySelector('#dashCls canvas'),
+        캔버스: document.querySelectorAll('canvas').length,
         /* 그림이 없어도 남아야 하는 것들 */
-        급한칸: document.querySelectorAll('#dashCards .card').length,
+        급한칸: document.querySelectorAll('#dashCards .hn').length,
         탭: document.querySelectorAll('[role="tab"]').length,
         제목: (document.querySelector('.brand h1') || {}).textContent,
       };
     });
     console.log(`  webgl ${g.webgl ? '있음' : '없음'} · 띠 그림 ${g.띠그림 ? '그림' : '없음'} · 반 3D ${g.반3D ? '그림' : '없음'}`);
     chk('이 브라우저에는 WebGL 이 없다(검사가 헛돌지 않는다)', g.webgl, false);
-    chk('없으면 조용히 안 그린다', [g.띠그림, g.반3D], [false, false]);
+    /* [바뀐 것] 2026-08-14 에 3D 를 통째로 걷어냈다(선생님 결정 — «맥거핀»).
+       그러니 이제 «WebGL 이 없으면 조용히 안 그린다» 가 아니라 **애초에 그릴
+       것이 없다.** 캔버스가 한 장도 없어야 하고, 그래도 화면은 그대로 산다. */
+    chk('그릴 캔버스가 아예 없다', [g.띠그림, g.반3D, g.캔버스], [false, false, 0]);
     chk('화면은 그대로 산다', g.급한칸 > 0 && g.탭 === 12, true);
     chk('제목도 그대로다', g.제목, 'Chemistreal 통합관리');
     chk('WebGL 이 없다고 화면이 터지지 않는다', errs2, []);
