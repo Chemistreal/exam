@@ -75,6 +75,11 @@ def write_inputs(items, d):
     #    ▸ 독립성은 깨지지 않는다. defender 는 이미 정답을 받는 자리다.
     #    ▸ ★시킨 일에 없는 자료를 주지 않는 것과, 시킨 일에 필요한 자료를 빠뜨리는 것은
     #      다르다★ — 최소는 '그 검증자가 시킨 일을 할 수 있는 만큼' 이다(F2 와 같은 규약).
+    #    ★★같은 어긋남이 세 번째다 — 이번엔 계산 줄★★ (T15 P3 6차에 잡힘). defender 가
+    #    "계산줄 필드는 이 파일에 실려 있지 않습니다" 라고 적었다. 그 회차에 내가 고친
+    #    세 자리가 모두 계산 줄을 포함했는데 defender 는 해설·단평만 보고 판정했다.
+    #    ▸ ★검증자가 '무엇이 없어 못 봤다' 고 적으면 그것은 판정이 아니라 도구 결함의
+    #      신고다★ — 세 번 다 그렇게 드러났다(해설 없음 · 발문 없음 · 계산 줄 없음).
     with open(os.path.join(d, 'items_defend.md'), 'w', encoding='utf-8') as f:
         f.write("# 오답 변호 대상\n\n")
         for x in items:
@@ -85,6 +90,7 @@ def write_inputs(items, d):
                 if j != a:
                     f.write(f"  {CIR[j]} {c}\n")
             f.write(f"\n출제자의 근거: {x.get('answer_proof', '')}\n\n"
+                    f"출제자의 계산 줄: {x.get('calc_check', '')}\n\n"
                     f"출제자의 해설(반박·단평 포함):\n{x['solution']}\n\n")
     # ③ factchecker — 문항 전체(발문·선지·근거·계산 줄)와 해설
     #    ★검증자에게 시킨 일과 검증자에게 준 자료가 어긋나 있었다★ (T14 P6 2차에 잡힘)
