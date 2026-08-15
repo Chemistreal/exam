@@ -119,48 +119,69 @@ header{background:var(--paper);border-bottom:1px solid var(--line);flex:0 0 auto
      크림색 글씨가 흰 바탕에 남는다 — 오늘 종이에서 겪은 것과 같은 꼴이다. */
   background:var(--brand-bg) linear-gradient(135deg,var(--brand-bg) 0%,var(--brand-bg2) 100%);
   border-bottom:2px solid var(--brass);position:relative;overflow:hidden}
-/* 띠 안에서 도는 분자. **글씨 밑에 깔린다.**
-   ⚠ 색을 얼마나 밝게 그릴지는 취향이 아니라 계산이다 — 셰이더가 마지막에
-     밝기를 0.13(선형 휘도) 아래로 눌러 준다. 크림색 글씨(#F4F1E8)와의 대비가
-     어떤 화소에서도 4.5:1 밑으로 안 내려가는 상한이다. 검사가 진짜 화소를
-     읽어 확인한다(tests/hero3d.js). 그림이 화려해지자고 글씨를 잃지 않는다. */
-.brand>canvas{position:absolute;inset:0;width:100%;height:100%;display:block;
-  z-index:0;pointer-events:none}
-.brand>:not(canvas){position:relative;z-index:1}
+/* 띠 안에서 돌던 분자 그림(WebGL)은 걷어냈다 — 선생님 결정 2026-08-14.
+   장식이었고, 그 그림을 그리려고 손으로 쓴 그림판(G3)까지 딸려 있었다.
+   날짜 칸의 깔개는 남긴다: 그림이 없어도 띠는 그라데이션이라 밝기가
+   자리마다 다르고, 재어 둔 대비는 그 깔개가 지키던 것이다. */
+/* ── 흐름 한 줄 ────────────────────────────────────────────────────
+   «얼마나 해 왔나» 는 급한 것이 아니다. 카드로 세우면 급한 셋과 같은 무게로
+   보이므로 한 줄에 눕힌다. 숫자는 그대로 다 적는다. */
+.flowline{display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;
+  margin:9px 0 0;padding:8px 13px;border:1px solid var(--line);border-radius:10px;
+  background:var(--sunk);font-size:12.5px;color:var(--muted)}
+/* 11px 은 이 저장소 바닥(11.5px)보다 작다 — tools/audit_pages.py 가 잡았다. */
+.flowline__k{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);font-weight:700}
+.flowline__i{display:inline-flex;align-items:baseline;gap:5px;white-space:nowrap}
+.flowline__i b{font-family:var(--mono,ui-monospace,monospace);font-size:14px;
+  font-weight:800;color:var(--ink)}
+@media (max-width:560px){ .flowline{gap:4px 11px;font-size:12px} }
+/* ── 반별 현황 표 (3D 탑을 대신한다) ──────────────────────────────
+   한 줄에 반 하나. 숫자는 누르는 것이라 단추로 세운다 — 눌러지는 것과
+   그냥 글자를 눈으로 못 가르면 아무도 안 누른다. */
+.clsrow{margin:12px 0 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface,#fff)}
+.clsrow__h{display:flex;align-items:baseline;gap:9px;padding:9px 13px;
+  border-bottom:1px solid var(--line);background:var(--sunk);font-size:12.5px}
+.clsrow__sp{flex:1}
+.clsrow__r{display:flex;align-items:center;gap:10px;padding:8px 13px;
+  border-top:1px solid var(--line2,var(--line));font-size:13px}
+.clsrow__r:first-of-type{border-top:0}
+.clsrow__l{font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.clsrow__c{color:var(--muted);font-size:12px;flex:none;width:44px;text-align:right}
+.clsrow__g{display:flex;align-items:center;gap:5px;flex:none;width:80px;justify-content:flex-end}
+/* 30px 로는 «미응시» 세 글자가 «미응 / 시» 로 접혔다. 글자 수에 맞춘다. */
+.clsrow__g i{font-style:normal;font-size:11.5px;color:var(--muted);
+  width:36px;white-space:nowrap}
+.clsrow__n{font-family:var(--mono,ui-monospace,monospace);font-weight:800;font-size:13.5px;
+  border:1px solid transparent;border-radius:7px;padding:1px 7px;cursor:pointer;background:none}
+.clsrow__n.bad{color:var(--ms,#9A2828);background:rgba(154,40,40,.09);border-color:rgba(154,40,40,.22)}
+.clsrow__n.warn{color:var(--warnG,#8A6A38);background:rgba(176,135,58,.11);border-color:rgba(176,135,58,.28)}
+.clsrow__n.ok{color:var(--ok,#1B6E4A);background:rgba(27,110,74,.09);border-color:rgba(27,110,74,.2)}
+.clsrow__n:hover{filter:brightness(.94)}
+.clsrow__n:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
+/* 손가락 기기에서는 **32px 아래로 안 내려간다.** 처음 그린 것이 20px 이라
+   tests/hub-touch.js 가 잡았다 — 숫자가 작게 보이는 것과 누르는 자리가 작은
+   것은 다른 일이다. 글자 크기는 그대로 두고 자리만 넓힌다. */
+@media (pointer: coarse){
+  .clsrow__n{min-height:32px;min-width:36px;display:inline-flex;
+    align-items:center;justify-content:center}
+  .clsrow__r{padding:5px 13px}
+}
+.clsrow__z{font-family:var(--mono,ui-monospace,monospace);color:var(--line-strong,#C9C3B4);
+  font-size:13.5px;padding:1px 7px}
+/* 좁은 화면에서는 반 이름이 줄을 차지하고 숫자 셋이 아래로 내려온다. */
+@media (max-width:560px){
+  .clsrow__r{flex-wrap:wrap;gap:6px 8px}
+  .clsrow__l{flex:1 0 100%}
+  .clsrow__c{width:auto;text-align:left;margin-right:auto}
+}
 .brand h1{font-family:var(--serif);font-size:20px;margin:0;font-weight:600;
   color:var(--brand-ink);letter-spacing:-.2px}
 .brand .sub{font-size:12.5px;color:var(--brand-sub)}
-/* 날짜는 분자 **위**에 앉는다. 밑에 깔개를 깔아 두어야 글씨가 그림 밝기에
-   안 휘둘린다 — 화려하자고 읽히는 것을 내주지 않는다. 검사가 이 칸의 진짜
-   화소를 읽어 대비를 잰다(tests/hero3d.js). */
+/* 날짜 칸의 깔개. 띠에서 그림은 걷어냈지만 **그라데이션은 남아** 있어서
+   자리마다 밝기가 다르다 — 재어 둔 대비는 이 깔개가 지키던 것이다. */
 .brand #stamp{background:rgba(7,44,37,.82);padding:3px 10px;border-radius:999px}
 .brand .spacer{flex:1}
-/* ── 반별 3D ────────────────────────────────────────────────────────
-   막대 하나로는 반이 여덟이면 여덟 줄을 눈으로 견줘야 한다. 한 자리에
-   세워 놓고 돌려 본다. 여기는 글씨가 안 얹히므로 색을 아끼지 않는다.
-   ⚠ 그림이 **유일한 통로가 되면 안 된다.** 밑의 글자 목록이 본체고 이건
-     덤이다 — WebGL 이 없으면 조용히 안 그려지고 목록만 남는다. */
-.d3{margin:12px 0 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;
-  background:var(--sunk);position:relative}
-.d3__stage{position:relative;
-  background:radial-gradient(95% 78% at 50% 88%, #FBF8F0 0%, var(--sunk) 55%, #E6E0D2 100%)}
-.d3 canvas{display:block;width:100%;height:250px;touch-action:pan-y;cursor:grab;position:relative;z-index:1}
-.d3 canvas:active{cursor:grabbing}
-.d3 canvas:focus-visible{outline:2px solid var(--brass);outline-offset:-2px}
-/* 반 이름은 그림 **위 DOM** 에 뜬다 — 셰이더로 글씨를 그리면 낭독기도 못 읽고
-   글꼴도 안 맞는다. 자리는 자바스크립트가 카메라를 한 번 더 계산해 잡는다. */
-.d3__tags{position:absolute;inset:0;z-index:2;pointer-events:none}
-.d3__tags span{position:absolute;transform:translate(-50%,4px);white-space:nowrap;
-  font-size:11.5px;font-weight:600;color:var(--ink-2);
-  background:rgba(255,253,247,.82);padding:1px 6px;border-radius:6px}
-/* 손가락 기기에서는 낮춘다. 첫 화면은 급한 숫자 자리다 — 그림이 250px 을
-   먹으면 그만큼 할 일이 아래로 밀린다. */
-@media (pointer: coarse){ .d3 canvas{height:170px} }
-.d3__cap{display:flex;gap:10px;align-items:center;flex-wrap:wrap;
-  padding:8px 12px;border-top:1px solid var(--line);background:var(--paper);
-  font-size:12px;color:var(--muted)}
-.d3__k{display:inline-flex;align-items:center;gap:5px}
-.d3__k i{width:10px;height:10px;border-radius:3px;display:inline-block}
 nav{display:flex;gap:0;padding:0 12px;overflow-x:auto;scrollbar-width:none}
 nav::-webkit-scrollbar{display:none}
 /* ── 잘린 탭이 잘렸다고 보여야 한다 ──────────────────────
@@ -678,7 +699,6 @@ body:not(.snzshow) .row.snz{display:none}
   .brand{padding:6px 14px 0}
   .brand h1{font-size:15px}
   .brand .sub{display:none}
-  .brand>canvas{display:none}      /* 낮은 화면에서 띠 그림은 자리만 먹는다 */
   nav{padding:0 8px}
   nav button{padding:6px 10px;font-size:13px}
   nav.nav2 button{padding:5px 9px;font-size:12px}
@@ -714,7 +734,6 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
     <!-- 글씨 밑의 회차 사슬. 구슬 하나가 회차 하나다(크기=본 학생 · 색=평균 성취 ·
          곁가지=안 본 학생). 자료가 붙으면 role/aria-label 을 heroSay 가 채운다.
          자료가 없거나 WebGL 이 없으면 이 칸은 통째로 지워진다. -->
-    <canvas id="hero3d" aria-hidden="true"></canvas>
     <h1>Chemistreal 통합관리</h1>
     <span class="sub">파이널 · DT · 학습진단</span>
     <span class="spacer"></span>
@@ -756,18 +775,25 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
         이름은 <b>초성</b>으로도 찾습니다(<span class="kbd">ㄱㅇㅈ</span> → 김유정).
         목록에서 연 학생 카드는 <span class="kbd">←</span><span class="kbd">→</span> 로 옆 학생으로 넘어갑니다.</p>
       <div class="cards" id="dashCards"><div class="card"><b>—</b><span>불러오는 중</span></div></div>
+      <!-- 흐름 숫자 한 줄. 급한 칸과 같은 무게로 세우지 않는다. -->
+      <div id="dashFlow"></div>
       <!-- 미루기는 선생님이 **누른** 것만 미룬다. 잊은 것은 대개 누른 적이 없다.
            아무도 안 누른 것을 여기서 짚는다. -->
       <div id="todo" hidden></div>
       <div id="nudge" hidden></div>
       <!-- 할 일이 아래로 여러 섹션에 흩어져 있다. 몇 건인지와 어디인지를 한 줄에 세운다. -->
-      <div class="chips" id="jump" hidden></div>
+      <!-- 바로가기 칩 줄은 없앴다(2026-08-14). 바로 위 「오늘 할 일」 이
+           **같은 배열에서 같은 글자**를 이미 적고 있었다 — 「시험 미응시 4 ·
+           재시 대기 4 · 통과 3」 이 두 줄 잇달아 서 있었다. 한 숫자는 한
+           자리에. 뛰는 길은 그대로다(칩에 data-jump 가 그대로 붙어 있다). -->
       <!-- 숫자 여덟 칸으로는 "오늘 얼마나 끝났나" 가 안 읽힌다. 그림 한 줄로 먼저 본다. -->
       <div id="dashFig"></div>
       <!-- 반이 여덟이면 한 줄짜리 막대를 여덟 번 눈으로 견줘야 한다. 한자리에 세운다. -->
-      <div id="dash3d"></div>
+      <div id="dashCls"></div>
       <!-- "이번 달 몇 명이지" 는 매일 나오는 물음인데, 반 탭까지 들어가야 알 수 있었다. -->
-      <div id="dashRoster"></div>
+      <!-- 「반별 인원」(자리·사람·월 수입)은 **맨 아래로 내렸다**(2026-08-14).
+           수입은 제 탭이 따로 있고, 이 자리에 있으면 오늘 할 일(이름 목록)
+           앞을 막는다. 휴대폰에서 진짜 할 일까지 1,999px 을 내려가야 했다. -->
       <p class="hint srcnote" id="srcNote"></p>
       <div id="connBar" class="connbar"></div>
       <div id="syncBar" class="note" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -825,6 +851,9 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
         응시한 회차가 빠진 것처럼 보입니다. 파이널의 <b>명단 관리 ⚙</b> 에서 합치세요.</p>
       <div class="list" id="mergeList"></div>
     </section>
+    <!-- 참고 — 오늘 할 일이 아니다. 그래서 할 일 **뒤**에 둔다.
+         (자리·사람·월 수입. 자세한 것은 «수입» 탭.) -->
+    <div id="dashRoster"></div>
   </div>
 
   <div class="pane" id="p-rnd" role="tabpanel" aria-labelledby="t-rnd">
@@ -2746,545 +2775,51 @@ const JUMPS = [
   { id:'misWrap',   label:'어려워하는 개념', urgent:false, n:function(){ return MIS_TOP.length; } },
   { id:'mergeWrap', label:'합쳐야 할 이름', urgent:true, n:function(){ return mergeCandidates().length; } },
 ];
-/* ── 손으로 쓴 3D ──────────────────────────────────────────────────
-   바깥 그림판(three.js 같은 것)을 안 가져온다. 이 셸은 파일 하나로 도는
-   화면이고, 바깥 파일 하나가 늦으면 **그리기가 멈춘다** — 글꼴 한 줄 때문에
-   첫 화면이 13초였던 일을 오늘 겪었다. 그래서 WebGL 을 직접 쓴다.
+/* ── 3D 는 걷어냈다 (선생님 결정 2026-08-14) ────────────────────────
+   선생님 말씀: *"hub에 3D 반 돌아가는건 의미가 없는거같아 맥거핀이야."*
 
-   방식은 **거리장 행진(raymarching)** 이다. 삼각형을 쌓지 않고, 화소마다
-   "여기서 제일 가까운 물체까지 몇 걸음" 을 재며 걸어간다. 그림자·맞닿은
-   그늘·테두리 빛이 공짜로 나오고, 꼭짓점 자료가 없으니 파일이 안 는다.
+   맞는 말씀이었다. 3D 자체가 나빠서가 아니다 — **바로 아래에 반별로 이름까지
+   다 적힌 목록이 있는데**, 그것을 읽을 수도 누를 수도 없는 모양으로 한 번 더
+   요약하고 있었다. 재어 보니 «미응시» 라는 한 숫자가 화면에 여섯 번 나왔다:
+   위 카드 · 오늘 할 일 한 줄 · 바로가기 칩 · 도넛과 막대 · 3D 탑 ·
+   그리고 이름이 다 적힌 그 목록. 3D 는 그중 **다섯째 사본**이었다.
 
-   지키는 것 셋:
-   1) 안 보이면 안 그린다 — 탭이 뒤에 있거나 화면 밖이면 프레임을 멈춘다.
-      대시보드를 켜 놓고 수업하는 화면이라, 이게 없으면 노트북이 하루 종일 돈다.
-   2) WebGL 이 없으면 조용히 사라진다 — 그림은 **덤**이고, 글자 목록이 본체다.
-   3) 움직임 줄이기를 켠 기기에서는 **한 장만 그리고 멈춘다.** 3D 는 남고
-      돌기만 멈춘다 — 어지럼증 때문에 켜 둔 설정을 그림 하나로 무시하지 않는다. */
-const G3 = (function(){
-  const VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
-  const RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : { matches:false };
-  const scenes = [];
-  let looping = false;
+   여기 있던 것 — 손으로 쓴 WebGL 그림판(G3) · 띠 안의 분자 사슬(HERO_FS)
+   · 반별 탑(TOWER_FS) · 끌어 돌리는 조작 — 742줄을 걷어냈다.
 
-  /* CSS 에 적어 둔 색을 그대로 셰이더로 넘긴다. 셰이더에 색을 또 적으면
-     팔레트를 고쳤을 때 그림만 옛 색으로 남는다 — 아무도 안 본다. */
-  function lin(c){ c/=255; return c<=0.04045 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4); }
-  function cssRGB(name){
-    const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-    let m = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(v);
-    if(m){
-      let h = m[1]; if(h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
-      return [lin(parseInt(h.slice(0,2),16)), lin(parseInt(h.slice(2,4),16)), lin(parseInt(h.slice(4,6),16))];
-    }
-    m = /rgba?\(([^)]+)\)/i.exec(v);
-    if(m){ const a = m[1].split(/[,\s/]+/).map(Number); return [lin(a[0]), lin(a[1]), lin(a[2])]; }
-    return [0.1, 0.1, 0.1];
-  }
+   ⚠ 탑이 **혼자 하던 일**이 하나 있었다. 미응시·재시·통과를 **반별로**
+     쪼개 보여 준 유일한 자리였다. 그 일은 없애지 않고 renderClassRow 로
+     옮긴다 — 같은 자료를 읽을 수 있는 표로 세우고, 숫자를 누르면 그 반의
+     이름 목록으로 내려간다. 그림이 하던 것보다 하나 더 한다.
 
-  function compile(gl, type, src){
-    const s = gl.createShader(type);
-    gl.shaderSource(s, src); gl.compileShader(s);
-    if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)){
-      /* 조용히 죽으면 "왜 안 보이지" 로 하루가 간다. 콘솔에는 남긴다. */
-      if(window.console) console.warn('3D 셰이더:', gl.getShaderInfoLog(s));
-      return null;
-    }
-    return s;
-  }
+   기록: 이 자리에 있던 3D 는 바깥 그림판을 안 쓰고 거리장 행진으로 직접
+   그린 것이었다. 잘 도는 코드였지만 **묻는 사람이 없는 답**이었다.
+   되살릴 일이 있으면 git 에 남아 있다(hub.html, 2026-08-14 이전). */
+/* ── 오늘 한눈에 ────────────────────────────────────────────────────
+   숫자 칸 여덟 개로는 "얼마나 끝났나" 가 안 읽힌다 — 여덟을 눈으로 견줘야 한다.
+   반 명단을 바탕으로 한 줄에 세운다. 셋을 더한 것이 명단보다 클 수 있다(한
+   학생이 미응시이면서 지난 회차를 통과했을 수 있다). 남는 칸은 음수로 가지
+   않게 눌러 둔다 — 막대가 뒤집히면 아무 뜻이 없다. */
+/* ── 반별 현황 ──────────────────────────────────────────────────────
+   3D 탑이 **혼자 하던 일**이 하나 있었다. 미응시·재시·통과를 반별로 쪼개
+   보여 준 유일한 자리다(위 도넛은 전체 합계뿐이다). 그림은 걷어내되 그 일은
+   없애지 않는다 — 같은 자료를 **읽을 수 있는 표**로 세운다.
 
-  function make(cv, fs, uniforms){
-    /* 그림판 없이 걸어 그리는 방식이라 **그래픽 카드가 있어야** 값이 싸다.
-       카드 없이 CPU 로 흉내 내는 기기(옛 노트북·가상 화면)에서는 한 장에
-       수백 밀리초가 걸린다 — 그런 기기에서는 아예 안 여는 게 맞다.
-       그래서 먼저 '느리면 거절' 로 열어 보고, 거절당하면 **한 번 더**
-       느슨하게 열되 무르게(soft) 표시해 둔다. 무르면 화소를 줄이고,
-       그래도 느리면 밑의 감시가 도는 것을 멈춘다. */
-    let gl = null, soft = false;
-    const opt = { alpha:true, antialias:false, depth:false, stencil:false,
-                  premultipliedAlpha:true, powerPreference:'low-power' };
-    try {
-      gl = cv.getContext('webgl', Object.assign({ failIfMajorPerformanceCaveat:true }, opt));
-    } catch(e){ gl = null; }
-    if(!gl){
-      try { gl = cv.getContext('webgl', opt) || cv.getContext('experimental-webgl', opt); soft = true; }
-      catch(e){ gl = null; }
-    }
-    if(!gl) return null;
-    const v = compile(gl, gl.VERTEX_SHADER, VS), f = compile(gl, gl.FRAGMENT_SHADER, fs);
-    if(!v || !f) return null;
-    const pr = gl.createProgram();
-    gl.attachShader(pr, v); gl.attachShader(pr, f); gl.linkProgram(pr);
-    if(!gl.getProgramParameter(pr, gl.LINK_STATUS)) return null;
-    gl.useProgram(pr);
-    /* 화면 전체를 삼각형 **하나**로 덮는다. 사각형 두 장으로 덮으면 가운데
-       대각선에서 화소가 두 번 그려진다. */
-    const buf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
-    const a = gl.getAttribLocation(pr, 'p');
-    gl.enableVertexAttribArray(a);
-    gl.vertexAttribPointer(a, 2, gl.FLOAT, false, 0, 0);
+   그림보다 하나 더 한다: **숫자를 누르면 이름 목록으로 내려간다.** 탑은
+   «3반이 두껍다» 까지만 말하고 거기서 끝났다. 선생님이 다음에 하는 일은 늘
+   «그 셋이 누구냐» 인데, 그림에는 그 길이 없었다.
 
-    const U = {};
-    (uniforms || []).forEach(function(n){ U[n] = gl.getUniformLocation(pr, n); });
-    /* ⚠ **그래픽 카드가 없으면 안 돌린다.** 처음에는 화소만 줄여 계속
-         돌렸는데, CPU 로 흉내 내는 판에서 다른 일이 밀렸다 — 회차 카드를
-         여는 검사가 시간에 쫓겨 실패했다. 화면이 느려진 것이 검사에 먼저
-         잡힌 것뿐이고, 실제로 그런 기기를 쓰는 사람에게도 똑같이 느리다.
-         그런 기기에서는 **3D 정지화면**으로 남는다 — 그림은 그대로 보이고
-         돌지만 않는다. 그림은 덤이고, 이 화면은 일하는 자리다. */
-    const S = { cv:cv, gl:gl, U:U, on:false, spin:!RM.matches && !soft, need:true,
-                w:0, h:0, set:null, soft:soft, ms:0, seen:0 };
+   미응시는 **그 반 줄까지** 데려간다(목록이 반별로 묶여 있다). 재시·통과는
+   그 칸 맨 위까지다 — 그 목록은 한 줄로 늘어놓고, 자료에 반 이름이 없다.
 
-    /* 화면 밖이면 프레임을 안 돈다. */
-    if(window.IntersectionObserver){
-      new IntersectionObserver(function(es){
-        S.on = es[0].isIntersecting; if(S.on) kick();
-      }, { threshold:0 }).observe(cv);
-    } else { S.on = true; }
-
-    S.size = function(){
-      /* 화소는 아끼되 계단은 안 보이게 — 기기 배율은 1.5 에서 끊는다.
-         휴대폰의 3배 배율을 그대로 쓰면 화소가 아홉 배다. */
-      const r = S.soft ? 0.55 : Math.min(window.devicePixelRatio || 1, 1.5);
-      const w = Math.max(1, Math.round(cv.clientWidth * r));
-      const h = Math.max(1, Math.round(cv.clientHeight * r));
-      if(w === S.w && h === S.h) return false;
-      S.w = cv.width = w; S.h = cv.height = h;
-      gl.viewport(0, 0, w, h);
-      return true;
-    };
-    S.draw = function(tt){
-      if(S.size()) S.need = true;
-      if(!S.spin && !S.need) return;
-      S.need = false;
-      gl.useProgram(pr);
-      if(U.res) gl.uniform2f(U.res, S.w, S.h);
-      if(U.t) gl.uniform1f(U.t, tt);
-      if(S.set) S.set(gl, U);
-      gl.drawArrays(gl.TRIANGLES, 0, 3);
-      /* 한 장에 얼마나 걸렸는지 재 둔다. 느린 기기에서 **부드럽게 도는 척**
-         하다가 화면 전체를 버벅이게 만드느니, 조용히 멈춰서 3D 정지화면으로
-         남는 편이 낫다. 그림은 덤이고 이 화면은 일하는 자리다.
-         ⚠ finish() 로 재지 않는다 — 그리기를 기다리게 만들어 오히려 느려진다.
-           다음 프레임까지의 간격으로 갈음한다. */
-      const now = (window.performance || Date).now();
-      if(S.last){
-        const dt = now - S.last;
-        S.ms = S.ms ? S.ms*0.85 + dt*0.15 : dt;
-        if(++S.seen > 24 && S.ms > 40 && S.spin){ S.spin = false; S.slow = true; }
-      }
-      S.last = now;
-    };
-    scenes.push(S);
-    kick();
-    return S;
-  }
-
-  function frame(now){
-    looping = false; rafId = 0;
-    const tt = now / 1000;
-    let more = false;
-    for(let i = 0; i < scenes.length; i++){
-      const S = scenes[i];
-      if(!S.on || !awake()) continue;
-      if(!S.cv.clientWidth) continue;
-      S.draw(tt);
-      if(S.spin) more = true;
-    }
-    if(more) kick();
-  }
-  /* ── 안 보고 있으면 안 돈다 ────────────────────────────────────────
-     재어 보니 띠 안의 분자가 **어느 탭에서나 하루 종일 60fps** 로 돌고 있었다
-     (3초에 181프레임 · 자료 탭에서도 155프레임). 브라우저는 **다른 탭으로
-     넘어갔을 때**(document.hidden)만 멈춰 준다 — 창을 뒤로 보내거나 두 번째
-     화면에 띄워 둔 채 다른 일을 하면 그대로 돈다. 채점하는 날 내내 켜 두는
-     화면이라, 그만큼이 배터리다.
-
-     창이 **초점을 잃으면** 멈추고 돌아오면 다시 돈다. 보고 있는 사람에게는
-     달라지는 것이 없다.
-     ⚠ 멈추기만 하고 끝내면 안 된다 — 돌아왔을 때 다시 걸어 줘야 한다. */
-  /* 지금 사람이 이 창을 보고 있는가. **깃발로 들고 있지 않는다** — 깃발은
-     굳는다. blur 를 받고 focus 를 못 받은 채로 남으면(배경 탭에서 열었다가
-     넘어오는 경우가 그렇다) 그림이 영영 멈춘 채로 있는다. 그때그때 묻는다. */
-  function awake(){
-    if(document.hidden) return false;
-    return document.hasFocus ? document.hasFocus() : true;
-  }
-  /* ⚠ 여기 **원래 있던 결함**이 있었다(2026-08-09에 재다가 나왔다).
-     `looping` 은 걸어 둔 프레임이 아직 안 돌았다는 표다. 그런데 화면을 다른
-     탭으로 넘기면 브라우저가 그 프레임을 **아예 안 돌려 준다** — 표는 켜진
-     채로 굳는다. 돌아와서 kick 을 불러도 `if(looping) return` 에 막혀
-     **그림이 영영 멈춘 채로 있었다.**
-
-     걸어 둔 것을 기억해 두었다가, 깨울 때 취소하고 표를 내린다. */
-  let rafId = 0;
-  function kick(){
-    if(looping || !awake()) return;
-    looping = true; rafId = requestAnimationFrame(frame);
-  }
-  function wake(){
-    /* 굳은 표를 푼다. 걸어 둔 것이 살아 있으면 취소한다 — 안 그러면 한
-       프레임이 두 번 돌 수 있다(그려도 해롭지는 않지만 깔끔하지 않다). */
-    if(rafId){ try{ cancelAnimationFrame(rafId); }catch(e){} rafId = 0; }
-    looping = false;
-    scenes.forEach(function(S){ S.need = true; });
-    kick();
-  }
-  document.addEventListener('visibilitychange', function(){ if(!document.hidden) wake(); });
-  window.addEventListener('focus', wake);
-  window.addEventListener('resize', function(){
-    scenes.forEach(function(S){ S.need = true; }); kick();
-  });
-  /* 설정은 도중에도 바뀐다(어지러우면 그 자리에서 켠다). */
-  if(RM.addEventListener) RM.addEventListener('change', function(){
-    scenes.forEach(function(S){ S.spin = !RM.matches; S.need = true; }); kick();
-  });
-
-  return { make:make, kick:kick, cssRGB:cssRGB, reduced:function(){ return RM.matches; } };
-})();
-
-/* ── ① 띠 안에서 흐르는 분자 사슬 ───────────────────────────────────
-   ⚠ **글씨 밑을 비운다.** 왼쪽 32%(제목·부제가 앉는 자리)는 알파 0 이라
-     예전 그라데이션 그대로다 — 재어 둔 대비(제목 7.19 · 부제 5.39)가
-     그림 때문에 흔들리지 않는다. 검사가 진짜 화소를 읽어 확인한다.
-   ⚠ 휴대폰(720px 아래)에서는 아예 안 그린다. 거기서는 띠가 두 줄로 접혀
-     글씨가 오른쪽까지 오고, 배터리도 아깝다. */
-const HERO_FS = [
-'precision highp float;',
-'uniform vec2 res; uniform float t; uniform float nN;',
-/* 회차 하나가 구슬 하나다. (x, y, 반지름, 밴드)
-   반지름 = 본 학생 수 · 밴드 = 평균 성취(0 기초 · 1 중위 · 2 상위) */
-'uniform vec4 nA[10];',
-/* (곁가지 반지름, 곁가지 방향) — 곁가지는 **아직 안 본 학생**이다.
-   없으면 0 이라 아무것도 안 자란다. 깨끗한 사슬 = 다 본 회차. */
-'uniform vec2 nB[10];',
-'uniform vec3 cA, cB, cC, cD;',
-'float sdSph(vec3 p,float r){ return length(p)-r; }',
-'float sdCap(vec3 p,vec3 a,vec3 b,float r){',
-'  vec3 pa=p-a, ba=b-a;',
-'  float h=clamp(dot(pa,ba)/dot(ba,ba),0.,1.);',
-'  return length(pa-ba*h)-r; }',
-'mat2 rot(float a){ float c=cos(a), s=sin(a); return mat2(c,-s,s,c); }',
-/* 사슬은 **자료로 만든다.** 예전에는 sin() 으로 지어낸 무한 사슬이었다 —
-   예쁘긴 한데 아무 말도 안 했다. 지금은 구슬 하나가 회차 하나다.
-   자리·크기·색이 전부 시트에서 온다(왼쪽이 옛 회차, 오른쪽이 최근).
-
-   칸이 열이라 열 번을 다 잰다. 띠가 아주 얇아(70px 안팎) 화소가 적으므로
-   무한 사슬 때와 값이 비슷하다. 대신 자리를 자바스크립트가 정하므로
-   '옆 칸만 보면 된다' 는 요령을 못 쓴다 — 자료가 고르게 놓이지 않는다. */
-'vec2 map(vec3 p){',
-'  vec2 d = vec2(1e9, 0.);',
-'  for(int i=0;i<10;i++){',
-'    if(float(i) >= nN) break;',
-'    vec4 A = nA[i];',
-'    vec3 a = vec3(A.x, A.y, 0.);',
-'    float s = sdSph(p-a, A.z);',
-'    if(s<d.x) d = vec2(s, A.w);',
-/* 회차와 회차를 잇는 마디. 이어져 있어야 '흐름' 으로 읽힌다. */
-'    if(float(i)+1.0 < nN){',
-'      vec4 B = nA[i+1];',
-'      s = sdCap(p, a, vec3(B.x, B.y, 0.), 0.075);',
-'      if(s<d.x) d = vec2(s, 4.);',
-'    }',
-/* 곁가지 = 아직 안 본 학생. 굵을수록 많다. 없으면 안 자란다. */
-'    vec2 Bb = nB[i];',
-'    if(Bb.x > 0.001){',
-'      vec3 h = a + vec3(0., 0., Bb.y);',
-'      s = sdCap(p, a, h, 0.05); if(s<d.x) d = vec2(s, 4.);',
-'      s = sdSph(p-h, Bb.x);     if(s<d.x) d = vec2(s, 3.);',
-'    }',
-'  }',
-'  return d; }',
-'vec3 nrm(vec3 p){',
-'  vec2 e = vec2(1.,-1.)*0.0015;',
-'  return normalize(e.xyy*map(p+e.xyy).x + e.yyx*map(p+e.yyx).x',
-'                 + e.yxy*map(p+e.yxy).x + e.xxx*map(p+e.xxx).x); }',
-/* 그림자를 한 번에 안 재고 걸어가며 **제일 좁았던 틈**을 기억한다.
-   그래야 가장자리가 톱니가 아니라 부드럽게 번진다. */
-'float sha(vec3 ro, vec3 rd){',
-'  float r = 1.0, h = 0.05;',
-'  for(int i=0;i<20;i++){',
-'    float d = map(ro+rd*h).x;',
-'    r = min(r, 10.0*d/h);',
-'    h += clamp(d, 0.03, 0.28);',
-'    if(r < 0.004 || h > 3.5) break; }',
-'  return clamp(r, 0., 1.); }',
-'float occ(vec3 p, vec3 n){',
-'  float s = 0.0, w = 1.0;',
-'  for(int i=1;i<=5;i++){',
-'    float h = 0.045*float(i);',
-'    s += (h - map(p + n*h).x) * w; w *= 0.7; }',
-'  return clamp(1.0 - 1.5*s, 0., 1.); }',
-'void main(){',
-'  vec2 fc = gl_FragCoord.xy;',
-'  vec2 uv = (fc - 0.5*res)/res.y;',
-/* 글씨 자리는 손대지 않는다. 여기서 0 이면 아래 그라데이션이 그대로 보인다. */
-'  float mask = smoothstep(0.30, 0.62, fc.x/res.x);',
-'  if(mask < 0.004){ gl_FragColor = vec4(0.); return; }',
-/* 띠가 아주 납작하다. 원근을 넣으면 양 끝이 뭉개져서 평행투영으로 본다 —
-   3D 로 읽히는 것은 원근이 아니라 그림자와 맞닿은 그늘이다. */
-'  vec3 ro = vec3(uv.x*1.55, uv.y*1.55, 5.0);',
-'  vec3 rd = vec3(0., 0., -1.);',
-'  float a = 0.46 + sin(t*0.10)*0.12;',
-'  ro.yz = rot(a)*ro.yz; rd.yz = rot(a)*rd.yz;',
-'  float b = -0.26 + sin(t*0.063)*0.09;',
-'  ro.xz = rot(b)*ro.xz; rd.xz = rot(b)*rd.xz;',
-/* 예전에는 여기서 옆으로 흘려보냈다(ro.x -= t*0.26). 지어낸 사슬일 때는
-   그게 멋이었는데, **회차를 실어 나르는 지금은 흘러가면 못 읽는다.**
-   자리는 고정하고, 숨쉬듯 흔들리는 것은 위의 두 회전에 맡긴다. */
-'  float tt = 0.0; vec2 h = vec2(0.); float hit = 0.0;',
-'  for(int i=0;i<64;i++){',
-'    h = map(ro + rd*tt);',
-'    if(h.x < 0.002){ hit = 1.0; break; }',
-'    tt += h.x;',
-'    if(tt > 11.0) break; }',
-'  if(hit < 0.5){ gl_FragColor = vec4(0.); return; }',
-'  vec3 p = ro + rd*tt, n = nrm(p);',
-/* 0 기초 · 1 중위 · 2 상위 · 3 안 본 학생 · 4 잇는 마디 */
-'  vec3 alb = h.y < 0.5 ? cA : (h.y < 1.5 ? cB : (h.y < 2.5 ? cC :',
-'             (h.y < 3.5 ? cD : mix(cC, cA, 0.5)*0.7)));',
-'  vec3 L = normalize(vec3(0.42, 0.78, 0.47));',
-'  float dif = clamp(dot(n, L), 0., 1.);',
-'  float ao = occ(p, n);',
-'  float sh = sha(p + n*0.02, L);',
-'  vec3 H = normalize(L - rd);',
-'  float spe = pow(clamp(dot(n, H), 0., 1.), 46.0);',
-'  float fre = pow(1.0 - clamp(dot(n, -rd), 0., 1.), 3.2);',
-'  vec3 col = alb * (0.20*ao + 1.15*dif*sh);',
-'  col += vec3(0.55, 0.62, 0.58) * spe * sh * 0.75;',
-'  col += cB * fre * 0.85 * ao;',
-'  col = pow(max(col, 0.0), vec3(1.0/2.2));',
-/* 알파로 내보내면 밑의 그라데이션이 그대로 비친다. 셰이더가 배경색을 다시
-   그리면, 팔레트를 고쳤을 때 띠와 그림의 색이 갈라진다. */
-'  gl_FragColor = vec4(col*mask, mask); }'
-].join('\n');
-
-function heroStart(){
-  const cv = document.getElementById('hero3d');
-  if(!cv || !window.WebGLRenderingContext) return;
-  /* 좁은 화면에서는 안 그린다(띠가 접혀 글씨가 오른쪽까지 온다 · 배터리).
-     다만 **창이 넓어지면 그때 켠다** — 한 번 좁았다는 이유로 영영 맨 띠로
-     남으면, 창을 키운 사람은 고장인 줄 안다. */
-  const narrow = matchMedia('(max-width: 720px)');
-  if(narrow.matches){
-    if(narrow.addEventListener) narrow.addEventListener('change', function h(){
-      if(!narrow.matches){ narrow.removeEventListener('change', h); heroStart(); }
-    });
-    return;
-  }
-  if(cv.dataset.on) return;                               // 두 번 켜지 않는다
-  const S = G3.make(cv, HERO_FS,
-    ['res','t','nN','nA[0]','nB[0]','cA','cB','cC','cD']);
-  if(!S){ cv.remove(); return; }                          // 못 그리면 흔적도 안 남긴다
-  cv.dataset.on = '1';
-  /* 자료가 아직 없어도 **칸은 남긴다.** 시트는 늦게 온다 — 이때 지워 버리면
-     자료가 도착해도 그릴 자리가 없다. 회차가 0 이면 셰이더가 아무것도 안
-     맞히므로 띠는 그냥 비어 보인다. 지어낸 사슬을 대신 돌리지는 않는다 —
-     예뻐 보이는 대신 **거짓말**이 된다(회차가 열 개인 줄 알고 본다). */
-  const D = heroData();
-  /* 색은 **성취 하나만** 뜻한다. 곁가지(안 본 학생)는 색이 아니라 **모양**으로
-     알아본다 — 색을 둘로 나눠 맡기면 주황이 '기초' 인지 '안 봤다' 인지
-     헷갈린다. 그래서 곁가지는 회색이고, 굵기로 몇 명인지 말한다. */
-  const A = G3.cssRGB('--ms'), B = G3.cssRGB('--brass'), C = G3.cssRGB('--teal-2'),
-        Dc = G3.cssRGB('--muted');
-  HERO = { S:S, cv:cv, A:D.A, B:D.B, n:D.n };
-  S.set = function(gl, U){
-    gl.uniform1f(U.nN, HERO.n);
-    gl.uniform4fv(U['nA[0]'], HERO.A);
-    gl.uniform2fv(U['nB[0]'], HERO.B);
-    /* 성취 밴드 색은 성적표·문자와 같은 뜻을 쓴다 — 초록 상위, 황금 중위,
-       주황 기초. 다만 띠는 크림색 글씨가 얹히는 자리라 밝기를 눌러 둔다
-       (tests/hero3d.js 가 진짜 화소를 읽어 4.5:1 을 지키는지 잰다). */
-    gl.uniform3f(U.cA, A[0]*0.78, A[1]*0.78, A[2]*0.78);
-    gl.uniform3f(U.cB, B[0]*0.92, B[1]*0.92, B[2]*0.92);
-    gl.uniform3f(U.cC, C[0]*0.85, C[1]*0.85, C[2]*0.85);
-    gl.uniform3f(U.cD, Dc[0]*0.80, Dc[1]*0.80, Dc[2]*0.80);
-  };
-  if(D.n) heroSay(cv, D);
-}
-
-/* ── 띠가 나르는 것 ────────────────────────────────────────────────
-   최근 열 회차. 왼쪽이 옛것, 오른쪽이 최근.
-     구슬 크기 = 그 회차를 **본 학생 수**
-     구슬 색   = 그 회차 **평균 성취**(상위 ≥80 · 중위 55~79 · 기초 <55)
-     곁가지    = 아직 **안 본 학생** (없으면 안 자란다)
-
-   자리를 자바스크립트가 잡는 이유: 띠가 아주 넓고 납작한데다 왼쪽 절반은
-   글씨가 앉는 자리다(셰이더의 mask). 보이는 오른쪽에 맞춰 넣어야 한다. */
-let HERO = null;
-function heroData(){
-  let list = [];
-  try { list = roundStats() || []; } catch(e){ list = []; }
-  list = list.filter(function(g){ return g && g.n; })
-             .sort(function(a,b){ return (a.last||0) - (b.last||0); });
-  const use = list.slice(-10);
-  const A = new Float32Array(40), B = new Float32Array(20);
-  if(!use.length) return { n:0, A:A, B:B, use:use, cut:0 };
-
-  const most = use.reduce(function(m,x){ return Math.max(m, x.n); }, 1);
-  const mostMiss = use.reduce(function(m,x){
-    return Math.max(m, (x.missing && x.missing.length) || 0); }, 1);
-  /* 보이는 자리에 고르게 펴 놓는다. 한 개뿐이면 오른쪽에 홀로 둔다. */
-  const X0 = 1.6, X1 = 8.4;
-  const dx = use.length > 1 ? (X1 - X0)/(use.length - 1) : 0;
-  use.forEach(function(g, i){
-    const x = use.length > 1 ? X0 + dx*i : X1;
-    /* 위아래로 번갈아 — 납작한 띠에서 겹치지 않고, 사슬이 살아 보인다. */
-    const y = (i % 2 ? -0.26 : 0.26);
-    /* 넓이가 아니라 **면적**이 인원에 비례하게 — 눈은 넓이가 아니라 크기를 센다. */
-    const r = 0.15 + 0.21 * Math.sqrt(g.n / most);
-    const band = g.avg >= 80 ? 2 : (g.avg >= 55 ? 1 : 0);
-    A[i*4] = x; A[i*4+1] = y; A[i*4+2] = r; A[i*4+3] = band;
-    const m = (g.missing && g.missing.length) || 0;
-    B[i*2] = m ? (0.06 + 0.11 * Math.sqrt(m / mostMiss)) : 0;
-    B[i*2+1] = (i % 2 ? -0.58 : 0.58);
-  });
-  return { n:use.length, A:A, B:B, use:use, cut:Math.max(0, list.length - use.length) };
-}
-
-/* 그림만으로 끝내지 않는다. 셸의 규칙이다 — 그림은 덤, 낱말이 본체.
-   낭독기에도 가고, 마우스를 얹어도 같은 말이 나온다. */
-function heroSay(cv, D){
-  const say = D.use.map(function(g){
-    const m = (g.missing && g.missing.length) || 0;
-    return examTitle(g.id) + ' ' + g.n + '명 평균 ' + g.avg + '%' + (m ? (' · 안 본 학생 ' + m) : '');
-  }).join(', ');
-  const head = '최근 ' + D.n + '개 회차 — 구슬 크기는 본 학생 수, 색은 평균 성취'
-             + '(초록 상위 · 황금 중위 · 주황 기초), 곁가지 굵기는 아직 안 본 학생. ';
-  cv.removeAttribute('aria-hidden');
-  cv.setAttribute('role', 'img');
-  cv.setAttribute('aria-label', head + say + (D.cut ? (' · 앞의 ' + D.cut + '개 회차는 안 그렸습니다.') : ''));
-  cv.title = head + say;
-}
-
-/* 자료가 늦게 와도 띠가 옛 모습으로 남으면 안 된다. 다시 채워 넣는다. */
-function heroRefresh(){
-  const cv = document.getElementById('hero3d');
-  if(!cv) return;                                  // 못 그리는 기기 — 지워졌다
-  if(!cv.dataset.on){ heroStart(); return; }       // 그때는 자료가 없었다
-  const D = heroData();
-  if(!D.n) return;
-  if(HERO){ HERO.A = D.A; HERO.B = D.B; HERO.n = D.n; }
-  heroSay(cv, D);
-}
-
-/* ── ② 반별 탑 ──────────────────────────────────────────────────────
-   막대 한 줄로는 반이 여덟이면 여덟 줄을 눈으로 견줘야 한다. 한자리에
-   세워 놓으면 어느 반이 두꺼운지 한 번에 보인다. 끌어서 돌린다.
-
-   ⚠ 여기가 **유일한 통로가 되면 안 된다.** 밑에 늘 있던 반 목록이 본체고
-     이건 덤이다. 그림에는 낱말로 된 요약(aria-label)을 붙여 두었다. */
-const TOWER_FS = [
-'precision highp float;',
-'uniform vec2 res; uniform float yaw, dist, camY, tgtY, fov, gnd, n;',
-'uniform vec4 twA[12];',   /* x · 총높이 · 미응시까지 · 미응시+재시까지 */
-'uniform float twC[12];',  /* 미응시+재시+통과까지 */
-'uniform vec3 cMiss, cWait, cOk, cNone, cFloor;',
-'mat2 rot(float a){ float c=cos(a), s=sin(a); return mat2(c,-s,s,c); }',
-'float sdBox(vec3 p, vec3 b, float r){',
-'  vec3 q = abs(p) - b + r;',
-'  return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)), 0.0) - r; }',
-'vec2 map(vec3 p){',
-'  vec2 d = vec2(p.y, -1.0);',                      /* 바닥 */
-'  for(int i=0;i<12;i++){',
-'    if(float(i) < n){',
-'      vec4 T = twA[i];',
-'      float b = sdBox(p - vec3(T.x, T.y*0.5, 0.0), vec3(0.30, T.y*0.5, 0.30), 0.07);',
-'      if(b < d.x) d = vec2(b, float(i)); } }',
-'  return d; }',
-/* ⚠ 조각기(fragment shader)에서는 배열을 **변수로 찍을 수 없다.** 상수 자리만
-     된다. 그래서 열두 칸을 다 돌며 맞는 것을 고른다 — 느려 보여도 이게 규격이다. */
-'vec4 twOf(float id){ vec4 r = vec4(0.);',
-'  for(int i=0;i<12;i++){ if(abs(float(i)-id) < 0.5) r = twA[i]; } return r; }',
-'float twOfC(float id){ float r = 0.;',
-'  for(int i=0;i<12;i++){ if(abs(float(i)-id) < 0.5) r = twC[i]; } return r; }',
-'vec3 nrm(vec3 p){',
-'  vec2 e = vec2(1.,-1.)*0.0016;',
-'  return normalize(e.xyy*map(p+e.xyy).x + e.yyx*map(p+e.yyx).x',
-'                 + e.yxy*map(p+e.yxy).x + e.xxx*map(p+e.xxx).x); }',
-/* 그림자를 한 번에 안 재고 걸어가며 **제일 좁았던 틈**을 기억한다.
-   그래야 가장자리가 톱니가 아니라 부드럽게 번진다. */
-'float sha(vec3 ro, vec3 rd){',
-'  float r = 1.0, h = 0.05;',
-'  for(int i=0;i<26;i++){',
-'    float d = map(ro+rd*h).x;',
-'    r = min(r, 14.0*d/h);',
-'    h += clamp(d, 0.03, 0.40);',
-'    if(r < 0.004 || h > 8.0) break; }',
-'  return clamp(r, 0., 1.); }',
-'float occ(vec3 p, vec3 nn){',
-'  float s = 0.0, w = 1.0;',
-'  for(int i=1;i<=5;i++){',
-'    float h = 0.05*float(i);',
-'    s += (h - map(p + nn*h).x) * w; w *= 0.72; }',
-'  return clamp(1.0 - 1.5*s, 0., 1.); }',
-/* 층 색. 밑에서부터 미응시 · 재시 · 통과 · 조용함이다. 경계를 딱 자르면
-   화소 하나 폭의 톱니가 생기므로 살짝 번지게 둔다. */
-'vec3 layer(float y, float id){',
-'  vec4 T = twOf(id); float c3 = twOfC(id);',
-'  float e = 0.012;',
-'  vec3 c = cMiss;',
-'  c = mix(c, cWait, smoothstep(T.z-e, T.z+e, y));',
-'  c = mix(c, cOk,   smoothstep(T.w-e, T.w+e, y));',
-'  c = mix(c, cNone, smoothstep(c3-e,  c3+e,  y));',
-'  return c; }',
-'vec3 shade(vec3 p, vec3 rd, vec2 h){',
-'  vec3 nn = nrm(p);',
-'  bool flr = h.y < -0.5;',
-'  vec3 alb = flr ? cFloor : layer(p.y, h.y);',
-'  vec3 L = normalize(vec3(0.50, 0.82, 0.40));',
-'  float dif = clamp(dot(nn, L), 0., 1.);',
-'  float ao  = occ(p, nn);',
-'  float sh  = sha(p + nn*0.03, L);',
-'  float sky = clamp(0.5 + 0.5*nn.y, 0., 1.);',
-'  vec3 col = alb * (0.34*sky*ao + 1.30*dif*sh);',
-/* 유약 바른 도자기처럼 — 좁고 센 반사 하나. 넓게 깔면 색이 씻겨 나간다. */
-'  vec3 H = normalize(L - rd);',
-'  col += vec3(1.0) * pow(clamp(dot(nn,H),0.,1.), 90.0) * sh * (flr ? 0.10 : 0.55);',
-'  if(!flr) col += alb * pow(1.0 - clamp(dot(nn,-rd),0.,1.), 4.0) * 0.45 * ao;',
-'  return col; }',
-'void main(){',
-'  vec2 uv = (gl_FragCoord.xy - 0.5*res)/res.y;',
-'  vec3 ro = vec3(0., camY, dist);',
-'  ro.xz = rot(yaw)*ro.xz;',
-'  vec3 ta = vec3(0., tgtY, 0.);',
-'  vec3 f = normalize(ta-ro), r = normalize(cross(f, vec3(0.,1.,0.))), u = cross(r, f);',
-'  vec3 rd = normalize(uv.x*r + uv.y*u + fov*f);',
-'  float tt = 0.0; vec2 h = vec2(0.); float hit = 0.0;',
-'  for(int i=0;i<110;i++){',
-'    h = map(ro + rd*tt);',
-'    if(h.x < 0.0016*tt){ hit = 1.0; break; }',
-'    tt += h.x*0.92;',
-'    if(tt > 34.0) break; }',
-'  if(hit < 0.5){ gl_FragColor = vec4(0.); return; }',
-'  vec3 p = ro + rd*tt;',
-'  vec3 col = shade(p, rd, h);',
-'  float a = 1.0;',
-'  if(h.y < -0.5){',
-/* 젖은 돌처럼 살짝 비친다 — 탑이 공중에 뜬 것처럼 안 보이게 한다. */
-'    vec3 rr = reflect(rd, vec3(0.,1.,0.));',
-'    float s = 0.02; vec2 g = vec2(0.); float gh = 0.0;',
-'    for(int i=0;i<44;i++){',
-'      g = map(p + rr*s);',
-'      if(g.x < 0.004*s){ gh = 1.0; break; }',
-'      s += g.x; if(s > 14.0) break; }',
-'    if(gh > 0.5) col = mix(col, shade(p + rr*s, rr, g), 0.30);',
-/* ⚠ 바닥을 무한히 두면 화면 위쪽에 **딱딱한 수평선**이 생긴다. 그러면
-     3D 가 아니라 벽지처럼 보인다. 멀어질수록 사라지게 해서 판 배경에
-     녹인다 — 알파로 내보내므로 판 색을 셰이더가 또 적을 일도 없다. */
-'    a = 1.0 - smoothstep(gnd*0.55, gnd, length(p.xz));',
-'  }',
-'  col = pow(max(col, 0.0), vec3(1.0/2.2));',
-'  gl_FragColor = vec4(col*a, a); }'
-].join('\n');
-
-let TOWER = null;
-function renderTowers(){
-  const box = document.getElementById('dash3d'); if(!box) return;
+   ⚠ 세는 자를 새로 만들지 않는다. dtClassList·classRows 는 탑이 쓰던 것
+     그대로다. 따로 세면 언젠가 어긋나고, 어긋나면 어느 쪽이 맞는지 모른다.
+   ⚠ 급한 순으로 세운다(미응시+재시 많은 반이 위). 이름 순으로 두면 선생님이
+     여덟 줄을 눈으로 훑어 제일 큰 수를 찾아야 한다 — 탑이 시키던 그 일이다. */
+function renderClassRow(){
+  const el = document.getElementById('dashCls'); if(!el) return;
   const list = dtClassList();
-  if(!window.WebGLRenderingContext || !list.length){ box.innerHTML = ''; TOWER = null; return; }
+  if(!list.length){ el.innerHTML = ''; return; }
   const all = list.map(function(c){
     const rows = classRows(c);
     const cnt = { miss:0, wait:0, ok:0, none:0 };
@@ -3296,203 +2831,46 @@ function renderTowers(){
     });
     return { label:c.label || c.course || '반', n:rows.length, c:cnt };
   }).filter(function(x){ return x.n; });
-  if(!all.length){ box.innerHTML = ''; TOWER = null; return; }
-  /* 열두 반까지 세운다. 그보다 많으면 인원 많은 순으로 자르고 **몇 반을
-     안 세웠는지 적는다** — 말없이 자르면 그림이 전부인 줄 안다. */
-  all.sort(function(a,b){ return b.n - a.n; });
-  const cut = all.length > 12 ? all.length - 12 : 0;
-  const use = all.slice(0, 12);
-  const say = use.map(function(x){
-    return x.label + ' ' + x.n + '명(미응시 ' + x.c.miss + ' · 재시 ' + x.c.wait +
-           ' · 통과 ' + x.c.ok + ')';
-  }).join(', ');
-
-  if(!TOWER){
-    box.innerHTML =
-      '<div class="d3">' +
-        '<div class="d3__stage"><canvas id="tw3d" tabindex="0" role="img"></canvas>' +
-        '<div class="d3__tags" id="tw3dTags" aria-hidden="true"></div></div>' +
-        '<div class="d3__cap">' +
-          '<b>반별 상태</b>' +
-          '<span class="d3__k"><i style="background:var(--ms)"></i>미응시</span>' +
-          '<span class="d3__k"><i style="background:var(--warnG)"></i>재시</span>' +
-          '<span class="d3__k"><i style="background:var(--ok)"></i>통과</span>' +
-          '<span class="d3__k"><i style="background:var(--muted)"></i>조용함</span>' +
-          '<span style="flex:1"></span>' +
-          '<span id="tw3dNote"></span>' +
-        '</div>' +
-      '</div>';
-    const cv = document.getElementById('tw3d');
-    const S = G3.make(cv, TOWER_FS,
-      ['res','yaw','dist','camY','tgtY','fov','gnd','n','twA[0]','twC[0]',
-       'cMiss','cWait','cOk','cNone','cFloor']);
-    if(!S){ box.innerHTML = ''; return; }               // 못 그리면 목록만 남는다
-    const P = { miss:G3.cssRGB('--ms'), wait:G3.cssRGB('--warnG'),
-                ok:G3.cssRGB('--ok'), none:G3.cssRGB('--muted'), fl:G3.cssRGB('--sunk') };
-    TOWER = { S:S, cv:cv, yaw:0.55, spin:0.15, A:new Float32Array(48),
-              C:new Float32Array(12), n:0, cam:{ dist:8, camY:2.4, tgtY:1.1, fov:1.7, gnd:9 },
-              names:[] };
-    S.set = function(gl, U){
-      const K = TOWER.cam;
-      gl.uniform1f(U.yaw, TOWER.yaw);
-      gl.uniform1f(U.dist, K.dist); gl.uniform1f(U.camY, K.camY);
-      gl.uniform1f(U.tgtY, K.tgtY); gl.uniform1f(U.fov, K.fov);
-      gl.uniform1f(U.gnd, K.gnd);   gl.uniform1f(U.n, TOWER.n);
-      gl.uniform4fv(U['twA[0]'], TOWER.A);
-      gl.uniform1fv(U['twC[0]'], TOWER.C);
-      gl.uniform3f(U.cMiss, P.miss[0], P.miss[1], P.miss[2]);
-      gl.uniform3f(U.cWait, P.wait[0], P.wait[1], P.wait[2]);
-      gl.uniform3f(U.cOk,   P.ok[0],   P.ok[1],   P.ok[2]);
-      gl.uniform3f(U.cNone, P.none[0], P.none[1], P.none[2]);
-      gl.uniform3f(U.cFloor, P.fl[0], P.fl[1], P.fl[2]);
-      if(TOWER.spin) TOWER.yaw += TOWER.spin * 0.016;
-      placeTags();
-    };
-    /* 3D 는 남고 도는 것만 멈춘다 — 움직임 줄이기를 켰거나 카드가 없을 때. */
-    if(!S.spin) TOWER.spin = 0;
-    dragTower(cv);
-  }
-
-  /* 한 사람이 한 칸 — 다만 **제일 높은 탑이 늘 비슷한 키**가 되게 눈금을
-     맞춘다. 안 그러면 스무 명짜리 반에서는 화면 밖으로 나가고, 두 명짜리
-     날에는 종잇장이 된다. 반끼리의 높낮이 비는 그대로 남는다. */
-  const most = use.reduce(function(m,x){ return Math.max(m, x.n); }, 1);
-  const TALL = 2.4;                                   /* 제일 높은 탑의 목표 키 */
-  const UNIT = Math.min(1.2, Math.max(0.10, TALL / most));
-  /* 반이 둘셋인 날에는 조금 벌려 세운다 — 좁은 판에 몰아 놓으면 덩어리로
-     보이고, 열둘이면 붙여야 다 들어간다. */
-  const GAP = use.length <= 4 ? 1.15 : 0.86;
-  const mid = (use.length - 1) / 2;
-  use.forEach(function(x, i){
-    const c = x.c;
-    const h1 = c.miss*UNIT, h2 = h1 + c.wait*UNIT, h3 = h2 + c.ok*UNIT;
-    const H = h3 + c.none*UNIT;
-    TOWER.A[i*4]   = (i - mid) * GAP;
-    TOWER.A[i*4+1] = Math.max(H, 0.14);                 /* 0 이면 바닥에 붙어 사라진다 */
-    TOWER.A[i*4+2] = h1;
-    TOWER.A[i*4+3] = h2;
-    TOWER.C[i]     = h3;
+  if(!all.length){ el.innerHTML = ''; return; }
+  all.sort(function(a,b){
+    const A = a.c.miss + a.c.wait, B = b.c.miss + b.c.wait;
+    if(A !== B) return B - A;
+    return b.n - a.n;
   });
-  TOWER.n = use.length;
-  TOWER.names = use.map(function(x){ return x.label; });
-  /* 카메라는 탑이 몇이고 얼마나 높은지에 맞춰 물러선다 — 고정 거리로 두면
-     반이 둘일 때는 점만 하고 열둘일 때는 양끝이 잘린다. */
-  const spread = (use.length - 1) * GAP + 1.1;
-  const tall = Math.max.apply(null, [0.6].concat(use.map(function(x, i){ return TOWER.A[i*4+1]; })));
-  /* 가로로 넓고 세로로 낮은 판이라, 폭에 맞추면 탑이 점만 해진다. **높이**에
-     맞춰 붙이고 남는 좌우는 비워 둔다 — 사진관 배경처럼 보이게 판에 옅은
-     빛 그라데이션을 깔아 두었다. 반이 많아지면 폭 쪽이 커져서 자동으로 물러선다. */
-  /* 거리를 눈대중으로 두면 반이 셋인 날엔 점만 하고 열둘인 날엔 잘린다.
-     화면에 비치는 폭·높이를 그대로 계산해서 **둘 중 먼 쪽**에 맞춘다.
-       화면 반높이(세상 단위) = 0.5 * 거리 / fov
-       화면 반너비            = (가로/세로) * 화면 반높이            */
-  const F = TOWER.cam.fov;
-  const asp = Math.max(1.2, (TOWER.cv.clientWidth || 900) / (TOWER.cv.clientHeight || 250));
-  const dH = 1.45 * tall * F;                         /* 높이의 약 70% 를 채운다 */
-  const dW = (spread * 0.5 + 0.4) * 2 * F / asp;
-  TOWER.cam.dist = Math.max(2.8, dH, dW);
-  TOWER.cam.camY = 0.55 + tall * 0.50;
-  TOWER.cam.tgtY = tall * 0.45;
-  TOWER.cam.gnd  = spread * 1.4 + 3.2;
-  TOWER.S.need = true;
-  G3.kick();
-
-  /* 반 이름은 그림 안이 아니라 **그림 위 DOM 에** 띄운다. 셰이더로 글씨를
-     그리면 낭독기도 못 읽고 글꼴도 안 맞는다. 대신 카메라 계산을 자바스크립트가
-     한 번 더 해서 탑 발치에 정확히 앉힌다 — 돌려도 이름이 따라온다. */
-  document.getElementById('tw3dTags').innerHTML =
-    use.map(function(x){ return '<span>'+esc(x.label)+'</span>'; }).join('');
-  document.getElementById('tw3dNote').textContent =
-    (cut ? '인원 많은 12반만 세웠습니다 (' + cut + '반 뺌) · ' : '') + '끌거나 ←→ 로 돌립니다';
-  TOWER.cv.setAttribute('aria-label',
-    '반별 상태 그림. ' + say + '. 같은 내용이 아래 반 목록에 글로도 있습니다.');
-  placeTags();
+  const left = all.reduce(function(t,x){ return t + x.c.miss + x.c.wait; }, 0);
+  /* 0 은 흐리게 적는다. 굵게 세우면 «할 일 없음» 이 «할 일 있음» 과 같은
+     무게로 보여, 급한 반을 찾는 데 눈이 한 번 더 든다. */
+  /* ⚠ **되는 것만 정확히 데려간다.** 미응시 목록은 반별로 묶여 있어 그 반
+     줄로 바로 갈 수 있다(absC<i>). 재시·통과 목록은 한 줄로 늘어놓는데, 그
+     자료에는 반 이름이 없고 과목(ch1/ch2/gc)만 있다 — 한 과목을 여러 반이
+     들으므로 어느 반 줄인지 **알 수가 없다.** 모르면서 아는 척 보내느니
+     그 칸 맨 위로 보낸다. */
+  const absAt = {};
+  ABS_ROWS.forEach(function(c,i){ if(c && c.label) absAt[c.label] = 'absC' + i; });
+  const num = function(v, tone, jump){
+    if(!v) return '<span class="clsrow__z">0</span>';
+    return '<button class="clsrow__n ' + tone + '" data-jump="' + jump + '">' + v + '</button>';
+  };
+  el.innerHTML =
+    '<div class="clsrow">' +
+      '<div class="clsrow__h"><b>반별 현황</b>' +
+        '<span class="dim">' + all.length + '개 반 · 급한 순</span>' +
+        '<span class="clsrow__sp"></span>' +
+        '<span class="dim">' + (left ? '남은 일 ' + left + '건' : '남은 일 없음') + '</span></div>' +
+      all.map(function(x){
+        return '<div class="clsrow__r">' +
+          '<span class="clsrow__l">' + esc(x.label) + '</span>' +
+          '<span class="clsrow__c">' + x.n + '명</span>' +
+          '<span class="clsrow__g">' + num(x.c.miss, 'bad', absAt[x.label] || 'absWrap') +
+            '<i>미응시</i></span>' +
+          '<span class="clsrow__g">' + num(x.c.wait, 'warn', 'pendWrap') +
+            '<i>재시</i></span>' +
+          '<span class="clsrow__g">' + num(x.c.ok, 'ok', 'passWrap') +
+            '<i>통과</i></span>' +
+        '</div>';
+      }).join('') +
+    '</div>';
 }
-
-/* 셰이더와 **똑같은 카메라**로 세상 좌표를 화면 좌표로 옮긴다. 두 곳에 같은
-   식이 있으면 언젠가 갈라진다 — 그래서 카메라 값은 TOWER.cam 한 곳에만 적고
-   양쪽이 그것을 읽는다. */
-function placeTags(){
-  if(!TOWER) return;
-  const box = document.getElementById('tw3dTags'); if(!box) return;
-  const tags = box.children; if(!tags.length) return;
-  const K = TOWER.cam, W = TOWER.cv.clientWidth, H = TOWER.cv.clientHeight;
-  if(!W || !H) return;
-  const cy = Math.cos(TOWER.yaw), sy = Math.sin(TOWER.yaw);
-  const ro = [ sy*K.dist, K.camY, cy*K.dist ];
-  const ta = [ 0, K.tgtY, 0 ];
-  const sub = function(a,b){ return [a[0]-b[0], a[1]-b[1], a[2]-b[2]]; };
-  const nz  = function(v){ const l = Math.hypot(v[0],v[1],v[2])||1; return [v[0]/l,v[1]/l,v[2]/l]; };
-  const crs = function(a,b){ return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]; };
-  const dot = function(a,b){ return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]; };
-  const f = nz(sub(ta, ro)), r = nz(crs(f, [0,1,0])), u = crs(r, f);
-  const put = [];
-  for(let i = 0; i < tags.length; i++){
-    const el = tags[i];
-    if(i >= TOWER.n){ el.style.opacity = 0; continue; }
-    /* 발치 그대로 찍으면 뒤 탑의 이름이 앞 탑에 가린다. 카메라 쪽으로
-       조금 끌어내 앞에 세운다. */
-    const P = [ TOWER.A[i*4] + f[0]*-0.55, 0.02, f[2]*-0.55 ];
-    const v = sub(P, ro);
-    const z = dot(v, f);
-    if(z <= 0.1){ el.style.opacity = 0; continue; }
-    const x = dot(v, r) * K.fov / z, y = dot(v, u) * K.fov / z;
-    put.push({ el:el, z:z,
-      x: Math.max(40, Math.min(W - 40, 0.5*W + x*H)),
-      /* 앞쪽 탑은 발치가 판 아래 끝에 붙는다 — 이름이 판 밖으로 나가면
-         잘려서 어느 반인지 알 수 없다. 안쪽으로 눌러 둔다. */
-      y: Math.max(6, Math.min(H - 34, 0.5*H - y*H)) });
-  }
-  /* 열두 반이 서면 이름이 서로 겹쳐 **아무것도 안 읽힌다.** 왼쪽부터 훑으며
-     앞 이름과 부딪히면 한 줄 내려 엇갈리게 놓고, 그래도 부딪히면 감춘다 —
-     반쯤 겹친 글자를 남기느니 없는 편이 낫다(전체 목록은 낱말 요약에 있다). */
-  put.sort(function(a,b){ return a.x - b.x; });
-  let lastX = -1e9, lastRow = 1;
-  put.forEach(function(t){
-    const w = t.el.offsetWidth || 70;
-    const room = t.x - lastX;
-    let row = 0;
-    if(room < w * 0.92){ row = lastRow ? 0 : 1; }
-    if(room < w * 0.46){ t.el.style.opacity = 0; return; }
-    lastX = t.x; lastRow = row;
-    t.el.style.left = t.x + 'px';
-    t.el.style.top = (t.y + row * 15) + 'px';
-    /* 뒤로 돌아간 탑의 이름은 흐리게 — 앞뒤가 겹쳐 읽히면 아무 뜻이 없다. */
-    t.el.style.opacity = 0.42 + 0.58 * Math.max(0, Math.min(1, (K.dist + 1.4 - t.z) / 2.6));
-    t.el.style.zIndex = String(1000 - Math.round(t.z * 10));
-  });
-}
-
-/* 끌어서 돌린다. **세로로 끄는 것은 안 뺏는다**(touch-action:pan-y) — 휴대폰에서
-   화면을 내리려다 그림에 손이 닿으면 아무 데도 못 가게 된다. */
-function dragTower(cv){
-  let px = 0, on = false;
-  cv.addEventListener('pointerdown', function(e){
-    px = e.clientX; on = true; TOWER.spin = 0;
-    try { cv.setPointerCapture(e.pointerId); } catch(err){}
-  });
-  cv.addEventListener('pointermove', function(e){
-    if(!on) return;
-    TOWER.yaw -= (e.clientX - px) * 0.008; px = e.clientX;
-    TOWER.S.need = true; G3.kick();
-  });
-  const up = function(){ on = false; };
-  cv.addEventListener('pointerup', up);
-  cv.addEventListener('pointercancel', up);
-  /* 키보드로도 돌아간다 — 끌기만 되는 그림은 마우스 없는 사람에게 벽이다. */
-  cv.addEventListener('keydown', function(e){
-    if(e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-    e.preventDefault();
-    TOWER.spin = 0;
-    TOWER.yaw += (e.key === 'ArrowLeft' ? -0.18 : 0.18);
-    TOWER.S.need = true; G3.kick();
-  });
-}
-/* ── 오늘 한눈에 ────────────────────────────────────────────────────
-   숫자 칸 여덟 개로는 "얼마나 끝났나" 가 안 읽힌다 — 여덟을 눈으로 견줘야 한다.
-   반 명단을 바탕으로 한 줄에 세운다. 셋을 더한 것이 명단보다 클 수 있다(한
-   학생이 미응시이면서 지난 회차를 통과했을 수 있다). 남는 칸은 음수로 가지
-   않게 눌러 둔다 — 막대가 뒤집히면 아무 뜻이 없다. */
 function renderFig(){
   const el = document.getElementById('dashFig'); if(!el) return;
   const roster = dtCached('names');
@@ -3557,20 +2935,18 @@ function renderJump(){
      빼고, 그림은 넣는다 — 칩은 오늘 할 일이고 그림은 반 상태다. 그래서 그림
      쪽에 미룬 수를 적어 둔다. 안 적으면 둘이 안 맞는 것처럼 보인다. */
   renderFig();
-  renderTowers();    // 같은 자료를 3D 로도 세운다 — 목록이 본체, 그림이 덤
-  heroRefresh();     // 띠의 회차 사슬도 같은 자료에서 다시 채운다
+  renderClassRow();  // 반별 현황 — 3D 탑이 혼자 하던 일을 읽을 수 있는 표로
   renderNudge();      // 칩과 같은 배열을 본다 — 따로 세면 어긋난다
   renderTodo();       // 한 줄 요약도 같은 배열에서 나온다
-  const el = document.getElementById('jump'); if(!el) return;
-  const on = JUMPS.filter(function(j){ return j.n() > 0; });
-  el.hidden = !on.length;
-  el.innerHTML = on.map(function(j){
-    return '<button class="chip'+(j.urgent?' urgent':'')+'" data-jump="'+j.id+'">'+
-           esc(j.label)+'<small>'+j.n()+'</small></button>';
-  }).join('');
+  /* 예전에는 여기서 칩 줄(#jump)을 한 번 더 그렸다. 바로 위 renderTodo 가
+     같은 배열로 같은 글자를 이미 적고 있어서 두 줄이 겹쳤다 — 지웠다.
+     JUMPS 는 그대로 쓴다: renderTodo 와 renderClassRow 가 이 배열을 본다. */
 }
 document.addEventListener('click', function(e){
-  const b = e.target.closest ? e.target.closest('.chip[data-jump]') : null;
+  /* 칩만 보던 것을 **data-jump 를 단 것 전부**로 넓힌다(2026-08-14).
+     반별 현황의 숫자도 같은 길로 내려간다 — 뛰는 자리를 두 벌 만들면
+     한쪽만 고쳤을 때 어떤 단추는 안 뛴다. */
+  const b = e.target.closest ? e.target.closest('[data-jump]') : null;
   if(!b) return;
   const t = document.getElementById(b.dataset.jump); if(!t) return;
   show('dash');
@@ -3658,17 +3034,31 @@ function renderDash(){
     '<div class="card warn"><b id="abCnt">'+(abN!=null? abN : '…')+'</b><span>시험 미응시</span></div>' +
     '<div class="card warn"><b id="pdCnt">'+(pdN!=null? pdN : '…')+'</b><span>재시 대기</span></div>' +
     '<div class="card"><b id="dtCnt">'+(dtKnown? dtKnown.length : '…')+'</b><span>반 명단</span></div>';
-  /* 지난 것 — 오늘 할 일은 아니지만 흐름을 본다. */
-  const past = [
-    card(today, '오늘 채점 <span class="dim">· 지난주 같은 요일 대비</span>',
-         false, deltaOf(today, sameDayLastWeek), sparkOf(d14), 'todayCnt'),
-    card(week, '최근 7일 채점 <span class="dim">· 그 전 7일 대비</span>',
-         false, deltaOf(week, prevWeek), '', 'weekCnt'),
-    card(fin.students.length, '파이널 누적 학생', false, '', '', 'finStuCnt'),
-    card(fin.records, '파이널 채점 기록', false, '', '', 'finRecCnt'),
-    card(fin.rounds, '기록이 있는 회차', false, '', '', 'finRndCnt'),
-  ];
-  document.getElementById('dashCards').innerHTML = urgent + past.join('');
+  /* ── 흐름 숫자는 **한 줄로 접는다** (선생님 결정 2026-08-14) ──────────
+     여덟 칸 가운데 눌러서 갈 데가 있는 것은 앞의 셋뿐이다. 뒤 다섯(오늘 채점 ·
+     최근 7일 · 누적 학생 · 채점 기록 · 회차)은 «얼마나 해 왔나» 지 «오늘 무엇을
+     하나» 가 아니다. 그런데 카드로 서면 급한 셋과 **같은 무게**로 보이고,
+     휴대폰에서는 그 다섯이 두 줄을 더 먹어 아래의 진짜 할 일(이름 목록)을
+     밀어낸다.
+
+     지우지는 않는다 — 흐름은 흐름대로 뜻이 있다. 한 줄에 적는다.
+
+     ⚠ 자리 이름(id)은 하나도 안 바꾼다. todayCnt 는 검사가 읽는 자리다
+       (tests/hub-live.js — 채점하고 돌아오면 숫자가 달라지는지 본다).
+     ⚠ 세는 방법도 그대로다. 숫자가 달라지면 그건 다른 이야기다. */
+  const flow = '<div class="flowline">' +
+    '<span class="flowline__k">흐름</span>' +
+    '<span class="flowline__i">오늘 채점 <b id="todayCnt">' + today + '</b>' +
+      deltaOf(today, sameDayLastWeek) + '</span>' +
+    '<span class="flowline__i">최근 7일 <b id="weekCnt">' + week + '</b>' +
+      deltaOf(week, prevWeek) + '</span>' +
+    '<span class="flowline__i">누적 학생 <b id="finStuCnt">' + fin.students.length + '</b></span>' +
+    '<span class="flowline__i">채점 기록 <b id="finRecCnt">' + fin.records + '</b></span>' +
+    '<span class="flowline__i">기록 있는 회차 <b id="finRndCnt">' + fin.rounds + '</b></span>' +
+    sparkOf(d14) +
+  '</div>';
+  document.getElementById('dashCards').innerHTML = urgent;
+  const fl = document.getElementById('dashFlow'); if(fl) fl.innerHTML = flow;
   /* 숫자가 다 찼을 때 **한 번만** 알린다. 그리는 족족 알리면(refreshSoon 이
      자주 부른다) 낭독기가 쉬지 않고 떠들어, 정작 급한 말이 묻힌다.
      say() 가 같은 말이면 흘려보낸다. */
@@ -3738,7 +3128,9 @@ function renderDash(){
       out.push({ i:i, j:j, name:nm, key:sentKey('abs', nm, c.course, c.round, absSchool(c, j)) }); }); }); return out; })();
     document.getElementById('absList').innerHTML =
       bulkBar('abs', absKeys, '개별 안내 한 번에') + snzBar(absKeys) + ABS_ROWS.map(function(c,i){
-      const head = '<div class="row" style="cursor:default"><span class="nm">'+esc(c.label)+'</span>'
+      /* 반마다 자리표를 붙인다 — 위 「반별 현황」 에서 그 반의 미응시 숫자를
+         누르면 목록 맨 위가 아니라 **그 반 줄**로 내려온다(2026-08-14). */
+      const head = '<div class="row" id="absC'+i+'" style="cursor:default"><span class="nm">'+esc(c.label)+'</span>'
         +'<span class="where">'+esc((DT_COURSE[c.course]||c.course)+' '+c.round+'회')+'</span>'
         +'<span class="cnt">미응시 '+c.absent.length+'/'+c.total+'</span>'
         +'<button class="mini msg" data-abs="'+i+'" data-stage="bc" data-orig="반 전체 공지">반 전체 공지</button></div>';
@@ -6312,7 +5704,6 @@ function boot(){
      여기서 한 번 걸어 준다 — 안 걸면 열두 탭이 전부 탭 순서에 선 채로 남는다. */
   rovingTabs(curTab());
   navEdges();          // 잠금이 풀린 뒤라야 탭 줄의 진짜 폭을 잴 수 있다
-  heroStart();         // 띠 안의 분자 — 없으면 그냥 안 그려진다
   renderViews();
   renderDash();
   loadRoster();

@@ -22,6 +22,13 @@
      자신이 잡혀** 영영 안 끝난다 — 실제로 그렇게 걸려서, 옛 판의 로그를
      이번 결과로 잘못 읽었다. 파일 이름을 매번 새로 주고 끝을 그 파일에서 본다.
 
+     이 말은 여기 오래 적혀 있었는데 **막지는 않고 있었다.** 2026-08-14 에
+     같은 실수를 두 번 했다 — 앞 판이 아직 도는 줄 모르고 새 판을 띄웠고,
+     스물세 건이 빨간불이었다(전부 겹침 탓이었다). 적어 두는 것과 막는 것은
+     다르다. 이제 **자물쇠를 건다**(아래 lock()): 이미 도는 판이 있으면 새
+     판은 뜨자마자 멈추고 그렇게 말한다. `--force` 로 넘길 수는 있다 —
+     기계가 죽어 자물쇠만 남은 경우가 있어서다.
+
    실행:
        node tests/run.js                     # 브라우저 검사는 건너뛴다(경고)
        PLAYWRIGHT_MODULE=… CHROMIUM_PATH=… node tests/run.js    # 전부
@@ -52,6 +59,38 @@ function ciSteps() {
     .filter(c => !/pip install/.test(c));
 }
 
+/* ── 자물쇠 ────────────────────────────────────────────────────────
+   판 하나가 도는 동안 다른 판이 못 뜨게 한다. 겹치면 검사들이 서로의 서버를
+   보고 «화면에 그게 없다» 고 말하는데, 그 빨간불은 **코드 탓이 아니라 겹침
+   탓**이다. 한 번 겪으면 다음부터 빨간불을 안 믿게 된다.
+
+   죽은 자물쇠는 스스로 치운다 — 그 번호의 프로세스가 살아 있는지 본다.
+   (파일만 남기고 기계가 죽으면 영영 못 돌리게 되는 것이 더 나쁘다) */
+const LOCK = path.join(require('os').tmpdir(), 'chemistreal-exam-tests.lock');
+function lock() {
+  if (process.argv.includes('--force')) return function () {};
+  try {
+    const old = Number(fs.readFileSync(LOCK, 'utf8'));
+    let alive = false;
+    try { process.kill(old, 0); alive = true; } catch (e) { alive = false; }
+    if (alive) {
+      console.log(`${C.bad}판이 이미 돌고 있다${C.off} (프로세스 ${old}).`);
+      console.log('두 판이 겹치면 검사들이 서로의 서버를 보고 엉뚱한 빨간불을 낸다.');
+      console.log('그 판이 끝난 뒤 다시 돌리거나, 정말 겹쳐도 되면 --force 를 준다.');
+      process.exit(2);
+    }
+    console.log(`${C.skip}남아 있던 자물쇠를 치운다${C.off} (프로세스 ${old} 는 죽었다).`);
+  } catch (e) { /* 자물쇠가 없다 — 처음 도는 판이다 */ }
+  fs.writeFileSync(LOCK, String(process.pid));
+  const off = function () { try { fs.unlinkSync(LOCK); } catch (e) {} };
+  process.on('exit', off);
+  ['SIGINT', 'SIGTERM'].forEach(function (sig) {
+    process.on(sig, function () { off(); process.exit(130); });
+  });
+  return off;
+}
+
+lock();                      // 겹쳐 도는 판을 여기서 막는다
 const steps = ciSteps();
 /* `_` 로 시작하는 것은 검사가 아니라 **다른 검사가 불러 쓰는 살림살이**다
    (`_gasenv.js` 는 앱스크립트 흉내, `_seal.js` 는 진짜 시트를 막는 마개).
