@@ -141,8 +141,11 @@ async function look(browser, { width, height, touch }) {
       키보드안내보임: !!(kb && kb.getBoundingClientRect().height > 0),
       가로스크롤: de.scrollWidth > de.clientWidth,
       /* 숫자 칸이 놓인 차례. 급한 것이 앞에 와야 한다. */
-      카드순서: [...document.querySelectorAll('#dashCards .card')]
-        .map(c => { const b = c.querySelector('b'); return b ? b.id : ''; })
+      /* [바뀐 것] 2026-08-15 — 숫자 칸이 흰 상자(.card) 에서 「오늘 머리판」
+         안의 .hn 으로 바뀌었다. 지키려던 것은 «급한 것이 앞에 온다» 이지
+         상자 이름이 아니므로 새 자리를 본다. */
+      카드순서: [...document.querySelectorAll('#dashCards .hn')]
+        .map(c => { const b = c.querySelector('.hn__v'); return b ? b.id : ''; })
         .filter(Boolean),
       급한카드Y: ab ? Math.round(ab.getBoundingClientRect().top + scrollY) : null,
       /* 머리가 세로를 얼마나 먹는가. 폰을 눕히면 이 값이 51% 까지 갔다. */

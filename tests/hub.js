@@ -215,9 +215,6 @@ console.log('\n── 셸이 남의 데이터를 건드리지 않는다 ──')
                 사라지는 것을 유일한 사본으로 두면 안 된다.
                 저장소에는 안 넣는다(공개 저장소라 수업 내용과 전화번호가
                 그대로 인터넷에 남는다).
-       THM_KEY  화면 옷(기계 설정 / 밝게 / 어둡게). 순전한 취향이고, 지우면
-                기계 설정으로 돌아갈 뿐 잃는 것이 없다. 이름도 성적도 안 담는다.
-                ⚠ 시트로는 안 나간다 — 화면 취향은 학생 자료가 아니다.
        NDG_SEEN_KEY  넛지를 **본 적이 있는가**. 오늘 띄운 줄 가운데 몇 개가
                 이미 봤던 것인지 한 줄로 알려 주려고 둔다 — 같은 줄을 매일
                 다시 들이밀고 있으면 그 줄이 쓸모없다는 뜻이라, 그 사실이
@@ -226,12 +223,11 @@ console.log('\n── 셸이 남의 데이터를 건드리지 않는다 ──')
                 버린다. 지워도 잃는 것은 "몇 건 봤다" 한 줄뿐이다.
 
      앱 자료(파이널 기록·DT 명단)를 쓰는 것은 여전히 금지다. 아래 검사들이 본다. */
-  chk('쓰는 곳은 적어 둔 여섯 칸뿐',
+  chk('쓰는 곳은 적어 둔 다섯 칸뿐',
       (CODE_ONLY.match(/localStorage\.setItem\(\s*([A-Za-z_$][\w$]*)/g) || []).sort(),
       ['localStorage.setItem(KEY', 'localStorage.setItem(LES_KEY',
        'localStorage.setItem(NDG_SEEN_KEY',
-       'localStorage.setItem(PAL_KEY', 'localStorage.setItem(THM_KEY',
-       'localStorage.setItem(VIEW_KEY']);
+       'localStorage.setItem(PAL_KEY', 'localStorage.setItem(VIEW_KEY']);
   /* 넛지 기록은 이름을 담지 않는다 — 담기 시작하면 "지워도 되는 취향" 이
      아니게 된다. 넣는 쪽이 해시를 거치는지 여기서 본다. */
   chk('넛지 기록에는 이름이 안 들어간다',
@@ -477,7 +473,10 @@ console.log('\n── DT 를 다시 그릴 때마다 두드리지 않는다 ─�
       /function dtPending\(force\)\{ return dtOnce\('pending', force\); \}/.test(body), true);
   // 이미 아는 숫자를 물음표로 되돌리면 채점하는 날 내내 '…' 만 보인다
   const rd = cut('renderDash');
-  chk('아는 숫자를 …로 되돌리지 않는다', /dtKnown\? dtKnown\.length : '…'/.test(rd), true);
+  /* [바뀐 것] 머리판이 생기며 이 자리가 numCell 을 거친다. 지키는 것은
+     «이미 아는 숫자를 물음표로 되돌리지 않는다» 이지 적는 방식이 아니다. */
+  chk('아는 숫자를 …로 되돌리지 않는다',
+      /dtKnown \? dtKnown\.length : null/.test(rd) && /known \? v : '…'/.test(rd), true);
 }
 
 console.log('\n── KMChC 도 명단에 합친다 ──');
@@ -632,7 +631,8 @@ console.log('\n── 하루 일을 셸 안에서 끝낸다 ──');
   chk('급한 것부터 선다', order.slice().sort((a,b) => a-b), order);
 
   // 채점하는 날 제일 급한 숫자
-  chk('미응시가 숫자 칸에도 뜬다', /id="abCnt"/.test(body), true);
+  /* 자리 이름(abCnt)은 안 바뀐다 — 다만 이제 머리판이 만들어 붙인다. */
+  chk('미응시가 숫자 칸에도 뜬다', /id="' \+ id \+ '"/.test(body) && /'abCnt'/.test(body), true);
 }
 
 console.log('\n── 어느 앱이 대답하는지 보여 준다 ──');
@@ -1000,7 +1000,7 @@ console.log('\n── 그림은 한 벌의 어휘를 쓴다 ──');
      그래서 그림 쪽에 미룬 수를 적는다. 안 적으면 둘이 틀린 것처럼 보인다. */
   chk('칩과 그림이 같은 순간에 그려진다',
       /function renderJump\(\)\{[\s\S]{0,400}?renderFig\(\);/.test(body), true);
-  chk('그림은 미룬 것도 세고, 몇 명인지 적는다', /미룬 '\+snz\+'명 포함/.test(body), true);
+  chk('그림은 미룬 것도 세고, 몇 명인지 적는다', /미룬 ' \+ snz \+ '명 포함/.test(body), true);
 }
 
 console.log('\n── 자료는 실제로 있는 것만 건다 ──');
@@ -1104,23 +1104,10 @@ console.log('\n── 색이 실제로 읽히는가 (눈이 아니라 재서) �
   /* "괜찮아 보인다"는 근거가 아니다. 밝기를 낮춘 화면·나이든 눈·색약에서
      무너지는 것은 재 봐야 안다. 예전 --muted 는 3.52:1 로 본문 기준(4.5)에
      못 미쳤고, 그 색이 힌트·카드 라벨·목록 부연 등 작은 글씨 전부에 쓰였다. */
-  /* ⚠ **팔레트를 한 벌씩 잰다.** 2026-08-15 에 어두운 옷이 생기면서 색 이름이
-     두 벌이 됐다. 파일 전체에서 «마지막에 나온 값» 을 그러모으면 어두운
-     주황을 **밝은 종이 위에서** 재게 된다 — 실제로 그렇게 1.9:1 이 나왔고,
-     그건 화면에 없는 짝이다. 밝은 것은 밝은 바탕에, 어두운 것은 어두운
-     바탕에 견준다. */
-  const pick = (src) => {
-    const V = {};
-    (src.match(/--[a-zA-Z0-9-]+:\s*#[0-9A-Fa-f]{6}/g) || []).forEach(m => {
-      const i = m.indexOf(':'); V[m.slice(2, i).trim()] = m.slice(i + 1).trim();
-    });
-    return V;
-  };
-  /* 어두운 조각을 통째로 들어내고 남은 것이 밝은 한 벌이다. */
-  const DARK_RE = /(?:@media \(prefers-color-scheme: dark\)|:root\[data-theme="dark"\])[\s\S]*?\n\}/g;
-  const darkSrc = (SRC.match(DARK_RE) || []).join('\n');
-  const V = pick(SRC.replace(DARK_RE, ''));
-  const D = darkSrc ? pick(darkSrc) : null;
+  const V = {};
+  (SRC.match(/--[a-zA-Z0-9-]+:\s*#[0-9A-Fa-f]{6}/g) || []).forEach(m => {
+    const i = m.indexOf(':'); V[m.slice(2, i).trim()] = m.slice(i + 1).trim();
+  });
   const lin = c => (c /= 255) <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
   const lum = h => { h = h.replace('#', '');
     const p = i => lin(parseInt(h.slice(i, i + 2), 16));
@@ -1133,15 +1120,6 @@ console.log('\n── 색이 실제로 읽히는가 (눈이 아니라 재서) �
   chk('본문색도 넉넉하다', ratio(V['ink-2'], bg) >= 4.5, true);
   // 막대·점은 글자가 아니라 그림이다 — 3:1 이 최소다
   chk('그림용 주황이 그래픽 기준(3.0)을 넘는다', ratio(V.warnG, bg) >= 3, true);
-  /* 어두운 한 벌도 **같은 자로** 잰다. 밤에만 안 읽히는 것은 낮에 안 보인다.
-     (화면에 그려진 글자까지 재는 것은 tests/hub-dark.js 가 한다 — 여기서는
-     팔레트 자체가 성한지 본다) */
-  if(D){
-    chk('어두운 한 벌도 색 이름이 있다', [!!D.bg, !!D.muted, !!D.warnG].every(Boolean), true);
-    chk('어두운 작은 글씨도 4.5를 넘는다', ratio(D.muted, D.bg) >= 4.5, true);
-    chk('어두운 본문색도 넉넉하다', ratio(D['ink-2'], D.bg) >= 4.5, true);
-    chk('어두운 그림용 주황도 3.0을 넘는다', ratio(D.warnG, D.bg) >= 3, true);
-  }
   chk('초록도 넘는다', ratio(V.ok, bg) >= 3, true);
   chk('빨강도 넘는다', ratio(V.ms, bg) >= 3, true);
   /* ⚠ 여기가 핵심이다. 주황을 아무리 어둡게 해도 초록·빨강과의 명도 차는
@@ -1718,7 +1696,7 @@ console.log('\n── 오늘 못 하는 줄은 미룬다 ──');
      보인다). 대신 그림 쪽에 몇 명을 미뤘는지 적는다. */
   chk('오늘 할 일에서는 뺀다', /isSnoozed\(sentKey\('pend'/.test(body) &&
       /isSnoozed\(sentKey\('abs'/.test(body), true);
-  chk('반 상태 그림에는 넣고 몇 명인지 적는다', /미룬 '\+snz\+'명 포함/.test(body), true);
+  chk('반 상태 그림에는 넣고 몇 명인지 적는다', /미룬 ' \+ snz \+ '명 포함/.test(body), true);
   /* 색과 투명도만 쓰면 색을 못 가리는 눈에는 아무 차이가 없다. */
   chk('빗금과 글자로도 알린다', /\.row\.snz \.nm::after\{content:' 미룸'/.test(SRC) &&
       /repeating-linear-gradient\(45deg,rgba\(0,0,0,\.045\)/.test(SRC), true);
@@ -1997,9 +1975,11 @@ console.log('\n── 지금 DT 반에 없는 학생 ──');
      하나만 보이네" 가 된다. 실제로 그렇게 나왔다(대시 2 · 목록 1).
      세는 것도 거른 뒤에 센다. */
   const body = SRC.split('<script>')[1] || '';
+  /* [바뀐 것] 머리판이 생기며 numCell 이 이 칸을 만든다. 지키는 것은
+     «거른 뒤의 수(PEND_ROWS)를 쓴다» 이지 적는 방식이 아니다. */
   chk('DT 미완료 카드가 거른 뒤의 수를 적는다',
       /const pdN = pdKnown \? PEND_ROWS\.length : null;/.test(body) &&
-      /id="pdCnt">'\+\(pdN!=null\? pdN : '…'\)/.test(body), true);
+      /numCell\('pdCnt', pdN,/.test(body), true);
   chk('창구가 준 줄 수를 그대로 적지 않는다',
       /pdCnt'\)\.textContent = rows\.length/.test(body), false);
   chk('목록도 거른 배열로 그린다',
@@ -2033,7 +2013,7 @@ console.log('\n── 인원·수입은 파이널 반까지 센다 ──');
   chk("빈칸 대신 '파이널' 이라고 적는다",
       /r\.kind==='exam' \? '파이널'/.test(body2), true);
   /* 카드 이름도 맞아야 한다 — 이제 DT 반만 세는 것이 아니다. */
-  chk('카드 이름이 반 명단이다', /<span>반 명단<\/span>/.test(body2), true);
+  chk('카드 이름이 반 명단이다', /'반 명단'/.test(body2), true);
 }
 
 console.log(fail ? `\n${fail}개 실패` : '\n모두 통과');
