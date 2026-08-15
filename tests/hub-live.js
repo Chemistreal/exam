@@ -755,17 +755,24 @@ async function settled(p, label, fn, arg, ms) {
   {
     await p.evaluate(() => { const d = document.getElementById('dlg'); if (d.open) d.close(); show('dash'); });
     await p.waitForTimeout(600);
+    /* [바뀐 것] 2026-08-14 까지는 이 줄이 **두 벌**이었다 — 「오늘 할 일」(#todo)
+       바로 아래 같은 칩 줄(#jump)이 글자까지 똑같이 서 있었다. 겹친 쪽을
+       지웠다. 지키려던 것은 «오늘 할 일이 한 줄로 선다» 이지 «그 자리 이름이
+       jump 다» 가 아니므로, 남은 자리를 본다. */
     const jump = await p.evaluate(() => ({
-      shown: !document.getElementById('jump').hidden,
-      labels: [].map.call(document.querySelectorAll('#jump .chip'), e => e.textContent),
+      shown: !document.getElementById('todo').hidden,
+      labels: [].map.call(document.querySelectorAll('#todo .chip'),
+        e => e.textContent.replace(/\s+/g, '')),
+      dupRow: !!document.getElementById('jump'),
     }));
     console.log('  ' + JSON.stringify(jump.labels));
     chk('칩이 뜬다', jump.shown, true);
+    chk('같은 줄이 두 번 안 선다', jump.dupRow, false);
     // 반이 아니라 사람 수로 세야 "몇 명에게 보내야 하나" 가 된다
-    chk('미응시는 사람 수로 센다', jump.labels[0], '시험 미응시2');
+    chk('미응시는 사람 수로 센다', jump.labels[0], '시험미응시2');
     chk('다섯 자리가 다 선다', jump.labels.length, 5);
     const jumped = await p.evaluate(() => {
-      document.querySelector('#jump .chip[data-jump="passWrap"]').click();
+      document.querySelector('#todo .chip[data-jump="passWrap"]').click();
       return document.getElementById('passWrap').classList.contains('flashed');
     });
     chk('누르면 그 자리를 짚어 준다', jumped, true);
@@ -1077,7 +1084,11 @@ async function settled(p, label, fn, arg, ms) {
               .map(e => e.querySelector('.nm').textContent),
       kept: document.querySelectorAll('#absList .row.sub').length,
       bar:  (document.querySelector('#absList .snzbar') || { textContent: '' }).textContent.replace(/\s+/g, ' ').trim(),
-      chip: (document.querySelector('#jump .chip[data-jump="absWrap"]') || { textContent: '' }).textContent,
+      /* 겹쳐 있던 칩 줄(#jump)은 지웠다 — 「오늘 할 일」(#todo)이 같은 배열로
+         같은 글자를 이미 적고 있었다(2026-08-14). 재는 것은 그대로다:
+         **미룬 것이 오늘 할 일에서 빠지는가.** */
+      chip: (document.querySelector('#todo .chip[data-jump="absWrap"]')
+             || { textContent: '' }).textContent.replace(/\s+/g, ''),
       /* 숫자 카드는 반 상태다. 미뤘다고 미응시가 한 명 줄어드는 것은 아니다 —
          줄이면 "학생이 시험을 봤다" 로 읽힌다. */
       card: (document.getElementById('abCnt') || { textContent: '' }).textContent,
@@ -1087,7 +1098,7 @@ async function settled(p, label, fn, arg, ms) {
     chk('지운 것이 아니라 접은 것이다', after.kept, 2);
     chk('몇을 미뤘는지 말해 준다', /미룬 것 1명/.test(after.bar), true);
     /* 오늘 할 일에서는 빠져야 한다 — 그게 미루기의 전부다. */
-    chk('오늘 할 일에서 빠진다', after.chip, '시험 미응시1');
+    chk('오늘 할 일에서 빠진다', after.chip, '시험미응시1');
     /* 반 상태에서까지 빼면 학생이 사라진 것처럼 보인다. 넣되 적는다
        (그림 쪽 '미룬 N명 포함' 은 명단이 있어야 그려지므로 tests/hub.js 가 본다). */
     chk('반 상태 숫자는 그대로다', after.card, '2');
@@ -1111,11 +1122,15 @@ async function settled(p, label, fn, arg, ms) {
     const back = await p.evaluate(() => ({
       seen: [].filter.call(document.querySelectorAll('#absList .row.sub'), e => e.offsetParent)
               .map(e => e.querySelector('.nm').textContent),
-      chip: (document.querySelector('#jump .chip[data-jump="absWrap"]') || { textContent: '' }).textContent,
+      /* 겹쳐 있던 칩 줄(#jump)은 지웠다 — 「오늘 할 일」(#todo)이 같은 배열로
+         같은 글자를 이미 적고 있었다(2026-08-14). 재는 것은 그대로다:
+         **미룬 것이 오늘 할 일에서 빠지는가.** */
+      chip: (document.querySelector('#todo .chip[data-jump="absWrap"]')
+             || { textContent: '' }).textContent.replace(/\s+/g, ''),
       bar:  !!document.querySelector('#absList .snzbar'),
     }));
     chk('무르면 도로 올라온다', back.seen, ['김도윤', '김지성']);
-    chk('오늘 할 일에도 도로 잡힌다', back.chip, '시험 미응시2');
+    chk('오늘 할 일에도 도로 잡힌다', back.chip, '시험미응시2');
     chk('미룬 것이 없으면 줄도 사라진다', back.bar, false);
   }
 

@@ -85,9 +85,18 @@ def scan():
         # 목적인 검사다(`tests/silent-resend.js`). 그런 검사는 `_nosheet` 를
         # 쓰면 셀 것이 사라진다. 다만 **말없이 빠져나가지는 못하게** 한다:
         # 까닭을 적고, 창구를 실제로 덮는 자리를 갖춰야 봐 준다.
+        # 막는 길은 **둘**이다. 끊거나(abort), 가로채서 내가 지은 답을
+        # 주거나(fulfill). 둘 다 진짜 시트에는 한 글자도 안 나간다 —
+        # playwright 는 route 를 가로챈 요청을 망으로 안 내보낸다.
+        #
+        # 처음에는 `abort` 만 쳐 줬는데, 화면에 **자료를 먹여 놓고** 보는
+        # 검사는 끊으면 아무것도 안 그려져서 잴 것이 없다(tests/hub-dash.js).
+        # 그런 검사가 fulfill 을 쓴다는 이유로 «안 막았다» 고 하면, 자가
+        # 맞는 말을 안 하는 것이 된다.
+        _flat = src.replace(' ', '')
         excused = ('NOSHEET-예외:' in src
                    and re.search(r"route\(\s*['\"][^'\"]*script\.google", src)
-                   and 'r.abort()' in src.replace(' ', ''))
+                   and ('r.abort()' in _flat or 'r.fulfill(' in _flat))
         if excused:
             wired = required = True
         # 손으로 막은 자리 — 쳐 주지는 않지만 무엇이 있었는지는 적는다.

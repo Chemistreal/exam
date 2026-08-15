@@ -817,7 +817,13 @@ console.log('\n── 오늘 할 일을 한 줄에 세운다 ──');
   chk('합칠 이름도 센다', n[4], 0);
 
   const body = SRC.split('<script>')[1] || '';
-  chk('자리가 있다', /id="jump"/.test(SRC), true);
+  /* [바뀐 것] 예전에는 `id="jump"` 라는 **자리 이름**을 찾았다. 2026-08-14 에
+     그 줄을 지웠다 — 바로 위 「오늘 할 일」(#todo)이 같은 배열로 같은 글자를
+     이미 적고 있어서 두 줄이 겹쳤다. 지키려던 것은 «JUMPS 를 그리는 자리가
+     화면에 있다» 이지 그 자리의 이름이 아니다. 이름 말고 **그리는 것**을 본다. */
+  chk('자리가 있다', /id="todo"/.test(SRC), true);
+  chk('그 자리가 JUMPS 로 칩을 만든다', /data-jump="'\s*\+\s*p\.id/.test(SRC), true);
+  chk('겹친 줄이 안 돌아왔다', /id="jump"/.test(SRC), false);
   chk('빈 것은 안 세운다', /JUMPS\.filter\(function\(j\)\{ return j\.n\(\) > 0; \}\)/.test(body), true);
   chk('누르면 그 자리로 간다', /scrollIntoView/.test(body), true);
   // 스크롤만 되면 무엇이 바뀌었는지 모른다
