@@ -332,8 +332,13 @@ def verify(items):
     #   앞 배치 꼬리를 끌어와 이어 붙인 뒤 '등차로 네 번 이상' 을 본다.
     #   (배치 안 기준은 세 번이지만, 창을 넓히면 우연히 세 번 걸리는 일이 잦아
     #    경계 검사는 네 번으로 올린다.)
+    #   ★이번 배치가 이미 은행에 들어 있으면 꼬리에서 뺀다★ — patch_batch.py 로 병합된
+    #   배치를 제자리에서 고칠 때, 꼬리가 곧 그 배치라 ★자기 자신과 맞대어 등차열을
+    #   만들어 낸다★(T16 P11 에서 ① 이 -7·-2·3·8 로 걸렸는데 -7·-2 가 곧 3·8 이었다).
     try:
-        tail = [x['answer'] for x in json.load(open(BANK, encoding='utf-8'))[-8:]]
+        _self = {x['id'] for x in items}
+        tail = [x['answer'] for x in json.load(open(BANK, encoding='utf-8'))
+                if x['id'] not in _self][-8:]
     except Exception:
         tail = []
     ext, off = tail + seq, len(tail)
