@@ -337,8 +337,13 @@ def verify(items):
     #   만들어 낸다★(T16 P11 에서 ① 이 -7·-2·3·8 로 걸렸는데 -7·-2 가 곧 3·8 이었다).
     try:
         _self = {x['id'] for x in items}
-        tail = [x['answer'] for x in json.load(open(BANK, encoding='utf-8'))
-                if x['id'] not in _self][-8:]
+        _bank = json.load(open(BANK, encoding='utf-8'))
+        #  ★꼬리는 '은행의 끝' 이 아니라 ★이 배치 바로 앞★ 이다★ — patch_batch 로 은행 한가운데
+        #    배치를 고칠 때, 끝에서 여덟을 끌어오면 ★스무 배치 뒤의 자리 열과 맞대게 된다★.
+        #    T16 P7 을 검증 조치로 고치는 동안 P13 의 꼬리와 맞물려 있지도 않은 등차열이 울었다.
+        _pos = next((i for i, x in enumerate(_bank) if x['id'] in _self), None)
+        _pre = _bank[:_pos] if _pos is not None else [x for x in _bank if x['id'] not in _self]
+        tail = [x['answer'] for x in _pre if x['id'] not in _self][-8:]
     except Exception:
         tail = []
     ext, off = tail + seq, len(tail)
