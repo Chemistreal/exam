@@ -595,6 +595,19 @@ jobs:
       - name: 성적표 Word 문서
         timeout-minutes: 5
         run: node tests/docx-report.js
+      # 선생님이 받은 파일에서 표지 다음 2쪽이 **채점일 한 줄만 있는 빈 장**
+      # 이었다(2026-08-17). 까닭은 표지 아래 여백이 5200 트윕으로 박혀 있었고,
+      # 그 값은 아래 두 줄이 생기기 전에 맞춰 놓은 것이라 여유가 30.7pt 밖에
+      # 안 남아서였다. 워드는 글꼴 높이를 다르게 재므로 그 한 줄을 못 버틴다.
+      # 파일만 봐서는 안 보인다 — **찍어 봐야** 보인다. 그래서 여기서 찍는다.
+      - name: 워드 성적표를 찍을 수 있다 (LibreOffice · poppler)
+        timeout-minutes: 10
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq libreoffice-writer poppler-utils
+      - name: 성적표 Word — 장이 밀리지 않는다
+        timeout-minutes: 15
+        env:
+          REQUIRE_SOFFICE: '1'      # 렌더러가 없으면 조용히 넘어가지 않는다
+        run: node tests/docx-pages.js
       - name: 오답노트 상호작용
         timeout-minutes: 5
         run: node tests/wrongbook-interactive.js
