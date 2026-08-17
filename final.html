@@ -6547,6 +6547,27 @@ async function downloadReportDOCX(){
   }
 
   var body=[];
+  /* ── 표지가 한 장을 안 넘게 (선생님 2026-08-17) ──────────────────────
+     아래 여백이 **5200 트윕으로 박혀** 있었다. 그 값은 표지 아래 두 줄
+     (숫자 셋 #9 · 채점일 #17)이 생기기 전에 맞춰 놓은 것이라, 줄이 늘 때마다
+     표지가 바닥으로 밀렸다.
+
+     찍어서 재어 보니 마지막 줄 아래로 남은 여유가 **30.7pt — 딱 한 줄**이었다.
+     워드는 글꼴 높이를 이 renderer 와 다르게 재므로 그 한 줄을 못 버틴다.
+     실제로 선생님 화면에서는 채점일 줄이 2쪽으로 밀렸고, 2쪽은 그 줄 하나만
+     있는 **빈 장**이 됐다.
+
+     이제 아래 덩어리에 실제로 들어가는 줄 수를 세어 그만큼 빼고, 그러고도
+     두 줄치 여유를 남긴다. 줄이 더 늘어도 표지는 안 넘친다.
+     tests/docx-report.js 가 실제로 PDF 로 찍어 남은 여유를 잰다. */
+  var _covLines = 1                                        // 이름
+    + ([sch, grd].filter(Boolean).length ? 1 : 0)          // 학교·학년
+    + 1                                                    // 성취 지표 한 줄
+    + 1                                                    // 숫자 셋
+    + 1;                                                   // 채점일·발행일
+  var COVER_LINE = 460;      // 줄 하나가 먹는 세로(트윕, 문단 여백 포함)
+  var COVER_SAFE = 1800;     // 워드가 더 크게 재도 버틸 여유(≈90pt)
+  var coverGap = Math.max(1200, 8000 - COVER_LINE * _covLines - COVER_SAFE);
   // ── 표지 (배경 길로셰+化 씰은 첫 페이지 헤더 이미지. 텍스트는 상단(제목)·하단(이름)에 배치) ──
   body.push(P([],{before:1300}),
     logoPara(dawonLogo,190,{after:120}),
@@ -6554,7 +6575,7 @@ async function downloadReportDOCX(){
     txt('성적 진단서',{align:AlignmentType.CENTER,bold:true,size:78,serif:true,after:150}),
     txt(cur.title,{align:AlignmentType.CENTER,color:EM,size:30,serif:true,after:90}),
     ornPara(dividerOrn,320,{before:30,after:40}),
-    P([],{before:5200}),
+    P([],{before:coverGap}),
     txt(nm||'학생',{align:AlignmentType.CENTER,bold:true,size:38,serif:true,after:60}),
     txt([sch,grd?grd+'학년':''].filter(Boolean).join('  ·  '),{align:AlignmentType.CENTER,color:MUT,size:20,after:36}),
     txt('성취 지표 · 영역별 진단 · 오답 정밀 분석 · 학습 처방 · 개념 강의 교재',{align:AlignmentType.CENTER,color:GOLD,size:16,after:60}),
@@ -6642,16 +6663,54 @@ async function downloadReportDOCX(){
   var toc=sections.map(function(s){return {n:s.no,t:s.t,d:s.d};});
   if((wrong||[]).length) toc.push({n:'부록 Ⅰ',t:'오답 정리 노트',d:'틀린 '+W+'문항의 원문·오답 원인·동형문제'});
   if(lecFiles.length) toc.push({n:'부록 Ⅱ',t:'개념 강의 교재',d:'틀린 개념의 강의 전문'});
-  var tcNW=1900, tocRows=toc.map(function(it){
-    var nSize=it.n.length>2?20:34;
-    var numCell=C([P([run(it.n,{bold:true,color:GOLD,size:nSize,serif:true})],{align:AlignmentType.CENTER,before:0,after:0})],{w:tcNW,mt:160,mb:160});
-    var txtCell=C([P([run(it.t,{bold:true,color:EM,size:26,serif:true})],{after:24}),P([run(it.d,{color:MUT,size:17})],{after:0})],{w:CW-tcNW,mt:160,mb:160,ml:200});
-    return ROW([numCell,txtCell]);
-  });
-  body.push(P([],{before:420}),kicker('❖  CONTENTS  ❖'),
+  /* ── 목차도 한 장에 (선생님 2026-08-17) ────────────────────────────
+     칸 여백이 160 트윕으로 **박혀** 있었다. 목차 줄 수는 회차마다 다르다
+     (수상 확률·성장 추적·부록 유무). 13줄이 되자 세 줄이 다음 장으로 넘어가
+     목차가 두 장이 됐고, 넘어간 장에는 그 세 줄만 덩그러니 남았다.
+
+     찍어서 재어 보니(2026-08-17):
+       머리(CONTENTS·목차·장식선) 133.7pt · 항목 간격 57.1pt · 본문 722pt
+     즉 한 단으로는 **열 줄까지**다. 여백만 좁히면 열두어 줄까지 늘 뿐이고,
+     그다음 회차에 또 넘친다 — 박아 둔 값을 다른 박아 둔 값으로 바꾸는 셈이다.
+
+     그래서 줄이 많으면 **두 단**으로 간다. 열여섯 줄이라도 한 단에 여덟 줄이라
+     자리가 남고, 넘칠 걱정이 사라진다. */
+  var tocTwo = toc.length >= 11;
+  /* 두 단이면 줄이 절반이라 자리가 많이 남는다. 남는 만큼 칸 여백을 넓혀
+     빽빽해 보이지 않게 한다 — 다만 한 장을 넘지 않는 선까지만.
+     본문 14438 트윕 · 머리 3200 · 줄 하나가 여백 말고 먹는 높이 820. */
+  var tocLines = tocTwo ? Math.ceil(toc.length / 2) : toc.length;
+  var tocPad = Math.max(90, Math.min(340,
+    Math.floor(((14438 - 3200) / tocLines - 820) / 2)));
+  var tcNW = tocTwo ? 900 : 1900;
+  var tocTW = tocTwo ? Math.floor((CW - 2 * tcNW) / 2) : CW - tcNW;
+  function tocNum(it){
+    return C([P([run(it.n,{bold:true,color:GOLD,size:(it.n.length>2?(tocTwo?16:20):(tocTwo?26:34)),serif:true})],
+      {align:AlignmentType.CENTER,before:0,after:0})],{w:tcNW,mt:tocPad,mb:tocPad});
+  }
+  function tocTxt(it){
+    if(!it) return C([P([],{after:0})],{w:tocTW,mt:tocPad,mb:tocPad});
+    return C([P([run(it.t,{bold:true,color:EM,size:tocTwo?22:26,serif:true})],{after:24}),
+              P([run(it.d,{color:MUT,size:tocTwo?15:17})],{after:0})],{w:tocTW,mt:tocPad,mb:tocPad,ml:tocTwo?140:200});
+  }
+  var tocRows, tocCols;
+  if(tocTwo){
+    var half=Math.ceil(toc.length/2);
+    tocCols=[tcNW,tocTW,tcNW,tocTW];
+    tocRows=[];
+    for(var ti=0; ti<half; ti++){
+      var L=toc[ti], R=toc[ti+half];
+      tocRows.push(ROW(R ? [tocNum(L),tocTxt(L),tocNum(R),tocTxt(R)]
+                         : [tocNum(L),tocTxt(L),C([P([],{after:0})],{w:tcNW,mt:tocPad,mb:tocPad}),tocTxt(null)]));
+    }
+  }else{
+    tocCols=[tcNW,tocTW];
+    tocRows=toc.map(function(it){ return ROW([tocNum(it),tocTxt(it)]); });
+  }
+  body.push(P([],{before:tocTwo?260:420}),kicker('❖  CONTENTS  ❖'),
     txt('목차',{align:AlignmentType.CENTER,bold:true,color:EM,size:56,serif:true,after:40}),
-    ornPara(dividerOrn,320,{before:16,after:220}),
-    TBL([tcNW,CW-tcNW],tocRows,{top:bdr(GOLDL,4),bottom:bdr(GOLDL,4),left:NB,right:NB,insideHorizontal:bdr('E6DDC8',2),insideVertical:NB}),
+    ornPara(dividerOrn,320,{before:16,after:tocTwo?150:220}),
+    TBL(tocCols,tocRows,{top:bdr(GOLDL,4),bottom:bdr(GOLDL,4),left:NB,right:NB,insideHorizontal:bdr('E6DDC8',2),insideVertical:NB}),
     PB());
 
   // ── 01 진단 개요 ──

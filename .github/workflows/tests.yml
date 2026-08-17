@@ -919,3 +919,59 @@ jobs:
       - name: 아무도 읽지 않는 자산
         timeout-minutes: 5
         run: python3 tools/orphan_scan.py
+
+  # ── 워드 성적표를 실제로 찍어 본다 ──────────────────────────────────
+  # 선생님이 만든 파일에서 표지 다음 2쪽이 **채점일 한 줄만 있는 빈 장**
+  # 이었다(2026-08-17). 표지 아래 여백이 5200 트윕으로 박혀 있었고, 그 값은
+  # 아래 두 줄이 생기기 전에 맞춘 것이라 여유가 30.7pt 밖에 없었다. 워드는
+  # 글꼴 높이를 다르게 재므로 그 한 줄을 못 버틴다.
+  #
+  # 파일만 봐서는 안 보인다 — **찍어 봐야** 보인다.
+  #
+  # ⚠ 위 test 판에 붙였다가 뺐다. 그 판은 30분 한도에 이미 거의 차 있어서,
+  #   LibreOffice 설치(수 분)와 이 검사를 얹으면 **뒤에 있던 검사 쉰 개가
+  #   아예 안 도는** 일이 생긴다. 실제로 2026-08-07 에 한 검사가 멈춰 그렇게
+  #   됐다. 그래서 제 판을 따로 낸다 — 나란히 돌고, 서로를 안 민다.
+  docx:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      REQUIRE_BROWSER: '1'
+      REQUIRE_SOFFICE: '1'      # 렌더러가 없으면 조용히 넘어가지 않는다
+      NODE_PATH: tests/node_modules
+      PORT: '8931'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # ⚠ 권장 패키지까지 끌어오면 자바·사전·글꼴 묶음이 딸려 와 설치가 길다.
+      #   --no-install-recommends 로 끊되, **한글 글꼴은 따로 넣는다** — 없으면
+      #   LibreOffice 가 아무 글꼴로 대신 그리고, 그러면 줄 높이가 달라져
+      #   여기서 재는 값이 흔들린다.
+      #   (Malgun Gothic 은 윈도 글꼴이라 어차피 여기엔 없다. 이 자는 워드를
+      #    똑같이 흉내 내는 것이 아니라 **여유가 거의 없는 상태**를 잡는다.)
+      - name: LibreOffice · poppler 설치
+        timeout-minutes: 12
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends \
+            libreoffice-writer poppler-utils fonts-nanum
+      - name: playwright 설치
+        timeout-minutes: 5
+        run: npm install --prefix tests
+      - name: chromium 설치
+        timeout-minutes: 10
+        run: npx --prefix tests playwright install --with-deps chromium
+      - name: 정적 서버 (검사용)
+        timeout-minutes: 3
+        run: |
+          nohup python3 -c 'from http.server import SimpleHTTPRequestHandler,ThreadingHTTPServer; ThreadingHTTPServer(("",8931),SimpleHTTPRequestHandler).serve_forever()' >/dev/null 2>&1 &
+          for i in $(seq 1 40); do
+            curl -sf -o /dev/null http://127.0.0.1:8931/final.html && exit 0
+            sleep 0.5
+          done
+          echo "::error::정적 서버가 뜨지 않았습니다"; exit 1
+      - name: 성적표 Word — 장이 밀리지 않는다
+        timeout-minutes: 15
+        run: node tests/docx-pages.js
