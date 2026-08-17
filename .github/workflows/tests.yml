@@ -945,9 +945,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      # ⚠ 권장 패키지까지 끌어오면 자바·사전·글꼴 묶음이 딸려 와 설치가 길다.
+      #   --no-install-recommends 로 끊되, **한글 글꼴은 따로 넣는다** — 없으면
+      #   LibreOffice 가 아무 글꼴로 대신 그리고, 그러면 줄 높이가 달라져
+      #   여기서 재는 값이 흔들린다.
+      #   (Malgun Gothic 은 윈도 글꼴이라 어차피 여기엔 없다. 이 자는 워드를
+      #    똑같이 흉내 내는 것이 아니라 **여유가 거의 없는 상태**를 잡는다.)
       - name: LibreOffice · poppler 설치
-        timeout-minutes: 10
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq libreoffice-writer poppler-utils
+        timeout-minutes: 12
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends \
+            libreoffice-writer poppler-utils fonts-nanum
       - name: playwright 설치
         timeout-minutes: 5
         run: npm install --prefix tests
