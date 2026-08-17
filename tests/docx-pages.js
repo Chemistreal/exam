@@ -141,10 +141,30 @@ const chk = (n, ok, info) => {
   const inkOf = s => s.split('\n').map(l => l.trim())
     .filter(l => l && !/CHEMISTREAL/.test(l) && !/^\d+\s*\/\s*\d+$/.test(l))
     .join('').length;
-  const thin = pages.map((s, i) => ({ n: i + 1, ink: inkOf(s) })).filter(x => x.ink < 60);
-  console.log('  전체 ' + pages.length + '쪽 · 거의 빈 장 ' + thin.length + '개');
-  chk('거의 빈 장이 없다', thin.length === 0,
-    thin.map(x => x.n + '쪽(글자 ' + x.ink + ')').join(', '));
+  const ink = pages.map((s, i) => ({ n: i + 1, ink: inkOf(s) }));
+
+  /* 무엇을 막고 무엇을 적어만 둘지 — 이 둘은 다르다.
+
+     **막는 것**: 글자가 거의 없는 장. 선생님이 받은 파일의 2쪽이 그랬다
+       (채점일 한 줄, 30자 남짓). 그런 장은 박아 둔 여백 탓이고, 고치면 사라진다.
+
+     **적어만 두는 것**: 한 절의 끝 두세 줄이 넘어간 장. 이건 글 길이 탓이라
+       학생마다 다르다 — 처방이 세 영역인 학생과 여섯 영역인 학생이 다르고,
+       renderer 가 바뀌어도 달라진다(여기 94쪽 · 이 자리 96쪽). 고정된 값으로
+       막으려 하면 **엉뚱한 빨간불**이 되고, 그러면 아무도 이 자를 안 본다.
+       세어서 남기고, 줄일지는 사람이 정한다. */
+  const BLANKISH = 40;      // 한글 한 줄이 대략 40자
+  const THINNISH = 200;
+  /* 표지는 원래 글자가 적은 장이다 — 끝자락 목록에 넣으면 늘 한 줄이 뜨고,
+     늘 뜨는 줄은 곧 안 읽는 줄이 된다. 다만 «거의 빈 장» 에서는 안 뺀다 —
+     선생님이 받은 파일에서 문제가 난 곳이 바로 표지 다음이었다. */
+  const blank = ink.filter(x => x.ink < BLANKISH);
+  const thin = ink.filter(x => x.n > 1 && x.ink >= BLANKISH && x.ink < THINNISH);
+  console.log('  전체 ' + pages.length + '쪽 · 거의 빈 장 ' + blank.length
+    + '개 · 끝자락만 남은 장 ' + thin.length + '개'
+    + (thin.length ? ' (' + thin.map(x => x.n + '쪽 ' + x.ink + '자').join(', ') + ')' : ''));
+  chk('거의 빈 장이 없다', blank.length === 0,
+    blank.map(x => x.n + '쪽(글자 ' + x.ink + ')').join(', '));
 
   /* ── ③ 목차가 한 장에 다 들어간다 ── */
   const tocPages = pages.map((s, i) => ({ n: i + 1, s }))
