@@ -644,7 +644,11 @@ summary::-webkit-details-marker{display:none}
 .wb-dh{border:1px solid #e6ddc8;border-radius:11px;background:#fffdf7;padding:14px 15px}
 .wb-dh-h{font-family:'Nanum Myeongjo',Georgia,serif;font-size:15px;font-weight:800;color:#8a6d1f;margin-bottom:9px}
 .wb-dh-src{font-family:inherit;font-size:11.5px;font-weight:600;color:var(--muted);margin-left:8px;padding:2px 8px;border:1px solid var(--line);border-radius:999px;vertical-align:middle}
-.wb-stem{font-size:13.5px;line-height:1.85;color:var(--ink)}
+/* 동형문제 지문·해설은 donghyung 아래 회차 파일에 줄바꿈이 살아 있는 글이다(2,400여 문항 전부).
+   esc() 로 그대로 심으므로 pre-wrap 이 없으면 (가)(나)(다) 목록과 여러 줄짜리 식이
+   한 줄로 붙는다. 저장소의 다른 화면(grade-j0·sol-kch2final·paper-*)은 진작
+   esc(지문)+pre-wrap 짝으로 쓰고 있었고 여기만 짝이 빠져 있었다. */
+.wb-stem{font-size:13.5px;line-height:1.85;color:var(--ink);white-space:pre-wrap}
 .wb-opts{list-style:none;margin:9px 0 0;padding:0}
 .wb-opts li{display:flex;gap:8px;font-size:13.5px;line-height:1.7;color:var(--ink-2);padding:4px 8px;border-radius:7px}
 .wb-opts li .ci{color:var(--muted);font-weight:700;flex:0 0 auto}
@@ -687,7 +691,7 @@ summary::-webkit-details-marker{display:none}
 .wb-dh-reveal>summary:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
 .wb-dh-ans{margin-top:11px;font-size:13.5px;color:var(--ink-2)}
 .wb-dh-ans b{color:var(--teal);font-size:15px;margin-left:3px}
-.wb-dh-sol{margin-top:9px;font-size:13px;line-height:1.85;color:var(--ink-2);border-top:1px dashed var(--line);padding-top:9px}
+.wb-dh-sol{margin-top:9px;font-size:13px;line-height:1.85;color:var(--ink-2);border-top:1px dashed var(--line);padding-top:9px;white-space:pre-wrap}
 .wb-dh-sol b{color:var(--teal);margin-right:4px}
 .wb-dh-sol h4{font-size:13.5px;margin:6px 0}.wb-dh-sol p{margin:5px 0}
 .wb-mis{border-left:3px solid var(--ms);padding:8px 11px;margin-top:9px;background:#fff7f2;font-size:12.5px;line-height:1.7;color:var(--ink-2)}
@@ -733,7 +737,7 @@ summary::-webkit-details-marker{display:none}
   body.printretest .rt-no{font-weight:800;font-size:14px;color:#0E5A4C;min-width:18px}
   body.printretest .rt-src,body.printretest .rt-tag{font-size:11.5px;color:#777}
   body.printretest .rt-tag{background:#f0ece2;padding:1px 6px;border-radius:3px}
-  body.printretest .rt-stem{font-size:12.6px;line-height:1.75;margin-bottom:6px}
+  body.printretest .rt-stem{font-size:12.6px;line-height:1.75;margin-bottom:6px;white-space:pre-wrap}
   body.printretest .rt-ch{font-size:12.2px;line-height:1.7;padding-left:8px}
   body.printretest .rt-img{max-width:100%;height:auto}
   /* 정답표는 새 페이지에서 시작한다. 잘라 내면 앞장이 그대로 학생용이 된다. */
@@ -745,7 +749,7 @@ summary::-webkit-details-marker{display:none}
   body.printretest .rt-keyt th,body.printretest .rt-keyt td{
     border:1px solid #ddd;padding:3px 11px;font-size:11.5px;text-align:center}
   body.printretest .rt-keyt th{background:#f5f2ea;font-weight:700}
-  body.printretest .rt-sol{font-size:11.5px;line-height:1.7;color:#333;margin-bottom:6px;
+  body.printretest .rt-sol{font-size:11.5px;line-height:1.7;color:#333;margin-bottom:6px;white-space:pre-wrap;
     break-inside:avoid;page-break-inside:avoid}
   body.printretest .rt-sol b{color:#0E5A4C;margin-right:3px}
 }
@@ -1702,13 +1706,15 @@ function copyAllLinks(fmt){
     navigator.clipboard.writeText(text).then(ok).catch(function(){ fallbackCopy(text,ok); });
   } else fallbackCopy(text,ok);
 }
-/* 회차 자료(문제지·해설) 링크. 두 파일 다 저장소에 같이 올라간다.
-   [문제지] exams.json 의 pdf 필드. 38개 회차 모두 있다.
-   [해설]   sol-final-<id>.html. 38개 회차 모두 있는데, 담긴 내용은 회차마다 다르다 —
-            문항별 풀이가 없는 9개 회차(기출동형 4회·KMChC 2024 제2차·
-            2025 제1차 2종·2025 제2차 일반·2026 제1차 일반)는 아직
-            **정답·영역·개념표까지**다.
-            그래서 이름을 회차에 맞게 붙인다. 없는 것을 있다고 하지 않는다. */
+/* 회차 자료(문제지·해설) 링크. 파일은 다 저장소에 같이 올라간다.
+   [문제지]   exams.json 의 pdf 필드. 42개 회차 모두 있다.
+   [해설]     sol-final-<id>.html. 42개 회차 모두 있고, 42개 회차가 문항별 풀이까지
+              담고 있다(2026-08-18 에 KMChC 일반 셋을 선생님 교재로 채우며 전부가 됐다).
+   [공식 정답] answerPdf 필드. 29개 회차에 있다 — 있는 회차만 단추를 낸다.
+
+   ⚠ 이름은 **데이터를 보고** 붙인다(examSolLabel 이 exam.solFull 을 읽는다).
+     여기 적힌 수는 그때그때 세어 다시 적은 것이라 손으로 고치면 낡는다.
+     없는 것을 있다고 하지 않는다. */
 function examSolLabel(exam){
   return (exam && exam.solFull) ? '정답 · 문항별 해설' : '정답 · 개념표';
 }
