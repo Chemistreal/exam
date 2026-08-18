@@ -93,9 +93,23 @@ def build(exam_id: str) -> str:
         if kk in (0, "", None, "X", "x"):
             allc.add(i)
 
+    # ── 복수정답 문항은 «어느 것을 인정하는지» 를 적는다 ────────────────
+    # 여태 해설지는 대표 답 하나만 적었다. hwol-2018 27번은 ①·② 를 다 인정하는데
+    # 「정답 ①」 이라고만 적혀 있었다 — ② 를 쓴 학생은 맞게 채점되고도 해설지에서
+    # 다른 답을 본다. 점수는 맞으니 아무도 안 걸린다.
+    # 채점이 인정하는 답을 그대로 적는다(선생님 결정 2026-08-17). 열한 문항이다.
+    multi = {}
+    for qq, v in (exam.get("multi") or {}).items():
+        n = int(qq)
+        if n not in allc and len(v or []) >= 2:
+            multi[n] = sorted(int(x) for x in v)
+
     def ansOf(num, r):
-        if int(num) in allc:
+        n = int(num)
+        if n in allc:
             return "전원정답"
+        if n in multi:
+            return "·".join(CIRC.get(x, str(x)) for x in multi[n]) + " 복수정답"
         return CIRC.get(int(r["answer"]), r["answer"])
 
     unreviewed = [k for k in q if not str(q[k].get("verificationStatus", "")).startswith("verified")]
@@ -163,8 +177,9 @@ def build(exam_id: str) -> str:
             out.append("<div class=\"q\"><div class=\"qh\">"
                        f"<span class=\"qno\">문제 {k}</span>"
                        f"<span class=\"area\">{esc(r.get('concept',''))}</span>"
-                       # '정답 전원정답' 은 말이 겹친다 — 전원정답은 그 자체로 답 자리다
-                       f"<span class=\"ans\">{ansOf(k, r) if int(k) in allc else '정답 ' + str(ansOf(k, r))}</span></div>"
+                       # '정답 전원정답'·'정답 ①·④ 복수정답' 은 말이 겹친다 —
+                       # 그 두 가지는 그 자체로 답 자리다
+                       f"<span class=\"ans\">{ansOf(k, r) if (int(k) in allc or int(k) in multi) else '정답 ' + str(ansOf(k, r))}</span></div>"
                        f"<div class=\"sol\">{body}</div>")
             if r.get("reviewNote"):
                 out.append(f"<div class=\"rev\"><b>확인 필요</b> {esc(r['reviewNote'])}</div>")

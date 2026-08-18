@@ -208,7 +208,12 @@ console.log('\n── 실제 회차 데이터로 ──');
      회차를 새로 넣거나 전원정답을 지정할 때는 이 표를 **의도해서** 고친다. */
   const PINNED = {
     'jmchc-4': [36], 'jmchc-7': [33], 'jmchc-9': [47, 50, 60], 'jmchc-10': [50],
-    'donghyung-2': [19], 'kmchc-2025-1-simhwa': [38, 41],
+    'donghyung-2': [19],
+    // 선생님이 정하신 것(2026-08-17) — 2025 제2차 심화 4번 전원정답.
+    // 같은 회차 37번은 ①·④ 복수정답이라 전원정답이 아니다(여기 안 든다).
+    // ⚠ 이 표는 **차례까지** 견준다(JSON.stringify 비교). exams.json 에
+    //   실린 순서대로 적어야 한다 — 내용이 같아도 자리가 다르면 빨간불이다.
+    'kmchc-2025-2-simhwa': [4], 'kmchc-2025-1-simhwa': [38, 41],
     'hwol-2021': [60], 'hwol-2019': [23, 42], 'hwol-2018': [34],
     'hwol-2017': [60], 'hwol-2015': [20], 'hwol-2014': [57],
     'hwol-2010': [38, 42],   // 대회 원본 정답표에 '삭제' 로 적힌 두 문항
@@ -247,6 +252,39 @@ console.log('\n── 읽는 쪽에도 "빠졌다" 고 말하지 않는다 ─�
   // 해설 목차의 딱지 이름은 한 가지다
   const idx = fs.readFileSync(path.join(ROOT, 'index_haeseol.html'), 'utf8');
   chk('목차 딱지에 "삭제" 가 없다', /<span class="sp">삭제/.test(idx), false);
+}
+
+console.log('\n── 복수정답 문항은 인정 답을 다 적는다 ──');
+{
+  /* 해설지는 복수정답 문항에도 **대표 답 하나만** 적고 있었다. hwol-2018
+     27번은 ①·② 를 다 인정하는데 「정답 ①」 이라고만 적혀 있어서, ② 를 쓴
+     학생은 맞게 채점되고도 해설지에서 다른 답을 본다 — 점수는 맞으니
+     아무도 안 걸린다. (선생님 결정 2026-08-17: 「몇 번 복수정답」 이라고 적는다)
+
+     ⚠ 전원정답(넷 다 인정)은 여기 안 든다. 그건 「전원정답」 한 마디가 답이다. */
+  const CIRC = { 1: '①', 2: '②', 3: '③', 4: '④' };
+  const want = [], missing = [];
+  EXAMS.forEach(e => {
+    const allc = F.allcSet(e);
+    Object.keys(e.multi || {}).forEach(qq => {
+      const n = +qq, acc = (e.multi[qq] || []).map(Number).sort((a, b) => a - b);
+      if (allc.has(n) || acc.length < 2) return;
+      const label = acc.map(x => CIRC[x] || x).join('·') + ' 복수정답';
+      want.push(`${e.id} ${n}번 ${label}`);
+      const f = path.join(ROOT, `sol-final-${e.id}.html`);
+      if (!fs.existsSync(f)) return;              // 해설지가 아직 없는 회차는 건너뛴다
+      const t = fs.readFileSync(f, 'utf8');
+      /* 표 한 줄과 문항 머리 두 곳에 다 적혀야 한다 — 한쪽만 고치면
+         목차와 본문이 다른 말을 한다. */
+      const inTable = t.includes(`<tr><td>${n}</td><td>${label}</td>`);
+      const inHead = t.includes(`문제 ${n}</span>`) && t.includes(`<span class="ans">${label}</span>`);
+      if (!inTable || !inHead) missing.push(`${e.id} ${n}번(표 ${inTable} 머리 ${inHead})`);
+    });
+  });
+  console.log('  복수정답 문항 ' + want.length + '개: ' + want.join(' · '));
+  chk('해설지가 인정 답을 다 적는다', missing, []);
+  /* 자가 눈먼 것이 아닌지 — 셀 것이 없으면 이 검사는 아무것도 안 막는다. */
+  chk('복수정답 문항이 실제로 있다', want.length > 0, true);
 }
 
 console.log(fail ? `\n${fail}개 실패` : '\n모두 통과');
