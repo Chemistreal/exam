@@ -127,7 +127,10 @@ assert broken <= BROKEN_BUDGET, f"손상 동형문제 증가: {broken} > {BROKEN
 #    2430 → 2490 : KMChC 2009 회차를 새로 넣었다(60문항). 문제지 PDF 가 있는
 #    가장 오래된 회차다 — 2003~2008 은 문제지가 없어 크롭을 뜰 수 없다 (2026-08-08).
 assert seen == expected, f"자산이 빠진 문항이 있다: {seen} != {expected}"
-assert seen == 2490, f"문항 총합이 달라졌다: {seen} (기대 2490)"
+#    2490 → 2540 : KMChC 2025 제1차 **일반**(50문항)을 되살렸다. 맨 위 2400 → 2250
+#    에서 뺐던 셋 중 하나다 — 선생님이 그 회차 교재를 새로 만들어 다시 보기로
+#    하셨다. 나머지 둘(2025-2·2026-1 일반)은 그대로 빠져 있다 (2026-08-18).
+assert seen == 2540, f"문항 총합이 달라졌다: {seen} (기대 2540)"
 print(
     f"PASS wrongbook assets: exams={len(exams)} questions={seen} "
     f"손상(가드로 숨김)={broken}/{BROKEN_BUDGET}"
