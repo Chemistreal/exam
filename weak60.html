@@ -1,0 +1,1501 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>약점 극복 60제 · 선생님 자리 · CHEMISTREAL</title>
+<meta name="robots" content="noindex">
+<!--
+  ══ 약점 극복 60제 — 선생님 자리 ══════════════════════════════════════════
+  한 학생이 그동안 틀린 것만 모아 **그 학생 한 사람의 시험지**를 짓는다.
+  예순 명이면 예순 벌이 다 다르다.
+
+  세 걸음으로 돈다.
+
+    1교시 시험지  … 60제. 정답도 힌트도 한 자 없다. 그냥 시험이다.
+      ↓ (선생님이 답을 한 줄로 넣고 채점)
+    2교시 되풀이  … 1교시에 **틀린 것만**. 힌트 세 층이 붙는다. 정답은 없다.
+      ↓ (선생님이 답을 넣고 채점)
+    해설          … 60문항 전부. 정답·풀이·오개념, 그리고 세 갈래 판정.
+
+  세 갈래 판정이 이 장치의 값이다.
+    · 1교시에 맞았다              → **안다**
+    · 1교시엔 틀리고 2교시엔 맞았다 → **알지만 못 꺼낸다** (인출 실패)
+    · 두 번 다 틀렸다             → **모른다** (개념 결손)
+  같은 오답이라도 처방이 정반대다. 앞엣것은 연습량이, 뒤엣것은 강의가 답이다.
+
+  ⚠ 이 자리는 **이 브라우저에 채점해 둔 기록**만 본다. 시트에서 끌어오지
+    않는다 — 선생님이 일괄로 채점하는 자리이므로 기록이 여기 있다. 화면에도
+    그렇게 적어 둔다. 없는 것을 있다고 하지 않는다.
+
+  ⚠ 아래 「final.html 에서 옮겨 온 자리」 블록은 final.html 과 **한 글자도
+    다르면 안 된다**. 채점 규칙이 갈리면 같은 학생이 두 화면에서 다른 점수를
+    받는다. tests/weak60-shared.js 가 두 파일을 맞대어 본다.
+-->
+<style>
+:root{--ink:#23201b;--ink-2:#5a564d;--muted:#6f6a5e;--line:#E8E4DA;--line-2:#D8D2C4;
+      --paper:#fff;--cream:#FBFAF6;--bg:#FBFAF6;--sunk:#F4F1E9;--teal:#0E5A4C;--teal-d:#3A7A6B;
+      --wash:#EDF4F1;--brass:#B08D57;--brass-ink:#856738;--ms:#B8562F;--ok:#2F7A4F;--ok-bg:#eef5f2;
+      --mono:ui-monospace,SFMono-Regular,Menlo,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);line-height:1.62;
+     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+     -webkit-text-size-adjust:100%}
+header{background:linear-gradient(180deg,#0E5A4C,#0b4a3f);color:#fff;padding:22px 18px 18px;text-align:center}
+header .logo{font-size:12px;letter-spacing:.18em;opacity:.82;font-weight:600}
+header h1{margin:6px 0 3px;font-size:22px;font-weight:700}
+header .sub{font-size:12.5px;opacity:.85}
+main{max-width:920px;margin:0 auto;padding:16px 15px 80px}
+.step{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px 17px;margin:14px 0}
+.step[hidden]{display:none}
+.step > h2{margin:0 0 4px;font-size:16px;font-weight:700;color:var(--teal);display:flex;align-items:center;gap:9px}
+.step > h2 .no{display:inline-flex;align-items:center;justify-content:center;width:23px;height:23px;
+  border-radius:999px;background:var(--wash);color:var(--teal);font-size:12.5px;font-weight:700;flex:none}
+.step > .hint{margin:0 0 12px;font-size:12.5px;color:var(--muted)}
+.note{background:var(--sunk);border:1px solid var(--line);border-left:3px solid var(--brass);
+      border-radius:8px;padding:10px 13px;font-size:12.5px;color:var(--ink-2);margin:12px 0}
+.btn{appearance:none;border:1px solid var(--teal);background:var(--teal);color:#fff;border-radius:9px;
+     padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn:hover{background:var(--teal-d);border-color:var(--teal-d)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:#fff;color:var(--teal)}
+.btn.ghost:hover{background:var(--wash)}
+.btn.sm{padding:6px 11px;font-size:12.5px}
+.row{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+select,input[type=text],input[type=number]{font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line-2);
+  border-radius:8px;background:#fff;color:var(--ink);font-family:inherit}
+label.f{font-size:12.5px;color:var(--muted);font-weight:600}
+table.t{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
+table.t th,table.t td{border:1px solid var(--line);padding:6px 9px;text-align:left}
+table.t th{background:var(--sunk);font-weight:700;font-size:12.5px;color:var(--ink-2)}
+table.t td.n,table.t th.n{text-align:center;font-variant-numeric:tabular-nums}
+.wrap{overflow-x:auto}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11.5px;font-weight:700}
+.pill.ok{background:var(--ok-bg);color:var(--ok)}
+.pill.no{background:#f7ece7;color:var(--ms)}
+.pill.mid{background:#fdf4e3;color:var(--brass-ink)}
+.code{font-family:var(--mono);font-size:15px;font-weight:700;letter-spacing:.10em;color:var(--brass-ink)}
+.papers{list-style:none;margin:8px 0 0;padding:0}
+.papers li{border:1px solid var(--line);border-radius:9px;padding:9px 12px;margin:7px 0;
+  display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;font-size:13px}
+.papers li.on{border-color:var(--teal);background:var(--wash)}
+.papers .meta{color:var(--muted);font-size:12px}
+/* 답안 입력 — 60칸. 손으로 옮겨 적는 자리라 번호가 커야 한다. */
+.grid{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin:10px 0}
+@media(max-width:760px){.grid{grid-template-columns:repeat(5,1fr)}}
+.cellbox{border:1px solid var(--line-2);border-radius:7px;padding:3px 3px 4px;text-align:center;background:#fff}
+.cellbox .qn{font-size:11.5px;color:var(--muted);font-weight:700}
+.cellbox input{width:100%;border:none;text-align:center;font-size:17px;padding:2px 0;background:transparent;
+  font-variant-numeric:tabular-nums;font-family:inherit;color:var(--ink)}
+.cellbox input:focus{outline:2px solid var(--teal);outline-offset:1px;border-radius:4px}
+.cellbox.wrong{background:#fdf1ec;border-color:#e8c3b3}
+.cellbox.right{background:var(--ok-bg);border-color:#bcd9c8}
+.cellbox.dim{opacity:.4}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#23201b;color:#fff;
+  padding:9px 16px;border-radius:9px;font-size:13px;z-index:99;opacity:0;transition:opacity .25s;
+  box-shadow:0 4px 16px rgba(0,0,0,.22);max-width:88%;text-align:center;pointer-events:none}
+.verdict{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:12px 0}
+@media(max-width:660px){.verdict{grid-template-columns:1fr}}
+.vc{border:1px solid var(--line);border-radius:10px;padding:11px 13px;background:var(--sunk)}
+.vc b{display:block;font-size:13px;margin-bottom:2px}
+.vc .big{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
+.vc.know b,.vc.know .big{color:var(--ok)}
+.vc.slip b,.vc.slip .big{color:var(--brass-ink)}
+.vc.none b,.vc.none .big{color:var(--ms)}
+.muted{color:var(--muted)}
+.err{color:var(--ms);font-weight:600}
+</style>
+<style id="ct-theme" data-v="4" data-fam="tool" data-seal="1">/* 이 조각은 tools/theme.py 가 넣습니다. 손으로 고치지 마세요 —
+   다음 실행에서 덮어써집니다. 색을 바꾸려면 그 파일을 고치세요. */
+:root{--ink:#23201b;--ink-2:#5a564d;--muted:#6f6a5e;--line:#E8E4DA;--line-2:#D8D2C4;--paper:#fff;--cream:#FBFAF6;--bg:#FBFAF6;--sunk:#F4F1E9;--teal:#0E5A4C;--teal-d:#3A7A6B;--wash:#EDF4F1;--brass:#B08D57;--gold:#B08D57;/* 놋쇠는 두 가지 일을 한다. 밑선·테두리(그림, 3:1)는 밝은 쪽이 예쁘고,      흰 글씨를 얹는 바탕이나 글자색으로 쓰면 3.09:1 로 못 읽는다.      그래서 **글자용 놋쇠**를 따로 둔다. 흰 종이만 보고 4.95:1 로 맞춰      두었더니 가라앉은 바탕(--sunk #F4F1E9) 위에서 4.38:1 이라 모자랐다.      가장 어두운 바탕에서도 넘도록 조금 더 어둡게 잡는다 —      흰 5.26 · 크림 5.03 · 가라앉은 4.66. */   --brass-ink:#856738;--ms:#B8562F;--ok:#2F7A4F;--ok-bg:#eef5f2;--serif:"Hahmlet","Nanum Myeongjo",serif;--mono:ui-monospace,Menlo,monospace}
+html{color-scheme:light;-webkit-text-size-adjust:100%}
+@media screen{
+  body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  ::selection{background:#0E5A4C26}
+  :focus-visible{outline:2px solid #3A7A6B;outline-offset:2px;border-radius:3px}
+  table{font-variant-numeric:tabular-nums}
+  hr{border:0;border-top:1px solid var(--line)}
+  @media (min-width:1080px){body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='520' height='560' viewBox='0 0 520 560'%3E%3Cg fill='none' stroke='%230E5A4C' stroke-width='9' stroke-linejoin='round' opacity='0.055'%3E%3Cpath d='M260 60 L433 160 L433 360 L260 460 L87 360 L87 160 Z'/%3E%3Cpath d='M260 120 L381 190 L381 330 L260 400 L139 330 L139 190 Z'/%3E%3Cpath d='M260 60 L260 0 M433 160 L485 130 M433 360 L485 390 M260 460 L260 520 M87 360 L35 390 M87 160 L35 130'/%3E%3C/g%3E%3Cg fill='%230E5A4C' opacity='0.05'%3E%3Ccircle cx='260' cy='60' r='17'/%3E%3Ccircle cx='433' cy='160' r='17'/%3E%3Ccircle cx='433' cy='360' r='17'/%3E%3Ccircle cx='260' cy='460' r='17'/%3E%3Ccircle cx='87' cy='360' r='17'/%3E%3Ccircle cx='87' cy='160' r='17'/%3E%3C/g%3E%3C/svg%3E");background-repeat:no-repeat;background-attachment:fixed;background-position:right -110px top 90px;background-size:520px 560px}}
+  header{position:relative;overflow:hidden;background:#0E5A4C linear-gradient(135deg,#0E5A4C 0%,#0B4238 100%);border-bottom:2px solid #3A7A6B}
+  header::after{content:'';position:absolute;inset:0;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='104' viewBox='0 0 200 104'%3E%3Cg fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' opacity='0.20'%3E%3Cpath d='M0 72 L25 38 L50 72 L75 38 L100 72 L125 38 L150 72 L175 38 L200 72'/%3E%3Cpath d='M25 38 L25 15 M75 38 L75 15 M125 38 L125 15 M175 38 L175 15'/%3E%3C/g%3E%3Cg fill='%23000' opacity='0.17'%3E%3Ccircle cx='25' cy='38' r='6'/%3E%3Ccircle cx='75' cy='38' r='6'/%3E%3Ccircle cx='125' cy='38' r='6'/%3E%3Ccircle cx='175' cy='38' r='6'/%3E%3Ccircle cx='50' cy='72' r='6'/%3E%3Ccircle cx='100' cy='72' r='6'/%3E%3Ccircle cx='150' cy='72' r='6'/%3E%3Ccircle cx='0' cy='72' r='6'/%3E%3Ccircle cx='200' cy='72' r='6'/%3E%3Ccircle cx='25' cy='15' r='3.4'/%3E%3Ccircle cx='75' cy='15' r='3.4'/%3E%3Ccircle cx='125' cy='15' r='3.4'/%3E%3Ccircle cx='175' cy='15' r='3.4'/%3E%3C/g%3E%3C/svg%3E");background-size:200px 104px;background-position:center;-webkit-mask-image:radial-gradient(ellipse 62% 130% at 50% 50%,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 42%,#000 100%);mask-image:radial-gradient(ellipse 62% 130% at 50% 50%,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 42%,#000 100%)}
+  header>*{position:relative;z-index:1}
+  header .logo{letter-spacing:.18em;font-weight:600;opacity:.92}
+  header h1{letter-spacing:-.01em}
+  header .sub{letter-spacing:.01em}
+}</style>
+</head>
+<body>
+<header>
+  <div class="logo">CHEMISTREAL</div>
+  <h1>약점 극복 60제</h1>
+  <div class="sub">한 사람에 한 벌 · 선생님 자리</div>
+</header>
+<main>
+
+<div class="note">
+  이 자리는 <b>이 브라우저에 채점해 둔 기록</b>만 봅니다. 다른 기기에서 채점한 회차는 여기에 없습니다.
+  시험지를 발행하면 <b>이 브라우저</b>에 발행 기록이 남고, 그 기록으로 2교시와 해설을 만듭니다 —
+  기록을 옮기려면 아래 <b>발행 기록 내보내기</b>를 쓰세요.
+</div>
+
+<section class="step" id="s1">
+  <h2><span class="no">1</span>학생 고르기</h2>
+  <p class="hint">채점 기록이 있는 학생만 나옵니다. 이름을 고르면 무엇을 얼마나 틀렸는지 아래에 나옵니다.</p>
+  <div class="row">
+    <label class="f" for="who">학생</label>
+    <select id="who"><option value="">— 불러오는 중 —</option></select>
+    <button class="btn ghost sm" id="reload">다시 읽기</button>
+  </div>
+  <div id="diag"></div>
+</section>
+
+<section class="step" id="s2">
+  <h2><span class="no">2</span>1교시 시험지 발행</h2>
+  <p class="hint">정답도 힌트도 한 자 들어가지 않습니다. 표지에 복원 코드가 찍히니, 채점할 때 그 코드로 찾으세요.</p>
+  <div class="row">
+    <label class="f" for="nq">문항 수</label>
+    <input type="number" id="nq" value="60" min="10" max="120" step="10" style="width:88px">
+    <button class="btn" id="issue" disabled>📄 이 학생 1교시 시험지 Word ↓</button>
+    <button class="btn ghost" id="issueAll">📚 기록 있는 학생 모두 발행</button>
+  </div>
+  <p class="hint" style="margin:8px 0 0">「모두 발행」은 채점 기록이 있는 학생 한 사람마다 한 벌씩,
+    차례로 만들어 내려받습니다. 브라우저가 <b>「여러 파일 다운로드를 허용하시겠습니까」</b>를 한 번 물으면
+    허용하세요 — 허용하지 않으면 첫 한 벌만 받아집니다.</p>
+  <div id="issued"></div>
+</section>
+
+<section class="step" id="s3">
+  <h2><span class="no">3</span>1교시 채점</h2>
+  <p class="hint">시험지 표지의 복원 코드를 넣거나, 아래 목록에서 고르세요.
+    학생이 쓴 답은 숫자만 이어 붙여 붙여넣어도 됩니다.</p>
+  <div class="row">
+    <label class="f" for="findCode">복원 코드</label>
+    <input type="text" id="findCode" placeholder="7UB-X8Q" maxlength="9"
+           style="width:130px;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase">
+    <button class="btn ghost sm" id="findGo">이 코드로 찾기</button>
+    <span id="findMsg" class="muted" style="font-size:12.5px"></span>
+  </div>
+  <ul class="papers" id="plist"></ul>
+  <div id="g1"></div>
+</section>
+
+<section class="step" id="s4" hidden>
+  <h2><span class="no">4</span>2교시 되풀이 · 해설</h2>
+  <div id="g2"></div>
+</section>
+
+<div class="row" style="margin-top:26px">
+  <button class="btn ghost sm" id="expPapers">발행 기록 내보내기 ↓</button>
+  <button class="btn ghost sm" id="impPapers">발행 기록 불러오기 ↑</button>
+  <a class="btn ghost sm" href="final.html" style="text-decoration:none;display:inline-block">성적표로 돌아가기</a>
+  <input type="file" id="impFile" accept=".json,application/json" aria-label="발행 기록 파일 고르기" hidden>
+</div>
+
+</main>
+<div id="toast"></div>
+<script>
+/* ── 첫 화면 잠금 ──────────────────────────────────────────────────────
+   이 페이지도 GitHub Pages 에 그대로 올라간다. 그리고 여기에는 **반 전체
+   명단**이 뜨고, 누르면 **정답이 실린 해설 Word** 가 나온다. 성적표보다
+   더 열어 두면 안 되는 자리다.
+
+   **이것은 암호가 아니다.** 소스 보기를 누르면 코드가 그대로 보인다. 지나가다
+   눌러 보는 사람을 막는 문고리이지, 잠그는 자물쇠가 아니다.
+
+   열쇠칸과 코드는 final.html·hub.html 과 **같아야 한다.** 갈라지면 선생님이
+   성적표에서 코드를 넣고 여기 와서 또 넣게 된다. tests/hub.js 가 두 파일을
+   맞대어 보고 있고, tests/weak60-shared.js 가 여기까지 본다.
+
+   한 번 맞히면 이 브라우저에 기억해 둔다(90일). 지우려면 콘솔에서
+   localStorage.removeItem('chemistreal:gate') 를 실행한다. */
+(function () {
+  var KEY = 'chemistreal:gate', CODE = '0000', DAYS = 90;
+  function passed() {
+    try {
+      var v = localStorage.getItem(KEY);
+      if (!v) return false;
+      return (Date.now() - Number(v)) < DAYS * 864e5;
+    } catch (e) { return false; }
+  }
+  /* final.html 에는 여기에 학부모 성적표(#r=) 예외가 있다. 이 화면에는
+     그런 링크가 없다 — 학생·학부모에게 줄 것이 하나도 없는 자리다.
+     그러니 예외도 없다. 늘 묻는다. */
+  if (passed()) return;
+
+  var wrap = document.createElement('div');
+  wrap.id = 'gate';
+  wrap.innerHTML =
+    '<div class="gate__box">' +
+    '<div class="gate__logo">CHEMISTREAL</div>' +
+    '<div class="gate__t">조준모 화학</div>' +
+    '<div class="gate__s">이어서 보려면 코드를 입력하세요.</div>' +
+    '<input class="gate__i" id="gateIn" type="tel" inputmode="numeric" maxlength="12" ' +
+    'autocomplete="off" placeholder="････" aria-label="접속 코드">' +
+    '<button class="gate__b" id="gateGo">들어가기</button>' +
+    '<div class="gate__e" id="gateErr"></div></div>';
+  var css = document.createElement('style');
+  css.textContent =
+    '#gate{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;' +
+    'background:linear-gradient(160deg,#0E5A4C 0%,#0b3f36 55%,#08241f 100%);font-family:system-ui,-apple-system,"Malgun Gothic",sans-serif}' +
+    '.gate__box{width:min(320px,86vw);text-align:center;color:#F4F1E8}' +
+    '.gate__logo{font-size:11.5px;letter-spacing:3px;opacity:.72;margin-bottom:14px}' +
+    '.gate__t{font-size:25px;font-weight:800;letter-spacing:-.4px}' +
+    '.gate__s{font-size:13px;opacity:.75;margin:7px 0 20px}' +
+    '.gate__i{width:100%;box-sizing:border-box;padding:13px 14px;font-size:19px;text-align:center;' +
+    'letter-spacing:7px;border:1px solid rgba(255,255,255,.28);border-radius:11px;' +
+    'background:rgba(255,255,255,.08);color:#fff;outline:none}' +
+    '.gate__i:focus{border-color:rgba(255,255,255,.6);background:rgba(255,255,255,.13)}' +
+    '.gate__b{width:100%;margin-top:11px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;' +
+    'border:0;border-radius:11px;background:#F4F1E8;color:#0E5A4C}' +
+    '.gate__b:active{transform:translateY(1px)}' +
+    '.gate__e{min-height:19px;margin-top:11px;font-size:13px;color:#F3B8A4}';
+  document.head.appendChild(css);
+  document.body.appendChild(wrap);
+  document.documentElement.style.overflow = 'hidden';
+
+  var input = document.getElementById('gateIn'), err = document.getElementById('gateErr');
+  function open() {
+    try { localStorage.setItem(KEY, String(Date.now())); } catch (e) {}
+    wrap.remove(); document.documentElement.style.overflow = '';
+  }
+  function tryOpen() {
+    if (input.value.trim() === CODE) { open(); return; }
+    err.textContent = '코드가 맞지 않습니다.';
+    input.value = ''; input.focus();
+  }
+  document.getElementById('gateGo').addEventListener('click', tryOpen);
+  input.addEventListener('keydown', function (e) { if (e.key === 'Enter') tryOpen(); });
+  input.addEventListener('input', function () { err.textContent = ''; });
+  setTimeout(function () { try { input.focus(); } catch (e) {} }, 60);
+})();
+</script>
+<script>
+"use strict";
+/* ══ final.html 에서 옮겨 온 자리 ══════════════════════════════════════════
+   아래 블록은 final.html 과 **한 글자도 다르면 안 된다.** 채점 규칙(okq·
+   allc·accSet)이 갈리면 같은 학생이 두 화면에서 다른 점수를 받는다. 명단
+   열쇠(PFX·cohortKey)가 갈리면 기록이 아예 안 보인다.
+   tests/weak60-shared.js 가 이 두 표지 사이의 줄을 final.html 에서 그대로
+   찾는다 — 못 찾으면 검사가 죽는다. 고칠 일이 있으면 **final.html 을 고치고
+   여기로 옮긴다.** 반대로 하지 않는다. */
+/* ==W60-SHARED-BEGIN== */
+const CIRC=['','①','②','③','④'];
+const nameKey=s=>String(s==null?'':s).replace(/\s+/g,'').trim();
+const accSet=(e,q)=>(e.multi&&e.multi[q])?e.multi[q]:[e.key[q-1]];
+const allc=(e,q)=>{
+  if(e&&e.miss&&e.miss.indexOf(q)>=0) return true;
+  if(e&&e.voided&&e.voided.indexOf(+q)>=0) return true;
+  const m=e&&e.multi&&e.multi[q];
+  if(m&&m.length>=4) return true;
+  /* 정답이 X 로 적힌 문항 — 정답키 자리가 비어 있다. 답이 정해지지 않은
+     문항을 오답으로 셀 수는 없으므로 전원정답으로 본다.
+
+     정답키 **배열이 통째로 없는** 것은 다른 이야기다. 그건 아직 안 들어온
+     데이터이지 전원정답이 아니다 — 그렇게 세면 회차 하나가 통째로 만점이
+     된다. 배열이 있고 그 자리가 비었을 때만 본다. */
+  if(!e||!e.key||!e.key.length||q<1||q>e.key.length) return false;
+  const k=e.key[q-1];
+  return k===0||k===''||k==null||k==='X'||k==='x';
+};
+const allcSet=e=>{ const s=new Set((e&&e.miss)||[]);
+  if(e&&e.multi) for(const q in e.multi){ if((e.multi[q]||[]).length>=4) s.add(+q); }
+  const n=(e&&(e.nQ||(e.key&&e.key.length)))|0;
+  for(let q=1;q<=n;q++) if(allc(e,q)) s.add(q);
+  return s; };
+const okq=(e,q,a)=>allc(e,q)||accSet(e,q).indexOf(a)>=0;
+const COHORT_ALIAS={'kmchc-2018':'hwol-2018','kmchc-2019':'hwol-2019','kmchc-2024-1':'hwol-2024'};
+const cohortKey=id=>COHORT_ALIAS[id]||id;
+function subs(id){try{return JSON.parse(localStorage.getItem(PFX+cohortKey(id))||'[]')}catch(e){return[]}}
+const DH_SETS={'hwol-2018':['hwol-2018','kmchc-2018'],
+               'hwol-2019':['hwol-2019','kmchc-2019'],
+               'hwol-2024':['hwol-2024','kmchc-2024-1']};
+const dhSetIds=id=>DH_SETS[id]||[id];
+async function loadAnalogues(id){
+  var out={};
+  var files=await Promise.all(dhSetIds(id).map(function(x){
+    return fetch('donghyung/'+x+'.json',{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
+  }));
+  var ids=dhSetIds(id);
+  files.forEach(function(f,fi){ if(!f)return; var qs=f.questions||f;
+    Object.keys(qs).forEach(function(q){
+      // 어느 파일에서 왔는지 달아 둔다. 성취 기록이 '몇 번째 동형문제였는지'를
+      // 세트 순서가 아니라 파일 이름으로 가리켜야 나중에 세트가 바뀌어도 흔들리지 않는다.
+      var item=qs[q]; if(item&&typeof item==='object') item._src=ids[fi];
+      (out[q]=out[q]||[]).push(item);
+    }); });
+  return out;
+}
+function dhUsable(dq){
+  if(!dq) return false;
+  var stem=String(dq.stem||dq.stemHtml||''), expl=String(dq.explanation||dq.explanationHtml||'');
+  if(!stem.trim() && !dq.image) return false;
+  // '누락'은 정상적인 한국어 표현("중복이나 누락 없이")으로도 쓰이므로,
+  // 렌더·추출·복원 실패를 가리키는 문맥에서만 손상으로 판정한다.
+  if(/(?:렌더|렌더링|추출|복원|원본)[^\n]{0,30}?누락|누락[^\n]{0,30}?(?:렌더|렌더링|추출|복원)|렌더\s*실패|추출\s*실패|복원되지\s*않/.test(stem+expl)) return false;
+  var chs=(dq.choices||dq.choicesHtml||[]);
+  if(chs.length<4) return false;
+  for(var i=0;i<chs.length;i++){ if(!String(chs[i]==null?'':chs[i]).trim()) return false; }
+  return true;
+}
+function _pngDims(u8){ try{ if(u8&&u8[0]===0x89&&u8[1]===0x50){ var w=((u8[16]<<24)|(u8[17]<<16)|(u8[18]<<8)|u8[19])>>>0, h=((u8[20]<<24)|(u8[21]<<16)|(u8[22]<<8)|u8[23])>>>0; return {w:w,h:h}; } }catch(e){} return null; }
+async function _fetchImg(url){ try{ var r=await fetch(url,{cache:'no-store'}); if(!r.ok) return null; var b=new Uint8Array(await r.arrayBuffer()); if(!(b[0]===0x89&&b[1]===0x50)) return null; return b; }catch(e){ return null; } }
+function loadScriptOnce(src){ return new Promise(function(res,rej){ var ex=document.querySelector('script[data-lib="'+src+'"]'); if(ex){ if(ex.dataset.loaded){res();return;} ex.addEventListener('load',function(){res();}); ex.addEventListener('error',function(){rej(new Error(src));}); return; } var s=document.createElement('script'); s.src=src; s.dataset.lib=src; s.onload=function(){s.dataset.loaded='1';res();}; s.onerror=function(){rej(new Error(src));}; document.head.appendChild(s); }); }
+async function ensureDocxLib(){ if(!window.docx) await loadScriptOnce('vendor/docx.iife.js'); return window.docx; }
+function _saveBlob(blob,fn){
+  var url=URL.createObjectURL(blob), a=document.createElement('a');
+  a.href=url; a.download=fn; document.body.appendChild(a); a.click();
+  setTimeout(function(){ try{URL.revokeObjectURL(url); a.remove();}catch(e){} },1500);
+}
+
+/* ==W60-SHARED-END== */
+/* 명단 열쇠. final.html 은 `const MINP=1, PFX='final:roster:';` 로 한 줄에 둘을
+   묶어 두어 그대로 옮기지 못한다. 값은 같아야 한다 — 검사가 따로 본다. */
+const PFX='final:roster:';
+
+/* ══ 회차 목록 · 명단 · 이력 ══════════════════════════════════════════════ */
+var EXAMS=[];
+async function loadExams(){
+  var r=await fetch('exams.json',{cache:'no-store'});
+  if(!r.ok) throw new Error('exams.json '+r.status);
+  var j=await r.json();
+  EXAMS=(j&&(j.exams||j))||[];
+  if(!EXAMS.length) throw new Error('exams.json 이 비어 있다');
+  return EXAMS;
+}
+
+/* 이 브라우저에 채점해 둔 이름들. 별칭 회차는 한 번만 센다(cohortKey). */
+function rosterNames(){
+  var seen={}, by={};
+  EXAMS.forEach(function(e){
+    var k=cohortKey(e.id); if(seen[k]) return; seen[k]=1;
+    subs(e.id).forEach(function(r){
+      var n=((r&&r.name)||'').trim(); if(!n) return;
+      var key=nameKey(n); if(!key) return;
+      var g=by[key]||(by[key]={name:n, n:0, last:0});
+      g.n++; if((r.ts||0)>g.last) g.last=r.ts||0;
+    });
+  });
+  return Object.keys(by).map(function(k){ return by[k]; })
+    .sort(function(a,b){ return (b.last-a.last) || (a.name<b.name?-1:1); });
+}
+
+/* 한 학생의 회차별 최신 응답. final.html 의 histOf 와 같은 규칙이되 시트는 안 본다 —
+   이 자리는 선생님이 일괄로 채점한 **이 브라우저**를 본다. 화면에도 그렇게 적어 두었다. */
+function histOf(nm){
+  var key=nameKey(nm); if(!key) return [];
+  var best={};
+  EXAMS.forEach(function(e){
+    subs(e.id).forEach(function(r){
+      if(!r||!r.ans||r.ans.length!==e.nQ) return;
+      if(nameKey(r.name)!==key) return;
+      var p=best[e.id];
+      if(!p||(r.ts||0)>=(p.ts||0)) best[e.id]={e:e, r:r, ts:r.ts||0};
+    });
+  });
+  return Object.keys(best).map(function(id){
+    var h=best[id], c=0;
+    for(var q=1;q<=h.e.nQ;q++) if(okq(h.e,q,h.r.ans[q-1]||0)) c++;
+    h.correct=c; h.pct=Math.round(c/h.e.nQ*100);
+    return h;
+  }).sort(function(a,b){ return (a.ts||0)-(b.ts||0); });
+}
+
+/* ══ 약점 진단 ════════════════════════════════════════════════════════════
+   무응답(0)도 '모르는 것' 으로 센다. 다만 표에서는 오답과 갈라 적는다 —
+   찍어서 틀린 것과 손도 못 댄 것은 처방이 다르다. */
+function weakScan(nm){
+  var out=[];
+  histOf(nm).forEach(function(h){
+    var e=h.e, ans=(h.r&&h.r.ans)||[];
+    for(var q=1;q<=e.nQ;q++){
+      var a=ans[q-1]||0;
+      if(okq(e,q,a)) continue;
+      out.push({ id:e.id, title:e.title||e.id, q:q, chosen:a, blank:(a===0),
+                 ts:(h.r&&h.r.ts)||0,
+                 area:(e.area&&e.area[q-1])||'기타',
+                 type:(e.type&&e.type[q-1])||(e.area&&e.area[q-1])||'기타' });
+    }
+  });
+  return out;
+}
+
+/* ── 왜 유형이 아니라 영역으로 배정하는가 ────────────────────────────────
+   유형으로 나눠 봤더니 **못 쓴다**. 2,460문항에 유형이 767종이고, 그중
+   절반이 넘는 52%가 딱 한 번만 나온다(중앙값 1). 유형별 처방은 표본이
+   한 개인 칸 위에 세운 처방이라 그냥 그 문항 이야기다.
+
+   영역은 열 몇 종이라 한 학생 안에서도 여러 번 겹친다. 그래서 **몫은 영역으로
+   나누고**, 유형은 그 안에서 줄 세우는 데만 쓴다. 진단표에도 유형은 남긴다 —
+   선생님이 읽을 값은 있으므로. 다만 배정의 근거로는 안 쓴다.
+
+   ── 되풀이 오답에 무게를 더 준다 ────────────────────────────────────────
+   반년 전에 한 번 틀린 것과 세 회차 내리 틀린 것은 급한 정도가 다르다.
+   같은 유형을 **서로 다른 회차에서** 틀린 횟수(rep)로 무게를 매긴다.
+   1회=1, 2회=2, 3회 이상=3. 더 올리지는 않는다 — 한 유형이 판을 먹는다. */
+function w60Rep(rows){
+  var by={};
+  (rows||[]).forEach(function(w){
+    var t=w.type||w.area||'기타';
+    (by[t]=by[t]||{})[w.id]=1;
+  });
+  var rep={};
+  Object.keys(by).forEach(function(t){ rep[t]=Object.keys(by[t]).length; });
+  return rep;
+}
+function w60Weight(rep){ return 1+Math.min(Math.max(rep,1)-1, 2); }   /* 1 · 2 · 3 */
+
+/* 영역으로 묶는다. 영역 안에서는 되풀이가 잦은 것 → 최근 것 차례로 세운다. */
+function weakAreas(rows){
+  var rep=w60Rep(rows), by={};
+  (rows||[]).forEach(function(w){
+    var a=w.area||'기타';
+    var g=by[a]||(by[a]={area:a, n:0, blanks:0, weight:0, last:0, items:[]});
+    w.rep=rep[w.type||w.area||'기타']||1;
+    w.wt=w60Weight(w.rep);
+    g.n++; if(w.blank) g.blanks++;
+    g.weight+=w.wt;
+    if((w.ts||0)>g.last) g.last=w.ts||0;
+    g.items.push(w);
+  });
+  var out=Object.keys(by).map(function(k){ return by[k]; });
+  out.forEach(function(g){
+    g.items.sort(function(a,b){ return (b.rep-a.rep) || ((b.ts||0)-(a.ts||0))
+                                    || (a.id<b.id?-1:a.id>b.id?1:a.q-b.q); });
+  });
+  return out.sort(function(a,b){ return (b.weight-a.weight) || (b.n-a.n) || (a.area<b.area?-1:1); });
+}
+
+/* 유형별 표 — 배정에는 안 쓰고 진단표에만 쓴다. */
+function weakTypes(rows){
+  var rep=w60Rep(rows), by={};
+  (rows||[]).forEach(function(w){
+    var k=w.type||w.area||'기타';
+    var g=by[k]||(by[k]={type:k, area:w.area, n:0, blanks:0, rounds:rep[k]||1, last:0});
+    g.n++; if(w.blank) g.blanks++;
+    if((w.ts||0)>g.last) g.last=w.ts||0;
+  });
+  return Object.keys(by).map(function(k){ return by[k]; }).sort(function(a,b){
+    return (b.rounds-a.rounds) || (b.n-a.n) || (b.last-a.last) || (a.type<b.type?-1:1);
+  });
+}
+
+/* ══ 문항 고르기 ══════════════════════════════════════════════════════════ */
+function w60Key(w){ return w.id+'|'+w.q; }
+
+/* 영역별 몫. 무게에 비례해 나누되(최대잔여법) 한 영역이 판을 다 먹지 못하게
+   상한을 두고, 재료가 있는 영역에는 적어도 한 자리를 준다. */
+function w60Quota(areas, N){
+  var CAP=Math.max(3, Math.ceil(N/3));
+  var tot=areas.reduce(function(s,g){ return s+g.weight; },0)||1;
+  var q={}, used=0, rem=[];
+  areas.forEach(function(g){
+    var raw=N*g.weight/tot, f=Math.floor(raw);
+    q[g.area]=f; used+=f; rem.push({a:g.area, r:raw-f});
+  });
+  rem.sort(function(x,y){ return y.r-x.r; });
+  for(var i=0; used<N && rem.length; i++){ q[rem[i%rem.length].a]++; used++; }
+  areas.forEach(function(g){
+    if(q[g.area]<1) q[g.area]=1;
+    if(q[g.area]>CAP) q[g.area]=CAP;
+  });
+  return q;
+}
+
+/* ── 무엇을 새로 내고 무엇을 다시 내는가 ────────────────────────────────
+   처음 보는 학생에게는 60제 전부가 새 문항이다. 두 번째부터는 **50 새로 ·
+   10 다시**로 짠다. 다시 내는 열 문항은 지난 시험지에 실렸던 것 가운데
+   **가장 오래된 것부터** 고른다 — 고치고 나서 시간이 지난 것이 다시 무너졌는지
+   보려는 자리다. 다시 낼 때는 갈래를 바꾼다: 지난번에 원문으로 냈으면 이번엔
+   동형으로, 동형이었으면 원문으로. 같은 종이를 두 번 주지 않는다. */
+function weak60Plan(areas, N, served){
+  N=N||60; served=served||{};
+  var reAvail=[];
+  areas.forEach(function(g){ g.items.forEach(function(w){
+    var s=served[w60Key(w)]; if(s) reAvail.push({w:w, at:s.at||0, kinds:s.kinds||{}});
+  }); });
+  var reTarget=Math.min(reAvail.length, reAvail.length?Math.round(N/6):0);
+  var newBudget=N-reTarget;
+
+  var quota=w60Quota(areas, N);
+  var picks=[], taken={}, seenRow={}, newN=0, reN=0;
+
+  var kindFor=function(w){
+    var s=served[w60Key(w)];
+    if(s&&s.kinds){ if(s.kinds.origin&&!s.kinds.analog) return 'analog';
+                    if(s.kinds.analog&&!s.kinds.origin) return 'origin'; }
+    return 'origin';                      /* 처음이면 틀린 그 문제부터 */
+  };
+  var push=function(w,g,kind){
+    picks.push({ kind:kind, w:w, area:g.area, type:w.type, re:!!served[w60Key(w)] });
+    taken[g.area]=(taken[g.area]||0)+1;
+    if(served[w60Key(w)]) reN++; else newN++;
+    seenRow[w60Key(w)]=(seenRow[w60Key(w)]||0)+1;
+  };
+
+  /* 1차 — 몫대로 돌아가며 담는다. 새 문항 예산이 남았으면 새 문항부터. */
+  var pass=function(useQuota, wantRe){
+    var moved=true;
+    while(picks.length<N && moved){
+      moved=false;
+      for(var i=0;i<areas.length && picks.length<N;i++){
+        var g=areas[i];
+        if(useQuota && (taken[g.area]||0)>=(quota[g.area]||0)) continue;
+        for(var k=0;k<g.items.length;k++){
+          var w=g.items[k];
+          if(seenRow[w60Key(w)]) continue;
+          var isRe=!!served[w60Key(w)];
+          if(wantRe!==null && isRe!==wantRe) continue;
+          if(!isRe && newN>=newBudget) continue;
+          if(isRe && reN>=reTarget) continue;
+          push(w,g,kindFor(w)); moved=true; break;
+        }
+      }
+    }
+  };
+  pass(true,false);            /* 새 문항, 몫대로 */
+  pass(true,true);             /* 다시 내는 문항, 몫대로 */
+  newBudget=N; reTarget=reAvail.length;
+  pass(false,null);            /* 몫을 다 쓰고도 모자라면 몫을 풀고 마저 담는다 */
+
+  /* 그래도 모자라면 한 문항을 두 갈래로 낸다 — 원문 하나, 동형 하나.
+     없는 것을 있다고 하지는 않는다. 재료가 다하면 거기서 멈춘다. */
+  if(picks.length<N){
+    for(var i=0;i<areas.length && picks.length<N;i++){
+      var g=areas[i];
+      for(var k=0;k<g.items.length && picks.length<N;k++){
+        var w=g.items[k];
+        if((seenRow[w60Key(w)]||0)!==1) continue;
+        var had=picks.filter(function(p){ return w60Key(p.w)===w60Key(w); })[0];
+        push(w,g, had && had.kind==='origin' ? 'analog' : 'origin');
+      }
+    }
+  }
+  return picks.slice(0,N);
+}
+
+/* 고른 것에 실제 재료(동형문제·원문 해설)를 붙인다. 재료가 없으면 그 항목은 뺀다 —
+   빈 문제를 시험지에 실을 수는 없다. */
+async function weak60Fill(picks){
+  var ids={}; picks.forEach(function(p){ ids[p.w.id]=1; });
+  var idList=Object.keys(ids);
+  var dhAll={}, ansAll={};
+  await Promise.all(idList.map(function(id){
+    return Promise.all([
+      loadAnalogues(id).then(function(x){ dhAll[id]=x||{}; }).catch(function(){ dhAll[id]={}; }),
+      fetch('answers/'+id+'.json',{cache:'no-store'}).then(function(r){ return r.ok?r.json():null; })
+        .then(function(j){ ansAll[id]=(j&&(j.questions||j))||{}; }).catch(function(){ ansAll[id]={}; })
+    ]);
+  }));
+  var usedDh={}, out=[];
+  picks.forEach(function(p){
+    var w=p.w;
+    var origin=function(){
+      var a=(ansAll[w.id]||{})[String(w.q)]||{};
+      out.push({ kind:'origin', src:w, type:p.type, area:p.area, re:p.re, ans:a,
+                 img:'crops/'+w.id+'/'+w.q+'.png' });
+    };
+    if(p.kind==='analog'){
+      var list=((dhAll[w.id]||{})[String(w.q)]||[]).filter(dhUsable);
+      var dq=null, ci=-1;
+      for(var i=0;i<list.length;i++){
+        var k=w.id+'|'+w.q+'|'+(list[i]._src||i)+'|'+i;
+        if(!usedDh[k]){ usedDh[k]=1; dq=list[i]; ci=i; break; }
+      }
+      if(!dq){ origin(); return; }        /* 동형이 없으면 원문으로 대신한다 */
+      out.push({ kind:'analog', src:w, type:p.type, area:p.area, re:p.re,
+                 dq:dq, dhs:(dq._src||''), dhi:ci });
+    } else origin();
+  });
+  return out;
+}
+
+/* 저장해 둔 시험지를 그대로 되살린다. 새로 짜지 않는다 — 학생이 이미 그 종이를
+   받았으므로, 여기서 한 문항이라도 달라지면 채점이 어긋난다. */
+async function w60Restore(paper){
+  var picks=(paper.items||[]).map(function(it){
+    return { kind:it.kind, area:it.area||'기타', type:it.type||'',
+             re:!!it.re, w:{ id:it.id, q:it.q, title:it.title||it.id,
+                             chosen:it.chosen||0, blank:!it.chosen,
+                             area:it.area||'기타', type:it.type||'', ts:it.ts||0,
+                             rep:it.rep||1 },
+             _dhs:it.dhs, _dhi:it.dhi };
+  });
+  var ids={}; picks.forEach(function(p){ ids[p.w.id]=1; });
+  var dhAll={}, ansAll={};
+  await Promise.all(Object.keys(ids).map(function(id){
+    return Promise.all([
+      loadAnalogues(id).then(function(x){ dhAll[id]=x||{}; }).catch(function(){ dhAll[id]={}; }),
+      fetch('answers/'+id+'.json',{cache:'no-store'}).then(function(r){ return r.ok?r.json():null; })
+        .then(function(j){ ansAll[id]=(j&&(j.questions||j))||{}; }).catch(function(){ ansAll[id]={}; })
+    ]);
+  }));
+  return picks.map(function(p){
+    var w=p.w;
+    if(p.kind==='analog'){
+      var list=((dhAll[w.id]||{})[String(w.q)]||[]).filter(dhUsable);
+      var dq=list[p._dhi];
+      if(!dq || (p._dhs && dq._src!==p._dhs)){
+        dq=list.filter(function(x){ return x._src===p._dhs; })[0] || list[0];
+      }
+      if(dq) return { kind:'analog', src:w, type:p.type, area:p.area, re:p.re,
+                      dq:dq, dhs:p._dhs, dhi:p._dhi };
+    }
+    return { kind:'origin', src:w, type:p.type, area:p.area, re:p.re,
+             ans:(ansAll[w.id]||{})[String(w.q)]||{}, img:'crops/'+w.id+'/'+w.q+'.png' };
+  });
+}
+
+/* ══ 발행 기록 ════════════════════════════════════════════════════════════
+   시험지 한 벌을 발행하면 여기 남는다. 2교시와 해설은 **이 기록에서** 나온다 —
+   새로 짜면 학생이 손에 든 종이와 어긋나기 때문이다.
+
+   ⚠ 이 기록은 이 브라우저에 있다. 브라우저를 갈아탈 일이 있으면 화면 아래
+     「발행 기록 내보내기」로 파일을 챙기시라. 화면에도 그렇게 적어 두었다. */
+var W60_LS='exam.weak60.papers.v1';
+function w60All(){ try{ return JSON.parse(localStorage.getItem(W60_LS)||'{}')||{}; }catch(e){ return {}; } }
+function w60Write(all){ try{ localStorage.setItem(W60_LS, JSON.stringify(all)); return true; }
+                        catch(e){ toast('발행 기록을 저장하지 못했습니다 — 저장 공간이 찼을 수 있습니다'); return false; } }
+function w60Put(p){ var all=w60All(); all[p.code]=p; return w60Write(all); }
+/* 헷갈리는 글자(0·O·1·I·L·5·S)를 뺀 스물넷. 손으로 옮겨 적는 코드다. */
+var W60_ALPHA='ABCDEFGHJKMNPQRTUVWXYZ2346789';
+function w60Code(){
+  var all=w60All(), c;
+  do{ c=''; for(var i=0;i<6;i++) c+=W60_ALPHA[Math.floor(Math.random()*W60_ALPHA.length)]; }
+  while(all[c]);
+  return c;
+}
+function w60Pretty(c){ return String(c||'').slice(0,3)+'-'+String(c||'').slice(3); }
+/* 이 학생에게 이미 나갔던 문항. 어느 갈래로 냈는지까지 적어 둔다. */
+function w60Served(nm){
+  var key=nameKey(nm), out={};
+  var all=w60All();
+  Object.keys(all).forEach(function(c){
+    var p=all[c]; if(nameKey(p.name)!==key) return;
+    (p.items||[]).forEach(function(it){
+      var k=it.id+'|'+it.q;
+      var s=out[k]||(out[k]={at:0, kinds:{}});
+      s.kinds[it.kind]=1;
+      if((p.at||0)>s.at) s.at=p.at||0;
+    });
+  });
+  return out;
+}
+
+/* ══ 채점 ════════════════════════════════════════════════════════════════
+   원문은 **그 회차의 채점 규칙**으로 본다(복수정답이 걸린 문항이 있다).
+   동형은 그 문항이 들고 있는 답 하나로 본다. */
+function w60Accept(it){
+  if(it.kind==='analog'){ var a=Number((it.dq||{}).answer||0); return (a>=1&&a<=4)?[a]:[]; }
+  var e=EXAMS.filter(function(x){ return x.id===it.src.id; })[0];
+  if(e){
+    if(allc(e,it.src.q)) return [1,2,3,4];
+    return accSet(e,it.src.q).filter(function(x){ return x>=1&&x<=4; });
+  }
+  var k=Number((it.ans||{}).answer||0); return (k>=1&&k<=4)?[k]:[];
+}
+function w60Ok(it,a){ var s=w60Accept(it); return s.length ? s.indexOf(Number(a))>=0 : false; }
+
+/* ══ 힌트 세 층 — 2교시에만 붙는다. 정답은 한 자도 안 적는다 ══════════════
+   층을 나누는 까닭: 학생이 어디서 막혔는지가 층마다 다르다.
+     1층 개념 이름 …… 무슨 단원인지조차 못 잡은 경우
+     2층 무엇을 묻나 … 단원은 알지만 물음을 잘못 읽은 경우
+     3층 흔한 함정 …… 물음은 읽었으나 늘 같은 데서 미끄러지는 경우
+   세 층을 다 보고도 못 풀면 그건 «모른다» 다 — 강의로 가야 한다. */
+function w60Section(html, head){
+  try{
+    var d=new DOMParser().parseFromString('<div>'+String(html||'')+'</div>','text/html');
+    var secs=d.querySelectorAll('section.sol-part');
+    for(var i=0;i<secs.length;i++){
+      var h=secs[i].querySelector('h4');
+      if(h && h.textContent.trim()===head){
+        var p=secs[i].querySelector('p');
+        return p ? p.textContent.trim() : secs[i].textContent.replace(head,'').trim();
+      }
+    }
+  }catch(e){}
+  return '';
+}
+/* 힌트에 정답이 섞여 들어갈 자리를 막는다. 해설 본문은 「정답 ②」로 끝나므로,
+   절을 잘못 집으면 그대로 답이 실린다. 실수 하나로 시험지가 못 쓰게 되는
+   자리라서 **찍기 전에** 지운다. 검사도 따로 본다(tests/weak60-docx.js). */
+function w60NoAns(s){
+  return String(s==null?'':s).replace(/정답\s*[①②③④]/g,'정답').replace(/\s{2,}/g,' ').trim();
+}
+function w60Hints(it){
+  var a=(it.kind==='analog') ? (it.dq||{}) : (it.ans||{});
+  var h=[];
+  var concept=String(a.concept||'').trim();
+  if(concept) h.push({t:'어느 개념인가', s:w60NoAns(concept)});
+  var ask=w60Section(a.explanationHtml||'', '무엇을 묻는 문제인가');
+  if(!ask){
+    var lines=String(a.explanation||'').split('\n').map(function(x){return x.trim();}).filter(Boolean);
+    var i=lines.indexOf('무엇을 묻는 문제인가');
+    if(i>=0 && lines[i+1]) ask=lines[i+1];
+  }
+  if(ask) h.push({t:'무엇을 묻나', s:w60NoAns(ask).slice(0,300)});
+  var mis=String(a.misconception||'').trim();
+  if(mis) h.push({t:'흔히 걸리는 함정', s:w60NoAns(mis)});
+  return h;
+}
+
+/* ══ Word 판 ══════════════════════════════════════════════════════════════
+   세 문서(1교시·2교시·해설)가 함께 쓰는 조각들. 성적표 Word 와 같은 판이다. */
+function _w60kit(Dx){
+  var K={};
+  K.Document=Dx.Document; K.Packer=Dx.Packer; K.Paragraph=Dx.Paragraph; K.TextRun=Dx.TextRun;
+  K.AlignmentType=Dx.AlignmentType; K.Table=Dx.Table; K.TableRow=Dx.TableRow; K.TableCell=Dx.TableCell;
+  K.WidthType=Dx.WidthType; K.BorderStyle=Dx.BorderStyle; K.ShadingType=Dx.ShadingType;
+  K.ImageRun=Dx.ImageRun; K.PageBreak=Dx.PageBreak; K.VerticalAlign=Dx.VerticalAlign;
+  K.LineRule=Dx.LineRuleType; K.Header=Dx.Header; K.Footer=Dx.Footer; K.PageNumber=Dx.PageNumber;
+  K.INK='1A1A1A'; K.TEAL='0E5A4C'; K.GOLD='8C6D1F'; K.MUTED='6B6B6B'; K.LINE='D8CDB4';
+  /* 고른 오답을 짚는 자리에만 쓴다. 화면의 --ms 와 같은 붉은색이다. */
+  K.MS='B8562F';
+  K.run=function(t,o){ o=o||{}; return new K.TextRun({ text:String(t==null?'':t), bold:!!o.bold,
+    color:o.color||K.INK, size:o.size||20, font:o.font||'Malgun Gothic', italics:!!o.italic }); };
+  K.P=function(runs,o){ o=o||{}; return new K.Paragraph({ alignment:o.align,
+    spacing:{ before:o.before==null?60:o.before, after:o.after==null?60:o.after,
+              line:o.line||300, lineRule:K.LineRule.AUTO },
+    keepNext:o.keepNext?true:undefined, keepLines:o.keepLines?true:undefined,
+    shading:o.fill?{type:K.ShadingType.CLEAR,fill:o.fill,color:'auto'}:undefined,
+    children:Array.isArray(runs)?runs:[runs] }); };
+  K.txt=function(t,o){ return K.P([K.run(t,o)],o); };
+  /* 여러 줄짜리 글은 줄마다 한 문단으로. 붙여 놓으면 (가)(나)(다) 목록이 한 줄로 흐른다. */
+  K.lines=function(t,o){ o=o||{};
+    return String(t==null?'':t).split('\n').map(function(s){ return s.replace(/\s+$/,''); })
+      .filter(function(s,i,arr){ return s!=='' || (i>0 && arr[i-1]!==''); })
+      .map(function(s){ return K.txt(s||' ',o); }); };
+  K.C=function(children,o){ o=o||{}; return new K.TableCell({ width:{size:o.w,type:K.WidthType.DXA},
+    shading:o.fill?{type:K.ShadingType.CLEAR,fill:o.fill,color:'auto'}:undefined,
+    verticalAlign:K.VerticalAlign.CENTER, margins:{top:60,bottom:60,left:110,right:110},
+    children:Array.isArray(children)?children:[children] }); };
+  K.cell=function(t,o){ o=o||{}; return K.C([K.txt(t,{align:o.align,bold:o.bold,color:o.color,size:o.size,before:20,after:20})],o); };
+  K.table=function(rows,widths){ return new K.Table({ width:{size:widths.reduce(function(a,b){return a+b;},0),type:K.WidthType.DXA},
+    borders:{ top:{style:K.BorderStyle.SINGLE,size:4,color:K.LINE}, bottom:{style:K.BorderStyle.SINGLE,size:4,color:K.LINE},
+              left:{style:K.BorderStyle.SINGLE,size:4,color:K.LINE}, right:{style:K.BorderStyle.SINGLE,size:4,color:K.LINE},
+              insideHorizontal:{style:K.BorderStyle.SINGLE,size:2,color:K.LINE},
+              insideVertical:{style:K.BorderStyle.SINGLE,size:2,color:K.LINE} },
+    /* 표가 쪽을 넘어가면 머리줄이 따라와야 한다 — 안 그러면 둘째 쪽은
+       무슨 숫자인지 모를 표가 된다. */
+    rows:rows.map(function(cells,ri){ return new K.TableRow({children:cells, tableHeader:(ri===0)}); }) }); };
+  K.img=function(u8,maxW){ var d=_pngDims(u8)||{w:maxW,h:Math.round(maxW*0.4)};
+    var w=Math.min(maxW,d.w||maxW), h=Math.round(w*(d.h||1)/(d.w||1));
+    return K.P([new K.ImageRun({type:'png',data:u8,transformation:{width:w,height:h}})],{after:120,before:60}); };
+  K.doc=function(title, body){ return new K.Document({ creator:'Chemistreal', title:title,
+    styles:{default:{document:{run:{font:'Malgun Gothic',color:K.INK}}}},
+    sections:[{ properties:{ page:{ size:{width:11906,height:16838},
+        margin:{top:1000,right:1000,bottom:1000,left:1000,header:340,footer:340} } },
+      footers:{ default:new K.Footer({children:[new K.Paragraph({alignment:K.AlignmentType.CENTER,
+        spacing:{before:40,after:0,line:240,lineRule:K.LineRule.AUTO},
+        children:[K.run('CHEMISTREAL · 조준모 화학    ',{color:K.MUTED,size:15}),
+                  new K.TextRun({children:[K.PageNumber.CURRENT],color:K.GOLD,size:15,bold:true}),
+                  K.run(' / ',{color:K.MUTED,size:15}),
+                  new K.TextRun({children:[K.PageNumber.TOTAL_PAGES],color:K.MUTED,size:15})]})] }) },
+      children:body }] }); };
+  return K;
+}
+
+var W60_IMGW=630;   // A4 본문 폭에 맞춘 크롭 그림 최대 폭(px). 원본 954px 이 거의 1:1 로 앉는다.
+
+function _w60head(K, title, sub){
+  var out=[];
+  out.push(K.txt('CHEMISTREAL',{align:K.AlignmentType.CENTER,color:K.GOLD,size:16,bold:true,after:20}));
+  out.push(K.txt(title,{align:K.AlignmentType.CENTER,color:K.TEAL,size:40,bold:true,before:20,after:40}));
+  if(sub) out.push(K.txt(sub,{align:K.AlignmentType.CENTER,color:K.MUTED,size:19,after:200}));
+  return out;
+}
+
+/* 문항 한 개를 종이에 앉힌다. 세 문서가 같은 모양으로 쓴다.
+   ⚠ 머리와 그림을 **한 문단**에 넣는다. 따로 두고 keepNext 만 걸었더니
+     번호·영역 머리만 쪽 끝에 홀로 남고 그림은 다음 장으로 갔다 — 스물다섯 쪽
+     가운데 열여섯 쪽이 그랬다(LibreOffice 로 찍어 확인). 한 문단이면
+     어느 뷰어에서도 갈라지지 않는다. */
+function _w60item(K, no, it, imgs, opt){
+  opt=opt||{}; var b=[];
+  var hdr=[K.run(String(no),{bold:true,size:24,color:K.TEAL}),
+           K.run('   '+(it.area||''),{bold:true,size:19,color:K.GOLD})];
+  if(opt.src) hdr.push(K.run('   '+((it.kind==='origin')
+        ? ('원문 — '+it.src.title+' '+it.src.q+'번')
+        : ('동형 — '+it.src.title+' '+it.src.q+'번에서')),{size:16,color:K.MUTED}));
+  if(opt.right) hdr.push(K.run('      '+opt.right,{bold:true,size:22,color:opt.rightColor||K.TEAL}));
+  if(it.kind==='origin'){
+    var u8=imgs[it.img];
+    if(u8){
+      var d=_pngDims(u8)||{w:W60_IMGW,h:Math.round(W60_IMGW*0.4)};
+      var w=Math.min(W60_IMGW,d.w||W60_IMGW), h=Math.round(w*(d.h||1)/(d.w||1));
+      b.push(K.P(hdr.concat([new K.TextRun({break:1}),
+        new K.ImageRun({type:'png',data:u8,transformation:{width:w,height:h}})]),
+        {before:200,after:120,keepLines:true}));
+    } else {
+      b.push(K.P(hdr,{before:200,after:60,keepNext:true}));
+      b.push(K.txt('(문항 그림을 불러오지 못했습니다 — '+it.img+')',{color:K.MUTED,size:17}));
+    }
+  } else {
+    b.push(K.P(hdr,{before:200,after:60,keepNext:true}));
+    K.lines(it.dq.stem,{size:19,after:40}).forEach(function(p){ b.push(p); });
+    (it.dq.choices||[]).forEach(function(c,ci){
+      b.push(K.P([K.run(CIRC[ci+1]+' ',{bold:true,color:K.TEAL,size:19}),K.run(c,{size:19})],
+                 {before:20,after:20}));
+    });
+  }
+  return b;
+}
+
+/* 답안 기입란. 열 칸씩 끊는다. */
+function _w60omr(K, n, label){
+  var b=[K.txt(label||'답안 기입란',{color:K.TEAL,size:24,bold:true,after:100})];
+  var per=10, rows=[];
+  for(var r=0;r<Math.ceil(n/per);r++){
+    var head=[], cells=[];
+    for(var c=0;c<per;c++){
+      var no=r*per+c+1;
+      head.push(K.cell(no<=n?String(no):'',{w:900,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER,size:17}));
+      cells.push(K.cell(' ',{w:900,align:K.AlignmentType.CENTER}));
+    }
+    rows.push(head); rows.push(cells);
+  }
+  b.push(K.table(rows,new Array(per).fill(900)));
+  return b;
+}
+
+/* ── 1교시 시험지 ────────────────────────────────────────────────────────
+   정답도 힌트도 한 자 없다. 그냥 시험이다. 표지에는 **복원 코드**만 적는다 —
+   진단표를 여기 실으면 "너는 이 영역이 약하다" 가 곧 힌트가 된다. 진단은
+   해설로 미룬다. */
+function _w60paper(K, meta, items, imgs){
+  var b=_w60head(K, '약점 극복 모의고사 · 1교시',
+                 meta.n+'제 · '+(meta.name||'학생')+' · '+meta.ymd);
+  /* ⚠ 칸 너비의 합이 **9906 을 넘으면 안 된다.** A4(11906)에서 좌우 여백
+       1000 씩을 뺀 값이다. 넘으면 표가 종이 밖으로 나가 오른쪽 칸이 잘린다 —
+       처음에 11200 으로 두었더니 복원 코드가 반쯤 잘려 나갔다(찍어서 확인). */
+  b.push(K.table([
+    [K.cell('이름',{w:1300,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+     K.cell(meta.name||' ',{w:2400,align:K.AlignmentType.CENTER}),
+     K.cell('문항 수',{w:1300,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+     K.cell(meta.n+'문항',{w:1400,align:K.AlignmentType.CENTER}),
+     K.cell('복원 코드',{w:1500,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+     K.cell(meta.codePretty,{w:2000,align:K.AlignmentType.CENTER,bold:true,color:K.GOLD})]
+  ],[1300,2400,1300,1400,1500,2000]));
+  b.push(K.txt(' ',{after:140}));
+  b.push(K.txt('보는 법',{color:K.TEAL,size:22,bold:true,after:60}));
+  ['· 이 시험지는 '+(meta.name||'이 학생')+' 한 사람을 위해 짜였습니다. 그동안 틀렸던 문항과, 그 개념으로 새로 쓴 문항이 섞여 있습니다.',
+   '· 답은 ①②③④ 가운데 하나를 고르고, 마지막 쪽 답안 기입란에 번호를 적으세요.',
+   '· 모르는 문항도 **비워 두지 마세요.** 찍어서 틀려도 잃는 것이 없습니다.',
+   '· 다 풀고 나면 2교시에 틀린 문항만 다시 풉니다. 그때는 힌트가 붙습니다.'
+  ].forEach(function(s){ b.push(K.txt(s.replace(/\*\*/g,''),{size:18,after:30})); });
+  b.push(K.txt('복원 코드 '+meta.codePretty+' — 채점할 때 선생님이 이 코드로 이 시험지를 찾습니다.',
+               {color:K.MUTED,size:17,before:140}));
+  b.push(new K.Paragraph({children:[new K.PageBreak()]}));
+  items.forEach(function(it,i){ _w60item(K,i+1,it,imgs,{}).forEach(function(p){ b.push(p); }); });
+  b.push(new K.Paragraph({children:[new K.PageBreak()]}));
+  _w60omr(K, items.length, '답안 기입란 · 1교시').forEach(function(p){ b.push(p); });
+  return b;
+}
+
+/* ── 2교시 되풀이 ────────────────────────────────────────────────────────
+   1교시에 틀린 것만 다시 낸다. 힌트가 세 층 붙는다. 정답은 여기에도 없다 —
+   힌트를 보고 스스로 꺼내야 «알지만 못 꺼낸다» 와 «모른다» 가 갈린다. */
+function _w60retry(K, meta, items, wrongIdx, imgs){
+  var b=_w60head(K, '약점 극복 모의고사 · 2교시 되풀이',
+                 wrongIdx.length+'제 · '+(meta.name||'학생')+' · '+meta.ymd);
+  b.push(K.table([
+    [K.cell('이름',{w:1300,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+     K.cell(meta.name||' ',{w:2300,align:K.AlignmentType.CENTER}),
+     K.cell('1교시',{w:1200,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+     K.cell(meta.right1+' / '+meta.n,{w:1400,align:K.AlignmentType.CENTER}),
+     K.cell('복원 코드',{w:1500,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+     K.cell(meta.codePretty,{w:2200,align:K.AlignmentType.CENTER,bold:true,color:K.GOLD})]
+  ],[1300,2300,1200,1400,1500,2200]));
+  b.push(K.txt(' ',{after:140}));
+  b.push(K.txt('보는 법',{color:K.TEAL,size:22,bold:true,after:60}));
+  ['· 1교시에 틀린 '+wrongIdx.length+'문항만 다시 실었습니다. 번호는 1교시 번호 그대로입니다.',
+   '· 문항마다 힌트가 세 층 붙어 있습니다. 위에서부터 하나씩만 보고, 풀리면 거기서 멈추세요.',
+   '· 정답은 이 종이에 없습니다. 세 층을 다 보고도 안 풀리면 그렇게 두고 넘어가세요 — 그 문항이 강의로 갈 문항입니다.'
+  ].forEach(function(s){ b.push(K.txt(s,{size:18,after:30})); });
+  b.push(new K.Paragraph({children:[new K.PageBreak()]}));
+
+  wrongIdx.forEach(function(gi){
+    var it=items[gi];
+    _w60item(K, gi+1, it, imgs, {}).forEach(function(p){ b.push(p); });
+    var hs=w60Hints(it);
+    if(!hs.length){
+      b.push(K.txt('힌트  이 문항에는 아직 붙일 힌트가 없습니다.',{color:K.MUTED,size:17,before:70}));
+      return;
+    }
+    hs.forEach(function(h,hi){
+      b.push(K.P([K.run('힌트 '+(hi+1)+'  ',{bold:true,size:17,color:K.GOLD}),
+                  K.run(h.t+' — ',{bold:true,size:17,color:K.TEAL}),
+                  K.run(h.s,{size:17,color:K.MUTED})],{before:hi?30:80,after:0}));
+    });
+  });
+
+  b.push(new K.Paragraph({children:[new K.PageBreak()]}));
+  var b2=[K.txt('답안 기입란 · 2교시',{color:K.TEAL,size:24,bold:true,after:100})];
+  var per=10, rows=[];
+  for(var r=0;r<Math.ceil(wrongIdx.length/per);r++){
+    var head=[], cells=[];
+    for(var c=0;c<per;c++){
+      var k=r*per+c;
+      head.push(K.cell(k<wrongIdx.length?String(wrongIdx[k]+1):'',
+                       {w:900,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER,size:17}));
+      cells.push(K.cell(' ',{w:900,align:K.AlignmentType.CENTER}));
+    }
+    rows.push(head); rows.push(cells);
+  }
+  b2.push(K.table(rows,new Array(per).fill(900)));
+  b2.forEach(function(p){ b.push(p); });
+  return b;
+}
+
+/* ── 세 갈래 판정 ────────────────────────────────────────────────────────
+   같은 오답이라도 처방이 정반대다.
+     안다            … 1교시에 맞았다.
+     알지만 못 꺼낸다 … 1교시엔 틀리고, 힌트를 보고는 맞혔다. 인출이 안 된 것이니
+                        연습량과 시간 배분의 문제다. 강의를 다시 들을 일이 아니다.
+     모른다          … 힌트 세 층을 다 보고도 틀렸다. 개념이 없는 것이니 강의로 간다.
+   2교시를 아직 안 쳤으면 «아직» 이다 — 모른다고 단정하지 않는다. */
+var W60_V={know:'안다', slip:'알지만 못 꺼낸다', none:'모른다', wait:'아직'};
+/* ①②③④ 는 한글이 아니라 받침으로 조사를 못 고른다. 읽는 소리로 고른다 —
+   일(ㄹ)·이·삼(ㅁ)·사. 「① 를 고른 것은」 이라고 적히면 그 한 글자에서
+   종이가 성의 없어 보인다. */
+var W60_EUL=['','을 ','를 ','을 ','를 '];
+function w60Verdict(items, a1, a2){
+  return items.map(function(it,i){
+    if(w60Ok(it,(a1||[])[i]||0)) return 'know';
+    if(!a2 || !a2.length) return 'wait';
+    var v=(a2||[])[i]||0;
+    if(!v) return 'none';                    /* 되풀이에서도 답을 안 썼다 */
+    return w60Ok(it,v) ? 'slip' : 'none';
+  });
+}
+
+/* ── 해설 ────────────────────────────────────────────────────────────────
+   여기서 처음으로 정답이 나온다. 선생님과 학생이 같이 보는 종이다. */
+function _w60key(K, meta, items, types, areas, hist, a1, a2, verd){
+  var b=_w60head(K, '약점 극복 모의고사 · 해설',
+                 (meta.name||'학생')+' · '+meta.ymd+' · 복원 코드 '+meta.codePretty);
+  var cnt={know:0,slip:0,none:0,wait:0};
+  verd.forEach(function(v){ cnt[v]=(cnt[v]||0)+1; });
+  b.push(K.txt('세 갈래 판정',{color:K.TEAL,size:22,bold:true,after:60}));
+  b.push(K.table([
+    [K.cell('안다',{w:2400,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+     K.cell('알지만 못 꺼낸다',{w:2600,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+     K.cell('모른다',{w:2400,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+     K.cell('아직',{w:1800,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER})],
+    [K.cell(cnt.know+'문항',{w:2400,align:K.AlignmentType.CENTER,bold:true,color:K.TEAL}),
+     K.cell(cnt.slip+'문항',{w:2600,align:K.AlignmentType.CENTER,bold:true,color:K.GOLD}),
+     K.cell(cnt.none+'문항',{w:2400,align:K.AlignmentType.CENTER,bold:true}),
+     K.cell(cnt.wait?(cnt.wait+'문항'):'-',{w:1800,align:K.AlignmentType.CENTER,color:K.MUTED})]
+  ],[2400,2600,2400,1800]));
+  b.push(K.txt('「알지만 못 꺼낸다」는 힌트를 보고 스스로 풀어낸 문항입니다 — 개념은 있으니 '
+             + '연습량과 시간 배분의 문제입니다. 「모른다」는 힌트 세 층을 다 보고도 안 풀린 '
+             + '문항이라 강의로 돌아가야 합니다. 같은 오답이라도 처방이 정반대입니다.',
+               {color:K.MUTED,size:17,before:80}));
+
+  b.push(K.txt('영역별 — 이 시험지가 어디를 겨눴나',{color:K.TEAL,size:22,bold:true,before:220,after:60}));
+  var ar=[[K.cell('영역',{w:3200,bold:true,fill:'F5F2EA'}),
+           K.cell('그동안 틀림',{w:1600,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+           K.cell('무응답',{w:1300,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+           K.cell('이 시험지',{w:1400,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+           K.cell('모른다',{w:1700,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER})]];
+  areas.forEach(function(g){
+    var on=0, nn=0;
+    items.forEach(function(it,i){ if(it.area===g.area){ on++; if(verd[i]==='none') nn++; } });
+    ar.push([K.cell(g.area,{w:3200}),
+             K.cell(String(g.n),{w:1600,align:K.AlignmentType.CENTER,bold:true}),
+             K.cell(g.blanks?String(g.blanks):'-',{w:1300,align:K.AlignmentType.CENTER,color:g.blanks?K.GOLD:K.MUTED}),
+             K.cell(on?String(on):'-',{w:1400,align:K.AlignmentType.CENTER,color:on?K.TEAL:K.MUTED}),
+             K.cell(nn?String(nn):'-',{w:1700,align:K.AlignmentType.CENTER,bold:!!nn})]);
+  });
+  b.push(K.table(ar,[3200,1600,1300,1400,1700]));
+
+  b.push(K.txt('되풀이된 유형 — 서로 다른 회차에서 거듭 틀린 것부터',{color:K.TEAL,size:22,bold:true,before:220,after:60}));
+  var tr=[[K.cell('유형',{w:4000,bold:true,fill:'F5F2EA'}),
+           K.cell('영역',{w:2400,bold:true,fill:'F5F2EA'}),
+           K.cell('회차 수',{w:1400,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+           K.cell('틀림',{w:1400,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER})]];
+  types.slice(0,20).forEach(function(g){
+    tr.push([K.cell(g.type,{w:4000}), K.cell(g.area||'',{w:2400,color:K.MUTED}),
+             K.cell(String(g.rounds),{w:1400,align:K.AlignmentType.CENTER,bold:g.rounds>1}),
+             K.cell(String(g.n),{w:1400,align:K.AlignmentType.CENTER})]);
+  });
+  b.push(K.table(tr,[4000,2400,1400,1400]));
+  if(types.length>20) b.push(K.txt('… 그 밖 '+(types.length-20)+'종이 더 있습니다.',{color:K.MUTED,size:17,before:80}));
+
+  b.push(K.txt('푼 회차',{color:K.TEAL,size:22,bold:true,before:220,after:60}));
+  var hr=[[K.cell('회차',{w:5600,bold:true,fill:'F5F2EA'}),
+           K.cell('맞은 개수',{w:1900,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+           K.cell('정답률',{w:1900,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER})]];
+  (hist||[]).forEach(function(h){
+    hr.push([K.cell(h.e.title||h.e.id,{w:5600}),
+             K.cell(h.correct+' / '+h.e.nQ,{w:1900,align:K.AlignmentType.CENTER}),
+             K.cell(h.pct+'%',{w:1900,align:K.AlignmentType.CENTER,bold:true})]);
+  });
+  b.push(K.table(hr,[5600,1900,1900]));
+  b.push(new K.Paragraph({children:[new K.PageBreak()]}));
+
+  items.forEach(function(it,i){
+    var a=(it.kind==='analog') ? (it.dq||{}) : (it.ans||{});
+    var acc=w60Accept(it);
+    var ansTxt=acc.length ? acc.map(function(x){ return CIRC[x]; }).join('·') : '-';
+    var vcol=(verd[i]==='know')?K.TEAL:(verd[i]==='slip'?K.GOLD:K.INK);
+    b.push(K.P([K.run(String(i+1),{bold:true,size:24,color:K.TEAL}),
+                K.run('   '+(it.area||''),{bold:true,size:19,color:K.GOLD}),
+                K.run('   '+((it.kind==='origin')
+                      ? ('원문 — '+it.src.title+' '+it.src.q+'번')
+                      : ('동형 — '+it.src.title+' '+it.src.q+'번에서')),{size:16,color:K.MUTED}),
+                K.run('      정답 '+ansTxt,{bold:true,size:22,color:K.TEAL}),
+                K.run('      '+W60_V[verd[i]],{bold:true,size:19,color:vcol})],
+               {before:220,after:50,keepNext:true}));
+    var line=[];
+    line.push('1교시 '+(CIRC[(a1||[])[i]||0]||'무응답'));
+    if(verd[i]!=='know' && a2 && a2.length) line.push('2교시 '+(CIRC[(a2||[])[i]||0]||'무응답'));
+    if(it.kind==='origin') line.push(it.src.chosen ? ('예전에 '+(CIRC[it.src.chosen]||'-'))
+                                                   : '예전엔 무응답');
+    b.push(K.txt(line.join('   ·   '),{color:K.MUTED,size:17,after:40}));
+    var expl=String(a.explanation||'').trim();
+    if(expl) K.lines(expl,{size:18,after:30}).forEach(function(p){ b.push(p); });
+    else b.push(K.txt('(풀이가 아직 없습니다.)',{color:K.MUTED,size:17}));
+    var mis=String(a.misconception||'').trim();
+    if(mis) b.push(K.P([K.run('오개념  ',{bold:true,size:17,color:K.GOLD}),
+                        K.run(mis,{size:17,color:K.MUTED})],{before:60,after:0}));
+    /* ── 이 아이가 **고른 그 선지**에 붙은 오개념 ────────────────────────
+       동형문항은 선지마다 오개념을 따로 들고 있다(2,643 가운데 2,640).
+       그런데 여태 위의 뭉뚱그린 한 줄만 적고 이것을 안 썼다 — 「③ 을 고른
+       것은 …」 이 「흔한 오개념은 …」 보다 훨씬 아프게 읽힌다.
+       원문 문항에는 이 자리가 아직 비어 있다(2,460 가운데 0). 없는 것을
+       있다고 하지 않는다 — 있는 문항에만 붙는다. */
+    var per=a.misconceptions;
+    if(per && typeof per==='object'){
+      var picked=[], seenPick={};
+      [[(a1||[])[i],'1교시'],[(a2||[])[i],'2교시']].forEach(function(pr){
+        var v=Number(pr[0]||0);
+        if(!v || w60Ok(it,v) || seenPick[v]) return;
+        if(!String(per[String(v)]||'').trim()) return;
+        seenPick[v]=1; picked.push({v:v, when:pr[1], s:String(per[String(v)]).trim()});
+      });
+      picked.forEach(function(x,pi){
+        b.push(K.P([K.run((CIRC[x.v]||'')+W60_EUL[x.v]+' 고른 것은  ',{bold:true,size:17,color:K.MS}),
+                    K.run(x.s,{size:17,color:K.MUTED}),
+                    K.run('   ('+x.when+')',{size:15,color:K.MUTED})],{before:pi?20:50,after:0}));
+      });
+    }
+  });
+  return b;
+}
+
+/* ══ Word 를 만들어 내려준다 ══════════════════════════════════════════════ */
+function w60Ymd(ts){ var d=ts?new Date(ts):new Date();
+  return d.getFullYear()+'.'+('0'+(d.getMonth()+1)).slice(-2)+'.'+('0'+d.getDate()).slice(-2); }
+function w60Safe(s){ return String(s).replace(/[\\/:*?"<>|]+/g,''); }
+async function w60Imgs(items){
+  var imgs={};
+  await Promise.all(items.filter(function(it){ return it.kind==='origin'; }).map(function(it){
+    return _fetchImg(it.img).then(function(u8){ if(u8) imgs[it.img]=u8; });
+  }));
+  return imgs;
+}
+async function w60Kit(){ return _w60kit(await ensureDocxLib()); }
+
+/* 1교시 시험지를 발행한다. 발행 기록을 **먼저** 남기고 파일을 만든다 —
+   파일만 나가고 기록이 없으면 채점할 길이 없다. */
+async function issuePaper(nm, N){
+  var rows=weakScan(nm);
+  if(!rows.length) throw new Error(nm+' 학생이 틀린 문항이 없습니다 — 만들 것이 없습니다');
+  var areas=weakAreas(rows);
+  var items=await weak60Fill(weak60Plan(areas, N, w60Served(nm)));
+  if(!items.length) throw new Error('실을 문항을 못 찾았습니다');
+
+  var code=w60Code(), at=Date.now();
+  var paper={ code:code, name:nm, at:at, n:items.length, ymd:w60Ymd(at), a1:[], a2:[],
+    items:items.map(function(it){
+      return { id:it.src.id, q:it.src.q, title:it.src.title, kind:it.kind,
+               area:it.area||'', type:it.type||'', chosen:it.src.chosen||0,
+               ts:it.src.ts||0, rep:it.src.rep||1, re:!!it.re,
+               dhs:it.dhs||'', dhi:(it.dhi==null?-1:it.dhi) };
+    }) };
+  if(!w60Put(paper)) throw new Error('발행 기록을 저장하지 못했습니다 — 시험지를 만들지 않습니다');
+
+  var imgs=await w60Imgs(items), K=await w60Kit();
+  var meta={ name:nm, ymd:paper.ymd, n:items.length, code:code, codePretty:w60Pretty(code) };
+  var blob=await K.Packer.toBlob(K.doc(nm+' 약점 극복 모의고사 1교시', _w60paper(K,meta,items,imgs)));
+  _saveBlob(blob, w60Safe(nm+'_'+items.length+'제_1교시_시험지_'+paper.ymd+'_'+code)+'.docx');
+  var miss=items.filter(function(it){ return it.kind==='origin' && !imgs[it.img]; }).length;
+  return { paper:paper, items:items, miss:miss, asked:N };
+}
+
+async function makeRetry(paper){
+  var items=await w60Restore(paper);
+  var verd=w60Verdict(items, paper.a1, null);
+  var wrongIdx=[]; verd.forEach(function(v,i){ if(v!=='know') wrongIdx.push(i); });
+  if(!wrongIdx.length) throw new Error('1교시에서 틀린 문항이 없습니다 — 되풀이할 것이 없습니다');
+  var imgs=await w60Imgs(wrongIdx.map(function(i){ return items[i]; })), K=await w60Kit();
+  var right1=items.length-wrongIdx.length;
+  var meta={ name:paper.name, ymd:paper.ymd, n:items.length, right1:right1,
+             code:paper.code, codePretty:w60Pretty(paper.code) };
+  var blob=await K.Packer.toBlob(K.doc(paper.name+' 약점 극복 모의고사 2교시',
+                                       _w60retry(K,meta,items,wrongIdx,imgs)));
+  _saveBlob(blob, w60Safe(paper.name+'_'+wrongIdx.length+'제_2교시_되풀이_'+paper.ymd+'_'+paper.code)+'.docx');
+  return { wrongIdx:wrongIdx, items:items };
+}
+
+async function makeKey(paper){
+  var items=await w60Restore(paper);
+  var rows=weakScan(paper.name);
+  var verd=w60Verdict(items, paper.a1, (paper.a2&&paper.a2.length)?paper.a2:null);
+  var K=await w60Kit();
+  var meta={ name:paper.name, ymd:paper.ymd, n:items.length,
+             code:paper.code, codePretty:w60Pretty(paper.code) };
+  var body=_w60key(K, meta, items, weakTypes(rows), weakAreas(rows), histOf(paper.name),
+                   paper.a1, paper.a2, verd);
+  var blob=await K.Packer.toBlob(K.doc(paper.name+' 약점 극복 모의고사 해설', body));
+  _saveBlob(blob, w60Safe(paper.name+'_'+items.length+'제_해설_'+paper.ymd+'_'+paper.code)+'.docx');
+  return { verd:verd, items:items };
+}
+
+/* ══ 화면 ═════════════════════════════════════════════════════════════════ */
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function toast(msg){
+  var t=$('toast'); t.textContent=msg; t.style.opacity='1';
+  clearTimeout(t._h); t._h=setTimeout(function(){ t.style.opacity='0'; },2800);
+}
+var CUR='';                 /* 지금 고른 학생 */
+var CURP=null;              /* 지금 고른 시험지 */
+
+/* ⚠ 「모두 발행」은 **학생을 안 골라도** 눌러야 한다 — 예순 명을 한 사람씩
+     고르고 있을 일이 아닌데, 2단계를 통째로 숨겨 두었더니 그 단추까지 같이
+     숨었다(찍어서 확인). 2단계는 명단만 있으면 보이고, 한 사람짜리 단추만
+     학생을 고르기 전까지 잠가 둔다. */
+function drawDiag(nm){
+  var box=$('diag');
+  $('issue').disabled=!nm;
+  if(!nm){ box.innerHTML=''; $('s4').hidden=true; drawPapers(); return; }
+  var hist=histOf(nm), rows=weakScan(nm);
+  if(!hist.length){ box.innerHTML='<p class="err">이 이름으로 채점한 기록이 이 브라우저에 없습니다.</p>';
+                    $('issue').disabled=true; $('s4').hidden=true; drawPapers(); return; }
+  var areas=weakAreas(rows), types=weakTypes(rows);
+  var rep=types.filter(function(t){ return t.rounds>1; });
+  /* 표 머리에는 scope 를 단다 — 없으면 낭독기가 어느 칸의 머리인지 모른다. */
+  var h='<table class="t"><thead><tr><th scope="col">영역</th><th scope="col" class="n">틀림</th>'
+      + '<th scope="col" class="n">무응답</th><th scope="col" class="n">무게</th></tr></thead><tbody>';
+  areas.forEach(function(g){
+    h+='<tr><td>'+esc(g.area)+'</td><td class="n">'+g.n+'</td><td class="n">'
+      +(g.blanks||'-')+'</td><td class="n">'+g.weight+'</td></tr>';
+  });
+  h+='</tbody></table>';
+  box.innerHTML='<p style="margin:12px 0 4px;font-size:13px">'
+    +'<b>'+esc(nm)+'</b> · 푼 회차 <b>'+hist.length+'</b> · 틀린 문항 <b>'+rows.length+'</b>'
+    +' · 영역 <b>'+areas.length+'</b>종 · 유형 <b>'+types.length+'</b>종'
+    +(rep.length?(' · <b>두 회차 이상에서 거듭 틀린 유형 '+rep.length+'종</b>'):'')+'</p>'
+    +'<div class="wrap">'+h+'</div>'
+    +'<p class="muted" style="font-size:12px;margin:2px 0 0">「무게」는 되풀이된 오답에 더 준 값입니다 — '
+    +'서로 다른 회차에서 거듭 틀린 유형일수록 무겁습니다. 60제의 영역별 몫을 이 무게로 나눕니다.</p>';
+  drawPapers();
+}
+
+function papersOf(nm){
+  var key=nameKey(nm), all=w60All();
+  return Object.keys(all).map(function(c){ return all[c]; })
+    .filter(function(p){ return nameKey(p.name)===key; })
+    .sort(function(a,b){ return (b.at||0)-(a.at||0); });
+}
+function drawPapers(){
+  var list=papersOf(CUR), ul=$('plist');
+  if(!list.length){
+    /* 목록은 비어도 3단계를 숨기지 않는다 — 복원 코드로 바로 들어오는 길이
+       여기 있기 때문이다. 시험지 표지에 「이 코드로 찾습니다」라고 적어 두었으니
+       그 칸이 늘 보여야 한다. 화면에 적은 말은 참이어야 한다. */
+    ul.innerHTML=CUR?'<li class="muted">이 학생에게 발행한 시험지가 아직 없습니다.</li>':'';
+    $('s4').hidden=true; return;
+  }
+  ul.innerHTML=list.map(function(p){
+    var g1=(p.a1&&p.a1.length)?'1교시 채점됨':'1교시 미채점';
+    var g2=(p.a2&&p.a2.length)?' · 2교시 채점됨':'';
+    return '<li'+(CURP&&CURP.code===p.code?' class="on"':'')+'>'
+      +'<span><span class="code">'+esc(w60Pretty(p.code))+'</span> '
+      +'<span class="meta">'+esc(p.ymd)+' · '+p.n+'제 · '+esc(g1+g2)+'</span></span>'
+      +'<button class="btn ghost sm" data-code="'+esc(p.code)+'">이 시험지 채점</button></li>';
+  }).join('');
+  Array.prototype.forEach.call(ul.querySelectorAll('button[data-code]'), function(b){
+    b.onclick=function(){ pickPaper(b.getAttribute('data-code')); };
+  });
+}
+
+/* 60칸 입력. 숫자를 넣으면 다음 칸으로 넘어간다. 답안지를 한 줄로 붙여넣어도 된다. */
+function boxes(host, n, labels, vals, onChange){
+  var h='<div class="grid">';
+  for(var i=0;i<n;i++){
+    h+='<div class="cellbox" data-i="'+i+'"><div class="qn">'+(labels?labels[i]:(i+1))+'</div>'
+      +'<input inputmode="numeric" maxlength="1" aria-label="'+(labels?labels[i]:(i+1))+'번 답"'
+      +' value="'+((vals&&vals[i])?vals[i]:'')+'"></div>';
+  }
+  h+='</div>';
+  host.innerHTML=h;
+  var ins=host.querySelectorAll('.cellbox input');
+  var read=function(){ return Array.prototype.map.call(ins,function(x){
+    var v=parseInt(x.value,10); return (v>=1&&v<=4)?v:0; }); };
+  Array.prototype.forEach.call(ins,function(inp,i){
+    inp.addEventListener('input',function(){
+      var v=inp.value.replace(/[^1-4]/g,''); inp.value=v;
+      if(v && ins[i+1]) ins[i+1].focus();
+      onChange&&onChange(read());
+    });
+    inp.addEventListener('keydown',function(ev){
+      if(ev.key==='Backspace' && !inp.value && ins[i-1]){ ins[i-1].focus(); ev.preventDefault(); }
+      if(ev.key==='ArrowLeft' && ins[i-1]) ins[i-1].focus();
+      if(ev.key==='ArrowRight' && ins[i+1]) ins[i+1].focus();
+    });
+    inp.addEventListener('paste',function(ev){
+      var t=(ev.clipboardData||window.clipboardData).getData('text')||'';
+      var d=t.replace(/[^0-4]/g,''); if(!d) return;
+      ev.preventDefault();
+      for(var k=0;k<d.length && i+k<ins.length;k++) ins[i+k].value=(d[k]==='0'?'':d[k]);
+      onChange&&onChange(read());
+    });
+  });
+  return read;
+}
+
+/* ── 1교시 채점 자리 ─────────────────────────────────────────────────────
+   ⚠ 채점은 시험지를 **되살려서** 한다. 다시 짜지 않는다 — 학생이 손에 든
+     종이와 한 문항이라도 어긋나면 그 채점은 거짓말이 된다. */
+var CURI=null, READ1=null, READ2=null;
+async function pickPaper(code){
+  var p=w60All()[code];
+  if(!p){ toast('그 코드의 시험지를 못 찾았습니다'); return; }
+  CURP=p; drawPapers();
+  $('g1').innerHTML='<p class="muted">시험지를 되살리는 중…</p>';
+  $('s4').hidden=true;
+  try{ CURI=await w60Restore(p); }
+  catch(e){ $('g1').innerHTML='<p class="err">되살리지 못했습니다 — '+esc(e.message||e)+'</p>'; return; }
+  drawG1();
+}
+function drawG1(){
+  var p=CURP, items=CURI;
+  var host=$('g1');
+  host.innerHTML='<p style="margin:10px 0 2px;font-size:13px"><span class="code">'
+    +esc(w60Pretty(p.code))+'</span> · '+esc(p.name)+' · '+items.length+'제 — '
+    +'<b>1교시 답안</b>을 넣으세요.</p>'
+    +'<div id="bx1"></div><div class="row" id="act1"></div><div id="sum1"></div>';
+  READ1=boxes($('bx1'), items.length, null, p.a1, null);
+  var act=$('act1');
+  act.innerHTML='<button class="btn" id="save1">채점하기</button>'
+    +'<button class="btn ghost" id="mk2" '+((p.a1&&p.a1.length)?'':'disabled')+'>📄 2교시 되풀이 Word ↓</button>'
+    +'<button class="btn ghost" id="mkkey" '+((p.a1&&p.a1.length)?'':'disabled')+'>📗 해설 Word ↓</button>';
+  $('save1').onclick=function(){
+    var a=READ1(); p.a1=a; w60Put(p);
+    markCells($('bx1'), items, a); drawSum1(); drawPapers();
+    $('mk2').disabled=false; $('mkkey').disabled=false;
+    drawG2();
+    toast('1교시 채점 완료');
+  };
+  $('mk2').onclick=function(){ run($('mk2'), function(){ return makeRetry(CURP); },
+      function(r){ toast('2교시 되풀이 저장 완료 · '+r.wrongIdx.length+'문항'); }); };
+  $('mkkey').onclick=function(){ run($('mkkey'), function(){ return makeKey(CURP); },
+      function(){ toast('해설 저장 완료'); }); };
+  if(p.a1&&p.a1.length){ markCells($('bx1'), items, p.a1); drawSum1(); drawG2(); }
+}
+function markCells(host, items, a, only){
+  var cells=host.querySelectorAll('.cellbox');
+  Array.prototype.forEach.call(cells,function(c,i){
+    c.classList.remove('right','wrong','dim');
+    var gi=only?only[i]:i;
+    if(!a || !a[gi]){ c.classList.add('dim'); return; }
+    c.classList.add(w60Ok(items[gi],a[gi])?'right':'wrong');
+  });
+}
+function drawSum1(){
+  var p=CURP, items=CURI, a=p.a1||[];
+  var right=0, blank=0;
+  items.forEach(function(it,i){ if(!a[i]) blank++; if(w60Ok(it,a[i]||0)) right++; });
+  $('sum1').innerHTML='<p style="margin:10px 0 0;font-size:13px">1교시 <b>'+right+' / '+items.length+'</b>'
+    +(blank?(' · 무응답 '+blank+'문항'):'')+' · 틀린 '+(items.length-right)+'문항이 2교시로 갑니다.</p>';
+}
+
+/* ── 2교시 채점 · 세 갈래 판정 ──────────────────────────────────────────── */
+function drawG2(){
+  var p=CURP, items=CURI;
+  var v1=w60Verdict(items, p.a1, null);
+  var wrongIdx=[]; v1.forEach(function(v,i){ if(v!=='know') wrongIdx.push(i); });
+  var host=$('g2');
+  if(!wrongIdx.length){
+    $('s4').hidden=false;
+    host.innerHTML='<p class="hint">1교시를 다 맞혔습니다 — 되풀이할 문항이 없습니다. 해설만 내려받으세요.</p>';
+    return;
+  }
+  $('s4').hidden=false;
+  host.innerHTML='<p class="hint">1교시에 틀린 '+wrongIdx.length+'문항입니다. 번호는 1교시 번호 그대로입니다. '
+    +'학생이 2교시에 쓴 답을 넣으세요.</p><div id="bx2"></div><div class="row" id="act2"></div><div id="sum2"></div>';
+  var vals=wrongIdx.map(function(gi){ return (p.a2||[])[gi]||0; });
+  READ2=boxes($('bx2'), wrongIdx.length, wrongIdx.map(function(g){ return g+1; }), vals, null);
+  $('act2').innerHTML='<button class="btn" id="save2">2교시 채점하기</button>'
+    +'<button class="btn ghost" id="mkkey2">📗 해설 Word ↓ (세 갈래 판정 포함)</button>';
+  $('save2').onclick=function(){
+    var got=READ2(), a2=new Array(items.length).fill(0);
+    wrongIdx.forEach(function(gi,k){ a2[gi]=got[k]||0; });
+    p.a2=a2; w60Put(p);
+    markCells($('bx2'), items, a2, wrongIdx); drawSum2(wrongIdx); drawPapers();
+    toast('2교시 채점 완료');
+  };
+  $('mkkey2').onclick=function(){ run($('mkkey2'), function(){ return makeKey(CURP); },
+      function(){ toast('해설 저장 완료'); }); };
+  if(p.a2&&p.a2.length){ markCells($('bx2'), items, p.a2, wrongIdx); drawSum2(wrongIdx); }
+}
+function drawSum2(wrongIdx){
+  var p=CURP, items=CURI;
+  var verd=w60Verdict(items, p.a1, (p.a2&&p.a2.length)?p.a2:null);
+  var c={know:0,slip:0,none:0,wait:0}; verd.forEach(function(v){ c[v]++; });
+  $('sum2').innerHTML='<div class="verdict">'
+    +'<div class="vc know"><b>안다</b><span class="big">'+c.know+'</span>'
+    +'<div class="muted" style="font-size:12px">1교시에 맞혔다</div></div>'
+    +'<div class="vc slip"><b>알지만 못 꺼낸다</b><span class="big">'+c.slip+'</span>'
+    +'<div class="muted" style="font-size:12px">힌트를 보고 스스로 풀었다 — 연습량의 문제</div></div>'
+    +'<div class="vc none"><b>모른다</b><span class="big">'+c.none+'</span>'
+    +'<div class="muted" style="font-size:12px">힌트 셋을 다 보고도 못 풀었다 — 강의로</div></div>'
+    +'</div>';
+}
+
+function run(btn, work, done){
+  var old=btn.textContent; btn.disabled=true; btn.textContent='만드는 중…';
+  work().then(function(r){ done&&done(r); })
+        .catch(function(e){ console.error(e); toast(String(e&&e.message||e)); })
+        .then(function(){ btn.disabled=false; btn.textContent=old; });
+}
+
+/* ── 발행 기록 옮기기 ────────────────────────────────────────────────────
+   이 기록은 이 브라우저에만 있다. 기기를 바꿀 일이 있으면 파일로 챙긴다.
+   불러올 때는 **덮어쓰지 않고 합친다** — 이미 채점해 둔 것을 지우면 안 된다. */
+function exportPapers(){
+  var all=w60All();
+  var blob=new Blob([JSON.stringify({kind:'weak60-papers', v:1, at:Date.now(), papers:all},null,1)],
+                    {type:'application/json'});
+  _saveBlob(blob, '약점60제_발행기록_'+w60Ymd()+'.json');
+  toast(Object.keys(all).length+'벌을 내보냈습니다');
+}
+function importPapers(text){
+  var j; try{ j=JSON.parse(text); }catch(e){ toast('읽을 수 없는 파일입니다'); return; }
+  var got=(j&&j.papers)||(j&&j.kind===undefined?j:null);
+  if(!got||typeof got!=='object'){ toast('발행 기록이 아닙니다'); return; }
+  var all=w60All(), add=0, keep=0;
+  Object.keys(got).forEach(function(c){
+    if(all[c]){ keep++; return; }            /* 있는 것은 그대로 둔다 */
+    all[c]=got[c]; add++;
+  });
+  if(!w60Write(all)) return;
+  toast(add+'벌을 더했습니다'+(keep?(' · 이미 있던 '+keep+'벌은 그대로 두었습니다'):''));
+  drawPapers();
+}
+
+/* ── 복원 코드로 찾아 들어가기 ───────────────────────────────────────────
+   시험지 표지에 「채점할 때 선생님이 이 코드로 이 시험지를 찾습니다」라고 적었다.
+   적어 놓고 찾는 자리가 없으면 그 문장이 거짓말이 된다. 여기가 그 자리다.
+   가운뎃줄·빈칸·대소문자는 알아서 걷어낸다 — 손으로 옮겨 적는 코드다. */
+function findByCode(raw){
+  var c=String(raw||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  var msg=$('findMsg');
+  if(c.length<6){ msg.className='err'; msg.textContent='코드는 여섯 자입니다'; return; }
+  var pp=w60All()[c];
+  if(!pp){ msg.className='err'; msg.textContent='그 코드의 시험지가 이 브라우저에 없습니다'; return; }
+  msg.className='muted'; msg.textContent=pp.name+' · '+pp.ymd+' · '+pp.n+'제';
+  var sel=$('who');
+  if(nameKey(sel.value)!==nameKey(pp.name)){
+    var hit=Array.prototype.filter.call(sel.options,function(o){ return nameKey(o.value)===nameKey(pp.name); })[0];
+    if(hit){ sel.value=hit.value; CUR=hit.value; drawDiag(CUR); }
+    else { CUR=pp.name; }
+  }
+  pickPaper(c);
+}
+
+/* ── 반 전체 발행 ────────────────────────────────────────────────────────
+   예순 명이면 예순 벌이다. 한 사람씩 골라 예순 번 누르고 있을 일이 아니다.
+   ⚠ 한 벌씩 **차례로** 만든다. 한꺼번에 던지면 그림을 예순 벌치 동시에
+     받으러 가서 브라우저가 먼저 죽는다. 그리고 넘어진 학생은 넘어졌다고
+     적는다 — 조용히 빼면 그 아이만 시험지가 없는 채로 수업이 시작된다. */
+async function issueAll(N, onStep){
+  var names=rosterNames(), done=[], bad=[];
+  for(var i=0;i<names.length;i++){
+    var nm=names[i].name;
+    onStep&&onStep(i+1, names.length, nm);
+    try{ var r=await issuePaper(nm,N); done.push({name:nm, code:r.paper.code, n:r.items.length, miss:r.miss}); }
+    catch(e){ bad.push({name:nm, why:String(e&&e.message||e)}); }
+  }
+  return {done:done, bad:bad, total:names.length};
+}
+
+/* ── 시작 ───────────────────────────────────────────────────────────────── */
+async function boot(){
+  try{ await loadExams(); }
+  catch(e){ $('who').innerHTML='<option value="">회차 목록을 못 읽었습니다</option>';
+            toast('exams.json 을 읽지 못했습니다'); return; }
+  var names=rosterNames();
+  var sel=$('who');
+  sel.innerHTML='<option value="">— 학생을 고르세요 —</option>'
+    + names.map(function(g){ return '<option value="'+esc(g.name)+'">'+esc(g.name)
+        +' ('+g.n+'회)</option>'; }).join('');
+  if(!names.length){
+    sel.innerHTML='<option value="">이 브라우저에 채점 기록이 없습니다</option>';
+    $('s2').hidden=true;                    /* 만들 사람이 없으면 만드는 자리도 없다 */
+  }
+  var pre=new URLSearchParams(location.search).get('name');
+  if(pre && names.some(function(g){ return nameKey(g.name)===nameKey(pre); })){
+    sel.value=names.filter(function(g){ return nameKey(g.name)===nameKey(pre); })[0].name;
+  }
+  sel.onchange=function(){ CUR=sel.value; CURP=null; CURI=null; drawDiag(CUR); };
+  if(sel.value){ CUR=sel.value; drawDiag(CUR); }
+
+  $('reload').onclick=function(){ location.reload(); };
+  $('issue').onclick=function(){
+    if(!CUR){ toast('학생을 먼저 고르세요'); return; }
+    var N=Math.max(10, Math.min(120, parseInt($('nq').value,10)||60));
+    run($('issue'), function(){ return issuePaper(CUR,N); }, function(r){
+      $('issued').innerHTML='<p style="margin:10px 0 0;font-size:13px">'
+        +'복원 코드 <span class="code">'+esc(w60Pretty(r.paper.code))+'</span> · '
+        +r.items.length+'제 저장 완료.'
+        +(r.items.length<r.asked?(' <span class="err">재료가 '+r.items.length+'문항까지였습니다.</span>'):'')
+        +(r.miss?(' <span class="err">그림 '+r.miss+'장을 못 받았습니다.</span>'):'')+'</p>';
+      drawPapers(); pickPaper(r.paper.code);
+      toast('1교시 시험지 저장 완료 · '+r.items.length+'제');
+    });
+  };
+  $('issueAll').disabled=!names.length;
+  $('issueAll').onclick=function(){
+    var N=Math.max(10, Math.min(120, parseInt($('nq').value,10)||60));
+    var box=$('issued');
+    run($('issueAll'), function(){
+      return issueAll(N, function(i,tot,nm){
+        box.innerHTML='<p style="margin:10px 0 0;font-size:13px">만드는 중… '+i+' / '+tot+' · '+esc(nm)+'</p>';
+      });
+    }, function(r){
+      var rows=r.done.map(function(d){
+        return '<tr><td>'+esc(d.name)+'</td><td class="n"><span class="code">'+esc(w60Pretty(d.code))
+             +'</span></td><td class="n">'+d.n+'</td><td class="n">'+(d.miss?('그림 '+d.miss+'장 못 받음'):'-')+'</td></tr>';
+      }).join('');
+      box.innerHTML='<p style="margin:10px 0 4px;font-size:13px"><b>'+r.done.length+'벌</b> 발행'
+        +(r.bad.length?(' · <span class="err">'+r.bad.length+'명은 못 만들었습니다</span>'):'')+'</p>'
+        +'<div class="wrap"><table class="t"><thead><tr><th scope="col">학생</th>'
+        +'<th scope="col" class="n">복원 코드</th><th scope="col" class="n">문항</th>'
+        +'<th scope="col" class="n">비고</th></tr></thead><tbody>'+rows+'</tbody></table></div>'
+        +(r.bad.length?('<p class="err" style="font-size:12.5px">'
+          +r.bad.map(function(x){ return esc(x.name)+' — '+esc(x.why); }).join('<br>')+'</p>'):'');
+      drawPapers();
+      toast(r.done.length+'벌 발행 완료'+(r.bad.length?(' · '+r.bad.length+'명 실패'):''));
+    });
+  };
+  $('findGo').onclick=function(){ findByCode($('findCode').value); };
+  $('findCode').addEventListener('keydown',function(e){ if(e.key==='Enter') findByCode($('findCode').value); });
+  $('expPapers').onclick=exportPapers;
+  $('impPapers').onclick=function(){ $('impFile').click(); };
+  $('impFile').onchange=function(){
+    var f=$('impFile').files[0]; if(!f) return;
+    var fr=new FileReader();
+    fr.onload=function(){ importPapers(String(fr.result||'')); $('impFile').value=''; };
+    fr.readAsText(f);
+  };
+}
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot);
+else boot();
+</script>
+</body>
+</html>
