@@ -178,9 +178,23 @@ jobs:
       - name: playwright 설치
         timeout-minutes: 5
         run: npm install --prefix tests
+      # `--with-deps` 가 apt 를 부른다. 아래 docx 잡의 LibreOffice 설치와 같은
+      # 까닭으로 두 번 죽었다(2026-08-18·19, 각각 10분 타임아웃). 러너에 박힌
+      # azure 거울이 응답을 안 한다 — 되는 거울로 갈아 끼우고 들어간다.
+      - name: apt 거울 갈아 끼우기 (azure 가 응답을 안 한다)
+        run: |
+          sudo sed -i 's|http://azure.archive.ubuntu.com|https://archive.ubuntu.com|g' \
+            /etc/apt/sources.list /etc/apt/sources.list.d/*.list \
+            /etc/apt/sources.list.d/*.sources 2>/dev/null || true
       - name: chromium 설치
         timeout-minutes: 10
-        run: npx --prefix tests playwright install --with-deps chromium
+        run: |
+          for try in 1 2; do
+            npx --prefix tests playwright install --with-deps chromium && exit 0
+            echo "::warning::chromium 설치가 $try 번째로 실패했다 — 다시 해 본다"
+            sleep 5
+          done
+          echo "::error::chromium 을 못 깔았다"; exit 1
       # 브라우저 검사는 정적 서버가 있어야 한다(file:// 로는 localStorage 오리진이
       # 갈려서 앱끼리 기록을 못 나눈다 — 이 셸이 기대는 바로 그 성질이다).
       # ⚠ `python3 -m http.server` 는 한 번에 한 요청만 받는다. 서비스워커가
@@ -951,18 +965,43 @@ jobs:
       #   여기서 재는 값이 흔들린다.
       #   (Malgun Gothic 은 윈도 글꼴이라 어차피 여기엔 없다. 이 자는 워드를
       #    똑같이 흉내 내는 것이 아니라 **여유가 거의 없는 상태**를 잡는다.)
+      # ⚠ 이 걸음이 나흘에 네 번 12분 타임아웃으로 죽었다(2026-08-18~19).
+      #   로그를 보면 까닭이 한 줄로 나온다 — 러너에 박혀 있는 azure 거울이
+      #   응답을 안 한다.
+      #
+      #       Ign:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease  (되풀이)
+      #       Hit:2 https://archive.ubuntu.com/ubuntu noble InRelease       (된다)
+      #
+      #   apt 는 안 되는 거울을 오래 기다린다. 그래서 **되는 거울로 갈아 끼우고**
+      #   기다리는 시간을 잘라 둔다. 그래도 안 되면 한 번 더 해 본다 —
+      #   PR 마다 사람이 「재실행」을 누르고 있을 일이 아니다.
       - name: LibreOffice · poppler 설치
         timeout-minutes: 12
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq --no-install-recommends \
-            libreoffice-writer poppler-utils fonts-nanum
+          sudo sed -i 's|http://azure.archive.ubuntu.com|https://archive.ubuntu.com|g' \
+            /etc/apt/sources.list /etc/apt/sources.list.d/*.list \
+            /etc/apt/sources.list.d/*.sources 2>/dev/null || true
+          APT_OPT="-o Acquire::Retries=3 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20"
+          for try in 1 2; do
+            sudo apt-get $APT_OPT update -qq && \
+            sudo apt-get $APT_OPT install -y -qq --no-install-recommends \
+              libreoffice-writer poppler-utils fonts-nanum && exit 0
+            echo "::warning::apt 가 $try 번째로 실패했다 — 다시 해 본다"
+            sleep 5
+          done
+          echo "::error::LibreOffice·poppler 를 못 깔았다"; exit 1
       - name: playwright 설치
         timeout-minutes: 5
         run: npm install --prefix tests
       - name: chromium 설치
         timeout-minutes: 10
-        run: npx --prefix tests playwright install --with-deps chromium
+        run: |
+          for try in 1 2; do
+            npx --prefix tests playwright install --with-deps chromium && exit 0
+            echo "::warning::chromium 설치가 $try 번째로 실패했다 — 다시 해 본다"
+            sleep 5
+          done
+          echo "::error::chromium 을 못 깔았다"; exit 1
       - name: 정적 서버 (검사용)
         timeout-minutes: 3
         run: |
