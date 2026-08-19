@@ -122,15 +122,26 @@ def build(exam_id: str) -> str:
         (exam.get("bookPdf"), "문제편·해설편 PDF ↓"),
     ]
     source_files = [(path, label) for path, label in source_files if path]
-    extra_css = """
+    # 내려받기 단추 옷은 단추가 있을 때만 낸다.
+    asset_css = """
 .source-assets{max-width:860px;margin:14px auto 0;padding:0 20px;display:flex;gap:8px;flex-wrap:wrap}
 .source-assets a{display:inline-flex;align-items:center;padding:8px 11px;border:1px solid var(--line);
  border-radius:8px;background:#fff;color:var(--teal);font-size:13px;font-weight:700;text-decoration:none}
 .source-assets a:hover{border-color:var(--teal)}
+""" if exam.get("answerPdf") or exam.get("bookPdf") else ""
+
+    # ⚠ 절 나눔 해설의 옷은 **늘** 낸다. 예전에는 위 단추 옷과 한 덩이로 묶여
+    #   `answerPdf 나 bookPdf 가 있을 때만` 나갔다 — 둘은 아무 상관이 없는데도.
+    #   해설은 절 나눔으로 썼는데 그 회차에 딸린 PDF 가 없으면, 해설지가 옷을
+    #   못 입고 나가면서도 파일은 멀쩡히 만들어지고 검사도 다 지나간다.
+    #   지금은 안 걸리지만(그런 회차가 없다) 다음에 한 회차만 그렇게 되면
+    #   아무도 모르게 무너진다. 걸릴 일을 남겨 두지 않는다.
+    sol_css = """
 .sol-part{margin:13px 0}.sol-part h4{margin:0 0 5px;color:var(--teal);font-size:13.5px;letter-spacing:.02em}
 .sol-part p{margin:5px 0;white-space:pre-wrap}
 .answer-confirm{margin:14px 0 0;padding-top:9px;border-top:1px dashed var(--line);color:var(--teal)}
-""" if exam.get("answerPdf") or exam.get("bookPdf") else ""
+"""
+    extra_css = asset_css + sol_css
     out = ["<!DOCTYPE html><html lang=\"ko\"><head><meta charset=\"utf-8\">",
            "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">",
            f"<title>{esc(exam['title'])} · 해설지</title><style>{CSS}{extra_css}</style></head><body>",
