@@ -1285,18 +1285,32 @@ function _w60key(K, meta, items, types, areas, hist, a1, a2, verd, imgs, studyFi
   });
   b.push(K.table(ar,[3200,1600,1300,1400,1700]));
 
-  b.push(K.txt('되풀이된 유형 — 서로 다른 회차에서 거듭 틀린 것부터',{color:K.TEAL,size:22,bold:true,before:220,after:60}));
-  var tr=[[K.cell('유형',{w:4000,bold:true,fill:'F5F2EA'}),
-           K.cell('영역',{w:2400,bold:true,fill:'F5F2EA'}),
-           K.cell('회차 수',{w:1400,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
-           K.cell('틀림',{w:1400,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER})]];
-  types.slice(0,20).forEach(function(g){
-    tr.push([K.cell(g.type,{w:4000}), K.cell(g.area||'',{w:2400,color:K.MUTED}),
-             K.cell(String(g.rounds),{w:1400,align:K.AlignmentType.CENTER,bold:g.rounds>1}),
-             K.cell(String(g.n),{w:1400,align:K.AlignmentType.CENTER})]);
-  });
-  b.push(K.table(tr,[4000,2400,1400,1400]));
-  if(types.length>20) b.push(K.txt('… 그 밖 '+(types.length-20)+'종이 더 있습니다.',{color:K.MUTED,size:17,before:80}));
+  /* ⚠ 제목은 「거듭 틀린 것부터」라고 해 놓고 **한 번만 틀린 것까지** 스무
+       줄을 늘어놓았다. 스무 줄 가운데 열아홉이 「회차 수 1」이면 그 표는
+       거듭 틀린 유형을 보여 주는 표가 아니다. 제목이 약속한 것만 싣는다.
+       나머지는 세어서 한 줄로 적는다 — 안 센 것이 아니라 안 늘어놓은 것이다. */
+  var reps=types.filter(function(g){ return g.rounds>1; });
+  b.push(K.txt('되풀이된 유형 — 서로 다른 회차에서 거듭 틀린 것',{color:K.TEAL,size:22,bold:true,before:220,after:60}));
+  if(!reps.length){
+    b.push(K.txt('서로 다른 회차에서 거듭 틀린 유형은 없습니다. 틀린 '+types.length
+               + '종이 모두 한 회차에서만 나왔습니다 — 굳어진 약점보다 그때그때의 흔들림에 가깝습니다.',
+                 {color:K.MUTED,size:17}));
+  } else {
+    var tr=[[K.cell('유형',{w:4000,bold:true,fill:'F5F2EA'}),
+             K.cell('영역',{w:2400,bold:true,fill:'F5F2EA'}),
+             K.cell('회차 수',{w:1400,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+             K.cell('틀림',{w:1400,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER})]];
+    reps.slice(0,20).forEach(function(g){
+      tr.push([K.cell(g.type,{w:4000}), K.cell(g.area||'',{w:2400,color:K.MUTED}),
+               K.cell(String(g.rounds),{w:1400,align:K.AlignmentType.CENTER,bold:true,color:K.MS}),
+               K.cell(String(g.n),{w:1400,align:K.AlignmentType.CENTER})]);
+    });
+    b.push(K.table(tr,[4000,2400,1400,1400]));
+    if(reps.length>20) b.push(K.txt('… 거듭 틀린 유형이 '+(reps.length-20)+'종 더 있습니다.',{color:K.MUTED,size:17,before:80}));
+    b.push(K.txt('이 '+reps.length+'종이 가장 급합니다. 한 회차에서만 틀린 '+(types.length-reps.length)
+               + '종은 여기 안 실었습니다 — 안 센 것이 아니라 안 늘어놓은 것입니다.',
+                 {color:K.MUTED,size:16,before:70}));
+  }
 
   b.push(K.txt('푼 회차',{color:K.TEAL,size:22,bold:true,before:220,after:60}));
   var hr=[[K.cell('회차',{w:5600,bold:true,fill:'F5F2EA'}),

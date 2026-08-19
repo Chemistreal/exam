@@ -381,6 +381,11 @@ async function fillBoxes(p, sel, vals) {
   const retry = pdf(path.join(OUT, 'd1.pdf'));
   const key   = pdf(path.join(OUT, 'd2.pdf'));
   const study = pdf(path.join(OUT, 'd3.pdf'));
+  /* ⚠ 빈칸을 그대로 두고 재면 안 된다. LibreOffice 는 한글과 숫자 사이에
+       빈칸을 넣어서 「1교시」를 「1 교시」로, 「001강」을 「001 강」으로 찍는다.
+       그것 때문에 멀쩡히 찍힌 것을 넷이나 「없다」고 셌다(2026-08-19).
+       아래 자들은 빈칸을 걷어내고 잰다. */
+  const flat = t => String(t).replace(/[ \t]+/g, '');
 
   /* 보기(①②③④)는 문항의 일부라 당연히 있다 — '정답 ③' 꼴만 막는다. */
   const leak1 = (paper.match(/정답\s*[①②③④]/g) || []);
@@ -430,13 +435,12 @@ async function fillBoxes(p, sel, vals) {
   const badP = (key.match(/[①③]\s*를\s*고른|[②④]\s*을\s*고른/g) || []);
   chk('고른 선지에 조사가 맞게 붙는다', badP.length === 0, badP.slice(0, 3).join(' · '));
   chk('해설에 푼 회차 표가 있다', /푼 회차/.test(key), '');
+  /* 제목이 「거듭 틀린 것」이면 표에도 거듭 틀린 것만 있어야 한다. 한 번만
+     틀린 것까지 스무 줄 늘어놓으면 그 표는 제목이 약속한 표가 아니다. */
+  const repBlock = (flat(key).split('되풀이된유형')[1] || '').split('푼회차')[0];
+  const onceRows = (repBlock.match(/\n\s*[^\n]{2,20}\s+1\s+1\s*$/gm) || []).length;
+  chk('「되풀이된 유형」 표에 한 번만 틀린 것이 안 섞인다', onceRows === 0, '섞인 줄 ' + onceRows);
 
-  /* 화면이 셈한 값이 아니라 **찍힌 종이의 낱말**을 센다.
-     ⚠ 빈칸을 그대로 두고 재면 안 된다. LibreOffice 는 한글과 숫자 사이에
-       빈칸을 넣어서 「1교시」를 「1 교시」로, 「001강」을 「001 강」으로 찍는다.
-       그것 때문에 멀쩡히 찍힌 것을 넷이나 「없다」고 셌다(2026-08-19).
-       빈칸을 걷어내고 잰다. */
-  const flat = t => String(t).replace(/[ \t]+/g, '');
   const seen = { know: 0, slip: 0, none: 0 };
   key.split('\n').map(flat).forEach(l => {
     const m = l.match(/^판정(알지만못꺼낸다|모른다|안다)/);
