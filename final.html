@@ -5843,7 +5843,7 @@ function scoreAuto(again){
         Word 저장과 미니 시험지는 남긴다 — 학부모가 실제로 쓰는 것들이다
         (선생님 확인: 학생은 화면과 워드파일을 둘 다 쓴다).
         `#r=` 로 열렸을 때만 뺀다 — 선생님 화면은 그대로다. */''}
-   <div class="toolbar"><button class="btn" onclick="downloadReportDOCX()">📝 성적표 Word 저장 ↓</button>${window.__sharedReport?'':'<button class="btn sm" onclick="copyReportLink()">성적표 링크 복사 ⧉</button>'}<button class="btn ghost sm" onclick="printRetest()">동형 미니 시험지 인쇄 🖨</button>${window.__sharedReport?'':'<button class="btn ghost sm" onclick="exportReportHTML()">공유용 HTML 저장 ↓</button>'}
+   <div class="toolbar"><button class="btn" onclick="downloadReportDOCX()">📝 성적표 Word 저장 ↓</button>${window.__sharedReport?'':'<button class="btn sm" onclick="copyReportLink()">성적표 링크 복사 ⧉</button>'}<button class="btn ghost sm" onclick="printRetest()">동형 미니 시험지 인쇄 🖨</button>${window.__sharedReport?'':`<a class="btn ghost sm" href="weak60.html?name=${encodeURIComponent(nm||'')}" style="text-decoration:none">📘 약점 극복 60제 만들기 →</a>`}${window.__sharedReport?'':'<button class="btn ghost sm" onclick="exportReportHTML()">공유용 HTML 저장 ↓</button>'}
      ${/* 해설 링크는 위 「시험지 · 해설 내려받기」 칸으로 옮겼다(2026-08-13).
           두 자리에 같은 링크가 있으면 한쪽만 고쳤을 때 갈린다. */''}
      <button class="btn ghost sm" onclick="window.print()">인쇄</button>
@@ -6211,6 +6211,18 @@ async function printRetest(){
   try{ window.print(); }catch(e){ cleanup(); }
   setTimeout(cleanup,180000);
 }
+/* ===== 약점 극복 모의고사 — 이 파일에는 없다 =========================
+   한 학생이 그동안 틀린 것만 모아 그 사람 한 벌의 시험지를 짓는 장치는
+   **weak60.html** 로 옮겼다. 여기 두었다가 뺀 까닭:
+
+     · 그 장치는 **정답이 실린 해설 Word** 를 만든다. 성적표는 학생·학부모가
+       링크로 여는 화면이다. 답을 찍어 내는 단추가 그 화면에 있을 자리가 아니다.
+     · 60제는 발행 → 1교시 채점 → 2교시 되풀이 → 해설로 이어지는 **여러 걸음**이라
+       회차 하나를 보는 성적표와 화면 짜임이 다르다.
+
+   옮긴 것이지 베낀 것이 아니다. 채점 규칙(okq·allc·accSet)과 명단 열쇠는
+   weak60.html 이 이 파일에서 그대로 가져가고, tests/weak60-shared.js 가 두
+   파일을 맞대어 본다 — 한 글자라도 갈리면 검사가 죽는다. */
 /* ===== 성적표 Word(.docx) — 학생별 즉석 생성·다운로드 (브라우저 docx 라이브러리, 캡처 미사용·편집 가능) ===== */
 function loadScriptOnce(src){ return new Promise(function(res,rej){ var ex=document.querySelector('script[data-lib="'+src+'"]'); if(ex){ if(ex.dataset.loaded){res();return;} ex.addEventListener('load',function(){res();}); ex.addEventListener('error',function(){rej(new Error(src));}); return; } var s=document.createElement('script'); s.src=src; s.dataset.lib=src; s.onload=function(){s.dataset.loaded='1';res();}; s.onerror=function(){rej(new Error(src));}; document.head.appendChild(s); }); }
 async function ensureDocxLib(){ if(!window.docx) await loadScriptOnce('vendor/docx.iife.js'); return window.docx; }

@@ -116,6 +116,12 @@ jobs:
       # 바뀌어 «시험 안 봤는데 왜 올라가 있어?» 가 된다(2026-08-12).
       - name: 다시 보내도 줄이 늘지 않는다
         run: node tests/resend-idempotent.js
+      # weak60.html 은 final.html 의 채점 규칙을 **그대로 옮겨 쓴다**(바깥 .js 를
+      # 안 걸기 때문이다 — 첫 그림이 늦는다). 옮겨 쓴 것은 갈라진다. 갈라지면
+      # 같은 학생이 두 화면에서 다른 점수를 받는다 — 복수정답이 걸린 문항
+      # 하나에서만 나므로 눈으로는 못 찾는다. 두 파일을 맞대어 본다.
+      - name: 60제 자리가 성적표의 채점 규칙과 갈리지 않았다
+        run: node tests/weak60-shared.js
 
   test:
     runs-on: ubuntu-latest
@@ -1014,3 +1020,10 @@ jobs:
       - name: 성적표 Word — 장이 밀리지 않는다
         timeout-minutes: 15
         run: node tests/docx-pages.js
+      # 약점 60제는 세 벌로 나간다(1교시·2교시 되풀이·해설). 앞의 둘은 학생이
+      # 손에 들고 푸는 종이라 답이 한 자라도 실리면 그 자리에서 못 쓴다 —
+      # 스물몇 장을 눈으로 볼 수는 없으니 찍어서 잰다. 세 갈래 판정도 화면이
+      # 셈한 값이 아니라 **찍힌 종이의 낱말**을 세어 견준다.
+      - name: 약점 60제 Word — 시험지에 답이 없고 판정이 맞다
+        timeout-minutes: 25
+        run: node tests/weak60-docx.js
