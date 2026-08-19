@@ -181,6 +181,56 @@ async function fillBoxes(p, sel, vals) {
   chk('두 회차 이상에서 거듭 틀린 유형이 다 실린다',
       plan.repTypes === 0 || plan.onRep === plan.repTypes, plan.onRep + ' / ' + plan.repTypes);
 
+  /* ── 개념강의를 읽고, 잇고, 새지 않는다 ────────────────
+     공부자료는 **선생님이 쓴 125편의 개념강의**를 종이에 옮긴 것이다.
+     지어내지 않으므로 볼 것은 셋이다 — 목록을 읽었나, 개념을 강의에 제대로
+     이었나, 옮기면서 글이 새지 않았나. */
+  const lec = await p.evaluate(async () => {
+    const sq = x => String(x || '').replace(/\s+/g, '');
+    let leaves = 0, lost = 0; const bad = [];
+    for (const L of LECS.slice(0, 40)) {
+      const d = await lecStudy(L.file);
+      const dom = new DOMParser().parseFromString(await (await fetch(L.file)).text(), 'text/html');
+      const main = dom.querySelector('main'); if (!main) continue;
+      const mine = new Set(); const push = t => { const q = sq(t); if (q) mine.add(q); };
+      push(d.lead);
+      d.secs.forEach(s => {
+        push(s.no); push(s.t);
+        s.body.forEach(k => push(k.rows ? k.rows.flat().join('') : k.text));
+        s.quiz.forEach(q => { push(q.stem); q.opts.forEach(push); push(q.ans); push(q.why); push(q.miss); });
+      });
+      const all = [...mine].join('');
+      main.querySelectorAll('p,div,td,th,li').forEach(el => {
+        if (el.children.length) return;
+        if (el.classList.contains('back') || el.classList.contains('lq__src')) return;
+        /* `.hw` 의 「이번 진단에서 …」 는 **다른 진단의 말**이라 일부러 뺀다. */
+        if (el.closest('.hw') && !/직접\s*해보기/.test(el.textContent)) return;
+        const t = sq(el.textContent); if (t.length < 8) return;
+        leaves++;
+        if (all.indexOf(t) < 0) { lost++; if (bad.length < 3) bad.push(L.file + ' | ' + el.textContent.trim().slice(0, 50)); }
+      });
+    }
+    return { n: LECS.length, leaves, lost, bad };
+  });
+  chk('개념강의 목차를 베끼지 않고 읽는다', lec.n === 125, '읽은 강의 ' + lec.n);
+  chk('강의를 종이로 옮기며 글이 새지 않는다', lec.lost === 0,
+      '샌 덩어리 ' + lec.lost + ' / ' + lec.leaves + '  ' + lec.bad.join(' · '));
+
+  const link = await p.evaluate(async () => {
+    const j = await (await fetch('answers/kmchc-2025-1-ilban.json')).json();
+    const qs = j.questions || j; let n = 0, ok = 0;
+    Object.keys(qs).forEach(k => {
+      const v = qs[k]; if (!v || typeof v !== 'object') return;
+      n++; if (lecFind(v.concept, v.learningPoint, v.area)) ok++;
+    });
+    /* 엉뚱한 강의로 보내지 않는지 한 자리를 콕 집어 본다. 「용해도곱 상수」는
+       평형이지 용해가 아니다 — 겹치는 세 글자만 보고 붙이던 때 여기서 틀렸다. */
+    const ksp = lecFind('용해도곱상수', '용해평형');
+    return { n, ok, ksp: ksp ? ksp.no : 0 };
+  });
+  chk('개념을 개념강의에 잇는다', link.ok / link.n >= 0.8, link.ok + ' / ' + link.n);
+  chk('엉뚱한 강의로 보내지 않는다 (용해도곱 → 용해 아님)', link.ksp !== 33, '간 곳 ' + link.ksp + '강');
+
   /* ── 1교시 발행 ───────────────────────────────────────── */
   await p.selectOption('#who', '검사용');
   await p.waitForSelector('#s2:not([hidden])', { timeout: 30000 });
@@ -193,6 +243,18 @@ async function fillBoxes(p, sel, vals) {
       n1.length === 1 && /1교시_시험지/.test(n1[0]) && /_[A-Z2-9]{6}\.docx$/.test(n1[0]),
       n1.join(' · '));
   await p.waitForSelector('#bx1 .cellbox input', { timeout: 30000 });
+
+  /* ── 시험지가 교육과정 차례로 선다 ────────────────────
+     무엇을 실을지는 약점이 정하고, 어떤 차례로 실을지는 교과가 정한다.
+     여태는 영역을 돌아가며 담은 순서 그대로 실어서 원자 → 산염기 → 기체 →
+     유기 로 널을 뛰었다. 한 시험지에서 머리를 열다섯 번 갈아 끼우는 셈이다. */
+  const curric = await p.evaluate(() => {
+    const no = CURI.map(it => (it.lec ? it.lec.no : 999));
+    return { no, sorted: no.every((v, i) => i === 0 || no[i - 1] <= v),
+             nolec: no.filter(x => x === 999).length, span: no[no.length - 1] - no[0] };
+  });
+  chk('시험지가 교육과정 차례로 선다', curric.sorted === true, curric.no.slice(0, 12).join(' '));
+  chk('실은 문항이 한 단원에 몰려 있지 않다', curric.span >= 40, '강 번호 폭 ' + curric.span);
 
   /* ── 되살린 시험지가 발행한 것과 같다 ─────────────────
      학생이 손에 든 종이와 한 문항이라도 어긋나면 그 채점은 거짓말이 된다. */
@@ -252,10 +314,30 @@ async function fillBoxes(p, sel, vals) {
   await p.click('#mkkey2');
   await f3;
   chk('해설이 나온다', got.length === 3, '받은 파일 ' + got.length);
+
+  /* ── 공부자료 ─────────────────────────────────────────
+     힌트 세 층을 다 보고도 안 풀린 개념 — 「모른다」의 강의를 통째로 싣는다. */
+  const pickInfo = await p.evaluate(async () => {
+    const items = await w60Restore(CURP);
+    const v = w60Verdict(items, CURP.a1, CURP.a2);
+    const pk = w60StudyPick(items, v);
+    return { take: pk.take.length, dropped: pk.dropped, all: pk.all,
+             none: pk.take.map(g => g.none), nos: pk.take.map(g => g.lec.no) };
+  });
+  chk('「모른다」가 있는 개념의 강의를 고른다', pickInfo.take > 0 && pickInfo.none.every(n => n > 0),
+      JSON.stringify(pickInfo.none));
+  chk('강의를 너무 많이 싣지 않는다 (한 번에 읽을 분량)', pickInfo.take <= 8, '고른 강의 ' + pickInfo.take);
+  chk('공부자료도 교과 차례로 싣는다',
+      pickInfo.nos.every((v, i) => i === 0 || pickInfo.nos[i - 1] <= v), pickInfo.nos.join(' '));
+  const fStudy = waitFiles(4);
+  await p.click('#mkstudy2');
+  await fStudy;
+  chk('공부자료가 나온다', got.length === 4, '받은 파일 ' + got.length);
   const names = await p.evaluate(() => window.__names.slice());
-  chk('세 파일 이름이 걸음과 복원 코드로 갈린다',
-      names.length === 3 && /1교시_시험지/.test(names[0]) && /2교시_되풀이/.test(names[1])
-      && /_해설_/.test(names[2]) && new Set(names).size === 3, names.join(' · '));
+  chk('네 파일 이름이 걸음과 복원 코드로 갈린다',
+      names.length === 4 && /1교시_시험지/.test(names[0]) && /2교시_되풀이/.test(names[1])
+      && /_해설_/.test(names[2]) && /_공부자료_/.test(names[3]) && new Set(names).size === 4,
+      names.join(' · '));
   /* ── 모두 발행 · 복원 코드로 찾기 ─────────────────────
      예순 명이면 예순 벌이다. 한 사람씩 골라 예순 번 누르고 있을 일이 아니라
      **학생을 안 고른 채로도** 눌러야 한다. 한 번은 2단계를 통째로 숨겨 두어
@@ -265,9 +347,9 @@ async function fillBoxes(p, sel, vals) {
                                      && !document.getElementById('s2').hidden);
   chk('학생을 안 골라도 「모두 발행」을 누를 수 있다', canAll === true, '');
   await p.evaluate(() => { document.getElementById('nq').value = '10'; });
-  const f4 = waitFiles(4);
+  const fAll = waitFiles(5);
   await p.click('#issueAll');
-  await f4;
+  await fAll;
   const rows = await p.evaluate(() => Array.from(document.querySelectorAll('#issued table tbody tr'))
     .map(tr => Array.from(tr.children).map(td => td.textContent.trim())));
   chk('기록 있는 학생마다 한 벌씩 나온다', rows.length === 1, JSON.stringify(rows));
@@ -289,14 +371,16 @@ async function fillBoxes(p, sel, vals) {
 
   chk('화면 오류 없음', errs.length === 0, errs[0] || '');
   await b.close();
-  if (got.length < 3) { console.log('\n결과: 실패 ' + (fail || 1) + '건'); process.exit(1); }
+  if (got.length < 4) { console.log('\n결과: 실패 ' + (fail || 1) + '건'); process.exit(1); }
 
   /* ── 찍어서 잰다 ─────────────────────────────────────── */
   execFileSync('soffice', ['--headless', '--convert-to', 'pdf',
-    got[0].file, got[1].file, got[2].file, '--outdir', OUT], { stdio: 'ignore', timeout: 900000 });
+    got[0].file, got[1].file, got[2].file, got[3].file, '--outdir', OUT],
+    { stdio: 'ignore', timeout: 900000 });
   const paper = pdf(path.join(OUT, 'd0.pdf'));
   const retry = pdf(path.join(OUT, 'd1.pdf'));
   const key   = pdf(path.join(OUT, 'd2.pdf'));
+  const study = pdf(path.join(OUT, 'd3.pdf'));
 
   /* 보기(①②③④)는 문항의 일부라 당연히 있다 — '정답 ③' 꼴만 막는다. */
   const leak1 = (paper.match(/정답\s*[①②③④]/g) || []);
@@ -348,19 +432,54 @@ async function fillBoxes(p, sel, vals) {
   chk('해설에 푼 회차 표가 있다', /푼 회차/.test(key), '');
 
   /* 화면이 셈한 값이 아니라 **찍힌 종이의 낱말**을 센다.
-     문항 머리는 「… 정답 ①      안다」 꼴이라 같은 줄에서 잡힌다. */
+     ⚠ 빈칸을 그대로 두고 재면 안 된다. LibreOffice 는 한글과 숫자 사이에
+       빈칸을 넣어서 「1교시」를 「1 교시」로, 「001강」을 「001 강」으로 찍는다.
+       그것 때문에 멀쩡히 찍힌 것을 넷이나 「없다」고 셌다(2026-08-19).
+       빈칸을 걷어내고 잰다. */
+  const flat = t => String(t).replace(/[ \t]+/g, '');
   const seen = { know: 0, slip: 0, none: 0 };
-  key.split('\n').forEach(l => {
-    if (!/정답\s*[①②③④]/.test(l)) return;
-    if (/알지만 못 꺼낸다\s*$/.test(l)) seen.slip++;
-    else if (/모른다\s*$/.test(l)) seen.none++;
-    else if (/안다\s*$/.test(l)) seen.know++;
+  key.split('\n').map(flat).forEach(l => {
+    const m = l.match(/^판정(알지만못꺼낸다|모른다|안다)/);
+    if (!m) return;
+    if (m[1] === '알지만못꺼낸다') seen.slip++;
+    else if (m[1] === '모른다') seen.none++;
+    else seen.know++;
   });
   chk('찍힌 해설의 판정이 화면이 셈한 것과 같다',
       seen.know === want.know && seen.slip === want.slip && seen.none === want.none,
       '종이 ' + JSON.stringify(seen) + ' · 화면 ' + JSON.stringify(want));
   chk('판정이 60문항을 다 덮는다', seen.know + seen.slip + seen.none === 60,
       '덮은 문항 ' + (seen.know + seen.slip + seen.none));
+
+  /* ── 찍은 공부자료 ────────────────────────────────────
+     상자 셋(핵심·예제·함정)과 확인 문제가 실제로 종이에 앉았는지 본다.
+     그리고 **다른 진단의 말**이 섞여 들지 않았는지도 본다 — 강의 첫머리에
+     「이번 진단에서 …가 보강으로 잡혔어」가 박혀 있는데, 그건 이 학생에게
+     한 말이 아니다. 그대로 실으면 종이가 거짓말을 한다. */
+  chk('공부자료에 개념강의가 실린다', /강\s{2,}/.test(study) && study.length > 4000, '글자 ' + study.length);
+  chk('공부자료에 「핵심」 상자가 있다', (study.match(/핵심/g) || []).length >= 3, '');
+  chk('공부자료에 「함정」 이 실린다', /함정/.test(study), '');
+  chk('공부자료에 확인 문제가 실린다', /확인\s*1/.test(study), '');
+  chk('공부자료에 다른 진단의 말이 섞이지 않았다', !/보강으로 잡혔어/.test(study), '');
+  chk('공부자료 표지에 무엇을 실었는지 적는다', /무엇을 실었나/.test(study) && /모른다/.test(study), '');
+
+  /* ── 해설이 혼자서도 읽힌다 ───────────────────────────
+     여태는 정답과 풀이만 있어 시험지를 옆에 펴 놓아야 읽혔다. 시험지는 학생이
+     가져가고 해설은 나중에 보는데, 그 사이 종이가 흩어지면 무슨 문제였는지
+     알 길이 없다. 문항이 해설에도 실려 있어야 한다. */
+  const keyImgs = execFileSync('pdfimages', ['-list', path.join(OUT, 'd2.pdf')],
+    { encoding: 'utf8', maxBuffer: 32 << 20 }).split('\n').slice(2)
+    .filter(l => /^\s*\d+\s/.test(l)).length;
+  const originN = await Promise.resolve(want.know + want.slip + want.none);
+  chk('해설에 문항이 함께 실린다 (그림 ' + keyImgs + '장)', keyImgs > 0, '');
+  chk('해설이 시험지보다 두껍다 (문항 + 풀이)', key.length > paper.length, key.length + ' vs ' + paper.length);
+  chk('해설이 강의로 길을 낸다', /▶\d+강/.test(flat(key)), '');
+
+  /* 낱장이 섞여도 누구 것인지 알아야 한다 — 예순 명 × 스물몇 장이다. */
+  [['1교시', paper], ['2교시', retry], ['해설', key], ['공부자료', study]].forEach(([nm, t]) => {
+    chk('머리글에 이름과 복원 코드가 있다 · ' + nm,
+        new RegExp('검사용·' + nm + '·[A-Z2-9]{3}-[A-Z2-9]{3}').test(flat(t)), '');
+  });
 
   console.log('\n결과: ' + (fail ? '실패 ' + fail + '건' : '전부 통과'));
   process.exit(fail ? 1 : 0);

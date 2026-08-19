@@ -70,6 +70,31 @@ table.t th,table.t td{border:1px solid var(--line);padding:6px 9px;text-align:le
 table.t th{background:var(--sunk);font-weight:700;font-size:12.5px;color:var(--ink-2)}
 table.t td.n,table.t th.n{text-align:center;font-variant-numeric:tabular-nums}
 .wrap{overflow-x:auto}
+/* ── 약점을 눈으로 본다 ────────────────────────────────────────────────
+   처음에는 표로 냈다. 그런데 영역이 열아홉이고 그중 열둘이 「1」이라, 1이
+   열아홉 줄 늘어선 벽이 됐다 — 어디가 급한지 읽어 내려면 눈으로 세어야 했다.
+   길이로 보이면 한눈에 든다. 그리고 무응답은 색을 갈라 둔다: 찍어서 틀린
+   것과 손도 못 댄 것은 처방이 다르므로 **같은 막대에 섞으면 안 된다.** */
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:12px 0 4px}
+@media(max-width:660px){.tiles{grid-template-columns:repeat(2,1fr)}}
+.tile{border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:var(--sunk)}
+.tile b{display:block;font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.02em}
+.tile .v{font-size:21px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--teal);line-height:1.3}
+.tile.warn .v{color:var(--ms)}
+.bars{margin:12px 0 0}
+.bar{display:grid;grid-template-columns:minmax(88px,120px) 1fr auto;gap:10px;align-items:center;
+     padding:3px 0;font-size:13px}
+.bar__l{color:var(--ink-2);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar__t{height:12px;border-radius:7px;background:var(--sunk);overflow:hidden;display:flex}
+.bar__t i{display:block;height:100%}
+.bar__t i.w{background:var(--teal)}
+.bar__t i.b{background:var(--brass)}
+.bar__n{font-variant-numeric:tabular-nums;color:var(--muted);font-size:12px;min-width:132px;text-align:right}
+.bar__n b{color:var(--ink);font-size:13px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:10px 0 0}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.tail{font-size:12.5px;color:var(--muted);margin:9px 0 0}
 .pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11.5px;font-weight:700}
 .pill.ok{background:var(--ok-bg);color:var(--ok)}
 .pill.no{background:#f7ece7;color:var(--ms)}
@@ -348,10 +373,233 @@ function _saveBlob(blob,fn){
   setTimeout(function(){ try{URL.revokeObjectURL(url); a.remove();}catch(e){} },1500);
 }
 
+function _lcs(a,b){var best=0;for(var i=0;i<a.length;i++){for(var j=0;j<b.length;j++){var k=0;while(i+k<a.length&&j+k<b.length&&a[i+k]===b[j+k])k++;if(k>best)best=k;}}return best;}
 /* ==W60-SHARED-END== */
 /* 명단 열쇠. final.html 은 `const MINP=1, PFX='final:roster:';` 로 한 줄에 둘을
    묶어 두어 그대로 옮기지 못한다. 값은 같아야 한다 — 검사가 따로 본다. */
 const PFX='final:roster:';
+
+/* ══ 개념 강의 ════════════════════════════════════════════════════════════
+   125강이 있다. 목록은 **베끼지 않고 읽는다** — `lecture-index.html` 이
+   그 목록의 유일한 임자다. 여기 옮겨 적으면 강의가 하나 늘 때마다 두 곳을
+   고쳐야 하고, 한 곳만 고치면 조용히 갈라진다.
+
+   강 번호는 교육과정 차례이기도 하다(001 원자구조 … 125 배위화학 종합).
+   그래서 이 번호가 **시험지를 세우는 자**가 된다 — 아래 참조. */
+var LECS=[];          /* [{file, no, title, key}] */
+async function loadLecs(){
+  try{
+    var r=await fetch('lecture-index.html',{cache:'no-store'});
+    if(!r.ok) return LECS;
+    /* 글자로 긁지 않고 **DOM 으로 읽는다.** 정규식으로 뽑으면 목차의 짜임이
+       조금만 달라져도 조용히 빈손이 되고, 그 정규식이 파일에 그대로 남아
+       자(tools/audit_pages.py)에는 「없는 곳으로 가는 링크」로 보인다. */
+    var d=new DOMParser().parseFromString(await r.text(),'text/html');
+    var out=[];
+    Array.prototype.forEach.call(d.querySelectorAll('a.lec'),function(el){
+      var f=el.getAttribute('href')||'', m=f.match(/^lec-(\d{3})/);
+      if(!m) return;
+      var t=el.querySelector('.t'), tt=(t?t.textContent:'').trim();
+      if(!tt) return;
+      out.push({ file:f, no:Number(m[1]), title:tt,
+                 key:tt.replace(/[^가-힣A-Za-z0-9]/g,'') });
+    });
+    if(out.length) LECS=out;
+  }catch(e){}
+  return LECS;
+}
+
+/* ── 글자로는 못 잇는 것들 ────────────────────────────────────────────────
+   글자 겹침만으로는 안 붙는 이름이 있다. 「PV=nRT」와 「이상기체 방정식」은
+   한 글자도 안 겹치지만 같은 것이고, 「pH」는 너무 짧아 걸리지 않는다.
+   2,460문항을 재어 자주 나오는 순서로 손으로 이어 둔다(왼쪽이 잦은 것).
+
+   ⚠ **여기는 화학 판단이 섞인 자리다. 선생님이 한 번 훑어봐 주셔야 한다.**
+     특히 밑에 ⓘ 를 단 셋은 딱 떨어지는 강의가 없어 가장 가까운 곳으로 보냈다.
+     아니라고 하시면 그대로 고친다. 없는 것을 있다고 하지는 않았다 —
+     크로마토그래피·앙금생성처럼 125강에 자리가 없는 것은 비워 두었다. */
+var LEC_ALIAS={
+  'pH':46+38,                       /* 084 pH와 pOH */
+  '반응의자발성':72,                 /* 072 깁스 자유에너지와 자발성 */
+  'PV=nRT':46, '이상기체':46,        /* 046 이상기체 방정식 */
+  '압력':44,                         /* 044 기체 압력과 기본 성질 */
+  '분출속도':48, '확산':48,          /* 048 기체 분자 운동론·확산 */
+  '반데르발스식':49,                 /* 049 실제 기체 */
+  '용해도곱상수':74, '공통이온효과':74, /* 074 평형상수 K — Ksp 도 평형상수다 */
+  'ICE식':75, '평형농도':75,          /* 075 평형상수 계산과 의미 */
+  '초기속도법':110, '반응차수':110, '메커니즘':110, /* 110 농도와 반응속도 */
+  '극성':25, '쌍극자모멘트':25,       /* 025 분자의 극성 */
+  '농도환산':54,                     /* 054 농도 표현(몰랄·몰분율) */
+  '가열곡선':70,                     /* 070 상태 변화의 엔탈피 */
+  '반응열':65, '연소열':65,          /* 065 엔탈피와 반응 엔탈피 */
+  '염의가수분해':89,                 /* 089 염의 액성 */
+  '원자모형':1, '러더퍼드':1, '수소원자':1, /* 001 원자의 구조 */
+  '실험식구하기':36, '질량백분율':36, '원소분석장치':36  /* ⓘ 036 화학식량 — 실험식만 다루는 강의가 없다 */
+};
+function lecByNo(no){
+  for(var i=0;i<LECS.length;i++) if(LECS[i].no===no) return LECS[i];
+  return null;
+}
+
+/* 개념 이름 → 강의. 개념(concept)이 가장 좁고 정확하므로 먼저 보고, 없으면
+   유형·영역으로 물러선다. 못 찾으면 **못 찾았다고 한다** — 아무 강의나
+   붙이면 「이 강을 보라」가 거짓말이 된다. */
+function lecFind(){
+  var words=[], seen={};
+  for(var i=0;i<arguments.length;i++){
+    var w=String(arguments[i]||'').replace(/[^가-힣A-Za-z0-9]/g,'');
+    if(w.length>=2 && !seen[w]){ seen[w]=1; words.push(w); }
+  }
+  /* ⚠ 겹치는 세 글자만 보고 붙이면 **엉뚱한 강의를 가리킨다.** 「용해도곱
+       상수(Ksp)」가 「용해도: 비슷한 것끼리 녹는다」로 갔다 — 겹친 것은
+       「용해도」 뿐이고 하나는 평형, 하나는 용해 이야기다. 학생을 다른 단원으로
+       보내는 것은 안 보내는 것보다 나쁘다.
+     그래서 **짧은 쪽의 절반 넘게** 겹쳐야 붙인다. 못 붙으면 유형·영역으로
+     물러서고, 그래도 안 되면 못 찾았다고 한다. */
+  /* 손으로 이어 둔 것을 먼저 본다 — 글자 겹침보다 이쪽이 확실하다.
+     원래 글자 그대로도 보고(PV=nRT), 다듬은 글자로도 본다(PVnRT). */
+  for(var i=0;i<arguments.length;i++){
+    var raw=String(arguments[i]||'').trim();
+    var no=LEC_ALIAS[raw] || LEC_ALIAS[raw.replace(/\s+/g,'')];
+    if(no){ var L=lecByNo(no); if(L) return L; }
+  }
+  for(var k=0;k<words.length;k++){
+    var best=null, bs=0;
+    for(var j=0;j<LECS.length;j++){
+      var sc=_lcs(words[k], LECS[j].key);
+      if(sc>bs){ bs=sc; best=LECS[j]; }
+    }
+    if(best && bs>=3 && bs >= 0.55*Math.min(words[k].length, best.key.length)) return best;
+  }
+  return null;
+}
+/* 문항을 교육과정 차례로 세운다. 강 번호가 곧 그 차례다.
+   여태는 영역을 돌아가며 담은 순서 그대로 실었더니, 원자 → 산염기 → 기체 →
+   유기 로 널을 뛰었다. 한 시험지 안에서 머리를 열다섯 번 갈아 끼우는 셈이다.
+   실제 대회지도 대체로 교과 차례를 따른다. 강의를 못 찾은 문항은 뒤로 보낸다 —
+   자리를 지어내지 않는다. */
+function w60Curric(items){
+  return items.map(function(it,i){
+    var a=(it.kind==='analog')?(it.dq||{}):(it.ans||{});
+    var L=lecFind(a.concept, it.type, it.area);
+    return {it:it, lec:L, no:L?L.no:999, i:i};
+  }).sort(function(x,y){ return (x.no-y.no) || (x.i-y.i); });
+}
+
+/* ── 강의 한 편에서 공부자료를 뽑는다 ────────────────────────────────────
+   강의 페이지는 이미 짜임이 있다. 지어내지 않고 **그 짜임을 그대로 옮긴다.**
+
+     .lead      들어가는 말
+     .sec       절 — .sec__no(번호) · .sec__t(제목)
+     .key       그 절의 핵심 (초록 상자)
+     .eqn .big  식과 강조 한 줄
+     .eg        예제와 함정 — 첫 .lab 이 「예제 · …」인지 「함정 · …」인지로 갈린다
+     .hw        직접 해보기(숙제)
+
+   ⚠ 학생이 지금까지 본 것은 이 강의의 **화면**이다. 종이에 옮길 때 말이
+     달라지면 같은 강의로 안 보인다. 글은 손대지 않고 그대로 싣는다. */
+var LECDOC={};
+/* 절 안을 **차례대로** 훑는다. 핵심 상자만 집었더니 125편 가운데 52편만
+   실했다 — 본문·표·확인문제가 통째로 빠졌기 때문이다. 강의의 대부분이
+   거기 있다. 읽는 차례가 곧 배우는 차례이므로 순서도 그대로 지킨다. */
+function _lecWalk(sec, T){
+  var out=[], seen=[];
+  var take=function(el, kind, extra){
+    for(var i=0;i<seen.length;i++) if(seen[i].contains(el)) return;   /* 겹쳐 담지 않는다 */
+    seen.push(el);
+    var o={kind:kind};
+    if(kind==='table'){ o.rows=extra; }
+    else { o.text=T(el); if(!o.text) return; }
+    if(extra && kind!=='table') o.lab=extra;
+    out.push(o);
+  };
+  /* ⚠ **파고들면 글이 샌다.** `.trap` 을 안 보고 그 안으로 들어갔더니 「함정 ·
+       이온의 전자 수」의 본문이 통째로 사라지고 Al³⁺·O²⁻ 같은 낱말만 줄줄이
+       남았다 — 자식 원소만 훑고 사이사이 붙은 맨 글은 안 집었기 때문이다.
+       125편에 `.trap` 이 154군데다. `.eg`(155)와 맞먹는다.
+
+     그래서 갈래를 하나씩 세지 않고 **규칙**으로 막는다. 안에 문단·표·상자가
+     없는 것은 통째로 집는다. 그래야 앞으로 새 상자가 생겨도 안 샌다. */
+  var BLOCKY='p,table,.key,.eg,.trap,.hw,.eqn,.big,.lq,.lq__q';
+  var walk=function(node){
+    for(var i=0;i<node.children.length;i++){
+      var el=node.children[i], c=' '+el.className+' ';
+      if(/\bsec__h\b/.test(c)) continue;
+      if(/\blq\b|\blq__/.test(c)) continue;                 /* 확인 문제는 따로 담는다 */
+      if(/\bkey\b/.test(c)) { take(el,'key'); continue; }
+      if(/\btrap\b/.test(c)) { take(el,'trap', T(el.querySelector('.lab'))||'함정'); continue; }
+      if(/\beg\b/.test(c)) {
+        var lab=T(el.querySelector('.lab'));
+        take(el, /^함정/.test(lab)?'trap':'eg', lab||'예제');
+        continue;
+      }
+      if(/\beqn\b|\bbig\b/.test(c)) { take(el,'eqn'); continue; }
+      if(/\bhw\b/.test(c)) { take(el,'hw'); continue; }
+      if(el.tagName==='TABLE'){
+        var rows=Array.prototype.map.call(el.querySelectorAll('tr'),function(tr){
+          return Array.prototype.map.call(tr.children,function(td){ return T(td); });
+        }).filter(function(r){ return r.length; });
+        if(rows.length) take(el,'table',rows);
+        continue;
+      }
+      if(el.tagName==='P'||el.tagName==='LI'){
+        var tx=T(el);
+        if(/^함정\s*[·:]/.test(tx)) take(el,'trap','함정');
+        else take(el,'p');
+        continue;
+      }
+      /* 안에 문단·표·상자가 없으면 통째로 집는다 — 그림틀·반응식틀처럼
+         조각으로 쪼개면 뜻을 잃는 것들이 여기 걸린다. */
+      if(!el.querySelector(BLOCKY)) { take(el,'p'); continue; }
+      walk(el);
+    }
+  };
+  walk(sec);
+  return out;
+}
+
+async function lecStudy(file){
+  if(LECDOC[file]) return LECDOC[file];
+  var out=null;
+  try{
+    var r=await fetch(file,{cache:'no-store'});
+    if(r.ok){
+      var d=new DOMParser().parseFromString(await r.text(),'text/html');
+      var T=function(el){ return el ? el.textContent.replace(/\s+/g,' ').trim() : ''; };
+      var secs=[];
+      Array.prototype.forEach.call(d.querySelectorAll('.sec'),function(sec){
+        var quiz=[];
+        Array.prototype.forEach.call(sec.querySelectorAll('.lq__q'),function(q){
+          quiz.push({ stem:T(q.querySelector('.lq__stem')),
+                      opts:Array.prototype.map.call(q.querySelectorAll('.lq__opt'),T),
+                      ans:T(q.querySelector('.lq__ans')), why:T(q.querySelector('.lq__why')),
+                      miss:T(q.querySelector('.lq__miss')) });
+        });
+        secs.push({ no:T(sec.querySelector('.sec__no')), t:T(sec.querySelector('.sec__t')),
+                    body:_lecWalk(sec,T), quiz:quiz });
+      });
+      /* 첫 절 앞에 있는 글도 강의의 일부다. `.lead` 한 문단만 집었더니
+         작용기(116)편은 도입의 절반을 잃었다 — 본문 71%.
+
+         ⚠ 다만 `.hw` 로 적힌 「이번 진단에서 …가 보강으로 잡혔어」는 **다른
+           진단의 말**이다. 그대로 실으면 이 학생에게 하지 않은 말을 한 것이
+           된다. 그 상자는 뺀다. 절 안의 「직접 해보기」는 그대로 싣는다. */
+      var intro=[], main=d.querySelector('main')||d.body;
+      if(main) for(var mi=0; mi<main.children.length; mi++){
+        var el=main.children[mi];
+        if(el.classList && el.classList.contains('sec')) break;
+        var cn=' '+el.className+' ';
+        if(el.tagName==='H1'||/\bback\b|\bsub\b|\brt\b|\blogo\b|\bhw\b/.test(cn)) continue;
+        var t=T(el); if(t) intro.push(t);
+      }
+      out={ file:file, title:T(d.querySelector('h1')),
+            lead:intro.join('\n') || T(d.querySelector('.lead')),
+            read:T(d.querySelector('.rt')), secs:secs };
+    }
+  }catch(e){}
+  LECDOC[file]=out || {file:file, title:'', lead:'', read:'', secs:[]};
+  return LECDOC[file];
+}
 
 /* ══ 회차 목록 · 명단 · 이력 ══════════════════════════════════════════════ */
 var EXAMS=[];
@@ -615,7 +863,9 @@ async function weak60Fill(picks){
 async function w60Restore(paper){
   var picks=(paper.items||[]).map(function(it){
     return { kind:it.kind, area:it.area||'기타', type:it.type||'',
-             re:!!it.re, w:{ id:it.id, q:it.q, title:it.title||it.id,
+             re:!!it.re,
+             lec:(it.lecF?{file:it.lecF, no:it.lecN||0, title:it.lecT||''}:null),
+             w:{ id:it.id, q:it.q, title:it.title||it.id,
                              chosen:it.chosen||0, blank:!it.chosen,
                              area:it.area||'기타', type:it.type||'', ts:it.ts||0,
                              rep:it.rep||1 },
@@ -639,9 +889,9 @@ async function w60Restore(paper){
         dq=list.filter(function(x){ return x._src===p._dhs; })[0] || list[0];
       }
       if(dq) return { kind:'analog', src:w, type:p.type, area:p.area, re:p.re,
-                      dq:dq, dhs:p._dhs, dhi:p._dhi };
+                      lec:p.lec, dq:dq, dhs:p._dhs, dhi:p._dhi };
     }
-    return { kind:'origin', src:w, type:p.type, area:p.area, re:p.re,
+    return { kind:'origin', src:w, type:p.type, area:p.area, re:p.re, lec:p.lec,
              ans:(ansAll[w.id]||{})[String(w.q)]||{}, img:'crops/'+w.id+'/'+w.q+'.png' };
   });
 }
@@ -781,10 +1031,36 @@ function _w60kit(Dx){
   K.img=function(u8,maxW){ var d=_pngDims(u8)||{w:maxW,h:Math.round(maxW*0.4)};
     var w=Math.min(maxW,d.w||maxW), h=Math.round(w*(d.h||1)/(d.w||1));
     return K.P([new K.ImageRun({type:'png',data:u8,transformation:{width:w,height:h}})],{after:120,before:60}); };
-  K.doc=function(title, body){ return new K.Document({ creator:'Chemistreal', title:title,
+  /* 한 칸짜리 표로 만든 상자. 핵심·예제·함정·숙제를 눈에 띄게 묶는다.
+     워드에는 「상자」가 따로 없어서 표 한 칸이 가장 얌전하게 인쇄된다. */
+  K.box=function(lines, o){ o=o||{};
+    var kids=[];
+    if(o.lab) kids.push(K.P([K.run(o.lab,{bold:true,size:o.labSize||17,color:o.labColor||K.TEAL})],{before:20,after:20}));
+    (Array.isArray(lines)?lines:[lines]).forEach(function(t){
+      if(t&&t.__p){ kids.push(t.__p); return; }
+      kids.push(K.txt(t,{size:o.size||18,color:o.color||K.INK,before:20,after:20}));
+    });
+    return new K.Table({ width:{size:9900,type:K.WidthType.DXA},
+      borders:{ top:{style:K.BorderStyle.SINGLE,size:2,color:o.line||K.LINE},
+                bottom:{style:K.BorderStyle.SINGLE,size:2,color:o.line||K.LINE},
+                left:{style:K.BorderStyle.SINGLE,size:o.bar?18:2,color:o.bar||o.line||K.LINE},
+                right:{style:K.BorderStyle.SINGLE,size:2,color:o.line||K.LINE},
+                insideHorizontal:{style:K.BorderStyle.NONE,size:0,color:'FFFFFF'},
+                insideVertical:{style:K.BorderStyle.NONE,size:0,color:'FFFFFF'} },
+      rows:[new K.TableRow({children:[new K.TableCell({
+        width:{size:9900,type:K.WidthType.DXA},
+        shading:o.fill?{type:K.ShadingType.CLEAR,fill:o.fill,color:'auto'}:undefined,
+        margins:{top:90,bottom:90,left:150,right:150}, children:kids })]})] });
+  };
+  /* 낱장이 섞여도 누구 것인지 알아야 한다. 예순 명 × 스물몇 장이 한 책상에
+     쌓이는 자리다 — 바닥글만으로는 뒤집어 봐야 안다. */
+  K.head=function(txt){ return new K.Header({children:[K.P([K.run(txt,{color:K.MUTED,size:15})],
+    {align:K.AlignmentType.RIGHT, before:0, after:0, line:240})]}); };
+  K.doc=function(title, body, headText){ return new K.Document({ creator:'Chemistreal', title:title,
     styles:{default:{document:{run:{font:'Malgun Gothic',color:K.INK}}}},
     sections:[{ properties:{ page:{ size:{width:11906,height:16838},
         margin:{top:1000,right:1000,bottom:1000,left:1000,header:340,footer:340} } },
+      headers: headText ? { default:K.head(headText) } : undefined,
       footers:{ default:new K.Footer({children:[new K.Paragraph({alignment:K.AlignmentType.CENTER,
         spacing:{before:40,after:0,line:240,lineRule:K.LineRule.AUTO},
         children:[K.run('CHEMISTREAL · 조준모 화학    ',{color:K.MUTED,size:15}),
@@ -971,7 +1247,7 @@ function w60Verdict(items, a1, a2){
 
 /* ── 해설 ────────────────────────────────────────────────────────────────
    여기서 처음으로 정답이 나온다. 선생님과 학생이 같이 보는 종이다. */
-function _w60key(K, meta, items, types, areas, hist, a1, a2, verd){
+function _w60key(K, meta, items, types, areas, hist, a1, a2, verd, imgs, studyFiles){
   var b=_w60head(K, '약점 극복 모의고사 · 해설',
                  (meta.name||'학생')+' · '+meta.ymd+' · 복원 코드 '+meta.codePretty);
   var cnt={know:0,slip:0,none:0,wait:0};
@@ -1039,14 +1315,19 @@ function _w60key(K, meta, items, types, areas, hist, a1, a2, verd){
     var acc=w60Accept(it);
     var ansTxt=acc.length ? acc.map(function(x){ return CIRC[x]; }).join('·') : '-';
     var vcol=(verd[i]==='know')?K.TEAL:(verd[i]==='slip'?K.GOLD:K.INK);
-    b.push(K.P([K.run(String(i+1),{bold:true,size:24,color:K.TEAL}),
-                K.run('   '+(it.area||''),{bold:true,size:19,color:K.GOLD}),
-                K.run('   '+((it.kind==='origin')
-                      ? ('원문 — '+it.src.title+' '+it.src.q+'번')
-                      : ('동형 — '+it.src.title+' '+it.src.q+'번에서')),{size:16,color:K.MUTED}),
-                K.run('      정답 '+ansTxt,{bold:true,size:22,color:K.TEAL}),
-                K.run('      '+W60_V[verd[i]],{bold:true,size:19,color:vcol})],
-               {before:220,after:50,keepNext:true}));
+    /* ⚠ 문항을 여기에도 싣는다. 여태는 정답과 풀이만 있어서 **시험지를 옆에
+         펴 놓아야** 읽혔다. 시험지는 학생이 가져가고 해설은 나중에 보는데,
+         그 사이 종이가 흩어지면 무슨 문제였는지 알 길이 없다.
+         해설 한 벌만으로 공부가 되게 한다. */
+    _w60item(K, i+1, it, imgs, {src:true, right:'정답 '+ansTxt}).forEach(function(x){ b.push(x); });
+    b.push(K.P([K.run('판정  ',{size:16,color:K.MUTED}),
+                K.run(W60_V[verd[i]],{bold:true,size:19,color:vcol})].concat(
+                it.lec&&it.lec.file
+                  ? [K.run('        ▶ '+('00'+it.lec.no).slice(-3)+'강 '+it.lec.title
+                           +(studyFiles&&studyFiles[it.lec.file]?' — 공부자료에 실려 있습니다':''),
+                           {size:16,color:K.GOLD})]
+                  : []),
+               {before:80,after:40}));
     var line=[];
     line.push('1교시 '+(CIRC[(a1||[])[i]||0]||'무응답'));
     if(verd[i]!=='know' && a2 && a2.length) line.push('2교시 '+(CIRC[(a2||[])[i]||0]||'무응답'));
@@ -1084,6 +1365,124 @@ function _w60key(K, meta, items, types, areas, hist, a1, a2, verd){
   return b;
 }
 
+/* ── 공부자료 ────────────────────────────────────────────────────────────
+   힌트를 세 층 다 보고도 안 풀린 문항 — 「모른다」로 판정된 것들이 이 자료의
+   임자다. 그 개념의 **강의를 통째로** 종이에 옮긴다. 요약하지 않는다:
+   요약본은 이미 해설에 있고, 여기서 필요한 것은 처음부터 다시 배우는 자리다.
+
+   ⚠ 글은 손대지 않는다. 학생이 화면에서 본 그 강의와 말이 달라지면 같은
+     강의로 안 보인다. 짜임만 종이에 맞게 옮긴다.
+
+   ⚠ 강의를 몇 편이나 실을지는 상한을 둔다. 「모른다」가 스무 개면 강의도
+     스무 편이고, 그건 아무도 안 읽는 책이 된다. 자른 것은 표지에 적는다 —
+     조용히 빼면 다 실린 줄 안다. */
+var W60_LECMAX=8;
+function w60StudyPick(items, verd, max){
+  max=max||W60_LECMAX;
+  var by={};
+  items.forEach(function(it,i){
+    var L=it.lec; if(!L||!L.file) return;
+    var g=by[L.file]||(by[L.file]={lec:L, none:0, slip:0, know:0, n:0, areas:{}});
+    g.n++; g[verd[i]==='wait'?'know':verd[i]]++;
+    g.areas[it.area||'기타']=1;
+  });
+  var all=Object.keys(by).map(function(k){ return by[k]; }).sort(function(a,b){
+    /* 「모른다」가 많은 강의부터. 같으면 「알지만 못 꺼낸다」, 그다음 문항 수.
+       다 맞힌 개념의 강의는 실을 까닭이 없다. */
+    return (b.none-a.none) || (b.slip-a.slip) || (b.n-a.n) || (a.lec.no-b.lec.no);
+  });
+  var need=all.filter(function(g){ return g.none>0 || g.slip>0; });
+  if(!need.length) need=all.slice(0,Math.min(3,all.length));   /* 다 맞혔으면 약했던 순서로 조금만 */
+  var take=need.slice(0,max).sort(function(a,b){ return a.lec.no-b.lec.no; });  /* 실을 때는 교과 차례로 */
+  return { take:take, dropped:Math.max(0, need.length-take.length), all:all.length };
+}
+
+function _w60studyBody(K, meta, pick, docs){
+  var b=_w60head(K, '약점 극복 모의고사 · 공부자료',
+                 (meta.name||'학생')+' · '+meta.ymd+' · 복원 코드 '+meta.codePretty);
+  b.push(K.txt('무엇을 실었나',{color:K.TEAL,size:22,bold:true,after:60}));
+  b.push(K.txt('이 시험지에서 힌트를 다 보고도 안 풀린 개념의 개념강의를 그대로 실었습니다. '
+             + '요약이 아니라 강의 전문입니다 — 해설을 읽고도 막히면 여기서 처음부터 다시 배우세요.',
+               {color:K.MUTED,size:17,after:120}));
+  var rows=[[K.cell('강',{w:900,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+             K.cell('개념강의',{w:4200,bold:true,fill:'F5F2EA'}),
+             K.cell('이 시험지',{w:1400,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+             K.cell('모른다',{w:1300,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+             K.cell('못 꺼낸다',{w:2100,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER})]];
+  pick.take.forEach(function(g){
+    rows.push([K.cell(('00'+g.lec.no).slice(-3),{w:900,align:K.AlignmentType.CENTER,color:K.GOLD,bold:true}),
+               K.cell(g.lec.title,{w:4200}),
+               K.cell(String(g.n),{w:1400,align:K.AlignmentType.CENTER}),
+               K.cell(g.none?String(g.none):'-',{w:1300,align:K.AlignmentType.CENTER,bold:!!g.none,color:g.none?K.MS:K.MUTED}),
+               K.cell(g.slip?String(g.slip):'-',{w:2100,align:K.AlignmentType.CENTER,color:g.slip?K.GOLD:K.MUTED})]);
+  });
+  b.push(K.table(rows,[900,4200,1400,1300,2100]));
+  if(pick.dropped>0)
+    b.push(K.txt('메울 것이 '+(pick.take.length+pick.dropped)+'개였는데 '+pick.take.length+'편만 실었습니다. '
+               + '한 번에 다 읽을 수 있는 분량이 아니라서 급한 것부터 잘랐습니다 — 나머지 '
+               + pick.dropped+'개는 다음 자료에서 이어집니다.',{color:K.MS,size:17,before:90}));
+
+  pick.take.forEach(function(g){
+    var d=docs[g.lec.file];
+    b.push(new K.Paragraph({children:[new K.PageBreak()]}));
+    b.push(K.P([K.run(('00'+g.lec.no).slice(-3)+'강  ',{bold:true,size:26,color:K.GOLD}),
+                K.run(d&&d.title?d.title:g.lec.title,{bold:true,size:30,color:K.TEAL})],
+               {before:0,after:40,keepNext:true}));
+    var tag=[];
+    if(d&&d.read) tag.push(d.read);
+    if(g.none) tag.push('이 시험지에서 「모른다」 '+g.none+'문항');
+    if(g.slip) tag.push('「알지만 못 꺼낸다」 '+g.slip+'문항');
+    if(tag.length) b.push(K.txt(tag.join('  ·  '),{color:K.MUTED,size:16,after:120}));
+    if(!d || !d.secs.length){
+      b.push(K.txt('(이 강의를 불러오지 못했습니다 — '+g.lec.file+')',{color:K.MS,size:17}));
+      return;
+    }
+    if(d.lead) K.lines(d.lead,{size:18,after:60}).forEach(function(x){ b.push(x); });
+    d.secs.forEach(function(sec){
+      var head=[];
+      if(sec.no) head.push(K.run(sec.no+'  ',{bold:true,size:19,color:K.GOLD}));
+      head.push(K.run(sec.t||'',{bold:true,size:21,color:K.TEAL}));
+      b.push(K.P(head,{before:200,after:50,keepNext:true}));
+      sec.body.forEach(function(k){
+        if(k.kind==='p'){ b.push(K.txt(k.text,{size:18,after:40})); return; }
+        if(k.kind==='key'){ b.push(K.box(k.text,{lab:'핵심',fill:'EDF4F1',bar:'0E5A4C'})); b.push(K.txt(' ',{after:40})); return; }
+        if(k.kind==='eqn'){ b.push(K.P([K.run(k.text,{size:20,bold:true,color:K.INK,font:'Consolas'})],
+                                        {align:K.AlignmentType.CENTER,before:70,after:70})); return; }
+        if(k.kind==='eg'){ b.push(K.box(k.text,{lab:k.lab||'예제',fill:'FAF8F1',bar:'B08D57',labColor:K.GOLD})); b.push(K.txt(' ',{after:40})); return; }
+        if(k.kind==='trap'){ b.push(K.box(k.text,{lab:k.lab||'함정',fill:'FBF0EA',bar:'B8562F',labColor:K.MS})); b.push(K.txt(' ',{after:40})); return; }
+        if(k.kind==='hw'){ b.push(K.box(k.text,{lab:'직접 해보기',fill:'FFFFFF',bar:'B08D57',labColor:K.GOLD})); b.push(K.txt(' ',{after:40})); return; }
+        if(k.kind==='table'){
+          var n=Math.max.apply(null,k.rows.map(function(r){ return r.length; }));
+          if(!n) return;
+          var w=Math.floor(9900/n), ws=[]; for(var i=0;i<n;i++) ws.push(w);
+          b.push(K.table(k.rows.map(function(r,ri){
+            var cells=[];
+            for(var c=0;c<n;c++) cells.push(K.cell(r[c]==null?'':r[c],
+              {w:w,size:17,bold:ri===0,fill:ri===0?'F5F2EA':undefined}));
+            return cells;
+          }),ws));
+          b.push(K.txt(' ',{after:60}));
+        }
+      });
+      sec.quiz.forEach(function(q,qi){
+        var kids=[{__p:K.P([K.run('확인 '+(qi+1)+'  ',{bold:true,size:17,color:K.TEAL}),
+                            K.run(q.stem,{size:17})],{before:20,after:30})}];
+        (q.opts||[]).forEach(function(op,oi){
+          kids.push({__p:K.P([K.run(CIRC[oi+1]+' ',{bold:true,size:17,color:K.TEAL}),
+                              K.run(op,{size:17})],{before:10,after:10})});
+        });
+        if(q.ans) kids.push({__p:K.P([K.run(q.ans,{bold:true,size:17,color:K.TEAL})],{before:30,after:10})});
+        if(q.why) kids.push({__p:K.txt(q.why,{size:16,color:K.MUTED,before:0,after:10})});
+        if(q.miss) kids.push({__p:K.P([K.run('오개념  ',{bold:true,size:16,color:K.MS}),
+                                       K.run(q.miss,{size:16,color:K.MUTED})],{before:0,after:10})});
+        b.push(K.box(kids,{fill:'FBFAF6',bar:'0E5A4C'}));
+        b.push(K.txt(' ',{after:40}));
+      });
+    });
+  });
+  return b;
+}
+
 /* ══ Word 를 만들어 내려준다 ══════════════════════════════════════════════ */
 function w60Ymd(ts){ var d=ts?new Date(ts):new Date();
   return d.getFullYear()+'.'+('0'+(d.getMonth()+1)).slice(-2)+'.'+('0'+d.getDate()).slice(-2); }
@@ -1105,6 +1504,11 @@ async function issuePaper(nm, N){
   var areas=weakAreas(rows);
   var items=await weak60Fill(weak60Plan(areas, N, w60Served(nm)));
   if(!items.length) throw new Error('실을 문항을 못 찾았습니다');
+  /* 교육과정 차례로 세운다. 고르는 것과 세우는 것은 다른 일이다 — 무엇을 실을지는
+     약점이 정하고, 어떤 차례로 실을지는 교과가 정한다. */
+  if(!LECS.length) await loadLecs();
+  var ord=w60Curric(items);
+  items=ord.map(function(x){ x.it.lec=x.lec; return x.it; });
 
   var code=w60Code(), at=Date.now();
   var paper={ code:code, name:nm, at:at, n:items.length, ymd:w60Ymd(at), a1:[], a2:[],
@@ -1112,13 +1516,18 @@ async function issuePaper(nm, N){
       return { id:it.src.id, q:it.src.q, title:it.src.title, kind:it.kind,
                area:it.area||'', type:it.type||'', chosen:it.src.chosen||0,
                ts:it.src.ts||0, rep:it.src.rep||1, re:!!it.re,
-               dhs:it.dhs||'', dhi:(it.dhi==null?-1:it.dhi) };
+               dhs:it.dhs||'', dhi:(it.dhi==null?-1:it.dhi),
+               /* 어느 강의로 가는 문항인지 **여기에 적어 둔다.** 나중에 다시
+                  맞춰 보면 강의 목록이 바뀐 사이에 다른 강으로 갈 수 있다. */
+               lecF:(it.lec&&it.lec.file)||'', lecN:(it.lec&&it.lec.no)||0,
+               lecT:(it.lec&&it.lec.title)||'' };
     }) };
   if(!w60Put(paper)) throw new Error('발행 기록을 저장하지 못했습니다 — 시험지를 만들지 않습니다');
 
   var imgs=await w60Imgs(items), K=await w60Kit();
   var meta={ name:nm, ymd:paper.ymd, n:items.length, code:code, codePretty:w60Pretty(code) };
-  var blob=await K.Packer.toBlob(K.doc(nm+' 약점 극복 모의고사 1교시', _w60paper(K,meta,items,imgs)));
+  var blob=await K.Packer.toBlob(K.doc(nm+' 약점 극복 모의고사 1교시', _w60paper(K,meta,items,imgs),
+                                       nm+' · 1교시 · '+w60Pretty(code)));
   _saveBlob(blob, w60Safe(nm+'_'+items.length+'제_1교시_시험지_'+paper.ymd+'_'+code)+'.docx');
   var miss=items.filter(function(it){ return it.kind==='origin' && !imgs[it.img]; }).length;
   return { paper:paper, items:items, miss:miss, asked:N };
@@ -1134,7 +1543,8 @@ async function makeRetry(paper){
   var meta={ name:paper.name, ymd:paper.ymd, n:items.length, right1:right1,
              code:paper.code, codePretty:w60Pretty(paper.code) };
   var blob=await K.Packer.toBlob(K.doc(paper.name+' 약점 극복 모의고사 2교시',
-                                       _w60retry(K,meta,items,wrongIdx,imgs)));
+                                       _w60retry(K,meta,items,wrongIdx,imgs),
+                                       paper.name+' · 2교시 · '+w60Pretty(paper.code)));
   _saveBlob(blob, w60Safe(paper.name+'_'+wrongIdx.length+'제_2교시_되풀이_'+paper.ymd+'_'+paper.code)+'.docx');
   return { wrongIdx:wrongIdx, items:items };
 }
@@ -1143,14 +1553,38 @@ async function makeKey(paper){
   var items=await w60Restore(paper);
   var rows=weakScan(paper.name);
   var verd=w60Verdict(items, paper.a1, (paper.a2&&paper.a2.length)?paper.a2:null);
-  var K=await w60Kit();
+  var imgs=await w60Imgs(items), K=await w60Kit();
+  var pick=w60StudyPick(items, verd);
+  var studyFiles={}; pick.take.forEach(function(g){ studyFiles[g.lec.file]=1; });
   var meta={ name:paper.name, ymd:paper.ymd, n:items.length,
              code:paper.code, codePretty:w60Pretty(paper.code) };
   var body=_w60key(K, meta, items, weakTypes(rows), weakAreas(rows), histOf(paper.name),
-                   paper.a1, paper.a2, verd);
-  var blob=await K.Packer.toBlob(K.doc(paper.name+' 약점 극복 모의고사 해설', body));
+                   paper.a1, paper.a2, verd, imgs, studyFiles);
+  var head=paper.name+' · 해설 · '+w60Pretty(paper.code);
+  var blob=await K.Packer.toBlob(K.doc(paper.name+' 약점 극복 모의고사 해설', body, head));
   _saveBlob(blob, w60Safe(paper.name+'_'+items.length+'제_해설_'+paper.ymd+'_'+paper.code)+'.docx');
-  return { verd:verd, items:items };
+  var miss=items.filter(function(it){ return it.kind==='origin' && !imgs[it.img]; }).length;
+  return { verd:verd, items:items, pick:pick, miss:miss };
+}
+
+/* 공부자료. 해설과 짝이라 채점 뒤에만 나온다 — 무엇을 모르는지 알아야
+   무엇을 실을지 정할 수 있다. */
+async function makeStudy(paper){
+  var items=await w60Restore(paper);
+  var verd=w60Verdict(items, paper.a1, (paper.a2&&paper.a2.length)?paper.a2:null);
+  var pick=w60StudyPick(items, verd);
+  if(!pick.take.length) throw new Error('실을 개념강의를 못 찾았습니다');
+  var docs={};
+  for(var i=0;i<pick.take.length;i++){                 /* 한 편씩 차례로 — 한꺼번에 던지지 않는다 */
+    docs[pick.take[i].lec.file]=await lecStudy(pick.take[i].lec.file);
+  }
+  var K=await w60Kit();
+  var meta={ name:paper.name, ymd:paper.ymd, code:paper.code, codePretty:w60Pretty(paper.code) };
+  var head=paper.name+' · 공부자료 · '+w60Pretty(paper.code);
+  var blob=await K.Packer.toBlob(K.doc(paper.name+' 약점 극복 공부자료',
+                                       _w60studyBody(K, meta, pick, docs), head));
+  _saveBlob(blob, w60Safe(paper.name+'_공부자료_'+pick.take.length+'강_'+paper.ymd+'_'+paper.code)+'.docx');
+  return { pick:pick, docs:docs };
 }
 
 /* ══ 화면 ═════════════════════════════════════════════════════════════════ */
@@ -1177,21 +1611,42 @@ function drawDiag(nm){
                     $('issue').disabled=true; $('s4').hidden=true; drawPapers(); return; }
   var areas=weakAreas(rows), types=weakTypes(rows);
   var rep=types.filter(function(t){ return t.rounds>1; });
-  /* 표 머리에는 scope 를 단다 — 없으면 낭독기가 어느 칸의 머리인지 모른다. */
-  var h='<table class="t"><thead><tr><th scope="col">영역</th><th scope="col" class="n">틀림</th>'
-      + '<th scope="col" class="n">무응답</th><th scope="col" class="n">무게</th></tr></thead><tbody>';
-  areas.forEach(function(g){
-    h+='<tr><td>'+esc(g.area)+'</td><td class="n">'+g.n+'</td><td class="n">'
-      +(g.blanks||'-')+'</td><td class="n">'+g.weight+'</td></tr>';
+  var blanks=rows.filter(function(w){ return w.blank; }).length;
+
+  var h='<div class="tiles">'
+    +'<div class="tile"><b>푼 회차</b><span class="v">'+hist.length+'</span></div>'
+    +'<div class="tile"><b>틀린 문항</b><span class="v">'+rows.length+'</span></div>'
+    +'<div class="tile'+(blanks?' warn':'')+'"><b>그중 무응답</b><span class="v">'+(blanks||'0')+'</span></div>'
+    +'<div class="tile'+(rep.length?' warn':'')+'"><b>거듭 틀린 유형</b><span class="v">'+rep.length+'</span></div>'
+    +'</div>';
+
+  /* 무게가 큰 쪽부터 여덟 줄만 막대로 세우고, 나머지는 한 줄로 접는다.
+     꼬리를 다 펴 놓으면 급한 것이 그 안에 묻힌다. 접었다고 안 세는 것은
+     아니므로 몇 개를 접었는지 적는다. */
+  var top=areas.slice(0,8), tail=areas.slice(8);
+  var max=areas.length?areas[0].weight:1;
+  h+='<div class="bars">';
+  top.forEach(function(g){
+    var wrong=g.n-g.blanks;
+    var wp=Math.round(100*(g.weight)*(wrong/(g.n||1))/max);
+    var bp=Math.round(100*(g.weight)*(g.blanks/(g.n||1))/max);
+    h+='<div class="bar"><div class="bar__l" title="'+esc(g.area)+'">'+esc(g.area)+'</div>'
+      +'<div class="bar__t"><i class="w" style="width:'+Math.max(wp,wrong?3:0)+'%"></i>'
+      +'<i class="b" style="width:'+Math.max(bp,g.blanks?3:0)+'%"></i></div>'
+      /* ⚠ 막대는 **무게**로 그리는데 오른쪽에 문항 수만 적었더니, 2문항짜리가
+           3문항짜리보다 길어 보였다 — 틀린 게 아니라 되풀이 오답이 무거워서
+           그런 것인데, 읽는 사람에게는 고장으로 보인다. 무게를 같이 적는다. */
+      +'<div class="bar__n"><b>'+g.n+'</b>문항 · 무게 '+g.weight
+      +(g.blanks?(' · 무응답 '+g.blanks):'')+'</div></div>';
   });
-  h+='</tbody></table>';
-  box.innerHTML='<p style="margin:12px 0 4px;font-size:13px">'
-    +'<b>'+esc(nm)+'</b> · 푼 회차 <b>'+hist.length+'</b> · 틀린 문항 <b>'+rows.length+'</b>'
-    +' · 영역 <b>'+areas.length+'</b>종 · 유형 <b>'+types.length+'</b>종'
-    +(rep.length?(' · <b>두 회차 이상에서 거듭 틀린 유형 '+rep.length+'종</b>'):'')+'</p>'
-    +'<div class="wrap">'+h+'</div>'
-    +'<p class="muted" style="font-size:12px;margin:2px 0 0">「무게」는 되풀이된 오답에 더 준 값입니다 — '
-    +'서로 다른 회차에서 거듭 틀린 유형일수록 무겁습니다. 60제의 영역별 몫을 이 무게로 나눕니다.</p>';
+  h+='</div>';
+  h+='<div class="legend"><span><i style="background:var(--teal)"></i>틀림</span>'
+    +'<span><i style="background:var(--brass)"></i>무응답 — 손도 못 댄 것</span>'
+    +'<span>막대 길이 = 무게(거듭 틀린 오답에 더 준 값)</span></div>';
+  if(tail.length) h+='<div class="tail">그 밖 '+tail.length+'개 영역: '
+    + tail.map(function(g){ return esc(g.area)+' '+g.n; }).join(' · ')+'</div>';
+  h+='<div class="tail">60제의 영역별 몫을 이 무게로 나눕니다. 서로 다른 회차에서 거듭 틀린 유형일수록 무겁습니다.</div>';
+  box.innerHTML=h;
   drawPapers();
 }
 
@@ -1283,18 +1738,21 @@ function drawG1(){
   var act=$('act1');
   act.innerHTML='<button class="btn" id="save1">채점하기</button>'
     +'<button class="btn ghost" id="mk2" '+((p.a1&&p.a1.length)?'':'disabled')+'>📄 2교시 되풀이 Word ↓</button>'
-    +'<button class="btn ghost" id="mkkey" '+((p.a1&&p.a1.length)?'':'disabled')+'>📗 해설 Word ↓</button>';
+    +'<button class="btn ghost" id="mkkey" '+((p.a1&&p.a1.length)?'':'disabled')+'>📗 해설 Word ↓</button>'
+    +'<button class="btn ghost" id="mkstudy" '+((p.a1&&p.a1.length)?'':'disabled')+'>📕 공부자료 Word ↓</button>';
   $('save1').onclick=function(){
     var a=READ1(); p.a1=a; w60Put(p);
     markCells($('bx1'), items, a); drawSum1(); drawPapers();
-    $('mk2').disabled=false; $('mkkey').disabled=false;
+    $('mk2').disabled=false; $('mkkey').disabled=false; $('mkstudy').disabled=false;
     drawG2();
     toast('1교시 채점 완료');
   };
   $('mk2').onclick=function(){ run($('mk2'), function(){ return makeRetry(CURP); },
       function(r){ toast('2교시 되풀이 저장 완료 · '+r.wrongIdx.length+'문항'); }); };
   $('mkkey').onclick=function(){ run($('mkkey'), function(){ return makeKey(CURP); },
-      function(){ toast('해설 저장 완료'); }); };
+      function(r){ toast('해설 저장 완료'+(r.miss?(' · 그림 '+r.miss+'장 못 받음'):'')); }); };
+  $('mkstudy').onclick=function(){ run($('mkstudy'), function(){ return makeStudy(CURP); },
+      function(r){ toast('공부자료 저장 완료 · 개념강의 '+r.pick.take.length+'편'); }); };
   if(p.a1&&p.a1.length){ markCells($('bx1'), items, p.a1); drawSum1(); drawG2(); }
 }
 function markCells(host, items, a, only){
@@ -1331,7 +1789,8 @@ function drawG2(){
   var vals=wrongIdx.map(function(gi){ return (p.a2||[])[gi]||0; });
   READ2=boxes($('bx2'), wrongIdx.length, wrongIdx.map(function(g){ return g+1; }), vals, null);
   $('act2').innerHTML='<button class="btn" id="save2">2교시 채점하기</button>'
-    +'<button class="btn ghost" id="mkkey2">📗 해설 Word ↓ (세 갈래 판정 포함)</button>';
+    +'<button class="btn ghost" id="mkkey2">📗 해설 Word ↓ (세 갈래 판정 포함)</button>'
+    +'<button class="btn ghost" id="mkstudy2">📕 공부자료 Word ↓ (개념강의)</button>';
   $('save2').onclick=function(){
     var got=READ2(), a2=new Array(items.length).fill(0);
     wrongIdx.forEach(function(gi,k){ a2[gi]=got[k]||0; });
@@ -1340,7 +1799,10 @@ function drawG2(){
     toast('2교시 채점 완료');
   };
   $('mkkey2').onclick=function(){ run($('mkkey2'), function(){ return makeKey(CURP); },
-      function(){ toast('해설 저장 완료'); }); };
+      function(r){ toast('해설 저장 완료'+(r.miss?(' · 그림 '+r.miss+'장 못 받음'):'')); }); };
+  $('mkstudy2').onclick=function(){ run($('mkstudy2'), function(){ return makeStudy(CURP); },
+      function(r){ toast('공부자료 저장 완료 · 개념강의 '+r.pick.take.length+'편'
+        +(r.pick.dropped?(' (급한 것부터 '+r.pick.dropped+'편은 다음에)'):'')); }); };
   if(p.a2&&p.a2.length){ markCells($('bx2'), items, p.a2, wrongIdx); drawSum2(wrongIdx); }
 }
 function drawSum2(wrongIdx){
@@ -1426,7 +1888,7 @@ async function issueAll(N, onStep){
 
 /* ── 시작 ───────────────────────────────────────────────────────────────── */
 async function boot(){
-  try{ await loadExams(); }
+  try{ await Promise.all([loadExams(), loadLecs()]); }
   catch(e){ $('who').innerHTML='<option value="">회차 목록을 못 읽었습니다</option>';
             toast('exams.json 을 읽지 못했습니다'); return; }
   var names=rosterNames();
