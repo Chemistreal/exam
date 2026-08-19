@@ -113,7 +113,11 @@ const LATER_ALLC = {
        검사는 "Cannot read properties of undefined" 만 뱉고 끝났다 —
        무엇이 없어졌는지 아무도 알 수 없다. 없으면 없다고 말한다. */
     if (!b.qc || !b.q) {
-      bad.push(id + ': 문항별 통계(q·qc)가 없다 — 또래 정답률을 못 만든다');
+      /* 시트에서 만든 회차는 애초에 점수 분포만 갖는다 — 잃은 것이 아니다.
+         그 자는 통계를 가진 회차를 덮지 않으므로(_baselineKeepWhy_),
+         from:'sheet' 이면서 없는 것은 '처음부터 없던 것' 이다 (2026-08-19). */
+      if (b.from !== 'sheet')
+        bad.push(id + ': 문항별 통계(q·qc)가 없다 — 또래 정답률을 못 만든다');
       return;
     }
     if (b.qc.length !== exam.nQ) bad.push(id + ': qc 길이 ' + b.qc.length);
@@ -155,9 +159,15 @@ const LATER_ALLC = {
      것이 없다. 늘어나면 원본이 바뀌었거나 칸을 통째로 버리고 있다는 뜻이다. */
   chk('선택 분포가 없는 문항', holes, 11);
   // 일부만 덮인 문항은 남은 사람으로 센다. 통째로 버리면 이 수가 0이 된다.
-  chk('일부만 남은 문항', Object.keys(BASE).reduce((a, k) =>
+  /* ⚠ 여기서 BASE[k].q 를 그냥 꺼내다 터졌다(2026-08-19). 시트에서 만드는 자는
+     n·hist 만 만들기 때문에 **문항별 통계가 아예 없는 회차**가 생긴다. 없는 것은
+     세지 않는다 — 있는 척 0 으로 세면 '일부만 남은 문항' 이 조용히 늘어난다. */
+  const withQ = Object.keys(BASE).filter(k => BASE[k].q);
+  chk('일부만 남은 문항', withQ.reduce((a, k) =>
     a + BASE[k].q.filter(o => o && o.reduce((x, y) => x + y, 0) !== BASE[k].n).length, 0), 8);
-  chk('기준 기록 인원', Object.keys(BASE).reduce((a, k) => a + BASE[k].n, 0), 1214);
+  /* 1214 → 1227 : 시트에서 KMChC 2025 제1차 심화(7명)·일반(6명)이 들어왔다.
+     이 수는 **줄면 걸리라고** 있는 것이라 늘 때는 같이 올린다 (2026-08-19). */
+  chk('기준 기록 인원', Object.keys(BASE).reduce((a, k) => a + BASE[k].n, 0), 1227);
 }
 
 console.log('\n── 나중에 전원정답이 된 문항의 또래 정답률 ──');

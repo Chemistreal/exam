@@ -93,10 +93,29 @@ console.log('\n── 지금 저장소에 든 기준 기록 ──');
      생겼고, 시험 목록에 없으니 화면에서는 안 보이는데 파일에는 남았다. */
   chk('시험 목록에 없는 회차가 섞여 있지 않다',
       Object.keys(BASE).filter(id => !ids.has(id)), []);
-  /* 문항별 통계가 한 회차라도 사라지면 여기서 걸린다. 지난 두 번의 사고가
-     정확히 이 모양이었다. */
-  chk('문항별 통계가 빠진 회차가 없다',
-      Object.keys(BASE).filter(id => !BASE[id].q || !BASE[id].qc), []);
+  /* 문항별 통계(q·qc)가 한 회차라도 **사라지면** 여기서 걸린다. 지난 두 번의
+     사고가 정확히 이 모양이었다(2026-08-03 · 08-04, 열 회차에서 사라짐).
+
+     ⚠ 예전에는 '모든 회차가 갖고 있어야 한다' 로 적혀 있었다. 그런데 시트에서
+       만드는 자(AppsScript rebuildBaseline)는 **애초에 n·hist 만 만든다** —
+       q·qc 는 엑셀에서만 나온다. 그래서 시트에만 기록이 있는 회차가 처음
+       생기는 순간 이 자가 깨졌다(2026-08-19, KMChC 2025 제1차 심화·일반).
+       그것은 자료가 사라진 것이 아니라 **처음부터 없던 것**이다.
+
+       둘을 무엇으로 가르는가 — `from:'sheet'` 이다. 그 자는 통계를 가진 회차를
+       **절대 덮지 않는다**(_baselineKeepWhy_ 가 `old.q||old.qc` 면 '문항별통계'
+       라고 되돌린다). 그러니 `from:'sheet'` 이면서 통계가 없는 것은 잃은 것이
+       아니고, 그 밖의 회차에 없으면 잃은 것이다.
+
+       화면도 그때는 문항별 또래 정답률을 아예 안 쓴다(final.html 의
+       mergeBaselineQ 가 qc 없으면 그대로 돌려보낸다) — 없는 것을 있다고 하지
+       않는다. 엑셀로 그 회차를 채우면 저절로 이 자의 감시 아래로 들어온다. */
+  const lostQ = Object.keys(BASE)
+    .filter(id => (!BASE[id].q || !BASE[id].qc) && BASE[id].from !== 'sheet');
+  chk('문항별 통계를 가졌던 회차가 잃지 않았다', lostQ, []);
+  const sheetOnly = Object.keys(BASE).filter(id => !BASE[id].q || !BASE[id].qc);
+  if (sheetOnly.length) console.log('  점수 분포만 있는 회차 ' + sheetOnly.length
+    + ' — ' + sheetOnly.join(', ') + ' (시트에서 온 것 · 또래 정답률은 안 쓴다)');
   const total = Object.keys(BASE).reduce((a, k) => a + BASE[k].n, 0);
   console.log('  회차 ' + Object.keys(BASE).length + ' · 인원 ' + total);
   /* 줄어들면 걸린다. 늘리는 것은 사람이 이 줄을 같이 고치면 된다 — 그때는
