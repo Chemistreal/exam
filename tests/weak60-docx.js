@@ -86,10 +86,16 @@ async function fillBoxes(p, sel, vals) {
   const ctx = await b.newContext({ acceptDownloads: true });
   const p = await ctx.newPage();
   const errs = []; p.on('pageerror', e => errs.push(e.message));
+  /* 내려받기를 **개수 조건**으로 기다린다. 0.5초씩 240번 재우며 도는 것은
+     짐작이다 — 빠른 기계에서는 헛되이 버리고 느린 기계에서는 아직 안 끝난
+     것을 본다. 짐작으로 재우는 시간은 tools/blind_wait.py 가 센다. */
   const got = [];
+  let need = 0, ping = null;
+  const waitFiles = n => { need = n; return new Promise(r => { ping = r; if (got.length >= n) { ping = null; r(); } }); };
   p.on('download', async d => {
     const f = path.join(OUT, 'd' + got.length + '.docx');
     await d.saveAs(f); got.push({ file: f });
+    if (ping && got.length >= need) { const r = ping; ping = null; r(); }
   });
   /* ⚠ 파일 이름은 `download.suggestedFilename()` 으로 못 잰다. 머리 없는
      크로뮴은 blob: 내려받기에서 <a download> 를 안 읽고 늘 'download' 를
@@ -145,7 +151,7 @@ async function fillBoxes(p, sel, vals) {
 
   await p.reload({ waitUntil: 'networkidle' });
   await p.waitForFunction(() => typeof EXAMS !== 'undefined' && EXAMS.length > 0, { timeout: 30000 });
-  await p.waitForTimeout(300);
+  await p.waitForFunction(() => document.querySelectorAll('#who option').length > 1, { timeout: 30000 });
   chk('문고리 덮개가 걷혔다', (await p.locator('#gate').count()) === 0, '');
   await spy();
 
@@ -177,9 +183,10 @@ async function fillBoxes(p, sel, vals) {
 
   /* ── 1교시 발행 ───────────────────────────────────────── */
   await p.selectOption('#who', '검사용');
-  await p.waitForTimeout(200);
+  await p.waitForSelector('#s2:not([hidden])', { timeout: 30000 });
+  const f1 = waitFiles(1);
   await p.click('#issue');
-  for (let i = 0; i < 240 && got.length < 1; i++) await p.waitForTimeout(500);
+  await f1;
   chk('1교시 시험지가 나온다', got.length === 1, '받은 파일 ' + got.length);
   const n1 = await p.evaluate(() => window.__names.slice());
   chk('파일 이름에 1교시와 복원 코드가 있다',
@@ -216,8 +223,9 @@ async function fillBoxes(p, sel, vals) {
   chk('틀린 문항이 2교시로 넘어간다', st1.wrong > 5, '틀린 문항 ' + st1.wrong);
 
   /* ── 2교시 되풀이 발행 ────────────────────────────────── */
+  const f2 = waitFiles(2);
   await p.click('#mk2');
-  for (let i = 0; i < 240 && got.length < 2; i++) await p.waitForTimeout(500);
+  await f2;
   chk('2교시 되풀이가 나온다', got.length === 2, '받은 파일 ' + got.length);
 
   /* ── 2교시 채점: 틀린 것 가운데 절반만 맞힌다 ────────── */
@@ -229,7 +237,7 @@ async function fillBoxes(p, sel, vals) {
   }), { wrongIdx });
   await fillBoxes(p, '#bx2', a2);
   await p.click('#save2');
-  await p.waitForTimeout(400);
+  await p.waitForSelector('#sum2 .verdict', { timeout: 30000 });
 
   const want = await p.evaluate(() => {
     const v = w60Verdict(CURI, CURP.a1, CURP.a2);
@@ -240,13 +248,45 @@ async function fillBoxes(p, sel, vals) {
   chk('세 갈래가 모두 나온다 (판정이 한쪽으로 쏠리지 않았다)',
       want.know > 0 && want.slip > 0 && want.none > 0 && want.wait === 0, JSON.stringify(want));
 
+  const f3 = waitFiles(3);
   await p.click('#mkkey2');
-  for (let i = 0; i < 240 && got.length < 3; i++) await p.waitForTimeout(500);
+  await f3;
   chk('해설이 나온다', got.length === 3, '받은 파일 ' + got.length);
   const names = await p.evaluate(() => window.__names.slice());
   chk('세 파일 이름이 걸음과 복원 코드로 갈린다',
       names.length === 3 && /1교시_시험지/.test(names[0]) && /2교시_되풀이/.test(names[1])
       && /_해설_/.test(names[2]) && new Set(names).size === 3, names.join(' · '));
+  /* ── 모두 발행 · 복원 코드로 찾기 ─────────────────────
+     예순 명이면 예순 벌이다. 한 사람씩 골라 예순 번 누르고 있을 일이 아니라
+     **학생을 안 고른 채로도** 눌러야 한다. 한 번은 2단계를 통째로 숨겨 두어
+     그 단추까지 같이 숨었다 — 찍어 보고서야 알았다. */
+  await p.selectOption('#who', '');
+  const canAll = await p.evaluate(() => !document.getElementById('issueAll').disabled
+                                     && !document.getElementById('s2').hidden);
+  chk('학생을 안 골라도 「모두 발행」을 누를 수 있다', canAll === true, '');
+  await p.evaluate(() => { document.getElementById('nq').value = '10'; });
+  const f4 = waitFiles(4);
+  await p.click('#issueAll');
+  await f4;
+  const rows = await p.evaluate(() => Array.from(document.querySelectorAll('#issued table tbody tr'))
+    .map(tr => Array.from(tr.children).map(td => td.textContent.trim())));
+  chk('기록 있는 학생마다 한 벌씩 나온다', rows.length === 1, JSON.stringify(rows));
+
+  /* 시험지 표지에 「채점할 때 선생님이 이 코드로 이 시험지를 찾습니다」라고
+     적어 두었다. 정말 찾아지는지 본다 — 적어 놓고 못 찾으면 그 문장이
+     거짓말이 된다. 손으로 옮겨 적는 코드라 소문자·가운뎃줄도 받아야 한다. */
+  const code = (rows[0] || [])[1] || '';
+  await p.fill('#findCode', code.toLowerCase());
+  await p.click('#findGo');
+  await p.waitForSelector('#bx1 .cellbox input', { timeout: 30000 });
+  const found = await p.evaluate(() => ({ code: CURP && CURP.code, n: CURI.length }));
+  chk('표지의 복원 코드로 그 시험지를 찾아간다',
+      found.code === code.replace('-', ''), JSON.stringify(found) + ' vs ' + code);
+  await p.fill('#findCode', 'ZZZZZZ');
+  await p.click('#findGo');
+  const miss = await p.evaluate(() => document.getElementById('findMsg').textContent);
+  chk('없는 코드는 없다고 말한다', /없습니다/.test(miss), miss);
+
   chk('화면 오류 없음', errs.length === 0, errs[0] || '');
   await b.close();
   if (got.length < 3) { console.log('\n결과: 실패 ' + (fail || 1) + '건'); process.exit(1); }

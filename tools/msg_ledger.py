@@ -49,7 +49,7 @@ READER = [
     (r'^lec-|^lecture-index|^강의', '학생'),
     (r'^(parent|학부모)', '학부모'),
     (r'^(admin|scan|calibration|response-manager|data-import|qmatrix|prereq-dag-editor)', '선생님'),
-    (r'^(hub|dashboard|teaching-brief|system-guide|START_HERE)', '선생님'),
+    (r'^(hub|dashboard|teaching-brief|system-guide|START_HERE|weak60)', '선생님'),
     (r'^(item-|cat|cdm|mirt|knowledge-|learning-|mastery-|spaced-|profile-|ontology-|'
      r'misconception-|multi-|olympiad-|conceptual-|constructed-|content-|test-blueprint|'
      r'longitudinal|diagnosis-|note|cohort)', '선생님'),
