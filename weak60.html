@@ -749,6 +749,8 @@ function _w60kit(Dx){
   K.ImageRun=Dx.ImageRun; K.PageBreak=Dx.PageBreak; K.VerticalAlign=Dx.VerticalAlign;
   K.LineRule=Dx.LineRuleType; K.Header=Dx.Header; K.Footer=Dx.Footer; K.PageNumber=Dx.PageNumber;
   K.INK='1A1A1A'; K.TEAL='0E5A4C'; K.GOLD='8C6D1F'; K.MUTED='6B6B6B'; K.LINE='D8CDB4';
+  /* 고른 오답을 짚는 자리에만 쓴다. 화면의 --ms 와 같은 붉은색이다. */
+  K.MS='B8562F';
   K.run=function(t,o){ o=o||{}; return new K.TextRun({ text:String(t==null?'':t), bold:!!o.bold,
     color:o.color||K.INK, size:o.size||20, font:o.font||'Malgun Gothic', italics:!!o.italic }); };
   K.P=function(runs,o){ o=o||{}; return new K.Paragraph({ alignment:o.align,
@@ -953,6 +955,10 @@ function _w60retry(K, meta, items, wrongIdx, imgs){
      모른다          … 힌트 세 층을 다 보고도 틀렸다. 개념이 없는 것이니 강의로 간다.
    2교시를 아직 안 쳤으면 «아직» 이다 — 모른다고 단정하지 않는다. */
 var W60_V={know:'안다', slip:'알지만 못 꺼낸다', none:'모른다', wait:'아직'};
+/* ①②③④ 는 한글이 아니라 받침으로 조사를 못 고른다. 읽는 소리로 고른다 —
+   일(ㄹ)·이·삼(ㅁ)·사. 「① 를 고른 것은」 이라고 적히면 그 한 글자에서
+   종이가 성의 없어 보인다. */
+var W60_EUL=['','을 ','를 ','을 ','를 '];
 function w60Verdict(items, a1, a2){
   return items.map(function(it,i){
     if(w60Ok(it,(a1||[])[i]||0)) return 'know';
@@ -1053,6 +1059,27 @@ function _w60key(K, meta, items, types, areas, hist, a1, a2, verd){
     var mis=String(a.misconception||'').trim();
     if(mis) b.push(K.P([K.run('오개념  ',{bold:true,size:17,color:K.GOLD}),
                         K.run(mis,{size:17,color:K.MUTED})],{before:60,after:0}));
+    /* ── 이 아이가 **고른 그 선지**에 붙은 오개념 ────────────────────────
+       동형문항은 선지마다 오개념을 따로 들고 있다(2,643 가운데 2,640).
+       그런데 여태 위의 뭉뚱그린 한 줄만 적고 이것을 안 썼다 — 「③ 을 고른
+       것은 …」 이 「흔한 오개념은 …」 보다 훨씬 아프게 읽힌다.
+       원문 문항에는 이 자리가 아직 비어 있다(2,460 가운데 0). 없는 것을
+       있다고 하지 않는다 — 있는 문항에만 붙는다. */
+    var per=a.misconceptions;
+    if(per && typeof per==='object'){
+      var picked=[], seenPick={};
+      [[(a1||[])[i],'1교시'],[(a2||[])[i],'2교시']].forEach(function(pr){
+        var v=Number(pr[0]||0);
+        if(!v || w60Ok(it,v) || seenPick[v]) return;
+        if(!String(per[String(v)]||'').trim()) return;
+        seenPick[v]=1; picked.push({v:v, when:pr[1], s:String(per[String(v)]).trim()});
+      });
+      picked.forEach(function(x,pi){
+        b.push(K.P([K.run((CIRC[x.v]||'')+W60_EUL[x.v]+' 고른 것은  ',{bold:true,size:17,color:K.MS}),
+                    K.run(x.s,{size:17,color:K.MUTED}),
+                    K.run('   ('+x.when+')',{size:15,color:K.MUTED})],{before:pi?20:50,after:0}));
+      });
+    }
   });
   return b;
 }
