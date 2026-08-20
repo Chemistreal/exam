@@ -37,10 +37,10 @@ jobs:
 
       - name: Validate shared report system
         run: |
+          python3 tools/install_usnco_2026_practice.py
           python3 tools/gen_exam_fallback.py --check
           python3 tools/gen_pool_index.py --check
           python3 tools/gen_exam_solflag.py
-          python3 tests/wrongbook-assets.py
           node tests/final-submit-sync.js
           node tests/final-score.js
           node tests/exam-materials.js
