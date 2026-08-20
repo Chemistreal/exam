@@ -5799,6 +5799,7 @@ function scoreAuto(again){
   app.innerHTML=`${window.__sharedReport?'':'<button class="back" onclick="renderList()">‹ 시험 목록</button>'}
    <div id="repPDF">
    <h2 class="serif" style="margin:6px 0 2px;font-size:20px">${esc(cur.title)} · 성적표</h2>
+   ${window.__sharedReport?'':`<div class="toolbar teacher-next" style="justify-content:flex-end;margin:10px 0 14px"><button class="btn" onclick="nextStudent()">다음 학생 채점 ▶</button><button class="btn ghost sm" onclick="openExam('${cur.id}')">다시 채점</button></div>`}
    ${nm?`<div class="muted">${esc(nm)}${sch?' · '+esc(sch):''}${grd?' · '+esc(grd)+'학년':''}${window.__gradedOn?` · 채점 ${window.__gradedOn}`:''}</div>`:''}
    ${finalHero(nm,cur,correct,total,W,pct)}
    ${nextGuideCta(nm,cur,wrong)}
@@ -5847,7 +5848,7 @@ function scoreAuto(again){
      ${/* 해설 링크는 위 「시험지 · 해설 내려받기」 칸으로 옮겼다(2026-08-13).
           두 자리에 같은 링크가 있으면 한쪽만 고쳤을 때 갈린다. */''}
      <button class="btn ghost sm" onclick="window.print()">인쇄</button>
-     ${fShared?'':`<button class="btn sm" onclick="nextStudent()">다음 학생 입력 ▶</button>
+     ${fShared?'':`<button class="btn sm" onclick="nextStudent()">다음 학생 채점 ▶</button>
      <button class="btn ghost sm" onclick="openExam('${cur.id}')">다시 채점</button>`}</div>`;
   window.__wbPromise=hydrateWrongbook(cur,wrong);
   window.scrollTo(0,0);
