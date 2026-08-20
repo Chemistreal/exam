@@ -18,15 +18,21 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Restore original detailed USNCO solution data
+        run: |
+          git show b720ca70edf465f7201c09a9f8e3bb661190dac2:answers/usnco-2026-natl-1.json > answers/usnco-2026-natl-1.json
+
       - name: Apply USNCO integration
         run: |
           python3 tools/upgrade_usnco_2026_report.py
+          python3 tools/gen_exam_solflag.py --write
           python3 tools/gen_sol_page.py usnco-2026-natl-1 --write
           python3 tools/gen_exam_fallback.py --write
 
       - name: Validate shared report system
         run: |
           python3 tools/gen_exam_fallback.py --check
+          python3 tools/gen_exam_solflag.py
           node tests/final-submit-sync.js
           node tests/final-score.js
           node tests/exam-materials.js
@@ -41,5 +47,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add exams.json final.html final-submit.html answers/usnco-2026-natl-1.json sol-final-usnco-2026-natl-1.html
-          git commit -m 'Integrate USNCO 2026 with full final report'
+          git commit -m 'Preserve detailed USNCO solutions in full report'
           git push
