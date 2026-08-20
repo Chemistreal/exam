@@ -35,6 +35,19 @@ jobs:
           python3 tools/gen_sol_page.py usnco-2026-natl-1 --write
           python3 tools/gen_exam_fallback.py --write
 
+      - name: Commit generated integration
+        run: |
+          if git diff --quiet; then
+            echo 'No changes needed.'
+          else
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add -A .tmp-usnco-practice donghyung/usnco-2026-natl-1.json donghyung/index.json tests/wrongbook-assets.py
+            git add exams.json final.html final-submit.html answers/usnco-2026-natl-1.json sol-final-usnco-2026-natl-1.html
+            git commit -m 'Complete USNCO 2026 report and practice workflow'
+            git push
+          fi
+
       - name: Validate shared report system
         run: |
           python3 tools/install_usnco_2026_practice.py
@@ -45,16 +58,3 @@ jobs:
           node tests/final-score.js
           node tests/exam-materials.js
           node tests/gate.js
-
-      - name: Commit generated integration
-        run: |
-          if git diff --quiet; then
-            echo 'No changes needed.'
-            exit 0
-          fi
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A .tmp-usnco-practice donghyung/usnco-2026-natl-1.json donghyung/index.json tests/wrongbook-assets.py
-          git add exams.json final.html final-submit.html answers/usnco-2026-natl-1.json sol-final-usnco-2026-natl-1.html
-          git commit -m 'Complete USNCO 2026 report and practice workflow'
-          git push
