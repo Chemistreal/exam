@@ -4,7 +4,7 @@
 - final.html / final-submit.html 목록에 USNCO 그룹을 노출한다.
 - 학생 제출 완료 뒤 축약 결과가 아니라 final.html 전체 진단 리포트로 이동한다.
 - USNCO 문항 영역명을 기존 진단 엔진의 표준 영역으로 정규화한다.
-- 최소 정답·개념표 데이터를 생성해 해설 링크가 404가 되지 않게 한다.
+- 기존 answers 데이터의 상세 해설은 절대 덮어쓰지 않고 정답·영역 메타데이터만 맞춘다.
 
 이 스크립트는 멱등적이다. 한 번 적용된 저장소에서 다시 실행해도 같은 결과가 난다.
 """
@@ -88,12 +88,10 @@ def patch_exams() -> dict:
     exam["mode"] = "auto"
     exam["cut"] = [0, 4, 9, 13, 18]
     exam["area"] = AREAS
-    exam["solFull"] = False
 
     # 기존 파일의 읽기 쉬운 들여쓰기를 유지하면서 이 객체만 교체한다.
     rendered = json.dumps(exam, ensure_ascii=False, indent=2)
     text = text[:start] + rendered + text[end:]
-    # 유효 JSON임을 다시 검증한다.
     json.loads(text)
     path.write_text(text, encoding="utf-8")
     return exam
@@ -108,14 +106,12 @@ def patch_pages() -> None:
         "const GROUPS=[['JMChC','JMChC 모의고사'],['동형','기출 동형'],['산과염기','산·염기 집중'],['USNCO','USNCO National Exam'],['2026','KMChC 2026'],['2025','KMChC 2025'],['2024','KMChC 2024'],['이전','KMChC 이전 기출']];",
         "final-submit USNCO 그룹",
     )
-    # 페이지를 떠나도 시트 전송을 끝낼 수 있게 keepalive를 켠다.
     s = replace_once(
         s,
         "fetch(SHEET_ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});",
         "fetch(SHEET_ENDPOINT,{method:'POST',mode:'no-cors',keepalive:true,headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});",
         "final-submit keepalive",
     )
-    # 제출 완료 후 축약 showResult가 아니라, 기존 고품질 final.html 공유 성적표를 연다.
     s = replace_once(
         s,
         "  clearDraft(cur.id); // 제출 완료 → 임시저장 답안 삭제\n\n  showResult(nm,sch,cur,correct,total,pct,rs,wrong);",
@@ -141,38 +137,47 @@ def patch_pages() -> None:
     p.write_text(s, encoding="utf-8")
 
 
-def write_answer_data(exam: dict) -> None:
-    out = {
-        "schemaVersion": 2,
-        "examId": EXAM_ID,
-        "examTitle": exam["title"],
-        "generatedAt": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
-        "questions": {},
-    }
+def sync_answer_metadata(exam: dict) -> None:
+    """기존 상세 해설을 보존하고, 채점/분류 메타데이터만 exams.json과 동기화한다."""
+    path = ROOT / "answers" / f"{EXAM_ID}.json"
+    if path.exists():
+        out = json.loads(path.read_text(encoding="utf-8"))
+    else:
+        out = {
+            "schemaVersion": 2,
+            "examId": EXAM_ID,
+            "examTitle": exam["title"],
+            "generatedAt": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+            "questions": {},
+        }
+    out["schemaVersion"] = max(2, int(out.get("schemaVersion") or 0))
+    out["examId"] = EXAM_ID
+    out["examTitle"] = exam["title"]
+    qs = out.setdefault("questions", {})
+
     for i in range(60):
         n = i + 1
-        out["questions"][str(n)] = {
-            "answer": int(exam["key"][i]),
-            "acceptableAnswers": [int(exam["key"][i])],
-            "excluded": False,
-            "concept": exam["type"][i],
-            "area": exam["area"][i],
-            "learningPoint": exam["type"][i],
-            "explanation": "",
-            "explanationHtml": "",
-            "misconception": "",
-            "sourceSolution": "2026 USNCO National Exam Part I · 사용자 제공 문제편·해설편의 정답표와 대조",
-            "verificationStatus": "verified_key_and_metadata",
-        }
-    path = ROOT / "answers" / f"{EXAM_ID}.json"
-    path.write_text(json.dumps(out, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+        q = qs.setdefault(str(n), {})
+        q["answer"] = int(exam["key"][i])
+        q["acceptableAnswers"] = [int(exam["key"][i])]
+        q["excluded"] = False
+        q["concept"] = exam["type"][i]
+        q["area"] = exam["area"][i]
+        q["learningPoint"] = exam["type"][i]
+        q.setdefault("explanation", "")
+        q.setdefault("explanationHtml", "")
+        q.setdefault("misconception", "")
+        q.setdefault("sourceSolution", "")
+        q.setdefault("verificationStatus", "verified_key_and_metadata")
+
+    path.write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 def main() -> int:
     exam = patch_exams()
     patch_pages()
-    write_answer_data(exam)
-    print("PASS USNCO 2026 National Part I 리포트 통합 패치 적용")
+    sync_answer_metadata(exam)
+    print("PASS USNCO 2026 National Part I 리포트 통합 패치 적용 · 기존 상세 해설 보존")
     return 0
 
 
