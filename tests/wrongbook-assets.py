@@ -133,7 +133,9 @@ assert seen == expected, f"자산이 빠진 문항이 있다: {seen} != {expecte
 #    2540 → 2640 : 남은 일반 두 회차(2025-2 · 2026-1, 50문항씩)도 되살렸다.
 #    맨 위 2400 → 2250 에서 뺐던 셋이 이로써 다 돌아왔다 — 선생님이 일반도
 #    함께 보기로 하셨다 (2026-08-18).
-assert seen == 2640, f"문항 총합이 달라졌다: {seen} (기대 2640)"
+#    2640 → 2700 : USNCO 2026 National Part I 60문항을 추가했다. 원문 크롭·상세 해설·
+#    독자 동형문제 60문항까지 모두 연결했다 (2026-08-20).
+assert seen == 2700, f"문항 총합이 달라졌다: {seen} (기대 2700)"
 print(
     f"PASS wrongbook assets: exams={len(exams)} questions={seen} "
     f"손상(가드로 숨김)={broken}/{BROKEN_BUDGET}"
