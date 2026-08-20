@@ -5,6 +5,7 @@
 - 학생 제출 완료 뒤 축약 결과가 아니라 final.html 전체 진단 리포트로 이동한다.
 - USNCO 문항 영역명을 기존 진단 엔진의 표준 영역으로 정규화한다.
 - 기존 answers 데이터의 상세 해설은 절대 덮어쓰지 않고 정답·영역 메타데이터만 맞춘다.
+- 회차별 제출 주소 목록/표에서도 USNCO를 별도 그룹으로 정확히 표시한다.
 
 이 스크립트는 멱등적이다. 한 번 적용된 저장소에서 다시 실행해도 같은 결과가 난다.
 """
@@ -74,7 +75,7 @@ def find_object_span(text: str, needle: str) -> tuple[int, int]:
 def patch_exams() -> dict:
     path = ROOT / "exams.json"
     text = path.read_text(encoding="utf-8")
-    start, end = find_object_span(text, f'"id": "{EXAM_ID}"')
+    start, end = find_object_span(text, f'"id":"{EXAM_ID}"' if f'"id":"{EXAM_ID}"' in text else f'"id": "{EXAM_ID}"')
     exam = json.loads(text[start:end])
     if len(exam.get("key") or []) != 60 or len(exam.get("type") or []) != 60:
         raise SystemExit("USNCO 정답/유형 데이터가 60문항이 아니다")
@@ -89,7 +90,6 @@ def patch_exams() -> dict:
     exam["cut"] = [0, 4, 9, 13, 18]
     exam["area"] = AREAS
 
-    # 기존 파일의 읽기 쉬운 들여쓰기를 유지하면서 이 객체만 교체한다.
     rendered = json.dumps(exam, ensure_ascii=False, indent=2)
     text = text[:start] + rendered + text[end:]
     json.loads(text)
@@ -133,6 +133,18 @@ def patch_pages() -> None:
         "const GLAB={'JMChC':['JMChC 모의고사','60문항 · 영역·개념'],'동형':['기출동형 모의고사','영역·개념'],'산과염기':['산·염기 60제','영역·개념']};",
         "const GLAB={'JMChC':['JMChC 모의고사','60문항 · 영역·개념'],'동형':['기출동형 모의고사','영역·개념'],'산과염기':['산·염기 60제','영역·개념'],'USNCO':['USNCO National Exam','Part I · 60문항 · 2시간 · +3/−1']};",
         "final USNCO 라벨",
+    )
+    s = replace_once(
+        s,
+        "var order=['JMChC','동형','산과염기','2026','2025','2024','이전'];",
+        "var order=['JMChC','동형','산과염기','USNCO','2026','2025','2024','이전'];",
+        "제출주소 USNCO 순서",
+    )
+    s = replace_once(
+        s,
+        "var GLAB={'JMChC':'JMChC 모의고사','동형':'기출동형 모의고사','산과염기':'산·염기 60제'};",
+        "var GLAB={'JMChC':'JMChC 모의고사','동형':'기출동형 모의고사','산과염기':'산·염기 60제','USNCO':'USNCO National Exam'};",
+        "제출주소 USNCO 라벨",
     )
     p.write_text(s, encoding="utf-8")
 
