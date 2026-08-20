@@ -7,6 +7,7 @@ on:
       - '.github/workflows/usnco-2026-report-upgrade.yml'
       - 'tools/upgrade_usnco_2026_report.py'
       - 'tools/restore_next_student_button.py'
+      - 'tools/install_usnco_2026_practice.py'
   workflow_dispatch:
 
 permissions:
@@ -28,6 +29,8 @@ jobs:
         run: |
           python3 tools/upgrade_usnco_2026_report.py
           python3 tools/restore_next_student_button.py
+          python3 tools/install_usnco_2026_practice.py
+          python3 tools/gen_pool_index.py --write
           python3 tools/gen_exam_solflag.py --write
           python3 tools/gen_sol_page.py usnco-2026-natl-1 --write
           python3 tools/gen_exam_fallback.py --write
@@ -35,7 +38,9 @@ jobs:
       - name: Validate shared report system
         run: |
           python3 tools/gen_exam_fallback.py --check
+          python3 tools/gen_pool_index.py --check
           python3 tools/gen_exam_solflag.py
+          python3 tests/wrongbook-assets.py
           node tests/final-submit-sync.js
           node tests/final-score.js
           node tests/exam-materials.js
@@ -49,6 +54,7 @@ jobs:
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A .tmp-usnco-practice donghyung/usnco-2026-natl-1.json donghyung/index.json tests/wrongbook-assets.py
           git add exams.json final.html final-submit.html answers/usnco-2026-natl-1.json sol-final-usnco-2026-natl-1.html
-          git commit -m 'Preserve detailed USNCO solutions in full report'
+          git commit -m 'Complete USNCO 2026 report and practice workflow'
           git push
