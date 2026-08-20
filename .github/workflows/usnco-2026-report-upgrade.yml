@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/usnco-2026-report-upgrade.yml'
       - 'tools/upgrade_usnco_2026_report.py'
+      - 'tools/restore_next_student_button.py'
   workflow_dispatch:
 
 permissions:
@@ -26,6 +27,7 @@ jobs:
       - name: Apply USNCO integration
         run: |
           python3 tools/upgrade_usnco_2026_report.py
+          python3 tools/restore_next_student_button.py
           python3 tools/gen_exam_solflag.py --write
           python3 tools/gen_sol_page.py usnco-2026-natl-1 --write
           python3 tools/gen_exam_fallback.py --write
