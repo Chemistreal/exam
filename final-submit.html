@@ -41,7 +41,7 @@ input.txt:focus{border-color:var(--teal);outline:none}
 /* 확신도 — 한 번 누를 때마다 ○ → △ → ✗ → (없음). 채점에는 안 쓰이고
    내 화면에만 남는다. 찍어서 맞은 문항이 다음 시험에서 새는 자리라, 그것을
    눈에 보이게 하려고 둔다. */
-.cf{width:100%;height:20px;margin-top:3px;border:1px solid var(--line);border-radius:6px;
+.cf{width:100%;height:30px;margin-top:3px;border:1px solid var(--line);border-radius:6px;
  background:#fff;color:#b9b2a2;font-size:12px;line-height:1;cursor:pointer;padding:0}
 .cf[data-v='o']{border-color:var(--teal);color:var(--teal);background:#eef5f3;font-weight:700}
 .cf[data-v='m']{border-color:#B08D57;color:#8a6a22;background:#faf6ec;font-weight:700}
@@ -356,7 +356,7 @@ function restoreDraft(id){
   var d=loadDraft(id); if(!d) return;
   try{
     if(d.sel&&typeof d.sel==='object'){ Object.keys(d.sel).forEach(function(q){ var v=+d.sel[q]; if(v>=1&&v<=4){ sel[q]=v; var el=document.getElementById('a'+q); if(el){ el.value=v; el.classList.add('on'); } } }); }
-    if(d.conf&&typeof d.conf==='object'){ conf={}; Object.keys(d.conf).forEach(function(q){ if(CF_TXT[d.conf[q]]) conf[q]=d.conf[q]; }); cfPaint(); }
+    if(d.conf&&typeof d.conf==='object'){ conf={}; Object.keys(d.conf).forEach(function(q){ if(d.conf[q] && CF_TXT[d.conf[q]]) conf[q]=d.conf[q]; }); cfPaint(); }
     var nm=document.getElementById('nm'); if(nm&&d.nm) nm.value=d.nm;
     var sch=document.getElementById('sch'); if(sch&&d.sch) sch.value=d.sch;
     var grd=document.getElementById('grd'); if(grd&&d.grd) grd.value=d.grd;
@@ -378,12 +378,15 @@ function onKey(e,q){ if(e.key==='Backspace'&&!e.target.value){ const p=document.
 /* 확신도. 채점(sel)과 섞지 않는다 — 점수에 영향을 주면 안 되는 값이다. */
 var conf={};
 var CF_NEXT={'':'o','o':'m','m':'x','x':''}, CF_TXT={'':'·','o':'○','m':'△','x':'✗'};
+var CF_SAY={'':'표시 없음','o':'확실','m':'반반','x':'찍음'};
+function cfSet(b,q,v){ b.setAttribute('data-v',v); b.textContent=CF_TXT[v];
+  b.setAttribute('aria-label', q+'번 확신도 — '+CF_SAY[v]); }
 function cfTap(q){ const b=document.getElementById('c'+q); if(!b) return;
-  const v=CF_NEXT[b.getAttribute('data-v')||'']; b.setAttribute('data-v',v); b.textContent=CF_TXT[v];
+  const v=CF_NEXT[b.getAttribute('data-v')||''];
+  cfSet(b,q,v);
   if(v) conf[q]=v; else delete conf[q];
   saveDraft(); }
-function cfPaint(){ for(const q in conf){ const b=document.getElementById('c'+q);
-  if(b){ b.setAttribute('data-v',conf[q]); b.textContent=CF_TXT[conf[q]]||'·'; } } }
+function cfPaint(){ for(const q in conf){ const b=document.getElementById('c'+q); if(b) cfSet(b,q,conf[q]); } }
 function nextQ(q){ const nQ=cur.nQ||cur.key.length; return q<nQ?q+1:q; }
 function prevQ(q){ return q>1?q-1:q; }
 function onPaste(e){ e.preventDefault(); const raw=((e.clipboardData||window.clipboardData).getData('text')||'').replace(/[^0-4]/g,''); if(!raw)return;

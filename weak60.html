@@ -623,7 +623,7 @@ async function lecStudy(file){
 }
 
 /* ══ 회차 목록 · 명단 · 이력 ══════════════════════════════════════════════ */
-var EXAMS=[];
+var EXAMS=[], SF_OK=false;
 async function loadExams(){
   var r=await fetch('exams.json',{cache:'no-store'});
   if(!r.ok) throw new Error('exams.json '+r.status);
@@ -633,9 +633,10 @@ async function loadExams(){
   /* 학생별 파이널(student-finals.json)도 잇는다 — 이 화면은 명단·오답·링크를
      다루는 선생님 자리라, 학생 회차의 제출 기록(subs)과 srcmap 오답도 보아야
      한다. 목록 계수 검사는 exams.json 만 세는 final 쪽 화면 이야기다. */
+  SF_OK=false;
   try{
     var r2=await fetch('student-finals.json',{cache:'no-store'});
-    if(r2.ok){ var j2=await r2.json(); EXAMS=EXAMS.concat((j2&&j2.exams)||[]); }
+    if(r2.ok){ var j2=await r2.json(); EXAMS=EXAMS.concat((j2&&j2.exams)||[]); SF_OK=true; }
   }catch(e){}
   return EXAMS;
 }
@@ -691,7 +692,12 @@ function weakScan(nm){
          문항의 이름으로 센다 — 그래야 같은 문제가 두 이름으로 두 번 실리지
          않고, 같은 문항을 또 틀린 것이 되풀이(rep)로 제대로 잡힌다. */
       var sm=e.srcmap&&e.srcmap[q-1];
-      out.push({ id:(sm&&sm.e)||e.id, title:e.title||e.id, q:(sm&&sm.e)?+sm.q:q, chosen:a, blank:(a===0),
+      /* id·번호만 갈아 끼우고 title 을 두면 「원문 — 파이널 60제 · s2h5… 34번」
+         처럼 있지도 않은 출처가 교사 문서에 찍히고 학생 코드가 종이에 인쇄된다.
+         이름도 함께 옮긴다. */
+      var srcE=(sm&&sm.e)?EXAMS.filter(function(x){ return x.id===sm.e; })[0]:null;
+      out.push({ id:(sm&&sm.e)||e.id, title:(srcE&&srcE.title)||(sm&&sm.e)||e.title||e.id,
+                 q:(sm&&sm.e)?+sm.q:q, chosen:a, blank:(a===0),
                  ts:(h.r&&h.r.ts)||0,
                  area:(e.area&&e.area[q-1])||'기타',
                  type:(e.type&&e.type[q-1])||(e.area&&e.area[q-1])||'기타' });
@@ -965,7 +971,13 @@ function drawFinals(){
   var ul=$('flist'); if(!ul) return;
   var nc=ncAll();
   var finals=EXAMS.filter(function(e){ return e.group==='파이널'; });
-  if(!finals.length){ ul.innerHTML='<li class="muted" style="font-size:13px">아직 지은 파이널이 없습니다 — tools/gen_student_final.py --write 를 돌리면 생깁니다.</li>'; return; }
+  if(!finals.length){
+    /* 「못 읽었다」와 「지은 것이 없다」는 다른 일이다. 섞어 적으면 선생님이
+       엉뚱한 조치를 하러 간다. */
+    ul.innerHTML='<li class="muted" style="font-size:13px">'
+      +(SF_OK ? '아직 지은 파이널이 없습니다 — tools/gen_student_final.py --write 를 돌리면 생깁니다.'
+              : '<b class="err">student-finals.json 을 못 읽었습니다.</b> 파일이 올라갔는지, 새로고침이 필요한지 확인해 주세요.')
+      +'</li>'; return; }
   finals=finals.map(function(e){ var who=nc[e.id]; return {e:e, name:who&&who.name||''}; })
     .sort(function(a,b){ if(!!a.name!==!!b.name) return a.name?-1:1;
                          return (a.name||a.e.id)<(b.name||b.e.id)?-1:1; });
@@ -997,8 +1009,21 @@ function drawFinals(){
   Array.prototype.forEach.call(ul.querySelectorAll('button[data-pk]'), function(b){
     b.onclick=function(){
       var kind=b.getAttribute('data-pk'), code=b.getAttribute('data-code');
-      run(b, function(){ return loadPackets().then(function(){ return PK_FN[kind](code); }); },
+      /* 시험지는 EXAMS 의 srcmap 과 크롭만 쓴다 — 수업 자료 파일이 없어도
+         나와야 한다. 그것까지 같은 문에 묶어 두면 하나가 없을 때 다 죽는다. */
+      var needPk=(kind!=='paper');
+      run(b, function(){
+            return (needPk?loadPackets():Promise.resolve()).then(function(){ return PK_FN[kind](code); });
+          },
           function(r){
+            if(kind==='all'){
+              var miss=(r.warm&&r.warm.miss||0)+(r.paper&&r.paper.miss||0);
+              var bad=(r.fail||[]).length;
+              toast('한 벌 '+(r.done||0)+'장 저장'
+                    +(bad?(' · '+bad+'장 실패'):'')+(miss?(' · 그림 '+miss+'장 못 받음'):''));
+              if(bad) toast(r.fail.join(' / '));
+              return;
+            }
             var extra=(r&&r.miss)?(' · 그림 '+r.miss+'장 못 받음'):'';
             toast(PK_MSG[kind]+' 저장 완료'+extra);
           });
@@ -1780,7 +1805,8 @@ var PACKETS=null;
 async function loadPackets(){
   if(PACKETS) return PACKETS;
   var r=await fetch('student-packets.json',{cache:'no-store'});
-  if(!r.ok) throw new Error('student-packets.json '+r.status);
+  if(!r.ok) throw new Error('수업 자료 파일을 못 읽었습니다('+r.status
+    +') — tools/gen_student_packets.py --write 로 심어야 합니다');
   PACKETS=(await r.json()).packets||{};
   return PACKETS;
 }
@@ -1790,6 +1816,13 @@ function pktOf(code){ return (PACKETS||{})[code]||null; }
 function _pkName(code){ return ((ncAll()[code]||{}).name)||code; }
 function _pkHead(K, code, title){
   return _w60head(K, title, _pkName(code)+' · '+w60Ymd(Date.now()));
+}
+/* 그림을 **run 으로** 돌려준다. K.img 는 문단을 돌려주므로 머리와 한 문단에
+   묶을 수가 없다 — 묶으려고 K.P 로 감싸면 문단 중첩이 되어 워드가 버린다. */
+function _pkImgRun(K, u8, maxW){
+  var d=_pngDims(u8)||{w:maxW,h:Math.round(maxW*0.4)};
+  var w=Math.min(maxW,d.w||maxW), h=Math.round(w*(d.h||1)/(d.w||1));
+  return new K.ImageRun({type:'png',data:u8,transformation:{width:w,height:h}});
 }
 var PK_TIME=[['30분','15번'],['60분','30번'],['90분','45번'],
              ['105분','60번 (1회독 끝)'],['105~120분','표시 문항 + 빈칸']];
@@ -1810,7 +1843,9 @@ function _pkRules(K){
 
 /* ── ① 워밍업 6제 (학생용 · 정답 없음) ───────────────────────────────────── */
 async function makeWarmup(code){
-  var p=pktOf(code); if(!p||!(p.warmup||[]).length) throw new Error('워밍업으로 낼 문항을 못 찾았습니다');
+  var p=pktOf(code);
+  if(!p) throw new Error('이 학생의 수업 자료가 없습니다 — 응시가 너무 적어 건너뛰었거나, 자료를 다시 안 심었습니다');
+  if(!(p.warmup||[]).length) throw new Error('워밍업으로 낼 문항이 없습니다 — 맞힌 문항이 파이널과 다 겹칩니다');
   var imgs={};
   await Promise.all(p.warmup.map(function(w){
     var u='crops/'+w.e+'/'+w.q+'.png';
@@ -1824,11 +1859,15 @@ async function makeWarmup(code){
   var miss=0;
   p.warmup.forEach(function(w,i){
     var u='crops/'+w.e+'/'+w.q+'.png';
-    b.push(K.P([K.run(String(i+1),{bold:true,size:24,color:K.TEAL}),
-                K.run('   '+(w.area||''),{bold:true,size:19,color:K.GOLD})],
-               {before:200,after:40,keepNext:true}));
-    if(imgs[u]) b.push(K.P([K.img(imgs[u],630)],{before:0,after:60,keepLines:true}));
-    else { b.push(K.txt('(그림을 못 받았습니다 — '+u+')',{color:K.MS,size:17})); miss++; }
+    /* 머리와 그림을 **한 문단**에 넣는다 — _w60item 과 같은 규칙이다.
+       K.img 는 이미 문단을 돌려주므로 그것을 또 K.P 로 감싸면 문단 안에
+       문단이 들어가고, 워드는 그 자리를 통째로 버린다(그림이 안 찍힌다). */
+    var hd=[K.run(String(i+1),{bold:true,size:24,color:K.TEAL}),
+            K.run('   '+(w.area||''),{bold:true,size:19,color:K.GOLD})];
+    if(imgs[u]) b.push(K.P(hd.concat([new K.TextRun({break:1}), _pkImgRun(K, imgs[u], 630)]),
+                           {before:200,after:60,keepLines:true}));
+    else { b.push(K.P(hd,{before:200,after:40,keepNext:true}));
+           b.push(K.txt('(그림을 못 받았습니다 — '+u+')',{color:K.MS,size:17})); miss++; }
     b.push(K.txt('답 (        )',{size:19,after:120}));
   });
   var blob=await K.Packer.toBlob(K.doc(nm+' 워밍업', b, nm+' · 워밍업 '+p.warmup.length+'제'));
@@ -1838,7 +1877,9 @@ async function makeWarmup(code){
 
 /* ── ② 내 함정 한 장 ─────────────────────────────────────────────────────── */
 async function makeTrapCard(code){
-  var p=pktOf(code); if(!p||!(p.trap||[]).length) throw new Error('실을 오개념을 못 찾았습니다');
+  var p=pktOf(code);
+  if(!p) throw new Error('이 학생의 수업 자료가 없습니다 — 응시가 너무 적어 건너뛰었거나, 자료를 다시 안 심었습니다');
+  if(!(p.trap||[]).length) throw new Error('실을 오개념이 없습니다');
   var K=await w60Kit(), nm=_pkName(code);
   var b=_pkHead(K, code, '내 함정 한 장');
   b.push(K.box('시험 직전 15분에 이것만 읽습니다. 새 개념은 보지 않습니다.\n'
@@ -1877,12 +1918,13 @@ async function makeFinalPaper(code){
   var miss=0;
   e.srcmap.forEach(function(m,i){
     var u='crops/'+m.e+'/'+m.q+'.png';
-    b.push(K.P([K.run(String(i+1),{bold:true,size:24,color:K.TEAL}),
-                K.run('   '+((e.area||[])[i]||''),{bold:true,size:19,color:K.GOLD}),
-                K.run('      답 (      )      확신도  ○  △  ✗',{size:18,color:K.MUTED})],
-               {before:200,after:40,keepNext:true}));
-    if(imgs[u]) b.push(K.P([K.img(imgs[u],630)],{before:0,after:80,keepLines:true}));
-    else { b.push(K.txt('(그림을 못 받았습니다 — '+u+')',{color:K.MS,size:17})); miss++; }
+    var hd=[K.run(String(i+1),{bold:true,size:24,color:K.TEAL}),
+            K.run('   '+((e.area||[])[i]||''),{bold:true,size:19,color:K.GOLD}),
+            K.run('      답 (      )      확신도  ○  △  ✗',{size:18,color:K.MUTED})];
+    if(imgs[u]) b.push(K.P(hd.concat([new K.TextRun({break:1}), _pkImgRun(K, imgs[u], 630)]),
+                           {before:200,after:80,keepLines:true}));
+    else { b.push(K.P(hd,{before:200,after:40,keepNext:true}));
+           b.push(K.txt('(그림을 못 받았습니다 — '+u+')',{color:K.MS,size:17})); miss++; }
   });
   var blob=await K.Packer.toBlob(K.doc(nm+' 파이널 시험지', b, nm+' · 파이널 '+e.nQ+'제 · 120분'));
   _saveBlob(blob, w60Safe(nm+'_파이널_'+e.nQ+'제_시험지_'+w60Ymd(Date.now()))+'.docx');
@@ -1891,7 +1933,8 @@ async function makeFinalPaper(code){
 
 /* ── ④ 진단표 (선생님용) ─────────────────────────────────────────────────── */
 async function makeDiagSheet(code){
-  var p=pktOf(code); if(!p) throw new Error('진단 자료가 없습니다');
+  var p=pktOf(code);
+  if(!p) throw new Error('이 학생의 진단 자료가 없습니다 — 응시가 너무 적어 건너뛰었거나, 자료를 다시 안 심었습니다');
   var K=await w60Kit(), nm=_pkName(code);
   var b=_pkHead(K, code, '누적 진단 · 선생님용');
   var w=[2400,2400,2400,2700];
@@ -1945,14 +1988,21 @@ async function makeDiagSheet(code){
   return {shaky:p.nShaky, always:p.nAlways};
 }
 
-/* 한 사람 몫 넉 장을 차례로. 한꺼번에 던지지 않는다 — 그림을 수백 장 받는다. */
+/* 한 사람 몫 다섯 장을 차례로. 한꺼번에 던지지 않는다 — 그림을 수백 장 받는다.
+   하나가 넘어져도 나머지는 낸다. 넘어진 것은 이름을 적어 돌려준다 — 무엇이
+   안 나왔는지 모르는 채로 인쇄하러 가면 안 된다. */
 async function makeAllFor(code){
-  var out={};
-  out.warm=await makeWarmup(code);
-  out.trap=await makeTrapCard(code);
-  out.paper=await makeFinalPaper(code);
-  out.diag=await makeDiagSheet(code);
-  out.study=await makeStudyFromFinal(EXAMS.filter(function(x){ return x.id===code; })[0]);
+  var out={done:0, fail:[]};
+  var jobs=[['warm','워밍업',function(){ return makeWarmup(code); }],
+            ['trap','함정카드',function(){ return makeTrapCard(code); }],
+            ['paper','시험지',function(){ return makeFinalPaper(code); }],
+            ['diag','진단표',function(){ return makeDiagSheet(code); }],
+            ['study','공부자료',function(){
+               return makeStudyFromFinal(EXAMS.filter(function(x){ return x.id===code; })[0]); }]];
+  for(var i=0;i<jobs.length;i++){
+    try{ out[jobs[i][0]]=await jobs[i][2](); out.done++; }
+    catch(e){ out.fail.push(jobs[i][1]+': '+(e&&e.message||e)); }
+  }
   return out;
 }
 

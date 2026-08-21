@@ -35,14 +35,18 @@ N_WARM = 6         # 워밍업 문항 수
 AREA_CAP = 2       # 한 영역이 워밍업을 다 먹지 못하게
 
 
-def load():
+def load(pin=None):
     exams = json.load(open(os.path.join(ROOT, 'exams.json'), encoding='utf-8'))
     by_title = {e['title']: e for e in exams}
     by_id = {e['id']: e for e in exams}
     gp = os.path.join(ROOT, 'student-final-groups.json')
     groups = json.load(open(gp, encoding='utf-8'))['groups'] if os.path.exists(gp) else []
     canon = {c: g['id'] for g in groups for c in g['codes']}
-    bfile, bk = G.latest_backup()
+    if pin:
+        bfile = os.path.join(ROOT, 'backup', pin)
+        bk = json.load(open(bfile, encoding='utf-8'))
+    else:
+        bfile, bk = G.latest_backup()
     sf = os.path.join(ROOT, 'student-finals.json')
     finals = {e['id']: e for e in json.load(open(sf, encoding='utf-8'))['exams']} \
         if os.path.exists(sf) else {}
@@ -75,7 +79,7 @@ def scan(by_title, by_id, canon, rows):
     S = defaultdict(lambda: {'items': [], 'types': defaultdict(
         lambda: {'c': 0, 'w': 0, 'b': 0, 'exw': set()}),
         'seg': [[0, 0, 0] for _ in range(5)], 'att': 0})
-    for (who, eid), r in sorted(latest.items(), key=lambda x: x[1].get('saved', '')):
+    for (who, eid), r in sorted(latest.items(), key=lambda x: (x[1].get('saved', ''), x[0])):
         e = by_id[eid]
         astr = r['answers']
         n = e['nQ']
@@ -152,12 +156,20 @@ def buckets(st):
     return shaky, always, stable
 
 
-def trap_lines(st):
+def trap_lines(st, final_entry=None):
     """함정 카드 — 한 영역이 카드를 다 먹으면 「내 약점 지도」가 아니라
-       그 단원 이야기가 된다. 영역을 돌아가며 담는다."""
+       그 단원 이야기가 된다. 영역을 돌아가며 담는다.
+
+       ⚠ **곧 풀 시험지에 실린 문항은 뺀다.** 파이널도 오답에서 고르고 함정
+       카드도 오답에서 뽑으므로 두 집합은 구조적으로 겹친다. 재어 보니 스무
+       줄 가운데 평균 열두 줄이 그 학생이 그날 풀 문항의 오개념이었다 —
+       시험 직전 15분에 읽으라고 주는 종이가 답을 미리 알려 주고 있었다."""
+    used = {(m['e'], int(m['q'])) for m in (final_entry.get('srcmap') or [])} \
+        if final_entry else set()
     rep = {t: len(d['exw']) for t, d in st['types'].items()}
     seen, by_area = set(), defaultdict(list)
-    for it in sorted((x for x in st['items'] if not x['ok'] and x['mis']),
+    for it in sorted((x for x in st['items'] if not x['ok'] and x['mis']
+                      and (x['e'], x['q']) not in used),
                      key=lambda x: -rep.get(x['typ'], 1)):
         k = re.sub(r'\s+', '', it['mis'])[:28]
         if k in seen:
@@ -216,13 +228,15 @@ def warmup(st, shaky, stable, final_entry, by_id):
     out = []
     for c in picks[:N_WARM]:
         e = by_id[c['e']]
+        # 정답은 안 싣는다. 이 파일은 **학생용 종이를 짓는 원천**이고 정적으로
+        # 배포된다 — 아무도 안 쓰는 정답키를 두면 언젠가 한 줄로 새어 나간다.
         out.append({'e': c['e'], 'q': c['q'], 'title': e['title'], 'area': c['area'],
-                    'concept': c['concept'], 'answer': G._acc(e, c['q'])})
+                    'concept': c['concept']})
     return out
 
 
-def build():
-    exams, by_title, by_id, canon, rows, bname, finals = load()
+def build(pin=None):
+    exams, by_title, by_id, canon, rows, bname, finals = load(pin)
     S = scan(by_title, by_id, canon, rows)
     packets = {}
     for code in sorted(S):
@@ -239,7 +253,7 @@ def build():
             'verdict': v, 'why': why, 'card': card,
             'shaky': shaky[:20], 'always': always[:15],
             'nShaky': len(shaky), 'nAlways': len(always), 'nStable': len(stable),
-            'trap': trap_lines(st),
+            'trap': trap_lines(st, finals.get(code)),
             'warmup': warmup(st, shaky, stable, finals.get(code), by_id),
         }
     return packets, bname
@@ -256,18 +270,35 @@ def dump(packets, bname):
 
 
 def main():
-    packets, bname = build()
     if '--check' in sys.argv:
+        # ⚠ **지금 백업이 아니라 심을 때 쓴 백업으로 잰다.**
+        #   백업은 봇이 하루 한 번 커밋하는데 그 커밋은 backup/*.json 하나만
+        #   바꾼다(파생물을 다시 안 심는다). 지금 백업으로 재면 사람이 아무것도
+        #   안 했는데 다음 날 아침 CI 가 빨개진다 — 매일.
+        #   이 자가 막는 것은 「심어 둔 것이 그때 그 자료와 어긋나는 것」이다.
+        #   백업이 새로 왔다는 것은 빨간불이 아니라 알림으로 적는다.
         if not os.path.exists(OUTFILE):
             print('✗ student-packets.json 이 없다 — --write 로 심는다')
             return 1
         now = open(OUTFILE, encoding='utf-8').read()
-        if now != dump(packets, bname):
-            print('✗ student-packets.json 이 지금 자료와 어긋난다 — --write 로 다시 심는다')
+        try:
+            pin = json.loads(now).get('source')
+        except Exception:
+            pin = None
+        if not pin or not os.path.exists(os.path.join(ROOT, 'backup', pin)):
+            print('✗ 심어 둔 자료가 어느 백업에서 나왔는지 알 수 없다 — --write 로 다시 심는다')
             return 1
-        print('✓ 수업 자료 %d명 — 누적 응시와 맞는다' % len(packets))
+        packets, bname = build(pin)
+        if now != dump(packets, bname):
+            print('✗ student-packets.json 이 %s 에서 다시 셈한 것과 어긋난다 — --write 로 다시 심는다' % pin)
+            return 1
+        newest = os.path.basename(G.latest_backup()[0])
+        print('✓ 수업 자료 %d명 — %s 와 맞는다' % (len(packets), pin))
+        if newest != pin:
+            print('· 백업이 새로 왔다(%s). 수업 전에 --write 로 다시 심으면 그날 응시까지 든다.' % newest)
         return 0
 
+    packets, bname = build()
     print('백업 %s · 학생 %d명' % (bname, len(packets)))
     print('%-14s%6s%7s%8s   %-9s %s' % ('코드', '회차', '문항', '정답률', '판정', '함정/워밍업'))
     for c, p in packets.items():
