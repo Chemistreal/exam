@@ -90,7 +90,7 @@
 | ✓ | `verify_status.py` | ○ | 밀 때마다 · 하루 한 번 | 해설을 **어디까지 사람이 봤는지** 세고, 뒤로 가지 않게 막는다. |
 | ✓ | `void_check.py` | ○ | 밀 때마다 · 하루 한 번 | 출제 뒤 **폐기된 문항**이 제대로 처리돼 있는지 본다 — `exams.json` 의 `voided`. |
 
-## 만드는 자 (16)
+## 만드는 자 (17)
 
 | | 자 | `--check` | 언제 돌리나 | 무엇을 |
 |---|---|---|---|---|
@@ -105,6 +105,7 @@
 | ✓ | `gen_omlib.py` | ○ | 밀 때마다 · 하루 한 번 | 오개념 라이브러리(OMLIB)를 **한 벌로** 맞춘다 — final.html 이 원본이다. |
 | ✓ | `gen_pool_index.py` | ○ | 밀 때마다 · 하루 한 번 · usnco-2026-report-upgrade.yml | 2400문항을 개념으로 찾을 수 있게 색인을 만든다 → `donghyung/index.json` |
 | ✓ | `gen_qmatrix_tags.py` | ○ | 밀 때마다 · 하루 한 번 | `qmatrix-editor.html` 이 품고 있는 **유형 태그 표**를 exams.json 에서 다시 뽑는다. |
+| ✓ | `gen_retry_pool.py` | ○ | 밀 때마다 · 하루 한 번 | 「즉시 재도전 10제」가 고를 문항 풀(`retry-pool.json`)을 만든다. |
 | ✓ | `gen_sol_page.py` | ○ | 밀 때마다 · 하루 한 번 · usnco-2026-report-upgrade.yml | `sol-final-<id>.html` 해설지를 `answers/<id>.json` 에서 만든다. |
 | ✓ | `gen_student_final.py` | ○ | 밀 때마다 · 하루 한 번 | 학생별 파이널 시험을 짓는다 — 한 사람이 곧 한 회차다. |
 | ✓ | `gen_student_packets.py` | ○ | 밀 때마다 · 하루 한 번 | 수업 한 벌에 필요한 것을 학생마다 미리 셈해 둔다 — student-packets.json. |
@@ -113,4 +114,4 @@
 
 ---
 
-자 95개 · 판에 걸린 것 78개 · `--check` 를 받는 것 65개 · 아무도 안 돌리는 것 0개 · 표에는 있는데 없는 자물쇠 0개
+자 96개 · 판에 걸린 것 79개 · `--check` 를 받는 것 66개 · 아무도 안 돌리는 것 0개 · 표에는 있는데 없는 자물쇠 0개

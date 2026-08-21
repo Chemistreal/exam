@@ -325,6 +325,26 @@ def check():
     return 0
 
 
+def publish():
+    """들인 뒤에 따라와야 하는 것들을 한 번에 돌린다.
+
+    답지만 심어 놓고 해설지 꼴(explanationHtml)과 해설지 화면을 안 만들면,
+    성적표는 새 글을 보여 주는데 해설지는 텅 비어 나온다 — 파일은 만들어지고
+    검사도 지나가므로 아무도 모른다.
+    """
+    import subprocess
+    doc, _ = load_finals()
+    ids = [e['id'] for e in doc['exams'] if _mine(e)]
+    subprocess.run([sys.executable, str(ROOT / 'tools' / 'gen_expl_html.py'), '--write'],
+                   check=True)
+    for i in ids:
+        subprocess.run([sys.executable, str(ROOT / 'tools' / 'gen_sol_page.py'), i, '--write'],
+                       check=True, capture_output=True)
+    for t in ('gen_retry_pool.py', 'gen_sw_version.py'):
+        subprocess.run([sys.executable, str(ROOT / 'tools' / t), '--write'], check=True)
+    print('뒤따르는 것까지 마쳤다 — 해설지 %d장 · 재도전 풀 · 서비스워커' % len(ids))
+
+
 def main():
     argv = sys.argv[1:]
     if '--check' in argv:

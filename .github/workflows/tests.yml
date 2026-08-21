@@ -626,6 +626,11 @@ jobs:
       - name: 선생님 PDF 시험지가 온전하다
         timeout-minutes: 5
         run: python3 tools/ingest_pdf_exam.py --check
+      # 「즉시 재도전 10제」가 고르는 문항 풀. 회차·답지가 바뀌면 같이 바뀌어야
+      # 한다 — 안 그러면 없는 문항을 골라 크롭이 안 뜬다.
+      - name: 재도전 문항 풀이 회차·답지와 맞는다
+        timeout-minutes: 5
+        run: python3 tools/gen_retry_pool.py --check
       - name: 시험끼리 겹치는 문항 (기준 목록 대비 새로 생긴 것)
         timeout-minutes: 5
         run: python3 tools/dh_dupe_scan.py --cross --baseline
