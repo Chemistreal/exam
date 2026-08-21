@@ -166,8 +166,9 @@ const LATER_ALLC = {
   chk('일부만 남은 문항', withQ.reduce((a, k) =>
     a + BASE[k].q.filter(o => o && o.reduce((x, y) => x + y, 0) !== BASE[k].n).length, 0), 8);
   /* 1214 → 1227 : 시트에서 KMChC 2025 제1차 심화(7명)·일반(6명)이 들어왔다.
-     이 수는 **줄면 걸리라고** 있는 것이라 늘 때는 같이 올린다 (2026-08-19). */
-  chk('기준 기록 인원', Object.keys(BASE).reduce((a, k) => a + BASE[k].n, 0), 1227);
+     이 수는 **줄면 걸리라고** 있는 것이라 늘 때는 같이 올린다 (2026-08-19).
+     1227 → 1235 : 기준 기록 자동 갱신 3회차(45bc2c1)로 8명이 들어왔다 (2026-08-21). */
+  chk('기준 기록 인원', Object.keys(BASE).reduce((a, k) => a + BASE[k].n, 0), 1235);
 }
 
 console.log('\n── 나중에 전원정답이 된 문항의 또래 정답률 ──');

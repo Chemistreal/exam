@@ -64,6 +64,12 @@ footer{margin-top:26px;text-align:center;font-size:11.5px;color:var(--muted)}
 .pdfframe{width:100%;height:74vh;min-height:440px;border:1px solid var(--line);border-radius:10px;margin-top:9px;background:#f3efe6}
 .pdftoggle{background:none;border:1.5px solid var(--line);border-radius:9px;color:var(--ink);font-size:13px;font-weight:600;padding:7px 11px;cursor:pointer}
 .pdfhidden .pdfframe{display:none}
+.pdfhidden .croplist{display:none}
+.croplist{margin-top:9px}
+.cropq{padding:9px 0;border-bottom:1px dashed var(--line)}
+.cropq:last-child{border-bottom:none}
+.cropq__n{font-size:12px;font-weight:700;color:var(--brass);margin-bottom:4px}
+.cropq img{display:block;max-width:100%;border:1px solid var(--line);border-radius:9px;background:#fff}
 /* 시험을 본 뒤 받아 가는 자료. final.html 성적표와 같은 모양으로 둔다 —
    같은 학생이 두 화면에서 다른 것을 보면 어느 쪽이 진짜인지 모른다. */
 a.pdf{display:inline-flex;align-items:center;gap:6px;color:var(--teal);font-weight:600;text-decoration:none;font-size:14px}
@@ -116,6 +122,24 @@ async function loadExams(){
     return FALLBACK_EXAMS.slice();
   }
   return null;
+}
+
+/* 학생별 파이널 — exams.json 이 아니라 student-finals.json 에 산다.
+   목록·예비본·계수 검사는 exams.json 만 세므로(tests/exams-fallback.js),
+   이 배열은 FINAL_EXAMS 에 섞지 않고 직링크 해석에만 쓴다.
+   tools/gen_student_final.py 가 짓는다. */
+var STUDENT_FINALS=[];
+async function loadStudentFinals(){
+  try{
+    var r=await fetch('student-finals.json',{cache:'no-store'});
+    if(r.ok){ var j=await r.json(); STUDENT_FINALS=(j&&j.exams)||[]; }
+  }catch(e){}
+  return STUDENT_FINALS;
+}
+function examById(id){
+  return FINAL_EXAMS.find(function(e){ return e.id===id; })
+      || STUDENT_FINALS.find(function(e){ return e.id===id; })
+      || null;
 }
 
 const RXMAP={'원자의구조':'원자모형','전자기파':'원자모형','수소스펙트럼':'원자모형','전자배치':'원자모형','양자수':'원자모형','원소의기원':'원자모형','방사성붕괴':'원자모형','원자반지름':'주기율','원자의크기':'주기율','이온화에너지':'주기율','전기음성도':'주기율','반응성':'주기율','분자오비탈':'분자의모양','혼성오비탈':'분자의모양','분자의구조':'분자의모양','쌍극자모멘트':'분자의모양','화학결합':'분자의모양','옥텟규칙':'분자의모양','수소결합':'분자간인력','끓는점':'분자간인력','모세관현상':'분자간인력','화학식량':'몰과양적관계','계수맞추기':'몰과양적관계','몰과질량':'몰과양적관계','몰과부피':'몰과양적관계','몰과개수':'몰과양적관계','양적관계':'몰과양적관계','수득률':'몰과양적관계','원소분석장치':'몰과양적관계','성분원소의확인':'몰과양적관계','분자운동속도':'기체','실제기체':'기체','용해도':'액체,용액','삼투압':'액체,용액','상평형':'액체,용액','용액의총괄성':'액체,용액','총괄성':'액체,용액','용액의농도':'액체,용액','농도환산':'액체,용액','액체':'액체,용액','고체의구조':'고체','고체의밀도':'고체','탄소동소체':'고체','틈새형자리':'고체','엔탈피':'열화학','결합에너지':'열화학','헤스법칙':'열화학','깁스자유에너지':'열화학','엔트로피':'열화학','생성엔탈피':'열화학','연소엔탈피':'열화학','에너지':'열화학','열역학':'열화학','평형상수':'화학평형','평형농도':'화학평형','용해평형':'화학평형','조건반대':'화학평형','앙금생성':'화학평형','pH':'산과염기','염의가수분해':'산과염기','물의자동이온화':'산과염기','이온화상수':'산과염기','완충용액':'산과염기','염의액성':'산과염기','액성':'산과염기','헨더슨하셀바흐식':'산과염기','이온화도':'산과염기','산의세기':'산과염기','지시약':'중화반응','다양성자산의적정':'중화반응','산화수':'산화환원','전지':'산화환원','전기분해':'산화환원','기전력':'산화환원','전기화학':'산화환원','산화환원반응':'산화환원','반응차수':'반응속도','속도론':'반응속도','메커니즘':'반응속도','촉매':'반응속도','속도상수':'반응속도','이성질체':'탄소화합물','아미노산':'탄소화합물','DNA':'탄소화합물','탄화수소유도체':'탄소화합물','용액':'액체,용액','물질의분리':'액체,용액','원자핵':'원자모형','원소':'원자모형'};
@@ -171,7 +195,7 @@ const allcSet=e=>{ const s=new Set((e&&e.miss)||[]);
   return s; };
 const okq=(e,q,a)=>allc(e,q)||accSet(e,q).indexOf(a)>=0;
 const SHEET_ENDPOINT='https://script.google.com/macros/s/AKfycbxGmSCkip0cQCyOH_JA2SiAMSxri00XObLmHyXlyXwxhG7u7w-x0FH02VN4DQySiUsv9Q/exec';
-function finalPenalty(exam){ var g=(exam&&exam.group)||''; return (g==='JMChC'||g==='산과염기')?0:1; }
+function finalPenalty(exam){ var g=(exam&&exam.group)||''; return (g==='JMChC'||g==='산과염기'||g==='파이널')?0:1; }
 function finalRawScore(exam, correct, wrongList){
   var pen=finalPenalty(exam);
   var wrongAns=(wrongList||[]).filter(function(w){ return w&&w.a>=1&&w.a<=4; }).length;
@@ -242,7 +266,7 @@ function renderList(){
   let h='<div class="brand">Chemistreal · 조준모 화학</div><h1>답안 제출</h1>'
     +'<div class="hint">시험을 고르고 이름·학교·답안을 입력하면 자동 채점되어 선생님께 제출됩니다.</div><div class="exlist">';
   GROUPS.forEach(([g,label])=>{
-    const list=FINAL_EXAMS.filter(e=>e.group===g);
+    const list=FINAL_EXAMS.filter(e=>e.group===g&&!e.hidden);
     if(!list.length) return;
     h+='<div class="g">'+esc(label)+'</div>';
     list.forEach(e=>{ const nQ=e.nQ||(e.key?e.key.length:0);
@@ -250,6 +274,26 @@ function renderList(){
   });
   h+='</div><footer>Chemistreal Final · 학생 제출용</footer>';
   app.innerHTML=h; window.scrollTo(0,0);
+}
+
+/* 학생별 파이널처럼 문제지 PDF 가 없는 회차 — srcmap 이 문항마다 원본 회차의
+   크롭(crops/<회차>/<번호>.png)을 가리키므로, 그 그림들을 시험지로 펼쳐 준다.
+   srcmap[n-1] = {e:'hwol-2018', q:34} 꼴. 이 함수와 problemPanel 은 공유 블록
+   밖이라 final.html 과 맞출 의무가 없다(tests/final-submit-sync.js 대상 아님). */
+function cropsPanel(exam){
+  if(!exam.srcmap||!exam.srcmap.length) return '';
+  let rows='';
+  for(let q=1;q<=(exam.nQ||exam.srcmap.length);q++){
+    const m=exam.srcmap[q-1]; if(!m) continue;
+    rows+='<div class="cropq"><div class="cropq__n">'+q+'번</div>'
+      +'<img loading="lazy" src="crops/'+esc(m.e)+'/'+(+m.q)+'.png" alt="'+q+'번 문항"></div>';
+  }
+  return '<div class="card pdfcard" id="pdfcard">'
+    +'<div class="pdfbar"><label>📝 시험지 · 먼저 풀어 보세요</label>'
+    +'<span style="display:flex;gap:7px"><button type="button" class="pdftoggle" onclick="togglePdf()" id="pdftgl">접기</button></span></div>'
+    +'<div class="hint">이 시험지는 나를 위해 만들어진 문제들입니다. 문제를 읽고 아래에 답안을 입력해 제출하세요.</div>'
+    +'<div class="croplist">'+rows+'</div>'
+    +'</div>';
 }
 
 /* 문제지 PDF 뷰어(있을 때만). 데스크톱은 인라인, 모바일은 '전체 화면으로 열기'로 네이티브 뷰어 */
@@ -269,7 +313,7 @@ function togglePdf(){ const c=document.getElementById('pdfcard'), b=document.get
 
 function openExam(id){
   SUBMITTING=false;
-  cur=FINAL_EXAMS.find(e=>e.id===id); sel={};
+  cur=examById(id); sel={};
   const nQ=cur.nQ||cur.key.length; const ac=allcSet(cur);
   /* 전원정답(삭제·취소) 문항. 칸은 잠그지 않는다 — 답안을 한 번에 붙여 넣을 때
      잠긴 칸이 있으면 그 뒤 문항이 통째로 한 칸씩 밀린다. 비워 두어도 정답이다. */
@@ -280,7 +324,7 @@ function openExam(id){
   }
   app.innerHTML=(LOCKED?'<div class="brand">Chemistreal · 조준모 화학</div>':'<button class="back" onclick="renderList()">‹ 시험 목록</button>')
     +'<h1 style="font-size:18px">'+esc(cur.title)+'</h1>'
-    +problemPanel(cur)
+    +((cur.srcmap&&cur.srcmap.length)?cropsPanel(cur):problemPanel(cur))
     +'<div id="draftnote"></div>'
     +'<div class="card"><label for="nm">이름 *</label><input class="txt" id="nm" autocomplete="off" oninput="saveDraft()">'
     +'<div class="row2"><div><label for="sch">학교 *</label><input class="txt" id="sch" autocomplete="off" oninput="saveDraft()"></div>'
@@ -403,7 +447,7 @@ function boot(){
   let id=null;
   try{ id=new URLSearchParams(location.search).get('exam'); }catch(e){}
   if(!id){ const m=location.hash.match(/exam=([\w-]+)/); if(m)id=m[1]; }
-  if(id && FINAL_EXAMS.some(e=>e.id===id)){ LOCKED=true; openExam(id); return; }
+  if(id && examById(id)){ LOCKED=true; openExam(id); return; }
   /* 링크로 들어온 게 아니면, 쓰다 만 답안이 있는 시험을 자동으로 다시 연다.
      임시 저장은 원래도 있었지만 시험 **id 로** 저장돼서, 학생이 실수로 새로
      고치면 시험 목록으로 떨어지고 자기가 무슨 회차를 풀던 중이었는지 스스로
@@ -420,7 +464,7 @@ function lastDraftId(){
       var k=localStorage.key(i);
       if(k.indexOf(DRAFT_PFX)!==0) continue;
       var id=k.slice(DRAFT_PFX.length);
-      if(!FINAL_EXAMS.some(function(e){return e.id===id;})) continue;
+      if(!examById(id)) continue;
       var d=JSON.parse(localStorage.getItem(k)||'null');
       if(d&&d.sel&&Object.keys(d.sel).length&&(d.ts||0)>bestTs){ bestTs=d.ts||0; best=id; }
     }
@@ -430,6 +474,7 @@ function lastDraftId(){
 /* 시험 목록을 받아 온 뒤에 화면을 그린다. */
 async function start(){
   FINAL_EXAMS=await loadExams();
+  await loadStudentFinals();
   if(!FINAL_EXAMS){
     var app=document.getElementById('app');
     if(app) app.innerHTML='<div class="card" style="border-color:#B0512F;color:#8a2f1d">'
