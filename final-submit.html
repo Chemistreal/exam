@@ -331,9 +331,9 @@ function pickHTML(){
   codes.forEach(function(c){
     var nm=NC[c].name||c;
     h+='<div class="pickrow"><div class="pickname">'+esc(nm)+'</div><div class="pickbtns">';
-    var LAB={'-2':'변형본 60제','-3':'실전 30제','-4':'즉시 재도전 10제','':'누적 파이널'};
+    var LAB={'-2':'변형본 60제','-3':'실전 30제','-4':'즉시 재도전 10제','':'파이널 60제'};
     examsOf(c).forEach(function(e){
-      var lab=LAB[e.id.slice(c.length)]||String(e.title||'').split(' · ')[0];
+      var lab=e.short||LAB[e.id.slice(c.length)]||String(e.title||'').split(' · ')[0];
       h+='<button class="exbtn pick" onclick="openExam(\''+e.id+'\')">'
         +'<span>'+esc(lab)+'</span><small>'+(e.nQ||(e.key?e.key.length:0))+'문항</small></button>';
     });
