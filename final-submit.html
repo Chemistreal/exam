@@ -243,6 +243,41 @@ function hashStrFinal(cur,sel,nm,exno){ let num=0n; for(let q=cur.nQ;q>=1;q--){ 
    /SHARED — 아래는 학생 제출 페이지 전용
    ====================================================================== */
 const GROUPS=[['JMChC','JMChC 모의고사'],['동형','기출 동형'],['산과염기','산·염기 집중'],['USNCO','USNCO National Exam'],['2026','KMChC 2026'],['2025','KMChC 2025'],['2024','KMChC 2024'],['이전','KMChC 이전 기출']];
+
+/* ══ 즉시 재도전 10제 · 봉투 ═══════════════════════════════════════════
+   방금 채점한 시험에서 **틀린 문항의 개념**만 모아, 같은 개념의 다른 문항
+   열 개를 그 자리에서 뽑아 준다. 회차 파일을 새로 만들지 않는다 — 시험
+   한 벌을 통째로 **주소에 싣고**(`#x=`) 두 화면이 그것을 풀어 읽는다.
+   그래서 저장소에 남는 것이 없고, 링크를 받은 기기 어디서나 열린다.
+
+   문항은 `retry-pool.json`(exams.json 2500문항)에서 고른다. 그 문항들은
+   크롭이 이미 다 있어서 재도전 시험지가 그림을 빌려 쓴다 —
+   srcmap 이 그 자리를 가리킨다. */
+function retryB64(o){
+  return btoa(unescape(encodeURIComponent(JSON.stringify(o))))
+    .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function retryCut(n){
+  var b=[0,5,9,14,18], o=[0];
+  for(var i=1;i<5;i++) o.push(Math.max(i, Math.round(b[i]*n/60)));
+  return o;
+}
+function retryParse(){
+  try{
+    var m=(location.hash+' '+location.search).match(/[#?&]x=([A-Za-z0-9_-]+)/);
+    if(!m) return null;
+    window.__retryRaw=m[1];
+    var o=JSON.parse(decodeURIComponent(escape(
+      atob(m[1].replace(/-/g,'+').replace(/_/g,'/')))));
+    if(!o||!o.k||!o.s||o.k.length!==o.s.length||!o.k.length) return null;
+    var n=o.k.length;
+    return {id:o.i||'retry', title:o.t||('즉시 재도전 '+n+'제'), group:'파이널',
+      hidden:true, nQ:n, mode:'auto', cut:retryCut(n),
+      key:o.k.map(Number), miss:[], area:(o.a||[]).slice(), type:(o.a||[]).slice(),
+      srcmap:o.s.map(function(p){ return {e:p[0], q:+p[1]}; }),
+      short:'즉시 재도전 '+n+'제', retry:true};
+  }catch(e){ return null; }
+}
 const app=document.getElementById('app');
 let cur=null, sel={}, LOCKED=false, SUBMITTING=false;
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
@@ -522,7 +557,9 @@ function submitAns(){
 
   // 다른 회차와 동일한 전체 진단 성적표 엔진으로 바로 이어 준다.
   // 축약 showResult는 네트워크/내비게이션 예외 때만 남겨 두는 안전망이다.
-  const reportUrl=shareLink(cur,sel,nm);
+  /* 「즉시 재도전」 은 저장소에 없는 회차다 — 성적표도 봉투를 받아야 채점한다 */
+  const reportUrl=shareLink(cur,sel,nm)
+    + ((cur&&cur.retry&&window.__retryRaw)?('&x='+window.__retryRaw):'');
   try{ location.assign(reportUrl); return; }catch(e){}
   showResult(nm,sch,cur,correct,total,pct,rs,wrong);
 }
@@ -587,6 +624,10 @@ function lastDraftId(){
 async function start(){
   FINAL_EXAMS=await loadExams();
   await loadStudentFinals();
+  /* 주소에 실려 온 「즉시 재도전」 시험을 목록에 끼워 넣는다.
+     저장소에 없는 회차라, 이것을 안 하면 examById 가 못 찾는다. */
+  var _rt=retryParse();
+  if(_rt) STUDENT_FINALS.push(_rt);
   if(!FINAL_EXAMS){
     var app=document.getElementById('app');
     if(app) app.innerHTML='<div class="card" style="border-color:#B0512F;color:#8a2f1d">'
@@ -595,6 +636,7 @@ async function start(){
     return;
   }
   boot();
+  if(_rt && !/[?&]exam=/.test(location.search)) openExam(_rt.id);
 }
 start();
 

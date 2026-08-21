@@ -1892,6 +1892,204 @@ function openExam(id){
 
    이름표는 저장소에 없다 — 이 브라우저의 표에서 온다(weak60 에서 붙여넣은
    것이거나, 「이름 버튼 링크」를 한 번 열었을 때 남은 것). */
+
+/* ══ 즉시 재도전 10제 · 봉투 ═══════════════════════════════════════════
+   방금 채점한 시험에서 **틀린 문항의 개념**만 모아, 같은 개념의 다른 문항
+   열 개를 그 자리에서 뽑아 준다. 회차 파일을 새로 만들지 않는다 — 시험
+   한 벌을 통째로 **주소에 싣고**(`#x=`) 두 화면이 그것을 풀어 읽는다.
+   그래서 저장소에 남는 것이 없고, 링크를 받은 기기 어디서나 열린다.
+
+   문항은 `retry-pool.json`(exams.json 2500문항)에서 고른다. 그 문항들은
+   크롭이 이미 다 있어서 재도전 시험지가 그림을 빌려 쓴다 —
+   srcmap 이 그 자리를 가리킨다. */
+function retryB64(o){
+  return btoa(unescape(encodeURIComponent(JSON.stringify(o))))
+    .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function retryCut(n){
+  var b=[0,5,9,14,18], o=[0];
+  for(var i=1;i<5;i++) o.push(Math.max(i, Math.round(b[i]*n/60)));
+  return o;
+}
+function retryParse(){
+  try{
+    var m=(location.hash+' '+location.search).match(/[#?&]x=([A-Za-z0-9_-]+)/);
+    if(!m) return null;
+    window.__retryRaw=m[1];
+    var o=JSON.parse(decodeURIComponent(escape(
+      atob(m[1].replace(/-/g,'+').replace(/_/g,'/')))));
+    if(!o||!o.k||!o.s||o.k.length!==o.s.length||!o.k.length) return null;
+    var n=o.k.length;
+    return {id:o.i||'retry', title:o.t||('즉시 재도전 '+n+'제'), group:'파이널',
+      hidden:true, nQ:n, mode:'auto', cut:retryCut(n),
+      key:o.k.map(Number), miss:[], area:(o.a||[]).slice(), type:(o.a||[]).slice(),
+      srcmap:o.s.map(function(p){ return {e:p[0], q:+p[1]}; }),
+      short:'즉시 재도전 '+n+'제', retry:true};
+  }catch(e){ return null; }
+}
+
+/* ── 즉시 재도전 10제 · 고르기 ─────────────────────────────────────────
+   「틀린 문항의 개념만 모아, 같은 개념의 다른 문항 열 개를」 이 규칙이다.
+
+   무엇을 고르나
+     ① 그 학생이 방금 틀린 **영역**(많이 틀린 영역부터)
+     ② 그 안에서 **같은 유형**을 먼저, 없으면 같은 영역
+     ③ 공식 정답률 20~60% 를 먼저 — 너무 쉬우면 배울 것이 없고, 너무
+        어려우면 꺾인다. 그 띠 안에서는 어려운 것부터 세운다
+     ④ 한 영역에서 둘까지(영역이 다섯 미만이면 셋까지) — 한 영역만
+        열 문제 주면 재도전이 아니라 그 단원 문제집이다
+     ⑤ 방금 푼 시험의 문항은 다시 안 준다
+
+   고른 열 개는 회차 파일이 되지 않는다. 시험 한 벌을 **주소에 실어**
+   보낸다(`#x=`) — 저장소에 남는 것이 없고, 링크를 받은 기기 어디서나 열린다. */
+var RETRY_POOL=null;
+async function retryPool(){
+  if(RETRY_POOL) return RETRY_POOL;
+  try{
+    var r=await fetch('retry-pool.json',{cache:'no-store'});
+    if(!r.ok) return null;
+    var d=await r.json();
+    RETRY_POOL=(d&&d.q)||null;
+    return RETRY_POOL;
+  }catch(e){ return null; }
+}
+/* 0 맞춤(20~60%) · 1 너무 어려움(<20%) · 2 정답률 모름 · 3 너무 쉬움(>60%)
+   「모르는 것」을 「쉬운 줄 아는 것」보다 앞에 둔다 — 정답률 80% 문항을
+   재도전에 넣으면 다 맞히고 배우는 것이 없다. */
+function retryBand(x){
+  if(typeof x.r!=='number') return 2;
+  if(x.r>=20&&x.r<=60) return 0;
+  return x.r<20?1:3;
+}
+function retryCompose(cur, wrongQs, pool, n){
+  n=n||10;
+  var used={};
+  (cur.srcmap||[]).forEach(function(m){ used[m.e+'#'+m.q]=1; });
+  var order=[], cnt={};
+  wrongQs.forEach(function(q){
+    var a=(cur.area||[])[q-1]||'', t=(cur.type||[])[q-1]||'';
+    if(!a) return;
+    if(!cnt[a]){ cnt[a]={n:0,t:{}}; order.push(a); }
+    cnt[a].n++; if(t) cnt[a].t[t]=1;
+  });
+  if(!order.length) return null;
+  order.sort(function(x,y){ return cnt[y].n-cnt[x].n; });
+  var byArea={};
+  order.forEach(function(a){
+    var ts=cnt[a].t;
+    byArea[a]=pool.filter(function(x){ return (x.a===a)||(x.t&&ts[x.t]); })
+      .filter(function(x){ return !used[x.e+'#'+x.q]; })
+      .sort(function(p,q2){
+        var bp=retryBand(p), bq=retryBand(q2);
+        if(bp!==bq) return bp-bq;
+        var tp=(p.t&&ts[p.t])?0:1, tq=(q2.t&&ts[q2.t])?0:1;
+        if(tp!==tq) return tp-tq;
+        return ((typeof p.r==='number')?p.r:50)-((typeof q2.r==='number')?q2.r:50);
+      });
+  });
+  var take=[], cap=(order.length>=5?2:3), guard=0;
+  while(take.length<n && guard++<40){
+    var moved=false;
+    for(var i=0;i<order.length&&take.length<n;i++){
+      var a=order[i], list=byArea[a]||[];
+      if(take.filter(function(x){ return x.a===a; }).length>=cap) continue;
+      var pick=null;
+      while(list.length){ var c=list.shift(); if(!used[c.e+'#'+c.q]){ pick=c; break; } }
+      if(!pick) continue;
+      used[pick.e+'#'+pick.q]=1; take.push(pick); moved=true;
+    }
+    if(!moved){ cap++; if(cap>6) break; }
+  }
+  return take.length?take:null;
+}
+async function retryMake(){
+  var qs=window.__retryWrong||[];
+  if(!cur||!qs.length) return null;
+  var pool=await retryPool();
+  if(!pool){ fToast('문항 풀(retry-pool.json)을 못 받았습니다'); return null; }
+  var take=retryCompose(cur, qs, pool, 10);
+  if(!take){ fToast('같은 개념의 다른 문항을 못 찾았습니다'); return null; }
+  var code=pickCodeOf(cur.id)||cur.id;
+  var o={ i:code+'-r', t:'즉시 재도전 '+take.length+'제 · '+code,
+    k:take.map(function(x){ return x.k; }),
+    a:take.map(function(x){ return x.a; }),
+    s:take.map(function(x){ return [x.e, x.q]; }) };
+  return { take:take, url: siteBase()+'final-submit.html#x='+retryB64(o) };
+}
+function retryShow(r){
+  var el=document.getElementById('retryOut'); if(!el||!r) return;
+  var seen={}, areas=[];
+  r.take.forEach(function(x){ if(!seen[x.a]){ seen[x.a]=1; areas.push(x.a); } });
+  el.innerHTML='<b>'+r.take.length+'문항</b> · '+esc(areas.join(' · '))
+    +'<div style="margin-top:6px;font-size:12.5px">'
+    +r.take.map(function(x,i){
+        return (i+1)+'. '+esc(x.a)+' <span class="muted">('+esc(x.e)+' '+x.q+'번'
+          +(typeof x.r==='number'?(' · 정답률 '+x.r+'%'):'')+')</span>';
+      }).join('<br>')+'</div>';
+}
+async function retryGo(){
+  var r=await retryMake(); if(!r) return;
+  retryShow(r);
+  window.open(r.url,'_blank','noopener');
+}
+async function retryCopy(){
+  var r=await retryMake(); if(!r) return;
+  retryShow(r);
+  var ok=function(){ fToast('재도전 '+r.take.length+'제 링크 복사됨'); };
+  if(navigator.clipboard&&navigator.clipboard.writeText)
+    navigator.clipboard.writeText(r.url).then(ok).catch(function(){ fallbackCopy(r.url,ok); });
+  else fallbackCopy(r.url,ok);
+}
+function retrySec(cur, wrong){
+  if(!cur||cur.retry) return '';
+  var qs=(wrong||[]).map(function(w){ return (w&&w.q)||0; }).filter(Boolean);
+  window.__retryWrong=qs;
+  if(qs.length<3) return '';
+  return '<div class="sec"><h3>즉시 재도전 10제</h3>'
+    +'<p class="muted" style="margin:2px 0 10px">틀린 <b>'+qs.length+'문항</b>의 개념만 모아, '
+    +'기출 2500문항에서 <b>같은 개념의 다른 문항 열 개</b>를 그 자리에서 뽑습니다. '
+    +'한 영역에 몰리지 않게 나누고, 정답률 20~60% 를 먼저 씁니다.</p>'
+    +'<div class="toolbar" style="margin:0"><button class="btn" onclick="retryGo()">재도전 10제 만들기 →</button>'
+    +'<button class="btn ghost sm" onclick="retryCopy()">링크 복사 ⧉</button></div>'
+    +'<div id="retryOut" class="muted" style="margin-top:9px"></div></div>';
+}
+
+
+/* ── 답지 받기 — 「즉시 재도전」은 원본 회차에서 모아 온다 ─────────────
+   재도전 시험은 저장소에 회차 파일이 없다. 그래서 `answers/<id>.json` 도
+   없고, 그대로 두면 오답노트가 통째로 빈다 — 왜 틀렸는지가 안 나온다.
+   srcmap 이 문항마다 원본 회차와 번호를 들고 있으므로, 그 회차들의 답지를
+   받아 번호만 갈아 끼운다. 회차 열 개 안쪽이라 한 번에 받는다. */
+async function answersOf(exam){
+  if(!exam) return {};
+  if(!(exam.retry && (exam.srcmap||[]).length)){
+    try{
+      var r=await fetch('answers/'+exam.id+'.json',{cache:'no-store'});
+      if(!r.ok) return {};
+      var a=await r.json();
+      return a.questions||a||{};
+    }catch(e){ return {}; }
+  }
+  var ids={}; exam.srcmap.forEach(function(m){ ids[m.e]=1; });
+  var list=Object.keys(ids), got={};
+  try{
+    var rs=await Promise.all(list.map(function(id){
+      return fetch('answers/'+id+'.json',{cache:'no-store'})
+        .then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; });
+    }));
+    rs.forEach(function(j,i){ if(j) got[list[i]]=j.questions||j; });
+  }catch(e){}
+  var out={};
+  exam.srcmap.forEach(function(m,i){
+    var src=(got[m.e]||{})[String(m.q)];
+    if(!src) return;
+    var c={}; for(var k in src) if(Object.prototype.hasOwnProperty.call(src,k)) c[k]=src[k];
+    c.sourceSolution=(c.sourceSolution?c.sourceSolution+' · ':'')+'원문 '+m.e+' '+m.q+'번';
+    out[String(i+1)]=c;
+  });
+  return out;
+}
+
 function pickNC(){
   try{
     var m=(location.hash+' '+location.search).match(/[#?&]n=([A-Za-z0-9_-]+)/);
@@ -5814,8 +6012,8 @@ async function hydrateWrongbook(exam,wrong){
   var root=document.getElementById('wrongbook'); if(!root)return;
   var answers={}, analogues={};
   try{
-    var responses=await Promise.all([fetch('answers/'+exam.id+'.json',{cache:'no-store'}),loadAnalogues(exam.id)]);
-    if(responses[0].ok){var a=await responses[0].json();answers=a.questions||a;}
+    var responses=await Promise.all([answersOf(exam),loadAnalogues(exam.id)]);
+    answers=responses[0]||{};
     analogues=responses[1]||{};
   }catch(e){}
   var cards=root.querySelector('[data-wb-cards]'); if(!cards) return;
@@ -5996,6 +6194,7 @@ function scoreAuto(again){
    <div class="sec"><h3>시험지 · 해설 내려받기</h3>
      <p class="muted" style="margin:2px 0 8px">틀린 문항을 문제지에서 다시 읽고, 해설로 확인하세요.</p>
      ${examMaterialsHTML(cur)}</div>
+   ${retrySec(cur,wrong)}
    ${nextStudentSec(cur)}
    </div>
    ${/* ⚠ `공유용 HTML 저장` 은 **선생님 단추**다. 학부모는 이미 받은 사람이라
@@ -6246,9 +6445,9 @@ async function downloadReportPDF(){
   // 미리 검증·저장한 원문 해설 및 동형문제 데이터(실행 중 외부 API 호출 없음)
   var dh={}, answers={};
   try{
-    var _rs=await Promise.all([loadAnalogues(cur.id),fetch('answers/'+cur.id+'.json',{cache:'no-store'})]);
+    var _rs=await Promise.all([loadAnalogues(cur.id),answersOf(cur)]);
     dh=_rs[0]||{};
-    if(_rs[1].ok){var _aa=await _rs[1].json();answers=_aa.questions||_aa;}
+    answers=_rs[1]||{};
   }catch(e){}
   // 이전 인쇄용 컨테이너가 남아 있으면 정리
   var prev=document.getElementById('bookPDF'); if(prev&&prev.parentNode) prev.parentNode.removeChild(prev);
@@ -6417,9 +6616,9 @@ async function downloadReportDOCX(){
   var wrong=(window.__fw||[]); var W=wrong.length;
   var cs; try{ cs=cohortStats(cur); }catch(e){ cs={percReady:false}; }
   var dh={}, answers={};
-  try{ var _rs=await Promise.all([loadAnalogues(cur.id),fetch('answers/'+cur.id+'.json',{cache:'no-store'})]);
+  try{ var _rs=await Promise.all([loadAnalogues(cur.id),answersOf(cur)]);
     dh=_rs[0]||{};
-    if(_rs[1].ok){var _aa=await _rs[1].json();answers=_aa.questions||_aa;} }catch(e){}
+    answers=_rs[1]||{}; }catch(e){}
   var R=window.__rpt||{}, nm=R.name||'', sch=R.school||'', grd=R.grade||'';
   var cut=effCut(cur)||[0,4,9,13,18];
   var rs=finalRawScore(cur, correct, wrong||[]), rawMax=total*3;
@@ -7501,6 +7700,10 @@ document.addEventListener('click', function(e){
 async function start(){
   FINAL_EXAMS=await loadExams();
   await loadStudentFinals();
+  /* 주소에 실려 온 「즉시 재도전」 시험을 목록에 끼워 넣는다.
+     저장소에 없는 회차라, 이것을 안 하면 examById 가 못 찾는다. */
+  var _rt=retryParse();
+  if(_rt) STUDENT_FINALS.push(_rt);
   await loadBaseline();          // 석차 모집단. 없어도 진행한다(그때는 예전처럼 이 브라우저 기록만 본다).
   if(!FINAL_EXAMS){
     // 여기까지 오면 정말 아무 데도 없다. 빈 화면 대신 이유를 보여 주고 스스로
