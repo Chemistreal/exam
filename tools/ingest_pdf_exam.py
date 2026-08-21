@@ -25,7 +25,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 
-from ingest_teacher_exam import crop_one                      # noqa: E402
+from ingest_teacher_exam import trim_white                    # noqa: E402
 from ingest_hwpx_exam import (answers_json, cut_of, load_finals,   # noqa: E402
                               MIS_SPLIT, SHELL, TAILER, LEAD, check)
 
@@ -34,6 +34,75 @@ LEVEL = re.compile(r'^(변형|난이도\s*[상중하])$')
 STOP = re.compile(r'^(빠른\s*정답|PART|답안지)$')
 OUTRO = re.compile(r'^(마\s*감\s*카\s*드|여기까지 온 것만으로)')
 CIRCLED = '①②③④⑤'
+
+
+# ── 크롭 ────────────────────────────────────────────────────────────────
+RENDER_SCALE = 4
+IMG_W = 955
+FOOT = re.compile(r'^\d{1,3}$')
+
+
+def bands(doc):
+    """쪽마다 글이 실제로 있는 위쪽·아래쪽. 쪽번호는 뺀다.
+
+    문항이 쪽을 넘어가면 두 조각을 이어 붙이는데, 조각을 쪽 끝까지 잡으면
+    가운데에 **여백과 쪽번호**가 그대로 낀다. 실제로 「지문은 7쪽 맨 아래,
+    선지는 8쪽 맨 위」인 문항이 가운데에 '7' 을 달고 나왔다.
+    """
+    out = []
+    for page in doc:
+        ys = []
+        for blk in page.get_text('dict').get('blocks', []):
+            for ln in blk.get('lines', []):
+                t = ''.join(sp.get('text', '') for sp in ln.get('spans', [])).strip()
+                if not t:
+                    continue
+                b = ln['bbox']
+                if FOOT.match(t) and b[1] > page.rect.height * 0.88:
+                    continue                      # 쪽번호
+                ys.append((b[1], b[3]))
+        if ys:
+            out.append((min(y[0] for y in ys) - 4, max(y[1] for y in ys) + 4))
+        else:
+            out.append((page.rect.y0, page.rect.y1))
+    return out
+
+
+def crop_pdf(doc, band, start, end, out_path, pymupdf):
+    """한 문항을 그림으로. 쪽을 넘어가면 글이 있는 데까지만 이어 붙인다."""
+    from PIL import Image
+    mat = pymupdf.Matrix(RENDER_SCALE, RENDER_SCALE)
+    p0, y0 = start['page'], start['y']
+    p1, y1 = (end['page'], end['y']) if end else (doc.page_count - 1, None)
+    pieces = []
+    for pi in range(p0, p1 + 1):
+        page = doc[pi]
+        bt, bb = band[pi]
+        top = (y0 - 4) if pi == p0 else bt
+        bot = (y1 - 2) if (end and pi == p1) else bb
+        top, bot = max(top, page.rect.y0), min(bot, page.rect.y1)
+        if bot - top < 6:
+            continue
+        pm = page.get_pixmap(matrix=mat, alpha=False,
+                             clip=pymupdf.Rect(page.rect.x0, top, page.rect.x1, bot))
+        pieces.append(Image.frombytes('RGB', (pm.width, pm.height), pm.samples))
+    if not pieces:
+        return False
+    if len(pieces) == 1:
+        im = pieces[0]
+    else:
+        w = max(p.width for p in pieces)
+        im = Image.new('RGB', (w, sum(p.height for p in pieces)), 'white')
+        y = 0
+        for p in pieces:
+            im.paste(p, (0, y))
+            y += p.height
+    im = trim_white(im)
+    if im.width != IMG_W:
+        im = im.resize((IMG_W, max(1, round(im.height * IMG_W / im.width))), Image.LANCZOS)
+    im.convert('P', palette=Image.ADAPTIVE, colors=256).save(
+        out_path, 'PNG', optimize=True, compress_level=9)
+    return True
 
 
 # ── 글자층 ──────────────────────────────────────────────────────────────
@@ -213,7 +282,8 @@ def parse_pdf(path, section=0):
                              % (Path(path).name, num, q['answer'], quick[num - 1]))
         body, tip = sol_of(chunk, q['area'])
         q['sol'], q['tip'] = body, tip
-    return {'doc': doc, 'code': code, 'nQ': n, 'q': qs, 'section': section,
+    return {'doc': doc, 'band': bands(doc), 'code': code, 'nQ': n, 'q': qs,
+            'section': section,
             'kind': '변형본' if quick else '실전세트', 'source': Path(path).name}
 
 
@@ -276,7 +346,8 @@ def ingest(path, code=None, kind=None, section=0, write=False):
     for old in cd.glob('*.png'):
         old.unlink()
     for q in d['q']:
-        ok = crop_one(d['doc'], {'page': q['mark']['p'], 'y': q['mark']['y']},
+        ok = crop_pdf(d['doc'], d['band'],
+                      {'page': q['mark']['p'], 'y': q['mark']['y']},
                       ({'page': q['end']['p'], 'y': q['end']['y']} if q['end'] else None),
                       cd / ('%d.png' % q['n']), pymupdf)
         if not ok:
