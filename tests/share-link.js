@@ -334,7 +334,10 @@ async function radarAndSharedUI(browser, errs) {
     const bars = new Set(sec ? [].slice.call(sec.querySelectorAll('.barrow .ba')).map(e => e.textContent) : []);
     return { axes: svg ? svg.querySelectorAll('text').length : 0,
              bars: bars.size,
-             nextStudent: document.body.innerText.includes('다음 학생 입력'),
+             /* 단추 이름이 「다음 학생 입력」에서 「다음 학생 채점 ▶」으로
+                바뀌었다(15a66ce). 이름이 또 바뀌어도 이 검사가 뜻하는 것은
+                「채점자용 단추가 교사 화면에만 있는가」이므로 앞 네 글자로 본다. */
+             nextStudent: document.body.innerText.includes('다음 학생'),
              link: shareLinkFinal(cur, sel, '오승민', '') };
   });
   console.log(`  레이더 축 ${made.axes} · 아래 막대 영역 ${made.bars}`);
@@ -342,7 +345,7 @@ async function radarAndSharedUI(browser, errs) {
   // 그리므로 축이 넉넉히 나와야 한다(최대 14로 자른다).
   chk('레이더 축이 3개보다 많다', made.axes > 3, true);
   chk('레이더 축 수가 막대 영역 수와 맞는다(최대 14)', made.axes, Math.min(14, made.bars));
-  chk('교사 화면에는 다음 학생 입력이 있다', made.nextStudent, true);
+  chk('교사 화면에는 다음 학생 단추가 있다', made.nextStudent, true);
   await teacher.close();
 
   const shared = await browser.newPage();
@@ -350,14 +353,14 @@ async function radarAndSharedUI(browser, errs) {
   await shared.goto(made.link, { waitUntil: 'networkidle' });
   await shared.waitForTimeout(2500);
   const seen = await shared.evaluate(() => ({
-    nextStudent: document.body.innerText.includes('다음 학생 입력'),
+    nextStudent: document.body.innerText.includes('다음 학생'),
     regrade: document.body.innerText.includes('다시 채점'),
     retest: document.body.innerText.includes('동형 미니 시험지 인쇄'),
     word: document.body.innerText.includes('성적표 Word 저장'),
     name: (window.__rpt || {}).name || '',
   }));
   // 학부모·학생이 보는 화면에 채점자용 버튼이 있으면 눌러서 성적표를 잃는다
-  chk('공유 화면에는 다음 학생 입력이 없다', seen.nextStudent, false);
+  chk('공유 화면에는 다음 학생 단추가 없다', seen.nextStudent, false);
   chk('공유 화면에는 다시 채점도 없다', seen.regrade, false);
   chk('시험지 인쇄는 그대로 둔다', seen.retest, true);
   chk('Word 저장도 그대로 둔다', seen.word, true);

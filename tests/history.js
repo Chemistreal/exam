@@ -78,6 +78,10 @@ vm.runInContext([
   SRC.match(/^const nameKey=.*$/m)[0],
   'var HIST_ROWS=null, HIST_FOR="", HIST_TRIED="";',
   'function subs(id){ return STORE[cohortKey(id)] || []; }',
+  // 학생별 파이널(student-finals.json) — 이 판에는 없는 것으로 세운다.
+  // histOf 가 회차를 examById 로 찾게 되면서(2026-08-21) 같이 오려 낸다.
+  'var STUDENT_FINALS=[];',
+  cut(SRC, 'examById'),
   cut(SRC, 'histOf'),
   'Object.assign(globalThis,{histOf, nameKey, cmpExam, shortExam, histAt, examFamily,'
   + ' setHist:function(r,f){HIST_ROWS=r;HIST_FOR=f;}, resetOrd:function(){_EXORD=null;}});',

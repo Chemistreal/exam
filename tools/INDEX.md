@@ -6,7 +6,7 @@
 - ✓ CI 에 걸려 있다 (`.github/workflows/tests.yml`)
 - `--check` 를 받는 자는 어긋나면 종료 코드 1 을 낸다
 
-## 재는 자 (71)
+## 재는 자 (74)
 
 | | 자 | `--check` | 언제 돌리나 | 무엇을 |
 |---|---|---|---|---|
@@ -42,6 +42,7 @@
 | ✓ | `hub_audit.py` | ○ | 밀 때마다 · 하루 한 번 | 허브(`hub.html`)의 **0회차 표**를 다시 잰다 — 브라우저 없이. |
 |  | `hwp_text.py` |  | 사람이 손으로 | HWP 5.0(바이너리) 문제지에서 글자를 뽑는다 — **수식까지 제자리에**. |
 | ✓ | `input_labels.py` | ○ | 밀 때마다 · 하루 한 번 | 입력칸에 **이름**이 있는지 보고, placeholder 로 지을 수 있으면 지어 넣는다. |
+| ✓ | `install_usnco_2026_practice.py` |  | usnco-2026-report-upgrade.yml | USNCO 2026 National Part I의 60문항 동형 연습문제를 설치한다. |
 | ✓ | `js_syntax.py` | ○ | 밀 때마다 · 하루 한 번 | 화면 안에 박아 넣은 자바스크립트가 **문법이 맞는지** 본다. |
 | ✓ | `label_typo.py` |  | 밀 때마다 · 하루 한 번 | 개념·영역·유형 이름의 오타 후보를 뽑는다 (사람이 판단한다). |
 | ✓ | `lec_audit.py` | ○ | 밀 때마다 · 하루 한 번 | 강의 125장을 전수로 훑는다 — **처음 보는 학생이 알아들을 수 있는가.** |
@@ -68,6 +69,7 @@
 |  | `regen_seed_cohort.py` |  | 사람이 손으로 | 동형 2종(kch1to3-b, kch1to2-b) 시드 코호트 영역벡터 재생성. |
 |  | `regrade_kch1to3b_q11.py` |  | 사람이 손으로 | kch1to3-b Q11 재채점 스크립트 (2026-07-07) |
 | ✓ | `report_msg.py` | ○ | 밀 때마다 · 하루 한 번 | 성적표가 **아이를 어디에 세우는 말**을 할 때, 다음 걸음을 같이 말하는지 본다. |
+| ✓ | `restore_next_student_button.py` |  | usnco-2026-report-upgrade.yml | 교사용 채점 결과 화면의 '다음 학생 채점' 동선을 항상 눈에 띄게 유지한다. |
 |  | `review_queue.py` |  | 사람이 손으로 | 사람이 검수할 것을 **급한 순서로** 줄 세운다. |
 | ✓ | `sci_notation.py` | ○ | 밀 때마다 · 하루 한 번 | 학생이 읽는 글의 **과학 표기**가 한 벌인지 잰다 — 그리고 함부로 안 고친다. |
 | ✓ | `seed_stats.py` | ○ | 밀 때마다 · 하루 한 번 | index.html 의 두 코호트가 서로 어긋나지 않는지 본다 — SEEDS 와 STATIC_STATS. |
@@ -79,28 +81,31 @@
 | ✓ | `theme.py` | ○ | 밀 때마다 · 하루 한 번 | 화면 261장에 **같은 옷**을 입힌다. |
 | ✓ | `type_norm.py` | ○ | 밀 때마다 · 하루 한 번 | 같은 말을 두 가지로 적고 있지 않은지 본다. |
 |  | `unit_unify.py` |  | 사람이 손으로 | DT 단원 표기 통일 패치 (같은 과목 내 드리프트 7건) |
+| ✓ | `upgrade_usnco_2026_report.py` |  | usnco-2026-report-upgrade.yml | USNCO 2026 National Part I를 기존 final 리포트 품질로 통합한다. |
 | ✓ | `verify_status.py` | ○ | 밀 때마다 · 하루 한 번 | 해설을 **어디까지 사람이 봤는지** 세고, 뒤로 가지 않게 막는다. |
 | ✓ | `void_check.py` | ○ | 밀 때마다 · 하루 한 번 | 출제 뒤 **폐기된 문항**이 제대로 처리돼 있는지 본다 — `exams.json` 의 `voided`. |
 
-## 만드는 자 (14)
+## 만드는 자 (16)
 
 | | 자 | `--check` | 언제 돌리나 | 무엇을 |
 |---|---|---|---|---|
 |  | `gen_cohort_baseline.py` |  | 만들 때 사람이 | 성적표 엑셀(.xlsm)에서 **익명 통계**만 뽑아 `cohort/baseline.json` 을 만든다. |
 | ✓ | `gen_cut_adj.py` | ○ | 밀 때마다 · 하루 한 번 | 어려웠던 회차의 시상 기준을 조금 늦춰 준다 → `exams.json` 의 `cutAdj` |
-| ✓ | `gen_exam_fallback.py` |  | 밀 때마다 · 하루 한 번 | `exams.json` 을 `final.html`·`final-submit.html` 안에 예비본으로 심는다. |
-| ✓ | `gen_exam_solflag.py` |  | 밀 때마다 · 하루 한 번 | `exams.json` 의 `solFull` 을 `answers/<id>.json` 에서 만든다. |
+| ✓ | `gen_exam_fallback.py` |  | 밀 때마다 · 하루 한 번 · usnco-2026-report-upgrade.yml | `exams.json` 을 `final.html`·`final-submit.html` 안에 예비본으로 심는다. |
+| ✓ | `gen_exam_solflag.py` |  | 밀 때마다 · 하루 한 번 · usnco-2026-report-upgrade.yml | `exams.json` 의 `solFull` 을 `answers/<id>.json` 에서 만든다. |
 | ✓ | `gen_exam_titles.py` |  | 밀 때마다 · 하루 한 번 | `AppsScript-Code.gs` 의 EXAM_TITLES 를 `exams.json` + 옛 시험 목록에서 만든다. |
 | ✓ | `gen_expl_html.py` | ○ | 밀 때마다 · 하루 한 번 | `explanation`(글) 에서 `explanationHtml`(해설지에 실릴 꼴) 을 만든다. |
 | ✓ | `gen_gas_cohort.py` |  | 밀 때마다 · 하루 한 번 | `AppsScript-Code.gs` 의 EXAM_COHORT 를 `exams.json` + `cohort/baseline.json` 에서 만든다. |
 | ✓ | `gen_gas_msgexams.py` |  | 밀 때마다 · 하루 한 번 | `AppsScript-Code.gs` 의 MSG_EXAMS 를 `exams.json` 의 영역 데이터로 만든다. |
 | ✓ | `gen_omlib.py` | ○ | 밀 때마다 · 하루 한 번 | 오개념 라이브러리(OMLIB)를 **한 벌로** 맞춘다 — final.html 이 원본이다. |
-| ✓ | `gen_pool_index.py` | ○ | 밀 때마다 · 하루 한 번 | 2400문항을 개념으로 찾을 수 있게 색인을 만든다 → `donghyung/index.json` |
+| ✓ | `gen_pool_index.py` | ○ | 밀 때마다 · 하루 한 번 · usnco-2026-report-upgrade.yml | 2400문항을 개념으로 찾을 수 있게 색인을 만든다 → `donghyung/index.json` |
 | ✓ | `gen_qmatrix_tags.py` | ○ | 밀 때마다 · 하루 한 번 | `qmatrix-editor.html` 이 품고 있는 **유형 태그 표**를 exams.json 에서 다시 뽑는다. |
-| ✓ | `gen_sol_page.py` | ○ | 밀 때마다 · 하루 한 번 | `sol-final-<id>.html` 해설지를 `answers/<id>.json` 에서 만든다. |
+| ✓ | `gen_sol_page.py` | ○ | 밀 때마다 · 하루 한 번 · usnco-2026-report-upgrade.yml | `sol-final-<id>.html` 해설지를 `answers/<id>.json` 에서 만든다. |
+| ✓ | `gen_student_final.py` | ○ | 밀 때마다 · 하루 한 번 | 학생별 파이널 시험을 짓는다 — 한 사람이 곧 한 회차다. |
+| ✓ | `gen_student_packets.py` | ○ | 밀 때마다 · 하루 한 번 | 수업 한 벌에 필요한 것을 학생마다 미리 셈해 둔다 — student-packets.json. |
 | ✓ | `gen_sw_version.py` | ○ | 밀 때마다 · 하루 한 번 | 서비스워커 캐시 이름을 **껍데기 파일의 내용**에서 짓는다. |
 | ✓ | `gen_tool_index.py` | ○ | 문서를 고칠 때 · 밀 때마다 · 하루 한 번 | 자 예순 개의 **차례**를 만든다 — `tools/INDEX.md`. |
 
 ---
 
-자 85개 · 판에 걸린 것 70개 · `--check` 를 받는 것 60개 · 아무도 안 돌리는 것 0개 · 표에는 있는데 없는 자물쇠 0개
+자 90개 · 판에 걸린 것 75개 · `--check` 를 받는 것 62개 · 아무도 안 돌리는 것 0개 · 표에는 있는데 없는 자물쇠 0개

@@ -52,8 +52,17 @@ def main():
     import build_wrongbook_assets as B
 
     exams = json.load(open(os.path.join(ROOT, 'exams.json'), encoding='utf-8'))
+    # 이 자의 전제(회색 문항 딱지 배치)가 성립하지 않는 문제지.
+    # 크롭 수·문항 대응은 wrongbook-assets 가 따로 세므로 여기서만 건너뛴다.
+    skip = {
+        'usnco-2026-natl-1': '미국 원판 PDF 라 회색 문항 딱지가 없다 (2026-08-21)',
+    }
     bad, ok = [], 0
     for e in exams:
+        if e['id'] in skip:
+            print('  %-22s 건너뜀 — %s' % (e['id'], skip[e['id']]))
+            ok += 1
+            continue
         pdf = os.path.join(ROOT, e.get('pdf') or '')
         if not e.get('pdf') or not os.path.exists(pdf):
             bad.append('%s: 문제지 PDF 가 없다 (%s)' % (e['id'], e.get('pdf')))

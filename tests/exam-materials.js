@@ -97,9 +97,15 @@ const byId = id => EXAMS.filter(e => e.id === id)[0];
       const el = document.getElementById('a' + q); if (el) { el.value = '1'; onIn(q, el); }
     }
   });
-  await p.click('#submit');
-  await p.waitForFunction(() => /제출 완료/.test(document.body.textContent || ''),
-    null, { timeout: 20000 });
+  /* 제출하면 성적표(final.html#r=)로 **바로 넘어간다**(2201bfe). 예전에는
+     제출 화면에 남아 «제출 완료» 를 그렸다. 학생이 자료를 받아 가는 자리가
+     그리로 옮겨간 것이므로, 검사도 옮겨간 자리에서 본다 — 자료 칸은 두
+     화면이 같은 함수(examMaterialsHTML)로 그리므로 보는 것은 같다. */
+  await Promise.all([
+    p.waitForURL(/final\.html/, { timeout: 30000 }),
+    p.click('#submit'),
+  ]);
+  await p.waitForFunction(() => !!document.querySelector('.assets'), null, { timeout: 20000 });
 
   const stu = await p.evaluate(() => {
     const a = document.querySelector('.assets');
@@ -185,6 +191,13 @@ const byId = id => EXAMS.filter(e => e.id === id)[0];
       { waitUntil: 'load', timeout: 40000 });
     await r.waitForFunction(() => /시험지 · 해설 내려받기/.test(document.body.textContent || ''),
       null, { timeout: 30000 }).catch(() => {});
+    /* 성적표는 또래 통계가 늦게 닿으면 **다시 그린다.** 한 번 찍은 그림으로
+       세면 하필 다시 그리는 사이에 걸려 «0개» 가 나온다(2026-08-21에 그랬다).
+       자리가 잡힐 때까지 기다린 뒤 센다 — 끝내 안 생기면 그때는 진짜 없다. */
+    await r.waitForFunction(() => {
+      const a = document.querySelector('.assets');
+      return !!a && a.querySelectorAll('a').length >= 4;
+    }, null, { timeout: 15000 }).catch(() => {});
     const sh = await r.evaluate(() => {
       const a = document.querySelector('.assets');
       return { gate: !!document.getElementById('gate'),

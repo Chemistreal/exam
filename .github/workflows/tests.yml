@@ -601,6 +601,17 @@ jobs:
       - name: 시험 목록 예비본이 exams.json 과 일치
         timeout-minutes: 5
         run: python3 tools/gen_exam_fallback.py --check
+      # 학생별 파이널(student-finals.json)은 exams.json 밖의 파생 회차라
+      # 위 계약 검사들이 안 본다 — 대신 이 자가 srcmap·정답키·크롭·출처를
+      # 원본 회차와 맞대어 본다.
+      - name: 학생별 파이널이 원본 회차와 일치
+        timeout-minutes: 5
+        run: python3 tools/gen_student_final.py --check
+      # 수업 한 벌(워밍업·함정카드·진단표)이 읽는 자료. 누적 응시에서 셈한
+      # 파생물이라, 응시가 늘면 다시 심어야 한다.
+      - name: 수업 자료가 누적 응시와 일치
+        timeout-minutes: 5
+        run: python3 tools/gen_student_packets.py --check
       - name: 시험끼리 겹치는 문항 (기준 목록 대비 새로 생긴 것)
         timeout-minutes: 5
         run: python3 tools/dh_dupe_scan.py --cross --baseline
