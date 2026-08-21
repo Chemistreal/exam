@@ -973,9 +973,10 @@ function drawFinals(){
     var label=f.name?esc(f.name):'<span class="code">'+esc(f.e.id)+'</span>';
     return '<li><span>'+label+(f.name?' <span class="code" style="font-size:11.5px">'+esc(f.e.id)+'</span>':'')
       +' · '+f.e.nQ+'문항</span>'
-      +'<span style="display:flex;gap:6px">'
+      +'<span style="display:flex;gap:6px;flex-wrap:wrap">'
       +'<button class="btn ghost sm" data-fcopy="'+esc(f.e.id)+'">제출 링크 복사</button>'
       +'<a class="btn ghost sm" style="text-decoration:none" target="_blank" rel="noopener" href="'+esc(submitURLOf(f.e.id))+'">열기 ↗</a>'
+      +'<button class="btn ghost sm" data-fstudy="'+esc(f.e.id)+'">공부자료 Word ↓</button>'
       +'</span></li>';
   }).join('');
   Array.prototype.forEach.call(ul.querySelectorAll('button[data-fcopy]'), function(b){
@@ -984,6 +985,15 @@ function drawFinals(){
       var done=function(){ toast('제출 링크를 복사했습니다'); };
       if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done,function(){ prompt('복사가 막혔습니다 — 직접 복사하세요', url); }); }
       else prompt('직접 복사하세요', url);
+    };
+  });
+  Array.prototype.forEach.call(ul.querySelectorAll('button[data-fstudy]'), function(b){
+    b.onclick=function(){
+      var e=EXAMS.filter(function(x){ return x.id===b.getAttribute('data-fstudy'); })[0];
+      if(!e){ toast('회차를 못 찾았습니다'); return; }
+      run(b, function(){ return makeStudyFromFinal(e); }, function(r){
+        toast('공부자료 저장 완료 · '+r.pick.take.length+'강');
+      });
     };
   });
 }
@@ -1491,26 +1501,44 @@ function w60StudyPick(items, verd, max){
   return { take:take, dropped:Math.max(0, need.length-take.length), all:all.length };
 }
 
-function _w60studyBody(K, meta, pick, docs){
-  var b=_w60head(K, '약점 극복 모의고사 · 공부자료',
-                 (meta.name||'학생')+' · '+meta.ymd+' · 복원 코드 '+meta.codePretty);
+function _w60studyBody(K, meta, pick, docs, w){
+  /* w(문구)를 안 주면 예전 그대로다 — 약점 60제 흐름의 산출물은 한 글자도
+     안 바뀐다. 온라인 파이널이 같은 몸통을 제 문구로 빌려 쓴다(noVerd:
+     세 갈래 판정은 1·2교시가 있어야 하므로 누적 오답 기반에서는 뺀다). */
+  w=w||{};
+  var b=_w60head(K, w.title||'약점 극복 모의고사 · 공부자료',
+                 w.sub||((meta.name||'학생')+' · '+meta.ymd+' · 복원 코드 '+meta.codePretty));
   b.push(K.txt('무엇을 실었나',{color:K.TEAL,size:22,bold:true,after:60}));
-  b.push(K.txt('이 시험지에서 힌트를 다 보고도 안 풀린 개념의 개념강의를 그대로 실었습니다. '
-             + '요약이 아니라 강의 전문입니다 — 해설을 읽고도 막히면 여기서 처음부터 다시 배우세요.',
+  b.push(K.txt(w.intro||('이 시험지에서 힌트를 다 보고도 안 풀린 개념의 개념강의를 그대로 실었습니다. '
+             + '요약이 아니라 강의 전문입니다 — 해설을 읽고도 막히면 여기서 처음부터 다시 배우세요.'),
                {color:K.MUTED,size:17,after:120}));
-  var rows=[[K.cell('강',{w:900,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
-             K.cell('개념강의',{w:4200,bold:true,fill:'F5F2EA'}),
-             K.cell('이 시험지',{w:1400,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
-             K.cell('모른다',{w:1300,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
-             K.cell('못 꺼낸다',{w:2100,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER})]];
-  pick.take.forEach(function(g){
-    rows.push([K.cell(('00'+g.lec.no).slice(-3),{w:900,align:K.AlignmentType.CENTER,color:K.GOLD,bold:true}),
-               K.cell(g.lec.title,{w:4200}),
-               K.cell(String(g.n),{w:1400,align:K.AlignmentType.CENTER}),
-               K.cell(g.none?String(g.none):'-',{w:1300,align:K.AlignmentType.CENTER,bold:!!g.none,color:g.none?K.MS:K.MUTED}),
-               K.cell(g.slip?String(g.slip):'-',{w:2100,align:K.AlignmentType.CENTER,color:g.slip?K.GOLD:K.MUTED})]);
-  });
-  b.push(K.table(rows,[900,4200,1400,1300,2100]));
+  var rows, widths;
+  if(w.noVerd){
+    widths=[900,6000,1400];
+    rows=[[K.cell('강',{w:900,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+           K.cell('개념강의',{w:6000,bold:true,fill:'F5F2EA'}),
+           K.cell(w.col3||'틀린 문항',{w:1400,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER})]];
+    pick.take.forEach(function(g){
+      rows.push([K.cell(('00'+g.lec.no).slice(-3),{w:900,align:K.AlignmentType.CENTER,color:K.GOLD,bold:true}),
+                 K.cell(g.lec.title,{w:6000}),
+                 K.cell(String(g.n),{w:1400,align:K.AlignmentType.CENTER})]);
+    });
+  }else{
+    widths=[900,4200,1400,1300,2100];
+    rows=[[K.cell('강',{w:900,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+           K.cell('개념강의',{w:4200,bold:true,fill:'F5F2EA'}),
+           K.cell('이 시험지',{w:1400,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+           K.cell('모른다',{w:1300,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+           K.cell('못 꺼낸다',{w:2100,bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER})]];
+    pick.take.forEach(function(g){
+      rows.push([K.cell(('00'+g.lec.no).slice(-3),{w:900,align:K.AlignmentType.CENTER,color:K.GOLD,bold:true}),
+                 K.cell(g.lec.title,{w:4200}),
+                 K.cell(String(g.n),{w:1400,align:K.AlignmentType.CENTER}),
+                 K.cell(g.none?String(g.none):'-',{w:1300,align:K.AlignmentType.CENTER,bold:!!g.none,color:g.none?K.MS:K.MUTED}),
+                 K.cell(g.slip?String(g.slip):'-',{w:2100,align:K.AlignmentType.CENTER,color:g.slip?K.GOLD:K.MUTED})]);
+    });
+  }
+  b.push(K.table(rows,widths));
   if(pick.dropped>0)
     b.push(K.txt('메울 것이 '+(pick.take.length+pick.dropped)+'개였는데 '+pick.take.length+'편만 실었습니다. '
                + '한 번에 다 읽을 수 있는 분량이 아니라서 급한 것부터 잘랐습니다 — 나머지 '
@@ -1524,8 +1552,11 @@ function _w60studyBody(K, meta, pick, docs){
                {before:0,after:40,keepNext:true}));
     var tag=[];
     if(d&&d.read) tag.push(d.read);
-    if(g.none) tag.push('이 시험지에서 「모른다」 '+g.none+'문항');
-    if(g.slip) tag.push('「알지만 못 꺼낸다」 '+g.slip+'문항');
+    if(w.noVerd){ if(g.n) tag.push('누적 오답에서 '+g.n+'문항'); }
+    else{
+      if(g.none) tag.push('이 시험지에서 「모른다」 '+g.none+'문항');
+      if(g.slip) tag.push('「알지만 못 꺼낸다」 '+g.slip+'문항');
+    }
     if(tag.length) b.push(K.txt(tag.join('  ·  '),{color:K.MUTED,size:16,after:120}));
     if(!d || !d.secs.length){
       b.push(K.txt('(이 강의를 불러오지 못했습니다 — '+g.lec.file+')',{color:K.MS,size:17}));
@@ -1679,6 +1710,42 @@ async function makeStudy(paper){
                                        _w60studyBody(K, meta, pick, docs), head));
   _saveBlob(blob, w60Safe(paper.name+'_공부자료_'+pick.take.length+'강_'+paper.ymd+'_'+paper.code)+'.docx');
   return { pick:pick, docs:docs };
+}
+
+/* 온라인 파이널의 공부자료 — 발행 기록이 아니라 student-finals.json 이 원천이다.
+   시험의 문항 하나하나가 이미 「여지껏 본 시험에서 틀린 것」이라, 채점을
+   기다리지 않고 그 개념의 강의를 바로 묶어 준다. */
+async function makeStudyFromFinal(e){
+  var r=await fetch('answers/'+e.id+'.json',{cache:'no-store'});
+  var ans=r.ok?((await r.json()).questions||{}):{};
+  var items=[], verd=[];
+  for(var q=1;q<=e.nQ;q++){
+    var a=ans[String(q)]||{};
+    var L=lecFind(a.concept, (e.type||[])[q-1], (e.area||[])[q-1]);
+    items.push({lec:L, area:(e.area||[])[q-1]||'기타'});
+    verd.push('none');
+  }
+  var pick=w60StudyPick(items, verd);
+  if(!pick.take.length) throw new Error('실을 개념강의를 못 찾았습니다');
+  var docs={};
+  for(var i=0;i<pick.take.length;i++){
+    docs[pick.take[i].lec.file]=await lecStudy(pick.take[i].lec.file);
+  }
+  var K=await w60Kit();
+  var nm=(ncAll()[e.id]||{}).name||'';
+  var ymd=w60Ymd(Date.now());
+  var meta={ name:nm||e.id, ymd:ymd, code:e.id, codePretty:e.id };
+  var wording={
+    title:'온라인 파이널 · 공부자료',
+    sub:(nm||'학생')+' · '+ymd+' · '+e.id,
+    intro:'여지껏 본 시험 전체의 오답을 모아, 반복해서 막힌 개념의 개념강의를 그대로 실었습니다. '
+        +'요약이 아니라 강의 전문입니다 — 파이널을 풀기 전에 읽어도 좋고, 풀고 나서 막힌 자리를 찾아 읽어도 좋습니다.',
+    col3:'틀린 문항', noVerd:true };
+  var blob=await K.Packer.toBlob(K.doc((nm||e.id)+' 온라인 파이널 공부자료',
+                                       _w60studyBody(K, meta, pick, docs, wording),
+                                       (nm||e.id)+' · 공부자료 · '+e.id));
+  _saveBlob(blob, w60Safe((nm||e.id)+'_파이널_공부자료_'+pick.take.length+'강_'+ymd)+'.docx');
+  return { pick:pick };
 }
 
 /* ══ 화면 ═════════════════════════════════════════════════════════════════ */
