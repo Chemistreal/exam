@@ -612,6 +612,11 @@ jobs:
       - name: 수업 자료가 누적 응시와 일치
         timeout-minutes: 5
         run: python3 tools/gen_student_packets.py --check
+      # 선생님이 Word 로 올린 시험지. 크롭·정답키·답지가 서로 맞는지 본다 —
+      # 한 칸이라도 밀리면 학생이 다른 문제를 보고 다른 답으로 채점된다.
+      - name: 선생님 시험지가 온전하다
+        timeout-minutes: 5
+        run: python3 tools/ingest_teacher_exam.py --check
       - name: 시험끼리 겹치는 문항 (기준 목록 대비 새로 생긴 것)
         timeout-minutes: 5
         run: python3 tools/dh_dupe_scan.py --cross --baseline

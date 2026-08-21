@@ -634,10 +634,14 @@ async function loadExams(){
      다루는 선생님 자리라, 학생 회차의 제출 기록(subs)과 srcmap 오답도 보아야
      한다. 목록 계수 검사는 exams.json 만 세는 final 쪽 화면 이야기다. */
   SF_OK=false;
-  try{
-    var r2=await fetch('student-finals.json',{cache:'no-store'});
-    if(r2.ok){ var j2=await r2.json(); EXAMS=EXAMS.concat((j2&&j2.exams)||[]); SF_OK=true; }
-  }catch(e){}
+  /* 목록 밖의 회차 둘 — 자가 지은 파이널과 선생님이 Word 로 올린 시험지. */
+  for(var i=0;i<2;i++){
+    var f=i?'teacher-exams.json':'student-finals.json';
+    try{
+      var r2=await fetch(f,{cache:'no-store'});
+      if(r2.ok){ var j2=await r2.json(); EXAMS=EXAMS.concat((j2&&j2.exams)||[]); if(!i) SF_OK=true; }
+    }catch(e){}
+  }
   return EXAMS;
 }
 
@@ -970,12 +974,12 @@ function submitURLOf(id){ return new URL('final-submit.html?exam='+encodeURIComp
 function drawFinals(){
   var ul=$('flist'); if(!ul) return;
   var nc=ncAll();
-  var finals=EXAMS.filter(function(e){ return e.group==='파이널'; });
+  var finals=EXAMS.filter(function(e){ return e.group==='파이널'||e.group==='선생님'; });
   if(!finals.length){
     /* 「못 읽었다」와 「지은 것이 없다」는 다른 일이다. 섞어 적으면 선생님이
        엉뚱한 조치를 하러 간다. */
     ul.innerHTML='<li class="muted" style="font-size:13px">'
-      +(SF_OK ? '아직 지은 파이널이 없습니다 — tools/gen_student_final.py --write 를 돌리면 생깁니다.'
+      +(SF_OK ? '아직 지은 시험이 없습니다 — tools/gen_student_final.py --write 를 돌리거나, 선생님 시험지를 tools/ingest_teacher_exam.py 로 올리면 생깁니다.'
               : '<b class="err">student-finals.json 을 못 읽었습니다.</b> 파일이 올라갔는지, 새로고침이 필요한지 확인해 주세요.')
       +'</li>'; return; }
   finals=finals.map(function(e){ var who=nc[e.id]; return {e:e, name:who&&who.name||''}; })

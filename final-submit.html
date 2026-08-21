@@ -140,10 +140,18 @@ async function loadExams(){
    tools/gen_student_final.py 가 짓는다. */
 var STUDENT_FINALS=[];
 async function loadStudentFinals(){
-  try{
-    var r=await fetch('student-finals.json',{cache:'no-store'});
-    if(r.ok){ var j=await r.json(); STUDENT_FINALS=(j&&j.exams)||[]; }
-  }catch(e){}
+  var out=[];
+  /* 목록 밖의 회차가 사는 자리 둘. 하나는 자가 지은 것(student-finals.json),
+     하나는 선생님이 Word 로 올린 것(teacher-exams.json). 둘 다 목록에는 안 뜨고
+     직링크로만 열린다 — 계수 검사가 세는 것은 exams.json 뿐이다. */
+  for(var i=0;i<2;i++){
+    var f=i?'teacher-exams.json':'student-finals.json';
+    try{
+      var r=await fetch(f,{cache:'no-store'});
+      if(r.ok){ var j=await r.json(); out=out.concat((j&&j.exams)||[]); }
+    }catch(e){}
+  }
+  STUDENT_FINALS=out;
   return STUDENT_FINALS;
 }
 function examById(id){
