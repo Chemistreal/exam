@@ -2191,20 +2191,50 @@ async function retryPop(){
     else fallbackCopy(r.url,ok);
   };
 }
-/* 한 성적표에 한 번만. 지문은 회차+이름이다 — 다음 학생을 채점하면 다시 뜬다. */
+/* 한 성적표에 한 번만. 지문은 회차+이름이다 — 다음 학생을 채점하면 다시 뜬다.
+
+   ⚠ 칸이 보이자마자 덮지 않는다. 화면 밑에는 개념강의·해설지로 가는 링크가
+   함께 있어서, 그 링크를 누르려고 내려온 손이 덮개에 먼저 닿는다 — 누르려던
+   것이 안 눌린다(검사 tests/parent-walk.js 가 이것을 잡았다). 그래서
+
+     · 칸이 화면에 **머무는** 1초를 기다리고
+     · 그 사이에 지나가 버리면 접고
+     · 그 사이에 무엇을 누르면(링크·단추) 아예 접는다 — 가려던 길이 먼저다
+
+   큰 칸은 어차피 눈앞에 있다. 덮개는 «멈춰 선 사람» 에게만 뜬다. */
 function retryArm(){
   var big=document.getElementById('retryBig');
   if(!big||!window.IntersectionObserver) return;
   var sig='rv:'+(cur&&cur.id)+':'+(((window.__rpt||{}).name)||'');
   try{ if(sessionStorage.getItem(sig)) return; }catch(e){}
+  var timer=null, done=false;
+  var stop=function(){
+    done=true;
+    if(timer){ clearTimeout(timer); timer=null; }
+    try{ io.disconnect(); }catch(e){}
+    document.removeEventListener('pointerdown', onTap, true);
+  };
+  var onTap=function(ev){
+    var t=ev.target;
+    if(t&&t.closest&&t.closest('a,button')) stop();
+  };
   var io=new IntersectionObserver(function(es){
+    if(done) return;
     es.forEach(function(en){
-      if(!en.isIntersecting) return;
-      io.disconnect();
-      try{ sessionStorage.setItem(sig,'1'); }catch(e){}
-      retryPop();
+      if(!en.isIntersecting){
+        if(timer){ clearTimeout(timer); timer=null; }
+        return;
+      }
+      if(timer) return;
+      timer=setTimeout(function(){
+        if(done) return;
+        stop();
+        try{ sessionStorage.setItem(sig,'1'); }catch(e){}
+        retryPop();
+      },1000);
     });
   },{threshold:0.45});
+  document.addEventListener('pointerdown', onTap, true);
   io.observe(big);
 }
 
