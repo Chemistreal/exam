@@ -2083,6 +2083,48 @@ function retryCompose(cur, wrongQs, pool, n){
     }
     if(!moved){ cap++; if(cap>6) break; }
   }
+  /* ── 못 채웠으면 넓힌다 ──────────────────────────────────────────────
+     제 회차 문항을 통째로 빼고 나면, 그 영역 문항이 원래 자기 회차에만
+     있던 경우 남는 것이 없다. 풀로 재어 보면 오답이 한 영역에 몰린 428가지
+     중 238가지(55.6%)가 열 문항을 못 채웠고 최소 0제였다 — 그때는
+     「같은 개념의 다른 문항을 못 찾았습니다」로 끝난다. **오답이 한 영역에
+     몰린 학생일수록 재도전이 더 필요한데, 바로 그 학생부터 못 받는다.**
+
+     두 단으로 넓힌다.
+       ① 큰 영역(RXMAP)이 같은 문항 — 개념이 이웃이다
+       ② 그래도 모자라면 제 회차 문항. 단 **방금 틀린 그 문항은 뺀다.**
+          맞혔던 문항으로 같은 개념을 다시 만지는 편이, 아무것도 안 주고
+          「못 찾았습니다」로 끝내는 것보다 낫다.
+     넓힐 때도 순서는 그대로다 — 정답률 20~60% 를 먼저(retryBand). */
+  if(take.length<n){
+    var wide=function(list){
+      list.sort(function(p,q2){
+        var bp=retryBand(p), bq=retryBand(q2);
+        if(bp!==bq) return bp-bq;
+        return ((typeof p.r==='number')?p.r:50)-((typeof q2.r==='number')?q2.r:50);
+      });
+      for(var i=0;i<list.length&&take.length<n;i++){
+        var c=list[i];
+        if(used[c.e+'#'+c.q]) continue;
+        used[c.e+'#'+c.q]=1; take.push(c);
+      }
+    };
+    /* ① 큰 영역 */
+    var bd=function(x){ return (typeof RX!=='undefined'&&RX[x])?x
+      :((typeof RXMAP!=='undefined'&&RXMAP[x])||x); };
+    var want={}; order.forEach(function(a){ want[bd(a)]=1; });
+    wide(pool.filter(function(x){ return !used[x.e+'#'+x.q] && want[bd(x.a||'')]; }));
+    /* ② 제 회차 — 방금 틀린 문항만 빼고 */
+    if(take.length<n){
+      var wrong={}; wrongQs.forEach(function(q){ wrong[cur.id+'#'+q]=1; });
+      var mine=pool.filter(function(x){
+        return x.e===cur.id && !wrong[x.e+'#'+x.q]
+            && (want[bd(x.a||'')] || !order.length);
+      });
+      mine.forEach(function(x){ delete used[x.e+'#'+x.q]; });
+      wide(mine);
+    }
+  }
   return take.length?take:null;
 }
 async function retryMake(){
@@ -2175,7 +2217,13 @@ function retryOverlay(){
   o.addEventListener('click',function(e){ if(e.target===o) close(); });
   return o;
 }
+/* 몇 번째로 연 덮개인가. retryMake 는 184KB 짜리 풀을 받아 오느라 몇 초가
+   걸리는데, 그 사이에 덮개가 닫히고 **다음 학생** 것이 열릴 수 있다. 그러면
+   뒤늦게 도착한 앞 학생의 결과가 다음 학생 화면에 그려진다 — 이름은 B 인데
+   링크는 A 것이고, 누르면 A 의 재도전 시험이 열린다. 세대를 세어 막는다. */
+var RETRY_GEN=0;
 function retryClose(){
+  RETRY_GEN++;                      /* 진행 중인 것이 있으면 그 결과를 버린다 */
   var o=document.getElementById('retryOv');
   if(o) o.classList.remove('on');
   document.documentElement.style.overflow='';
@@ -2184,6 +2232,7 @@ function retryClose(){
 function retryEsc(e){ if(e.key==='Escape') retryClose(); }
 async function retryPop(){
   var o=retryOverlay();
+  var gen=++RETRY_GEN;
   /* 이전 성적표의 목록·단추가 남아 있으면 그 사이 낡은 링크가 눌린다 —
      열 때마다 비우고 시작한다. */
   document.getElementById('rovP').textContent='방금 틀린 자리만 다시 묻습니다. 고르는 중…';
@@ -2195,6 +2244,7 @@ async function retryPop(){
   window.addEventListener('keydown', retryEsc);
   var r=null;
   try{ r=await retryMake(); }catch(e){}
+  if(gen!==RETRY_GEN) return;       /* 기다리는 사이에 닫혔거나 다음 학생이 열었다 */
   var go=document.getElementById('rovGo'), cp=document.getElementById('rovCopy');
   if(!r){
     document.getElementById('rovP').textContent='같은 개념의 다른 문항을 못 찾았습니다.';
@@ -5556,7 +5606,18 @@ function shareLinkFinal(cur,sel,nm,exno){
   var gd='';
   try{ var d=new Date();
        gd='t='+d.getFullYear()+('0'+(d.getMonth()+1)).slice(-2)+('0'+d.getDate()).slice(-2)+'&'; }catch(e){}
-  return location.origin+location.pathname+'#'+snap+gd+hashStrFinal(cur,sel,nm,exno);
+  /* ── 「즉시 재도전」 회차는 **봉투가 곧 시험지다** ──────────────────────
+     그 회차(id 가 `<코드>-r…`)는 저장소 어디에도 없다. 문항·정답·크롭 자리가
+     전부 주소의 `x=` 봉투에만 산다. 그래서 봉투를 안 실으면, 받는 쪽에서
+     retryParse 가 null 이 되고 examById 가 회차를 못 찾아 성적표 대신 시험
+     목록이 뜬다 — 이름은 해시에 멀쩡히 있는데 성적표가 없는 죽은 링크다.
+
+     final-submit 쪽은 이미 봉투를 앞에 싣고 있었는데(withEnv), 여기서 다시
+     공유하는 세 자리(명단 링크·「성적표 링크 복사」·시트에 적히는 link)는
+     빠져 있었다. `r=` 는 뒤를 통째로 삼키므로 `s=`·`t=` 와 같이 **앞**에 붙인다. */
+  var env='';
+  try{ if(cur&&cur.retry&&window.__retryRaw) env='x='+window.__retryRaw+'&'; }catch(e){}
+  return location.origin+location.pathname+'#'+env+snap+gd+hashStrFinal(cur,sel,nm,exno);
 }
 /* 아무리 줄여도 또래 통계를 실으면 주소가 답안만 담을 때보다 길어진다.
    카톡으로 보내기에 너무 길면 통째로 끄는 스위치. 끄면 학부모 쪽 성적표에서

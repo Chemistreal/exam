@@ -602,7 +602,24 @@ function pendAll(){
   try{ return JSON.parse(localStorage.getItem(PEND_KEY)||'[]')||[]; }catch(e){ return []; }
 }
 function pendSave(a){
-  try{ localStorage.setItem(PEND_KEY, JSON.stringify(a.slice(-30))); }catch(e){}
+  try{
+    if(a.length>30){
+      /* ⚠ 넘칠 때 **무엇을 버리느냐**가 중요하다. 예전에는 `slice(-30)` 이라
+         맨 앞, 곧 **가장 오래된 것**부터 버렸는데 — 큐가 꽉 찬 상태에서 새로
+         제출하면 «한 번도 못 보낸 답안» 이 말없이 사라지고, 이미 세 번 보내
+         본 것은 남았다. 잃으면 안 되는 유일한 것을 골라서 버린 셈이다.
+         이제는 «세 번 보내 봤고 그래서 이미 포기한» 항목부터 버린다. */
+      var idx=a.map(function(_,i){ return i; });
+      idx.sort(function(p,q){
+        var sp=(a[p].n>=PEND_MAX)?1:0, sq=(a[q].n>=PEND_MAX)?1:0;
+        if(sp!==sq) return sp-sq;             /* 안 포기한 것을 먼저 남긴다 */
+        return (a[q].t||0)-(a[p].t||0);       /* 그다음은 최근 것 */
+      });
+      var keep={}; idx.slice(0,30).forEach(function(i){ keep[i]=1; });
+      a=a.filter(function(_,i){ return keep[i]; });   /* 원래 순서는 지킨다 */
+    }
+    localStorage.setItem(PEND_KEY, JSON.stringify(a));
+  }catch(e){}
 }
 function pendSig(p){ return [p.exam,p.name,p.answers].join('|'); }
 function pendAdd(p){

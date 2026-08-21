@@ -61,6 +61,22 @@ def build():
         # 원본이 ①·② 를 다 인정하는 문항을 실으면, 인정되는 답을 고르고도
         # 오답으로 채점된다. 열한 문항이 그랬다.
         multi = {int(q) for q in (e.get('multi') or {})}
+        # exams.json 의 multi 만 믿으면 안 된다. 그 표는 손으로 적는 것이고,
+        # **답지(answers/)에도 같은 사실이 따로 적혀 있다** — acceptableAnswers
+        # 가 둘 이상이거나 excluded 가 켜진 문항이다. 지금은 두 출처가 딱
+        # 맞지만 그것을 강제하는 것이 없어서, 답지에 「①② 모두 인정」 을 적고
+        # exams.json 에 안 옮기면 검사는 통과하면서 그 문항이 단일 정답으로
+        # 풀에 실린다 — 인정되는 답을 고르고도 오답이 되는 그 버그가 조용히
+        # 되살아난다. 그래서 **두 출처를 합쳐서** 뺀다.
+        for q, v in qs.items():
+            if not isinstance(v, dict):
+                continue
+            acc = v.get('acceptableAnswers')
+            if (isinstance(acc, (list, tuple)) and len(acc) > 1) or v.get('excluded'):
+                try:
+                    multi.add(int(q))
+                except (TypeError, ValueError):
+                    pass
         area, typ, rate = e.get('area') or [], e.get('type') or [], e.get('rate') or []
         for i, k in enumerate(e.get('key') or [], 1):
             if i in skip or i in multi:
