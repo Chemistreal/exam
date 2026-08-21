@@ -73,6 +73,11 @@ footer{margin-top:26px;text-align:center;font-size:11.5px;color:var(--muted)}
 .pdfopen:active{background:var(--teal-d)}
 .pdfframe{width:100%;height:74vh;min-height:440px;border:1px solid var(--line);border-radius:10px;margin-top:9px;background:#f3efe6}
 .pdftoggle{background:none;border:1.5px solid var(--line);border-radius:9px;color:var(--ink);font-size:13px;font-weight:600;padding:7px 11px;cursor:pointer}
+.pickrow{margin:0 0 14px;padding:10px 12px 12px;border:1px solid var(--line);
+ border-radius:12px;background:#fff}
+.pickname{font-weight:800;font-size:18px;color:var(--teal);margin:0 0 8px;letter-spacing:-.01em}
+.pickbtns{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:8px}
+.exbtn.pick{margin:0}
 .pdfhidden .pdfframe{display:none}
 .pdfhidden .croplist{display:none}
 .croplist{margin-top:9px}
@@ -284,10 +289,64 @@ function clearDraft(id){ try{ localStorage.removeItem(draftKey(id)); }catch(e){}
 function toast(m){ let t=document.getElementById('toast'); if(!t){t=document.createElement('div');t.id='toast';t.className='toast';document.body.appendChild(t);} t.textContent=m; t.classList.add('on'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('on'),2600); }
 function shareLink(cur,sel,nm,exno){ return location.origin+location.pathname.replace(/[^/]*$/,'final.html')+'#'+hashStrFinal(cur,sel,nm,exno); }
 
+/* ── 오늘 시험 · 이름 버튼 ───────────────────────────────────────────────
+   학생별 회차는 `hidden:true` 라 목록에 안 뜬다 — 주소를 아는 사람만 연다.
+   그런데 수업에서는 아홉 명이 한 화면을 보고 **제 이름을 눌러** 들어간다.
+   코드(s4w000h6h6l0)를 붙여 놓으면 누가 누군지 모른다(선생님 지적).
+
+   그렇다고 이름을 저장소에 적을 수는 없다. 이 저장소는 공개돼 있고, 적히는
+   순간 미성년자 아홉의 이름이 검색에 걸린다. 그래서 이름은 **주소에 실어**
+   나른다 — 선생님이 weak60 에서 「이름 버튼 링크」를 복사해 학생에게 주면,
+   그 링크를 연 브라우저에만 이름이 남는다. 저장소에는 코드뿐이다. */
+var NC={};
+function ncLoad(){
+  try{
+    var m=(location.hash+' '+location.search).match(/[#?&]n=([A-Za-z0-9_-]+)/);
+    if(m){
+      var j=decodeURIComponent(escape(atob(m[1].replace(/-/g,'+').replace(/_/g,'/'))));
+      NC=JSON.parse(j)||{};
+      localStorage.setItem('exam.pick.namecode.v1', j);
+      return;
+    }
+    NC=JSON.parse(localStorage.getItem('exam.pick.namecode.v1')||'{}')||{};
+  }catch(e){ NC={}; }
+}
+/* 한 사람의 회차를 수업 차례대로. -2 변형본 → -3 실전 → -4 재도전 → 누적 파이널 */
+function examsOf(code){
+  var rank={'-2':0,'-3':1,'-4':2,'':3};
+  return FINAL_EXAMS.concat(STUDENT_FINALS).filter(function(e){
+      return e.hidden && (e.id===code || e.id.indexOf(code+'-')===0);
+    }).map(function(e){ return {e:e, r:rank[e.id.slice(code.length)]}; })
+    .filter(function(x){ return x.r!=null; })
+    .sort(function(a,b){ return a.r-b.r; })
+    .map(function(x){ return x.e; });
+}
+function pickHTML(){
+  var codes=Object.keys(NC||{}).filter(function(c){ return examsOf(c).length; });
+  if(!codes.length) return '';
+  codes.sort(function(a,b){ return (NC[a].name||a)<(NC[b].name||b)?-1:1; });
+  var h='<div class="g">오늘 시험 · 이름을 누르세요</div>'
+    +'<div class="hint" style="margin:-2px 0 10px">제 이름 옆의 시험을 누르면 문제가 뜹니다. '
+    +'답을 넣고 제출하면 여느 회차처럼 자동 채점되어 성적표가 바로 나옵니다.</div>';
+  codes.forEach(function(c){
+    var nm=NC[c].name||c;
+    h+='<div class="pickrow"><div class="pickname">'+esc(nm)+'</div><div class="pickbtns">';
+    var LAB={'-2':'변형본 60제','-3':'실전 30제','-4':'즉시 재도전 10제','':'누적 파이널'};
+    examsOf(c).forEach(function(e){
+      var lab=LAB[e.id.slice(c.length)]||String(e.title||'').split(' · ')[0];
+      h+='<button class="exbtn pick" onclick="openExam(\''+e.id+'\')">'
+        +'<span>'+esc(lab)+'</span><small>'+(e.nQ||(e.key?e.key.length:0))+'문항</small></button>';
+    });
+    h+='</div></div>';
+  });
+  return h;
+}
+
 function renderList(){
-  cur=null; sel={};
+  cur=null; sel={}; ncLoad();
   let h='<div class="brand">Chemistreal · 조준모 화학</div><h1>답안 제출</h1>'
-    +'<div class="hint">시험을 고르고 이름·학교·답안을 입력하면 자동 채점되어 선생님께 제출됩니다.</div><div class="exlist">';
+    +'<div class="hint">시험을 고르고 이름·학교·답안을 입력하면 자동 채점되어 선생님께 제출됩니다.</div><div class="exlist">'
+    +pickHTML();
   GROUPS.forEach(([g,label])=>{
     const list=FINAL_EXAMS.filter(e=>e.group===g&&!e.hidden);
     if(!list.length) return;

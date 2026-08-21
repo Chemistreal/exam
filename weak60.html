@@ -227,6 +227,11 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
       <span id="ncMsg" class="muted" style="font-size:12.5px"></span>
     </div>
   </details>
+  <div class="row" style="margin:2px 0 10px">
+    <button class="btn" id="pickLink">이름 버튼 링크 복사 ⧉</button>
+    <span class="muted" style="font-size:12.5px">학생이 한 화면에서 <b>제 이름을 눌러</b> 들어가는 주소입니다.
+      이름은 그 링크 안에만 실립니다 — 저장소에는 코드뿐입니다.</span>
+  </div>
   <ul class="papers" id="flist"></ul>
 </section>
 
@@ -970,7 +975,31 @@ function ncImport(text){
   if(n) ncWrite(m);
   return n;
 }
+/* 학생이 한 화면에서 제 이름을 눌러 들어가는 주소.
+
+   이름을 저장소에 적을 수는 없다 — 공개 저장소라 적는 순간 미성년자의 이름이
+   검색에 걸린다. 그래서 이름표를 **주소에 실어** 나른다. 그 링크를 연
+   브라우저에만 이름이 남고, 저장소에는 코드뿐이다. */
+function pickURL(){
+  var m=ncAll(), out={};
+  Object.keys(m).forEach(function(c){ if(m[c]&&m[c].name) out[c]={name:m[c].name}; });
+  var b64=btoa(unescape(encodeURIComponent(JSON.stringify(out))))
+    .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  return new URL('final-submit.html#n='+b64, location.href).href;
+}
 function submitURLOf(id){ return new URL('final-submit.html?exam='+encodeURIComponent(id), location.href).href; }
+(function(){
+  var b=document.getElementById('pickLink'); if(!b) return;
+  b.onclick=function(){
+    var m=ncAll(), n=Object.keys(m).filter(function(c){ return m[c]&&m[c].name; }).length;
+    if(!n){ toast('먼저 이름↔코드 표를 붙여넣어 주세요'); return; }
+    var url=pickURL();
+    var done=function(){ toast('이름 버튼 링크를 복사했습니다 · '+n+'명'); };
+    if(navigator.clipboard&&navigator.clipboard.writeText)
+      navigator.clipboard.writeText(url).then(done,function(){ prompt('복사가 막혔습니다 — 직접 복사하세요', url); });
+    else prompt('직접 복사하세요', url);
+  };
+})();
 function drawFinals(){
   var ul=$('flist'); if(!ul) return;
   var nc=ncAll();
