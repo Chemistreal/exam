@@ -982,13 +982,20 @@ function drawFinals(){
       +(SF_OK ? '아직 지은 시험이 없습니다 — tools/gen_student_final.py --write 를 돌리거나, 선생님 시험지를 tools/ingest_teacher_exam.py 로 올리면 생깁니다.'
               : '<b class="err">student-finals.json 을 못 읽었습니다.</b> 파일이 올라갔는지, 새로고침이 필요한지 확인해 주세요.')
       +'</li>'; return; }
-  finals=finals.map(function(e){ var who=nc[e.id]; return {e:e, name:who&&who.name||''}; })
+  finals=finals.map(function(e){ var who=nc[e.id]||nc[baseCode(e.id)];
+                                 return {e:e, name:who&&who.name||''}; })
     .sort(function(a,b){ if(!!a.name!==!!b.name) return a.name?-1:1;
-                         return (a.name||a.e.id)<(b.name||b.e.id)?-1:1; });
+                         var ka=(a.name||baseCode(a.e.id))+'\u0000'+a.e.id;
+                         var kb=(b.name||baseCode(b.e.id))+'\u0000'+b.e.id;
+                         return ka<kb?-1:(ka>kb?1:0); });
   ul.innerHTML=finals.map(function(f){
     var label=f.name?esc(f.name):'<span class="code">'+esc(f.e.id)+'</span>';
+    /* 한 사람에게 회차가 여럿이다 — 어느 시험지인지 제목에서 떼어 보여 준다.
+       「파이널 60제 · s…」 「파이널 변형본 60제 · s…」 「실전 30제 · s…」 */
+    var kind=String(f.e.title||'').split(' · ')[0]||'';
     return '<li><span>'+label+(f.name?' <span class="code" style="font-size:11.5px">'+esc(f.e.id)+'</span>':'')
-      +' · '+f.e.nQ+'문항</span>'
+      +' · <b>'+esc(kind)+'</b>'
+      +'</span>'
       +'<span style="display:flex;gap:6px;flex-wrap:wrap">'
       +'<button class="btn ghost sm" data-fcopy="'+esc(f.e.id)+'">제출 링크 복사</button>'
       +'<a class="btn ghost sm" style="text-decoration:none" target="_blank" rel="noopener" href="'+esc(submitURLOf(f.e.id))+'">열기 ↗</a>'
@@ -1778,7 +1785,7 @@ async function makeStudyFromFinal(e){
     docs[pick.take[i].lec.file]=await lecStudy(pick.take[i].lec.file);
   }
   var K=await w60Kit();
-  var nm=(ncAll()[e.id]||{}).name||'';
+  var nm=(ncOf(e.id)||{}).name||'';
   var ymd=w60Ymd(Date.now());
   var meta={ name:nm||e.id, ymd:ymd, code:e.id, codePretty:e.id };
   var wording={
@@ -1814,10 +1821,16 @@ async function loadPackets(){
   PACKETS=(await r.json()).packets||{};
   return PACKETS;
 }
-function pktOf(code){ return (PACKETS||{})[code]||null; }
+/* 한 학생이 회차를 둘 넘게 갖는다 — 누적 오답으로 지은 「파이널 60제」와,
+   선생님이 한글로 새로 낸 「변형본」·「실전세트」다. 뒤엣것의 id 는 앞엣것에
+   `-2` 를 붙인 것이라, 이름표도 수업 자료도 밑코드로 되짚어야 찾는다.
+   안 그러면 새 회차가 다시 코드로만 보인다 — 선생님이 누군지 못 알아본다. */
+function baseCode(id){ return String(id||'').replace(/-\d+$/,''); }
+function pktOf(code){ var P=PACKETS||{}; return P[code]||P[baseCode(code)]||null; }
 
 /* 종이마다 같은 머리를 쓴다. 이름은 이 브라우저의 표에서 온다. */
-function _pkName(code){ return ((ncAll()[code]||{}).name)||code; }
+function ncOf(code){ var m=ncAll(); return m[code]||m[baseCode(code)]||null; }
+function _pkName(code){ return ((ncOf(code)||{}).name)||code; }
 function _pkHead(K, code, title){
   return _w60head(K, title, _pkName(code)+' · '+w60Ymd(Date.now()));
 }
@@ -1904,24 +1917,33 @@ async function makeTrapCard(code){
 }
 
 /* ── ③ 파이널 시험지 (확신도 칸 포함) ────────────────────────────────────── */
+/* 문항 크롭의 주소. 두 갈래가 온다 —
+     srcmap 회차   원본 회차의 크롭을 빌린다(누적 오답으로 지은 파이널)
+     crops 회차    제 크롭이 있다(선생님이 한글로 낸 변형본·실전세트) */
+function paperURLs(e){
+  var sm=(e.srcmap||[]);
+  if(sm.length) return sm.map(function(m){ return 'crops/'+m.e+'/'+m.q+'.png'; });
+  if(e.crops){ var out=[]; for(var q=1;q<=e.nQ;q++) out.push('crops/'+e.id+'/'+q+'.png'); return out; }
+  return [];
+}
 async function makeFinalPaper(code){
   var e=EXAMS.filter(function(x){ return x.id===code; })[0];
-  if(!e||!(e.srcmap||[]).length) throw new Error('이 학생의 파이널 시험을 못 찾았습니다');
+  var urls=e?paperURLs(e):[];
+  if(!urls.length) throw new Error('이 학생의 파이널 시험을 못 찾았습니다');
   var imgs={};
-  await Promise.all(e.srcmap.map(function(m){
-    var u='crops/'+m.e+'/'+m.q+'.png';
+  await Promise.all(urls.map(function(u){
     return _fetchImg(u).then(function(b){ if(b) imgs[u]=b; });
   }));
   var K=await w60Kit(), nm=_pkName(code);
-  var b=_pkHead(K, code, '파이널 '+e.nQ+'제');
+  var kind=String(e.title||'').split(' · ')[0]||('파이널 '+e.nQ+'제');
+  var b=_pkHead(K, code, kind);
   b.push(K.box('120분. 답을 쓴 뒤 그 옆 칸에 확신도를 표시합니다 — ○ 확실 · △ 반반 · ✗ 찍음.\n'
              + '확신도는 점수에 안 들어갑니다. 채점한 뒤 「△·✗ 인데 맞은 것」을 찾으려고 적습니다.',
                {lab:'쓰는 법',fill:'EDF4F1',bar:'0E5A4C'}));
   _pkRules(K).forEach(function(x){ b.push(x); });
   b.push(new K.Paragraph({children:[new K.PageBreak()]}));
   var miss=0;
-  e.srcmap.forEach(function(m,i){
-    var u='crops/'+m.e+'/'+m.q+'.png';
+  urls.forEach(function(u,i){
     var hd=[K.run(String(i+1),{bold:true,size:24,color:K.TEAL}),
             K.run('   '+((e.area||[])[i]||''),{bold:true,size:19,color:K.GOLD}),
             K.run('      답 (      )      확신도  ○  △  ✗',{size:18,color:K.MUTED})];
@@ -1930,8 +1952,8 @@ async function makeFinalPaper(code){
     else { b.push(K.P(hd,{before:200,after:40,keepNext:true}));
            b.push(K.txt('(그림을 못 받았습니다 — '+u+')',{color:K.MS,size:17})); miss++; }
   });
-  var blob=await K.Packer.toBlob(K.doc(nm+' 파이널 시험지', b, nm+' · 파이널 '+e.nQ+'제 · 120분'));
-  _saveBlob(blob, w60Safe(nm+'_파이널_'+e.nQ+'제_시험지_'+w60Ymd(Date.now()))+'.docx');
+  var blob=await K.Packer.toBlob(K.doc(nm+' '+kind+' 시험지', b, nm+' · '+kind+' · 120분'));
+  _saveBlob(blob, w60Safe(nm+'_'+kind.replace(/\s+/g,'')+'_시험지_'+w60Ymd(Date.now()))+'.docx');
   return {n:e.nQ, miss:miss};
 }
 

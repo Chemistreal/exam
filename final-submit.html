@@ -303,17 +303,30 @@ function renderList(){
    크롭(crops/<회차>/<번호>.png)을 가리키므로, 그 그림들을 시험지로 펼쳐 준다.
    srcmap[n-1] = {e:'hwol-2018', q:34} 꼴. 이 함수와 problemPanel 은 공유 블록
    밖이라 final.html 과 맞출 의무가 없다(tests/final-submit-sync.js 대상 아님). */
+/* 문항 그림을 한 줄씩 세워 보여 준다. 두 갈래가 여기로 온다.
+
+     srcmap 회차  원본 회차의 크롭을 빌려 쓴다(학생별 파이널)
+     crops 회차   제 크롭이 있다(선생님이 한글로 새로 낸 변형본·실전세트)
+
+   PDF 를 iframe 으로 띄우던 자리를 이것이 대신한다 — 휴대폰에서 PDF 는
+   손가락으로 확대해야 읽히고, 확대하면 답안칸이 화면 밖으로 나간다. */
 function cropsPanel(exam){
-  if(!exam.srcmap||!exam.srcmap.length) return '';
+  const sm=(exam.srcmap&&exam.srcmap.length)?exam.srcmap:null;
+  if(!sm&&!exam.crops) return '';
+  const nQ=exam.nQ||(sm?sm.length:0);
   let rows='';
-  for(let q=1;q<=(exam.nQ||exam.srcmap.length);q++){
-    const m=exam.srcmap[q-1]; if(!m) continue;
+  for(let q=1;q<=nQ;q++){
+    let src;
+    if(sm){ const m=sm[q-1]; if(!m) continue; src='crops/'+esc(m.e)+'/'+(+m.q)+'.png'; }
+    else src='crops/'+esc(exam.id)+'/'+q+'.png';
     rows+='<div class="cropq"><div class="cropq__n">'+q+'번</div>'
-      +'<img loading="lazy" src="crops/'+esc(m.e)+'/'+(+m.q)+'.png" alt="'+q+'번 문항"></div>';
+      +'<img loading="lazy" src="'+src+'" alt="'+q+'번 문항"></div>';
   }
   return '<div class="card pdfcard" id="pdfcard">'
     +'<div class="pdfbar"><label>📝 시험지 · 먼저 풀어 보세요</label>'
-    +'<span style="display:flex;gap:7px"><button type="button" class="pdftoggle" onclick="togglePdf()" id="pdftgl">접기</button></span></div>'
+    +'<span style="display:flex;gap:7px"><button type="button" class="pdftoggle" onclick="togglePdf()" id="pdftgl">접기</button>'
+    +(exam.pdf?'<a class="pdfopen" href="'+esc(exam.pdf)+'" target="_blank" rel="noopener">인쇄용 PDF ↗</a>':'')
+    +'</span></div>'
     +'<div class="hint">이 시험지는 나를 위해 만들어진 문제들입니다. 문제를 읽고 아래에 답안을 입력해 제출하세요.</div>'
     +'<div class="croplist">'+rows+'</div>'
     +'</div>';
@@ -348,7 +361,7 @@ function openExam(id){
   }
   app.innerHTML=(LOCKED?'<div class="brand">Chemistreal · 조준모 화학</div>':'<button class="back" onclick="renderList()">‹ 시험 목록</button>')
     +'<h1 style="font-size:18px">'+esc(cur.title)+'</h1>'
-    +((cur.srcmap&&cur.srcmap.length)?cropsPanel(cur):problemPanel(cur))
+    +((cur.srcmap&&cur.srcmap.length)||cur.crops?cropsPanel(cur):problemPanel(cur))
     +'<div class="cfbar"><b>확신도</b> 답 아래 칸을 눌러 표시하세요 — '
     +'<span style="color:#0c3a32">○ 확실</span> · <span style="color:#8a6a22">△ 반반</span> · '
     +'<span style="color:#8a2f1d">✗ 찍음</span>. 채점에는 들어가지 않고 내 화면에만 남습니다.</div>'

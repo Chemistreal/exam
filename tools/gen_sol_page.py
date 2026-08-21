@@ -71,11 +71,33 @@ th{background:#f1eee7;font-weight:700}
 """
 
 
+def all_exams() -> list:
+    """exams.json 과 곁방 두 채(student-finals · teacher-exams)를 한데 본다.
+
+    학생별 파이널은 목록·수·되돌림 검사를 흔들지 않으려고 exams.json 밖에 산다.
+    그래도 **제 해설이 있는 회차**(선생님이 한글로 새로 낸 변형본·실전세트)는
+    해설지가 있어야 한다 — 성적표가 그 링크를 건다.
+    """
+    out = json.loads((ROOT / "exams.json").read_text(encoding="utf-8"))
+    for side in ("student-finals.json", "teacher-exams.json"):
+        p = ROOT / side
+        if not p.exists():
+            continue
+        doc = json.loads(p.read_text(encoding="utf-8"))
+        for e in doc.get("exams", []):
+            # 원본 회차의 크롭을 빌려 쓰는 파생 회차는 제 해설지가 없다
+            if e.get("srcmap"):
+                continue
+            if (ROOT / "answers" / f"{e['id']}.json").exists():
+                out.append(e)
+    return out
+
+
 def build(exam_id: str) -> str:
-    exams = {e["id"]: e for e in json.loads((ROOT / "exams.json").read_text(encoding="utf-8"))}
+    exams = {e["id"]: e for e in all_exams()}
     exam = exams.get(exam_id)
     if not exam:
-        raise SystemExit(f"exams.json 에 없는 시험: {exam_id}")
+        raise SystemExit(f"어느 회차 목록에도 없는 시험: {exam_id}")
     data = json.loads((ROOT / "answers" / f"{exam_id}.json").read_text(encoding="utf-8"))
     q = data["questions"]
 
@@ -228,7 +250,7 @@ def main() -> int:
     write = "--write" in sys.argv[1:]
 
     if "--check" in sys.argv[1:]:
-        exams = json.loads((ROOT / "exams.json").read_text(encoding="utf-8"))
+        exams = all_exams()
         stale = []
         for e in exams:
             page = ROOT / f"sol-final-{e['id']}.html"
@@ -249,7 +271,7 @@ def main() -> int:
         for page in sorted(ROOT.glob("sol-final-*.html")):
             eid = page.name[len("sol-final-"):-len(".html")]
             if eid not in ids:
-                stale.append(f"{eid}: exams.json 에 없는 회차의 해설지다 "
+                stale.append(f"{eid}: 어느 회차 목록에도 없는 해설지다 "
                              f"({page.name}) — 지우거나 회차를 넣어라")
         if stale:
             print("FAIL 해설지가 데이터와 어긋난다:")

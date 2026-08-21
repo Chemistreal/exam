@@ -56,6 +56,25 @@ def callers(seen):
     return who
 
 
+def hidden_sol_pages():
+    """학생 개인 회차의 해설지 — 목록에 안 걸고 성적표가 그 자리에서 연다.
+
+    student-finals.json 의 회차는 `hidden:true` 다. 이름을 목차에 실으면
+    「누구에게만 준 것」 이 공개 목록이 되어 버린다. 성적표(final.html)가
+    `'sol-final-'+exam.id+'.html'` 을 그 자리에서 만들어 걸므로 문은 있다 —
+    다만 글자로 안 적혀 있어서 이 자가 못 본다. 여기서 이어 준다.
+    """
+    out = {}
+    for side in ('student-finals.json', 'teacher-exams.json'):
+        p = os.path.join(ROOT, side)
+        if not os.path.exists(p):
+            continue
+        for e in json.load(open(p, encoding='utf-8')).get('exams', []):
+            if e.get('hidden'):
+                out['sol-final-%s.html' % e['id']] = side
+    return out
+
+
 def doors():
     """(화면, 문이 있나, 어디에 있나)."""
     pages = sorted(os.path.basename(p) for p in glob.glob(os.path.join(ROOT, '*.html')))
@@ -65,9 +84,12 @@ def doors():
         listed = set(re.findall(r'[A-Za-z0-9_가-힣-]+\.html',
                                 open(mat, encoding='utf-8').read()))
     who = callers(mentions())
+    hid = hidden_sol_pages()
     out = []
     for n in pages:
-        if n in listed:
+        if n in hid:
+            out.append((n, True, '성적표가 그 자리에서 건다 · ' + hid[n]))
+        elif n in listed:
             out.append((n, True, '자료 목록'))
         elif n in NO_DOOR_OK:
             out.append((n, True, '적어 둠 · ' + NO_DOOR_OK[n]))
