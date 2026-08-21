@@ -976,7 +976,12 @@ function drawFinals(){
       +'<span style="display:flex;gap:6px;flex-wrap:wrap">'
       +'<button class="btn ghost sm" data-fcopy="'+esc(f.e.id)+'">제출 링크 복사</button>'
       +'<a class="btn ghost sm" style="text-decoration:none" target="_blank" rel="noopener" href="'+esc(submitURLOf(f.e.id))+'">열기 ↗</a>'
-      +'<button class="btn ghost sm" data-fstudy="'+esc(f.e.id)+'">공부자료 Word ↓</button>'
+      +'<button class="btn ghost sm" data-fstudy="'+esc(f.e.id)+'">공부자료 ↓</button>'
+      +'<button class="btn ghost sm" data-pk="warm" data-code="'+esc(f.e.id)+'">워밍업 6제 ↓</button>'
+      +'<button class="btn ghost sm" data-pk="trap" data-code="'+esc(f.e.id)+'">함정카드 ↓</button>'
+      +'<button class="btn ghost sm" data-pk="paper" data-code="'+esc(f.e.id)+'">시험지 ↓</button>'
+      +'<button class="btn ghost sm" data-pk="diag" data-code="'+esc(f.e.id)+'">진단표 ↓</button>'
+      +'<button class="btn" data-pk="all" data-code="'+esc(f.e.id)+'">한 벌 전부 ↓</button>'
       +'</span></li>';
   }).join('');
   Array.prototype.forEach.call(ul.querySelectorAll('button[data-fcopy]'), function(b){
@@ -985,6 +990,18 @@ function drawFinals(){
       var done=function(){ toast('제출 링크를 복사했습니다'); };
       if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done,function(){ prompt('복사가 막혔습니다 — 직접 복사하세요', url); }); }
       else prompt('직접 복사하세요', url);
+    };
+  });
+  var PK_FN={warm:makeWarmup, trap:makeTrapCard, paper:makeFinalPaper, diag:makeDiagSheet, all:makeAllFor};
+  var PK_MSG={warm:'워밍업', trap:'함정카드', paper:'시험지', diag:'진단표', all:'한 벌 전부'};
+  Array.prototype.forEach.call(ul.querySelectorAll('button[data-pk]'), function(b){
+    b.onclick=function(){
+      var kind=b.getAttribute('data-pk'), code=b.getAttribute('data-code');
+      run(b, function(){ return loadPackets().then(function(){ return PK_FN[kind](code); }); },
+          function(r){
+            var extra=(r&&r.miss)?(' · 그림 '+r.miss+'장 못 받음'):'';
+            toast(PK_MSG[kind]+' 저장 완료'+extra);
+          });
     };
   });
   Array.prototype.forEach.call(ul.querySelectorAll('button[data-fstudy]'), function(b){
@@ -1746,6 +1763,197 @@ async function makeStudyFromFinal(e){
                                        (nm||e.id)+' · 공부자료 · '+e.id));
   _saveBlob(blob, w60Safe((nm||e.id)+'_파이널_공부자료_'+pick.take.length+'강_'+ymd)+'.docx');
   return { pick:pick };
+}
+
+/* ══ 시험 직전 회차 · 종이 한 벌 ══════════════════════════════════════════
+   오늘 수업은 종이로 돈다. 학생마다 넉 장이 다르게 나간다.
+
+     ① 워밍업 6제      예열. 맞힐 수 있는 것으로만. 정답은 안 싣는다.
+     ② 내 함정 한 장    그 학생이 실제로 틀린 문항의 오개념 스무 줄
+     ③ 파이널 시험지    60제 · 확신도(○△✗) 칸이 답란 옆에 있다
+     ④ 진단표          선생님용. 무엇이 새는가 · 흔들리는 유형 · 늘 틀리는 유형
+
+   셈은 tools/gen_student_packets.py 가 미리 해 두었다(student-packets.json).
+   여기서는 그것을 종이에 앉히기만 한다 — 브라우저가 스물몇 회차를 다시
+   훑지 않는다. */
+var PACKETS=null;
+async function loadPackets(){
+  if(PACKETS) return PACKETS;
+  var r=await fetch('student-packets.json',{cache:'no-store'});
+  if(!r.ok) throw new Error('student-packets.json '+r.status);
+  PACKETS=(await r.json()).packets||{};
+  return PACKETS;
+}
+function pktOf(code){ return (PACKETS||{})[code]||null; }
+
+/* 종이마다 같은 머리를 쓴다. 이름은 이 브라우저의 표에서 온다. */
+function _pkName(code){ return ((ncAll()[code]||{}).name)||code; }
+function _pkHead(K, code, title){
+  return _w60head(K, title, _pkName(code)+' · '+w60Ymd(Date.now()));
+}
+var PK_TIME=[['30분','15번'],['60분','30번'],['90분','45번'],
+             ['105분','60번 (1회독 끝)'],['105~120분','표시 문항 + 빈칸']];
+function _pkRules(K){
+  var b=[];
+  b.push(K.txt('시험장에서 지킬 세 줄',{color:K.TEAL,size:22,bold:true,before:200,after:60}));
+  b.push(K.box(['1. 빈칸은 0개로 끝낸다 — 빈칸은 수상 판정에서 오답과 똑같이 센다. 찍는 건 손해가 없다.',
+                '2. 1분 규칙 — 실마리가 없으면 표시하고 넘어간다. 반드시 되돌아온다.',
+                '3. 발문에 동그라미 — 「옳지 않은 것」을 표시하고 시작한다.'].join('\n'),
+               {lab:'규칙',fill:'EDF4F1',bar:'0E5A4C'}));
+  b.push(K.txt('시간표 · 120분 60문항',{color:K.TEAL,size:22,bold:true,before:200,after:60}));
+  var w=[1700,1700,1700,2400,2400];
+  var r1=PK_TIME.map(function(t,i){ return K.cell(t[0],{w:w[i],bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}); });
+  var r2=PK_TIME.map(function(t,i){ return K.cell(t[1],{w:w[i],align:K.AlignmentType.CENTER}); });
+  b.push(K.table([r1,r2],w));
+  return b;
+}
+
+/* ── ① 워밍업 6제 (학생용 · 정답 없음) ───────────────────────────────────── */
+async function makeWarmup(code){
+  var p=pktOf(code); if(!p||!(p.warmup||[]).length) throw new Error('워밍업으로 낼 문항을 못 찾았습니다');
+  var imgs={};
+  await Promise.all(p.warmup.map(function(w){
+    var u='crops/'+w.e+'/'+w.q+'.png';
+    return _fetchImg(u).then(function(b){ if(b) imgs[u]=b; });
+  }));
+  var K=await w60Kit(), nm=_pkName(code);
+  var b=_pkHead(K, code, '워밍업 '+p.warmup.length+'제');
+  b.push(K.box('수업을 여는 15분에 씁니다. 시험이 아니라 예열입니다 — 다 맞히도록 고른 것입니다.\n'
+             + '못 푸는 것이 있으면 그 영역을 오늘 조심하라는 뜻입니다.',
+               {lab:'읽고 시작',fill:'FAF8F1',bar:'B08D57',labColor:K.GOLD}));
+  var miss=0;
+  p.warmup.forEach(function(w,i){
+    var u='crops/'+w.e+'/'+w.q+'.png';
+    b.push(K.P([K.run(String(i+1),{bold:true,size:24,color:K.TEAL}),
+                K.run('   '+(w.area||''),{bold:true,size:19,color:K.GOLD})],
+               {before:200,after:40,keepNext:true}));
+    if(imgs[u]) b.push(K.P([K.img(imgs[u],630)],{before:0,after:60,keepLines:true}));
+    else { b.push(K.txt('(그림을 못 받았습니다 — '+u+')',{color:K.MS,size:17})); miss++; }
+    b.push(K.txt('답 (        )',{size:19,after:120}));
+  });
+  var blob=await K.Packer.toBlob(K.doc(nm+' 워밍업', b, nm+' · 워밍업 '+p.warmup.length+'제'));
+  _saveBlob(blob, w60Safe(nm+'_워밍업_'+p.warmup.length+'제_'+w60Ymd(Date.now()))+'.docx');
+  return {n:p.warmup.length, miss:miss};
+}
+
+/* ── ② 내 함정 한 장 ─────────────────────────────────────────────────────── */
+async function makeTrapCard(code){
+  var p=pktOf(code); if(!p||!(p.trap||[]).length) throw new Error('실을 오개념을 못 찾았습니다');
+  var K=await w60Kit(), nm=_pkName(code);
+  var b=_pkHead(K, code, '내 함정 한 장');
+  b.push(K.box('시험 직전 15분에 이것만 읽습니다. 새 개념은 보지 않습니다.\n'
+             + '아래는 내가 실제로 틀린 문항에서 뽑은 것입니다.',
+               {lab:'읽는 법',fill:'FAF8F1',bar:'B08D57',labColor:K.GOLD}));
+  p.trap.forEach(function(t,i){
+    var head=[K.run(String(i+1)+'. ',{bold:true,size:20,color:K.GOLD}),
+              K.run('['+t.area+']'+(t.label?(' '+t.label):'')+'  ',{bold:true,size:18,color:K.TEAL}),
+              K.run(t.line,{size:18})];
+    b.push(K.P(head,{before:60,after:60}));
+  });
+  _pkRules(K).forEach(function(x){ b.push(x); });
+  b.push(K.txt('오늘 나의 한 가지',{color:K.TEAL,size:22,bold:true,before:200,after:60}));
+  b.push(K.box(p.card,{lab:'내 것',fill:'FBF0EA',bar:'B8562F',labColor:K.MS}));
+  var blob=await K.Packer.toBlob(K.doc(nm+' 함정 카드', b, nm+' · 내 함정 한 장'));
+  _saveBlob(blob, w60Safe(nm+'_함정카드_'+w60Ymd(Date.now()))+'.docx');
+  return {n:p.trap.length};
+}
+
+/* ── ③ 파이널 시험지 (확신도 칸 포함) ────────────────────────────────────── */
+async function makeFinalPaper(code){
+  var e=EXAMS.filter(function(x){ return x.id===code; })[0];
+  if(!e||!(e.srcmap||[]).length) throw new Error('이 학생의 파이널 시험을 못 찾았습니다');
+  var imgs={};
+  await Promise.all(e.srcmap.map(function(m){
+    var u='crops/'+m.e+'/'+m.q+'.png';
+    return _fetchImg(u).then(function(b){ if(b) imgs[u]=b; });
+  }));
+  var K=await w60Kit(), nm=_pkName(code);
+  var b=_pkHead(K, code, '파이널 '+e.nQ+'제');
+  b.push(K.box('120분. 답을 쓴 뒤 그 옆 칸에 확신도를 표시합니다 — ○ 확실 · △ 반반 · ✗ 찍음.\n'
+             + '확신도는 점수에 안 들어갑니다. 채점한 뒤 「△·✗ 인데 맞은 것」을 찾으려고 적습니다.',
+               {lab:'쓰는 법',fill:'EDF4F1',bar:'0E5A4C'}));
+  _pkRules(K).forEach(function(x){ b.push(x); });
+  b.push(new K.Paragraph({children:[new K.PageBreak()]}));
+  var miss=0;
+  e.srcmap.forEach(function(m,i){
+    var u='crops/'+m.e+'/'+m.q+'.png';
+    b.push(K.P([K.run(String(i+1),{bold:true,size:24,color:K.TEAL}),
+                K.run('   '+((e.area||[])[i]||''),{bold:true,size:19,color:K.GOLD}),
+                K.run('      답 (      )      확신도  ○  △  ✗',{size:18,color:K.MUTED})],
+               {before:200,after:40,keepNext:true}));
+    if(imgs[u]) b.push(K.P([K.img(imgs[u],630)],{before:0,after:80,keepLines:true}));
+    else { b.push(K.txt('(그림을 못 받았습니다 — '+u+')',{color:K.MS,size:17})); miss++; }
+  });
+  var blob=await K.Packer.toBlob(K.doc(nm+' 파이널 시험지', b, nm+' · 파이널 '+e.nQ+'제 · 120분'));
+  _saveBlob(blob, w60Safe(nm+'_파이널_'+e.nQ+'제_시험지_'+w60Ymd(Date.now()))+'.docx');
+  return {n:e.nQ, miss:miss};
+}
+
+/* ── ④ 진단표 (선생님용) ─────────────────────────────────────────────────── */
+async function makeDiagSheet(code){
+  var p=pktOf(code); if(!p) throw new Error('진단 자료가 없습니다');
+  var K=await w60Kit(), nm=_pkName(code);
+  var b=_pkHead(K, code, '누적 진단 · 선생님용');
+  var w=[2400,2400,2400,2700];
+  b.push(K.table([
+    [K.cell('응시 회차',{w:w[0],bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+     K.cell('채점 문항',{w:w[1],bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+     K.cell('정답률',{w:w[2],bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+     K.cell('무응답률',{w:w[3],bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER})],
+    [K.cell(p.attempts+'회',{w:w[0],align:K.AlignmentType.CENTER}),
+     K.cell(String(p.graded),{w:w[1],align:K.AlignmentType.CENTER}),
+     K.cell(p.acc+'%',{w:w[2],align:K.AlignmentType.CENTER}),
+     K.cell(p.blankPct+'%',{w:w[3],align:K.AlignmentType.CENTER})]], w));
+  b.push(K.txt('판정 · '+p.verdict,{color:K.TEAL,size:24,bold:true,before:220,after:60}));
+  b.push(K.txt(p.why,{size:18,after:60}));
+  b.push(K.box(p.card,{lab:'시험장 지시',fill:'FBF0EA',bar:'B8562F',labColor:K.MS}));
+  b.push(K.txt('문항 위치별 무응답률 (앞 → 뒤)',{color:K.TEAL,size:21,bold:true,before:220,after:60}));
+  var w2=[1980,1980,1980,1980,1980];
+  b.push(K.table([
+    ['1/5','2/5','3/5','4/5','5/5'].map(function(t,i){ return K.cell(t,{w:w2[i],bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}); }),
+    (p.blankBySeg||[]).map(function(v,i){ return K.cell(v+'%',{w:w2[i],align:K.AlignmentType.CENTER}); })], w2));
+  var w3=[4400,1800,1800,1900];
+  b.push(K.txt('흔들리는 유형 '+p.nShaky+'종 — 회수 가능분 (상위 '+(p.shaky||[]).length+')',
+               {color:K.TEAL,size:21,bold:true,before:220,after:20}));
+  b.push(K.txt('맞히기도 하고 틀리기도 하는 유형입니다. 이미 반쯤 압니다 — 한 번의 확인으로 넘어갑니다.',
+               {color:K.MUTED,size:17,after:60}));
+  var rows=[[K.cell('유형',{w:w3[0],bold:true,fill:'F5F2EA'}),
+             K.cell('맞음',{w:w3[1],bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+             K.cell('틀림+무응답',{w:w3[2],bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+             K.cell('틀린 회차',{w:w3[3],bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER})]];
+  (p.shaky||[]).forEach(function(r){
+    rows.push([K.cell(r.type,{w:w3[0]}), K.cell(String(r.c),{w:w3[1],align:K.AlignmentType.CENTER}),
+               K.cell(String(r.bad),{w:w3[2],align:K.AlignmentType.CENTER}),
+               K.cell(String(r.rounds),{w:w3[3],align:K.AlignmentType.CENTER})]);
+  });
+  b.push(K.table(rows,w3));
+  b.push(K.txt('늘 틀리는 유형 '+p.nAlways+'종 (상위 '+(p.always||[]).length+')',
+               {color:K.TEAL,size:21,bold:true,before:220,after:20}));
+  b.push(K.txt('한 회차로는 안 고쳐집니다. 이 중 남들은 맞히는 것부터 봅니다.',
+               {color:K.MUTED,size:17,after:60}));
+  var w4=[6200,1800,1900];
+  var rows2=[[K.cell('유형',{w:w4[0],bold:true,fill:'F5F2EA'}),
+              K.cell('틀림+무응답',{w:w4[1],bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER}),
+              K.cell('틀린 회차',{w:w4[2],bold:true,fill:'F5F2EA',align:K.AlignmentType.CENTER})]];
+  (p.always||[]).forEach(function(r){
+    rows2.push([K.cell(r.type,{w:w4[0]}), K.cell(String(r.bad),{w:w4[1],align:K.AlignmentType.CENTER}),
+                K.cell(String(r.rounds),{w:w4[2],align:K.AlignmentType.CENTER})]);
+  });
+  b.push(K.table(rows2,w4));
+  var blob=await K.Packer.toBlob(K.doc(nm+' 진단표', b, nm+' · 누적 진단'));
+  _saveBlob(blob, w60Safe(nm+'_진단표_'+w60Ymd(Date.now()))+'.docx');
+  return {shaky:p.nShaky, always:p.nAlways};
+}
+
+/* 한 사람 몫 넉 장을 차례로. 한꺼번에 던지지 않는다 — 그림을 수백 장 받는다. */
+async function makeAllFor(code){
+  var out={};
+  out.warm=await makeWarmup(code);
+  out.trap=await makeTrapCard(code);
+  out.paper=await makeFinalPaper(code);
+  out.diag=await makeDiagSheet(code);
+  out.study=await makeStudyFromFinal(EXAMS.filter(function(x){ return x.id===code; })[0]);
+  return out;
 }
 
 /* ══ 화면 ═════════════════════════════════════════════════════════════════ */
