@@ -44,8 +44,8 @@ LEAD = re.compile(r'^(?:■\s*)?(?:풀이|해설)\s*[:：]?\s*')
 
 
 def title_of(d):
-    return ('파이널 변형본 60제 · %s' if d['kind'] == '변형본'
-            else '실전 30제 · %s') % d['code']
+    return (('파이널 변형본 %d제 · %%s' % d['nQ']) if d['kind'] == '변형본'
+            else ('실전 %d제 · %%s' % d['nQ'])) % d['code']
 
 
 def cut_of(n):
@@ -184,7 +184,8 @@ def ingest(path, code=None, write=False):
     d['code'] = code or d['code']
     if not d['code']:
         raise SystemExit('%s: 학생 코드를 못 찾았다 — --code 로 준다' % path)
-    d['examId'] = d['code'] + '-2'
+    # 한 학생이 시험지를 둘 받는다 — 변형본 60제(-2) 와 실전세트(-3).
+    d['examId'] = d['code'] + ('-2' if d['kind'] == '변형본' else '-3')
     d['title'] = title_of(d)
 
     ans = answers_json(d)
@@ -209,11 +210,19 @@ def ingest(path, code=None, write=False):
     return d
 
 
+MINE = ('ingest_hwpx_exam.py', 'ingest_pdf_exam.py')
+
+
+def _mine(e):
+    return (e.get('source') or {}).get('tool', '').rsplit('/', 1)[-1] in MINE
+
+
 def check():
+    """선생님이 낸 시험지가 넷 다 같은 것을 가리키는지 — 한글 길·PDF 길 모두."""
     doc, _ = load_finals()
     bad = []
     for e in doc['exams']:
-        if not (e.get('source') or {}).get('tool', '').endswith('ingest_hwpx_exam.py'):
+        if not _mine(e):
             continue
         eid = e['id']
         ap = ROOT / 'answers' / ('%s.json' % eid)
@@ -228,8 +237,12 @@ def check():
         got = len(list(cd.glob('*.png'))) if cd.exists() else 0
         if got != e['nQ']:
             bad.append('%s: 크롭 %d/%d' % (eid, got, e['nQ']))
-        if not (ROOT / e['pdf']).exists():
+        # PDF 로 들인 회차는 문제지를 안 싣는다 — 원본 PDF 에 해설이 함께
+        # 들어 있어서, 그대로 올리면 문제지가 곧 답지가 된다.
+        if e.get('pdf') and not (ROOT / e['pdf']).exists():
             bad.append('%s: 문제지 PDF 없음' % eid)
+        if not e.get('pdf') and not e.get('crops'):
+            bad.append('%s: 문제를 보여 줄 것이 없다 (PDF 도 크롭도 없다)' % eid)
         leak = [i for i in range(1, e['nQ'] + 1)
                 if not a['questions'][str(i)]['explanation']]
         if leak:
@@ -239,9 +252,8 @@ def check():
         for b in bad:
             print('  ' + b)
         return 1
-    n = sum(1 for e in doc['exams']
-            if (e.get('source') or {}).get('tool', '').endswith('ingest_hwpx_exam.py'))
-    print('PASS 선생님 시험지 %d회차 · 크롭·PDF·답지가 모두 짝이 맞는다' % n)
+    n = sum(1 for e in doc['exams'] if _mine(e))
+    print('PASS 선생님 시험지 %d회차 · 크롭·문제지·답지가 모두 짝이 맞는다' % n)
     return 0
 
 

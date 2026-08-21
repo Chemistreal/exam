@@ -413,7 +413,8 @@ def check():
         # 선생님이 한글로 새로 낸 회차는 이 자가 지은 것이 아니다 —
         # 크롭도 해설도 제 것이 있어서 srcmap 이 없다.
         # 그쪽은 tools/ingest_hwpx_exam.py --check 가 따로 잰다.
-        if (e.get('source') or {}).get('tool', '').endswith('ingest_hwpx_exam.py'):
+        if (e.get('source') or {}).get('tool', '').rsplit('/', 1)[-1] in (
+                'ingest_hwpx_exam.py', 'ingest_pdf_exam.py'):
             continue
         sm = e.get('srcmap') or []
         if not e.get('hidden'):
@@ -449,7 +450,8 @@ def check():
             print('  ' + b)
         return 1
     mine = [e for e in finals
-            if not (e.get('source') or {}).get('tool', '').endswith('ingest_hwpx_exam.py')]
+            if (e.get('source') or {}).get('tool', '').rsplit('/', 1)[-1] not in (
+                'ingest_hwpx_exam.py', 'ingest_pdf_exam.py')]
     print(f'✓ 학생별 파이널 {len(mine)}벌 — srcmap·정답키·크롭·출처 전부 원본과 맞다')
     return 0
 

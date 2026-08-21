@@ -622,6 +622,10 @@ jobs:
       - name: 선생님 한글 시험지가 온전하다
         timeout-minutes: 5
         run: python3 tools/ingest_hwpx_exam.py --check
+      # PDF 로 온 시험지도 같은 자로 잰다 — 두 길이 같은 곳에 들어간다.
+      - name: 선생님 PDF 시험지가 온전하다
+        timeout-minutes: 5
+        run: python3 tools/ingest_pdf_exam.py --check
       - name: 시험끼리 겹치는 문항 (기준 목록 대비 새로 생긴 것)
         timeout-minutes: 5
         run: python3 tools/dh_dupe_scan.py --cross --baseline
