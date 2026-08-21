@@ -26,8 +26,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 
 from ingest_teacher_exam import trim_white                    # noqa: E402
-from ingest_hwpx_exam import (answers_json, cut_of, load_finals,   # noqa: E402
-                              MIS_SPLIT, SHELL, TAILER, LEAD, check)
+from ingest_hwpx_exam import (cut_of, load_finals, tidy, map_area,  # noqa: E402
+                              type_of, MIS_SPLIT, SHELL, TAILER, LEAD, check)
 
 HEAD = re.compile(r'^문제\s*(\d{1,3})$')
 LEVEL = re.compile(r'^(변형|난이도\s*[상중하])$')
@@ -316,11 +316,12 @@ def ingest(path, code=None, kind=None, section=0, write=False):
 
     qs = {}
     for q in d['q']:
+        area = map_area(tidy(q['area']))
         qs[str(q['n'])] = {
             'answer': q['answer'], 'acceptableAnswers': [q['answer']],
-            'excluded': False, 'concept': q['area'], 'area': q['area'],
-            'learningPoint': q['area'], 'explanation': q['sol'],
-            'explanationHtml': '', 'misconception': q['tip'],
+            'excluded': False, 'concept': type_of(area), 'area': area,
+            'learningPoint': type_of(area), 'explanation': tidy(q['sol']),
+            'explanationHtml': '', 'misconception': tidy(q['tip']),
             'sourceSolution': '선생님 원본 해설 (%s · PDF)' % d['kind'],
             'verificationStatus': 'verified_against_supplied_solution_book'}
     ans = {'schemaVersion': 1, 'examId': d['examId'], 'examTitle': d['title'],
@@ -330,7 +331,8 @@ def ingest(path, code=None, kind=None, section=0, write=False):
     ent = {'id': d['examId'], 'title': d['title'], 'group': '파이널',
            'hidden': True, 'nQ': d['nQ'], 'mode': 'auto', 'cut': cut_of(d['nQ']),
            'key': [q['answer'] for q in d['q']], 'miss': [],
-           'area': [q['area'] for q in d['q']], 'type': [q['area'] for q in d['q']],
+           'area': [map_area(tidy(q['area'])) for q in d['q']],
+           'type': [type_of(map_area(tidy(q['area']))) for q in d['q']],
            'crops': True,
            'source': {'tool': 'tools/ingest_pdf_exam.py', 'kind': d['kind'],
                       'file': d['source']}}

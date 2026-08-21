@@ -20,6 +20,7 @@
     python3 tools/start_index.py --check   # 어긋나면 빨간불 (CI용)
 """
 import glob
+import json
 import os
 import re
 import sys
@@ -27,6 +28,25 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PAGE = os.path.join(ROOT, 'START_HERE_index.html')
 SELF = 'START_HERE_index.html'
+
+
+def hidden_sol_pages():
+    """학생 개인 회차의 해설지는 이 목록에 안 싣는다.
+
+    student-finals.json 의 회차는 `hidden:true` 다 — 주소를 아는 사람만 연다.
+    '전체 파일 인덱스' 에 이름을 실으면 「누구에게만 준 것」 이 공개 목록이
+    되어 버린다. 성적표(final.html)가 그 자리에서 링크를 만들어 거는 것이
+    이 장들의 문이다(tools/page_doors.py 도 같은 자리를 안다).
+    """
+    out = set()
+    for side in ('student-finals.json', 'teacher-exams.json'):
+        p = os.path.join(ROOT, side)
+        if not os.path.exists(p):
+            continue
+        for e in json.load(open(p, encoding='utf-8')).get('exams', []):
+            if e.get('hidden'):
+                out.add('sol-final-%s.html' % e['id'])
+    return out
 
 
 def main():
@@ -40,8 +60,10 @@ def main():
     for l in dead:
         bad.append('없는 파일로 건다: %s' % l)
 
+    skip = hidden_sol_pages()
     missing = sorted(r for r in real
-                     if r not in linked and r != SELF and not r.startswith('_'))
+                     if r not in linked and r != SELF and not r.startswith('_')
+                     and r not in skip)
     for r in missing:
         bad.append('목록에 없다: %s' % r)
 

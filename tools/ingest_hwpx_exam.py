@@ -43,6 +43,73 @@ TAILER = re.compile(r'·\s*난이도\s*(?:변형|[상중하])\s*$')
 LEAD = re.compile(r'^(?:■\s*)?(?:풀이|해설)\s*[:：]?\s*')
 
 
+def tidy(s):
+    """저장소가 정한 표기로 모은다.
+
+    한글 원본은 온도를 ℃(U+2103) 한 글자로 쓴다. 그 글자는 CJK 호환용이라
+    유니코드가 쓰지 말라 권하고, 「°C」 로 찾으면 안 걸린다 — 저장소는
+    °C 로 모아 두었고 tools/dh_lint.py 가 그것을 지킨다.
+    """
+    return s.replace('\u2103', '°C')
+
+
+# ── 영역 이름 ────────────────────────────────────────────────────────────
+# 성적표는 문항의 `area` 로 영역별 진단과 처방을 만든다. 아는 이름이 아니면
+# 그 문항은 **처방 없이 흘러간다** — 화면은 멀쩡하고 점수도 맞아서 아무도
+# 모른다(tools/area_tag.py 가 그것을 잰다).
+#
+# 선생님 시험지는 영역을 두 꼴로 적는다.
+#     변형본     「원자모형」            — 이미 아는 이름이다
+#     실전세트   「원자와 주기성 · 방사성 붕괴」  — 대단원 · 소단원
+# 뒤엣것을 아는 이름으로 옮긴다. 소단원 → 대단원 → 부분일치 차례로 본다.
+_UNIT = {'원자와 주기성': '원자의구조', '화학 결합과 분자 구조': '화학결합',
+         '기체와 상평형': '기체', '용액과 총괄성': '용액의총괄성',
+         '용액과 농도': '용액의농도', '화학 평형과 산·염기': '화학평형',
+         '열역학과 전기화학': '열역학', '화학 반응 속도': '반응속도',
+         '반응 속도와 메커니즘': '반응속도', '화학량론': '양적관계',
+         '유기와 생화학': '탄소화합물'}
+# 같은 것을 두 가지로 적지 않는다(tools/type_norm.py). 저장소가 이미 쓰던 꼴로 모은다.
+_SPELL = {'헨더슨하셀바흐식': '헨더슨-하셀바흐식', '고체의밀도': '고체의 밀도'}
+_KNOWN = None
+
+
+def _known():
+    global _KNOWN
+    if _KNOWN is None:
+        sys.path.insert(0, str(ROOT / 'tools'))
+        import area_tag
+        _KNOWN = area_tag.known()[0]
+    return _KNOWN
+
+
+def _squash(s):
+    return re.sub(r'[\s·\-,()]', '', s)
+
+
+def map_area(t):
+    """선생님이 적은 영역 이름을 성적표가 아는 이름으로."""
+    known = _known()
+    if t in known:
+        return t
+    sq = {_squash(k): k for k in known}
+    unit, _, con = t.partition(' · ')
+    for c in (con, unit, t):
+        if _squash(c) in sq:
+            return sq[_squash(c)]
+    long_first = sorted(known, key=len, reverse=True)
+    for part in (con, unit):
+        s = _squash(part)
+        for k in long_first:
+            if len(k) >= 3 and _squash(k) in s:
+                return k
+    return _UNIT.get(unit.strip(), '기타')
+
+
+def type_of(area):
+    """유형 이름 — 영역과 같되, 저장소가 쓰던 철자로 모은다."""
+    return _SPELL.get(area, area)
+
+
 def title_of(d):
     return (('파이널 변형본 %d제 · %%s' % d['nQ']) if d['kind'] == '변형본'
             else ('실전 %d제 · %%s' % d['nQ'])) % d['code']
@@ -80,16 +147,17 @@ def answers_json(d):
     qs = {}
     for q in d['q']:
         body, tip = sol_text(q['sol'], q['area'])
+        area = map_area(tidy(q['area']))
         qs[str(q['n'])] = {
             'answer': q['answer'],
             'acceptableAnswers': [q['answer']],
             'excluded': False,
-            'concept': q['area'],
-            'area': q['area'],
-            'learningPoint': q['area'],
-            'explanation': body,
+            'concept': type_of(area),
+            'area': area,
+            'learningPoint': type_of(area),
+            'explanation': tidy(body),
             'explanationHtml': '',
-            'misconception': tip,
+            'misconception': tidy(tip),
             'sourceSolution': '선생님 원본 해설 (%s)' % d['kind'],
             'verificationStatus': 'verified_against_supplied_solution_book',
         }
@@ -114,8 +182,8 @@ def entry_of(d):
         'cut': cut_of(d['nQ']),
         'key': [q['answer'] for q in d['q']],
         'miss': [],
-        'area': [q['area'] for q in d['q']],
-        'type': [q['area'] for q in d['q']],
+        'area': [map_area(tidy(q['area'])) for q in d['q']],
+        'type': [type_of(map_area(tidy(q['area']))) for q in d['q']],
         'pdf': '%s-problem.pdf' % d['examId'],
         'crops': True,
         'source': {'tool': 'tools/ingest_hwpx_exam.py',
