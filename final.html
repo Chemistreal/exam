@@ -1050,7 +1050,7 @@ const app=document.getElementById('app');
 let cur=null, sel={};
 const CIRC=['','①','②','③','④'];
 /* ── 이름을 다듬는 한 곳 ────────────────────────────────────────────
-   '박 하람' 과 '박하람' 은 한 사람이다. 그런데 앱은 이름을 **적힌 그대로**
+   '박 바다' 과 '박바다' 은 한 사람이다. 그런데 앱은 이름을 **적힌 그대로**
    열쇠로 써서 둘을 남남으로 봤다 — 명단이 두 줄이 되고, 성적표 회차가
    갈라지고, 또래 인원이 한 명 더 늘었다. 시트 쪽은 이미 공백을 지우고
    견주고 있었으니(_normName) 앱만 다르게 세고 있었던 셈이다.
@@ -1103,7 +1103,9 @@ const okq=(e,q,a)=>allc(e,q)||accSet(e,q).indexOf(a)>=0;
 function cropURL(exam,q){
   var s=exam&&exam.srcmap&&exam.srcmap[q-1];
   if(s&&s.e) return 'crops/'+s.e+'/'+(+s.q)+'.png';
-  return 'crops/'+exam.id+'/'+q+'.png';
+  /* rev — 같은 id 로 문제를 갈아 끼운 회차. 크롭은 cache-first 라 주소가
+     같으면 옛 그림이 나온다. 판번호를 주소에 실어 캐시를 깬다. */
+  return 'crops/'+exam.id+'/'+q+'.png'+(exam.rev>1?('?v='+exam.rev):'');
 }
 /* ── 왜 다 맞은 것으로 처리됐는가 ──────────────────────────────────
    '전원정답' 은 두 가지 다른 일에 붙어 있었다.
@@ -1174,7 +1176,7 @@ function saveSubs(id,a){try{localStorage.setItem(PFX+cohortKey(id),JSON.stringif
 })();
 
 /* ── 이미 쌓여 있는 이름을 한 번 다듬는다 ───────────────────────────────
-   규칙만 바꾸면 앞으로 저장되는 것만 합쳐진다. 지금까지 '박 하람' 으로
+   규칙만 바꾸면 앞으로 저장되는 것만 합쳐진다. 지금까지 '박 바다' 으로
    쌓인 회차는 그대로 갈라져 있다. 한 번 돌면서 이름을 다듬고, 그 바람에
    같아진 기록(이름+답안이 같다)은 최근 것만 남긴다.
 
@@ -1949,7 +1951,7 @@ function openExam(id){
 /* ── 다음 학생으로 이어 가기 ──────────────────────────────────────────
    여태 「다음 학생 채점」 은 **같은 회차를 다시 여는** 단추였다. 한 반이 한
    시험을 볼 때는 그것이 맞았다. 그런데 이제 학생마다 시험이 다르다 —
-   김지성의 변형본 60제를 채점하고 나서 그 단추를 누르면 김지성 시험이 또
+   한 학생의 변형본 60제를 채점하고 나서 그 단추를 누르면 같은 학생 시험이 또
    열린다. 선생님은 목록으로 돌아가 다음 사람 회차를 손으로 찾아야 했다.
 
    그래서 **남은 학생을 단추로** 세운다. 방금 채점한 것과 **같은 갈래**의
@@ -1984,6 +1986,7 @@ function retryParse(){
     var o=JSON.parse(decodeURIComponent(escape(
       atob(m[1].replace(/-/g,'+').replace(/_/g,'/')))));
     if(!o||!o.k||!o.s||o.k.length!==o.s.length||!o.k.length) return null;
+    if(o.k.length>60) return null;   /* 조작된 거대 봉투 — 시험은 60문항이 끝이다 */
     var n=o.k.length;
     return {id:o.i||'retry', title:o.t||('즉시 재도전 '+n+'제'), group:'파이널',
       hidden:true, nQ:n, mode:'auto', cut:retryCut(n),
@@ -2030,6 +2033,12 @@ function retryCompose(cur, wrongQs, pool, n){
   n=n||10;
   var used={};
   (cur.srcmap||[]).forEach(function(m){ used[m.e+'#'+m.q]=1; });
+  /* srcmap 이 없는 회차(기출동형·화올 같은 exams.json 소속)는 그 문항들이
+     풀에 **그대로** 들어 있다 — 방금 틀린 그 문제를 다시 내면 재도전이
+     아니라 답 외우기다. 제 회차 문항 전부를 뺀다. */
+  if(!(cur.srcmap&&cur.srcmap.length)){
+    for(var qq=1;qq<=(cur.nQ||60);qq++) used[cur.id+'#'+qq]=1;
+  }
   var order=[], cnt={};
   wrongQs.forEach(function(q){
     var a=(cur.area||[])[q-1]||'', t=(cur.type||[])[q-1]||'';
@@ -2075,7 +2084,12 @@ async function retryMake(){
   var take=retryCompose(cur, qs, pool, 10);
   if(!take){ fToast('같은 개념의 다른 문항을 못 찾았습니다'); return null; }
   var code=pickCodeOf(cur.id)||cur.id;
-  var o={ i:code+'-r', t:'즉시 재도전 '+take.length+'제 · '+code,
+  /* 이름을 「즉석」 으로 가른다 — 미리 지어 둔 -4 회차 제목(「즉시 재도전
+     10제 · 코드」)과 똑같으면 시트의 응시 식별키(제목+이름+답안)가 겹친다.
+     id 에는 뽑힌 문항의 지문을 붙인다 — 같은 학생이 재도전을 두 번 만들면
+     문제가 다른데, id 가 같으면 임시답안(draft)이 앞판 것을 새 판에 얹는다. */
+  var sig=0; take.forEach(function(x){ sig=(sig*31+x.q+x.e.length)%1296; });
+  var o={ i:code+'-r'+sig.toString(36), t:'즉석 재도전 '+take.length+'제 · '+code,
     k:take.map(function(x){ return x.k; }),
     a:take.map(function(x){ return x.a; }),
     s:take.map(function(x){ return [x.e, x.q]; }) };
@@ -2161,6 +2175,12 @@ function retryClose(){
 function retryEsc(e){ if(e.key==='Escape') retryClose(); }
 async function retryPop(){
   var o=retryOverlay();
+  /* 이전 성적표의 목록·단추가 남아 있으면 그 사이 낡은 링크가 눌린다 —
+     열 때마다 비우고 시작한다. */
+  document.getElementById('rovP').textContent='방금 틀린 자리만 다시 묻습니다. 고르는 중…';
+  document.getElementById('rovList').innerHTML='';
+  var _g=document.getElementById('rovGo'); _g.disabled=true; _g.textContent='고르는 중…'; _g.onclick=null;
+  var _c=document.getElementById('rovCopy'); _c.disabled=true; _c.onclick=null;
   o.classList.add('on');
   document.documentElement.style.overflow='hidden';
   window.addEventListener('keydown', retryEsc);
@@ -2203,6 +2223,12 @@ async function retryPop(){
 
    큰 칸은 어차피 눈앞에 있다. 덮개는 «멈춰 선 사람» 에게만 뜬다. */
 function retryArm(){
+  /* 성적표는 몇 초 뒤 채점 인원 재조회로 **한 번 더 그려진다.** 그때
+     retryArm 이 또 불리므로, ① 앞판의 관찰자·리스너를 먼저 접고
+     ② 사용자가 링크를 눌러 접은 결정(sig)을 그대로 존중한다 — 접을 때
+     sig 를 적어 두는 까닭이 그것이다. 안 적으면 재렌더 한 번에 덮개가
+     되살아난다. */
+  if(window.__retryArmStop){ try{ window.__retryArmStop(); }catch(e){} }
   var big=document.getElementById('retryBig');
   if(!big||!window.IntersectionObserver) return;
   var sig='rv:'+(cur&&cur.id)+':'+(((window.__rpt||{}).name)||'');
@@ -2213,10 +2239,16 @@ function retryArm(){
     if(timer){ clearTimeout(timer); timer=null; }
     try{ io.disconnect(); }catch(e){}
     document.removeEventListener('pointerdown', onTap, true);
+    document.removeEventListener('touchstart', onTap, true);
+    if(window.__retryArmStop===stop) window.__retryArmStop=null;
   };
+  window.__retryArmStop=stop;
   var onTap=function(ev){
     var t=ev.target;
-    if(t&&t.closest&&t.closest('a,button')) stop();
+    if(t&&t.closest&&t.closest('a,button')){
+      try{ sessionStorage.setItem(sig,'1'); }catch(e){}
+      stop();
+    }
   };
   var io=new IntersectionObserver(function(es){
     if(done) return;
@@ -2235,6 +2267,7 @@ function retryArm(){
     });
   },{threshold:0.45});
   document.addEventListener('pointerdown', onTap, true);
+  document.addEventListener('touchstart', onTap, true);   /* 옛 iOS — 포인터 이벤트가 없다 */
   io.observe(big);
 }
 
@@ -2316,10 +2349,20 @@ function pickLabel(e, suf){
   return e.short || PICK_LABEL[suf] || String(e.title||'').split(' · ')[0];
 }
 function nextStudentSec(cur){
-  /* 공유 성적표(#r=)에서도 세운다 — 학생이 제 화면에서 제출하면 성적표가
+  /* 공유 성적표(#r=)에서도 세운다 — 선생님이 제출 화면에서 채점하면 성적표가
      그 꼴로 열리는데, 채점을 이어 가는 자리가 바로 거기다.
-     이름표가 없는 브라우저(학부모)에서는 아무것도 안 나온다. */
+
+     ⚠ 다만 **선생님 표(weak60 에 붙여넣은 이름↔코드)가 있는 브라우저에서만.**
+     학생도 「이름 버튼 링크」(#n=)를 열면 이름표(exam.pick.namecode.v1)가
+     남는다 — 그것만 보고 세우면 학생·학부모 화면에 반 전체 이름과 남의
+     시험으로 가는 단추가 뜬다. weak60 표는 선생님 브라우저에만 있다. */
   if(!cur) return '';
+  if(window.__sharedReport){
+    try{
+      var _tw=JSON.parse(localStorage.getItem('exam.weak60.namecode.v1')||'{}');
+      if(!_tw||!Object.keys(_tw).length) return '';
+    }catch(e){ return ''; }
+  }
   var nc=pickNC(), code=pickCodeOf(cur.id);
   if(!code) return '';
   var suf=cur.id.slice(code.length), done=pickDone();
@@ -4140,7 +4183,7 @@ function shortExam(e){
    시트에는 어느 기기에서 채점했든 다 들어 있다. 학생 하나를 이름으로 물어
    전 회차를 받아 두고(loadHist), 이 브라우저 기록과 합쳐 여기서 낸다.
 
-   이름은 nameKey 로 견준다 — 공백을 지우므로 '박 하람' 도 같은 사람이다. */
+   이름은 nameKey 로 견준다 — 공백을 지우므로 '박 바다' 도 같은 사람이다. */
 var HIST_ROWS=null, HIST_FOR='', HIST_TRIED='';
 function histOf(nm){
   const key=nameKey(nm); if(!key) return [];
@@ -4188,7 +4231,7 @@ function loadHist(nm){
 
 /* ── 이 학생의 기록이 다른 이름표로 갈라져 있지 않은가 ────────────────────
    성적표는 이름이 **정확히 같은** 기록만 한 학생으로 본다(아홉 군데가 같은
-   규칙을 쓴다). 그래서 '박 하람' 처럼 공백 하나, 글자 하나가 어긋난 기록은
+   규칙을 쓴다). 그래서 '박 바다' 처럼 공백 하나, 글자 하나가 어긋난 기록은
    조용히 빠진다. 화면은 "진단 6회 누적" 이라고 단언하는데 실제로는 여덟 번을
    봤다 — 읽는 쪽에는 빠졌다는 신호가 어디에도 없다. 학부모에게 나가는 종이에
    "첫 진단입니다" 라고 적히는 일까지 생긴다.
@@ -4867,6 +4910,13 @@ async function exportReportHTML(){
   try{ if(window.__wbPromise) await window.__wbPromise; }catch(e){}
   const src=document.getElementById('app'); if(!src)return;
   const app=src.cloneNode(true);
+  /* 학부모에게 건네는 파일이다 — 선생님 채점 도구는 걷어낸다.
+     「다음 학생 채점」 명단(.nextgrid — 반 전체 실명이다)과
+     「즉시 재도전」 칸(.retrybig — 열면 새 시험이 시작된다)이 그것이다. */
+  app.querySelectorAll('.nextgrid').forEach(function(g){
+    var sec=g.closest('.sec')||g; sec.remove();
+  });
+  app.querySelectorAll('.retrybig').forEach(function(g){ g.remove(); });
   const srcText=src.querySelectorAll('textarea'), outText=app.querySelectorAll('textarea');
   srcText.forEach(function(t,i){if(outText[i])outText[i].textContent=t.value;});
   const srcInputs=src.querySelectorAll('input'), outInputs=app.querySelectorAll('input');
@@ -4974,7 +5024,7 @@ function subSig(r){ return nameKey(r.name)+'|'+((r.ans||[]).join('')); }
 
    ⚠ **지우지 않고 표만 단다(up:3).**
    2026-08-05, JMChC 11회에서 겹친 저장 때문에 시트의 세 줄이 덮여 사라졌다
-   (김규민·전준·최민준). 그러자 다음 동기화에서 이 규칙이 **브라우저의 사본까지
+   (김가온·전솔·최자두). 그러자 다음 동기화에서 이 규칙이 **브라우저의 사본까지
    지웠다** — 시트에도 없고 여기에도 없으니 되살릴 길이 없었다. 다시 채점하는
    수밖에 없었다.
 

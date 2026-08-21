@@ -78,7 +78,7 @@ function part(a) {
       { label: '화학1 일6-10', course: 'ch1', kind: 'dt',
         students: [S('강신우', '대치중', '2'), S('고영훈', '대신중', '1')] },
       { label: '파이널 목7-10', course: '', kind: 'exam',
-        students: [S('박하람', '대청중', '3')] } ] },
+        students: [S('박바다', '대청중', '3')] } ] },
     pending: { ok: true, pending: { active: [
       { name: '강신우', course: 'ch1', round: 12, lastAttempt: '정시',
         nextNeeded: '재시', score: 62, days: 5, studentKey: 's1' } ] } },

@@ -158,7 +158,7 @@ async function settled(p, label, fn, arg, ms) {
                   한 줄로 붙어야 한다 — 안 붙으면 셸에 같은 아이가 두 줄로 뜨고,
                   어느 줄을 눌러도 기록이 반쪽이다. */
                : act === 'names' ? { ok: true, students: [
-                   { id: 'k1', name: '김지성', grade: '중2', kind: '실제',
+                   { id: 'k1', name: '김마루', grade: '중2', kind: '실제',
                      link: 'https://chemistreal.github.io/KMChC/report.html?id=k1', ts: 0 } ] }
                /* DT 가 실제로 주는 모양이다 — {active, stale, …} 객체. 배열로
                   흉내 내면 'DT 미완료' 가 undefined 로 찍히던 버그를 못 잡는다. */
@@ -166,14 +166,14 @@ async function settled(p, label, fn, arg, ms) {
                    { studentKey: 's1', name: '최예린', school: '역삼중', year: '2', course: 'ch1', round: 12,
                      lastAttempt: '정시', nextNeeded: '재시', score: 68, days: 9, lastDate: '6/17',
                      reportLink: 'https://x/report.html?student=a', active: true } ] } }
-               /* 통과·미응시를 **파이널에도 있는 학생**(김지성)으로 둔다. 학생 카드가
+               /* 통과·미응시를 **파이널에도 있는 학생**(김마루)으로 둔다. 학생 카드가
                   세 앱을 한 장에 모으는지 보려면 같은 아이여야 한다. 학교는 일부러
                   짧게 준다 — DT 는 실제로 '휘문' 과 '휘문중' 을 섞어서 준다. */
                : act === 'passed' ? { ok: true, passed: { days: 14, generatedAt: 'T', passed: [
-                   { name: '김지성', school: '휘문', year: '2', course: 'ch2', round: 7, attempt: '정시',
+                   { name: '김마루', school: '휘문', year: '2', course: 'ch2', round: 7, attempt: '정시',
                      tries: 1, score: 96, date: '6/19', days: 1, reportLink: 'https://x/report.html?student=b' } ] } }
                : act === 'absentees' ? { ok: true, absentees: { generatedAt: 'T', classes: [
-                   { label: '화학1 토1:30-5:30', course: 'ch1', round: 12, total: 8, present: 6, absent: ['김도윤', '김지성'] },
+                   { label: '화학1 토1:30-5:30', course: 'ch1', round: 12, total: 8, present: 6, absent: ['김도윤', '김마루'] },
                    { label: '화학2 일6-10', course: 'ch2', round: 7, total: 6, present: 6, absent: [] } ] } }
                /* 이름이 붙은 오개념. 익명본(cohortmis)과 같은 개념을 다루되
                   이쪽은 사람이 보인다 — '몰농도 7명' 다음에 할 일이 있으려면
@@ -183,19 +183,19 @@ async function settled(p, label, fn, arg, ms) {
                   김지성은 닷새 전에 보냈는데 그 뒤로 안 열었고, 최예린은
                   아예 안 보낸 채 오래 밀렸다. */
                : act === 'sentlog' ? { ok: true, sent: [
-                   { kind:'pass', name:'김지성', course:'ch2', round:7,
+                   { kind:'pass', name:'김마루', course:'ch2', round:7,
                      ts: now - 5 * D, at:'6/19 10:00' } ] }
                : act === 'views' ? { ok: true, views: [
                    { studentKey:'s9', name:'다른학생', school:'X중', ts: now - 1 * D, at:'', n:1 } ] }
                : act === 'mistags' ? { ok: true, mis: { days: 21, rows: [
-                   { name: '김지성', school: '휘문중', course: 'ch2', round: 12, attempt: '재시',
+                   { name: '김마루', school: '휘문중', course: 'ch2', round: 12, attempt: '재시',
                      /* ⚠ days 5 는 일부러다. 최예린(3일)보다 **덜 최근**이라,
                         최근 순으로만 세우면 김지성이 아래로 내려간다.
                         되풀이(2회차)를 먼저 세우는지 여기서 갈린다. */
                      pass: true, score: 96, days: 5, tags: ['몰농도', '완충'],
                      reportLink: 'https://x/report.html?student=b' },
                    /* 7회는 위 자료 목록에 **없다.** 주소를 지어내면 404 로 끝난다. */
-                   { name: '김지성', school: '휘문', course: 'ch2', round: 7, attempt: '정시',
+                   { name: '김마루', school: '휘문', course: 'ch2', round: 7, attempt: '정시',
                      pass: false, score: 61, days: 9, tags: ['몰농도'],
                      reportLink: 'https://x/report.html?student=b2' },
                    { name: '최예린', school: '역삼중', course: 'ch1', round: 1, attempt: '정시',
@@ -234,9 +234,9 @@ async function settled(p, label, fn, arg, ms) {
     };
     const now = Date.now(), D = 86400000;
     return {
-      a1: put('jmchc-1', '김지성', '휘문중', 45, now - D),
-      b1: put('jmchc-1', '이도현', '대원국제중', 20, now - D + 1000),
-      a2: put('jmchc-2', '김지성', '휘문중', 50, now),
+      a1: put('jmchc-1', '김마루', '휘문중', 45, now - D),
+      b1: put('jmchc-1', '이아람', '대원국제중', 20, now - D + 1000),
+      a2: put('jmchc-2', '김마루', '휘문중', 50, now),
     };
   });
 
@@ -287,7 +287,7 @@ async function settled(p, label, fn, arg, ms) {
     acts: document.querySelectorAll('#dlgBody .mini[data-act]').length,
     spark: document.querySelectorAll('#dlgBody .spark i').length,
   }));
-  chk('학생 카드가 열린다', card.name, '김지성');
+  chk('학생 카드가 열린다', card.name, '김마루');
   chk('응시 · 평균 · 최고 · 최근', card.stats.length, 4);
   chk('두 회차 모두 단추가 있다', card.acts, 4);
   chk('추세가 그려진다', card.spark, 2);
@@ -318,7 +318,7 @@ async function settled(p, label, fn, arg, ms) {
   chk('성적표 주소로 간다', /[#&]r=jmchc-/.test(opened.hash), true);
   /* 파이널의 hashchange 가 우리가 연 화면을 덮으면 시험 목록이 뜬다 */
   chk('연 화면이 덮이지 않는다', /성적표|핵심 진단/.test(opened.text), true);
-  chk('그 학생 이름이 성적표에 있다', /김지성/.test(opened.text), true);
+  chk('그 학생 이름이 성적표에 있다', /김마루/.test(opened.text), true);
 
   const after = await p.evaluate(() => ({
     n1: JSON.parse(localStorage.getItem('final:roster:jmchc-1') || '[]').length,
@@ -403,7 +403,7 @@ async function settled(p, label, fn, arg, ms) {
   await p.keyboard.type('김');
   await p.waitForTimeout(300);
   chk('바로 찾기에 뜬다', await p.evaluate(() =>
-    (document.querySelector('#qqList .row .nm') || { textContent: '' }).textContent), '김지성');
+    (document.querySelector('#qqList .row .nm') || { textContent: '' }).textContent), '김마루');
 
   console.log('\n── 채점하는 순간 스스로 따라온다 ──');
   {
@@ -455,10 +455,10 @@ async function settled(p, label, fn, arg, ms) {
   console.log('\n── 갈라진 이름을 셸이 짚어 준다 ──');
   {
     await p.evaluate(() => {
-      // 같은 학생을 '김 지성' 으로 한 번 더 저장한다(파이널 앱이 쓰는 형식 그대로)
+      // 같은 학생을 '김 마루' 으로 한 번 더 저장한다(파이널 앱이 쓰는 형식 그대로)
       const arr = JSON.parse(localStorage.getItem('final:roster:jmchc-2'));
       const r = arr[0];
-      arr.push(Object.assign({}, r, { name: '김 지성', ts: r.ts + 1000 }));
+      arr.push(Object.assign({}, r, { name: '김 마루', ts: r.ts + 1000 }));
       localStorage.setItem('final:roster:jmchc-2', JSON.stringify(arr));
       refreshLocal();
     });
@@ -467,7 +467,7 @@ async function settled(p, label, fn, arg, ms) {
       !document.getElementById('mergeWrap').hidden), true);
     chk('두 이름표를 다 적는다', await p.evaluate(() => {
       const t = (document.querySelector('#mergeList .row') || { textContent: '' }).textContent;
-      return /김지성/.test(t) && /김 지성/.test(t);
+      return /김마루/.test(t) && /김 마루/.test(t);
     }), true);
   }
 
@@ -520,7 +520,7 @@ async function settled(p, label, fn, arg, ms) {
     /* 닷새 전에 통과 문자를 보냈는데 그 학생은 성적표를 안 열었다. 다른 학생만
        열었다 — 이름으로 맞추지 않으면 '누군가 열었으니 됐다' 가 된다. */
     chk('보냈는데 안 열어 본 사람을 짚는다',
-        n0.rows.some(r => r[0] === '안 열어 봄' && r[1] === '김지성'), true);
+        n0.rows.some(r => r[0] === '안 열어 봄' && r[1] === '김마루'), true);
     /* 재시가 아흐레째인데 아직 안 보냈다 — 목록에는 있지만 눈에 안 걸린다. */
     chk('오래 밀린 재시를 짚는다',
         n0.rows.some(r => r[0] === '아직 안 보냄' && r[1] === '최예린'), true);
@@ -578,7 +578,7 @@ async function settled(p, label, fn, arg, ms) {
     const one = await grab('#pendList .mini.msg');
     chk('재시 문자를 DT 에서 빌려 온다', one, '빌린재시:최예린/ch1/12/재시/1');
     const two = await grab('#passList .mini.msg');
-    chk('통과 문자도 빌려 온다', two, '빌린통과:김지성/ch2/7/정시/1/96');
+    chk('통과 문자도 빌려 온다', two, '빌린통과:김마루/ch2/7/정시/1/96');
 
     /* 시험 미응시만 셸에 없어서 채점하다 말고 DT 로 넘어가야 했다.
        응시 주소까지 저쪽에서 빌린다 — 셸이 지어내면 경로가 바뀔 때 어긋난다. */
@@ -649,7 +649,7 @@ async function settled(p, label, fn, arg, ms) {
   }
 
   /* 여기부터는 앞의 검사들이 만들어 놓은 상태 위에서 돈다:
-     명단 셋(김지성·새학생·이도현), 갈라진 이름표 하나, DT 흉내 응답. */
+     명단 셋(김마루·새학생·이아람), 갈라진 이름표 하나, DT 흉내 응답. */
   const clip = async sel => {
     await p.click(sel);
     await p.waitForFunction(s => { const b = document.querySelector(s); return b && !b.disabled; },
@@ -669,7 +669,7 @@ async function settled(p, label, fn, arg, ms) {
        사실을 안 알려 줘서 한 번도 돌지 않았다 — 같은 아이가 두 줄로 떴고,
        어느 줄을 눌러도 기록이 반쪽이었다. 검사가 스스로 깃발을 세워 가려 놨다. */
     chk('KMChC 학생이 따로 뜨지 않는다', roster.length, 3);
-    chk('한 줄에 두 앱이 모인다', roster[0], '김지성/휘문중/exam+km');
+    chk('한 줄에 두 앱이 모인다', roster[0], '김마루/휘문중/exam+km');
 
     await p.evaluate(() => document.querySelector('#stuList .row').click());
     await p.waitForTimeout(900);
@@ -702,9 +702,9 @@ async function settled(p, label, fn, arg, ms) {
     /* 이 한 줄이 syncWorkRows 의 존재 이유다. 대시보드와 카드가 서로 다르게
        잘라 담으면 여기서 **엉뚱한 학생 문구**가 나오고, 그대로 학부모에게 간다. */
     const msg = await clip('#stuOther .mini.msg[data-pass]');
-    chk('카드에서 누른 문자가 그 학생 것이다', msg, '빌린통과:김지성/ch2/7/정시/1/96');
+    chk('카드에서 누른 문자가 그 학생 것이다', msg, '빌린통과:김마루/ch2/7/정시/1/96');
     const abs = await clip('#stuOther .mini.msg[data-abs][data-stage="1"]');
-    chk('미응시 안내도 카드에서 바로', abs, '빌린미응시:김지성/ch1/12/빌린주소/ch1/12/1');
+    chk('미응시 안내도 카드에서 바로', abs, '빌린미응시:김마루/ch1/12/빌린주소/ch1/12/1');
   }
 
   console.log('\n── 상담지 한 장 ──');
@@ -714,7 +714,7 @@ async function settled(p, label, fn, arg, ms) {
     const pr = await p.evaluate(async () => {
       let printed = 0;
       window.print = () => { printed++; };        // 인쇄창을 실제로 띄우지는 않는다
-      const r = ROSTER.filter(x => x.name === '김지성')[0];
+      const r = ROSTER.filter(x => x.name === '김마루')[0];
       openStudent(r);
       await new Promise(t => setTimeout(t, 700));
       document.getElementById('dlgPrint').click();
@@ -734,7 +734,7 @@ async function settled(p, label, fn, arg, ms) {
     });
     console.log('  ' + JSON.stringify(pr.heads) + ' ' + JSON.stringify(pr.nums));
     chk('인쇄를 부른다', pr.printed, 1);
-    chk('누구 것인지 적는다', pr.h1, '김지성 학습 상담지');
+    chk('누구 것인지 적는다', pr.h1, '김마루 학습 상담지');
     chk('셀 것을 다 센다', pr.keys,
         ['파이널 응시', '평균 정답률', '가장 최근', 'DT 통과', '재시 대기', '미응시']);
     /* 화면 카드가 말하는 것과 종이가 말하는 것이 달라지면 어느 쪽이 맞는지
@@ -937,10 +937,10 @@ async function settled(p, label, fn, arg, ms) {
     /* 몰농도는 세 줄인데 김지성이 두 줄이라 **2명**이다. 사람으로 안 묶으면
        3명으로 세고, 보충 자리를 하나 더 잡게 된다. */
     chk('많이 걸린 개념이 앞에 선다', con.chips[0], '몰농도2');
-    chk('한 사람은 한 줄', con.names, ['김지성', '최예린']);
+    chk('한 사람은 한 줄', con.names, ['김마루', '최예린']);
     /* 세 회차 내리 걸린 아이가 이번 주에 한 번 걸린 아이 아래로 내려가면,
        보충 자리는 위에서부터 차는 탓에 정작 필요한 쪽이 빠진다. */
-    chk('되풀이해 걸린 아이가 위에 선다', con.names[0], '김지성');
+    chk('되풀이해 걸린 아이가 위에 선다', con.names[0], '김마루');
     chk('몇 명인지 적는다', /몰농도.*2명|아직 못 잡은 학생 2명/.test(con.head), true);
     /* 통과했는데 여기 있으면 "얘는 통과했는데 왜" 가 되고, 목록 전체를 못 믿게 된다. */
     chk('통과했지만 이 개념은 틀림을 적는다',
@@ -957,8 +957,8 @@ async function settled(p, label, fn, arg, ms) {
                hash: location.hash };
     });
     /* 완충은 둘 다 한 회차씩이라 되풀이로 갈리지 않는다 — 최근 순이다
-       (김도윤 2일 · 김지성 5일). 여기서 보는 것은 **누가 서는가**다. */
-    chk('개념을 바꾸면 그 사람들이 선다', (other || {}).names, ['김도윤', '김지성']);
+       (김도윤 2일 · 김마루 5일). 여기서 보는 것은 **누가 서는가**다. */
+    chk('개념을 바꾸면 그 사람들이 선다', (other || {}).names, ['김도윤', '김마루']);
     chk('바꾼 것도 주소에 남는다', /tag=%EC%99%84%EC%B6%A9/.test((other || {}).hash || ''), true);
 
     /* ── 상담에서 먼저 나오는 물음이 카드 안에 있는가 ─────────────────
@@ -974,11 +974,11 @@ async function settled(p, label, fn, arg, ms) {
       show('stu');
     });
     await p.waitForFunction(() => [].some.call(
-      document.querySelectorAll('#stuList .row'), e => /김지성/.test(e.textContent)),
+      document.querySelectorAll('#stuList .row'), e => /김마루/.test(e.textContent)),
       null, { timeout: 10000 });
     await p.evaluate(() => {
       [].filter.call(document.querySelectorAll('#stuList .row'),
-                     e => /김지성/.test(e.textContent))[0].click();
+                     e => /김마루/.test(e.textContent))[0].click();
     });
     /* 카드가 열리고 **다른 앱 기록까지** 붙을 때까지 기다린다. 열린 것만 보고
        재면 아직 비어 있는 카드를 재게 된다. */
@@ -1046,7 +1046,7 @@ async function settled(p, label, fn, arg, ms) {
                names: [].map.call(document.querySelectorAll('#conList .row .nm'), e => e.textContent) };
     });
     chk('되풀이만 보는 단추가 있다', (only || {}).label, '되풀이만 1명');
-    chk('누르면 그 아이만 선다', (only || {}).names, ['김지성']);
+    chk('누르면 그 아이만 선다', (only || {}).names, ['김마루']);
     await p.evaluate(() => document.querySelector('#conHead .mini[data-conact="repeat"]').click());
 
     /* 보충을 앉히려면 이름 목록이 있어야 한다. */
@@ -1055,7 +1055,7 @@ async function settled(p, label, fn, arg, ms) {
       await new Promise(r => setTimeout(r, 300));
       return navigator.clipboard.readText();
     });
-    chk('이름을 한 번에 복사한다', copied, '김지성, 최예린');
+    chk('이름을 한 번에 복사한다', copied, '김마루, 최예린');
   }
 
   console.log('\n── 오늘 못 하는 줄은 미룬다 ──');
@@ -1067,7 +1067,7 @@ async function settled(p, label, fn, arg, ms) {
     await p.waitForTimeout(500);
     const before = await p.evaluate(() =>
       [].map.call(document.querySelectorAll('#absList .row.sub'), e => e.querySelector('.nm').textContent));
-    chk('미응시 두 명이 서 있다', before, ['김도윤', '김지성']);
+    chk('미응시 두 명이 서 있다', before, ['김도윤', '김마루']);
 
     const clicked = await p.evaluate(() => {
       const b = document.querySelector('#absList .row.sub .mini.snzb');
@@ -1094,7 +1094,7 @@ async function settled(p, label, fn, arg, ms) {
       card: (document.getElementById('abCnt') || { textContent: '' }).textContent,
     }));
     console.log('  ' + JSON.stringify(after.seen) + ' · ' + after.bar);
-    chk('미룬 줄은 눈에서 내려간다', after.seen, ['김지성']);
+    chk('미룬 줄은 눈에서 내려간다', after.seen, ['김마루']);
     chk('지운 것이 아니라 접은 것이다', after.kept, 2);
     chk('몇을 미뤘는지 말해 준다', /미룬 것 1명/.test(after.bar), true);
     /* 오늘 할 일에서는 빠져야 한다 — 그게 미루기의 전부다. */
@@ -1108,7 +1108,7 @@ async function settled(p, label, fn, arg, ms) {
       return [].filter.call(document.querySelectorAll('#absList .row.sub'), e => e.offsetParent)
                .map(e => e.querySelector('.nm').textContent);
     });
-    chk('펼치면 다시 보인다', shown, ['김도윤', '김지성']);
+    chk('펼치면 다시 보인다', shown, ['김도윤', '김마루']);
 
     /* 잘못 눌렀으면 그 자리에서 무를 수 있어야 한다. 미루기는 되돌릴 수 있는
        일이라 확인창을 세우는 것보다 이쪽이 낫다. */
@@ -1129,7 +1129,7 @@ async function settled(p, label, fn, arg, ms) {
              || { textContent: '' }).textContent.replace(/\s+/g, ''),
       bar:  !!document.querySelector('#absList .snzbar'),
     }));
-    chk('무르면 도로 올라온다', back.seen, ['김도윤', '김지성']);
+    chk('무르면 도로 올라온다', back.seen, ['김도윤', '김마루']);
     chk('오늘 할 일에도 도로 잡힌다', back.chip, '시험미응시2');
     chk('미룬 것이 없으면 줄도 사라진다', back.bar, false);
   }
@@ -1172,13 +1172,13 @@ async function settled(p, label, fn, arg, ms) {
     chk('엑셀 머리글이 탭으로 나뉜다', lines[0], '이름\t학교\t맞은 문항\t총 문항\t정답률(%)');
     chk('본 학생 수만큼 줄이 선다', lines.length - 1,
         await p.evaluate(() => RND_OPEN.rows.length));
-    chk('이름·학교가 들어간다', /김지성\t휘문중\t\d+\t\d+\t\d+/.test(lines[1]), true);
+    chk('이름·학교가 들어간다', /김마루\t휘문중\t\d+\t\d+\t\d+/.test(lines[1]), true);
 
     /* 화면은 120명만 보여 준다. 복사까지 잘리면 공지에서 아이가 빠지는데,
        빠진 줄도 모른다. */
     const names = await clip('#dlgBody .mini[data-rnd="names"]');
     console.log('  ' + JSON.stringify(names));
-    chk('안 본 학생 이름이 공지에 붙는 모양으로', names, '새학생, 이도현');
+    chk('안 본 학생 이름이 공지에 붙는 모양으로', names, '새학생, 이아람');
     /* ── 어느 오답으로 쏠렸나 ──────────────────────────────────────
        화학은 오답 선택지가 곧 오개념이다. 그 계산은 **파이널 앱이 이미 하고
        있다** — 없던 것은 계산이 아니라 회차에서 들어가는 길이었다.
@@ -1197,7 +1197,7 @@ async function settled(p, label, fn, arg, ms) {
     chk('회차에서 문항 분석으로 간다', (ana || {}).tab, 'p-exam');
     chk('회차 창은 닫힌다', (ana || {}).open, false);
     /* 지켜야 할 것은 **없던 학생이 생기지 않는 것**이다. 재어 보니 2 → 1 로
-       줄었는데, 이건 앞 검사가 일부러 심어 둔 '김 지성'(띄어쓴 같은 학생)이
+       줄었는데, 이건 앞 검사가 일부러 심어 둔 '김 마루'(띄어쓴 같은 학생)이
        성적표를 다시 여는 순간 파이널의 저장 규칙(공백을 지운다)에 따라 붙은
        것이다 — 갈라진 이름이 하나로 돌아온 것이지 잃은 것이 아니다.
        그래서 '늘지 않는다' 와 '그 학생이 그대로 있다' 둘로 나눠 본다. */
@@ -1205,7 +1205,7 @@ async function settled(p, label, fn, arg, ms) {
       JSON.parse(localStorage.getItem('final:roster:jmchc-2') || '[]').map(r => r.name));
     console.log('  ' + JSON.stringify(anaAfter));
     chk('없던 학생이 생기지 않는다', anaAfter.length <= anaBefore, true);
-    chk('그 학생은 그대로 있다', anaAfter.some(n => n.replace(/\s+/g, '') === '김지성'), true);
+    chk('그 학생은 그대로 있다', anaAfter.some(n => n.replace(/\s+/g, '') === '김마루'), true);
     await p.evaluate(() => { const d = document.getElementById('dlg'); if (d.open) d.close(); });
     await p.evaluate(() => show('rnd'));
     await p.waitForTimeout(300);
@@ -1516,21 +1516,21 @@ async function settled(p, label, fn, arg, ms) {
       [].map.call(document.querySelectorAll('#stuList .row .nm'), e => e.textContent));
     console.log('  명단 ' + JSON.stringify(await named()));
     chk('명단에 이름이 있다', (await named()).length > 1, true);
-    /* '이도현' 의 초성. 한글 IME 없이도 낱자는 그대로 넣을 수 있다.
+    /* '이아람' 의 초성. 한글 IME 없이도 낱자는 그대로 넣을 수 있다.
        ⚠ 앞선 검사들이 명단을 바꿔 놓는다 — 여기 있는 이름으로 골라야 한다. */
     await p5.evaluate(() => {
       const q = document.getElementById('q');
-      q.value = 'ㅇㄷㅎ'; q.dispatchEvent(new Event('input'));
+      q.value = 'ㅇㅇㄹ'; q.dispatchEvent(new Event('input'));
     });
     await p5.waitForTimeout(200);
-    chk('초성만 쳐도 그 학생이 남는다', await named(), ['이도현']);
-    /* 조합 중인 글자('김ㅈ')에서 목록이 비지 않아야 한다 — 치는 도중의 한 순간이다. */
+    chk('초성만 쳐도 그 학생이 남는다', await named(), ['이아람']);
+    /* 조합 중인 글자('김ㅁ')에서 목록이 비지 않아야 한다 — 치는 도중의 한 순간이다. */
     await p5.evaluate(() => {
       const q = document.getElementById('q');
-      q.value = '김ㅈ'; q.dispatchEvent(new Event('input'));
+      q.value = '김ㅁ'; q.dispatchEvent(new Event('input'));
     });
     await p5.waitForTimeout(200);
-    chk('치는 도중에도 안 비워진다', (await named()).indexOf('김지성') >= 0, true);
+    chk('치는 도중에도 안 비워진다', (await named()).indexOf('김마루') >= 0, true);
 
     /* 상담 주간에는 한 반을 차례로 훑는다. 카드를 닫고 다음 이름을 찾아 다시
        여는 일이 스무 번 되풀이됐다. 목록에서 연 카드는 ← → 로 넘어가야 한다. */

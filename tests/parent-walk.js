@@ -84,7 +84,7 @@ catch (e) {
       if (q > 45) { setAns(q, 0); continue; }
       if (ok < 26) { setAns(q, ex.key[q - 1]); ok++; } else setAns(q, (ex.key[q - 1] % 4) + 1);
     }
-    return shareLinkFinal(ex, sel, '박하람');
+    return shareLinkFinal(ex, sel, '박바다');
   });
   await ctx.close();
   const url = link.replace(/^https?:\/\/[^/]+\//, BASE);

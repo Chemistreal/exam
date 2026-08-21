@@ -57,9 +57,9 @@ console.log('── 문장 목록 ──');
 chk('마무리 문장이 밴드마다 4개 이상', Object.keys(gas.MSG_CLOSE).every(b => gas.MSG_CLOSE[b].length >= 4), true);
 
 console.log('\n── 자리표시자·조사 ──');
-const one = build('JMChC 모의고사 6회', '이도현', 60);
+const one = build('JMChC 모의고사 6회', '이아람', 60);
 chk('{…} 가 그대로 남지 않는다', /\{[^}]+\}/.test(one), false);
-chk('이름이 들어간다', one.includes('이도현'), true);
+chk('이름이 들어간다', one.includes('이아람'), true);
 chk('회차 제목이 들어간다', one.includes('JMChC 모의고사 6회'), true);
 chk('링크가 들어간다', one.includes('https://ex/1'), true);
 chk('강·약 영역이 들어간다', /주기율/.test(one) && /고체/.test(one), true);
@@ -69,7 +69,7 @@ for (let i = 0; i < 40; i++) josa.push(build('T' + i + '회', '학생' + i, 60))
 chk('잘못된 조사(…율는 / …결를)가 없다', josa.some(m => /[율흘물]는|해결를/.test(m)), false);
 
 console.log('\n── 같은 회차, 학생끼리 ──');
-const NAMES = ['김지성', '김규민', '이도현', '김시헌', '조민성', '장수호', '양준원', '강찬영'];
+const NAMES = ['김마루', '김가온', '이아람', '김나윤', '조민성', '장수호', '양준원', '강찬영'];
 const sameRound = NAMES.map((n, i) => build('JMChC 모의고사 6회', n, 60, i));
 const firstLines = sameRound.map(m => m.split('\n')[0]);
 const closings = sameRound.map(m => m.split('\n').slice(-2)[0]);
@@ -82,10 +82,10 @@ chk('명언은 같은 묶음 안에서 안 겹친다', new Set(quotes).size, NAM
 console.log('\n── 같은 학생, 회차끼리 ──');
 const ROUNDS = ['JMChC 모의고사 6회', 'JMChC 모의고사 7회', 'JMChC 모의고사 8회',
                 'JMChC 모의고사 9회', 'JMChC 모의고사 10회'];
-const sameKid = ROUNDS.map(t => build(t, '이도현', 60));
+const sameKid = ROUNDS.map(t => build(t, '이아람', 60));
 const kidClose = sameKid.map(m => m.split('\n').slice(-2)[0]);
 const kidOpen = sameKid.map(m => m.split('\n')[0]);
-const kidQuote = ROUNDS.map(t => build(t, '이도현', 60, 0).split('\n').slice(-3)[0]);
+const kidQuote = ROUNDS.map(t => build(t, '이아람', 60, 0).split('\n').slice(-3)[0]);
 console.log(`  인사 ${new Set(kidOpen).size}종 · 마무리 ${new Set(kidClose).size}종 · 명언 ${new Set(kidQuote).size}종 (회차 ${ROUNDS.length}개)`);
 chk('회차가 바뀌면 마무리도 바뀐다', new Set(kidClose).size >= 3, true);
 /* 예전에는 명언 색인이 매 실행 0부터라, 각 밴드의 첫 학생은 회차가 달라져도
@@ -93,7 +93,7 @@ chk('회차가 바뀌면 마무리도 바뀐다', new Set(kidClose).size >= 3, t
 chk('첫 학생 명언이 회차마다 바뀐다', new Set(kidQuote).size >= 3, true);
 
 console.log('\n── 다시 돌려도 같은 문장 ──');
-chk('같은 학생·같은 회차는 그대로', build('JMChC 모의고사 6회', '이도현', 60), one);
+chk('같은 학생·같은 회차는 그대로', build('JMChC 모의고사 6회', '이아람', 60), one);
 
 console.log('\n── 성취 밴드별 마무리 ──');
 [['high', 92], ['mid', 66], ['low', 35]].forEach(([band, pct]) => {

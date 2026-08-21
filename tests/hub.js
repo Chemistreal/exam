@@ -112,7 +112,7 @@ vm.runInContext([
 
 console.log('── 이름표를 다듬는다 ──');
 {
-  chk('공백을 없앤다', ctx.normName(' 김 지 성 '), '김지성');
+  chk('공백을 없앤다', ctx.normName(' 김 마 루 '), '김마루');
   chk('학교 꼬리를 뗀다', ctx.normSchool('휘문중학교'), '휘문중');
   chk('고등학교도', ctx.normSchool('한성과학고등학교'), '한성과학고');
   chk('이미 짧으면 그대로', ctx.normSchool('휘문중'), '휘문중');
@@ -124,8 +124,8 @@ console.log('── 이름표를 다듬는다 ──');
 console.log('\n── 같은 학생은 하나로 ──');
 {
   const merged = ctx.mergeRosters([
-    { app: 'exam', students: [{ name: '김지성', school: '휘문중', grade: '2', count: 3 }] },
-    { app: 'dt',   students: [{ name: '김지성', school: '휘문중학교', grade: '' }] },
+    { app: 'exam', students: [{ name: '김마루', school: '휘문중', grade: '2', count: 3 }] },
+    { app: 'dt',   students: [{ name: '김마루', school: '휘문중학교', grade: '' }] },
   ]);
   chk('학교 표기가 달라도 한 사람', merged.length, 1);
   chk('두 앱 모두에서 왔다고 남는다', Object.keys(merged[0].apps).sort(), ['dt', 'exam']);
@@ -135,8 +135,8 @@ console.log('\n── 같은 학생은 하나로 ──');
 {
   // 학년이 한쪽만 비어 있다고 갈라놓으면 명단이 두 배가 된다
   const merged = ctx.mergeRosters([
-    { app: 'exam', students: [{ name: '이도현', school: 'A중', grade: '3' }] },
-    { app: 'dt',   students: [{ name: '이도현', school: 'A중', grade: '' }] },
+    { app: 'exam', students: [{ name: '이아람', school: 'A중', grade: '3' }] },
+    { app: 'dt',   students: [{ name: '이아람', school: 'A중', grade: '' }] },
   ]);
   chk('학년이 비어도 갈라지지 않는다', merged.length, 1);
 }
@@ -293,13 +293,13 @@ console.log('\n── 회차 집계 ──');
   };
   const NOW = Date.now(), D = 86400000;
   // 지금 채점 중인 회차다(며칠 전). 여기서만 '안 본 학생' 을 센다.
-  const a = mk('김지성','휘문중',[['jmchc-1',48,NOW-3*D],['jmchc-2',54,NOW-2*D]]);
-  const b = mk('이도현','대원국제중',[['jmchc-1',30,NOW-3*D]]);
+  const a = mk('김마루','휘문중',[['jmchc-1',48,NOW-3*D],['jmchc-2',54,NOW-2*D]]);
+  const b = mk('이아람','대원국제중',[['jmchc-1',30,NOW-3*D]]);
   ctx.FIN = { students:[a,b] };
   // 명단에는 셋이 있다 — 박서준은 아무 회차도 안 봤지만 지금 반(DT)에 있다.
   ctx.ROSTER = [
-    { name:'김지성', school:'휘문중학교', grade:'2', apps:{} },
-    { name:'이도현', school:'대원국제중', grade:'2', apps:{} },
+    { name:'김마루', school:'휘문중학교', grade:'2', apps:{} },
+    { name:'이아람', school:'대원국제중', grade:'2', apps:{} },
     { name:'박서준', school:'휘문중', grade:'1', apps:{dt:1} },
   ];
   const rs = ctx.roundStats();
@@ -310,14 +310,14 @@ console.log('\n── 회차 집계 ──');
   chk('1회 채점 인원', r1.n, 2);
   chk('1회 평균 정답률', r1.avg, 65);          // (80+50)/2
   chk('1회 최고', r1.best, 80);
-  chk('점수 높은 순으로 선다', r1.rows.map(r => r.who.name), ['김지성','이도현']);
+  chk('점수 높은 순으로 선다', r1.rows.map(r => r.who.name), ['김마루','이아람']);
   /* 학교 표기가 '휘문중' / '휘문중학교' 로 갈려도 같은 사람이다. 여기서
      갈라지면 이미 본 학생이 '안 본 학생'에 뜬다 — 헛걸음을 시킨다. */
   chk('1회 안 본 학생', r1.missing.map(r => r.name), ['박서준']);
 
   const r2 = rs.filter(g => g.id==='jmchc-2')[0];
   chk('2회는 한 명만 봤다', r2.n, 1);
-  chk('2회 안 본 학생 둘', r2.missing.map(r => r.name).sort(), ['박서준','이도현']);
+  chk('2회 안 본 학생 둘', r2.missing.map(r => r.name).sort(), ['박서준','이아람']);
 
   /* ── 옛 회차에는 지금 반을 견주지 않는다 ─────────────────────────────
      예전에는 합친 명단 전체를 견줬다. 그래서 2018년 회차를 열면 올해 반
@@ -387,7 +387,7 @@ console.log('\n── 링크 규칙을 베끼지 않는다 ──');
 console.log('\n── 갈라진 이름표를 짚어 준다 ──');
 {
   const body = SRC.split('<script>')[1] || '';
-  /* 셸은 공백을 지우고 묶으므로 '박하람'·'박 하람' 이 한 사람으로 온다. 파이널
+  /* 셸은 공백을 지우고 묶으므로 '박바다'·'박 바다' 이 한 사람으로 온다. 파이널
      성적표는 정확히 같은 이름만 한 사람으로 보므로 저기서는 회차가 갈라진다.
      두 화면의 숫자가 다른 이유를 셸이 말해 줘야 선생님이 합칠 수 있다. */
   chk('저장된 이름표를 모아 둔다', /rec\.names\.indexOf\(raw\)<0/.test(body), true);
@@ -722,21 +722,21 @@ console.log('\n── 학생 카드에 다른 앱 기록을 붙인다 ──');
   /* 여태 학생 카드는 파이널 회차만 보여 주고 DT·KMChC 는 "명단에도 있습니다"
      한 줄로 끝났다. 정작 물어보고 싶은 것은 그쪽인데. */
   ctx.ROSTER = [
-    { name:'김지성', school:'휘문중',     grade:'2', apps:{exam:2, dt:1} },
-    { name:'이도현', school:'대원국제중', grade:'2', apps:{dt:1} },
+    { name:'김마루', school:'휘문중',     grade:'2', apps:{exam:2, dt:1} },
+    { name:'이아람', school:'대원국제중', grade:'2', apps:{dt:1} },
     { name:'박서준', school:'A중',        grade:'1', apps:{dt:1} },
     { name:'박서준', school:'B중',        grade:'2', apps:{dt:1} },   // 동명이인
   ];
   ctx.PASS_ROWS = [
-    { name:'김지성', school:'휘문',       course:'ch2', round:7, score:91.7, tries:1 },  // 표기가 짧다
-    { name:'이도현', school:'대원국제중', course:'ch1', round:6, score:85,   tries:2 },
+    { name:'김마루', school:'휘문',       course:'ch2', round:7, score:91.7, tries:1 },  // 표기가 짧다
+    { name:'이아람', school:'대원국제중', course:'ch1', round:6, score:85,   tries:2 },
   ];
   ctx.PEND_ROWS = [
-    { name:'김지성', school:'휘문중학교', course:'gc', round:7, score:55, nextNeeded:'재시', days:13 },
+    { name:'김마루', school:'휘문중학교', course:'gc', round:7, score:55, nextNeeded:'재시', days:13 },
   ];
-  ctx.ABS_ROWS = [{ label:'화학1 일6-10', course:'ch1', round:6, absent:['김지성','박서준'], total:26 }];
+  ctx.ABS_ROWS = [{ label:'화학1 일6-10', course:'ch1', round:6, absent:['김마루','박서준'], total:26 }];
   ctx.KM_ROWS = [
-    { name:'김지성', school:'', grade:'중2', kmLink:'https://x/report?id=1' },
+    { name:'김마루', school:'', grade:'중2', kmLink:'https://x/report?id=1' },
     { name:'박서준', school:'', grade:'중1', kmLink:'https://x/report?id=2' },
     { name:'박서준', school:'', grade:'중2', kmLink:'https://x/report?id=3' },
   ];
@@ -747,7 +747,7 @@ console.log('\n── 학생 카드에 다른 앱 기록을 붙인다 ──');
   chk('미응시도 붙는다', a.absent, [{ i:0, j:0 }]);
   /* 붙는 것은 값이 아니라 **원래 배열의 번호**다. 대시보드의 문자 단추와 같은
      번호를 써야 카드에서 누른 문자가 그 학생 것이 된다. */
-  chk('번호는 원래 배열의 번호', ctx.PASS_ROWS[a.passed[0]].name, '김지성');
+  chk('번호는 원래 배열의 번호', ctx.PASS_ROWS[a.passed[0]].name, '김마루');
 
   const b = ctx.dtForStudent(ctx.ROSTER[1]);
   chk('남의 통과가 안 붙는다', b.passed, [1]);
@@ -758,7 +758,7 @@ console.log('\n── 학생 카드에 다른 앱 기록을 붙인다 ──');
   const c = ctx.dtForStudent(ctx.ROSTER[2]);
   chk('동명이인이면 미응시를 안 붙인다', c.absent, []);
   chk('이름이 유일해야 붙인다',
-      [ctx.nameIsUnique('김지성'), ctx.nameIsUnique('박서준')], [true, false]);
+      [ctx.nameIsUnique('김마루'), ctx.nameIsUnique('박서준')], [true, false]);
 
   chk('KMChC 는 이름이 하나뿐일 때만', ctx.kmForStudent(ctx.ROSTER[0]).kmLink, 'https://x/report?id=1');
   chk('KMChC 동명이인은 고르지 않는다', ctx.kmForStudent(ctx.ROSTER[2]), null);
@@ -1172,7 +1172,7 @@ console.log('\n── 보낸 것은 눈에서 내려간다 ──');
   chk('보낸 줄을 기억한다', /const SENT = new Set\(\);/.test(body), true);
   /* 열쇠는 목록 **번호**가 아니라 사람이다 — 번호로 만들면 다시 불러올 때
      밀려서 엉뚱한 줄이 흐려진다. */
-  chk('열쇠는 번호가 아니라 사람', ctx.sentKey('pend', '김 지성', 'ch1', 12), 'pend|김지성|ch1|12');
+  chk('열쇠는 번호가 아니라 사람', ctx.sentKey('pend', '김 마루', 'ch1', 12), 'pend|김마루|ch1|12');
   chk('빈 값에도 안 죽는다', ctx.sentKey('abs', null), 'abs|||');
   /* 같은 반에 김지완이 둘이다(내정중 · 대청중). 열쇠가 같으면 한 명에게
      보냈다고 표시하는 순간 다른 한 명도 보낸 것으로 보인다. */
@@ -1242,22 +1242,22 @@ console.log('\n── 안 한 것이 떠오르게 (넛지) ──');
   ctx.DT_CACHE = {
     'dt:sentlog': { val: [
       /* 보낸 지 오래인데 아직 안 열어 봤다 */
-      { kind:'pass', name:'김지성', course:'ch2', round:7, ts: now - 5*D },
+      { kind:'pass', name:'김마루', course:'ch2', round:7, ts: now - 5*D },
       /* 보내고 나서 열어 봤다 — 짚을 것이 없다 */
       { kind:'pend', name:'한지우', course:'ch1', round:9, ts: now - 6*D },
       /* 어제 보냈다 — 아직 기다릴 때다 */
-      { kind:'pend', name:'오승민', course:'ch1', round:9, ts: now - 1*D },
+      { kind:'pend', name:'오사랑', course:'ch1', round:9, ts: now - 1*D },
     ] },
     'dt:views': { val: [ { name:'한지우', ts: now - 2*D } ] },
   };
   const n = ctx.nudges();
   console.log('  ' + JSON.stringify(n.map(function(x){ return [x.kind, x.name, x.days]; })));
   chk('보냈는데 안 열어 본 사람을 짚는다',
-      n.some(function(x){ return x.name==='김지성' && x.kind==='안 열어 봄'; }), true);
+      n.some(function(x){ return x.name==='김마루' && x.kind==='안 열어 봄'; }), true);
   /* 보낸 **뒤에** 열었어야 한다 — 지난달에 한 번 열어 본 것으로 이번 문자를
      읽었다고 칠 수는 없다. 여기서는 보낸 뒤에 열었으니 짚지 않는다. */
   chk('열어 본 사람은 안 짚는다', n.some(function(x){ return x.name==='한지우'; }), false);
-  chk('어제 보낸 것은 아직 안 짚는다', n.some(function(x){ return x.name==='오승민'; }), false);
+  chk('어제 보낸 것은 아직 안 짚는다', n.some(function(x){ return x.name==='오사랑'; }), false);
   chk('오래 밀린 재시를 짚는다',
       n.some(function(x){ return x.name==='최예린' && x.kind==='아직 안 보냄'; }), true);
   chk('며칠 안 된 것은 안 짚는다', n.some(function(x){ return x.name==='박서준'; }), false);
@@ -1268,9 +1268,9 @@ console.log('\n── 안 한 것이 떠오르게 (넛지) ──');
 
   /* 보낸 **뒤에** 열었는지로 가린다. 이 규칙이 없으면 "지난달에 열어 봤으니
      됐다" 가 되어 이번 문자를 안 읽은 집을 놓친다. */
-  ctx.DT_CACHE['dt:views'] = { val: [ { name:'김지성', ts: now - 9*D } ] };
+  ctx.DT_CACHE['dt:views'] = { val: [ { name:'김마루', ts: now - 9*D } ] };
   chk('보내기 전에 열어 본 것은 안 친다',
-      ctx.nudges().some(function(x){ return x.name==='김지성'; }), true);
+      ctx.nudges().some(function(x){ return x.name==='김마루'; }), true);
 
   /* '무시' 는 미루기를 그대로 쓴다 — 새로 저장할 곳을 만들지 않는다. */
   chk('무시는 미루기를 쓴다', /w\.snoozeStu\(\{ kind:p\[0\], name:p\[1\], course:p\[2\], round:p\[3\], until:until \}\)/.test(body), true);
@@ -1347,11 +1347,11 @@ console.log('\n── 상담지 한 장 ──');
       /const fin = finFor\(r\), d = dtForStudent\(r\), km = kmForStudent\(r\);/.test(body), true);
 
   ctx.DT_CACHE = { 'dt:mistags': { val: [
-    { name:'김지성', school:'휘문중', course:'ch1', round:5, tags:['몰농도','완충'] },
-    { name:'김지성', school:'휘문',   course:'ch2', round:7, tags:['몰농도'] },
+    { name:'김마루', school:'휘문중', course:'ch1', round:5, tags:['몰농도','완충'] },
+    { name:'김마루', school:'휘문',   course:'ch2', round:7, tags:['몰농도'] },
     { name:'박서준', school:'과천중', course:'ch1', round:5, tags:['산화수'] },
   ] } };
-  const m = ctx.prMis({ name:'김지성', school:'휘문중' });
+  const m = ctx.prMis({ name:'김마루', school:'휘문중' });
   chk('이 학생 것만 모은다', m.map(function(x){ return [x.tag, x.n]; }), [['몰농도',2],['완충',1]]);
   /* 학교 표기가 '휘문' 과 '휘문중' 으로 흔들려도 같은 아이다. */
   chk('학교 표기가 흔들려도 센다', (m.filter(function(x){ return x.tag==='몰농도'; })[0]||{}).n, 2);
@@ -1553,11 +1553,11 @@ console.log('\n── 개념 하나로 아이들을 부른다 ──');
   chk('익명본은 그대로 쓴다', /readOnce\('dt', 'cohortmis'/.test(body), true);
 
   const R = [
-    { name:'김지성', school:'휘문중', course:'ch1', round:5, attempt:'재시', pass:true,
+    { name:'김마루', school:'휘문중', course:'ch1', round:5, attempt:'재시', pass:true,
       score:92, days:1, tags:['완충','몰농도'] },
-    { name:'김지성', school:'휘문',   course:'ch1', round:4, attempt:'정시', pass:false,
+    { name:'김마루', school:'휘문',   course:'ch1', round:4, attempt:'정시', pass:false,
       score:60, days:9, tags:['몰농도'] },
-    { name:'이도현', school:'과천중', course:'ch2', round:7, attempt:'정시', pass:false,
+    { name:'이아람', school:'과천중', course:'ch2', round:7, attempt:'정시', pass:false,
       score:55, days:3, tags:['몰농도'] },
     { name:'박서준', school:'과천중', course:'ch1', round:5, attempt:'정시', pass:false,
       score:48, days:2, tags:['완충'] },
@@ -1579,9 +1579,9 @@ console.log('\n── 개념 하나로 아이들을 부른다 ──');
                  { name:'한지우', school:'대곡고', days:2, tags:[] }).length, 2);
 
   const who = ctx.conFor(R, '몰농도');
-  chk('그 개념 못 잡은 사람만 선다', who.map(function(r){ return r.name; }), ['김지성','이도현']);
+  chk('그 개념 못 잡은 사람만 선다', who.map(function(r){ return r.name; }), ['김마루','이아람']);
   /* 오래된 회차를 보여 주면 "이거 벌써 했는데" 가 된다 — 가장 최근 것을 남긴다. */
-  chk('같은 사람은 최근 것으로', (who.filter(function(r){ return r.name==='김지성'; })[0]||{}).round, 5);
+  chk('같은 사람은 최근 것으로', (who.filter(function(r){ return r.name==='김마루'; })[0]||{}).round, 5);
   chk('급한 것이 위에 선다', who.map(function(r){ return r.days; }), [1,3]);
   chk('없는 개념이면 빈 목록', ctx.conFor(R, '없는개념'), []);
 
@@ -1591,7 +1591,7 @@ console.log('\n── 개념 하나로 아이들을 부른다 ──');
 
   /* 보충을 짤 때 반이 섞이면 시간을 못 잡는다. */
   ctx.DT_CACHE = { 'dt:names': { val: { classes: [
-    { label:'화학1 토1:30', course:'ch1', students:[{ name:'김지성', school:'휘문중' }] } ] } } };
+    { label:'화학1 토1:30', course:'ch1', students:[{ name:'김마루', school:'휘문중' }] } ] } } };
   chk('어느 반인지 붙인다', ctx.conClassOf(R[0]), '화학1 토1:30');
   chk('모르면 모른다고 한다', ctx.conClassOf(R[2]), '');
   chk('반별로 센다', ctx.conByClass(who).map(function(x){ return [x.label, x.n]; }),
@@ -1601,7 +1601,7 @@ console.log('\n── 개념 하나로 아이들을 부른다 ──');
   /* 대시보드 숫자를 보고 나서 할 수 있는 일이 있어야 한다. */
   /* ── 한 번 틀린 아이와 세 회차 내리 걸린 아이는 다른 아이다 ──────────
      목록에 섞여 있으면 둘이 똑같아 보이고, 보충은 대개 뒤엣아이 몫이다. */
-  const rep = ctx.conFor(R, '몰농도').filter(function(e){ return e.name==='김지성'; })[0];
+  const rep = ctx.conFor(R, '몰농도').filter(function(e){ return e.name==='김마루'; })[0];
   chk('몇 회차에서 걸렸는지 센다', ctx.conHits(rep), 2);
   chk('한 회차뿐이면 1', ctx.conHits(ctx.conFor(R,'몰농도')[1]), 1);
   /* 같은 회차의 정시·재시를 둘로 세면 "두 번 걸렸다" 가 거짓이 된다. */
@@ -1647,7 +1647,7 @@ console.log('\n── 오늘 못 하는 줄은 미룬다 ──');
   /* 지운 것은 돌아오지 않는다. 미룬 것은 날짜가 지나면 저절로 돌아와야 한다 —
      그래야 잊어버려도 된다. 그 '저절로' 가 이 검사의 전부다. */
   ctx.SNZ.clear(); ctx.SNZ_SHOW = false;
-  const k = ctx.sentKey('pend', '김지성', 'ch1', 12);
+  const k = ctx.sentKey('pend', '김마루', 'ch1', 12);
   chk('아직 안 미뤘으면 비어 있다', ctx.snoozedTill(k), '');
   ctx.SNZ.set(k, ctx.dayKey(7));
   chk('미루면 날짜가 잡힌다', ctx.isSnoozed(k), true);
@@ -1934,25 +1934,25 @@ console.log('\n── 지금 DT 반에 없는 학생 ──');
   ctx.DT_CACHE = {
     'dt:names': { val: Object.assign([], { classes: [
       { label:'화학1 일6-10', course:'ch1', kind:'dt',
-        students:[{name:'김지성'},{name:'최예린'}] },
+        students:[{name:'김마루'},{name:'최예린'}] },
       { label:'파이널 목7-10', course:'', kind:'exam',
-        students:[{name:'박하람'}] },
+        students:[{name:'박바다'}] },
     ] }) },
-    'dt:passed':  { val: [ {name:'김지성', course:'ch1', round:3},
+    'dt:passed':  { val: [ {name:'김마루', course:'ch1', round:3},
                            {name:'떠난학생', course:'ch1', round:3} ] },
     'dt:pending': { val: [ {name:'최예린', course:'ch1', round:4},
                            {name:'떠난학생', course:'ch1', round:4},
-                           {name:'박하람',  course:'ch1', round:4} ] },
+                           {name:'박바다',  course:'ch1', round:4} ] },
     'dt:absentees': { val: [] },
   };
   ctx.syncWorkRows();
   chk('명단에 있는 학생만 통과 목록에 남는다',
-      ctx.PASS_ROWS.map(function(r){ return r.name; }), ['김지성']);
+      ctx.PASS_ROWS.map(function(r){ return r.name; }), ['김마루']);
   chk('명단 밖 학생은 재시 대기에서 빠진다',
       ctx.PEND_ROWS.map(function(r){ return r.name; }), ['최예린']);
   /* 파이널 반 학생은 DT 를 안 본다 — DT 알림을 만들면 안 된다. */
   chk('파이널 반 학생도 DT 알림에서 빠진다',
-      ctx.PEND_ROWS.some(function(r){ return r.name === '박하람'; }), false);
+      ctx.PEND_ROWS.some(function(r){ return r.name === '박바다'; }), false);
 
   /* ⚠ 못 받았을 때 다 지워 버리면 화면이 통째로 빈다. 그건 고치는 것이
      아니라 망치는 것이다. */
@@ -1964,8 +1964,8 @@ console.log('\n── 지금 DT 반에 없는 학생 ──');
   /* 학교 표기가 흔들려도 이름이 같으면 남긴다 — 잘못 빼는 것이 잘못 남기는
      것보다 나쁘다. 빠지면 아무도 모른다. */
   ctx.DT_CACHE['dt:names'] = { val: Object.assign([], { classes: [
-    { label:'화학1 일6-10', course:'ch1', students:[{name:'김지성', school:'휘문중학교'}] } ] }) };
-  ctx.DT_CACHE['dt:passed'] = { val: [ {name:'김지성', school:'휘문중', course:'ch1'} ] };
+    { label:'화학1 일6-10', course:'ch1', students:[{name:'김마루', school:'휘문중학교'}] } ] }) };
+  ctx.DT_CACHE['dt:passed'] = { val: [ {name:'김마루', school:'휘문중', course:'ch1'} ] };
   ctx.syncWorkRows();
   chk('학교 표기가 달라도 이름이 같으면 남는다', ctx.PASS_ROWS.length, 1);
   chk('갈래를 안 적은 옛 반은 DT 로 본다',
@@ -1994,9 +1994,9 @@ console.log('\n── 인원·수입은 파이널 반까지 센다 ──');
   ctx.DT_CACHE = {
     'dt:names': { val: Object.assign([], { classes: [
       { label:'화학1 일6-10', course:'ch1', kind:'dt',
-        students:[{name:'김지성'},{name:'최예린'}] },
+        students:[{name:'김마루'},{name:'최예린'}] },
       { label:'파이널 목7-10', course:'', kind:'exam',
-        students:[{name:'박하람'},{name:'이도윤'},{name:'김지성'}] },
+        students:[{name:'박바다'},{name:'이도윤'},{name:'김마루'}] },
     ] }) },
   };
   const d = ctx.rosterCount();

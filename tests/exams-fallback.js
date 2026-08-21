@@ -135,7 +135,7 @@ async function blockExams(page) {
         const ex = FINAL_EXAMS.find(e => e.id === 'jmchc-4'), sel2 = {};
         for (let q = 1; q <= ex.nQ; q++) sel2[q] = ex.key[q - 1];
         sel2[5] = (ex.key[4] % 4) + 1;
-        return shareLinkFinal(ex, sel2, '오승민', '');
+        return shareLinkFinal(ex, sel2, '오사랑', '');
       });
       await p2.close();
       return l;
@@ -148,7 +148,7 @@ async function blockExams(page) {
       errorShown: /시험 목록을 불러오는 중/.test(document.body.innerText),
     }));
     chk('exams.json 404 여도 공유 링크가 열린다', r.errorShown, false);
-    chk('이름이 복원된다', r.name, '오승민');
+    chk('이름이 복원된다', r.name, '오사랑');
     chk('오답 카드도 그려진다', r.cards > 0, true);
     chk('JS 오류 없음', errs, []);
     await page.close();

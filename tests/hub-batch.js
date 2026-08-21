@@ -72,7 +72,7 @@ function partOf(action) {
   switch (action) {
     case 'names': return { ok: true, classes: [
       { label: '화학1 토1:30', course: 'ch1', students: [
-        { name: '김지성', school: '휘문중', year: '2' },
+        { name: '김마루', school: '휘문중', year: '2' },
         { name: '최예린', school: '역삼중', year: '2' } ] } ] };
     case 'pending': return { ok: true, pending: { activeDays: 14, generatedAt: 'T', stale: [], active: [
       { studentKey: 's1', name: '최예린', school: '역삼중', year: '2', course: 'ch1', round: 12,
@@ -80,7 +80,7 @@ function partOf(action) {
         reportLink: 'https://x/report.html?student=a', active: true } ] } };
     case 'absentees': return { ok: true, absentees: { generatedAt: 'T', classes: [
       { label: '화학1 토1:30', course: 'ch1', round: 12, total: 8, present: 6,
-        absent: ['김도윤', '김지성'] } ] } };
+        absent: ['김도윤', '김마루'] } ] } };
     case 'passed': return { ok: true, passed: { days: 14, generatedAt: 'T', passed: [] } };
     case 'cohortmis': return { ok: true, rows: [] };
     case 'sentlog': return { ok: true, sent: [] };
