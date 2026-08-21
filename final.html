@@ -1100,12 +1100,21 @@ const okq=(e,q,a)=>allc(e,q)||accSet(e,q).indexOf(a)>=0;
 /* 문항 크롭 주소. 학생별 파이널처럼 다른 회차의 문항을 빌려 쓰는 회차는
    srcmap[n-1]={e:'hwol-2018', q:34} 가 원본을 가리킨다 — 크롭을 복사해 두지
    않고 원본 자리 하나만 쓴다. srcmap 이 없으면 여느 회차처럼 제 자리를 본다. */
+/* 판번호. 빌려 오는 크롭은 **그림을 가진 회차** 것을 써야 한다 — 빌려 주는
+   원본이 갈아 끼워지면 빌려 쓰는 쪽도 같이 깨져야 옛 그림을 안 본다. */
+function revOf(id){
+  var e=(typeof examById==='function')?examById(id):null;
+  var r=e?+e.rev:0;
+  return (r>1)?r:0;
+}
 function cropURL(exam,q){
   var s=exam&&exam.srcmap&&exam.srcmap[q-1];
-  if(s&&s.e) return 'crops/'+s.e+'/'+(+s.q)+'.png';
   /* rev — 같은 id 로 문제를 갈아 끼운 회차. 크롭은 cache-first 라 주소가
      같으면 옛 그림이 나온다. 판번호를 주소에 실어 캐시를 깬다. */
-  return 'crops/'+exam.id+'/'+q+'.png'+(exam.rev>1?('?v='+exam.rev):'');
+  if(s&&s.e){ var rs=revOf(s.e);
+    return 'crops/'+s.e+'/'+(+s.q)+'.png'+(rs?('?v='+rs):''); }
+  var r=(+exam.rev>1)?+exam.rev:0;
+  return 'crops/'+exam.id+'/'+q+'.png'+(r?('?v='+r):'');
 }
 /* ── 왜 다 맞은 것으로 처리됐는가 ──────────────────────────────────
    '전원정답' 은 두 가지 다른 일에 붙어 있었다.
@@ -4264,11 +4273,17 @@ function historyScopeNote(){
     이 브라우저에 채점해 둔 기록 기준입니다. 다른 기기·브라우저에서 채점한 회차가 있으면
     시험 목록의 <b>시트에서 불러오기 ↓</b> 를 먼저 눌러 주세요.</div>`;
 }
+/* ⚠ 이 알림은 **다른 학생들의 이름을 적는다.** 「명단 관리에서 합치세요」 는
+   선생님만 할 수 있는 일이고, 학부모에게 건네는 파일에 급우 실명이 실릴 자리는
+   없다. 한국 이름은 세 글자 중 한 글자만 다른 동급생이 흔해서(김민준 ↔ 김민서)
+   여기 걸리는 것은 오타 변형이 아니라 **진짜 다른 아이**일 때가 많다.
+   그래서 공유 성적표에서는 통째로 접고, 내보낸 파일에서는 .splitnote 를 걷어낸다. */
 function splitNameNote(nm){
+  if(window.__sharedReport) return '';
   var sp=[]; try{ sp=splitNameRecords(nm); }catch(e){ return ''; }
   if(!sp.length) return '';
   var tot=sp.reduce(function(a,x){ return a+x.n; },0);
-  return `<div class="note" style="border-color:rgba(192,96,58,.38);background:#FBF0EA;color:#8a3a1d">
+  return `<div class="note splitnote" style="border-color:rgba(192,96,58,.38);background:#FBF0EA;color:#8a3a1d">
     <b>빠진 회차가 있을 수 있습니다.</b> ${esc(nm)} 학생과 비슷한 이름으로 저장된 기록이
     <b>${tot}건</b> 더 있습니다 —
     ${sp.map(function(x){ return `<b>${esc(x.name)}</b>(${x.n}건 · ${x.why})`; }).join(' · ')}.
@@ -4917,6 +4932,8 @@ async function exportReportHTML(){
     var sec=g.closest('.sec')||g; sec.remove();
   });
   app.querySelectorAll('.retrybig').forEach(function(g){ g.remove(); });
+  /* 「비슷한 이름으로 저장된 기록」 알림 — 급우 실명이 적힌다. 선생님만 볼 것. */
+  app.querySelectorAll('.splitnote').forEach(function(g){ g.remove(); });
   const srcText=src.querySelectorAll('textarea'), outText=app.querySelectorAll('textarea');
   srcText.forEach(function(t,i){if(outText[i])outText[i].textContent=t.value;});
   const srcInputs=src.querySelectorAll('input'), outInputs=app.querySelectorAll('input');

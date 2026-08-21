@@ -21,7 +21,7 @@
  * 화면에 뜬 뒤 곧바로 미리 받아 두면 학생이 나중에 오프라인이 되어도 열린다.
  * (`loading="lazy"` 라 스크롤하지 않은 이미지는 저절로는 캐시되지 않는다)
  */
-const VERSION = 'b44a2b6fe11e';
+const VERSION = '56e060fef381';
 const SHELL = 'chemistreal-shell-' + VERSION;
 const DATA = 'chemistreal-data';          // 버전 없음 — 배포해도 남긴다
 const ASSETS = ['./', './index.html', './note.html', './hub.html', './final.html', './final-submit.html',
@@ -30,7 +30,7 @@ const ASSETS = ['./', './index.html', './note.html', './hub.html', './final.html
 
 // data 캐시에 넣을 경로. 여기 없는 것은 shell 로 간다.
 const IMMUTABLE = /\/crops\//;                       // 바뀌지 않는다
-const REFRESHABLE = /\/(donghyung|answers)\/|exams\.json$/;   // 고칠 수 있다
+const REFRESHABLE = /\/(donghyung|answers)\//;   // 해설 — 하루 늦어도 된다
 
 /* ⚠ `cohort/` 를 여기서 **빼냈다**(2026-08-10).
  *
@@ -50,7 +50,22 @@ const REFRESHABLE = /\/(donghyung|answers)\/|exams\.json$/;   // 고칠 수 있�
  *
  * (2026-08-03 에 옛 final.html 이 캐시에서 나오던 일과 같은 갈래다. 그때는
  *  VERSION 을 내용에서 짓게 해 막았는데, data 캐시는 그 VERSION 을 안 탄다.) */
-const FRESH = /\/cohort\//;
+/* ⚠ 여기에는 **정답표를 실은 파일이 전부** 들어와야 한다(2026-08-21).
+ *
+ * 재어 보니 `student-finals.json`(오늘 밤 아홉 명의 회차·정답키가 들어 있다)과
+ * `retry-pool.json` 은 위 셋 어디에도 안 걸려 맨 밑 갈래 — **완전한 cache-first** —
+ * 로 떨어지고 있었다. 그 갈래는 shell 에 넣으므로 VERSION 이 바뀌어야 지워지는데,
+ * 그 VERSION 을 짓는 gen_sw_version.py 는 **ASSETS 목록만** 해시한다. 즉 회차를
+ * 새로 심어 배포해도 VERSION 이 안 바뀌고, 학생 기기에는 옛 회차가 그대로 앉아 있다.
+ *
+ * `exams.json` 은 REFRESHABLE 이라 더 조용했다 — stale-while-revalidate 는 **옛
+ * 것을 먼저 주고** 새것은 다음 열람용으로만 받는다. 복수정답 열한 문항을 고쳐
+ * 배포해도, 학생의 그날 첫 채점은 어제 정답표로 돈다.
+ *
+ * 정답표가 하루 늦게 반영되는 것은 «조금 낡음» 이 아니라 **틀린 채점**이다.
+ * 그림(crops)만 cache-first 로 남기고, 정답을 실은 것은 전부 망을 먼저 본다.
+ * 오프라인이면 그때만 캐시를 준다 — 화면이 빈칸이 되지는 않는다. */
+const FRESH = /\/cohort\/|\/(exams|student-finals|teacher-exams|student-packets|student-final-groups|retry-pool)\.json$/;
 
 self.addEventListener('install', e => {
   // addAll 은 하나라도 404 면 전부 실패한다. 파일 목록이 바뀌어도 설치가
@@ -95,6 +110,19 @@ function put(cacheName, url, resp) {
   caches.open(cacheName).then(c => c.put(url, copy)).catch(() => {});
 }
 
+/* 캐시는 **이름을 대고** 찾는다.
+   -----------------------------------------------------------------
+   `caches.match(key)` 는 이름을 안 주는 전역 탐색이라 **모든 캐시를 만들어진
+   순서로** 뒤진다. 여기서는 그 순서가 늘 [data, shell-<새버전>] 이다 — data 는
+   버전이 없어 안 지워지고, shell 은 배포마다 지워졌다 새로 생기니까.
+
+   그래서 같은 주소가 두 캐시에 있으면 **먼저 생긴 data 쪽, 곧 옛것이 이긴다.**
+   배포로 새로 받아 둔 shell 사본은 그 밑에 깔린 채 아무도 안 읽는다. 배포가
+   늘 한 판 늦게 닿던 자리다. 이름을 대면 그런 일이 없다. */
+function look(cacheName, key) {
+  return caches.open(cacheName).then(c => c.match(key)).catch(() => undefined);
+}
+
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
@@ -106,7 +134,7 @@ self.addEventListener('fetch', e => {
     e.respondWith(
       fetch(req)
         .then(resp => { put(SHELL, key, resp); return resp; })
-        .catch(() => caches.match(key).then(r => r || caches.match('./index.html')))
+        .catch(() => look(SHELL, key).then(r => r || look(SHELL, './index.html')))
     );
     return;
   }
@@ -118,14 +146,14 @@ self.addEventListener('fetch', e => {
     e.respondWith(
       fetch(req)
         .then(resp => { put(SHELL, key, resp); return resp; })
-        .catch(() => caches.match(key))
+        .catch(() => look(SHELL, key))
     );
     return;
   }
 
   if (IMMUTABLE.test(url.pathname)) {
     e.respondWith(
-      caches.match(key).then(hit => hit || fetch(req).then(resp => { put(DATA, key, resp); return resp; }))
+      look(DATA, key).then(hit => hit || fetch(req).then(resp => { put(DATA, key, resp); return resp; }))
     );
     return;
   }
@@ -135,7 +163,7 @@ self.addEventListener('fetch', e => {
     // 캐시가 있으면 `live` 는 아무도 기다리지 않는 약속이 되므로 catch 를 반드시
     // 붙인다. 오프라인에서 이게 거부되면 처리되지 않은 거부로 콘솔에 찍힌다.
     e.respondWith(
-      caches.match(key).then(hit => {
+      look(DATA, key).then(hit => {
         const live = fetch(req)
           .then(resp => { put(DATA, key, resp); return resp; })
           .catch(err => { if (hit) return hit; throw err; });
@@ -146,7 +174,7 @@ self.addEventListener('fetch', e => {
   }
 
   e.respondWith(
-    caches.match(key).then(hit => hit || fetch(req)
+    look(SHELL, key).then(hit => hit || fetch(req)
       .then(resp => { put(SHELL, key, resp); return resp; })
       .catch(() => hit))
   );
@@ -162,7 +190,12 @@ self.addEventListener('message', e => {
   e.waitUntil(caches.open(DATA).then(async cache => {
     let added = 0;
     for (const raw of msg.urls.slice(0, 400)) {
-      const key = new URL(raw, location.href).pathname;
+      /* 판번호(`?v=2`)를 **버리면 안 된다.** 화면이 그림을 부를 때 쓰는 열쇠는
+         `pathname + search`(위 fetch 처리기)라, search 를 떼고 넣어 두면 정작
+         그 항목을 영영 못 찾는다 — 오프라인에서 오답노트 그림이 통째로 안 뜬다.
+         오늘 실전 30제는 열한 회차가 전부 rev 2 라 예외 없이 이 갈래다. */
+      const _u = new URL(raw, location.href);
+      const key = _u.pathname + _u.search;
       try {
         if (await cache.match(key)) continue;
         const resp = await fetch(key, { credentials: 'same-origin' });

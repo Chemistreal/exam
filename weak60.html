@@ -629,6 +629,22 @@ async function lecStudy(file){
 
 /* ══ 회차 목록 · 명단 · 이력 ══════════════════════════════════════════════ */
 var EXAMS=[], SF_OK=false;
+/* ── 문항 그림 주소는 **한 자리에서만** 만든다 ────────────────────────────
+   크롭은 서비스워커가 cache-first 로 쥐고 있다(주소가 같으면 옛 그림이 그대로
+   나온다). 그래서 같은 id 로 문제를 갈아 끼운 회차는 판번호 rev 를 주소에
+   실어 캐시를 깬다 — 이걸 빠뜨린 자리가 하나라도 있으면 **옛 그림에 새 정답표**
+   가 붙는다. 시험지·오답 종이는 종이로 나가서 되돌릴 수도 없다.
+
+   빌려 오는 크롭(srcmap)도 같다. 판번호는 **그림을 가진 회차** 것을 쓴다. */
+function revOf(id){
+  var e=EXAMS.filter(function(x){ return x.id===id; })[0];
+  var r=e?+e.rev:0;
+  return (r>1)?r:0;
+}
+function cropU(id,q){
+  var r=revOf(id);
+  return 'crops/'+id+'/'+q+'.png'+(r?('?v='+r):'');
+}
 async function loadExams(){
   var r=await fetch('exams.json',{cache:'no-store'});
   if(!r.ok) throw new Error('exams.json '+r.status);
@@ -888,7 +904,7 @@ async function weak60Fill(picks){
     var origin=function(){
       var a=(ansAll[w.id]||{})[String(w.q)]||{};
       out.push({ kind:'origin', src:w, type:p.type, area:p.area, re:p.re, ans:a,
-                 img:'crops/'+w.id+'/'+w.q+'.png' });
+                 img:cropU(w.id,w.q) });
     };
     if(p.kind==='analog'){
       var list=((dhAll[w.id]||{})[String(w.q)]||[]).filter(dhUsable);
@@ -939,7 +955,7 @@ async function w60Restore(paper){
                       lec:p.lec, dq:dq, dhs:p._dhs, dhi:p._dhi };
     }
     return { kind:'origin', src:w, type:p.type, area:p.area, re:p.re, lec:p.lec,
-             ans:(ansAll[w.id]||{})[String(w.q)]||{}, img:'crops/'+w.id+'/'+w.q+'.png' };
+             ans:(ansAll[w.id]||{})[String(w.q)]||{}, img:cropU(w.id,w.q) };
   });
 }
 
@@ -1894,7 +1910,7 @@ async function makeWarmup(code){
   if(!(p.warmup||[]).length) throw new Error('워밍업으로 낼 문항이 없습니다 — 맞힌 문항이 파이널과 다 겹칩니다');
   var imgs={};
   await Promise.all(p.warmup.map(function(w){
-    var u='crops/'+w.e+'/'+w.q+'.png';
+    var u=cropU(w.e,w.q);
     return _fetchImg(u).then(function(b){ if(b) imgs[u]=b; });
   }));
   var K=await w60Kit(), nm=_pkName(code);
@@ -1904,7 +1920,7 @@ async function makeWarmup(code){
                {lab:'읽고 시작',fill:'FAF8F1',bar:'B08D57',labColor:K.GOLD}));
   var miss=0;
   p.warmup.forEach(function(w,i){
-    var u='crops/'+w.e+'/'+w.q+'.png';
+    var u=cropU(w.e,w.q);
     /* 머리와 그림을 **한 문단**에 넣는다 — _w60item 과 같은 규칙이다.
        K.img 는 이미 문단을 돌려주므로 그것을 또 K.P 로 감싸면 문단 안에
        문단이 들어가고, 워드는 그 자리를 통째로 버린다(그림이 안 찍힌다). */
@@ -1951,9 +1967,9 @@ async function makeTrapCard(code){
      crops 회차    제 크롭이 있다(선생님이 한글로 낸 변형본·실전세트) */
 function paperURLs(e){
   var sm=(e.srcmap||[]);
-  if(sm.length) return sm.map(function(m){ return 'crops/'+m.e+'/'+m.q+'.png'; });
-  if(e.crops){ var out=[]; var v=(e.rev>1?('?v='+e.rev):'');
-    for(var q=1;q<=e.nQ;q++) out.push('crops/'+e.id+'/'+q+'.png'+v); return out; }
+  if(sm.length) return sm.map(function(m){ return cropU(m.e,m.q); });
+  if(e.crops){ var out=[];
+    for(var q=1;q<=e.nQ;q++) out.push(cropU(e.id,q)); return out; }
   return [];
 }
 async function makeFinalPaper(code){

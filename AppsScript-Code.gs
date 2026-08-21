@@ -253,6 +253,26 @@ function _idOfTitle_(title) {
   }
   return _TITLE2ID_[String(title || '')] || '';
 }
+/* 표에 없는 제목이면 **공유링크**에서 회차 id 를 꺼낸다.
+   -----------------------------------------------------------------
+   EXAM_TITLES 는 손으로 적는 표라, 새로 생긴 회차는 누가 적어 넣기 전까지
+   빈칸이다. 그런데 _recordRows_ 는 표에 없는 제목의 줄을 **통째로 버린다**.
+   그래서 학생별 파이널(변형본 60제·실전 30제·재도전 10제)처럼 표 밖에서
+   생긴 회차는 시트에 줄이 멀쩡히 쌓이는데도 앱에서는 아무것도 안 보였다 —
+   선생님 화면의 「시트에서 불러오기」 는 «이미 같습니다» 라 하고, 학생
+   성적표의 «누적 N회» 에도 안 세어졌다. 시트를 열어 보면 줄은 있는데.
+
+   저장할 때 같이 적힌 공유링크에는 `#r=<회차id>.<답안>` 이 들어 있다.
+   제목과 달리 이건 기계가 적은 것이라 믿을 수 있고, 옛 줄에도 이미 있다.
+   그러니 표를 못 찾으면 링크에서 꺼내 쓴다 — 표는 여전히 우선이다
+   (이름이 바뀐 회차의 옛 기록을 새 id 로 모으는 일은 표만 할 수 있다). */
+function _idOfLink_(link) {
+  var m = String(link || '').match(/[#&?]r=([A-Za-z0-9_-]+)\./);
+  return m ? m[1] : '';
+}
+function _idOfRow_(r) {
+  return _idOfTitle_(r[0]) || _idOfLink_(r[2]);
+}
 /* ── 시트의 응시 기록을 앱이 쓰는 모양으로 ─────────────────────────────
    한 학생만 뽑을 때(history)와 전부 뽑을 때(all)가 같은 자리를 읽는다.
    두 벌로 두면 한쪽만 고쳐져 어긋난다 — 실제로 '학교·학년을 안 돌려준다' 는
@@ -270,8 +290,8 @@ function _recordRows_(key) {
       if (key && _histKey_(r[1]) !== key) continue;
       var ans = String(r[16] || '').replace(/^'/, '').replace(/[^0-4]/g, '');
       if (!ans) continue;
-      var eid = _idOfTitle_(r[0]);
-      if (!eid) continue;                    // 표에 없는 제목은 앱이 못 찾는다
+      var eid = _idOfRow_(r);
+      if (!eid) continue;                    // 제목에도 링크에도 회차가 없다
       out.push({
         examId: eid,
         exam: String(r[0] || ''),

@@ -163,7 +163,7 @@ async function settled(p, label, fn, arg, ms) {
                /* DT 가 실제로 주는 모양이다 — {active, stale, …} 객체. 배열로
                   흉내 내면 'DT 미완료' 가 undefined 로 찍히던 버그를 못 잡는다. */
                : act === 'pending' ? { ok: true, pending: { activeDays: 14, generatedAt: 'T', stale: [], active: [
-                   { studentKey: 's1', name: '최예린', school: '역삼중', year: '2', course: 'ch1', round: 12,
+                   { studentKey: 's1', name: '최나래', school: '역삼중', year: '2', course: 'ch1', round: 12,
                      lastAttempt: '정시', nextNeeded: '재시', score: 68, days: 9, lastDate: '6/17',
                      reportLink: 'https://x/report.html?student=a', active: true } ] } }
                /* 통과·미응시를 **파이널에도 있는 학생**(김마루)으로 둔다. 학생 카드가
@@ -177,10 +177,10 @@ async function settled(p, label, fn, arg, ms) {
                    { label: '화학2 일6-10', course: 'ch2', round: 7, total: 6, present: 6, absent: [] } ] } }
                /* 이름이 붙은 오개념. 익명본(cohortmis)과 같은 개념을 다루되
                   이쪽은 사람이 보인다 — '몰농도 7명' 다음에 할 일이 있으려면
-                  누구인지가 있어야 한다. 김지성은 **두 줄**로 준다(회차가 다름):
+                  누구인지가 있어야 한다. 김마루은 **두 줄**로 준다(회차가 다름):
                   한 사람이 둘로 서면 보충 인원이 부푼다. */
                /* 넛지가 서려면 '보냈다' 와 '열어 봤다' 가 둘 다 있어야 한다.
-                  김지성은 닷새 전에 보냈는데 그 뒤로 안 열었고, 최예린은
+                  김마루은 닷새 전에 보냈는데 그 뒤로 안 열었고, 최나래은
                   아예 안 보낸 채 오래 밀렸다. */
                : act === 'sentlog' ? { ok: true, sent: [
                    { kind:'pass', name:'김마루', course:'ch2', round:7,
@@ -189,8 +189,8 @@ async function settled(p, label, fn, arg, ms) {
                    { studentKey:'s9', name:'다른학생', school:'X중', ts: now - 1 * D, at:'', n:1 } ] }
                : act === 'mistags' ? { ok: true, mis: { days: 21, rows: [
                    { name: '김마루', school: '휘문중', course: 'ch2', round: 12, attempt: '재시',
-                     /* ⚠ days 5 는 일부러다. 최예린(3일)보다 **덜 최근**이라,
-                        최근 순으로만 세우면 김지성이 아래로 내려간다.
+                     /* ⚠ days 5 는 일부러다. 최나래(3일)보다 **덜 최근**이라,
+                        최근 순으로만 세우면 김마루이 아래로 내려간다.
                         되풀이(2회차)를 먼저 세우는지 여기서 갈린다. */
                      pass: true, score: 96, days: 5, tags: ['몰농도', '완충'],
                      reportLink: 'https://x/report.html?student=b' },
@@ -198,7 +198,7 @@ async function settled(p, label, fn, arg, ms) {
                    { name: '김마루', school: '휘문', course: 'ch2', round: 7, attempt: '정시',
                      pass: false, score: 61, days: 9, tags: ['몰농도'],
                      reportLink: 'https://x/report.html?student=b2' },
-                   { name: '최예린', school: '역삼중', course: 'ch1', round: 1, attempt: '정시',
+                   { name: '최나래', school: '역삼중', course: 'ch1', round: 1, attempt: '정시',
                      pass: false, score: 68, days: 3, tags: ['몰농도'],
                      reportLink: 'https://x/report.html?student=a' },
                    { name: '김도윤', school: '', course: 'ch1', round: 1, attempt: '정시',
@@ -523,24 +523,24 @@ async function settled(p, label, fn, arg, ms) {
         n0.rows.some(r => r[0] === '안 열어 봄' && r[1] === '김마루'), true);
     /* 재시가 아흐레째인데 아직 안 보냈다 — 목록에는 있지만 눈에 안 걸린다. */
     chk('오래 밀린 재시를 짚는다',
-        n0.rows.some(r => r[0] === '아직 안 보냄' && r[1] === '최예린'), true);
+        n0.rows.some(r => r[0] === '아직 안 보냄' && r[1] === '최나래'), true);
     chk('며칠째인지 말해 준다', n0.why.some(t => /9일째/.test(t)), true);
 
     /* '무시' 는 미루기를 그대로 쓴다 — 새로 저장할 곳을 만들지 않는다. */
     const off = await p.evaluate(async () => {
       const b = [].filter.call(document.querySelectorAll('#nudge .ndg'),
-                               e => /최예린/.test(e.textContent))[0]
+                               e => /최나래/.test(e.textContent))[0]
                   .querySelector('[data-ndgoff]');
       b.click();
       await new Promise(r => setTimeout(r, 300));
       return [].map.call(document.querySelectorAll('#nudge .who'), e => e.textContent);
     });
-    chk('무시하면 내려간다', off.indexOf('최예린') < 0, true);
+    chk('무시하면 내려간다', off.indexOf('최나래') < 0, true);
     /* 넛지를 무시했다고 재시 목록의 그 사람까지 미뤄지면 안 된다 —
        열쇠가 겹치면 그렇게 된다. */
     chk('재시 목록은 그대로 있다', await p.evaluate(() =>
       [].filter.call(document.querySelectorAll('#pendList .row'), e => e.offsetParent)
-        .some(e => /최예린/.test(e.textContent))), true);
+        .some(e => /최나래/.test(e.textContent))), true);
   }
 
   console.log('\n── DT 문자를 셸에서 바로 복사한다 ──');
@@ -576,7 +576,7 @@ async function settled(p, label, fn, arg, ms) {
       return p.evaluate(() => navigator.clipboard.readText());
     };
     const one = await grab('#pendList .mini.msg');
-    chk('재시 문자를 DT 에서 빌려 온다', one, '빌린재시:최예린/ch1/12/재시/1');
+    chk('재시 문자를 DT 에서 빌려 온다', one, '빌린재시:최나래/ch1/12/재시/1');
     const two = await grab('#passList .mini.msg');
     chk('통과 문자도 빌려 온다', two, '빌린통과:김마루/ch2/7/정시/1/96');
 
@@ -934,10 +934,10 @@ async function settled(p, label, fn, arg, ms) {
       tags:  [].map.call(document.querySelectorAll('#conList .row .tag'), e => e.textContent),
     }));
     console.log('  ' + JSON.stringify(con.chips) + ' · ' + JSON.stringify(con.names));
-    /* 몰농도는 세 줄인데 김지성이 두 줄이라 **2명**이다. 사람으로 안 묶으면
+    /* 몰농도는 세 줄인데 김마루이 두 줄이라 **2명**이다. 사람으로 안 묶으면
        3명으로 세고, 보충 자리를 하나 더 잡게 된다. */
     chk('많이 걸린 개념이 앞에 선다', con.chips[0], '몰농도2');
-    chk('한 사람은 한 줄', con.names, ['김마루', '최예린']);
+    chk('한 사람은 한 줄', con.names, ['김마루', '최나래']);
     /* 세 회차 내리 걸린 아이가 이번 주에 한 번 걸린 아이 아래로 내려가면,
        보충 자리는 위에서부터 차는 탓에 정작 필요한 쪽이 빠진다. */
     chk('되풀이해 걸린 아이가 위에 선다', con.names[0], '김마루');
@@ -1010,7 +1010,7 @@ async function settled(p, label, fn, arg, ms) {
     chk('넘어가면 카드는 닫는다', (jump2 || {}).카드, false);
     chk('가장 많이 걸린 개념이 골라져 있다', /^몰농도/.test((jump2 || {}).고른개념 || ''), true);
 
-    /* 한 번 틀린 아이와 두 회차 내리 걸린 아이는 다른 아이다. 김지성은
+    /* 한 번 틀린 아이와 두 회차 내리 걸린 아이는 다른 아이다. 김마루은
        ch2#7 · ch1#4 두 회차에서 몰농도에 걸렸다. */
     const back = await p.evaluate(() => {
       const c = [].filter.call(document.querySelectorAll('#conTabs .chip'),
@@ -1055,7 +1055,7 @@ async function settled(p, label, fn, arg, ms) {
       await new Promise(r => setTimeout(r, 300));
       return navigator.clipboard.readText();
     });
-    chk('이름을 한 번에 복사한다', copied, '김마루, 최예린');
+    chk('이름을 한 번에 복사한다', copied, '김마루, 최나래');
   }
 
   console.log('\n── 오늘 못 하는 줄은 미룬다 ──');

@@ -172,7 +172,7 @@ console.log('── 겹친 저장에서 방금 넣은 줄이 살아남는가 ─
   chk('물러났다(안 썼다)', wrote, false);
   chk('시트를 건드리지 않았다', sheet.writes, 0);
   chk('방금 넣은 줄이 그대로 있다', sheet._rows.length, before);
-  chk('그 줄이 김규민이다', sheet._rows[2][1], '김가온');
+  chk('그 줄이 김가온이다', sheet._rows[2][1], '김가온');
 }
 
 console.log('\n── 겹치지 않았으면 예전처럼 쓴다 ──');

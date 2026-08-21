@@ -144,18 +144,42 @@ async function loadExams(){
    이 배열은 FINAL_EXAMS 에 섞지 않고 직링크 해석에만 쓴다.
    tools/gen_student_final.py 가 짓는다. */
 var STUDENT_FINALS=[];
+/* 학생별 회차를 실제로 받아 왔는가. 못 받았으면 «그런 회차 없다» 고 말하면
+   안 된다 — 있는데 못 읽은 것과 없는 것은 학생에게 정반대의 뜻이다.
+   (예전엔 실패해도 전체 목록으로 흘러서 티가 안 났는데, 없는 회차를 붙잡아
+   세우기 시작한 뒤로는 이 구분이 곧 «네 링크 죽었다» 는 단언이 된다.) */
+var SF_OK=false;
 async function loadStudentFinals(){
-  var out=[];
+  var out=[], ok=true;
   /* 목록 밖의 회차가 사는 자리 둘. 하나는 자가 지은 것(student-finals.json),
      하나는 선생님이 Word 로 올린 것(teacher-exams.json). 둘 다 목록에는 안 뜨고
      직링크로만 열린다 — 계수 검사가 세는 것은 exams.json 뿐이다. */
   for(var i=0;i<2;i++){
     var f=i?'teacher-exams.json':'student-finals.json';
-    try{
-      var r=await fetch(f,{cache:'no-store'});
-      if(r.ok){ var j=await r.json(); out=out.concat((j&&j.exams)||[]); }
-    }catch(e){}
+    var got=null;
+    /* exams.json 과 같은 그물을 친다: 두 번 두드리고, 그래도 안 되면
+       서비스워커가 쥐고 있는 사본이라도 쓴다. 학생 폰의 LTE 가 한 번
+       미끄러졌다고 오늘 시험이 없어진 것이 되면 안 된다. */
+    for(var attempt=0;attempt<2 && got===null;attempt++){
+      try{
+        var r=await fetch(f,{cache:'no-store'});
+        if(r.ok) got=(await r.json());
+      }catch(e){}
+      if(got===null && attempt===0) await new Promise(function(r){ setTimeout(r,600); });
+    }
+    if(got===null){
+      try{
+        if(window.caches){
+          var hit=await caches.match(f);
+          if(!hit) hit=await caches.match(new URL(f,location.href).pathname);
+          if(hit){ got=await hit.json(); console.warn('['+f+'] 캐시본 사용'); }
+        }
+      }catch(e){}
+    }
+    if(got===null){ if(!i) ok=false; continue; }   /* teacher-exams 는 없어도 정상 */
+    out=out.concat((got&&got.exams)||[]);
   }
+  SF_OK=ok;
   STUDENT_FINALS=out;
   return STUDENT_FINALS;
 }
@@ -438,7 +462,11 @@ function cropsPanel(exam){
   let rows='';
   for(let q=1;q<=nQ;q++){
     let src;
-    if(sm){ const m=sm[q-1]; if(!m) continue; src='crops/'+esc(m.e)+'/'+(+m.q)+'.png'; }
+    /* 판번호를 빠뜨리면 서비스워커가 쥔 **옛 그림**에 새 정답표가 붙는다.
+       빌려 오는 크롭은 그림을 가진 회차의 판번호를 쓴다. */
+    if(sm){ const m=sm[q-1]; if(!m) continue;
+      const se=examById(m.e), sr=(se&&+se.rev>1)?+se.rev:0;
+      src='crops/'+esc(m.e)+'/'+(+m.q)+'.png'+(sr?('?v='+sr):''); }
     else src='crops/'+esc(exam.id)+'/'+q+'.png'+(exam.rev>1?('?v='+exam.rev):'');
     rows+='<div class="cropq"><div class="cropq__n">'+q+'번</div>'
       +'<img loading="lazy" src="'+src+'" alt="'+q+'번 문항"></div>';
@@ -717,6 +745,11 @@ function boot(){
   try{ id=new URLSearchParams(location.search).get('exam'); }catch(e){}
   if(!id){ const m=location.hash.match(/exam=([\w-]+)/); if(m)id=m[1]; }
   if(id && examById(id)){ LOCKED=true; openExam(id); return; }
+  /* 회차 목록을 못 받아 온 채로 «그런 회차 없다» 고 말하면 안 된다. 살아
+     있는 오늘 시험을 붙잡고 «선생님께 링크를 다시 받으세요» 라고 단언하는
+     꼴이 된다 — 학생은 시험을 못 보고, 선생님은 왜 안 왔는지 모른다.
+     못 받았을 때는 기다리고 다시 두드린다. */
+  if(id && !SF_OK){ sfWait(id); return; }
   /* 링크에 회차가 실려 있는데 그런 회차가 없다 — 임시 답안 복원으로도, 전체
      목록으로도 넘어가지 않는다. 무엇이 없어졌는지 말해 주는 게 먼저다. */
   if(id){ renderList(id); return; }
@@ -727,6 +760,33 @@ function boot(){
   var last=lastDraftId();
   if(last){ openExam(last); return; }
   renderList();
+}
+/* 학생별 회차 목록을 못 받았다 — 회차가 없다고 단정하지 않고 다시 두드린다.
+   망이 돌아오면 스스로 그 시험을 연다. 학생은 아무것도 안 해도 된다. */
+var _sfTries=0;
+function sfWait(id){
+  app.innerHTML='<div class="brand">Chemistreal · 조준모 화학</div><h1>답안 제출</h1>'
+    +'<div class="card" style="border-color:#B8912E;background:#fffdf3">'
+    +'<label style="color:#7a5f10">시험을 불러오는 중입니다</label>'
+    +'<div class="hint">잠시만 기다려 주세요. 연결이 돌아오면 <b>'+esc(id)+'</b> 가 저절로 열립니다.'
+    +'<br>오래 걸리면 새로고침해 보세요 — 링크는 그대로 쓰시면 됩니다.</div></div>'
+    +'<footer>Chemistreal Final · 학생 제출용</footer>';
+  window.scrollTo(0,0);
+  if(_sfTries>=6){                       /* 1분쯤 두드렸는데도 안 되면 말해 준다 */
+    var w=document.querySelector('#app .card .hint');
+    if(w) w.innerHTML='연결이 계속 안 됩니다. 잠시 뒤 새로고침해 주세요 — '
+      +'<b>링크는 살아 있습니다.</b> 회차 '+esc(id);
+    return;
+  }
+  _sfTries++;
+  setTimeout(function(){
+    loadStudentFinals().then(function(){
+      var _rt=retryParse(); if(_rt) STUDENT_FINALS.push(_rt);
+      if(examById(id)){ LOCKED=true; openExam(id); return; }
+      if(!SF_OK){ sfWait(id); return; }
+      renderList(id);                    /* 목록은 받았는데 정말 없는 회차다 */
+    });
+  }, 2000+_sfTries*1000);
 }
 /* 임시 답안이 남아 있는 시험 중 가장 최근 것. 없으면 null. */
 function lastDraftId(){
