@@ -85,7 +85,7 @@ const chk = (n, ok, info) => {
     window.__gradedOn = '2026-08-17';
     const ex = FINAL_EXAMS.find(x => x.id === 'hwol-2024') || FINAL_EXAMS[0];
     openExam(ex.id);
-    document.getElementById('nm').value = '박하람';
+    document.getElementById('nm').value = '박바다';
     document.getElementById('sch').value = '대원국제중';
     const ge = document.getElementById('grd'); if (ge) ge.value = '3';
     for (let q = 1; q <= cur.nQ; q++) {
@@ -182,7 +182,7 @@ const chk = (n, ok, info) => {
 
   /* ── ④ 표지에 있어야 할 것이 다 있다(줄여서 지워지지 않았다) ── */
   const cover = pages[0] || '';
-  for (const must of ['성적 진단서', '박하람', built.title.replace(/\s+/g, ' ').split(' ')[0], '발행일']) {
+  for (const must of ['성적 진단서', '박바다', built.title.replace(/\s+/g, ' ').split(' ')[0], '발행일']) {
     chk('표지에 「' + must + '」 가 있다', cover.replace(/\s+/g, '').includes(must.replace(/\s+/g, '')),
       cover.slice(0, 120).replace(/\n/g, ' '));
   }

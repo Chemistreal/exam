@@ -100,7 +100,7 @@ const A1 = '1'.repeat(60), A2 = '2'.repeat(60), A3 = '3'.repeat(60);
 const T6 = 'JMChC 모의고사 6회', T7 = 'JMChC 모의고사 7회';
 const seed = () => [
   R(T6, '김지 성', 'X중', '2', A1),
-  R(T6, '이도현', 'Y중', '3', A2),
+  R(T6, '이아람', 'Y중', '3', A2),
   R(T6, '김지 성', 'X중', '2', A3),   // 같은 이름·다른 답안 — 한 줄 지우기가 이걸 건드리면 안 된다
   R(T7, '김지 성', 'X중', '2', A1),   // 다른 시험·같은 이름·같은 답안
 ];
@@ -110,7 +110,7 @@ console.log('── 열쇠 없이 통한다 ──');
 {
   const sh = fakeSheet(seed());
   const gas = load(sh);
-  const out = JSON.parse(gas.doGet({ parameter: { action: 'rename', from: '김지 성', to: '김지성' } })._t);
+  const out = JSON.parse(gas.doGet({ parameter: { action: 'rename', from: '김지 성', to: '김마루' } })._t);
   chk('키 없이 고쳐진다', [out.ok, out.changed], [true, 3]);
 }
 {
@@ -146,14 +146,14 @@ console.log('\n── 이름 일괄 고치기 ──');
 {
   const sh = fakeSheet(seed());
   const gas = load(sh);
-  const out = JSON.parse(gas.doGet({ parameter: { action: 'rename', from: '김지 성', to: '김지성' } })._t);
+  const out = JSON.parse(gas.doGet({ parameter: { action: 'rename', from: '김지 성', to: '김마루' } })._t);
   chk('3건 고쳤다', [out.ok, out.changed], [true, 3]);
-  chk('전 시험에 닿는다', names(sh), ['김지성', '이도현', '김지성', '김지성']);
-  chk('남의 이름은 그대로', names(sh)[1], '이도현');
+  chk('전 시험에 닿는다', names(sh), ['김마루', '이아람', '김마루', '김마루']);
+  chk('남의 이름은 그대로', names(sh)[1], '이아람');
   chk('성적문자를 다시 만든다', sh._rebuilt(), 1);
   const none = JSON.parse(gas.doGet({ parameter: { action: 'rename', from: '없는사람', to: 'X' } })._t);
   chk('없는 이름이면 0건', none.changed, 0);
-  const bad = JSON.parse(gas.doGet({ parameter: { action: 'rename', from: '김지성', to: '' } })._t);
+  const bad = JSON.parse(gas.doGet({ parameter: { action: 'rename', from: '김마루', to: '' } })._t);
   chk('빈 이름으로는 못 바꾼다', bad.error, 'bad-args');
 }
 
@@ -162,9 +162,9 @@ console.log('\n── 한 줄 고치기 ──');
   const sh = fakeSheet(seed());
   const gas = load(sh);
   const out = JSON.parse(gas.doGet({ parameter: { action: 'editRow', exam: 'jmchc-6', name: '김지 성',
-    answers: A1, setName: '김지성', setSchool: '대원국제중', setGrade: '3' } })._t);
+    answers: A1, setName: '김마루', setSchool: '대원국제중', setGrade: '3' } })._t);
   chk('한 줄만 바뀐다', out.changed, 1);
-  chk('그 줄이 바뀌었다', [sh._grid[0][1], sh._grid[0][6], sh._grid[0][7]], ['김지성', '대원국제중', '3']);
+  chk('그 줄이 바뀌었다', [sh._grid[0][1], sh._grid[0][6], sh._grid[0][7]], ['김마루', '대원국제중', '3']);
   chk('같은 이름·다른 답안은 그대로', sh._grid[2][1], '김지 성');
   chk('다른 시험 같은 답안도 그대로', sh._grid[3][1], '김지 성');
 }
@@ -176,7 +176,7 @@ console.log('\n── 한 줄 지우기 ──');
   const out = JSON.parse(gas.doGet({ parameter: { action: 'deleteRow', exam: 'jmchc-6', name: '김지 성',
     answers: A1 } })._t);
   chk('한 줄만 지운다', [out.changed, sh._grid.length], [1, 3]);
-  chk('남은 줄', names(sh), ['이도현', '김지 성', '김지 성']);
+  chk('남은 줄', names(sh), ['이아람', '김지 성', '김지 성']);
   chk('다른 시험 줄은 살아 있다', sh._grid[2][0], T7);
 }
 {
@@ -192,7 +192,7 @@ console.log('\n── 한 줄 지우기 ──');
      같은 이름** 줄이 날아가는데, 이름 목록만 비교하면 그게 안 걸린다.
      실제로 그렇게 짜 놓고 검사가 통과하는 것을 보았다. 답안까지 본다. */
   chk('엉뚱한 줄이 안 날아간다', sh._grid.map(r => r[1] + '|' + String(r[16]).slice(1, 2)),
-      ['이도현|2', '김지 성|3', '김지 성|1']);
+      ['이아람|2', '김지 성|3', '김지 성|1']);
 }
 
 console.log('\n── 학생 통째로 지우기 ──');
@@ -205,7 +205,7 @@ console.log('\n── 학생 통째로 지우기 ──');
   const out = JSON.parse(gas.doGet({ parameter: { action: 'deleteName', name: '김지 성' } })._t);
   // 시험을 가리지 않는다 — 그 사람의 기록을 전부 없애는 동작이다
   chk('전 시험에서 지운다', out.changed, 3);
-  chk('남는 것은 남의 기록뿐', sh._grid.map(r => r[1]), ['이도현']);
+  chk('남는 것은 남의 기록뿐', sh._grid.map(r => r[1]), ['이아람']);
   chk('성적문자를 다시 만든다', sh._rebuilt(), 1);
   const none = JSON.parse(gas.doGet({ parameter: { action: 'deleteName', name: '없는사람' } })._t);
   chk('없는 이름이면 0건', none.changed, 0);
@@ -288,7 +288,7 @@ console.log('\n── 읽기 ──');
    쌓였다(홍길동 60/60 · 예비본 57/60 …). 그 줄들이 석차 모집단에 들어가
    진짜 학생들의 등수를 밀어냈다.
 
-   손으로 지우면 빠뜨린다 — '이도현' 은 진짜 줄과 검사 줄이 둘 다 있어서
+   손으로 지우면 빠뜨린다 — '이아람' 은 진짜 줄과 검사 줄이 둘 다 있어서
    이름으로는 못 가른다. 가르는 것은 링크다. */
 console.log('\n── 검사가 남긴 줄만 지운다 ──');
 {

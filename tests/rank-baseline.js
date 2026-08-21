@@ -4,9 +4,9 @@
    석차·백분위는 그때까지 **이 브라우저에 채점해 둔 학생 수**를 모집단으로
    삼았다. 그래서 같은 시험인데 학생마다 숫자가 달랐다.
 
-       김규민  3/9      ← 9명 채점했을 때 본 화면
-       김시헌  8/10     ← 한 명 더 채점한 뒤
-       이도현  (없음)   ← 8명이 되기 전에 본 화면
+       김가온  3/9      ← 9명 채점했을 때 본 화면
+       김나윤  8/10     ← 한 명 더 채점한 뒤
+       이아람  (없음)   ← 8명이 되기 전에 본 화면
 
    같은 회차를 같이 본 학생들인데 모집단이 셋 다 다르다. 이러면 석차는
    뜻이 없다. 한 회차를 실제로 응시한 사람은 성적표 엑셀에 다 들어 있으므로
@@ -125,7 +125,7 @@ const RANKS = `(function(){ var out=[];
   const seen = await page.evaluate(async (RANKS_SRC) => {
     localStorage.clear();
     const out = [];
-    const students = [['이도현', 3], ['김규민', 5], ['김시헌', 7]];
+    const students = [['이아람', 3], ['김가온', 5], ['김나윤', 7]];
     for (const [nm, step] of students) {
       openExam('jmchc-6');
       document.getElementById('nm').value = nm;

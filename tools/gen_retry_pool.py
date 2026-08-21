@@ -57,9 +57,13 @@ def build():
         qs = json.loads(ans.read_text(encoding='utf-8')).get('questions', {}) \
             if ans.exists() else {}
         skip = all_correct(e)
+        # 복수정답 문항도 뺀다 — 재도전 봉투는 정답을 **하나만** 싣는다.
+        # 원본이 ①·② 를 다 인정하는 문항을 실으면, 인정되는 답을 고르고도
+        # 오답으로 채점된다. 열한 문항이 그랬다.
+        multi = {int(q) for q in (e.get('multi') or {})}
         area, typ, rate = e.get('area') or [], e.get('type') or [], e.get('rate') or []
         for i, k in enumerate(e.get('key') or [], 1):
-            if i in skip:
+            if i in skip or i in multi:
                 continue
             a = area[i - 1] if i <= len(area) else ''
             t = typ[i - 1] if i <= len(typ) else ''

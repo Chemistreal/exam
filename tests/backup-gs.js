@@ -135,7 +135,7 @@ const ROWS = [
    30,60,50,40.0,'9/12',12,30,'원자 5/12',"'"+'2'.repeat(60),'',86],
   ['JMChC 모의고사 2회','김서준','https://x#r=jmchc-2.ghi..~a3',D(2026,3,3),'',D(2026,3,2),'휘문중','2',
    50,60,83,90.0,'1/8',8,50,'원자 11/12',"'"+'3'.repeat(60),'',146],
-  ['JMChC 모의고사 2회','박하람','https://x#r=jmchc-2.jkl..~c9',D(2026,3,4),'',D(2026,3,2),'중대부중','2',
+  ['JMChC 모의고사 2회','박바다','https://x#r=jmchc-2.jkl..~c9',D(2026,3,4),'',D(2026,3,2),'중대부중','2',
    38,60,63,60.0,'4/8',8,38,'원자 7/12',"'"+'4'.repeat(60),'',110],
 ];
 
@@ -149,7 +149,7 @@ console.log('── 이름이 깃허브로 나가지 않는다 ──');
   const text = Buffer.from(put.body.content, 'base64').toString('utf8');
   /* 여기가 이 검사의 이유다. 저장소는 공개고, 한 번 올라간 것은 커밋 이력에
      영영 남는다. */
-  ['김서준', '이하윤', '박하람', '휘문중', '대원국제중', '중대부중'].forEach(w =>
+  ['김서준', '이하윤', '박바다', '휘문중', '대원국제중', '중대부중'].forEach(w =>
     chk("'" + w + "' 이 안 실린다", text.indexOf(w), -1));
   // 공유 링크에는 이름이 base64 로 들어 있다. 링크째로 실으면 이름이 나간다.
   chk('공유 링크가 안 실린다', /https:\/\/x#r=/.test(text), false);
@@ -189,8 +189,8 @@ console.log('\n── 이름↔코드 표는 시트에만 ──');
   ctx.dailyBackup();
   const tab = ctx._tabs['_이름코드'];
   chk('표 탭이 생긴다', !!tab, true);
-  chk('학생 수만큼 줄이 선다', tab._rows.length - 1, 3);       // 김서준·이하윤·박하람
-  chk('이름이 표에는 있다', tab._rows.slice(1).map(r => r[1]).sort(), ['김서준', '박하람', '이하윤']);
+  chk('학생 수만큼 줄이 선다', tab._rows.length - 1, 3);       // 김서준·이하윤·박바다
+  chk('이름이 표에는 있다', tab._rows.slice(1).map(r => r[1]).sort(), ['김서준', '박바다', '이하윤']);
   ctx.dailyBackup();                                          // 두 번 돌려도
   chk('같은 학생을 두 번 안 적는다', ctx._tabs['_이름코드']._rows.length - 1, 3);
 }
@@ -225,7 +225,7 @@ console.log('\n── 기준 기록: 손으로 넣은 것을 안 덮는다 ─�
   chk('손으로 넣은 1회차는 그대로', j.exams['jmchc-1'].n, 46);
   chk('손으로 넣은 9회차도 그대로', j.exams['jmchc-9'].n, 30);
   chk('시트에만 있는 2회차가 새로 생긴다', !!j.exams['jmchc-2'], true);
-  chk('기준 기록에 이름이 없다', /김서준|이하윤|박하람|휘문중/.test(JSON.stringify(j)), false);
+  chk('기준 기록에 이름이 없다', /김서준|이하윤|박바다|휘문중/.test(JSON.stringify(j)), false);
 }
 
 console.log('\n── 기준 기록: 시험 목록에 없는 회차는 안 만든다 ──');
@@ -282,7 +282,7 @@ console.log('\n── 주간 리포트 ──');
   chk('마크다운이다', /report\/.*\.md$/.test(ctx._puts[0].url), true);
   chk('회차별 표가 있다', /\| 회차 \| 채점 \| 평균 \| 최고 \|/.test(md), true);
   chk('학생 수를 센다', /학생 3명/.test(md), true);
-  chk('이름이 안 실린다', /김서준|이하윤|박하람|휘문중/.test(md), false);
+  chk('이름이 안 실린다', /김서준|이하윤|박바다|휘문중/.test(md), false);
 
   const oldOnly = ROWS.map(r => r.slice());
   oldOnly.forEach(r => { r[3] = new Date(now.getTime() - 90 * 86400000); });
@@ -346,7 +346,7 @@ console.log('\n── 설정 점검이 무엇이 빠졌는지 말해 준다 ─�
 
   /* 실행 기록도 남는 곳이다. 여기에 이름을 찍으면 코드로 바꾼 뜻이 없다. */
   const all = out.join('');
-  ['김서준', '이하윤', '박하람', '휘문중', '대원국제중'].forEach(w =>
+  ['김서준', '이하윤', '박바다', '휘문중', '대원국제중'].forEach(w =>
     chk("점검 기록에 '" + w + "' 이 안 찍힌다", all.indexOf(w), -1));
   chk('점검이 파일을 쓰지는 않는다', c._puts.length, 0);
 }

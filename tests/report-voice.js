@@ -82,13 +82,13 @@ catch (e) {
     window.__fw = [];
     for (let q = 1; q <= ex.nQ; q++) if (!okq(ex, q, sel[q] || 0)) window.__fw.push({ q: q, a: sel[q] || 0 });
     const W = ex.nQ - ok, pct = Math.round(ok / ex.nQ * 100);
-    const lowHeroHTML = finalHero('박하람', ex, ok, ex.nQ, W, pct);
+    const lowHeroHTML = finalHero('박바다', ex, ok, ex.nQ, W, pct);
     const low = {
       hero: text(lowHeroHTML),
       heroLead: /fhero__head--lead/.test(lowHeroHTML),
       heroChip: /fhero__now/.test(lowHeroHTML),
       heroTier: /fhero__tier/.test(lowHeroHTML),
-      parent: text(parentNoteFinal('박하람', ex, ok, ex.nQ, W, pct)),
+      parent: text(parentNoteFinal('박바다', ex, ok, ex.nQ, W, pct)),
       prob: text(winProbSec(ex, sel, cohortStats(ex), ok, ex.nQ, W)),
       correct: ok, tier: award(W, effCut(ex)).name
     };

@@ -1952,7 +1952,8 @@ async function makeTrapCard(code){
 function paperURLs(e){
   var sm=(e.srcmap||[]);
   if(sm.length) return sm.map(function(m){ return 'crops/'+m.e+'/'+m.q+'.png'; });
-  if(e.crops){ var out=[]; for(var q=1;q<=e.nQ;q++) out.push('crops/'+e.id+'/'+q+'.png'); return out; }
+  if(e.crops){ var out=[]; var v=(e.rev>1?('?v='+e.rev):'');
+    for(var q=1;q<=e.nQ;q++) out.push('crops/'+e.id+'/'+q+'.png'+v); return out; }
   return [];
 }
 async function makeFinalPaper(code){

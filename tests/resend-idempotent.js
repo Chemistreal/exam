@@ -117,7 +117,7 @@ const JULY = new Date('2026-07-22T03:44:14Z');
 
 /* 7월에 채점돼 시트에 들어간 줄 하나. */
 const seeded = () => [HEAD.slice(), [
-  'KMChC 2018', '이도현', 'https://…/final.html#r=hwol-2018.x..~name', JULY,
+  'KMChC 2018', '이아람', 'https://…/final.html#r=hwol-2018.x..~name', JULY,
   '', '2026-07-22', '백현중', '2', 43, 60, 72, 77.6, '25/114', 114,
   43, '액체,용액 4/4', "'" + ANS, '', 129,
 ]];
@@ -125,7 +125,7 @@ const seeded = () => [HEAD.slice(), [
 /* 앱이 «아직 확인 못 함» 이라며 **똑같은 것을 다시 보낸다.**
    링크로 열린 성적표에서 온 것이라 학교·학년이 비어 있다 — 실제로 그랬다. */
 const resend = {
-  exam: 'KMChC 2018', name: '이도현', link: '', examno: '', date: '2026-08-12',
+  exam: 'KMChC 2018', name: '이아람', link: '', examno: '', date: '2026-08-12',
   school: '', grade: '', total: 43, max: 60, pct100: 72, percentile: 78.1,
   rank: '24/112', n: 112, correct: 43, areas: '액체,용액 4/4', answers: ANS, raw: 114,
 };
@@ -164,7 +164,7 @@ console.log('\n── 답안이 다르면 다시 푼 것이다 ──');
 
 console.log('\n── 다른 학생·다른 회차는 안 건드린다 ──');
 {
-  const other = Object.assign({}, resend, { name: '김윤후', school: '해누리중' });
+  const other = Object.assign({}, resend, { name: '김라윤', school: '해누리중' });
   const rows = run(seeded(), other);
   chk('다른 이름이면 새 줄', rows.length - 1, 2);
   const otherExam = Object.assign({}, resend, { exam: 'KMChC 2019' });
@@ -174,9 +174,9 @@ console.log('\n── 다른 학생·다른 회차는 안 건드린다 ──');
 
 console.log('\n── 이름의 띄어쓰기가 달라도 같은 응시다 ──');
 {
-  const spaced = Object.assign({}, resend, { name: '이 도현' });
+  const spaced = Object.assign({}, resend, { name: '이 아람' });
   const rows = run(seeded(), spaced);
-  chk('«이 도현» 도 같은 줄로 본다', rows.length - 1, 1);
+  chk('«이 아람» 도 같은 줄로 본다', rows.length - 1, 1);
 }
 
 console.log('\n── 첫 저장은 그대로 덧붙는다 ──');

@@ -185,7 +185,7 @@ const RX={
 '배위화학':{k:'착이온 명명·배위수·기하(사면체·정사각평면·팔면체), 이성질체(기하·광학), 결정장(Δ·스핀·자기성), 분광화학 계열·색.',t:'사각평면 cis/trans, en 킬레이트 광학이성질체, 약한장 고스핀·강한장 저스핀, Δ 작을수록 긴 파장 흡수.',rx:'착이온 이성질체 개수, 결정장 자기성·홀전자, 분광화학 계열로 흡수 파장 비교를 반복하세요.'}
 };
 const TIERS=['대상','금상','은상','동상','장려상'];
-/* 이름의 띄어쓰기는 붙여 저장한다. '박 하람' 과 '박하람' 이 두 사람으로
+/* 이름의 띄어쓰기는 붙여 저장한다. '박 바다' 과 '박바다' 이 두 사람으로
    갈리면 성적표 회차가 나뉘고 또래 인원이 한 명 더 는다. 교사용(final.html)
    의 nameKey 와 같은 규칙이다 — 한쪽만 다듬으면 다시 갈라진다. */
 const nameKey=s=>String(s==null?'':s).replace(/\s+/g,'').trim();
@@ -270,6 +270,7 @@ function retryParse(){
     var o=JSON.parse(decodeURIComponent(escape(
       atob(m[1].replace(/-/g,'+').replace(/_/g,'/')))));
     if(!o||!o.k||!o.s||o.k.length!==o.s.length||!o.k.length) return null;
+    if(o.k.length>60) return null;   /* 조작된 거대 봉투 — 시험은 60문항이 끝이다 */
     var n=o.k.length;
     return {id:o.i||'retry', title:o.t||('즉시 재도전 '+n+'제'), group:'파이널',
       hidden:true, nQ:n, mode:'auto', cut:retryCut(n),
@@ -412,7 +413,7 @@ function cropsPanel(exam){
   for(let q=1;q<=nQ;q++){
     let src;
     if(sm){ const m=sm[q-1]; if(!m) continue; src='crops/'+esc(m.e)+'/'+(+m.q)+'.png'; }
-    else src='crops/'+esc(exam.id)+'/'+q+'.png';
+    else src='crops/'+esc(exam.id)+'/'+q+'.png'+(exam.rev>1?('?v='+exam.rev):'');
     rows+='<div class="cropq"><div class="cropq__n">'+q+'번</div>'
       +'<img loading="lazy" src="'+src+'" alt="'+q+'번 문항"></div>';
   }
@@ -577,19 +578,28 @@ function sheetPost(payload){
     ]).catch(function(){ return false; });
   }catch(e){ return Promise.resolve(false); }
 }
-/* 이 화면을 열 때 지난 답안을 한 번씩 더 보낸다. */
+/* 이 화면을 열 때 지난 답안을 한 번씩 더 보낸다.
+
+   ⚠ 목록 스냅샷을 await 너머로 들고 있으면 안 된다. 보내는 사이(fetch 가
+   2.5초를 기다리는 그 창)에 학생이 새로 제출하면 pendAdd 가 쓴 항목을
+   마지막 pendSave 가 스냅샷으로 **덮어써 지운다** — 그 제출의 전송까지
+   실패했다면 답안이 흔적 없이 사라진다. 그래서 항목마다 그때의 목록을
+   다시 읽어 그 항목만 고쳐 적고(동기 — 원자적), 그 다음에 보낸다. */
 async function pendFlush(){
   var now=Date.now();
-  var a=pendAll().filter(function(x){ return now-(x.t||0) < PEND_TTL; });
-  if(!a.length){ pendSave(a); return 0; }
+  pendSave(pendAll().filter(function(x){ return now-(x.t||0) < PEND_TTL; }));
+  var sigs=pendAll().filter(function(x){ return x.n<PEND_MAX; })
+    .map(function(x){ return pendSig(x.p); });
   var sent=0;
-  for(var i=0;i<a.length;i++){
-    if(a[i].n>=PEND_MAX) continue;
-    a[i].n++;
-    await sheetPost(a[i].p);
+  for(var i=0;i<sigs.length;i++){
+    var a=pendAll();
+    var it=null;
+    for(var j=0;j<a.length;j++) if(pendSig(a[j].p)===sigs[i]){ it=a[j]; break; }
+    if(!it||it.n>=PEND_MAX) continue;
+    it.n++; pendSave(a);
+    await sheetPost(it.p);
     sent++;
   }
-  pendSave(a);
   return sent;
 }
 function pendStuck(){ return pendAll().filter(function(x){ return x.n>=PEND_MAX; }); }
@@ -620,11 +630,15 @@ function submitAns(){
   const ans=[]; for(let q=1;q<=nQ;q++) ans.push(sel[q]||0);
 
   // ── 시트 payload (final.html saveToSheetFinal과 동일 형식 · 학교 채움) ──
+  /* 「즉시 재도전」 봉투 — r= 앞에 싣는다(뒤는 이름 b64 자리다). */
+  const _env=(cur&&cur.retry&&window.__retryRaw)?('x='+window.__retryRaw+'&'):'';
+  const withEnv=function(u){ return _env?u.replace('#','#'+_env):u; };
   const payload={ name:nm, examno:'', school:sch, grade:grd,
     date:new Date().toISOString().slice(0,10), exam:cur.title,
     total:correct, max:total, pct100:pct,
     percentile:'', rank:'', n:'',
-    correct:correct, areas:areas, answers:ans.join(''), link:shareLink(cur,sel,nm) };
+    correct:correct, areas:areas, answers:ans.join(''),
+    link:withEnv(shareLink(cur,sel,nm)) };
   /* 보내기 **전에** 적어 둔다. 여기서 화면이 꺼져도 다음에 다시 보낸다. */
   pendAdd(payload);
   toast('제출되었습니다 · '+nm);
@@ -632,9 +646,7 @@ function submitAns(){
 
   // 다른 회차와 동일한 전체 진단 성적표 엔진으로 바로 이어 준다.
   // 축약 showResult는 네트워크/내비게이션 예외 때만 남겨 두는 안전망이다.
-  /* 「즉시 재도전」 은 저장소에 없는 회차다 — 성적표도 봉투를 받아야 채점한다 */
-  const reportUrl=shareLink(cur,sel,nm)
-    + ((cur&&cur.retry&&window.__retryRaw)?('&x='+window.__retryRaw):'');
+  const reportUrl=withEnv(shareLink(cur,sel,nm));
   /* 보내는 것이 끝난 **뒤에** 넘어간다. 이 한 줄이 없어서 한 회차가 시트에
      닿지 못했다 — 화면은 성적표까지 멀쩡히 나오는데 줄만 없었다. */
   sheetPost(payload).then(function(){
@@ -723,8 +735,13 @@ async function start(){
   try{
     pendFlush().then(function(n){
       var stuck=pendStuck();
-      if(stuck.length) toast('아직 시트에서 확인 안 된 답안 '+stuck.length+'건이 있습니다 — 선생님께 알려 주세요');
-      else if(n) toast('지난 답안 '+n+'건을 한 번 더 보냈습니다');
+      /* no-cors 라 세 번 보낸 것이 실제로는 다 닿았을 공산이 크다. 매번
+         겁주면 진짜 경보를 못 읽는다 — 건수가 **늘었을 때만** 말한다. */
+      var seen=0; try{ seen=+localStorage.getItem('exam.submit.stucktold.v1')||0; }catch(e){}
+      if(stuck.length>seen){
+        toast('시트에서 확인 안 된 답안 '+stuck.length+'건 — 시트에 줄이 있는지 한 번 봐 주세요');
+        try{ localStorage.setItem('exam.submit.stucktold.v1', String(stuck.length)); }catch(e){}
+      } else if(n) toast('지난 답안 '+n+'건을 한 번 더 보냈습니다');
     });
   }catch(e){}
 }

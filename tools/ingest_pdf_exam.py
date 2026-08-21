@@ -335,8 +335,7 @@ def ingest(path, code=None, kind=None, section=0, write=False):
            'area': [map_area(tidy(q['area'])) for q in d['q']],
            'type': [type_of(map_area(tidy(q['area']))) for q in d['q']],
            'crops': True,
-           'source': {'tool': 'tools/ingest_pdf_exam.py', 'kind': d['kind'],
-                      'file': d['source']}}
+           'source': {'tool': 'tools/ingest_pdf_exam.py', 'kind': d['kind']}}
 
     if not write:
         print('%s → %s · %s · %d문항 · 정답 %s…'
@@ -358,6 +357,12 @@ def ingest(path, code=None, kind=None, section=0, write=False):
     (ROOT / 'answers' / ('%s.json' % d['examId'])).write_text(
         json.dumps(ans, ensure_ascii=False, indent=1) + '\n', encoding='utf-8')
     doc, p = load_finals()
+    # 같은 id 를 다시 들이면 판(rev)을 올린다 — 문항 크롭은 서비스워커가
+    # 배포를 넘어 cache-first 로 들고 있어서, 주소가 같으면 **옛 그림에
+    # 새 정답표**가 붙는다. rev 는 크롭 주소의 ?v= 로 실려 캐시를 깬다.
+    prev = next((e for e in doc['exams'] if e['id'] == d['examId']), None)
+    if prev is not None:
+        ent['rev'] = int(prev.get('rev') or 1) + 1
     doc['exams'] = [e for e in doc['exams'] if e['id'] != d['examId']] + [ent]
     doc['exams'].sort(key=lambda e: e['id'])
     p.write_text(json.dumps(doc, ensure_ascii=False, indent=1) + '\n', encoding='utf-8')

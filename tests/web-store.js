@@ -187,17 +187,17 @@ async function pendingUpload(browser, errs) {
 
   const scored = await p.evaluate(async () => {
     openExam('jmchc-1');
-    document.getElementById('nm').value = '박하람';
+    document.getElementById('nm').value = '박바다';
     document.getElementById('sch').value = 'C중';
     for (let q = 1; q <= cur.nQ; q++) setAns(q, 3);
     scoreAuto();
     await new Promise(r => setTimeout(r, 1200));
     return subs('jmchc-1').map(r => r.name + ':' + r.up);
   });
-  chk('채점하면 아직 확인 못 함(up:0)', scored, ['박하람:0']);
+  chk('채점하면 아직 확인 못 함(up:0)', scored, ['박바다:0']);
   chk('그때 한 번 보냈다', st.posts.length, 1);
   chk('보낸 답안이 맞다', st.posts[0] && st.posts[0].answers, A60(3));
-  chk('보낸 이름·학교도 맞다', [st.posts[0].name, st.posts[0].school], ['박하람', 'C중']);
+  chk('보낸 이름·학교도 맞다', [st.posts[0].name, st.posts[0].school], ['박바다', 'C중']);
 
   /* ── 시트에 안 보일 때 (선생님 결정 2026-08-12) ─────────────────────
      예전에는 **자동으로** 다시 보냈다. 그것이 소동의 뿌리였다 — 선생님이
@@ -215,20 +215,20 @@ async function pendingUpload(browser, errs) {
   st.posts.length = 0;
   const auto = await sync(true);                 // 열기만 했다(자동 맞춤)
   chk('자동으로는 **안 보낸다**', st.posts.length, 0);
-  chk('그래도 못 간 표는 그대로 남는다', auto, ['박하람:0/0']);
+  chk('그래도 못 간 표는 그대로 남는다', auto, ['박바다:0/0']);
 
   st.posts.length = 0;
   const s2 = await sync(false);                  // 사람이 «지금 맞춰 보기» 를 눌렀다
   chk('사람이 누르면 보낸다', st.posts.length, 1);
-  chk('보낸 횟수를 센다', s2, ['박하람:0/1']);
+  chk('보낸 횟수를 센다', s2, ['박바다:0/1']);
 
   st.posts.length = 0; await sync(false);
   st.posts.length = 0; const s4 = await sync(false);
-  chk('세 번까지만 보낸다', s4, ['박하람:0/3']);
+  chk('세 번까지만 보낸다', s4, ['박바다:0/3']);
   st.posts.length = 0; const s5 = await sync(false);
   // 계속 보내면 시트에 같은 줄이 쌓인다. 멈추고 표시만 남긴다.
   chk('네 번째는 안 보낸다', st.posts.length, 0);
-  chk('멈췄다는 표시가 남는다', s5, ['박하람:2/3']);
+  chk('멈췄다는 표시가 남는다', s5, ['박바다:2/3']);
   await p.close();
 }
 

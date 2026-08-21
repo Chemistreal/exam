@@ -62,14 +62,14 @@ const chk = (n, got, want) => {
   if (!ok) fail++;
 };
 
-// 오타를 일부러 섞어 심는다: '김지 성'(띄어쓰기) · '이도헌'(한 글자)
+// 오타를 일부러 섞어 심는다: '김마 루'(띄어쓰기) · '이아랑'(한 글자)
 const SEED = () => {
   localStorage.clear();
   const mk = (ex, s) => { let x = (s * 2654435761) >>> 0, a = [];
     for (let i = 0; i < ex.nQ; i++) { x = (x * 1664525 + 1013904223) >>> 0; a.push((x >>> 16) % 4 + 1); }
     return a; };
-  [['jmchc-6', [['김지성', 'X중', 1], ['김지 성', 'X중', 2], ['이도현', 'X중', 3], ['이도헌', 'X중', 4]]],
-   ['jmchc-7', [['김지성', 'X중', 5], ['이도현', 'X중', 6]]]].forEach(([id, people]) => {
+  [['jmchc-6', [['김마루', 'X중', 1], ['김마 루', 'X중', 2], ['이아람', 'X중', 3], ['이아랑', 'X중', 4]]],
+   ['jmchc-7', [['김마루', 'X중', 5], ['이아람', 'X중', 6]]]].forEach(([id, people]) => {
     const ex = FINAL_EXAMS.find(e => e.id === id), miss = new Set(ex.miss || []), arr = [];
     people.forEach(([nm, sch, s]) => {
       const a = mk(ex, s); let c = 0, t = 0;
@@ -103,10 +103,10 @@ const SEED = () => {
   console.log('── 첫 화면 ──');
   let t = await txt();
   chk('명단 관리 화면이 뜬다', /명단 관리/.test(t), true);
-  /* '김지 성' 은 이제 저장·비교 모두 공백을 지우므로 '김지성' 과 한 사람이다.
-     갈리는 것은 한 글자가 다른 '이도헌' 뿐이라 셋이 된다. */
+  /* '김마 루' 은 이제 저장·비교 모두 공백을 지우므로 '김마루' 과 한 사람이다.
+     갈리는 것은 한 글자가 다른 '이아랑' 뿐이라 셋이 된다. */
   chk('학생 수', num(t, /학생 (\d+)명/), 3);
-  chk('띄어쓰기는 저절로 합쳐졌다', /김지 성/.test(t), false);
+  chk('띄어쓰기는 저절로 합쳐졌다', /김마 루/.test(t), false);
   chk('기록 건수', num(t, /기록 (\d+)건/), 6);
   chk('비슷한 이름을 찾아낸다', num(t, /비슷한 이름 (\d+)쌍/), 1);
   chk('띄어쓰기는 짚지 않는다(이미 합쳐졌다)', /띄어쓰기만 다름/.test(t), false);
@@ -115,44 +115,44 @@ const SEED = () => {
   console.log('\n── 합치기 ──');
   /* 한 글자 차이는 사람이 판단해 합친다 — 동명이인일 수 있어서 기계가
      합치면 되돌릴 수 없다. */
-  await page.evaluate(() => rosterMergeAt(window.__rnames.findIndex(k => rosterLabel(k).name === '이도헌'), window.__rnames.findIndex(k => rosterLabel(k).name === '이도현')));
+  await page.evaluate(() => rosterMergeAt(window.__rnames.findIndex(k => rosterLabel(k).name === '이아랑'), window.__rnames.findIndex(k => rosterLabel(k).name === '이아람')));
   await page.waitForTimeout(400);
   t = await txt();
   chk('학생이 하나로 줄었다', num(t, /학생 (\d+)명/), 2);
   chk('기록은 하나도 안 없어졌다', num(t, /기록 (\d+)건/), 6);
   const merged = await page.evaluate(() => subs('jmchc-6').map(r => r.name));
-  chk('jmchc-6 이름들', merged, ['김지성', '김지 성', '이도현', '이도현']);
+  chk('jmchc-6 이름들', merged, ['김마루', '김마 루', '이아람', '이아람']);
   chk('고침 기록이 남는다', await page.evaluate(() => JSON.parse(localStorage.getItem('final:renames') || '{}')),
-      { '이도헌': '이도현' });
+      { '이아랑': '이아람' });
 
-  /* 여기가 핵심이다. 시트에는 '김지 성' 행이 그대로 있다. 다시 받아오면
+  /* 여기가 핵심이다. 시트에는 '김마 루' 행이 그대로 있다. 다시 받아오면
      중복 판정이 이름+답안이라 '다른 사람'으로 보고 새로 넣어 버린다. */
   console.log('\n── 시트에서 다시 받아오기 ──');
   const resync = await page.evaluate(() => {
     const ex = FINAL_EXAMS.find(e => e.id === 'jmchc-6');
-    const row = subs('jmchc-6').find(r => r.name === '이도현');
-    const added = mergeSheetRows(ex, [{ name: '이도헌', answers: row.ans.join(''), ts: 1 }]);
+    const row = subs('jmchc-6').find(r => r.name === '이아람');
+    const added = mergeSheetRows(ex, [{ name: '이아랑', answers: row.ans.join(''), ts: 1 }]);
     /* 띄어쓰기가 든 행도 시트에 그대로 남아 있다. 받아올 때 다듬으므로
-       '김지 성' 이 새 사람으로 들어오지 않는다. */
-    const row2 = subs('jmchc-6').find(r => r.name === '김지성');
-    const added2 = mergeSheetRows(ex, [{ name: '김 지 성', answers: row2.ans.join(''), ts: 1 }]);
+       '김마 루' 이 새 사람으로 들어오지 않는다. */
+    const row2 = subs('jmchc-6').find(r => r.name === '김마루');
+    const added2 = mergeSheetRows(ex, [{ name: '김 마 루', answers: row2.ans.join(''), ts: 1 }]);
     return { added, added2, names: subs('jmchc-6').map(r => r.name) };
   });
   chk('옛 이름 행이 새로 들어오지 않는다', resync.added, 0);
-  chk('오타가 되살아나지 않는다', resync.names.indexOf('이도헌'), -1);
+  chk('오타가 되살아나지 않는다', resync.names.indexOf('이아랑'), -1);
   chk('띄어쓰기 행도 새로 안 들어온다', resync.added2, 0);
   chk('띄어쓴 이름이 생기지 않는다', resync.names.indexOf('김 지 성'), -1);
 
   console.log('\n── 이름 일괄 고치기 ──');
   const renamed = await page.evaluate(() => {
-    const key = window.__rnames.find(k => rosterLabel(k).name === '이도현');
-    const n = rosterApply(key, r => { r.name = '이도현2'; });
+    const key = window.__rnames.find(k => rosterLabel(k).name === '이아람');
+    const n = rosterApply(key, r => { r.name = '이아람2'; });
     return { n, six: subs('jmchc-6').map(r => r.name), seven: subs('jmchc-7').map(r => r.name) };
   });
-  // 앞에서 이도헌을 합쳤으므로 이도현 기록이 셋이다
+  // 앞에서 이아랑을 합쳤으므로 이아람 기록이 셋이다
   chk('전 회차가 함께 바뀐다', renamed.n, 3);
-  chk('jmchc-6 반영', renamed.six.indexOf('이도현2') >= 0, true);
-  chk('jmchc-7 반영', renamed.seven.indexOf('이도현2') >= 0, true);
+  chk('jmchc-6 반영', renamed.six.indexOf('이아람2') >= 0, true);
+  chk('jmchc-7 반영', renamed.seven.indexOf('이아람2') >= 0, true);
 
   console.log('\n── 기록 수정·삭제 ──');
   const del = await page.evaluate(() => {
@@ -174,30 +174,30 @@ const SEED = () => {
     // 1) 이름을 틀리게 적으면 아무것도 안 지운다
     page.removeAllListeners('dialog');
     page.on('dialog', d => d.accept('엉뚱한이름'));
-    await page.evaluate(() => rosterDelName(window.__rnames.find(k => rosterLabel(k).name === '김지성')));
+    await page.evaluate(() => rosterDelName(window.__rnames.find(k => rosterLabel(k).name === '김마루')));
     await page.waitForTimeout(400);
     chk('이름이 다르면 안 지운다', await page.evaluate(() => [subs('jmchc-6').length, subs('jmchc-7').length]), before);
 
     // 2) 취소하면 안 지운다
     page.removeAllListeners('dialog');
     page.on('dialog', d => d.dismiss());
-    await page.evaluate(() => rosterDelName(window.__rnames.find(k => rosterLabel(k).name === '김지성')));
+    await page.evaluate(() => rosterDelName(window.__rnames.find(k => rosterLabel(k).name === '김마루')));
     await page.waitForTimeout(400);
     chk('취소하면 안 지운다', await page.evaluate(() => [subs('jmchc-6').length, subs('jmchc-7').length]), before);
 
     // 3) 이름을 그대로 적으면 전 회차가 없어진다
     page.removeAllListeners('dialog');
-    page.on('dialog', d => d.accept('김지성'));
-    await page.evaluate(() => rosterDelName(window.__rnames.find(k => rosterLabel(k).name === '김지성')));
+    page.on('dialog', d => d.accept('김마루'));
+    await page.evaluate(() => rosterDelName(window.__rnames.find(k => rosterLabel(k).name === '김마루')));
     await page.waitForTimeout(600);
     const after = await page.evaluate(() => ({
       six: subs('jmchc-6').map(r => r.name), seven: subs('jmchc-7').map(r => r.name),
       text: document.body.innerText }));
-    chk('jmchc-6 에서 없어졌다', after.six.indexOf('김지성'), -1);
-    chk('jmchc-7 에서도 없어졌다', after.seven.indexOf('김지성'), -1);
-    /* '김지 성' 도 '김지성' 과 한 사람이므로 함께 없어진다 */
-    chk('띄어쓴 표기도 함께 없어졌다', after.six.indexOf('김지 성'), -1);
-    chk('남의 기록은 그대로', after.six, ['이도현', '이도헌']);
+    chk('jmchc-6 에서 없어졌다', after.six.indexOf('김마루'), -1);
+    chk('jmchc-7 에서도 없어졌다', after.seven.indexOf('김마루'), -1);
+    /* '김마 루' 도 '김마루' 과 한 사람이므로 함께 없어진다 */
+    chk('띄어쓴 표기도 함께 없어졌다', after.six.indexOf('김마 루'), -1);
+    chk('남의 기록은 그대로', after.six, ['이아람', '이아랑']);
     chk('학생 수가 줄었다', Number((after.text.match(/학생 (\d+)명/) || [])[1]), 2);
     page.removeAllListeners('dialog');
     page.on('dialog', d => d.accept(d.type() === 'prompt' ? '고친이름' : undefined));
@@ -313,13 +313,13 @@ const SEED = () => {
       return add(el);
     };
   });
-  await page.evaluate(() => rosterApply(window.__rnames.find(k => rosterLabel(k).name === '김지성'), r => { r.name = '김지성A'; }));
-  await page.evaluate(() => sheetCall({ action: 'rename', from: '김지성', to: '김지성A' }, function () {}));
+  await page.evaluate(() => rosterApply(window.__rnames.find(k => rosterLabel(k).name === '김마루'), r => { r.name = '김마루A'; }));
+  await page.evaluate(() => sheetCall({ action: 'rename', from: '김마루', to: '김마루A' }, function () {}));
   await page.waitForTimeout(300);
   const sent = await page.evaluate(() => window.__sent.map(u => u.replace(/^[^?]*\?/, '')));
   chk('시트로 요청이 나간다', sent.length >= 1, true);
   chk('이름 고치기 동작', /action=rename/.test(sent[0] || ''), true);
-  chk('옛 이름을 보낸다', /from=%EA%B9%80%EC%A7%80%EC%84%B1(&|$)/.test(sent[0] || ''), true);
+  chk('옛 이름을 보낸다', /from=%EA%B9%80%EB%A7%88%EB%A3%A8(&|$)/.test(sent[0] || ''), true);
   // 동기화 키는 없앴다. 남아 있으면 시트가 안 받는 값을 쓸데없이 보내는 것이다.
   chk('키는 이제 안 보낸다', /(^|&)key=/.test(sent[0] || ''), false);
   chk('콜백 이름을 붙인다', /(^|&)callback=__fsheet/.test(sent[0] || ''), true);

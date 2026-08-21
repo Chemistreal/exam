@@ -319,7 +319,7 @@ async function radarAndSharedUI(browser, errs) {
   const made = await teacher.evaluate(async () => {
     localStorage.clear();
     openExam('jmchc-4');
-    document.getElementById('nm').value = '오승민';
+    document.getElementById('nm').value = '오사랑';
     for (let q = 1; q <= cur.nQ; q++) {
       const acc = (cur.multi && cur.multi[q]) || [cur.key[q - 1]];
       setAns(q, acc[0] || 1);
@@ -338,7 +338,7 @@ async function radarAndSharedUI(browser, errs) {
                 바뀌었다(15a66ce). 이름이 또 바뀌어도 이 검사가 뜻하는 것은
                 「채점자용 단추가 교사 화면에만 있는가」이므로 앞 네 글자로 본다. */
              nextStudent: document.body.innerText.includes('다음 학생'),
-             link: shareLinkFinal(cur, sel, '오승민', '') };
+             link: shareLinkFinal(cur, sel, '오사랑', '') };
   });
   console.log(`  레이더 축 ${made.axes} · 아래 막대 영역 ${made.bars}`);
   // 대분류로 접으면 1단원 시험은 축이 3개로 줄어 삼각형이 된다. 세부 영역으로
@@ -364,7 +364,7 @@ async function radarAndSharedUI(browser, errs) {
   chk('공유 화면에는 다시 채점도 없다', seen.regrade, false);
   chk('시험지 인쇄는 그대로 둔다', seen.retest, true);
   chk('Word 저장도 그대로 둔다', seen.word, true);
-  chk('성적표 자체는 정상', seen.name, '오승민');
+  chk('성적표 자체는 정상', seen.name, '오사랑');
   await shared.close();
 }
 

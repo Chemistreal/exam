@@ -2,7 +2,7 @@
    채점이 몰릴 때 방금 저장한 줄이 사라지지 않는가
    ------------------------------------------------------------
    2026-08-05, JMChC 모의고사 11회를 열 명 이어서 채점했는데 **셋이
-   사라졌다**(김규민 · 전준 · 최민준). 시트에 들어왔다가 없어졌다.
+   사라졌다**(김가온 · 전솔 · 최자두). 시트에 들어왔다가 없어졌다.
 
    원인.
 
@@ -159,12 +159,12 @@ const row = (exam, name, ans) => {
 console.log('── 겹친 저장에서 방금 넣은 줄이 살아남는가 ──');
 {
   const T = 'JMChC 모의고사 11회';
-  const sheet = makeSheet([row(T, '김지성', '1'.repeat(60)), row(T, '오승민', '2'.repeat(60))]);
+  const sheet = makeSheet([row(T, '김마루', '1'.repeat(60)), row(T, '오사랑', '2'.repeat(60))]);
   const ctx = ctxWith(sheet);
 
   /* A 가 읽은 사진(두 줄). 그 뒤 B 가 한 줄을 덧붙였다. */
   const snapshot = sheet._rows.map(r => r.slice());
-  sheet._rows.push(row(T, '김규민', '3'.repeat(60)));      // B 의 저장
+  sheet._rows.push(row(T, '김가온', '3'.repeat(60)));      // B 의 저장
 
   const before = sheet._rows.length;
   const wrote = ctx._flushRows(sheet, snapshot, [], snapshot.length);
@@ -172,13 +172,13 @@ console.log('── 겹친 저장에서 방금 넣은 줄이 살아남는가 ─
   chk('물러났다(안 썼다)', wrote, false);
   chk('시트를 건드리지 않았다', sheet.writes, 0);
   chk('방금 넣은 줄이 그대로 있다', sheet._rows.length, before);
-  chk('그 줄이 김규민이다', sheet._rows[2][1], '김규민');
+  chk('그 줄이 김규민이다', sheet._rows[2][1], '김가온');
 }
 
 console.log('\n── 겹치지 않았으면 예전처럼 쓴다 ──');
 {
   const T = 'JMChC 모의고사 11회';
-  const sheet = makeSheet([row(T, '김지성', '1'.repeat(60)), row(T, '오승민', '2'.repeat(60))]);
+  const sheet = makeSheet([row(T, '김마루', '1'.repeat(60)), row(T, '오사랑', '2'.repeat(60))]);
   const ctx = ctxWith(sheet);
   const data = sheet._rows.map(r => r.slice());
   data[0][11] = 88;                                        // 백분위를 고쳐 본다
@@ -200,13 +200,13 @@ console.log('\n── 중복 줄은 여전히 지운다 ──');
 {
   const T = 'JMChC 모의고사 11회';
   const same = '4'.repeat(60);
-  const sheet = makeSheet([row(T, '김지성', same), row(T, '김지성', same), row(T, '오승민', '1'.repeat(60))]);
+  const sheet = makeSheet([row(T, '김마루', same), row(T, '김마루', same), row(T, '오사랑', '1'.repeat(60))]);
   const ctx = ctxWith(sheet);
   const data = sheet._rows.map(r => r.slice());
   const drop = ctx._recalcRows(data, T, [], 60);
   ctx._flushRows(sheet, data, drop, data.length);
   chk('같은 이름·같은 답안 한 줄만 남는다', sheet._rows.length, 2);
-  chk('다른 학생은 안 지운다', sheet._rows.map(r => r[1]).sort(), ['김지성', '오승민']);
+  chk('다른 학생은 안 지운다', sheet._rows.map(r => r[1]).sort(), ['김마루', '오사랑']);
 }
 
 console.log('\n── 이름이 다르면 절대 안 지운다 ──');
@@ -214,7 +214,7 @@ console.log('\n── 이름이 다르면 절대 안 지운다 ──');
   const T = 'JMChC 모의고사 11회';
   /* 사라진 셋은 이름이 서로 달랐다. 중복 지우기로는 없어질 수 없다 —
      그것이 '덮어쓰기가 범인' 이라는 판단의 근거였다. 못박아 둔다. */
-  const names = ['김규민', '전준', '최민준', '김지성', '오승민'];
+  const names = ['김가온', '전솔', '최자두', '김마루', '오사랑'];
   const sheet = makeSheet(names.map((n, i) => row(T, n, String((i % 4) + 1).repeat(60))));
   const ctx = ctxWith(sheet);
   const data = sheet._rows.map(r => r.slice());
@@ -231,7 +231,7 @@ console.log('\n── 지금 다시 맞추기 창구 ──');
      나중 학생은 10명 중 3등. 밤 05시 트리거를 기다리지 않고 부를 수 있어야 한다.
      2026-08-05 JMChC 12회가 그랬다. */
   const T = 'JMChC 모의고사 11회';
-  const sheet = makeSheet([row(T, '김지성', '1'.repeat(60)), row(T, '오승민', '2'.repeat(60))]);
+  const sheet = makeSheet([row(T, '김마루', '1'.repeat(60)), row(T, '오사랑', '2'.repeat(60))]);
   const ctx = ctxWith(sheet);
   const out = ctx.doGet({ parameter: { action: 'recompute', callback: '__c' } });
   const txt = String(out.getContent());
@@ -270,13 +270,13 @@ console.log('\n── 한 번 겹쳐도 굳지 않는다 (다시 읽어 맞춘�
   const T = 'JMChC 모의고사 11회';
   /* 총원에는 옛 회차의 인원(EXAM_COHORT 의 base)이 얹힌다. 숫자를 적어 두면
      회차 설정이 바뀔 때마다 시험이 깨진다 — **안 겹쳤을 때와 견준다.** */
-  const calm = makeSheet([row(T, '김지성', '1'.repeat(60)), row(T, '오승민', '2'.repeat(60))]);
+  const calm = makeSheet([row(T, '김마루', '1'.repeat(60)), row(T, '오사랑', '2'.repeat(60))]);
   ctxWith(calm).doGet({ parameter: { action: 'recompute', callback: '__c' } });
   const n2 = calm._rows[0][13];
 
-  const sheet = makeSheet([row(T, '김지성', '1'.repeat(60)), row(T, '오승민', '2'.repeat(60))]);
+  const sheet = makeSheet([row(T, '김마루', '1'.repeat(60)), row(T, '오사랑', '2'.repeat(60))]);
   const ctx = ctxWith(sheet);
-  raceOnRead(sheet, 1, () => row(T, '김규민', '3'.repeat(60)));
+  raceOnRead(sheet, 1, () => row(T, '김가온', '3'.repeat(60)));
   const j = JSON.parse(/^__c\(([\s\S]*?)\);?$/.exec(
     String(ctx.doGet({ parameter: { action: 'recompute', callback: '__c' } }).getContent()))[1]);
   chk('물러나고 끝내지 않는다', !j.retry, true);
@@ -291,7 +291,7 @@ console.log('\n── 계속 겹치면 조금 뒤 혼자 다시 돈다 ──');
      스스로 맞추겠지만 **마지막 저장이 겹쳐 물러난 경우**는 뒤에 아무도 없다.
      그 자리를 예약이 메운다 — 아무도 안 누르는 것이 정상이어야 한다. */
   const T = 'JMChC 모의고사 11회';
-  const sheet = makeSheet([row(T, '김지성', '1'.repeat(60)), row(T, '오승민', '2'.repeat(60))]);
+  const sheet = makeSheet([row(T, '김마루', '1'.repeat(60)), row(T, '오사랑', '2'.repeat(60))]);
   const ctx = ctxWith(sheet);
   raceOnRead(sheet, 99, (n) => row(T, '난입' + n, String((n % 4) + 1).repeat(60)));
   const j = JSON.parse(/^__c\(([\s\S]*?)\);?$/.exec(
@@ -321,13 +321,13 @@ console.log('\n── 저장은 덧붙이고 끝난다 (재계산은 예약한�
      앱은 못 갔다고 보고 다시 보내고, 같은 줄이 쌓였다가 중복 지우기에 지워진다.
      **줄이 생겼다 지워졌다** 하던 것이 그것이다. */
   const T = 'JMChC 모의고사 11회';
-  const sheet = makeSheet([row(T, '김지성', '1'.repeat(60))]);
+  const sheet = makeSheet([row(T, '김마루', '1'.repeat(60))]);
   const ctx = ctxWith(sheet);
   const post = (nm, ans) => ctx.doPost({ postData: { contents: JSON.stringify({
     exam: T, name: nm, total: 30, max: 60, correct: 30, answers: ans, areas: '', n: 1, rank: 1,
   }) } });
 
-  const r1 = JSON.parse(String(post('오승민', '2'.repeat(60)).getContent()));
+  const r1 = JSON.parse(String(post('오사랑', '2'.repeat(60)).getContent()));
   chk('저장은 성공이라고 답한다', r1.ok, true);
   chk('줄이 붙었다', sheet._rows.length, 2);
   chk('저장이 시트를 다시 쓰지 않는다', sheet.writes, 0);
@@ -354,9 +354,9 @@ console.log('\n── 저장은 덧붙이고 끝난다 (재계산은 예약한�
 console.log('\n── 한 회차만 맞출 때도 같다 ──');
 {
   const T = 'JMChC 모의고사 11회';
-  const sheet = makeSheet([row(T, '김지성', '1'.repeat(60)), row(T, '오승민', '2'.repeat(60))]);
+  const sheet = makeSheet([row(T, '김마루', '1'.repeat(60)), row(T, '오사랑', '2'.repeat(60))]);
   const ctx = ctxWith(sheet);
-  raceOnRead(sheet, 1, () => row(T, '김규민', '3'.repeat(60)));
+  raceOnRead(sheet, 1, () => row(T, '김가온', '3'.repeat(60)));
   chk('겹쳐도 결국 맞춘다', ctx.recomputeExam(T, [], 60), true);
   chk('총원이 세 줄 다 같다', sheet._rows.map(r => r[13]), [3, 3, 3]);
 }

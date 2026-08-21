@@ -15,7 +15,7 @@
 
    여기서 지키는 것:
    - 시트 기록과 이 브라우저 기록을 합친다
-   - 이름은 공백을 지우고 견준다('박하람' = '박 하람')
+   - 이름은 공백을 지우고 견준다('박바다' = '박 바다')
    - 한 회차에 여러 번이면 가장 최근 것 하나만
    - **회차 번호 순**으로 늘어놓는다(채점한 시각이 아니다)
    - '지난 진단' 은 지금 보고 있는 회차의 바로 앞 회차다
@@ -101,9 +101,9 @@ const reset = () => { ctx.FINAL_EXAMS = E; ctx.STORE = {}; ctx.setHist(null, '')
 console.log('── 이 브라우저 기록만 있을 때 ──');
 {
   reset();
-  ctx.STORE.a = [rec('박하람', [1, 2, 3], 100, 3)];
-  ctx.STORE.b = [rec('박하람', [1, 1, 1], 200, 3)];
-  const h = ctx.histOf('박하람');
+  ctx.STORE.a = [rec('박바다', [1, 2, 3], 100, 3)];
+  ctx.STORE.b = [rec('박바다', [1, 1, 1], 200, 3)];
+  const h = ctx.histOf('박바다');
   chk('두 회차', h.map(x => x.e.id), ['a', 'b']);
   chk('오래된 것이 먼저', h.map(x => x.ts), [100, 200]);
   chk('정답률을 함께 낸다', h.map(x => x.pct), [100, 100]);
@@ -114,12 +114,12 @@ console.log('── 이 브라우저 기록만 있을 때 ──');
 console.log('\n── 시트 기록이 더해진다 ──');
 {
   reset();
-  ctx.STORE.a = [rec('박하람', [1, 2, 3], 500, 3)];      // 이 폰에는 A회 하나뿐
+  ctx.STORE.a = [rec('박바다', [1, 2, 3], 500, 3)];      // 이 폰에는 A회 하나뿐
   ctx.setHist([
-    { examId: 'b', name: '박하람', answers: '111', ts: 200 },
-    { examId: 'c', name: '박하람', answers: '44', ts: 300 },
-  ], '박하람');
-  const h = ctx.histOf('박하람');
+    { examId: 'b', name: '박바다', answers: '111', ts: 200 },
+    { examId: 'c', name: '박바다', answers: '44', ts: 300 },
+  ], '박바다');
+  const h = ctx.histOf('박바다');
   /* 순서는 회차 차례다(시각이 아니다). A·B·C 회 그대로. */
   chk('시트 것까지 세 회차', h.map(x => x.e.id), ['a', 'b', 'c']);
   chk('시트 기록도 채점된다', h.map(x => x.r.correct), [3, 3, 2]);
@@ -129,43 +129,43 @@ console.log('\n── 시트 기록이 더해진다 ──');
 {
   reset();
   /* 이름이 갈려 있어도 한 사람이다. 시트에도 그렇게 갈려 들어가 있다. */
-  ctx.STORE.a = [rec('박하람', [1, 2, 3], 100, 3)];
-  ctx.setHist([{ examId: 'b', name: '박 하람', answers: '111', ts: 200 }], '박하람');
-  chk('공백이 달라도 같은 학생', ctx.histOf('박하람').map(x => x.e.id), ['a', 'b']);
-  chk('반대로 물어도 같다', ctx.histOf('박 하람').length, 2);
+  ctx.STORE.a = [rec('박바다', [1, 2, 3], 100, 3)];
+  ctx.setHist([{ examId: 'b', name: '박 바다', answers: '111', ts: 200 }], '박바다');
+  chk('공백이 달라도 같은 학생', ctx.histOf('박바다').map(x => x.e.id), ['a', 'b']);
+  chk('반대로 물어도 같다', ctx.histOf('박 바다').length, 2);
 }
 {
   reset();
-  ctx.STORE.a = [rec('박하람', [1, 2, 3], 100, 3)];
-  ctx.setHist([{ examId: 'b', name: '박하람', answers: '111', ts: 200 }], '이도현');
-  chk('다른 학생 것을 받아 왔으면 안 쓴다', ctx.histOf('박하람').map(x => x.e.id), ['a']);
+  ctx.STORE.a = [rec('박바다', [1, 2, 3], 100, 3)];
+  ctx.setHist([{ examId: 'b', name: '박바다', answers: '111', ts: 200 }], '이아람');
+  chk('다른 학생 것을 받아 왔으면 안 쓴다', ctx.histOf('박바다').map(x => x.e.id), ['a']);
 }
 
 console.log('\n── 한 회차는 한 번만 ──');
 {
   reset();
   // 같은 회차를 두 번 채점(다시 풀었다) — 가장 최근 것만
-  ctx.STORE.a = [rec('박하람', [1, 2, 3], 100, 3), rec('박하람', [1, 1, 1], 900, 1)];
-  chk('가장 최근 응시', ctx.histOf('박하람').map(x => x.r.correct), [1]);
+  ctx.STORE.a = [rec('박바다', [1, 2, 3], 100, 3), rec('박바다', [1, 1, 1], 900, 1)];
+  chk('가장 최근 응시', ctx.histOf('박바다').map(x => x.r.correct), [1]);
 
   reset();
-  ctx.STORE.a = [rec('박하람', [1, 1, 1], 900, 1)];
-  ctx.setHist([{ examId: 'a', name: '박하람', answers: '123', ts: 100 }], '박하람');
-  chk('시트에 더 옛것이 있어도 최근 것', ctx.histOf('박하람').map(x => x.r.correct), [1]);
-  chk('회차 수가 늘지 않는다', ctx.histOf('박하람').length, 1);
+  ctx.STORE.a = [rec('박바다', [1, 1, 1], 900, 1)];
+  ctx.setHist([{ examId: 'a', name: '박바다', answers: '123', ts: 100 }], '박바다');
+  chk('시트에 더 옛것이 있어도 최근 것', ctx.histOf('박바다').map(x => x.r.correct), [1]);
+  chk('회차 수가 늘지 않는다', ctx.histOf('박바다').length, 1);
 }
 
 console.log('\n── 문항 수가 다르면 다른 시험이다 ──');
 {
   reset();
-  ctx.STORE.a = [rec('박하람', [1, 2], 100, 1)];                 // A회는 3문항인데 2개
-  ctx.setHist([{ examId: 'c', name: '박하람', answers: '444', ts: 200 }], '박하람');  // C회는 2문항
-  chk('길이가 어긋난 기록은 안 넣는다', ctx.histOf('박하람'), []);
+  ctx.STORE.a = [rec('박바다', [1, 2], 100, 1)];                 // A회는 3문항인데 2개
+  ctx.setHist([{ examId: 'c', name: '박바다', answers: '444', ts: 200 }], '박바다');  // C회는 2문항
+  chk('길이가 어긋난 기록은 안 넣는다', ctx.histOf('박바다'), []);
   reset();
-  ctx.setHist([{ examId: '없는회차', name: '박하람', answers: '123', ts: 1 }], '박하람');
-  chk('모르는 회차는 넘긴다', ctx.histOf('박하람'), []);
+  ctx.setHist([{ examId: '없는회차', name: '박바다', answers: '123', ts: 1 }], '박바다');
+  chk('모르는 회차는 넘긴다', ctx.histOf('박바다'), []);
   chk('답안이 없어도 안 죽는다',
-      (ctx.setHist([{ examId: 'a', name: '박하람', ts: 1 }], '박하람'), ctx.histOf('박하람')), []);
+      (ctx.setHist([{ examId: 'a', name: '박바다', ts: 1 }], '박바다'), ctx.histOf('박바다')), []);
 }
 
 console.log('\n── 회차 번호 순으로 늘어놓는다 ──');

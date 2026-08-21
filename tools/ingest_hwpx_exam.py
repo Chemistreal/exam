@@ -187,7 +187,7 @@ def entry_of(d):
         'pdf': '%s-problem.pdf' % d['examId'],
         'crops': True,
         'source': {'tool': 'tools/ingest_hwpx_exam.py',
-                   'kind': d['kind'], 'file': d['source']},
+                   'kind': d['kind']},
     }
 
 
@@ -269,6 +269,12 @@ def ingest(path, code=None, write=False):
     (ROOT / 'answers' / ('%s.json' % d['examId'])).write_text(
         json.dumps(ans, ensure_ascii=False, indent=1) + '\n', encoding='utf-8')
     doc, p = load_finals()
+    # 같은 id 를 다시 들이면 판(rev)을 올린다 — 문항 크롭은 서비스워커가
+    # 배포를 넘어 cache-first 로 들고 있어서, 주소가 같으면 **옛 그림에
+    # 새 정답표**가 붙는다. rev 는 크롭 주소의 ?v= 로 실려 캐시를 깬다.
+    prev = next((e for e in doc['exams'] if e['id'] == d['examId']), None)
+    if prev is not None:
+        ent['rev'] = int(prev.get('rev') or 1) + 1
     doc['exams'] = [e for e in doc['exams'] if e['id'] != d['examId']] + [ent]
     doc['exams'].sort(key=lambda e: e['id'])
     p.write_text(json.dumps(doc, ensure_ascii=False, indent=1) + '\n',
@@ -290,6 +296,11 @@ def check():
     doc, _ = load_finals()
     bad = []
     for e in doc['exams']:
+        # 출처에 파일 이름을 적으면 안 된다 — 선생님이 주는 파일 이름에는
+        # 학생 실명이 들어 있고, 이 JSON 은 공개 사이트가 서빙한다. 코드 옆에
+        # 실명이 서면 가명화가 통째로 풀린다 (2026-08-21 에 실제로 그랬다).
+        if 'file' in (e.get('source') or {}):
+            bad.append('%s: source.file 이 있다 — 실명이 들어 있을 수 있는 자리다. 지워라' % e['id'])
         if not _mine(e):
             continue
         eid = e['id']

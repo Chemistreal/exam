@@ -6,7 +6,7 @@
 
        subs(e.id).filter(r => r.name.trim() === nm && r.ans.length === e.nQ)
 
-   그래서 '박 하람' 처럼 공백 하나, 글자 하나가 어긋난 기록은 조용히 빠졌다.
+   그래서 '박 바다' 처럼 공백 하나, 글자 하나가 어긋난 기록은 조용히 빠졌다.
 
    **띄어쓰기는 이제 저장할 때 붙인다**(nameKey). 기계가 확실히 판단할 수 있는
    것은 기계가 하고, 사람이 봐야 하는 것만 남긴다 — 한 글자가 다른 이름은
@@ -76,49 +76,49 @@ console.log('── 띄어쓰기는 저절로 붙는다 ──');
   /* 저장할 때 nameKey 가 공백을 지우므로 애초에 갈라지지 않는다. 이미 쌓인
      기록도 tidyNames 가 한 번 다듬는다. 그러니 여기서 경고할 것이 아니다 —
      고칠 것이 없는데 뜨는 경고는 다음 경고까지 못 읽게 만든다. */
-  chk('공백을 지운다', ctx.nameKey('박 하람'), '박하람');
-  chk('여러 칸도', ctx.nameKey('박  하 람'), '박하람');
-  chk('앞뒤 공백도', ctx.nameKey('  박하람 '), '박하람');
+  chk('공백을 지운다', ctx.nameKey('박 바다'), '박바다');
+  chk('여러 칸도', ctx.nameKey('박  바 다'), '박바다');
+  chk('앞뒤 공백도', ctx.nameKey('  박바다 '), '박바다');
   chk('빈 값에도 안 죽는다', [ctx.nameKey(null), ctx.nameKey(undefined), ctx.nameKey('')], ['', '', '']);
 
   setup(
     [{ id: 'a', nQ: 3 }, { id: 'b', nQ: 3 }, { id: 'c', nQ: 3 }],
-    { a: [rec('박하람')], b: [rec('박 하람')], c: [rec('박 하람')] });
-  chk('띄어쓰기 차이는 경고하지 않는다', ctx.splitNameRecords('박하람'), []);
-  chk('반대 방향에서도', ctx.splitNameRecords('박 하람'), []);
+    { a: [rec('박바다')], b: [rec('박 바다')], c: [rec('박 바다')] });
+  chk('띄어쓰기 차이는 경고하지 않는다', ctx.splitNameRecords('박바다'), []);
+  chk('반대 방향에서도', ctx.splitNameRecords('박 바다'), []);
 }
 
 console.log('\n── 한 글자 다른 이름은 사람이 본다 ──');
 {
   setup([{ id: 'a', nQ: 3 }, { id: 'b', nQ: 3 }],
-        { a: [rec('김지성')], b: [rec('김지선')] });
+        { a: [rec('김마루')], b: [rec('김마부')] });
   chk('한 글자 다른 이름을 찾는다',
-      ctx.splitNameRecords('김지성'), [{ name: '김지선', n: 1, why: '한 글자 다름' }]);
+      ctx.splitNameRecords('김마루'), [{ name: '김마부', n: 1, why: '한 글자 다름' }]);
   /* 동명이인일 수 있으므로 기계가 합치지 않는다 — 되돌릴 수 없다. */
   chk('합치지는 않는다(찾아만 준다)', /rosterMerge|합친다/.test(cut('splitNameRecords')), false);
 }
 {
   setup([{ id: 'a', nQ: 3 }, { id: 'b', nQ: 3 }, { id: 'c', nQ: 3 }],
-        { a: [rec('박하람')], b: [rec('박 하람'), rec('박하늘')], c: [rec('박하람')] });
+        { a: [rec('박바다')], b: [rec('박 바다'), rec('박바둑')], c: [rec('박바다')] });
   chk('띄어쓰기는 빼고 한 글자 차이만',
-      ctx.splitNameRecords('박하람').map(x => [x.name, x.n]), [['박하늘', 1]]);
+      ctx.splitNameRecords('박바다').map(x => [x.name, x.n]), [['박바둑', 1]]);
 }
 
 console.log('\n── 남남은 끌어오지 않는다 ──');
 {
   /* 경고가 흔해지면 아무도 안 읽는다. 두 글자 이상 다르면 다른 사람이다. */
   setup([{ id: 'a', nQ: 3 }, { id: 'b', nQ: 3 }, { id: 'c', nQ: 3 }],
-        { a: [rec('박하람')], b: [rec('이도현')], c: [rec('박서준')] });
-  chk('전혀 다른 이름은 안 센다', ctx.splitNameRecords('박하람'), []);
-  chk('자기 자신은 안 센다', ctx.splitNameRecords('이도현'), []);
+        { a: [rec('박바다')], b: [rec('이아람')], c: [rec('박서준')] });
+  chk('전혀 다른 이름은 안 센다', ctx.splitNameRecords('박바다'), []);
+  chk('자기 자신은 안 센다', ctx.splitNameRecords('이아람'), []);
 }
 {
   setup([{ id: 'a', nQ: 3 }], { a: [rec('가'), rec('나')] });
   chk('한 글자 이름끼리는 안 묶는다', ctx.splitNameRecords('가'), []);   // 편집거리 1이지만 너무 짧다
 }
 {
-  setup([{ id: 'a', nQ: 3 }], { a: [rec('박하람'), rec(''), rec('  ')] });
-  chk('빈 이름에 안 죽는다', ctx.splitNameRecords('박하람'), []);
+  setup([{ id: 'a', nQ: 3 }], { a: [rec('박바다'), rec(''), rec('  ')] });
+  chk('빈 이름에 안 죽는다', ctx.splitNameRecords('박바다'), []);
   chk('이름이 없으면 빈 목록', ctx.splitNameRecords(''), []);
   chk('공백만이면 빈 목록', ctx.splitNameRecords('   '), []);
 }
@@ -130,8 +130,8 @@ console.log('\n── 같은 시험이 두 ID 로 있어도 한 번만 센다 �
   chk('별칭이 실제로 있다', Object.keys(ctx.COHORT_ALIAS || {}).length > 0,
       /const COHORT_ALIAS=\{'/.test(SRC));
   setup([{ id: 'kmchc-2018', nQ: 3 }, { id: 'hwol-2018', nQ: 3 }],
-        { 'hwol-2018': [rec('박하람'), rec('박하늘'), rec('박하늘')] });
-  chk('두 번 세지 않는다', ctx.splitNameRecords('박하람'), [{ name: '박하늘', n: 2, why: '한 글자 다름' }]);
+        { 'hwol-2018': [rec('박바다'), rec('박바둑'), rec('박바둑')] });
+  chk('두 번 세지 않는다', ctx.splitNameRecords('박바다'), [{ name: '박바둑', n: 2, why: '한 글자 다름' }]);
 }
 
 console.log('\n── 성적표가 실제로 말하는가 ──');
@@ -159,7 +159,7 @@ console.log('\n── 성적표가 실제로 말하는가 ──');
 
 console.log('\n── 이미 쌓인 이름을 한 번 다듬는다 ──');
 {
-  /* 규칙만 바꾸면 앞으로 저장되는 것만 합쳐진다. 지금까지 '박 하람' 으로
+  /* 규칙만 바꾸면 앞으로 저장되는 것만 합쳐진다. 지금까지 '박 바다' 으로
      쌓인 회차는 그대로 갈라져 있다. 한 번 돌면서 다듬어야 한다. */
   const fn = SRC.slice(SRC.indexOf('(function tidyNames(){'));
   const body = fn.slice(0, fn.indexOf('\n})();') + 6);
