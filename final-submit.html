@@ -253,8 +253,13 @@ function examMaterialsHTML(exam){
   if(exam.pdf) out.push('<a class="pdf" href="'+esc(exam.pdf)+'" download>문제지 PDF ↓</a>');
   if(exam.answerPdf) out.push('<a class="pdf" href="'+esc(exam.answerPdf)+'" download>공식 정답 PDF ↓</a>');
   if(exam.bookPdf) out.push('<a class="pdf" href="'+esc(exam.bookPdf)+'" download>문제편·해설편 PDF ↓</a>');
-  out.push('<a class="pdf" href="sol-final-'+esc(exam.id)+'.html" target="_blank" rel="noopener">'
-    +examSolLabel(exam)+' ↗</a>');
+  /* 학생별 파이널(srcmap)은 원본 회차의 문항을 빌려 쓰는 파생 회차라 제 해설지가
+     없다. 그런데도 링크를 걸면 학생이 눌러서 404 를 만난다 — 없는 것을 있다고
+     하지 않는다. 틀린 문항의 오개념은 성적표의 오답노트가 그 자리에서 보여 준다. */
+  if(!(exam.srcmap&&exam.srcmap.length))
+    out.push('<a class="pdf" href="sol-final-'+esc(exam.id)+'.html" target="_blank" rel="noopener">'
+      +examSolLabel(exam)+' ↗</a>');
+  if(!out.length) return '';
   return '<div class="assets">'+out.join('')+'</div>';
 }
 /* ── 답안 임시저장/복원: 60문항을 풀다 새로고침·이탈해도 이어서 작성 ── */
