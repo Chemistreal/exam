@@ -519,6 +519,81 @@ function updateProg(){ const nQ=cur.nQ||cur.key.length; const ac=allcSet(cur); l
   for(let q=1;q<=nQ;q++){ if(ac.has(q))continue; tot++; if(sel[q])done++; }
   const el=document.getElementById('prog'); if(el)el.textContent='작성 '+done+' / '+tot+' 문항'+(done<tot?' · 미작성 '+(tot-done)+'개':' · 모두 작성됨'); }
 
+
+/* ══ 시트로 보내기 — 화면을 떠나도 닿게 ═══════════════════════════════
+   여기서 지고 있던 싸움이 하나 있었다.
+
+   제출을 누르면 시트로 쏘자마자 **성적표로 넘어간다**. 그 순간 브라우저가
+   아직 못 보낸 요청을 끊어 버릴 수 있다. `keepalive:true` 가 「떠나도 보내
+   달라」는 표시지만, 옛 iOS 사파리는 그 표시를 모른다 — 학생 화면은
+   「제출되었습니다」 를 띄우고 성적표까지 멀쩡히 나오는데 **시트에만 줄이
+   없다.** 아무도 모른 채 한 회차가 사라진다(2026-08-21 · 기출동형 4회).
+
+   세 겹으로 막는다.
+
+     ① navigator.sendBeacon — 「화면을 떠나도 보낸다」가 규격인 유일한 손이다
+     ② 그것이 없으면 fetch 를 **기다렸다가** 넘어간다(최대 2.5초)
+     ③ 보내기 전에 이 브라우저에 적어 두고, 다음에 이 화면을 열 때 다시 보낸다
+
+   ③ 이 안전한 까닭은 시트가 같은 응시(시험+이름+답안)를 덮어쓰기 때문이다
+   (AppsScript-Code.gs · tests/resend-idempotent.js). 다시 보내도 줄이 안 는다.
+
+   ⚠ 보냈다고 지우지 않는다. sendBeacon 이 참을 돌려줘도 그것은 「줄을
+   세웠다」는 뜻이지 「닿았다」는 뜻이 아니다 — no-cors 라 닿았는지는 끝내
+   알 수 없다. 그래서 세 번까지 더 보내 보고, 그 뒤로는 **지우지 않고 남겨
+   둔 채** 화면에 적어 준다. 조용히 잃는 것보다 낫다. */
+var PEND_KEY='exam.submit.pending.v1', PEND_MAX=3, PEND_TTL=21*864e5;
+function pendAll(){
+  try{ return JSON.parse(localStorage.getItem(PEND_KEY)||'[]')||[]; }catch(e){ return []; }
+}
+function pendSave(a){
+  try{ localStorage.setItem(PEND_KEY, JSON.stringify(a.slice(-30))); }catch(e){}
+}
+function pendSig(p){ return [p.exam,p.name,p.answers].join('|'); }
+function pendAdd(p){
+  var a=pendAll(), sig=pendSig(p);
+  a=a.filter(function(x){ return pendSig(x.p)!==sig; });
+  a.push({p:p, t:Date.now(), n:0});
+  pendSave(a);
+}
+function pendDrop(p){
+  var sig=pendSig(p);
+  pendSave(pendAll().filter(function(x){ return pendSig(x.p)!==sig; }));
+}
+function sheetPost(payload){
+  var body=JSON.stringify(payload);
+  try{
+    if(navigator.sendBeacon){
+      var blob=new Blob([body],{type:'text/plain;charset=UTF-8'});
+      if(navigator.sendBeacon(SHEET_ENDPOINT, blob)) return Promise.resolve(true);
+    }
+  }catch(e){}
+  try{
+    return Promise.race([
+      fetch(SHEET_ENDPOINT,{method:'POST',mode:'no-cors',keepalive:true,
+        headers:{'Content-Type':'text/plain;charset=utf-8'},body:body})
+        .then(function(){ return true; }),
+      new Promise(function(r){ setTimeout(function(){ r(false); }, 2500); })
+    ]).catch(function(){ return false; });
+  }catch(e){ return Promise.resolve(false); }
+}
+/* 이 화면을 열 때 지난 답안을 한 번씩 더 보낸다. */
+async function pendFlush(){
+  var now=Date.now();
+  var a=pendAll().filter(function(x){ return now-(x.t||0) < PEND_TTL; });
+  if(!a.length){ pendSave(a); return 0; }
+  var sent=0;
+  for(var i=0;i<a.length;i++){
+    if(a[i].n>=PEND_MAX) continue;
+    a[i].n++;
+    await sheetPost(a[i].p);
+    sent++;
+  }
+  pendSave(a);
+  return sent;
+}
+function pendStuck(){ return pendAll().filter(function(x){ return x.n>=PEND_MAX; }); }
+
 function submitAns(){
   if(SUBMITTING) return; // 이미 제출 진행/완료 — 중복 호출 무시(제출 후 DOM 교체 전 연타 방지)
   const nm=nameKey(document.getElementById('nm').value);
@@ -550,9 +625,9 @@ function submitAns(){
     total:correct, max:total, pct100:pct,
     percentile:'', rank:'', n:'',
     correct:correct, areas:areas, answers:ans.join(''), link:shareLink(cur,sel,nm) };
-  try{ fetch(SHEET_ENDPOINT,{method:'POST',mode:'no-cors',keepalive:true,headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
-    toast('제출되었습니다 · '+nm);
-  }catch(e){ toast('전송 호출 실패 — 다시 시도하세요'); }
+  /* 보내기 **전에** 적어 둔다. 여기서 화면이 꺼져도 다음에 다시 보낸다. */
+  pendAdd(payload);
+  toast('제출되었습니다 · '+nm);
   clearDraft(cur.id); // 제출 완료 → 임시저장 답안 삭제
 
   // 다른 회차와 동일한 전체 진단 성적표 엔진으로 바로 이어 준다.
@@ -560,7 +635,14 @@ function submitAns(){
   /* 「즉시 재도전」 은 저장소에 없는 회차다 — 성적표도 봉투를 받아야 채점한다 */
   const reportUrl=shareLink(cur,sel,nm)
     + ((cur&&cur.retry&&window.__retryRaw)?('&x='+window.__retryRaw):'');
-  try{ location.assign(reportUrl); return; }catch(e){}
+  /* 보내는 것이 끝난 **뒤에** 넘어간다. 이 한 줄이 없어서 한 회차가 시트에
+     닿지 못했다 — 화면은 성적표까지 멀쩡히 나오는데 줄만 없었다. */
+  sheetPost(payload).then(function(){
+    /* 지우지 않는다 — 닿았는지 알 수 없다. 다음에 이 화면을 열 때
+       한 번 더 보내고, 시트가 같은 응시를 덮어쓰므로 줄은 안 는다. */
+    try{ location.assign(reportUrl); }catch(e){ }
+  });
+  return;
   showResult(nm,sch,cur,correct,total,pct,rs,wrong);
 }
 
@@ -637,6 +719,14 @@ async function start(){
   }
   boot();
   if(_rt && !/[?&]exam=/.test(location.search)) openExam(_rt.id);
+  /* 지난번에 못 보낸 답안이 남아 있으면 조용히 다시 보낸다. */
+  try{
+    pendFlush().then(function(n){
+      var stuck=pendStuck();
+      if(stuck.length) toast('아직 시트에서 확인 안 된 답안 '+stuck.length+'건이 있습니다 — 선생님께 알려 주세요');
+      else if(n) toast('지난 답안 '+n+'건을 한 번 더 보냈습니다');
+    });
+  }catch(e){}
 }
 start();
 
