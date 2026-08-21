@@ -158,6 +158,71 @@ main{max-width:780px;margin:0 auto;padding:16px 15px 60px}
 .kpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px;text-align:center}
 .kpi b{display:block;font-size:25px;color:var(--teal);font-weight:800;line-height:1.1}.kpi span{font-size:12px;color:var(--muted)}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:16px 18px;margin:13px 0}
+/* 즉시 재도전 — 맨 밑의 큰 칸과 덮개 */
+.retrybig{background:linear-gradient(150deg,#0E5A4C 0%,#0b4137 60%,#08302a 100%);
+ color:#F4F1E8;border-radius:16px;padding:26px 26px 22px;margin:22px 0 6px;
+ box-shadow:0 10px 30px rgba(8,48,42,.24)}
+.rb__eyebrow{font-size:12.5px;letter-spacing:.13em;font-weight:700;color:#C9A75E;
+ text-transform:uppercase;margin-bottom:6px}
+.rb__h{font-family:var(--serif);font-size:31px;font-weight:800;margin:0 0 8px;
+ color:#F4F1E8;letter-spacing:-.02em;text-wrap:balance;border:0;padding:0}
+.rb__p{font-size:15px;line-height:1.66;color:#DCE7E1;margin:0 0 16px;max-width:60ch}
+.rb__p b{color:#F4F1E8}
+.rb__btns{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.rb__go{appearance:none;border:0;border-radius:12px;background:#C9A75E;color:#20180a;
+ font:inherit;font-size:18px;font-weight:800;padding:15px 26px;cursor:pointer;
+ letter-spacing:-.01em;box-shadow:0 3px 0 #9c7f3f}
+.rb__go:hover{filter:brightness(1.06)}
+.rb__go:active{transform:translateY(2px);box-shadow:0 1px 0 #9c7f3f}
+.rb__sub{appearance:none;border:1px solid rgba(244,241,232,.45);border-radius:12px;
+ background:transparent;color:#F4F1E8;font:inherit;font-size:14.5px;font-weight:600;
+ padding:14px 18px;cursor:pointer}
+.rb__sub:hover{border-color:#F4F1E8}
+.rb__out{margin-top:14px;font-size:13px;color:#DCE7E1}
+.rb__out b{color:#F4F1E8}
+.rb__out .muted,.rb__out span{color:#AEC3BA}
+
+.rov{position:fixed;inset:0;z-index:9998;display:none;align-items:center;
+ justify-content:center;padding:20px;background:rgba(8,32,28,.62);
+ backdrop-filter:blur(3px)}
+.rov.on{display:flex}
+.rov__box{position:relative;width:min(560px,100%);max-height:88vh;overflow:auto;
+ background:linear-gradient(150deg,#0E5A4C 0%,#0b4137 62%,#08302a 100%);
+ color:#F4F1E8;border-radius:18px;padding:28px 26px 22px;
+ box-shadow:0 24px 60px rgba(0,0,0,.42)}
+.rov__x{position:absolute;top:12px;right:14px;appearance:none;border:0;background:none;
+ color:#AEC3BA;font-size:20px;line-height:1;cursor:pointer;padding:6px}
+.rov__x:hover{color:#F4F1E8}
+.rov__eyebrow{font-size:12px;letter-spacing:.13em;font-weight:700;color:#C9A75E;
+ text-transform:uppercase}
+.rov__h{font-family:var(--serif);font-size:30px;font-weight:800;margin:6px 0 8px;
+ letter-spacing:-.02em;color:#F4F1E8}
+.rov__p{font-size:14.5px;line-height:1.6;color:#DCE7E1;margin:0 0 12px}
+.rov__p b{color:#F4F1E8}
+.rov__list{display:grid;gap:5px;margin:0 0 16px}
+.rov__q{display:flex;gap:9px;align-items:baseline;font-size:13.5px;color:#DCE7E1;
+ border-bottom:1px solid rgba(244,241,232,.13);padding-bottom:4px}
+.rov__q b{color:#C9A75E;min-width:20px;font-variant-numeric:tabular-nums}
+.rov__q span{margin-left:auto;font-size:12px;color:#9DB4AA;white-space:nowrap}
+.rov__btns{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+.rov__go{appearance:none;border:0;border-radius:12px;background:#C9A75E;color:#20180a;
+ font:inherit;font-size:17px;font-weight:800;padding:14px 24px;cursor:pointer;
+ box-shadow:0 3px 0 #9c7f3f}
+.rov__go[disabled]{opacity:.55;cursor:default;box-shadow:none}
+.rov__sub,.rov__later{appearance:none;border:1px solid rgba(244,241,232,.4);
+ border-radius:12px;background:transparent;color:#F4F1E8;font:inherit;font-size:14px;
+ font-weight:600;padding:13px 16px;cursor:pointer}
+.rov__later{border-color:transparent;color:#AEC3BA;margin-left:auto}
+.rov__sub[disabled]{opacity:.5;cursor:default}
+@media (max-width:520px){
+ .retrybig{padding:20px 18px 18px}
+ .rb__h{font-size:25px}.rov__h{font-size:24px}
+ .rb__go,.rov__go{width:100%;text-align:center}
+ .rb__sub,.rov__sub{width:100%;text-align:center}
+ .rov__later{margin-left:0;width:100%}
+}
+@media print{.retrybig,.rov{display:none!important}}
+
 .nextgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
 .nextbtn{display:flex;flex-direction:column;gap:2px;padding:9px 11px;border:1px solid var(--line);
  border-radius:10px;background:#fff;text-decoration:none;color:var(--ink)}
@@ -2040,18 +2105,107 @@ async function retryCopy(){
     navigator.clipboard.writeText(r.url).then(ok).catch(function(){ fallbackCopy(r.url,ok); });
   else fallbackCopy(r.url,ok);
 }
+/* 성적표 맨 밑에 **크게** 세운다. 여기까지 내려온 사람은 채점을 끝낸
+   사람이고, 그 다음에 할 일이 이것 하나뿐이다 — 작은 단추로 두면 그냥
+   창을 닫는다. 화면에 들어오는 순간 덮개(팝업)까지 한 번 띄운다. */
 function retrySec(cur, wrong){
   if(!cur||cur.retry) return '';
   var qs=(wrong||[]).map(function(w){ return (w&&w.q)||0; }).filter(Boolean);
   window.__retryWrong=qs;
   if(qs.length<3) return '';
-  return '<div class="sec"><h3>즉시 재도전 10제</h3>'
-    +'<p class="muted" style="margin:2px 0 10px">틀린 <b>'+qs.length+'문항</b>의 개념만 모아, '
-    +'기출 2500문항에서 <b>같은 개념의 다른 문항 열 개</b>를 그 자리에서 뽑습니다. '
-    +'한 영역에 몰리지 않게 나누고, 정답률 20~60% 를 먼저 씁니다.</p>'
-    +'<div class="toolbar" style="margin:0"><button class="btn" onclick="retryGo()">재도전 10제 만들기 →</button>'
-    +'<button class="btn ghost sm" onclick="retryCopy()">링크 복사 ⧉</button></div>'
-    +'<div id="retryOut" class="muted" style="margin-top:9px"></div></div>';
+  return '<div class="retrybig" id="retryBig">'
+    +'<div class="rb__eyebrow">채점이 끝났습니다 · 다음 한 걸음</div>'
+    +'<h3 class="rb__h">즉시 재도전 10제</h3>'
+    +'<p class="rb__p">방금 틀린 <b>'+qs.length+'문항</b>의 개념만 모아, 기출 <b>2500문항</b>에서 '
+    +'<b>같은 개념의 다른 문항 열 개</b>를 지금 뽑습니다. 한 영역에 몰리지 않게 나누고, '
+    +'정답률 20~60% 를 먼저 씁니다 — 너무 쉬우면 배울 것이 없고 너무 어려우면 꺾입니다.</p>'
+    +'<div class="rb__btns">'
+    +'<button class="rb__go" onclick="retryGo()">재도전 10제 만들기 →</button>'
+    +'<button class="rb__sub" onclick="retryCopy()">링크 복사 ⧉</button></div>'
+    +'<div id="retryOut" class="rb__out"></div></div>';
+}
+
+/* ── 덮개 ───────────────────────────────────────────────────────────────
+   맨 밑 칸이 화면에 들어오면 한 번 띄운다. 한 성적표에 한 번만 — 닫고 나면
+   다시 안 뜬다(같은 성적표를 다시 열어도). 인쇄에는 안 나온다. */
+function retryOverlay(){
+  var o=document.getElementById('retryOv');
+  if(o) return o;
+  o=document.createElement('div');
+  o.id='retryOv'; o.className='rov'; o.setAttribute('role','dialog');
+  o.setAttribute('aria-modal','true'); o.setAttribute('aria-labelledby','rovH');
+  o.innerHTML='<div class="rov__box">'
+    +'<button class="rov__x" type="button" aria-label="닫기">✕</button>'
+    +'<div class="rov__eyebrow">채점이 끝났습니다 · 다음 한 걸음</div>'
+    +'<h2 class="rov__h" id="rovH">즉시 재도전 10제</h2>'
+    +'<p class="rov__p" id="rovP">방금 틀린 자리만 다시 묻습니다. 고르는 중…</p>'
+    +'<div class="rov__list" id="rovList"></div>'
+    +'<div class="rov__btns">'
+    +'<button class="rov__go" id="rovGo" disabled>고르는 중…</button>'
+    +'<button class="rov__sub" id="rovCopy" disabled>링크 복사 ⧉</button>'
+    +'<button class="rov__later" id="rovLater">나중에</button>'
+    +'</div></div>';
+  document.body.appendChild(o);
+  var close=function(){ retryClose(); };
+  o.querySelector('.rov__x').addEventListener('click',close);
+  o.querySelector('#rovLater').addEventListener('click',close);
+  o.addEventListener('click',function(e){ if(e.target===o) close(); });
+  return o;
+}
+function retryClose(){
+  var o=document.getElementById('retryOv');
+  if(o) o.classList.remove('on');
+  document.documentElement.style.overflow='';
+  window.removeEventListener('keydown', retryEsc);
+}
+function retryEsc(e){ if(e.key==='Escape') retryClose(); }
+async function retryPop(){
+  var o=retryOverlay();
+  o.classList.add('on');
+  document.documentElement.style.overflow='hidden';
+  window.addEventListener('keydown', retryEsc);
+  var r=null;
+  try{ r=await retryMake(); }catch(e){}
+  var go=document.getElementById('rovGo'), cp=document.getElementById('rovCopy');
+  if(!r){
+    document.getElementById('rovP').textContent='같은 개념의 다른 문항을 못 찾았습니다.';
+    if(go) go.textContent='못 만들었습니다';
+    return;
+  }
+  retryShow(r);
+  var seen={}, areas=[];
+  r.take.forEach(function(x){ if(!seen[x.a]){ seen[x.a]=1; areas.push(x.a); } });
+  document.getElementById('rovP').innerHTML='방금 틀린 자리만 다시 묻는 <b>'+r.take.length
+    +'문항</b>입니다 — '+esc(areas.join(' · '))+'.';
+  document.getElementById('rovList').innerHTML=r.take.map(function(x,i){
+    return '<div class="rov__q"><b>'+(i+1)+'</b> '+esc(x.a)
+      +'<span>'+esc(x.e)+' '+x.q+'번'+(typeof x.r==='number'?(' · 정답률 '+x.r+'%'):'')+'</span></div>';
+  }).join('');
+  go.disabled=false; go.textContent='재도전 10제 열기 →';
+  go.onclick=function(){ window.open(r.url,'_blank','noopener'); retryClose(); };
+  cp.disabled=false;
+  cp.onclick=function(){
+    var ok=function(){ fToast('재도전 '+r.take.length+'제 링크 복사됨'); };
+    if(navigator.clipboard&&navigator.clipboard.writeText)
+      navigator.clipboard.writeText(r.url).then(ok).catch(function(){ fallbackCopy(r.url,ok); });
+    else fallbackCopy(r.url,ok);
+  };
+}
+/* 한 성적표에 한 번만. 지문은 회차+이름이다 — 다음 학생을 채점하면 다시 뜬다. */
+function retryArm(){
+  var big=document.getElementById('retryBig');
+  if(!big||!window.IntersectionObserver) return;
+  var sig='rv:'+(cur&&cur.id)+':'+(((window.__rpt||{}).name)||'');
+  try{ if(sessionStorage.getItem(sig)) return; }catch(e){}
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(en){
+      if(!en.isIntersecting) return;
+      io.disconnect();
+      try{ sessionStorage.setItem(sig,'1'); }catch(e){}
+      retryPop();
+    });
+  },{threshold:0.45});
+  io.observe(big);
 }
 
 
@@ -6212,6 +6366,7 @@ function scoreAuto(again){
   /* 이 회차를 채점했다고 적어 둔다 — 「다음 학생」 칸이 남은 사람만 앞에 세운다.
      이름표가 있는 브라우저(선생님 자리)에서만 센다. */
   if(Object.keys(pickNC()).length) pickMarkDone(cur.id);
+  try{ retryArm(); }catch(e){}
   window.scrollTo(0,0);
 }
 window.addEventListener('beforeprint',function(){window.__det=[].map.call(document.querySelectorAll('details'),function(d){return [d,d.open];});window.__det.forEach(function(x){x[0].open=true;});});
