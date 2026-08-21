@@ -38,6 +38,16 @@ input.txt:focus{border-color:var(--teal);outline:none}
 .qc input:focus{border-color:var(--teal);outline:none;box-shadow:0 0 0 3px rgba(58,122,107,.13)}
 .qc input.on{border-color:var(--teal);background:var(--cream);color:var(--teal-d);font-weight:700}
 .qc.allc input{background:#fdf6e3;border-style:dashed}.qc.allc .qc__n{color:var(--brass,#9a7b2f);font-weight:700}
+/* 확신도 — 한 번 누를 때마다 ○ → △ → ✗ → (없음). 채점에는 안 쓰이고
+   내 화면에만 남는다. 찍어서 맞은 문항이 다음 시험에서 새는 자리라, 그것을
+   눈에 보이게 하려고 둔다. */
+.cf{width:100%;height:20px;margin-top:3px;border:1px solid var(--line);border-radius:6px;
+ background:#fff;color:#b9b2a2;font-size:12px;line-height:1;cursor:pointer;padding:0}
+.cf[data-v='o']{border-color:var(--teal);color:var(--teal);background:#eef5f3;font-weight:700}
+.cf[data-v='m']{border-color:#B08D57;color:#8a6a22;background:#faf6ec;font-weight:700}
+.cf[data-v='x']{border-color:#B0512F;color:#8a2f1d;background:#fbeee9;font-weight:700}
+.cfbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--muted);margin:10px 0 2px}
+.cfbar b{color:var(--ink)}
 .btn{display:block;width:100%;padding:14px;border:none;border-radius:12px;background:var(--teal);color:#fff;font-size:16px;font-weight:700;cursor:pointer;margin-top:16px}
 .btn:disabled{background:#c3bdae;cursor:not-allowed}
 .btn.ghost{background:transparent;color:var(--teal);border:1.5px solid var(--teal)}
@@ -252,9 +262,9 @@ const DRAFT_PFX='chemistreal:finalsubmit:draft:';
 function draftKey(id){ return DRAFT_PFX+id; }
 function saveDraft(){ try{ if(!cur)return;
   var nm=(document.getElementById('nm')||{}).value||'', sch=(document.getElementById('sch')||{}).value||'', grd=(document.getElementById('grd')||{}).value||'';
-  var hasAny=Object.keys(sel).length||nm||sch||grd;
+  var hasAny=Object.keys(sel).length||nm||sch||grd||Object.keys(conf||{}).length;
   if(!hasAny){ try{localStorage.removeItem(draftKey(cur.id));}catch(e){} return; }
-  localStorage.setItem(draftKey(cur.id), JSON.stringify({sel:sel,nm:nm,sch:sch,grd:grd,ts:Date.now()}));
+  localStorage.setItem(draftKey(cur.id), JSON.stringify({sel:sel,conf:conf,nm:nm,sch:sch,grd:grd,ts:Date.now()}));
 }catch(e){} }
 function loadDraft(id){ try{ return JSON.parse(localStorage.getItem(draftKey(id))||'null'); }catch(e){ return null; } }
 function clearDraft(id){ try{ localStorage.removeItem(draftKey(id)); }catch(e){} }
@@ -313,18 +323,22 @@ function togglePdf(){ const c=document.getElementById('pdfcard'), b=document.get
 
 function openExam(id){
   SUBMITTING=false;
-  cur=examById(id); sel={};
+  cur=examById(id); sel={}; conf={};
   const nQ=cur.nQ||cur.key.length; const ac=allcSet(cur);
   /* 전원정답(삭제·취소) 문항. 칸은 잠그지 않는다 — 답안을 한 번에 붙여 넣을 때
      잠긴 칸이 있으면 그 뒤 문항이 통째로 한 칸씩 밀린다. 비워 두어도 정답이다. */
   let omr='';
   for(let q=1;q<=nQ;q++){ const m=ac.has(q);
     omr+='<div class="qc'+(m?' allc':'')+'"'+(m?' title="전원정답 · 비워 두어도 됩니다"':'')+'><span class="qc__n">'+q+'</span>'
-      +'<input aria-label="'+q+'번 답" id="a'+q+'" inputmode="numeric" maxlength="1" oninput="onIn('+q+',this)" onkeydown="onKey(event,'+q+')"></div>';
+      +'<input aria-label="'+q+'번 답" id="a'+q+'" inputmode="numeric" maxlength="1" oninput="onIn('+q+',this)" onkeydown="onKey(event,'+q+')">'
+      +'<button type="button" class="cf" id="c'+q+'" data-v="" aria-label="'+q+'번 확신도" title="확신도 — 누를 때마다 ○ △ ✗" onclick="cfTap('+q+')">·</button></div>';
   }
   app.innerHTML=(LOCKED?'<div class="brand">Chemistreal · 조준모 화학</div>':'<button class="back" onclick="renderList()">‹ 시험 목록</button>')
     +'<h1 style="font-size:18px">'+esc(cur.title)+'</h1>'
     +((cur.srcmap&&cur.srcmap.length)?cropsPanel(cur):problemPanel(cur))
+    +'<div class="cfbar"><b>확신도</b> 답 아래 칸을 눌러 표시하세요 — '
+    +'<span style="color:#0c3a32">○ 확실</span> · <span style="color:#8a6a22">△ 반반</span> · '
+    +'<span style="color:#8a2f1d">✗ 찍음</span>. 채점에는 들어가지 않고 내 화면에만 남습니다.</div>'
     +'<div id="draftnote"></div>'
     +'<div class="card"><label for="nm">이름 *</label><input class="txt" id="nm" autocomplete="off" oninput="saveDraft()">'
     +'<div class="row2"><div><label for="sch">학교 *</label><input class="txt" id="sch" autocomplete="off" oninput="saveDraft()"></div>'
@@ -342,6 +356,7 @@ function restoreDraft(id){
   var d=loadDraft(id); if(!d) return;
   try{
     if(d.sel&&typeof d.sel==='object'){ Object.keys(d.sel).forEach(function(q){ var v=+d.sel[q]; if(v>=1&&v<=4){ sel[q]=v; var el=document.getElementById('a'+q); if(el){ el.value=v; el.classList.add('on'); } } }); }
+    if(d.conf&&typeof d.conf==='object'){ conf={}; Object.keys(d.conf).forEach(function(q){ if(CF_TXT[d.conf[q]]) conf[q]=d.conf[q]; }); cfPaint(); }
     var nm=document.getElementById('nm'); if(nm&&d.nm) nm.value=d.nm;
     var sch=document.getElementById('sch'); if(sch&&d.sch) sch.value=d.sch;
     var grd=document.getElementById('grd'); if(grd&&d.grd) grd.value=d.grd;
@@ -360,6 +375,15 @@ function onIn(q,el){ let v=el.value.replace(/[^1-4]/g,''); v=v?v.slice(-1):''; e
   if(v){ sel[q]=+v; el.classList.add('on'); const nx=document.getElementById('a'+nextQ(q)); if(nx&&nextQ(q)!==q)nx.focus(); }
   else { delete sel[q]; el.classList.remove('on'); } updateProg(); saveDraft(); }
 function onKey(e,q){ if(e.key==='Backspace'&&!e.target.value){ const p=document.getElementById('a'+prevQ(q)); if(p){p.focus();e.preventDefault();} } }
+/* 확신도. 채점(sel)과 섞지 않는다 — 점수에 영향을 주면 안 되는 값이다. */
+var conf={};
+var CF_NEXT={'':'o','o':'m','m':'x','x':''}, CF_TXT={'':'·','o':'○','m':'△','x':'✗'};
+function cfTap(q){ const b=document.getElementById('c'+q); if(!b) return;
+  const v=CF_NEXT[b.getAttribute('data-v')||'']; b.setAttribute('data-v',v); b.textContent=CF_TXT[v];
+  if(v) conf[q]=v; else delete conf[q];
+  saveDraft(); }
+function cfPaint(){ for(const q in conf){ const b=document.getElementById('c'+q);
+  if(b){ b.setAttribute('data-v',conf[q]); b.textContent=CF_TXT[conf[q]]||'·'; } } }
 function nextQ(q){ const nQ=cur.nQ||cur.key.length; return q<nQ?q+1:q; }
 function prevQ(q){ return q>1?q-1:q; }
 function onPaste(e){ e.preventDefault(); const raw=((e.clipboardData||window.clipboardData).getData('text')||'').replace(/[^0-4]/g,''); if(!raw)return;
