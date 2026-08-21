@@ -161,6 +161,20 @@ async function main() {
   catch (e) { loaded = false; }
   chk('오프라인에서 final.html 열림', loaded, true);
 
+  /* ⚠ **앱이 다 뜨기 전에 몰아붙이지 않는다.**
+     처음 여는 자리는 `networkidle` 로 기다리는데, 여기는 `domcontentloaded`
+     라서 start() 가 아직 도는 중일 수 있다. 그 상태로 openExam·scoreAuto 를
+     때리면 성적표를 그려 놓고, 뒤늦게 끝난 start() 의 boot() 가 그 위에
+     **시험 목록을 덮어 그린다** — 화면에는 목록이 남고 오답 카드는 0 이 된다.
+
+     느린 기계에서만 진다(여기서는 CPU 를 6배 늦추면 재현된다). 그래서 CI 가
+     이따금 빨간불이었고, 볼 때마다 «어제는 됐는데» 로 넘어갔다. 앱이 목록을
+     그린 것을 보고 나서 시작한다. */
+  await page.waitForFunction(
+    () => typeof FINAL_EXAMS !== 'undefined' && FINAL_EXAMS && FINAL_EXAMS.length
+       && !!document.querySelector('#app .card, #app .exlist'),
+    null, { timeout: 30000 });
+
   const got = await page.evaluate(async examId => {
     const ok = async u => { try { return (await fetch(u, { cache: 'no-store' })).ok; } catch (e) { return false; } };
     return {
@@ -186,10 +200,34 @@ async function main() {
     }
     wrong.forEach(q => setAns(q, (cur.key[q - 1] % 4) + 1));
     scoreAuto();
-    await new Promise(r => setTimeout(r, 3000));
-    // lazy 인 채로는 화면 밖 이미지가 안 뜨므로 강제로 즉시 로드시킨다
-    document.querySelectorAll('.wb-card img.wb-qimage').forEach(i => { i.loading = 'eager'; });
-    await new Promise(r => setTimeout(r, 1500));
+    /* 오답노트는 해설·동형문제를 캐시에서 받아 와 그린다. 「3초쯤이면 되겠지」
+       로 두면 느린 기계에서 아직 안 그려진 화면을 세게 된다 — 기다릴 것을
+       기다린다(그래도 안 나오면 20초에 포기하고, 그 0 이 진짜 실패다). */
+    const till = Date.now() + 20000;
+    while (Date.now() < till && !document.querySelector('.wb-card')) {
+      await new Promise(r => setTimeout(r, 200));
+    }
+    /* 카드가 섰다고 그림칸까지 선 것은 아니다. 칸이 **생기기를** 먼저 기다린다 —
+       안 그러면 빈 목록에 대고 `every` 를 물어 «다 됐다» 는 답을 듣는다(느린
+       기계에서 그림 0개로 지던 자리다). */
+    const till1 = Date.now() + 15000;
+    const nImg = () => document.querySelectorAll('.wb-card img.wb-qimage').length;
+    while (Date.now() < till1 && nImg() < wrong.length) await new Promise(r => setTimeout(r, 200));
+    /* lazy 인 채로는 화면 밖 그림이 안 뜬다. 한 번만 eager 로 바꿔 두면
+       그 뒤에 다시 그려진 칸은 도로 lazy 라, 기다리는 내내 계속 눌러 준다.
+       화면 안으로 넣어 주기도 한다 — 실제로 학생이 하는 일이 그것이다. */
+    const nudge = () => {
+      const im = document.querySelectorAll('.wb-card img.wb-qimage');
+      im.forEach(i => { if (i.loading !== 'eager') i.loading = 'eager'; });
+      const last = im[im.length - 1];
+      if (last) try { last.scrollIntoView({ block: 'center' }); } catch (e) {}
+    };
+    const till2 = Date.now() + 25000;
+    const done = () => nImg() >= wrong.length
+      && [].slice.call(document.querySelectorAll('.wb-card img.wb-qimage')).every(i => i.complete);
+    while (Date.now() < till2 && !done()) { nudge(); await new Promise(r => setTimeout(r, 250)); }
+    window.scrollTo(0, 0);
+    await new Promise(r => setTimeout(r, 300));
     const cards = document.querySelectorAll('.wb-card');
     return {
       cards: cards.length,
