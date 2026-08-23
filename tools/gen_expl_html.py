@@ -66,13 +66,69 @@ def build(text):
         tail = '<p class="step">→ <b>%s</b></p>' % m.group(2)
         rest = m.group(3).strip()
         if rest:
-            tail += '\n<div class="tip">%s</div>' % html.escape(rest, quote=False)
+            tail += '\n<div class="tip">%s</div>' % _fmt(rest)
         t = m.group(1).strip()
 
     # 문장마다 한 줄. 마침표 뒤가 공백이면 끊는다(소수점은 뒤에 숫자가 와서 안 끊긴다).
     parts = [s.strip() for s in re.split(r'(?<=[.。])\s+', t) if s.strip()]
-    body = '\n'.join('<p class="step">%s</p>' % html.escape(s, quote=False) for s in parts)
+    parts = _mend(parts)
+    body = '\n'.join('<p class="step">%s</p>' % _fmt(s) for s in parts)
     return head + body + ('\n' + tail if tail else '')
+
+
+# 항목표 머리 — 「a.」 「나.」 「ㄱ.」 같은 한 글자 딱지. 마침표로 끝나서
+# 문장 나누개가 여기서도 끊는 바람에, 딱지 혼자 한 줄이 되고 설명은 다음
+# 줄로 밀려났다(kch1u1 15번: <p>a.</p> <p>¹₁H·²₁H…, b.</p> …).
+_MARK = r'[a-zA-Zㄱ-ㅎ가나다라마①-⑤ⓐ-ⓔ]'
+_MARK_ONLY = re.compile(r'^%s\s*\.$' % _MARK)
+_MARK_TAIL = re.compile(r'([,;·]?\s+)(%s)\s*\.$' % _MARK)
+
+
+def _mend(parts):
+    """짝 잃은 항목표 딱지를 제 설명에 도로 붙인다.
+
+    두 모양이 있다 — 딱지 혼자 한 조각(「a.」)이면 다음 조각 머리에 붙이고,
+    조각 꼬리에 다음 딱지가 매달려 있으면(「…(원자번호 1 동일), b.」) 떼어
+    다음 조각에 넘긴다. 둘 다 마지막 조각이면 그대로 둔다 — 붙일 곳이 없다."""
+    out = []
+    carry = ''
+    for i, s in enumerate(parts):
+        s = (carry + ' ' + s).strip() if carry else s
+        carry = ''
+        if i < len(parts) - 1:
+            if _MARK_ONLY.match(s):
+                carry = re.sub(r'\s+', '', s)
+                continue
+            m = _MARK_TAIL.search(s)
+            if m:
+                carry = m.group(2) + '.'
+                s = s[:m.start()] + (m.group(1).strip() or '')
+                s = s.rstrip()
+        if s:
+            out.append(s)
+    if carry:
+        out.append(carry)
+    return out
+
+
+# 유니코드 위·아래 첨자 — 화면 글꼴에 따라 「¹₁H」 가 콩알만 하게 붙거나
+# 아예 네모로 나온다. 해설지·성적표가 쓰는 <sup>/<sub> 로 바꾼다.
+# 핵종 표기(²³⁸₉₂U)는 첨자 묶음이 「위 → 아래 → 원소」 순서라, 묶음별로
+# 바꾸면 그대로 <sup>238</sup><sub>92</sub>U 표준꼴이 된다.
+_SUP = str.maketrans('⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻ⁿ', '0123456789+−n')
+_SUB = str.maketrans('₀₁₂₃₄₅₆₇₈₉₊₋', '0123456789+−')
+_SUP_RUN = re.compile('[⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻ⁿ]+')
+_SUB_RUN = re.compile('[₀₁₂₃₄₅₆₇₈₉₊₋]+')
+
+
+def _fmt(s):
+    s = html.escape(s, quote=False)
+    s = _SUP_RUN.sub(lambda m: '<sup>%s</sup>' % m.group(0).translate(_SUP), s)
+    s = _SUB_RUN.sub(lambda m: '<sub>%s</sub>' % m.group(0).translate(_SUB), s)
+    # 끝맺는 「정답 ④.」 줄은 화살표 꼬리(→ <b>④</b>)와 같은 무게로 세운다.
+    if s.startswith('정답'):
+        s = re.sub(r'([①-⑤])', r'<b>\1</b>', s, count=1)
+    return s
 
 
 def squash(s):
@@ -86,6 +142,9 @@ def squash(s):
                  ('&#x27;', "'"), ('&#39;', "'"), ('&nbsp;', ''), ('&amp;', '&')):
         s = s.replace(a, b)
     s = re.sub(r'\s+', '', unicodedata.normalize('NFKC', s))
+    # 빼기 부호 셋(U+2212 −·하이픈·엔대시)을 하나로 — NFKC 가 '⁻' 를 U+2212 로
+    # 보내는데 손으로 쓴 글은 하이픈이라, 같은 말이 다른 글자로 비교된다.
+    s = s.replace('\u2212', '-').replace('\u2013', '-')
     return re.sub(r'(정답|→)+', '→', s)
 
 
@@ -93,10 +152,18 @@ def same_words(expl, html_):
     return squash(expl) == squash(re.sub(r'<[^>]+>', '', html_))
 
 
+def machine_made(h):
+    """이 생성기가 만든 꼴인가 — 생성기 어휘(step·tip·h4·b·첨자) 밖의 태그가
+    하나라도 있으면 사람 손이 간 것이다(.k/.x 표식, 절 나눔 해설). 그런 것은
+    절대 덮어쓰지 않는다."""
+    rest = re.sub(r'</?(?:h4|b|sup|sub)>|<p class="step">|</p>|<div class="tip">|</div>', '', h)
+    return '<' not in rest
+
+
 def run(path, write):
     data = json.load(open(path, encoding='utf-8'))
     qs = data.get('questions') or {}
-    made = missing = 0
+    made = missing = refit = 0
     stale, blank = [], []
     for k in sorted(qs, key=int):
         q = qs[k]
@@ -120,11 +187,21 @@ def run(path, write):
             if write:
                 q['explanationHtml'] = build(expl)
                 made += 1
+            continue
+        # 같은 말인데 옷이 낡았다(항목표 딱지가 떨어져 있거나 첨자가 유니코드
+        # 그대로거나). 기계가 입힌 옷만 다시 입힌다 — 사람이 쓴 꼴은 그대로.
+        if machine_made(cur):
+            fresh = build(expl)
+            if fresh != cur:
+                refit += 1
+                if write:
+                    q['explanationHtml'] = fresh
+                    made += 1
     if write and made:
         with open(path, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
             f.write('\n')
-    return missing, made, stale, blank
+    return missing, made, stale, blank, refit
 
 
 def main():
@@ -137,7 +214,7 @@ def main():
 
     total = old = empty = 0
     for p in paths:
-        missing, made, stale, blank = run(p, write)
+        missing, made, stale, blank, refit = run(p, write)
         name = os.path.basename(p)
         if missing:
             total += missing
@@ -147,6 +224,10 @@ def main():
             empty += len(blank)
             print('  %-34s 해설 글이 비어 있는 문항 %d개 (%s)'
                   % (name, len(blank), ', '.join(b + '번' for b in blank[:8])))
+        if refit:
+            total += refit
+            print('  %-34s 옷이 낡은 문항 %d개 (첨자·항목표)%s'
+                  % (name, refit, ' → 다시 입혔다' if write else ''))
         if stale:
             old += len(stale)
             print('  %-34s 꼴이 옛 글을 들고 있는 문항 %d개 (%s)%s'

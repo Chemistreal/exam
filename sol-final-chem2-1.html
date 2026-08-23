@@ -25,11 +25,27 @@ th{background:#f1eee7;font-weight:700}
 .area{font-size:12.5px;color:var(--ink2);background:#f1eee7;border-radius:99px;padding:2px 9px}
 .ans{margin-left:auto;font-weight:700;color:var(--ms)}
 .sol{font-size:14.5px}
+/* 해설 본문이 실제로 입는 옷 — 답지(answers)의 explanationHtml 이
+   <h4>·.step·.k(정답 근거)·.x(오답 표시) 를 쓰는데 여기 옷이 없으면
+   해설지에서만 맨몸으로 나간다(final.html 은 제 옷이 따로 있다). */
+.sol h4{margin:12px 0 5px;color:var(--teal);font-size:13.5px;letter-spacing:.02em}
+/* 착화합물 사슬([Co(NH₃)₆]³⁺·…)처럼 끊을 자리가 없는 긴 수식이 360px
+   화면을 옆으로 밀었다 — 필요할 때만 토막 내게 허락한다. */
+.sol{overflow-wrap:anywhere}
+.sol p.step{margin:6px 0;white-space:pre-wrap}
+.sol .k{color:var(--teal);font-weight:700}
+.sol .x{color:var(--ms);font-weight:700}
 .tip{margin-top:9px;padding:9px 11px;border-left:3px solid var(--gold);background:#faf7f1;
  font-size:13.5px;color:var(--ink2)}
 .rev{margin-top:9px;padding:9px 11px;border-left:3px solid var(--ms);background:#fdf3ef;
  font-size:13px;color:#8a3a1d}
-@media print{body{background:#fff}.q{break-inside:avoid}}
+/* 정답표 → 그 문항 해설로 건너뛰는 길. 표가 세로 2,000px 를 넘는 회차가
+   많아 표에서 해설까지 손가락으로 미는 거리가 너무 멀었다. */
+td a.jump{color:var(--teal);text-decoration:none;font-weight:700}
+td a.jump:hover{text-decoration:underline}
+.q{scroll-margin-top:14px}
+.q:target{border-color:var(--teal);box-shadow:0 0 0 2px rgba(14,90,76,.18)}
+@media print{body{background:#fff}.q{break-inside:avoid}.warn{display:none}}
 
 .sol-part{margin:13px 0}.sol-part h4{margin:0 0 5px;color:var(--teal);font-size:13.5px;letter-spacing:.02em}
 .sol-part p{margin:5px 0;white-space:pre-wrap}
@@ -52,80 +68,80 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <h1>화학2 1단원 모의고사</h1>
 <div class="sub">문항별 정답 · 영역 · 개념 · 사고과정 해설 · 60문항</div>
 <div class="sub" style="margin-top:6px">문제 지문은 문제지(PDF)에 있습니다 — 성적표 화면에서 함께 내려받을 수 있습니다.</div><a class="back" href="final.html">‹ 파이널로</a></header>
-<div class="warn"><b>검수 전 해설입니다.</b> 60문항의 사고과정이 아직 선생님 검수를 거치지 않았습니다. 배포 전에 확인해 주세요.</div>
+<div class="warn"><b>해설 업데이트 안내</b> · 60문항의 사고과정은 선생님 검토에 따라 표현이 다듬어질 수 있습니다. 정답·채점 기준은 확정입니다.</div>
 <main><h3>정답 · 영역 · 개념</h3><table><thead><tr><th scope="col">문항</th><th scope="col">정답</th><th scope="col">영역</th><th scope="col">개념(유형)</th></tr></thead><tbody>
-<tr><td>1</td><td>①</td><td>분자간인력</td><td>수소결합</td></tr>
-<tr><td>2</td><td>②</td><td>분자간인력</td><td>수소결합</td></tr>
-<tr><td>3</td><td>②</td><td>분자간인력</td><td>수소결합</td></tr>
-<tr><td>4</td><td>③</td><td>분자간인력</td><td>수소결합</td></tr>
-<tr><td>5</td><td>③</td><td>분자간인력</td><td>극성</td></tr>
-<tr><td>6</td><td>②</td><td>분자간인력</td><td>극성</td></tr>
-<tr><td>7</td><td>③</td><td>분자간인력</td><td>수소결합</td></tr>
-<tr><td>8</td><td>④</td><td>분자간인력</td><td>HF</td></tr>
-<tr><td>9</td><td>④</td><td>분자간인력</td><td>얼음</td></tr>
-<tr><td>10</td><td>④</td><td>분자간인력</td><td>수소결합크기</td></tr>
-<tr><td>11</td><td>②</td><td>분자간인력</td><td>상태</td></tr>
-<tr><td>12</td><td>①</td><td>분자간인력</td><td>끓는점</td></tr>
-<tr><td>13</td><td>③</td><td>분자운동속도</td><td>분자량</td></tr>
-<tr><td>14</td><td>②</td><td>분자운동속도</td><td>PV=nRT</td></tr>
-<tr><td>15</td><td>③</td><td>분자운동속도</td><td>분자량</td></tr>
-<tr><td>16</td><td>②</td><td>분자운동속도</td><td>분자량</td></tr>
-<tr><td>17</td><td>①</td><td>분자운동속도</td><td>분자량</td></tr>
-<tr><td>18</td><td>②</td><td>분자운동속도</td><td>충돌수</td></tr>
-<tr><td>19</td><td>③</td><td>분자운동속도</td><td>볼츠만분포</td></tr>
-<tr><td>20</td><td>②</td><td>분자운동속도</td><td>PV=nRT</td></tr>
-<tr><td>21</td><td>①</td><td>분자운동속도</td><td>계수맞추기</td></tr>
-<tr><td>22</td><td>①</td><td>분자운동속도</td><td>충돌빈도</td></tr>
-<tr><td>23</td><td>②</td><td>분자운동속도</td><td>평균자유행로</td></tr>
-<tr><td>24</td><td>①</td><td>실제기체</td><td>반데르발스식</td></tr>
-<tr><td>25</td><td>④</td><td>실제기체</td><td>이상기체</td></tr>
-<tr><td>26</td><td>③</td><td>실제기체</td><td>압축인자</td></tr>
-<tr><td>27</td><td>③</td><td>실제기체</td><td>압축인자</td></tr>
-<tr><td>28</td><td>③</td><td>기체</td><td>PV=nRT</td></tr>
-<tr><td>29</td><td>②</td><td>기체</td><td>PV=nRT</td></tr>
-<tr><td>30</td><td>①</td><td>상평형</td><td>증기압력</td></tr>
-<tr><td>31</td><td>②</td><td>상평형</td><td>증기압력내림</td></tr>
-<tr><td>32</td><td>②·③ 복수정답</td><td>액체</td><td>모세관현상</td></tr>
-<tr><td>33</td><td>②</td><td>액체</td><td>모세관현상</td></tr>
-<tr><td>34</td><td>③</td><td>액체</td><td>수소결합</td></tr>
-<tr><td>35</td><td>②</td><td>액체</td><td>수소결합</td></tr>
-<tr><td>36</td><td>④</td><td>액체</td><td>비열</td></tr>
-<tr><td>37</td><td>②</td><td>기체</td><td>PV=nRT</td></tr>
-<tr><td>38</td><td>③</td><td>양적관계</td><td>원자량</td></tr>
-<tr><td>39</td><td>④</td><td>고체의구조</td><td>면심입방</td></tr>
-<tr><td>40</td><td>②</td><td>고체의구조</td><td>고체의구조</td></tr>
-<tr><td>41</td><td>②</td><td>고체의구조</td><td>면심입방</td></tr>
-<tr><td>42</td><td>②</td><td>고체의구조</td><td>입자수</td></tr>
-<tr><td>43</td><td>③</td><td>고체의구조</td><td>입자수</td></tr>
-<tr><td>44</td><td>③</td><td>고체의구조</td><td>실험식</td></tr>
-<tr><td>45</td><td>③</td><td>고체의밀도</td><td>밀도</td></tr>
-<tr><td>46</td><td>③</td><td>고체의밀도</td><td>반지름</td></tr>
-<tr><td>47</td><td>②</td><td>고체의밀도</td><td>밀도</td></tr>
-<tr><td>48</td><td>④</td><td>고체의밀도</td><td>면적</td></tr>
-<tr><td>49</td><td>①</td><td>고체의밀도</td><td>단위세포길이</td></tr>
-<tr><td>50</td><td>②</td><td>고체의밀도</td><td>밀도</td></tr>
-<tr><td>51</td><td>①</td><td>고체의밀도</td><td>밀도</td></tr>
-<tr><td>52</td><td>②</td><td>고체의밀도</td><td>실험식</td></tr>
-<tr><td>53</td><td>④</td><td>양적관계</td><td>몰</td></tr>
-<tr><td>54</td><td>①</td><td>양적관계</td><td>밀도</td></tr>
-<tr><td>55</td><td>④</td><td>용액의농도</td><td>몰농도</td></tr>
-<tr><td>56</td><td>②</td><td>양적관계</td><td>%농도</td></tr>
-<tr><td>57</td><td>①</td><td>용액의농도</td><td>몰농도</td></tr>
-<tr><td>58</td><td>②</td><td>용액의농도</td><td>양적관계</td></tr>
-<tr><td>59</td><td>①</td><td>용액의총괄성</td><td>실제용액</td></tr>
-<tr><td>60</td><td>②</td><td>총괄성</td><td>바느호프인자</td></tr>
+<tr><td><a class="jump" href="#q1">1</a></td><td>①</td><td>분자간인력</td><td>수소결합</td></tr>
+<tr><td><a class="jump" href="#q2">2</a></td><td>②</td><td>분자간인력</td><td>수소결합</td></tr>
+<tr><td><a class="jump" href="#q3">3</a></td><td>②</td><td>분자간인력</td><td>수소결합</td></tr>
+<tr><td><a class="jump" href="#q4">4</a></td><td>③</td><td>분자간인력</td><td>수소결합</td></tr>
+<tr><td><a class="jump" href="#q5">5</a></td><td>③</td><td>분자간인력</td><td>극성</td></tr>
+<tr><td><a class="jump" href="#q6">6</a></td><td>②</td><td>분자간인력</td><td>극성</td></tr>
+<tr><td><a class="jump" href="#q7">7</a></td><td>③</td><td>분자간인력</td><td>수소결합</td></tr>
+<tr><td><a class="jump" href="#q8">8</a></td><td>④</td><td>분자간인력</td><td>HF</td></tr>
+<tr><td><a class="jump" href="#q9">9</a></td><td>④</td><td>분자간인력</td><td>얼음</td></tr>
+<tr><td><a class="jump" href="#q10">10</a></td><td>④</td><td>분자간인력</td><td>수소결합크기</td></tr>
+<tr><td><a class="jump" href="#q11">11</a></td><td>②</td><td>분자간인력</td><td>상태</td></tr>
+<tr><td><a class="jump" href="#q12">12</a></td><td>①</td><td>분자간인력</td><td>끓는점</td></tr>
+<tr><td><a class="jump" href="#q13">13</a></td><td>③</td><td>분자운동속도</td><td>분자량</td></tr>
+<tr><td><a class="jump" href="#q14">14</a></td><td>②</td><td>분자운동속도</td><td>PV=nRT</td></tr>
+<tr><td><a class="jump" href="#q15">15</a></td><td>③</td><td>분자운동속도</td><td>분자량</td></tr>
+<tr><td><a class="jump" href="#q16">16</a></td><td>②</td><td>분자운동속도</td><td>분자량</td></tr>
+<tr><td><a class="jump" href="#q17">17</a></td><td>①</td><td>분자운동속도</td><td>분자량</td></tr>
+<tr><td><a class="jump" href="#q18">18</a></td><td>②</td><td>분자운동속도</td><td>충돌수</td></tr>
+<tr><td><a class="jump" href="#q19">19</a></td><td>③</td><td>분자운동속도</td><td>볼츠만분포</td></tr>
+<tr><td><a class="jump" href="#q20">20</a></td><td>②</td><td>분자운동속도</td><td>PV=nRT</td></tr>
+<tr><td><a class="jump" href="#q21">21</a></td><td>①</td><td>분자운동속도</td><td>계수맞추기</td></tr>
+<tr><td><a class="jump" href="#q22">22</a></td><td>①</td><td>분자운동속도</td><td>충돌빈도</td></tr>
+<tr><td><a class="jump" href="#q23">23</a></td><td>②</td><td>분자운동속도</td><td>평균자유행로</td></tr>
+<tr><td><a class="jump" href="#q24">24</a></td><td>①</td><td>실제기체</td><td>반데르발스식</td></tr>
+<tr><td><a class="jump" href="#q25">25</a></td><td>④</td><td>실제기체</td><td>이상기체</td></tr>
+<tr><td><a class="jump" href="#q26">26</a></td><td>③</td><td>실제기체</td><td>압축인자</td></tr>
+<tr><td><a class="jump" href="#q27">27</a></td><td>③</td><td>실제기체</td><td>압축인자</td></tr>
+<tr><td><a class="jump" href="#q28">28</a></td><td>③</td><td>기체</td><td>PV=nRT</td></tr>
+<tr><td><a class="jump" href="#q29">29</a></td><td>②</td><td>기체</td><td>PV=nRT</td></tr>
+<tr><td><a class="jump" href="#q30">30</a></td><td>①</td><td>상평형</td><td>증기압력</td></tr>
+<tr><td><a class="jump" href="#q31">31</a></td><td>②</td><td>상평형</td><td>증기압력내림</td></tr>
+<tr><td><a class="jump" href="#q32">32</a></td><td>②·③ 복수정답</td><td>액체</td><td>모세관현상</td></tr>
+<tr><td><a class="jump" href="#q33">33</a></td><td>②</td><td>액체</td><td>모세관현상</td></tr>
+<tr><td><a class="jump" href="#q34">34</a></td><td>③</td><td>액체</td><td>수소결합</td></tr>
+<tr><td><a class="jump" href="#q35">35</a></td><td>②</td><td>액체</td><td>수소결합</td></tr>
+<tr><td><a class="jump" href="#q36">36</a></td><td>④</td><td>액체</td><td>비열</td></tr>
+<tr><td><a class="jump" href="#q37">37</a></td><td>②</td><td>기체</td><td>PV=nRT</td></tr>
+<tr><td><a class="jump" href="#q38">38</a></td><td>③</td><td>양적관계</td><td>원자량</td></tr>
+<tr><td><a class="jump" href="#q39">39</a></td><td>④</td><td>고체의구조</td><td>면심입방</td></tr>
+<tr><td><a class="jump" href="#q40">40</a></td><td>②</td><td>고체의구조</td><td>고체의구조</td></tr>
+<tr><td><a class="jump" href="#q41">41</a></td><td>②</td><td>고체의구조</td><td>면심입방</td></tr>
+<tr><td><a class="jump" href="#q42">42</a></td><td>②</td><td>고체의구조</td><td>입자수</td></tr>
+<tr><td><a class="jump" href="#q43">43</a></td><td>③</td><td>고체의구조</td><td>입자수</td></tr>
+<tr><td><a class="jump" href="#q44">44</a></td><td>③</td><td>고체의구조</td><td>실험식</td></tr>
+<tr><td><a class="jump" href="#q45">45</a></td><td>③</td><td>고체의밀도</td><td>밀도</td></tr>
+<tr><td><a class="jump" href="#q46">46</a></td><td>③</td><td>고체의밀도</td><td>반지름</td></tr>
+<tr><td><a class="jump" href="#q47">47</a></td><td>②</td><td>고체의밀도</td><td>밀도</td></tr>
+<tr><td><a class="jump" href="#q48">48</a></td><td>④</td><td>고체의밀도</td><td>면적</td></tr>
+<tr><td><a class="jump" href="#q49">49</a></td><td>①</td><td>고체의밀도</td><td>단위세포길이</td></tr>
+<tr><td><a class="jump" href="#q50">50</a></td><td>②</td><td>고체의밀도</td><td>밀도</td></tr>
+<tr><td><a class="jump" href="#q51">51</a></td><td>①</td><td>고체의밀도</td><td>밀도</td></tr>
+<tr><td><a class="jump" href="#q52">52</a></td><td>②</td><td>고체의밀도</td><td>실험식</td></tr>
+<tr><td><a class="jump" href="#q53">53</a></td><td>④</td><td>양적관계</td><td>몰</td></tr>
+<tr><td><a class="jump" href="#q54">54</a></td><td>①</td><td>양적관계</td><td>밀도</td></tr>
+<tr><td><a class="jump" href="#q55">55</a></td><td>④</td><td>용액의농도</td><td>몰농도</td></tr>
+<tr><td><a class="jump" href="#q56">56</a></td><td>②</td><td>양적관계</td><td>%농도</td></tr>
+<tr><td><a class="jump" href="#q57">57</a></td><td>①</td><td>용액의농도</td><td>몰농도</td></tr>
+<tr><td><a class="jump" href="#q58">58</a></td><td>②</td><td>용액의농도</td><td>양적관계</td></tr>
+<tr><td><a class="jump" href="#q59">59</a></td><td>①</td><td>용액의총괄성</td><td>실제용액</td></tr>
+<tr><td><a class="jump" href="#q60">60</a></td><td>②</td><td>총괄성</td><td>바느호프인자</td></tr>
 </tbody></table>
 <h3>문항별 사고과정</h3>
-<div class="q"><div class="qh"><span class="qno">문제 1</span><span class="area">수소결합</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">화합물의 점도를 물어보는 문제는 사실 분자 간 인력에 대해 물어보는 것이다.</p>
-<p class="step">HO-CH₂-CH(OH)-CH₂-OH &gt;&gt; CH₃-CH(OH)-CH₂-OH &gt; CH₃-CH₂-CH₂-OH 순으로 점도가 크다는 말은 분자 간 인력이 크다는 말이다.</p>
+<div class="q" id="q1"><div class="qh"><span class="qno">문제 1</span><span class="area">수소결합</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">화합물의 점도를 물어보는 문제는 사실 분자 간 인력에 대해 물어보는 것이다.</p>
+<p class="step">HO-CH<sub>2</sub>-CH(OH)-CH<sub>2</sub>-OH &gt;&gt; CH<sub>3</sub>-CH(OH)-CH<sub>2</sub>-OH &gt; CH<sub>3</sub>-CH<sub>2</sub>-CH<sub>2</sub>-OH 순으로 점도가 크다는 말은 분자 간 인력이 크다는 말이다.</p>
 <p class="step">분자간 인력 중 가장 강한 힘은 수소결합인데, 위의 분자들에서는 (–OH)의 수가 다르기 때문에 점도 순서에 가장 큰 영향을 주는 요인은 수소결합이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 2</span><span class="area">수소결합</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">인력은 이온결합이 가장 세고, 다음이 이온-쌍극자간 힘, 수소결합, 쌍극자간 인력, 분산력 순이다.</p>
-<p class="step">① CH₄…CH₄은 분산력, ② H₂O…H₂O는 수소결합, ③ Li⁺…H₂O은 이온-쌍극자간 힘, ④ CHCl₃…CHCl₃는 쌍극자간 인력이다.</p>
-<p class="step">세기는 Li⁺…H₂O&gt;H₂O…H₂O&gt;CHCl₃…CHCl₃&gt;CH₄…CH₄이다.</p>
-<p class="step">따라서 두 번째로 강한 것은 ② H₂O…H₂O이다.</p></div>
+<div class="q" id="q2"><div class="qh"><span class="qno">문제 2</span><span class="area">수소결합</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">인력은 이온결합이 가장 세고, 다음이 이온-쌍극자간 힘, 수소결합, 쌍극자간 인력, 분산력 순이다.</p>
+<p class="step">① CH<sub>4</sub>…CH<sub>4</sub>은 분산력, ② H<sub>2</sub>O…H<sub>2</sub>O는 수소결합, ③ Li<sup>+</sup>…H<sub>2</sub>O은 이온-쌍극자간 힘, ④ CHCl<sub>3</sub>…CHCl<sub>3</sub>는 쌍극자간 인력이다.</p>
+<p class="step">세기는 Li<sup>+</sup>…H<sub>2</sub>O&gt;H<sub>2</sub>O…H<sub>2</sub>O&gt;CHCl<sub>3</sub>…CHCl<sub>3</sub>&gt;CH<sub>4</sub>…CH<sub>4</sub>이다.</p>
+<p class="step">따라서 두 번째로 강한 것은 ② H<sub>2</sub>O…H<sub>2</sub>O이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 3</span><span class="area">수소결합</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">끓는점을 물어보는 것은 분자간 인력을 물어보는 문제이다.</p>
+<div class="q" id="q3"><div class="qh"><span class="qno">문제 3</span><span class="area">수소결합</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">끓는점을 물어보는 것은 분자간 인력을 물어보는 문제이다.</p>
 <p class="step">인력은 이온결합이 가장 세고, 다음이 이온-쌍극자간 힘, 수소결합, 쌍극자간 인력, 분산력 순이다.</p>
 <p class="step">| | | | 
 분자간 인력 | 에탄올은 수소결합을 할 수 있다.</p>
@@ -135,29 +151,28 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 가깝다.</p>
 <p class="step">따라서 끓는점이 가장 높은 화합물은 아세트산이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 4</span><span class="area">수소결합</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">끓는점을 물어보는 것은 분자간 인력을 물어보는 문제이다.</p>
+<div class="q" id="q4"><div class="qh"><span class="qno">문제 4</span><span class="area">수소결합</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">끓는점을 물어보는 것은 분자간 인력을 물어보는 문제이다.</p>
 <p class="step">인력은 이온결합이 가장 세고, 다음이 이온-쌍극자간 힘, 수소결합, 쌍극자간 인력, 분산력 순이다.</p>
-<p class="step">① 틀린 설명: H₂O &lt; H₂S &lt; H₂Se &lt; H₂Te
+<p class="step">① 틀린 설명: H<sub>2</sub>O &lt; H<sub>2</sub>S &lt; H<sub>2</sub>Se &lt; H<sub>2</sub>Te
 ⇒ 물은 수소결합을 하기 때문에 분자간인력이 크다.</p>
-<p class="step">H₂S&lt;H₂Se&lt;H₂Te&lt;H₂O
-② 틀린 설명: NH₃ &lt; PH₃ &lt; AsH₃ &lt; SbH₃
+<p class="step">H<sub>2</sub>S&lt;H<sub>2</sub>Se&lt;H<sub>2</sub>Te&lt;H<sub>2</sub>O
+② 틀린 설명: NH<sub>3</sub> &lt; PH<sub>3</sub> &lt; AsH<sub>3</sub> &lt; SbH<sub>3</sub>
 ⇒ 암모니아는 수소결합을 하기 때문에 분자간인력이 크다.</p>
-<p class="step">PH₃&lt;AsH₃&lt;NH₃&lt;SbH₃
+<p class="step">PH<sub>3</sub>&lt;AsH<sub>3</sub>&lt;NH<sub>3</sub>&lt;SbH<sub>3</sub>
 ③ 옳은 설명: He &lt; Ne &lt; Ar &lt; Kr &lt; Xe
 ⇒ 분자량이 커질수록 분산력이 커진다.</p>
 <p class="step">④ 틀린 설명: HF &lt; HCl &lt; HBr &lt; HI
 ⇒ 플루오린화수소는 수소결합을 하기 때문에 분자간 인력이 크다.</p>
 <p class="step">HCl&lt;HBr&lt;HI&lt;HF</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 5</span><span class="area">극성</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">끓는점을 물어보는 것은 분자간 인력을 물어보는 문제이다.</p>
-<p class="step">인력은 이온결합이 가장 세고, 다음이 이온-쌍극자간 힘, 수소결합, 쌍극자간 인력, 분산력 순이다.</p>
-<p class="step">무극성분자에서는 분자량이 클수록 분산력이 크고 끓는점이 크다.</p>
-<p class="step">아세톤(acetone)은 극성이 크다.</p>
-<p class="step">다이에틸에터(diethylether)는 무극성에 가깝다.</p>
-<p class="step">에탄올(ethanol)은 수소결합을 할 수 있다.</p>
-<p class="step">따라서 끓는점은 ③ (다) &gt; (가) &gt; (나)이다.</p></div>
+<div class="q" id="q5"><div class="qh"><span class="qno">문제 5</span><span class="area">극성</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">끓는점 비교는 곧 분자 간 인력 비교다.</p>
+<p class="step">세 물질의 분자량은 에탄올 46, 아세톤 58, 다이에틸에터 74로 큰 차이가 없으므로 분산력의 차이보다 인력의 종류가 순서를 결정한다.</p>
+<p class="step">에탄올(C<sub>2</sub>H<sub>5</sub>OH)은 O–H가 있어 분자끼리 수소결합을 하므로 인력이 가장 크고, 아세톤(CH<sub>3</sub>COCH<sub>3</sub>)은 C=O 때문에 극성이 커서 쌍극자–쌍극자 인력이 작용하지만 O–H가 없어 자기들끼리 수소결합은 하지 못하며, 다이에틸에터(C<sub>2</sub>H<sub>5</sub>OC<sub>2</sub>H<sub>5</sub>)는 극성이 약해 분산력이 주된 인력이다.</p>
+<p class="step">실제 끓는점도 에탄올 약 78°C &gt; 아세톤 약 56°C &gt; 다이에틸에터 약 35°C로 (다) &gt; (가) &gt; (나) 순이 된다.</p>
+<p class="step">오답 유인: 분자량만 보고 판단하면 가장 무거운 다이에틸에터(74)의 끓는점이 가장 높다고 생각해 ④ (나) &gt; (다) &gt; (가)를 고르기 쉽다 — 분자량이 비슷한 범위에서는 수소결합 &gt; 쌍극자 인력 &gt; 분산력의 우선순위가 끓는점을 지배한다.</p>
+<p class="step">정답 <b>③</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 6</span><span class="area">극성</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">끓는점을 물어보는 것은 분자간 인력을 물어보는 문제이다.</p>
+<div class="q" id="q6"><div class="qh"><span class="qno">문제 6</span><span class="area">극성</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">끓는점을 물어보는 것은 분자간 인력을 물어보는 문제이다.</p>
 <p class="step">인력은 이온결합이 가장 세고, 다음이 이온-쌍극자간 힘, 수소결합, 쌍극자간 인력, 분산력 순이다.</p>
 <p class="step">무극성분자에서는 분자량이 클수록 분산력이 크고 끓는점이 크다.</p>
 <p class="step">① 옳은 설명:
@@ -173,54 +188,48 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">④ 옳은 설명:
 ⇒ 두 분자 모두 극성이다.</p>
 <p class="step">극성인 경우 분산력과 쌍극자간 인력이 모두 작용한다.</p>
-<p class="step">H₂Se는 H₂S에 비해 분자량이 크다.</p>
+<p class="step">H<sub>2</sub>Se는 H<sub>2</sub>S에 비해 분자량이 크다.</p>
 <p class="step">따라서 끓는점이 더 높다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 7</span><span class="area">수소결합</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">끓는점을 물어보는 것은 분자간 인력을 물어보는 문제이다.</p>
+<div class="q" id="q7"><div class="qh"><span class="qno">문제 7</span><span class="area">수소결합</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">끓는점을 물어보는 것은 분자간 인력을 물어보는 문제이다.</p>
 <p class="step">인력은 이온결합이 가장 세고, 다음이 이온-쌍극자간 힘, 수소결합, 쌍극자간 인력, 분산력 순이다.</p>
 <p class="step">무극성분자에서는 분자량이 클수록 분산력이 크고 끓는점이 크다.</p>
-<p class="step">C₆H₆는 벤젠으로 무극성분자이다.</p>
-<p class="step">C₆H₅OH는 수소결합을 한다.</p>
-<p class="step">C₆H₅Cl과 C₆H₅Br은 극성분자이다.</p>
-<p class="step">C₆H₅Cl보다 C₆H₅Br의 분자량이 더 크다.</p>
+<p class="step">C<sub>6</sub>H<sub>6</sub>는 벤젠으로 무극성분자이다.</p>
+<p class="step">C<sub>6</sub>H<sub>5</sub>OH는 수소결합을 한다.</p>
+<p class="step">C<sub>6</sub>H<sub>5</sub>Cl과 C<sub>6</sub>H<sub>5</sub>Br은 극성분자이다.</p>
+<p class="step">C<sub>6</sub>H<sub>5</sub>Cl보다 C<sub>6</sub>H<sub>5</sub>Br의 분자량이 더 크다.</p>
 <p class="step">따라서 끓는점은 ③ 이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 8</span><span class="area">HF</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">가.</p>
-<p class="step">옳은 설명: 할로젠화 수소 중 가장 높은 끓는점을 가진다.</p>
-<p class="step">⇒ HF는 수소결합을 할 수 있으므로 분자간인력이 매우 크다.</p>
-<p class="step">나.</p>
-<p class="step">옳은 설명: 수소결합을 할 수 있다.</p>
-<p class="step">⇒ HF는 수소결합을 할 수 있으므로 분자간인력이 매우 크다.</p>
-<p class="step">다.</p>
-<p class="step">옳은 설명: 할로젠화 수소 중 가장 약한 산이다.</p>
-<p class="step">⇒ 산의 세기는 H를 쉽게 떼어낼수록 강하다.</p>
-<p class="step">산의 세기는 HF&lt;HCl&lt;HBr&lt;HI 이다.</p>
-<p class="step">라.</p>
-<p class="step">옳은 설명: 규소 산화물인 유리를 녹인다.</p>
-<p class="step">⇒ HF는 유리를 녹이는 성질이 있다.</p>
-<p class="step">이므로 유리병이아니라 플라스틱병에 보관해야한다.</p></div>
+<div class="q" id="q8"><div class="qh"><span class="qno">문제 8</span><span class="area">HF</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">보기를 하나씩 확인한다.</p>
+<p class="step">나: HF는 전기음성도가 매우 큰 F에 H가 직접 결합해 있어 분자 사이에 수소결합을 한다 — 옳다.</p>
+<p class="step">가: 이 수소결합 때문에 HF의 끓는점(약 19.5°C)은 HCl(−85°C), HBr(−67°C), HI(−35°C)보다 훨씬 높아 할로젠화 수소 중 가장 높다 — 옳다.</p>
+<p class="step">다: 산의 세기는 H–X 결합이 쉽게 끊어질수록 강한데 H–F 결합은 가장 짧고 강해서, 산의 세기는 HF &lt; HCl &lt; HBr &lt; HI이고 HF만 유일하게 약산이다 — 옳다.</p>
+<p class="step">라: HF는 유리의 주성분인 SiO<sub>2</sub>와 반응(SiO<sub>2</sub> + 4HF → SiF<sub>4</sub> + 2H<sub>2</sub>O)해 유리를 녹이므로 유리병이 아니라 플라스틱 병에 보관한다 — 옳다.</p>
+<p class="step">가·나·다·라 모두 옳으므로 답은 ④이다.</p>
+<p class="step">오답 유인: 「F의 전기음성도가 가장 크니 HF가 가장 강한 산일 것」이라고 착각해 다를 틀린 보기로 보고 ① (가, 나)를 고르기 쉽다 — 산의 세기는 결합의 극성이 아니라 H–X 결합의 세기가 결정하므로, 결합이 가장 강한 HF가 가장 약한 산이다.</p>
+<p class="step">정답 <b>④</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 9</span><span class="area">얼음</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">얼음은 H₂O로 극성이므로 쌍극자 힘이 있다.</p>
+<div class="q" id="q9"><div class="qh"><span class="qno">문제 9</span><span class="area">얼음</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">얼음은 H<sub>2</sub>O로 극성이므로 쌍극자 힘이 있다.</p>
 <p class="step">또한 모든 분자는 분산력을 가진다.</p>
 <p class="step">전기음성도가 매우 큰 F, O, N과 공유 결합하는 H가 다른 분자의 F, O, N 비공유전자쌍에 강하게 끌리는 수소결합도 존재한다.</p>
 <p class="step">하지만 이온이 존재하지 않기 때문에 이온-쌍극자힘은 존재하지 않는다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 10</span><span class="area">수소결합크기</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">수소결합 세기는 다음과 같다.</p>
+<div class="q" id="q10"><div class="qh"><span class="qno">문제 10</span><span class="area">수소결합크기</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">수소결합 세기는 다음과 같다.</p>
 <p class="step">F-H…F : 29 kJ/mol
 O-H…O : 24 kJ/mol
 N-H…N : 16 kJ/mol
 따라서 HF 분자 간에 존재하는 가장 큰 분자간 힘의 크기(kJ/mol)로 가장 가까운 값은 ④ 10이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 11</span><span class="area">상태</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">He₂의 결합차수는 0이다.</p>
+<div class="q" id="q11"><div class="qh"><span class="qno">문제 11</span><span class="area">상태</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">He<sub>2</sub>의 결합차수는 0이다.</p>
 <p class="step">상온에서 존재하지 않는다.</p>
 <p class="step">헬륨은 일원자분자로 존재한다.</p>
-<p class="step">① O₃는 상온에서 기체 ③ S₈과 ④ P₄는 상온에서 고체이다.</p></div>
+<p class="step">① O<sub>3</sub>는 상온에서 기체 ③ S<sub>8</sub>과 ④ P<sub>4</sub>는 상온에서 고체이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 12</span><span class="area">끓는점</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">끓는점을 물어보는 것은 분자간 인력을 물어보는 문제이다.</p>
+<div class="q" id="q12"><div class="qh"><span class="qno">문제 12</span><span class="area">끓는점</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">끓는점을 물어보는 것은 분자간 인력을 물어보는 문제이다.</p>
 <p class="step">인력은 이온결합이 가장 세고, 다음이 이온-쌍극자간 힘, 수소결합, 쌍극자간 인력, 분산력 순이다.</p>
 <p class="step">무극성분자에서는 분자량이 클수록 분산력이 크고 끓는점이 크다.</p>
-<p class="step">① 옳은 설명: SiH₄보다 GeH₄ 분자 사이의 분산력이 크다.</p>
-<p class="step">⇒ SiH₄보다 GeH₄ 의 분자량이 더 크기 때문에 SiH₄보다 GeH₄ 의 분산력이 더 크다.</p>
+<p class="step">① 옳은 설명: SiH<sub>4</sub>보다 GeH<sub>4</sub> 분자 사이의 분산력이 크다.</p>
+<p class="step">⇒ SiH<sub>4</sub>보다 GeH<sub>4</sub> 의 분자량이 더 크기 때문에 SiH<sub>4</sub>보다 GeH<sub>4</sub> 의 분산력이 더 크다.</p>
 <p class="step">② 틀린 설명: 선형 분자 HF 사이에는 수소 결합력이 작용하지 않는다.</p>
 <p class="step">⇒ HF 사이에는 수소결합이 작용한다.</p>
 <p class="step">③ 틀린 설명: 전기음성도 차이가 클수록 수소 화합물의 끓는점이 높아진다.</p>
@@ -228,73 +237,51 @@ N-H…N : 16 kJ/mol
 <p class="step">④ 틀린 설명: 물의 끓는점이 높은 것은 분자 내 결합 에너지가 크기 때문이다.</p>
 <p class="step">⇒ 물의 끓는점이 높은 것은 분자 내 결합 에너지가 크기 때문이 아니라 분자 간 결합에너지, 수소결합 때문에 분자간 인력이 크기 때문이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 13</span><span class="area">분자량</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">목성의 질량이 지구에 비해 매우 크고 중력이 강하기 때문에 분자의 탈출속도가 크다.</p>
-<p class="step">① 옳은 설명: 수소는 분자량이 작다.</p>
-<p class="step">⇒ 수소는 분자량이 작기 때문에 평균 분자 속도가 빠르므로 탈출속도를 넘는 분자가 많다.</p>
-<p class="step">② 옳은 설명: 수소는 무극성 분자이다.</p>
-<p class="step">⇒ 극성물질은 극성물질에 잘 녹고 무극성물질은 무극성물질에 잘녹는다.</p>
-<p class="step">수소가 극성분자라면 물에 녹아 존재할 수 있었겠지만 무극성분자이므로 물에 잘 녹지 않는다.</p>
-<p class="step">③ 틀린 설명: 수소는 쉽게 산소와 반응해서 물을 만든다.</p>
-<p class="step">⇒ 목성의 대기는 대부분 수소로 구성되어있고 산소는 거의 존재하지 않는다.</p>
-<p class="step">수소는 쉽게 산소와 반응해서 물을 만든다.는 설명은 목성에 수소가 풍부한 이유로는 적절하지 않다.</p>
-<p class="step">오히려 산소가 많이 있다면 수소의 양이 줄어들게 된다.</p>
-<p class="step">④ 옳은 설명: 지구는 목성보다 태양에 가깝다.</p>
-<p class="step">⇒ 지구는 목성보다 태양에 가깝기 때문에 온도가 높고 분자 운동 속도가 빠르다.</p></div>
+<div class="q" id="q13"><div class="qh"><span class="qno">문제 13</span><span class="area">분자량</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">행성이 기체를 붙잡아 두는 능력은 중력이 만드는 탈출속도와 기체 분자의 평균 속력의 경쟁으로 정해진다.</p>
+<p class="step">목성은 질량이 지구보다 훨씬 커서 중력이 강하고 탈출속도가 크므로 가장 가벼운 수소도 붙잡아 두지만, 지구는 그렇지 못하다.</p>
+<p class="step">같은 온도에서 기체의 평균 운동 에너지는 같으므로 분자량이 작을수록 평균 속력이 빠른데, 수소는 분자량 2로 가장 가벼워 탈출속도를 넘는 분자의 비율이 크다(①은 관계있다).</p>
+<p class="step">지구는 목성보다 태양에 가까워 대기 온도가 높고, 온도가 높을수록 분자 운동이 빨라져 탈출이 더 쉬워진다(④도 관계있다).</p>
+<p class="step">또 수소는 무극성 분자라 극성 용매인 물에 녹아 저장되지 못하고 대기 중에 기체로 남았다가 달아난다(②도 관계있다).</p>
+<p class="step">반면 ③ 「수소는 쉽게 산소와 반응해서 물을 만든다」는 문장 자체는 옳지만, 목성 대기는 대부분 수소이고 산소가 거의 없으므로 목성에 수소가 풍부한 이유를 설명하지 못하고, 산소와 반응한다면 오히려 수소가 없어지는 쪽이므로 두 행성의 수소 분포 차이와는 관계가 없는 설명이다.</p>
+<p class="step">오답 유인: 네 진술의 참·거짓만 따지면 ①∼④가 모두 옳은 문장이어서 답을 고르지 못한다 — 묻는 것은 문장의 진위가 아니라 「수소 분포 차이와 관계있는가」이며, 옳은 문장이지만 이유가 되지 못하는 것이 ③이다.</p>
+<p class="step">정답 <b>③</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 14</span><span class="area">PV=nRT</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">a.</p>
-<p class="step">분자수
-⇒ 아보가드로 법칙에 의하면 같은 온도, 같은 압력에서 기체의 종류에 관계없이 같은 부피에는 같은 수의 분자가 있다.</p>
-<p class="step">따라서 같은 온도, 압력, 부피에서 질소기체와 암모니아기체의 분자수는 동일하다.</p>
-<p class="step">b.</p>
-<p class="step">질량
-⇒ 같은 몰수의 질소기체와 암모니아 기체가 있다.</p>
-<p class="step">이고 이다.</p>
-<p class="step">질소(N₂)의 분자량은 28이고, 암모니아(NH₃)의 분자량은 17이므로 질소:암모니아(질량비)=28:17 이다.</p>
-<p class="step">c.</p>
-<p class="step">공유결합수
-⇒ 같은 몰수의 질소기체와 암모니아 기체가 있다.</p>
-<p class="step">질소는 삼중결합()을 가지고,
-암모니아는 3개의 단일결합()을 가지고 있다.</p>
-<p class="step">따라서 공유결합 수는 동일하다.</p>
-<p class="step">d.</p>
-<p class="step">평균속력
-⇒ 평균속력은 이고 , 이므로 이다.</p>
-<p class="step">따라서 분자의 평균속력은 암모니아 기체가 질소 기체보다 크다.</p></div>
+<div class="q" id="q14"><div class="qh"><span class="qno">문제 14</span><span class="area">PV=nRT</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">아보가드로 법칙에 따라 같은 온도·압력·부피의 기체에는 종류와 무관하게 같은 수의 분자가 들어 있다.</p>
+<p class="step">따라서 질소와 암모니아의 분자 수는 같다(a는 동일).</p>
+<p class="step">질량은 몰수 × 분자량인데 N<sub>2</sub>의 분자량은 28, NH<sub>3</sub>의 분자량은 17이므로 질량비는 28 : 17로 서로 다르다(b는 탈락).</p>
+<p class="step">공유결합 수를 세면 N<sub>2</sub> 한 분자는 N≡N 삼중결합으로 결합 3개, NH<sub>3</sub> 한 분자는 N–H 단일결합 3개로 역시 결합 3개다.</p>
+<p class="step">분자 수가 같으니 전체 공유결합 수도 같다(c는 동일).</p>
+<p class="step">평균속력은 v̄ = √(8RT/πM) 꼴이라 √M에 반비례한다.</p>
+<p class="step">같은 온도에서 v̄(NH<sub>3</sub>)/v̄(N<sub>2</sub>) = √(28/17) ≈ 1.28이므로 암모니아 쪽이 더 빠르다(d는 탈락).</p>
+<p class="step">동일한 값을 가지는 것은 a(분자 수)와 c(공유결합 수)다.</p>
+<p class="step">정답 <b>②</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 15</span><span class="area">분자량</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">이고 , 이므로 이다.</p>
-<p class="step">두 기체에 대해 속도를 비교하면 다음과 같다.</p>
-<p class="step">,
-He의 분자량은 4이고 H₂의 분자량은 2이다.</p>
-<p class="step">따라서 H₂의 평균분자속도는 He의 배이다.</p>
-<p class="step">따라서 H₂의 평균분자속도는 1300m/s×1.414=1838.47m/s이다.</p></div>
+<div class="q" id="q15"><div class="qh"><span class="qno">문제 15</span><span class="area">분자량</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">같은 온도에서 기체의 평균분자속도 v̄ = √(8RT/πM)는 분자량의 제곱근에 반비례한다.</p>
+<p class="step">He의 분자량은 4, H<sub>2</sub>의 분자량은 2이므로 v̄(H<sub>2</sub>)/v̄(He) = √(M_He/M_H<sub>2</sub>) = √(4/2) = √2 ≈ 1.414이다.</p>
+<p class="step">He의 평균분자속도가 1300 m/s이므로 H<sub>2</sub>의 평균분자속도는 1300 × 1.414 ≈ 1838 m/s이다.</p>
+<p class="step">정답 <b>③</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 16</span><span class="area">분자량</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">이고 , 이므로 이다.</p>
-<p class="step">두 기체에 대해 속도를 비교하면 다음과 같다.</p>
-<p class="step">,
-동일 조건에서 기체 A가 질소보다 1.3배 빨리 확산한다면 분자량비는
-이다.</p>
-<p class="step">질소의 분자량이 28이므로 A의 분자량은 16.56이다.</p>
-<p class="step">보기에서 주어진 분자 중 분자량이 16에 가까운 것은 ② 메테인이다.</p></div>
+<div class="q" id="q16"><div class="qh"><span class="qno">문제 16</span><span class="area">분자량</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">그레이엄 법칙에 따라 같은 조건에서 기체의 확산 속도는 분자량의 제곱근에 반비례한다.</p>
+<p class="step">v_A/v_N<sub>2</sub> = √(M_N<sub>2</sub>/M_A) = 1.3에서 양변을 제곱하면 M_N<sub>2</sub>/M_A = 1.69이고, 질소의 분자량이 28이므로 M_A = 28/1.69 ≈ 16.6이다.</p>
+<p class="step">보기 중 분자량이 16.6에 가까운 기체는 메테인(CH<sub>4</sub>, 분자량 16)이다.</p>
+<p class="step">헬륨은 4, 아르곤은 40, 이산화탄소는 44라 맞지 않는다.</p>
+<p class="step">정답 <b>②</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 17</span><span class="area">분자량</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">이고 , 이므로 이다.</p>
-<p class="step">두 기체에 대해 속도를 비교하면 다음과 같다.</p>
-<p class="step">,
-밖으로 나온 기체 분자 수는 기체의 부분압력과 기체의 분출 속도에 비례한다.</p>
-<p class="step">부분압력 비는 (가) : (나) : (다) = 2 : 2 : 4 = 1 : 1 : 2 이다.</p>
-<p class="step">분자량 비는 (가) : (나) : (다) = 1 : 2 : 16 이므로
-분출속도 비는 (가) : (나) : (다) = : : 1 = 4 : 2.83 : 1이다.</p>
-<p class="step">밖으로 나온 기체 분자 수비는 (가) : (나) : (다) = 4×1 : 2.83×1 : 1×2 = 4 : 2.83 : 2이다.</p>
-<p class="step">따라서 밖으로 나온 기체 분자 수는 (가) &gt; (나) &gt; (다) 순이다.</p></div>
+<div class="q" id="q17"><div class="qh"><span class="qno">문제 17</span><span class="area">분자량</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">구멍이 생긴 직후 단위 시간에 밖으로 나오는 분자 수는 (용기 속 기체의 압력) × (분출 속도)에 비례하고, 분출 속도는 그레이엄 법칙에 따라 1/√M에 비례한다.</p>
+<p class="step">압력비는 (가) : (나) : (다) = 2 : 2 : 4 = 1 : 1 : 2이다.</p>
+<p class="step">분자량은 H<sub>2</sub> = 2, He = 4, O<sub>2</sub> = 32이므로 분출 속도비는 1/√2 : 1/√4 : 1/√32 = 4 : 2.83 : 1이다.</p>
+<p class="step">밖으로 나온 분자 수비는 (가) : (나) : (다) = 1×4 : 1×2.83 : 2×1 = 4 : 2.83 : 2이다.</p>
+<p class="step">따라서 밖으로 나온 기체 분자 수는 (가) &gt; (나) &gt; (다) 순이다.</p>
+<p class="step">정답 <b>①</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 18</span><span class="area">충돌수</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">이고 , 이므로 이다.</p>
-<p class="step">용기 A, B의 부피와 압력이 같고, 절대온도는 용기 A가 용기 B의 4배이다.</p>
-<p class="step">PV=nRT에서 P,V가 동일하므로 용기 A의 절대 온도가 용기 B의 4배이면 몰수 비는 A : B = 1 : 4 이다.</p>
-<p class="step">용기 A의 절대 온도가 용기 B의 4배이면 분자의 운동속도는 2배이다.</p>
-<p class="step">단위 시간에 충돌하는 기체 분자 분자의 비율은 (분자의 몰수× 분자의 평균 운동 속도)에 비례한다.</p>
-<p class="step">따라서 단위 시간에 충돌하는 기체 분자 분자의 비율은
-A : B = 1×2 : 4×1 = 2 : 4 = 1 : 2이다.</p></div>
+<div class="q" id="q18"><div class="qh"><span class="qno">문제 18</span><span class="area">충돌수</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">PV = nRT에서 두 용기의 압력과 부피가 같으므로 몰수는 절대온도에 반비례한다.</p>
+<p class="step">T_A = 4T_B이므로 n_A : n_B = 1 : 4이다.</p>
+<p class="step">기체 분자의 평균속력은 √T에 비례하므로 v_A : v_B = √4 : √1 = 2 : 1이다.</p>
+<p class="step">단위 시간에 벽면에 충돌하는 분자 수는 (단위 부피당 분자 수) × (평균속력)에 비례하는데, 부피가 같으니 몰수 × 평균속력으로 비교하면 된다.</p>
+<p class="step">A : B = 1×2 : 4×1 = 2 : 4 = 1 : 2이다.</p>
+<p class="step">정답 <b>②</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 19</span><span class="area">볼츠만분포</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">① 옳은 설명: (가) → (나) → (다)로 갈수록 기체의 분자량은 작다.</p>
+<div class="q" id="q19"><div class="qh"><span class="qno">문제 19</span><span class="area">볼츠만분포</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">① 옳은 설명: (가) → (나) → (다)로 갈수록 기체의 분자량은 작다.</p>
 <p class="step">⇒ 분자량이 클수록 평균 분자속도는 작고 분포가 좁아진다.</p>
 <p class="step">따라서 온도가 같다면, 
 (가) → (나) → (다)로 갈수록 기체의 분자량은 작다고 볼 수 있다.</p>
@@ -308,71 +295,62 @@ A : B = 1×2 : 4×1 = 2 : 4 = 1 : 2이다.</p></div>
 <p class="step">⇒ 온도가 높아지면 분자 운동에너지가 커지고 평균 분자 운동 속도도 빨라진다.</p>
 <p class="step">또한 분자의 분포도 넓어진다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 20</span><span class="area">PV=nRT</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">이고 , 이므로 이다.</p>
-<p class="step">두 기체에 대해 속도를 비교하면 다음과 같다.</p>
-<p class="step">,
-① 옳은 설명: 두 용기 속 분자의 수는 서로 같다.</p>
-<p class="step">⇒ 같은 온도 같은 압력에서 기체의 종류에 관계없이 같은 부피에는 같은 수의 분자가 존재한다.</p>
-<p class="step">따라서 두 용기에 들어있는 분자의 수는 서로 같다.</p>
-<p class="step">② 틀린 설명: 이 조건에서 O₂와 H₂의 평균속력의비는 1:16이다.</p>
-<p class="step">⇒ 이 조건에서 평균 속력의 비는 그레이엄 법칙에 의해 알 수 있다.</p>
-<p class="step">평균속력은 분자량의 제곱근에 반비례하고, O₂와 H₂의 분자량 비는 32:2 이므로 평균속력의 비는 1:4이다.</p>
-<p class="step">③ 옳은 설명: 용기의 온도를 0°C로 유지하면서, 압력을 2 기압으로 높이면 평균속력의 비는 변하지 않는다.</p>
-<p class="step">⇒ 온도를 일정하게 유지하고 압력을 2배로 해도 평균 속력의 비는 분자량의 제곱근에 반비례하므로 일정하게 유지된다.</p>
-<p class="step">④ 옳은 설명: 용기의 압력을 1 기압으로 유지하면서 온도를 50°C로 올리면, 평균속력의 비는 변하지 않는다.</p>
-<p class="step">⇒ 온도를 높이게 되면 두 분자의 평균 분자 에너지와 평균 분자 운동 속도가 빨라지지만 평균 속력의 비는 분자량의 제곱근에 반비례하므로 일정하게 유지된다.</p></div>
+<div class="q" id="q20"><div class="qh"><span class="qno">문제 20</span><span class="area">PV=nRT</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">① 0°C, 1기압, 22.4 L로 온도·압력·부피가 모두 같으니 아보가드로 법칙에 따라 두 용기의 분자 수는 같다.</p>
+<p class="step">옳다.</p>
+<p class="step">② 같은 온도에서 평균속력은 분자량의 제곱근에 반비례한다.</p>
+<p class="step">O<sub>2</sub>의 분자량은 32, H<sub>2</sub>의 분자량은 2이므로 v̄(O<sub>2</sub>) : v̄(H<sub>2</sub>) = 1/√32 : 1/√2 = √2 : √32 = 1 : 4이다.</p>
+<p class="step">1 : 16은 분자량비 2 : 32를 제곱근 없이 그대로 쓴 값이라 틀리다.</p>
+<p class="step">③ 온도가 같으면 평균속력의 비는 √(M_H<sub>2</sub>/M_O<sub>2</sub>)만으로 정해지므로 압력을 2기압으로 올려도 비는 1 : 4 그대로다.</p>
+<p class="step">옳다.</p>
+<p class="step">④ 온도를 50°C로 올리면 두 기체 모두 평균속력이 커지지만(v̄ ∝ √T), 두 기체가 여전히 같은 온도이므로 속력의 비는 1 : 4로 변하지 않는다.</p>
+<p class="step">옳다.</p>
+<p class="step">옳지 않은 것은</p>
+<p class="step">②. 정답 ②.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 21</span><span class="area">계수맞추기</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">① 옳은 설명: 반응 혼합물이 섞여 있는 용기에서 가장 빠른 속도를 갖는 기체는 SO₂이다.</p>
+<div class="q" id="q21"><div class="qh"><span class="qno">문제 21</span><span class="area">계수맞추기</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">① 옳은 설명: 반응 혼합물이 섞여 있는 용기에서 가장 빠른 속도를 갖는 기체는 SO<sub>2</sub>이다.</p>
 <p class="step">⇒ 평균 분자 운동 속도는 분자량의 제곱근에 반비례한다.</p>
-<p class="step">반응 혼합물에서 SO₂의 분자량은 64이고 Cl₂의 분자량은 71이므로 가장 빠른 속도를 갖는 기체는 SO₂이다.</p>
-<p class="step">② 틀린 설명: SOCl₂의 기하 구조는 평면 삼각형이다.</p>
-<p class="step">⇒ SOCl₂의 중심원소인 S의 SN(입체수)는 4이다.</p>
+<p class="step">반응 혼합물에서 SO<sub>2</sub>의 분자량은 64이고 Cl<sub>2</sub>의 분자량은 71이므로 가장 빠른 속도를 갖는 기체는 SO<sub>2</sub>이다.</p>
+<p class="step">② 틀린 설명: SOCl<sub>2</sub>의 기하 구조는 평면 삼각형이다.</p>
+<p class="step">⇒ SOCl<sub>2</sub>의 중심원소인 S의 SN(입체수)는 4이다.</p>
 <p class="step">S와 O는 이중결합이고 S와 Cl은 단일결합이다.</p>
 <p class="step">하지만 S는 16족으로 원자가전자가 6개이다.</p>
 <p class="step">이 중 4개를 사용하였기 때문에 비공유전자쌍이 하나 남아있다.</p>
-<p class="step">따라서 SOCl₂의 기하 구조는 삼각뿔이다.</p>
+<p class="step">따라서 SOCl<sub>2</sub>의 기하 구조는 삼각뿔이다.</p>
 <p class="step">③ 틀린 설명: 반응 계수를 맞추면 d = a + c 이다.</p>
-<p class="step">⇒ 반응계수를 맞추면 1SO₂(g) + 2Cl₂(g) → 1SOCl₂(g) + 1OCl₂(g)이다.</p>
+<p class="step">⇒ 반응계수를 맞추면 1SO<sub>2</sub>(g) + 2Cl<sub>2</sub>(g) → 1SOCl<sub>2</sub>(g) + 1OCl<sub>2</sub>(g)이다.</p>
 <p class="step">④ 틀린 설명: 이 반응에 포함된 원소들 중 이온화 에너지가 가장 작은 원소는 산소이다.</p>
 <p class="step">⇒ 이온화에너지는 2주기보다 3주기가 작고, 2주기에서는 Li&lt;B&lt;Be&lt;C&lt;O&lt;N&lt;F&lt;Ne
 3주기에서는 Na&lt;Al&lt;Mg&lt;Si&lt;S&lt;P&lt;Cl&lt;Ar 이므로 이온화에너지가 가장 작은 원소는 S이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 22</span><span class="area">충돌빈도</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">※ 평균 자유 행로(λ) : 충돌과 충돌 사이에 이동하는 평균거리
+<div class="q" id="q22"><div class="qh"><span class="qno">문제 22</span><span class="area">충돌빈도</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">※ 평균 자유 행로(λ) : 충돌과 충돌 사이에 이동하는 평균거리
 평균자유행로는 분자의 크기, 기체의 부피, 몰수에 의해 결정된다.</p>
 <p class="step">충돌빈도는 분자의 크기, 기체의 부피, 몰수, 분자량, 온도에 의해 결정된다.</p>
-<p class="step">ㄱ.</p>
-<p class="step">옳은 설명: 같은 부피에서 온도를 올리면 z가 증가한다.</p>
+<p class="step">ㄱ. 옳은 설명: 같은 부피에서 온도를 올리면 z가 증가한다.</p>
 <p class="step">⇒ 같은 부피에서 온도를 올리면 충돌 빈도는 증가한다.</p>
-<p class="step">ㄴ.</p>
-<p class="step">틀린 설명: 같은 온도에서 압력을 높여도 z는 변하지 않는다.</p>
+<p class="step">ㄴ. 틀린 설명: 같은 온도에서 압력을 높여도 z는 변하지 않는다.</p>
 <p class="step">⇒ 같은 온도에서 압력을 높이면 충돌빈도는 증가한다.</p>
-<p class="step">ㄷ.</p>
-<p class="step">옳은 설명: 같은 온도에서 압력을 두 배로 하면 λ는 줄어든다.</p>
+<p class="step">ㄷ. 옳은 설명: 같은 온도에서 압력을 두 배로 하면 λ는 줄어든다.</p>
 <p class="step">⇒ 같은 온도에서 압력을 두 배로 하면 충돌 빈도가 2배로 증가하고 평균 자유행로는 절반으로 줄어든다.</p>
-<p class="step">ㄹ.</p>
-<p class="step">틀린 설명: 같은 부피에서 온도를 두 배로 하면 λ는 늘어난다.</p>
+<p class="step">ㄹ. 틀린 설명: 같은 부피에서 온도를 두 배로 하면 λ는 늘어난다.</p>
 <p class="step">⇒ 같은 부피에서 온도를 두 배로 하면 충돌 빈도는 배로 늘어나겠지만 속도가 빨라져서 충돌 빈도가 늘어난 것이고 충돌과 충돌 사이에 이동하는 평균 거리는 일정하다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 23</span><span class="area">평균자유행로</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">※ 평균 자유 행로(λ) : 충돌과 충돌 사이에 이동하는 평균거리
+<div class="q" id="q23"><div class="qh"><span class="qno">문제 23</span><span class="area">평균자유행로</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">※ 평균 자유 행로(λ) : 충돌과 충돌 사이에 이동하는 평균거리
 평균자유행로는 분자의 크기, 기체의 부피, 몰수에 의해 결정된다.</p>
 <p class="step">충돌빈도는 분자의 크기, 기체의 부피, 몰수, 분자량, 온도에 의해 결정된다.</p>
-<p class="step">가.</p>
-<p class="step">기체의 밀도
+<p class="step">가. 기체의 밀도
 ⇒ 온도가 높아져도 부피가 일정한 용기이기 때문에 기체의 부피와 질량이 일정하다.</p>
 <p class="step">따라서 기체의 밀도는 변하지 않는다.</p>
-<p class="step">나.</p>
-<p class="step">기체 분자의 평균 운동 에너지
+<p class="step">나. 기체 분자의 평균 운동 에너지
 ⇒ 기체 분자의 평균 운동 에너지는 이므로 온도가 높아지면 증가한다.</p>
-<p class="step">다.</p>
-<p class="step">기체 분자가 충돌 사이에 이동한 평균 거리(평균 자유 행로, mean free path)
+<p class="step">다. 기체 분자가 충돌 사이에 이동한 평균 거리(평균 자유 행로, mean free path)
 ⇒ 온도가 높아지면 충돌빈도는 늘어나지만 평균 자유 행로는 일정하다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 24</span><span class="area">반데르발스식</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">실제 기체에 대한 반데르발스 상태방정식은 다음과 같다.</p>
+<div class="q" id="q24"><div class="qh"><span class="qno">문제 24</span><span class="area">반데르발스식</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">실제 기체에 대한 반데르발스 상태방정식은 다음과 같다.</p>
 <p class="step">(a, b : 반 데르 발스 상수)
  여기에서 1몰의 실제 기체에 대한 반데르발스 식은 n=1이다.</p>
-<p class="step">따라서 ① (P + a/V²)(V - b) = RT 이다.</p></div>
+<p class="step">따라서 ① (P + a/V<sup>2</sup>)(V - b) = RT 이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 25</span><span class="area">이상기체</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">실제 기체에 대한 반데르발스 상태방정식은 다음과 같다.</p>
+<div class="q" id="q25"><div class="qh"><span class="qno">문제 25</span><span class="area">이상기체</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">실제 기체에 대한 반데르발스 상태방정식은 다음과 같다.</p>
 <p class="step">(a, b : 반 데르 발스 상수)
 실제기체는 이상 기체와 달리 인력, 반발력, 분자 자체의 크기가 있다.</p>
 <p class="step">따라서 반데르발스 식에 두 가지 보정값이 존재한다.</p>
@@ -381,27 +359,31 @@ A : B = 1×2 : 4×1 = 2 : 4 = 1 : 2이다.</p></div>
 실제 기체를 이상적인 상태로 만들어주는 조건은 실제 기체와 이상 기체 사이의 차이를 줄여주는 조건이다.</p>
 <p class="step">인력, 반발력, 분자자체의 크기를 무시할 수 있는 조건은 압력이 작고, 온도가 높고, 부피가 크고, 몰수가 작은 조건이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 26</span><span class="area">압축인자</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">실제기체는 이상 기체와 달리 인력, 반발력, 분자 자체의 크기가 있다.</p>
+<div class="q" id="q26"><div class="qh"><span class="qno">문제 26</span><span class="area">압축인자</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">실제기체는 이상 기체와 달리 인력, 반발력, 분자 자체의 크기가 있다.</p>
 <p class="step">A에서는 이상 기체에 비해 실제 기체의 부피가 작고, B에서는 이상 기체에 비해 실제 기체의 부피가 크다.</p>
 <p class="step">실제 기체의 부피가 이상 기체의 부피보다 작아질 때는 인력의 영향이 크고, 실제 기체의 부피가 이상 기체의 부피보다 커 때는 반발력의 영향이 크다.</p>
 <p class="step">따라서 A와 B에서 주로 작용하는 상호작용은 ③ A: 인력, B: 반발력 이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 27</span><span class="area">압축인자</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">압축인자(PV/RT)-압력 그래프에서 분산력(분자 크기·인력)이 큰 기체일수록 저압에서 PV/RT가 더 크게 1 아래로 내려갔다가 고압에서 더 가파르게 올라간다.</p>
+<div class="q" id="q27"><div class="qh"><span class="qno">문제 27</span><span class="area">압축인자</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">압축인자(PV/RT)-압력 그래프에서 분산력(분자 크기·인력)이 큰 기체일수록 저압에서 PV/RT가 더 크게 1 아래로 내려갔다가 고압에서 더 가파르게 올라간다.</p>
 <p class="step">그래프 비교로 분산력 크기를 판별한다.</p>
-<p class="step">정답 ③.</p></div>
+<p class="step">정답 <b>③</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 28</span><span class="area">PV=nRT</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">25°C의 물 위에서 부피 1.0L의 용기에 질소기체를 모아 전체 압력이 1.00atm이 되었다면 질소의 부분압력은 1기압에서 물의 증기압력을 빼서 구할 수 있다.</p>
-<p class="step">물의 증기압은 23.8torr이고 760torr=1atm 이므로 이다.</p>
-<p class="step">PV=nRT이고 이므로 정리하면,
- 이다.</p></div>
+<div class="q" id="q28"><div class="qh"><span class="qno">문제 28</span><span class="area">PV=nRT</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">수상치환으로 모은 기체이므로 용기 안은 질소와 수증기의 혼합 기체다.</p>
+<p class="step">질소의 부분압력은 전체 압력에서 물의 증기압을 뺀 값으로, P_N<sub>2</sub> = 1.00 − 23.8/760 = (760 − 23.8)/760 ≈ 0.969 atm이다.</p>
+<p class="step">PV = nRT에서 질소의 몰수는 n = P_N<sub>2</sub>V/(RT)이고 질량은 w = nM이므로
+w = (1.00 − 23.8/760) × 1.0/(R × 298) × M 이다.</p>
+<p class="step">R = 0.082 atm·L/mol·K를 넣어 계산하면 n = 0.969 × 1.0/(0.082 × 298) ≈ 0.0396 mol, 곧 w ≈ 0.0396M (g)이다.</p>
+<p class="step">증기압을 빼지 않고 전체 압력 1.00 atm을 그대로 쓰면 안 된다.</p>
+<p class="step">정답 <b>③</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 29</span><span class="area">PV=nRT</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">단, 혼합 이전에 두 기체의 온도는 같고, 혼합 과정에서도 온도 변화는 없다는 말은 반응이 진행되지 않았다고 볼 수 있다.</p>
-<p class="step">PV=nRT이므로 이다.</p>
-<p class="step">N₂기체가 들어있는 용기의 부피를 V라고 하면, H₂기체가 들어있는 용기의 부피는 1.5V이다.</p>
-<p class="step">칸막이를 제거하면, N₂기체의 부피는 V에서 2.5V로 늘어나고, H₂기체의 부피는 1.5V에서 2.5V로 늘어난다.</p>
-<p class="step">, 이다.</p></div>
+<div class="q" id="q29"><div class="qh"><span class="qno">문제 29</span><span class="area">PV=nRT</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">혼합 전후 온도가 같고 반응도 없으므로 PV = nRT로 각 용기의 부피부터 구한다.</p>
+<p class="step">RT에 해당하는 부피를 V<sub>0</sub>라 하면 질소 용기는 V = 1 × RT/1기압 = V<sub>0</sub>, 수소 용기는 V = 3 × RT/2기압 = 1.5V<sub>0</sub>이다.</p>
+<p class="step">칸막이를 제거하면 수소는 1.5V<sub>0</sub>에서 전체 부피 2.5V<sub>0</sub>로 퍼진다.</p>
+<p class="step">온도가 일정하니 보일 법칙으로
+P′(H<sub>2</sub>) = 2기압 × 1.5V<sub>0</sub>/2.5V<sub>0</sub> = 1.2기압이다.</p>
+<p class="step">(같은 방법으로 질소의 분압은 1기압 × V<sub>0</sub>/2.5V<sub>0</sub> = 0.4기압, 전체 압력은 1.6기압이 된다.) 정답 ②.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 30</span><span class="area">증기압력</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">① 옳은 설명: 세 액체 중 다이에틸에테르의 끓는점이 가장 낮다.</p>
+<div class="q" id="q30"><div class="qh"><span class="qno">문제 30</span><span class="area">증기압력</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">① 옳은 설명: 세 액체 중 다이에틸에테르의 끓는점이 가장 낮다.</p>
 <p class="step">⇒ 끓는점이 낮은 물질은 분자간 인력이 작은 물질이다.</p>
 <p class="step">물은 분자당 2개의 수소결합을 하기 때문에 분자간 인력이 크다.</p>
 <p class="step">에탄올은 1개의 수소결합을 하고, 다이에틸에테르는 무극성에 가깝다.</p>
@@ -417,12 +399,12 @@ A : B = 1×2 : 4×1 = 2 : 4 = 1 : 2이다.</p></div>
 <p class="step">④ 틀린 설명: 같은 온도에서 물의 증기압이 세 액체 중에서 가장 크다.</p>
 <p class="step">⇒ 같은 온도에서 증기압은 다이에틸에테르&gt;에탄올&gt;물 이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 31</span><span class="area">증기압력내림</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">용매가 용액이 되면 증기압이 낮아진다.</p>
+<div class="q" id="q31"><div class="qh"><span class="qno">문제 31</span><span class="area">증기압력내림</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">용매가 용액이 되면 증기압이 낮아진다.</p>
 <p class="step">바닷물의 증기압이 증류수보다 낮아 증발하는 물의 양이 작다.</p>
 <p class="step">하지만 두 비커에서 기체 수증기가 액화되는 양은 동일하다.</p>
 <p class="step">따라서 증류수가 거의 다 바닷물 쪽으로 이동한다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 32</span><span class="area">모세관현상</span><span class="ans">②·③ 복수정답</span></div><div class="sol"><p class="step">① 옳은 설명: 모세관을 따라 올라가는 액체의 높이는 모세관의 재질에 따라 달라질 수 있다.</p>
+<div class="q" id="q32"><div class="qh"><span class="qno">문제 32</span><span class="area">모세관현상</span><span class="ans">②·③ 복수정답</span></div><div class="sol"><p class="step">① 옳은 설명: 모세관을 따라 올라가는 액체의 높이는 모세관의 재질에 따라 달라질 수 있다.</p>
 <p class="step">⇒ 모세관을 따라 올라가는 액체의 높이는 응집력과 부착력 그리고 중력에 의해 결정되기 때문에 모세관의 재질에 따라 달라질 수 있다.</p>
 <p class="step">② 틀린 설명: 동일한 유리 모세관으로 실험할 때 모세관을 따라 올라간 액체의 높이가 높을수록 액체 분자간 인력이 작다.</p>
 <p class="step">⇒ 액체 분자간 인력이 클수록 응집력이 크다.</p>
@@ -436,53 +418,51 @@ A : B = 1×2 : 4×1 = 2 : 4 = 1 : 2이다.</p></div>
 <p class="step">④ 옳은 설명: 유리 모세관을 수은에 담그면 모세관 안의 수은 표면은 모세관 밖의 수은 표면보다 더 밑으로 내려가는데, 이는 수은 원자간 인력이 매우 크기 때문이다.</p>
 <p class="step">⇒ 응집력보다 부착력이 크면 액체가 위로 올라가고 응집력이 부착력보다 크면 아래로 내려간다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 33</span><span class="area">모세관현상</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">응집력과 부착력에 의해 만들어지는 힘과 중력이 평형을 이룰 때까지 올라가거나 내려간다.</p>
+<div class="q" id="q33"><div class="qh"><span class="qno">문제 33</span><span class="area">모세관현상</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">응집력과 부착력에 의해 만들어지는 힘과 중력이 평형을 이룰 때까지 올라가거나 내려간다.</p>
 <p class="step">따라서 달에서는 중력이 지구 중력의 이 된다.</p>
 <p class="step">따라서 물은 더 위로 올라가고 수은은 더 아래로 내려간다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 34</span><span class="area">수소결합</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">물(H₂O)에서 O는 2개의 비공유전자쌍이 있다.</p>
+<div class="q" id="q34"><div class="qh"><span class="qno">문제 34</span><span class="area">수소결합</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">물(H<sub>2</sub>O)에서 O는 2개의 비공유전자쌍이 있다.</p>
 <p class="step">수소결합은 H(수소) 1개에 비공유전자쌍 1개가 결합한다.</p>
 <p class="step">물은 2개의 비공유전자쌍과 2개의 H가 있기 때문에 하나의 물 분자는 최대 4개의 물 분자와 수소결합을 할 수 있다.</p>
 <p class="step">물론 한 분자당 수소결합수는 2개이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 35</span><span class="area">수소결합</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">물 분자 4개가 서로 가까이 있을 때 산소의 비공유 전자쌍 1개당 수소 1개가 결합할 수 있다.</p>
+<div class="q" id="q35"><div class="qh"><span class="qno">문제 35</span><span class="area">수소결합</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">물 분자 4개가 서로 가까이 있을 때 산소의 비공유 전자쌍 1개당 수소 1개가 결합할 수 있다.</p>
 <p class="step">물 분자가 무수히 많이 있다면 한 분자당 2개의 수소결합을 할 수 있다.</p>
 <p class="step">하지만 물의 결합각은 104.5°이다.</p>
 <p class="step">따라서 물 분자 4개가 만들 수 있는 수소결합은 4개이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 36</span><span class="area">비열</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">가.</p>
-<p class="step">옳은 설명: 물의 비열은 얼음의 비열보다 크다.</p>
+<div class="q" id="q36"><div class="qh"><span class="qno">문제 36</span><span class="area">비열</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">가. 옳은 설명: 물의 비열은 얼음의 비열보다 크다.</p>
 <p class="step">⇒ 그래프에서 기울기가 작을수록 비열이 크다.</p>
 <p class="step">A의 기울기가 C의 기울기의 2배이므로 물의 비열은 얼음의 비열보다 크다.</p>
-<p class="step">나.</p>
-<p class="step">옳은 설명: 물의 비열은 수증기의 비열보다 크다.</p>
+<p class="step">나. 옳은 설명: 물의 비열은 수증기의 비열보다 크다.</p>
 <p class="step">⇒ 그래프에서 기울기가 작을수록 비열이 크다.</p>
 <p class="step">E의 기울기가 C의 기울기의 2배이므로 물의 비열은 수증기의 비열보다 크다.</p>
-<p class="step">다.</p>
-<p class="step">옳은 설명: 물의 증발열은 얼음의 융해열보다 크다.</p>
+<p class="step">다. 옳은 설명: 물의 증발열은 얼음의 융해열보다 크다.</p>
 <p class="step">⇒ 증발열과 융해열은 각각 D와 B의 가로길이이다.</p>
 <p class="step">D의 길이가 B의 길이보다 길기 때문에 물의 증발열은 얼음의 융해열보다 크다고 볼 수 있다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 37</span><span class="area">PV=nRT</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">물의 밀도를 1g/mL라고 할 때 물 1mL의 질량은 1g이다.</p>
-<p class="step">물의 분자량이 18이므로 물의 몰수는 몰이다.</p>
-<p class="step">PV=nRT이고 이다.</p>
-<p class="step">V=100L, R=0.082atm·L/mol·K, T=273K이다.</p></div>
+<div class="q" id="q37"><div class="qh"><span class="qno">문제 37</span><span class="area">PV=nRT</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">줄어든 물 1 mL는 밀도 1 g/mL로 잡으면 1 g, 곧 1/18 ≈ 0.056몰이 수증기로 증발한 것이다.</p>
+<p class="step">이 수증기가 100 L 공간에 퍼져 만든 부분압을 이상기체 방정식으로 구하면
+P = nRT/V = (1/18) × 0.082 × 273/100 ≈ 1.24/100 ≈ 0.012 atm 이다.</p>
+<p class="step">따라서 증가한 수증기압에 가장 가까운 값은 0.01기압이다.</p>
+<p class="step">정답 <b>②</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 38</span><span class="area">원자량</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">고체의 비열이 0.392J/g·K이고 몰열용량은 3R=3×8.314J/mol·K=24.942J/mol·K이다.</p>
+<div class="q" id="q38"><div class="qh"><span class="qno">문제 38</span><span class="area">원자량</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">고체의 비열이 0.392J/g·K이고 몰열용량은 3R=3×8.314J/mol·K=24.942J/mol·K이다.</p>
 <p class="step">고체의 비열에 원자량을 곱하면 몰열용량과 같다.</p>
 <p class="step">0.392×M=24.942이고 M=63.6이다.</p>
 <p class="step">따라서 이 고체는 Cu이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 39</span><span class="area">면심입방</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">면심입방구조(fcc)의 기본적인 정보는 다음과 같다.</p>
+<div class="q" id="q39"><div class="qh"><span class="qno">문제 39</span><span class="area">면심입방</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">면심입방구조(fcc)의 기본적인 정보는 다음과 같다.</p>
 <p class="step">단위 격자 속 입자수 : , 배위수 : 12
-하지만 Na⁺와 Cl⁻가 각각 면심입방구조를 갖기 때문에 Na⁺가 4개 Cl⁻가 4개이다.</p></div>
+하지만 Na<sup>+</sup>와 Cl<sup>−</sup>가 각각 면심입방구조를 갖기 때문에 Na<sup>+</sup>가 4개 Cl<sup>−</sup>가 4개이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 40</span><span class="area">고체의구조</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">Cu는 정육면체의 면심에 6개 있고, Au는 꼭지점에 8개 있다.</p>
+<div class="q" id="q40"><div class="qh"><span class="qno">문제 40</span><span class="area">고체의구조</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">Cu는 정육면체의 면심에 6개 있고, Au는 꼭지점에 8개 있다.</p>
 <p class="step">Cu의 수는 개이고 Au의 수는 =1개이다.</p>
-<p class="step">따라서 이 합금의 화학식은 ② Cu₃Au이다.</p></div>
+<p class="step">따라서 이 합금의 화학식은 ② Cu<sub>3</sub>Au이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 41</span><span class="area">면심입방</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">염화나트륨(NaCl)은 면심입방이 2개 겹쳐져있는 결정구조이고, 염화세슘(CsCl)은 단순입방이 2개 겹쳐져있는 결정구조이다.</p>
-<p class="step">따라서 단위셀당 염화나트륨(NaCl)은 4개의 Na⁺와 4개의 Cl⁻가 있고, 염화세슘(CsCl)은 1개의 Cs⁺와 1개의 Cl⁻가 있다.</p>
+<div class="q" id="q41"><div class="qh"><span class="qno">문제 41</span><span class="area">면심입방</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">염화나트륨(NaCl)은 면심입방이 2개 겹쳐져있는 결정구조이고, 염화세슘(CsCl)은 단순입방이 2개 겹쳐져있는 결정구조이다.</p>
+<p class="step">따라서 단위셀당 염화나트륨(NaCl)은 4개의 Na<sup>+</sup>와 4개의 Cl<sup>−</sup>가 있고, 염화세슘(CsCl)은 1개의 Cs<sup>+</sup>와 1개의 Cl<sup>−</sup>가 있다.</p>
 <p class="step">* 단순입방구조(sc)
 단위 격자 속 입자수 :
 배위수 : 6
@@ -490,136 +470,131 @@ A : B = 1×2 : 4×1 = 2 : 4 = 1 : 2이다.</p></div>
 단위 격자 속 입자수 :
 배위수 : 12</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 42</span><span class="area">입자수</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">Cu는 모서리에 12개의 원자가 있다.</p>
+<div class="q" id="q42"><div class="qh"><span class="qno">문제 42</span><span class="area">입자수</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">Cu는 모서리에 12개의 원자가 있다.</p>
 <p class="step">단위 세포에서 Cu의 수는 개다.</p>
 <p class="step">O는 모서리에 8개, 면심에 14개의 원자가 있다.</p>
 <p class="step">단위 세포에서 O의 수는 개다.</p>
 <p class="step">따라서 이 결정의 단위세포 내 원자 Cu와 O의 최소 정수 비는 ② 1 : 3이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 43</span><span class="area">입자수</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">Cu는 정육면체의 면심에 6개 있고, Au는 꼭지점에 8개 있다.</p>
+<div class="q" id="q43"><div class="qh"><span class="qno">문제 43</span><span class="area">입자수</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">Cu는 정육면체의 면심에 6개 있고, Au는 꼭지점에 8개 있다.</p>
 <p class="step">Cu의 수는 개이고 Au의 수는 =1개이다.</p>
-<p class="step">따라서 이 합금의 화학식은 Cu₃Au이다.</p>
+<p class="step">따라서 이 합금의 화학식은 Cu<sub>3</sub>Au이다.</p>
 <p class="step">따라서 구리-금 합금에서 비는 3이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 44</span><span class="area">실험식</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">Ni는 꼭지점에 8개 팔면체자리에 4개 있다.</p>
+<div class="q" id="q44"><div class="qh"><span class="qno">문제 44</span><span class="area">실험식</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">Ni는 꼭지점에 8개 팔면체자리에 4개 있다.</p>
 <p class="step">Ni의 수는 개다.</p>
 <p class="step">As는 사면체자리에 2개 있다.</p>
 <p class="step">As의 수는 1×2=2개다.</p>
 <p class="step">따라서 NiAs 화합물의 실험식은 NiAs이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 45</span><span class="area">밀도</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">가.</p>
-<p class="step">금속(M)의 결정은 입방 최조밀 쌓임을 갖는다.</p>
-<p class="step">나.</p>
-<p class="step">이 금속(M)의 결정에서 서로 맞닿아 있는 원자들 간의 거리는 269pm이다.</p>
-<p class="step">다.</p>
-<p class="step">이 금속을 고온 고압에서 연소하면 MO₂의 화학식을 가진 산화물이 된다.</p>
-<p class="step">라.</p>
-<p class="step">이 산화물에서 산소의 질량 백분율은 23.72%이다.</p>
-<p class="step">① 옳은 설명: 금속 M의 원자 반지름은 134.5pm이다.</p>
-<p class="step">⇒ 이므로 이다.</p>
-<p class="step">② 옳은 설명: 위의 다, 라로부터 금속 M의 몰질량을 구할 수 있다.</p>
-<p class="step">⇒ 다로부터 M:O의 몰수비가 1:2임을 알 수 있다.</p>
-<p class="step">라에서 M:O의 질량비가 76.28:23.72 = 3.2:1 이다.</p>
-<p class="step">따라서 몰수비 1:2 = 이고
- M의 원자량은 102.4이다.</p>
-<p class="step">③ 틀린 설명: MO₂의 밀도는 이다.</p>
-<p class="step">(MM = M의 몰질량, MO = O의 몰질량, NA = 아보가드로 수)
-⇒ MO₂의 단위 격자 부피와 결정구조를 알 수 없기 때문에 밀도를 구할 수 없다.</p>
-<p class="step">④ 옳은 설명: 위의 가, 나, 다, 라로부터 금속 M의 밀도를 구할 수 있다.</p>
-<p class="step">⇒ 다, 라에서 M의 원자량을 구하고, 가, 나에서 금속M의 밀도를 구할 수 있다.</p>
-<p class="step">면심입방의 밀도는 다음과 같이 구할 수 있다.</p></div>
+<div class="q" id="q45"><div class="qh"><span class="qno">문제 45</span><span class="area">밀도</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">① 서로 맞닿아 있는 원자 사이 거리 269 pm이 곧 핵간 거리이므로 원자 반지름은 269/2 = 134.5 pm이다.</p>
+<p class="step">옳다.</p>
+<p class="step">② 다에서 화학식이 MO<sub>2</sub>이므로 몰수비는 M : O = 1 : 2이다.</p>
+<p class="step">라에서 질량비는 M : O = 76.28 : 23.72인데, O가 23.72/16 = 1.48몰일 때 M은 그 절반인 0.74몰이므로 M의 원자량은 76.28/0.74 ≈ 103이다.</p>
+<p class="step">다·라만으로 몰질량을 구할 수 있으니 옳다.</p>
+<p class="step">③ MO<sub>2</sub>의 밀도를 구하려면 MO<sub>2</sub> 결정의 단위세포 구조와 격자 길이를 알아야 하는데, 주어진 269 pm은 금속 M 결정에서의 값이지 산화물 결정의 값이 아니다.</p>
+<p class="step">따라서 MO<sub>2</sub>의 밀도는 구할 수 없다.</p>
+<p class="step">틀리다.</p>
+<p class="step">④ 다·라에서 원자량(≈103)을 얻고, 가·나에서 구조(입방 최조밀 = 면심입방, 단위세포당 4원자)와 격자 길이 a = 2√2 r = 2√2 × 134.5 ≈ 380 pm을 얻으므로 밀도 ρ = 4 × 103/(6.02×10<sup>23</sup> × (3.80×10<sup>−8</sup>)<sup>3</sup>) ≈ 12.4 g/cm<sup>3</sup>를 구할 수 있다.</p>
+<p class="step">옳다.</p>
+<p class="step">옳지 않은 것은</p>
+<p class="step">③. 정답 ③.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 46</span><span class="area">반지름</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">면심입방구조(fcc)=입방밀집구조(ccp)
+<div class="q" id="q46"><div class="qh"><span class="qno">문제 46</span><span class="area">반지름</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">면심입방구조(fcc)=입방밀집구조(ccp)
 단위세포 한 변의 길이를 a, 원자반지름을 r이라고 하면 이다.</p>
 <p class="step">따라서 r = 124.45pm이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 47</span><span class="area">밀도</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">한 변의 길이가 287pm라면 단위세포의 부피는 이다.</p>
-<p class="step">철의 밀도는 7.87 g/cm³이고 철의 원자량은 55.8이다.</p>
-<p class="step">즉, 6.02×10²³개의 철 원자 질량이 55.8g이다.</p>
-<p class="step">철 원자 1개의 질량은 이다.</p>
-<p class="step">단위 세포의 질량은 이다.</p>
-<p class="step">단위 세포에 들어있는 철 원자수는 이다.</p></div>
+<div class="q" id="q47"><div class="qh"><span class="qno">문제 47</span><span class="area">밀도</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">한 변 287 pm = 2.87×10<sup>−8</sup> cm이므로 단위세포의 부피는 (2.87×10<sup>−8</sup>)<sup>3</sup> = 2.36×10<sup>−23</sup> cm<sup>3</sup>이다.</p>
+<p class="step">단위세포의 질량은 밀도 × 부피 = 7.87 × 2.36×10<sup>−23</sup> = 1.86×10<sup>−22</sup> g이다.</p>
+<p class="step">철의 원자량은 55.8이므로 철 원자 1개의 질량은 55.8/(6.02×10<sup>23</sup>) = 9.27×10<sup>−23</sup> g이다.</p>
+<p class="step">따라서 단위세포에 들어 있는 철 원자 수는 1.86×10<sup>−22</sup>/(9.27×10<sup>−23</sup>) ≈ 2.0, 곧 2개다.</p>
+<p class="step">단위세포당 원자 2개는 체심입방구조에 해당한다.</p>
+<p class="step">정답 <b>②</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 48</span><span class="area">면적</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">반지름이 a인 금속원자가 체심입방구조를 이루고 있을 때 한 변의 길이를 l이라고 하면
-이다.</p>
-<p class="step">이다.</p>
-<p class="step">한 면의 면적은 이다.</p></div>
+<div class="q" id="q48"><div class="qh"><span class="qno">문제 48</span><span class="area">면적</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">체심입방구조에서는 정육면체의 체대각선 방향으로 원자들이 맞닿는다.</p>
+<p class="step">한 변의 길이를 l이라 하면 체대각선의 길이는 √3 l이고, 그 위에 꼭짓점 원자의 반지름 a, 중심 원자의 지름 2a, 다시 꼭짓점 원자의 반지름 a가 놓이므로 √3 l = 4a, 곧 l = 4a/√3이다.</p>
+<p class="step">따라서 단위세포 한 면의 면적은 l<sup>2</sup> = (4a/√3)<sup>2</sup> = 16a<sup>2</sup>/3이다.</p>
+<p class="step">정답 <b>④</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 49</span><span class="area">단위세포길이</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">면심입방은 단위세포당 4개의 원자가 존재한다.</p>
-<p class="step">단위세포의 길이를 a라고 할 때, 밀도는 이다.</p>
-<p class="step">이다.</p>
-<p class="step">단위세포의 길이를 455pm라고 했을 때 아보가드로수는 6.02×10²³의 절반이므로 실제 단위세포의 길이는 이다.</p></div>
+<div class="q" id="q49"><div class="qh"><span class="qno">문제 49</span><span class="area">단위세포길이</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">면심입방구조는 단위세포에 원자 4개가 들어 있으므로 밀도는 ρ = 4M/(N_A·d<sup>3</sup>)이고, 아보가드로 상수에 대해 풀면 N_A = 4M/(ρd<sup>3</sup>)이다.</p>
+<p class="step">밀도와 몰질량은 정해져 있으니 N_A는 d<sup>3</sup>에 반비례한다.</p>
+<p class="step">학생이 얻은 3.01×10<sup>23</sup>은 참값 6.02×10<sup>23</sup>의 1/2이다.</p>
+<p class="step">곧 착각한 길이의 세제곱이 실제의 2배였다는 뜻이므로 455<sup>3</sup> = 2 × d<sup>3</sup>, d = 455/∛2 = 455/1.26 ≈ 361 pm이다.</p>
+<p class="step">검산하면 N_A = 4 × 63.5/(8.96 × (3.61×10<sup>−8</sup>)<sup>3</sup>) = 254/(8.96 × 4.71×10<sup>−23</sup>) ≈ 6.02×10<sup>23</sup>으로 맞는다.</p>
+<p class="step">오답 유인: N_A가 참값의 절반으로 나왔다는 사실에서 비례 방향을 뒤집어 「d<sup>3</sup>도 절반」이라고 보면 d = 455 × ∛2 ≈ 573 pm(④)을 고르게 된다 — N_A ∝ 1/d<sup>3</sup>이므로 N_A가 작게 나온 것은 착각한 455 pm이 실제보다 큰 값이라는 뜻이고, 실제 길이는 455/∛2 ≈ 361 pm이다.</p>
+<p class="step">정답 <b>①</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 50</span><span class="area">밀도</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">입방최조밀 구조에서 반지름을 r, 한 변의 길이를 a라고 하면 이다.</p>
-<p class="step">단위세포의 부피는 이다.</p>
-<p class="step">은의 원자량은 108이다.</p>
-<p class="step">은 원자 1개의 질량은 이다.</p>
-<p class="step">입자수는 4개이므로 4개의 질량은 이다.</p>
-<p class="step">은 결정의 밀도는 이다.</p></div>
+<div class="q" id="q50"><div class="qh"><span class="qno">문제 50</span><span class="area">밀도</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">입방최조밀 구조는 면심입방과 같아 단위세포에 원자 4개가 들어 있다.</p>
+<p class="step">한 변 a = 408 pm = 4.08×10<sup>−8</sup> cm이므로 단위세포의 부피는 a<sup>3</sup> = 6.79×10<sup>−23</sup> cm<sup>3</sup>이다.</p>
+<p class="step">은의 원자량은 108이므로 은 원자 1개의 질량은 108/(6.02×10<sup>23</sup>) = 1.79×10<sup>−22</sup> g이고, 4개의 질량은 4 × 108/(6.02×10<sup>23</sup>) = 7.18×10<sup>−22</sup> g이다.</p>
+<p class="step">밀도는 ρ = 7.18×10<sup>−22</sup>/(6.79×10<sup>−23</sup>) ≈ 10.6 g/cm<sup>3</sup>로, 보기 중 10.5 g/cm<sup>3</sup>에 가장 가깝다.</p>
+<p class="step">정답 <b>②</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 51</span><span class="area">밀도</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">체심입방</p></div>
+<div class="q" id="q51"><div class="qh"><span class="qno">문제 51</span><span class="area">밀도</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">체심입방</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 52</span><span class="area">실험식</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">입방 밀집 구조의 음이온(Z)은 단위 세포당 4개의 입자가 있다.</p>
+<div class="q" id="q52"><div class="qh"><span class="qno">문제 52</span><span class="area">실험식</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">입방 밀집 구조의 음이온(Z)은 단위 세포당 4개의 입자가 있다.</p>
 <p class="step">양이온(X)는 4면체 구멍의 1/8이므로 1개의 입자가 있다.</p>
 <p class="step">양이온(Y)는 팔면체 구멍의 1/2이므로 2개의 입자가 있다.</p>
-<p class="step">따라서 화합물의 실험식은 ② XY₂Z₄이다.</p></div>
+<p class="step">따라서 화합물의 실험식은 ② XY<sub>2</sub>Z<sub>4</sub>이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 53</span><span class="area">몰</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">질량수가 226인 Ra 1g은 이다.</p>
-<p class="step">²²⁶Ra의 방사능 붕괴 속도는 그 반감기(1601년)로부터 1.4×10⁻¹¹ sec⁻¹ 로 측정되었기 때문에 Ra 1개당 1초에 1.4×10⁻¹¹번 붕괴한다는 것이다.</p>
-<p class="step">이다.</p>
-<p class="step">따라서 가장 가까운 값은 ④ 3.7×10¹⁰이다.</p></div>
+<div class="q" id="q53"><div class="qh"><span class="qno">문제 53</span><span class="area">몰</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">1 Ci는 <sup>226</sup>Ra 1 g이 내는 방사능 세기이므로 먼저 1 g에 들어 있는 원자핵의 수를 센다.</p>
+<p class="step"><sup>226</sup>Ra 1 g은 1/226몰이고, 원자핵 수는 (1/226) × 6.02×10<sup>23</sup> = 2.66×10<sup>21</sup>개이다.</p>
+<p class="step">붕괴 속도 상수 1.4×10<sup>−11</sup> sec<sup>−1</sup>는 원자핵 1개가 1초 동안 붕괴할 확률이 1.4×10<sup>−11</sup>이라는 뜻이므로, 1 g 전체에서 초당 붕괴 수는 (원자핵 수) × (속도 상수) = 2.66×10<sup>21</sup> × 1.4×10<sup>−11</sup> ≈ 3.7×10<sup>10</sup>개/초가 된다.</p>
+<p class="step">1 Bq이 초당 원자핵 1개의 붕괴이므로 1 Ci ≈ 3.7×10<sup>10</sup> Bq이고, 보기 중 가장 가까운 값은 ④이다.</p>
+<p class="step">오답 유인: <sup>226</sup>Ra 1 g을 1몰로 착각해 6.02×10<sup>23</sup> × 1.4×10<sup>−11</sup> ≈ 8.4×10<sup>12</sup>으로 계산하거나, 원자핵 수를 곱하지 않은 채 속도 상수의 지수만 보고 ① 3.7×10<sup>−5</sup> 같은 작은 값을 고르기 쉽다 — 반드시 1 g = 1/226몰 = 2.66×10<sup>21</sup>개에 속도 상수를 곱해야 한다.</p>
+<p class="step">정답 <b>④</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 54</span><span class="area">밀도</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">소금 결정의 크기를 CsCl결정과 동일하게 바꾸게 된다.</p>
-<p class="step">동일한 결정구조를 가지므로 단위세포당 CsCl의 입자수와 NaCl의 입자수가 같아지게 된다.</p>
-<p class="step">화학식량이 168.36인 CsCl의 밀도가 3.988g/cm³이다.</p>
-<p class="step">화학식량이 58.44인 NaCl의 밀도는 g/cm³이다.</p></div>
+<div class="q" id="q54"><div class="qh"><span class="qno">문제 54</span><span class="area">밀도</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">에피택시얼 성장으로 NaCl이 CsCl과 동일한 결정구조와 동일한 크기의 단위격자를 갖게 되었으므로, 단위세포 하나에 들어 있는 화학식 단위 수도 CsCl과 같다.</p>
+<p class="step">밀도 ρ = (단위세포 속 화학식 수 × 화학식량)/(N_A × 단위세포 부피)에서 화학식 수와 부피가 같으니 밀도는 화학식량에 정비례한다.</p>
+<p class="step">CsCl의 화학식량은 168.36이고 이때 밀도가 3.988 g/cm<sup>3</sup>이므로, 화학식량이 58.44인 NaCl로 같은 격자를 채우면 밀도는 3.988 × 58.44/168.36 = 3.988 × 0.347 ≈ 1.38 g/cm<sup>3</sup>가 되어 보기 중 1.4에 가장 가깝다.</p>
+<p class="step">오답 유인: 「소금 결정의 밀도」라는 말에 이끌려 보통 암염 구조 NaCl의 실제 밀도 2.16 g/cm<sup>3</sup>에 가까운 ② 2.2를 고르기 쉽다 — 여기서는 NaCl이 제 격자가 아니라 CsCl 격자 크기로 강제 결정화된 상황이므로 밀도비 = 화학식량비(58.44/168.36)로 계산해야 한다.</p>
+<p class="step">정답 <b>①</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 55</span><span class="area">몰농도</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">C₂₉H₆₀의 분자량은 29×12 + 60×1 = 408이다.</p>
-<p class="step">36 ppb는 용액 10⁹ g 속에 용질 36 g이 녹아 있다는 뜻이고, 물의 밀도가 1.0 g/mL이므로 용액 10⁹ g = 10⁶ L이다.</p>
-<p class="step">따라서 몰농도 = (36 g / 408 g·mol⁻¹) / 10⁶ L = 8.8×10⁻⁸ M이다.</p>
-<p class="step">정답 ④.</p></div>
+<div class="q" id="q55"><div class="qh"><span class="qno">문제 55</span><span class="area">몰농도</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">C<sub>29</sub>H<sub>60</sub>의 분자량은 29×12 + 60×1 = 408이다.</p>
+<p class="step">36 ppb는 용액 10<sup>9</sup> g 속에 용질 36 g이 녹아 있다는 뜻이고, 물의 밀도가 1.0 g/mL이므로 용액 10<sup>9</sup> g = 10<sup>6</sup> L이다.</p>
+<p class="step">따라서 몰농도 = (36 g / 408 g·mol<sup>−1</sup>) / 10<sup>6</sup> L = 8.8×10<sup>−8</sup> M이다.</p>
+<p class="step">정답 <b>④</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 56</span><span class="area">%농도</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">0°C 1기압이라고 가정하면, 112mL의 산소는 0.112L이고 0.005몰이다.</p>
-<p class="step">과산화수소의 분해 반응에서의 계수비는 2:2:1이다.</p>
-<p class="step">반응한 산소의 몰수가 0.005몰이기 때문에 0.01몰의 과산화수소가 반응했다는 것을 알 수 있다.</p>
-<p class="step">0.01몰의 과산화수소의 질량은 0.01×34=0.34g이다.</p>
-<p class="step">용액 10g에는 과산화수소가 0.34g이 있다.</p>
-<p class="step">따라서 3.4%이다.</p></div>
+<div class="q" id="q56"><div class="qh"><span class="qno">문제 56</span><span class="area">%농도</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">0°C, 1기압을 가정하면 기체 1몰의 부피는 22.4 L이므로, 발생한 산소 112 mL = 0.112 L는 0.112/22.4 = 0.005몰이다.</p>
+<p class="step">과산화수소의 분해 반응식은 2H<sub>2</sub>O<sub>2</sub> → 2H<sub>2</sub>O + O<sub>2</sub>로 계수비가 2 : 2 : 1이므로, O<sub>2</sub> 0.005몰이 나오려면 H<sub>2</sub>O<sub>2</sub>는 그 2배인 0.01몰이 분해되어야 한다.</p>
+<p class="step">H<sub>2</sub>O<sub>2</sub>의 분자량은 34이므로 그 질량은 0.01 × 34 = 0.34 g이다.</p>
+<p class="step">용액 10 g 속에 H<sub>2</sub>O<sub>2</sub>가 0.34 g 들어 있었던 것이므로 질량 백분율은 0.34/10 × 100 = 3.4%이다.</p>
+<p class="step">오답 유인: 분해 계수비 2 : 1을 빠뜨리고 H<sub>2</sub>O<sub>2</sub> 몰수를 O<sub>2</sub>와 같은 0.005몰로 잡으면 0.005 × 34 = 0.17 g → 1.7%(①)가 나오고, 반대로 2배를 한 번 더 곱하면 6.8%(③)가 나온다 — 2H<sub>2</sub>O<sub>2</sub> → 2H<sub>2</sub>O + O<sub>2</sub>의 계수비 확인이 관건이다.</p>
+<p class="step">정답 <b>②</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 57</span><span class="area">몰농도</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">CuS, 0.19g는 몰이다.</p>
+<div class="q" id="q57"><div class="qh"><span class="qno">문제 57</span><span class="area">몰농도</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">CuS, 0.19g는 몰이다.</p>
 <p class="step">폐수의 부피는 2.0L이기 때문에 몰농도는 0.001M=0.10mM 이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 58</span><span class="area">양적관계</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">0.020M Na₂S₂O₃ 수용액 30.0 mL에 들어있는 Na₂S₂O₃몰수는 0.6mmol이다.</p>
-<p class="step">으로 주어져있다면 계수비=반응몰수비를 이용하여 다음과 같이 추론할 수 있다.</p>
-<p class="step">Cu²⁺가 0.6mmol이 있다면, CuCO₃의 몰수도 0.6mmol로 볼 수 있다.</p>
-<p class="step">CuCO₃ 질량은 이다.</p>
-<p class="step">질량백분율은 이다.</p></div>
+<div class="q" id="q58"><div class="qh"><span class="qno">문제 58</span><span class="area">양적관계</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">요오드 적정 문제다.</p>
+<p class="step">알짜 반응은 2Cu<sup>2+</sup> + 5I<sup>−</sup> → 2CuI + I<sub>3</sub><sup>−</sup> 이고, 생성된 I<sub>3</sub><sup>−</sup>는 I<sub>3</sub><sup>−</sup> + 2S<sub>2</sub>O<sub>3</sub><sup>2−</sup> → 3I<sup>−</sup> + S<sub>4</sub>O<sub>6</sub><sup>2−</sup> 로 다시 I<sup>−</sup>가 된다.</p>
+<p class="step">적정에 쓴 S<sub>2</sub>O<sub>3</sub><sup>2−</sup>는 0.020 M × 30.0 mL = 0.60 mmol이다.</p>
+<p class="step">계수비 I<sub>3</sub><sup>−</sup> : S<sub>2</sub>O<sub>3</sub><sup>2−</sup> = 1 : 2에서 I<sub>3</sub><sup>−</sup>는 0.30 mmol이고, 다시 계수비 Cu<sup>2+</sup> : I<sub>3</sub><sup>−</sup> = 2 : 1에서 Cu<sup>2+</sup>는 2 × 0.30 = 0.60 mmol이다.</p>
+<p class="step">구리가 모두 CuCO<sub>3</sub> 형태였다면 CuCO<sub>3</sub>도 0.60 mmol이고, 질량은 0.60×10<sup>−3</sup> × 125 = 0.075 g이다.</p>
+<p class="step">질량 백분율은 0.075/0.50 × 100 = 15%이다.</p>
+<p class="step">오답 유인: 계수비 연쇄에서 Cu<sup>2+</sup> : I<sub>3</sub><sup>−</sup> = 2 : 1을 1 : 1로 잘못 잡으면 Cu<sup>2+</sup>가 0.30 mmol → CuCO<sub>3</sub> 0.30×10<sup>−3</sup> × 125 = 0.0375 g → 7.5%가 되어 ① 10%를 고르게 된다 — 2Cu<sup>2+</sup> + 5I<sup>−</sup> → 2CuI + I<sub>3</sub><sup>−</sup>에서 I<sub>3</sub><sup>−</sup> 1몰당 Cu<sup>2+</sup> 2몰임을 놓치지 말아야 한다.</p>
+<p class="step">정답 <b>②</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 59</span><span class="area">실제용액</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">순수한 A의 증기압은 A의 몰분율이 1.00일 때의 증기압이므로 71.9torr이다.</p>
-<p class="step">A의 몰분율이 0.54일 때 용액에서 A의 증기압은 순수한 용매의 증기압과 몰분율의 곱이므로
-71.9×0.54 = 38.826 이다.</p>
-<p class="step">순수한 B의 증기압은 A의 몰분율이 0.00일 때의 증기압이므로 74.0torr이다.</p>
-<p class="step">A의 몰분율이 0.54라면 B의 몰분율은 0.46이다.</p>
-<p class="step">용액에서 B의 증기압은 순수한 용매의 증기압과 몰분율의 곱이므로 74.0×0.46 = 34.04이다.</p>
-<p class="step">이상용액이라면 용액에서의 용매의 증기압과 용질의 증기압을 합하면 용액의 증기압을 계산할 수 있다.</p>
-<p class="step">따라서 용액의 증기압은 38.826+34.04 = 72.866이다.</p>
-<p class="step">표에서 나타난 실제 용액의 증기압은 81.6torr 이므로 이상용액보다 실제용액의 증기압이 더 크다.</p>
-<p class="step">실제 용액의 증기압력이 이상용액의 증기압력보다 크다는 것은
-이다.</p>
-<p class="step">① 옳은 설명: 끊어내는 인력의 평균값이 생성하는 인력보다 크기 때문에 흡열적 용해이고 온도가 낮아진다.</p>
-<p class="step">② 틀린 설명: 순수한 물질의 증기압력은 B가 A보다 크다.</p>
-<p class="step">증기압력이 클수록 분자 간 인력이 작고 끓는점은 낮다.</p>
-<p class="step">따라서 순수한 물질의 끓는점을 비교하면 B의 끓는점이 더 낮다.</p>
-<p class="step">③ 틀린 설명: A-A, B-B 상호작용보다 A-B 상호작용이 더 작기 때문에 용액의 안정성은 낮아진다.</p>
-<p class="step">④ 틀린 설명: 아세톤-클로로포름 같은 혼합용액이 이런 유형이 아니라 음의 편차를 갖는 증기압 특성을 보여준다.</p>
-<p class="step">이와 같은 유형의 증기압특성은 에탄올과 헥세인 또는 물과 에탄올이다.</p></div>
+<div class="q" id="q59"><div class="qh"><span class="qno">문제 59</span><span class="area">실제용액</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">자료에서 순수한 A(A의 몰분율 1.00)의 증기압은 71.9 torr, 순수한 B(A의 몰분율 0.00)의 증기압은 74.0 torr이다.</p>
+<p class="step">이상용액이라면 라울 법칙에 따라 A의 몰분율 0.54에서 용액의 증기압은 71.9 × 0.54 + 74.0 × 0.46 = 38.8 + 34.0 = 72.9 torr여야 한다.</p>
+<p class="step">그런데 실제 측정값은 81.6 torr로 이상값보다 크다.</p>
+<p class="step">곧 이 용액은 양의 편차를 보이며, 이는 A–B 상호작용이 A–A·B–B 상호작용보다 약하다는 뜻이다.</p>
+<p class="step">① 섞을 때 끊어야 하는 A–A·B–B 인력이 새로 생기는 A–B 인력보다 크므로 용해는 흡열 과정이다.</p>
+<p class="step">옳다.</p>
+<p class="step">② 순수 증기압은 B(74.0 torr)가 A(71.9 torr)보다 크므로 B의 분자 간 인력이 더 작고, 끓는점은 B가 더 낮다.</p>
+<p class="step">틀리다.</p>
+<p class="step">③ A–B 상호작용이 더 약하므로 혼합으로 더 안정해지는 것이 아니라 덜 안정해진다.</p>
+<p class="step">틀리다.</p>
+<p class="step">④ 아세톤–클로로포름은 두 성분 사이 인력이 강해 음의 편차를 보이는 대표적인 예다.</p>
+<p class="step">양의 편차를 보이는 예는 에탄올–헥세인, 물–에탄올 쪽이다.</p>
+<p class="step">틀리다.</p>
+<p class="step">정답 <b>①</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 60</span><span class="area">바느호프인자</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">물 100g에 K₃Fe(CN)₆ 가 0.494g이라면 몰수는 0.0015몰이다.</p>
-<p class="step">몰랄농도는 0.015m 이고,
- 이므로 0.112=1.86×0.015×i 이다.</p>
-<p class="step">i=4 이다.</p>
-<p class="step">i=4 라는 말은 K₃Fe(CN)₆가 이온화하여 K⁺를 3개, Fe(CN)₆³⁻가 1개를 냈다고 볼 수 있다.</p>
-<p class="step">따라서 용액에 존재하는 화학종은 ② K⁺, Fe(CN)₆⁻³이다.</p></div>
+<div class="q" id="q60"><div class="qh"><span class="qno">문제 60</span><span class="area">바느호프인자</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">녹인 K<sub>3</sub>Fe(CN)<sub>6</sub>의 몰수는 0.494/329.25 = 1.50×10<sup>−3</sup>몰이고, 물 100 g(0.100 kg)에 녹였으니 몰랄농도는 1.50×10<sup>−3</sup>/0.100 = 0.0150 m이다.</p>
+<p class="step">어는점 내림 ΔT_f = i·K_f·m에서 0.112 = i × 1.86 × 0.0150 = 0.0279i이므로 i = 4.0이다.</p>
+<p class="step">반트호프 인자 4는 화학식 한 단위가 입자 4개로 나뉜다는 뜻이다.</p>
+<p class="step">K<sub>3</sub>Fe(CN)<sub>6</sub> → 3K<sup>+</sup> + Fe(CN)<sub>6</sub><sup>3−</sup>로 이온화하면 정확히 4개가 되고, 착이온 Fe(CN)<sub>6</sub><sup>3−</sup>는 Fe<sup>3+</sup>와 CN<sup>−</sup>로 더 해리되지 않는다(완전히 해리했다면 K<sup>+</sup> 3개 + Fe<sup>3+</sup> 1개 + CN<sup>−</sup> 6개로 i ≈ 10이어야 한다).</p>
+<p class="step">따라서 용액에 존재하는 화학종은 K<sup>+</sup>와 Fe(CN)<sub>6</sub><sup>3−</sup>이다.</p>
+<p class="step">정답 <b>②</b>.</p></div>
 </div>
 <script data-lec-back>
 (function(){function ok(raw){if(!raw)return null;try{var u=new URL(raw,location.href);

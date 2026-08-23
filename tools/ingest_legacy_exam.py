@@ -173,8 +173,39 @@ def meta_of(src, eid):
 
 # ── 두 벌 맞대기 ─────────────────────────────────────────────────────────
 SRC_RE = re.compile(r'화학올림피아드\s*(\d{4})년\s*(\d+)번')
+
+# 원출처 해설지에서 딸려 온 「정답률 : NN%」 줄. 대조해 보니 **한 문항씩 밀린
+# 남의 수치**였다(kch1to3 에서 다음 문항 출처와 33/48 일치) — 틀린 숫자는 없는
+# 숫자보다 나쁘다. 실측 정답률은 exams.json 의 rate 가 따로 들고 있으니 여기서
+# 지운다.
+RATE_LINE = re.compile(r'\s*정답률\s*[:：]\s*\d+\s*%\s*')
+
+# 줄기 끝에 남은 .hwp 선지표 머리글 찌꺼기 — 「…것은? (가) (나) (가) (나)」 처럼
+# 물음표 뒤에 표의 열 이름만 반복되는 것. 표 자체는 재작도가 대신 선다.
+TAIL_JUNK = [
+    re.compile(r'(?:\s*\((?:가|나|다|라|[A-D])\)){2,}\s*$'),
+    re.compile(r'\s*<보기>\s*$'),
+    re.compile(r'\s+(?:A\s+B\s+C|NaCl\s+CsCl)\s*$'),
+]
+
+
+def _tidy_stem(t):
+    t = (t or '').strip()
+    for rx in TAIL_JUNK:
+        t = rx.sub('', t)
+    return t.strip()
+
+
+def _tidy_sol(t):
+    return RATE_LINE.sub('\n', t or '').strip()
 FIG_RE = re.compile(r'그림|도표|아래\s*표|다음\s*표|위\s*표|\(가\)|\(나\)|\(다\)'
                     r'|그래프|모식도|장치|실험\s*결과|추출되지 않')
+
+
+# 줄기에서 잘라낼 자리 — 재작도(표)가 같은 내용을 더 낫게 보여 준다.
+STEM_CUT = {
+    ('kch1u1', 3): re.compile(r'\s*\[.*\]\s*$', re.S),
+}
 
 
 def load(eid, var, body, group):
@@ -209,7 +240,10 @@ def load(eid, var, body, group):
                     and (ROOT / 'crops' / sid / ('%d.png' % sq)).exists()
                     and e['key'][sq - 1] == ans_i):     # 정답까지 같아야 빌린다
                 borrow = {'e': sid, 'q': sq}
-        stem = (f.get('stem') or '').strip()
+        stem = _tidy_stem(f.get('stem'))
+        cut = STEM_CUT.get((eid, n))
+        if cut:
+            stem = cut.sub('', stem).strip()
         qs.append({
             'n': n, 'ans': ans_i,
             'rate': r[2] if len(r) > 2 and isinstance(r[2], int) else None,
@@ -218,7 +252,7 @@ def load(eid, var, body, group):
                               (r[4] if len(r) > 4 else '') or ''),
             'accept': r[5] if len(r) > 5 and isinstance(r[5], list) else None,
             'stem': stem, 'choices': f.get('choices') or [],
-            'sol': (f.get('solution') or '').strip(),
+            'sol': _tidy_sol(f.get('solution')),
             'misc': _misc_text(f.get('misc')),
             'src': (f.get('source') or '').strip(),
             'misc_by': f.get('misc') if isinstance(f.get('misc'), dict) else None,
@@ -296,6 +330,47 @@ def answers_of(d):
             'questions': out}
 
 
+def _copy_trimmed(src, dst):
+    """원본 크롭의 머리띠(「문제 NN」 상자 + 정답률)를 잘라 복사한다.
+
+    화올 크롭의 머리글은 가로줄이 아니라 **왼쪽 위 회색 상자**다 — 상자의
+    테두리는 「왼쪽 12% 안에서 시작하는 40px 이상의 연속된 어두운 가로줄」
+    로만 나타난다(본문 글자는 그렇게 긴 연속 획이 없다). 위쪽 12% 안에서
+    상자 윗변을 찾고, 거기서 110px 안의 마지막 테두리 행이 상자 밑변이다.
+    그 6px 아래부터 싣는다. 상자를 못 찾거나 남는 높이가 너무 작으면
+    자르지 않고 그대로 둔다. (본문 속 상자·표는 머리글보다 아래에서
+    시작하므로 «위쪽 12%» 조건이 걸러 낸다.)"""
+    from PIL import Image
+    im = Image.open(src).convert('L')
+    w, h = im.size
+    px = im.load()
+
+    def box_row(y):
+        # 왼쪽 15% 안에서 시작하는, 길이 40px 이상의 연속 어두운 가로 획
+        run = 0
+        for x in range(0, w * 30 // 100):
+            if px[x, y] < 120:
+                run += 1
+                if run >= 40:
+                    return x - run + 1 < w * 15 // 100
+            else:
+                run = 0
+        return False
+
+    top = next((y for y in range(0, max(1, h * 12 // 100)) if box_row(y)), None)
+    cut = 0
+    if top is not None:
+        bottom = top
+        for y in range(top, min(top + 110, h)):
+            if box_row(y):
+                bottom = y
+        cut = bottom + 6
+    if cut and h - cut >= 120:
+        Image.open(src).crop((0, cut, w, h)).save(dst, optimize=True)
+    else:
+        shutil.copyfile(src, dst)
+
+
 # ── 크롭 ─────────────────────────────────────────────────────────────────
 CSS = """
 *{box-sizing:border-box;margin:0;padding:0}
@@ -316,7 +391,29 @@ body{background:#fff;color:#16181d;font-family:'Noto Serif KR',serif;
       word-break:keep-all}
 figure{margin:.5em 0}
 figure img{max-width:100%;height:auto;display:block}
-@media print{.q{page-break-inside:avoid}}
+.cover{page-break-after:always;font-family:'Noto Sans KR',sans-serif;
+       display:flex;flex-direction:column;justify-content:center;
+       min-height:940px;text-align:center}
+.cv-brand{font-size:14px;letter-spacing:.32em;color:#8a90a0;margin:0 0 18px}
+.cover h1{font-size:34px;letter-spacing:-.02em;margin:0 0 10px;word-break:keep-all}
+.cv-meta{font-size:16px;color:#5b6270;margin:0 0 46px}
+.cv-id{display:flex;justify-content:center;gap:26px;margin:0 0 52px;font-size:15px}
+.cv-id b{font-weight:500;color:#5b6270}
+.cv-line{display:inline-block;width:150px;border-bottom:1.5px solid #16181d;
+         vertical-align:-3px;margin-left:8px}
+.cv-rules{list-style:none;margin:0 auto;padding:16px 22px;max-width:520px;
+          text-align:left;font-size:13.5px;color:#5b6270;
+          border:1px solid #d7dae2;border-radius:8px}
+.cv-rules li{margin:.3em 0;padding-left:1.1em;text-indent:-1.1em}
+.dsheet{page-break-before:always;font-family:'Noto Sans KR',sans-serif}
+.dsheet h2{font-size:20px;border-bottom:2px solid #16181d;padding-bottom:6px;
+           margin:0 0 14px}
+.dsheet table{border-collapse:collapse;margin:0 0 18px;font-size:14px}
+.dsheet th,.dsheet td{border:1px solid #c9cdd6;padding:5px 12px;text-align:center;
+                      font-variant-numeric:tabular-nums}
+.dsheet th{background:#f2f3f6;font-weight:500}
+.dsheet .ds-note{font-size:12.5px;color:#8a90a0;margin:.4em 0 0}
+@media print{.q{page-break-inside:avoid}.dsheet table{page-break-inside:avoid}}
 """
 
 SHOT_JS = """
@@ -339,7 +436,12 @@ const fs = require('fs'), path = require('path');
     }
   }
   if (pdfPath) await pg.pdf({path: pdfPath, format: 'A4', printBackground: true,
-      margin: {top: '12mm', bottom: '12mm', left: '10mm', right: '10mm'}});
+      displayHeaderFooter: true,
+      headerTemplate: '<span></span>',
+      footerTemplate: '<div style="width:100%%;text-align:center;' +
+        'font-size:9px;color:#8a90a0;font-family:sans-serif;">' +
+        '<span class="pageNumber"></span> / <span class="totalPages"></span></div>',
+      margin: {top: '12mm', bottom: '15mm', left: '10mm', right: '10mm'}});
   await b.close();
 })();
 """ % PW
@@ -352,16 +454,70 @@ def _esc(s):
     return H.escape(s or '', quote=False)
 
 
-def page_html(d, need, borrowed_as_img=False):
+# 문제지 PDF 끝장에 싣는 자료표 — 시험 중 찾아 쓰라고 주는 값이지 힌트가 아니다.
+ATOMIC_W = [('H', '1.0'), ('He', '4.0'), ('Li', '6.9'), ('C', '12.0'),
+            ('N', '14.0'), ('O', '16.0'), ('F', '19.0'), ('Ne', '20.2'),
+            ('Na', '23.0'), ('Mg', '24.3'), ('Al', '27.0'), ('Si', '28.1'),
+            ('P', '31.0'), ('S', '32.1'), ('Cl', '35.5'), ('Ar', '39.9'),
+            ('K', '39.1'), ('Ca', '40.1'), ('Cr', '52.0'), ('Mn', '54.9'),
+            ('Fe', '55.8'), ('Ni', '58.7'), ('Cu', '63.5'), ('Zn', '65.4'),
+            ('Br', '79.9'), ('Ag', '107.9'), ('I', '126.9'), ('Ba', '137.3'),
+            ('Pb', '207.2')]
+CONSTS = [('기체 상수 R', '0.0821 L·atm/(mol·K) = 8.314 J/(mol·K)'),
+          ('아보가드로 수 N<sub>A</sub>', '6.02×10²³ /mol'),
+          ('물의 이온곱 상수 K<sub>w</sub> (25 °C)', '1.0×10⁻¹⁴'),
+          ('패러데이 상수 F', '96,500 C/mol'),
+          ('표준 상태 (STP)', '0 °C, 1 atm — 기체 1 mol = 22.4 L')]
+
+
+def _cover_html(d):
+    return (
+        '<header class="cover"><p class="cv-brand">STUDY 64 · 화학</p>'
+        '<h1>%s</h1><p class="cv-meta">%d문항 · 지필 평가</p>'
+        '<div class="cv-id"><span><b>학교</b><span class="cv-line"></span></span>'
+        '<span><b>이름</b><span class="cv-line"></span></span></div>'
+        '<ul class="cv-rules">'
+        '<li>· 문항 번호 순서대로 풀지 않아도 됩니다. 아는 문항부터 푸세요.</li>'
+        '<li>· 계산에 필요한 원자량과 상수는 <b>마지막 장 자료표</b>에 있습니다.</li>'
+        '<li>· 채점 후 성적표 페이지에 답을 입력하면 개인별 분석을 받을 수 있습니다.</li>'
+        '</ul></header>'
+        % (_esc(d['meta']['title']), len(d['q'])))
+
+
+def _dsheet_html():
+    half = (len(ATOMIC_W) + 1) // 2
+    rows = []
+    for i in range(half):
+        cells = []
+        for e, w in (ATOMIC_W[i], ATOMIC_W[i + half] if i + half < len(ATOMIC_W) else ('', '')):
+            cells.append('<td>%s</td><td>%s</td>' % (e, w))
+        rows.append('<tr>%s</tr>' % ''.join(cells))
+    consts = ''.join('<tr><td style="text-align:left">%s</td>'
+                     '<td style="text-align:left">%s</td></tr>' % kv for kv in CONSTS)
+    return ('<section class="dsheet"><h2>자료표</h2>'
+            '<h3 style="font-size:15px;margin:0 0 8px">평균 원자량</h3>'
+            '<table><tr><th>원소</th><th>원자량</th><th>원소</th><th>원자량</th></tr>'
+            '%s</table>'
+            '<h3 style="font-size:15px;margin:0 0 8px">상수</h3>'
+            '<table>%s</table>'
+            '<p class="ds-note">문항에 다른 값이 주어지면 문항의 값을 먼저 씁니다.</p>'
+            '</section>' % (''.join(rows), consts))
+
+
+def page_html(d, need, borrowed_as_img=False, paper=False):
     import legacy_figs
     body = []
+    if paper:
+        body.append(_cover_html(d))
     for q in d['q']:
         if q['n'] not in need:
             continue
         if borrowed_as_img and q['borrow']:
-            # 빌려 온 문항은 원본 크롭 그림이 곧 문제다 — 글로 다시 그리지 않는다.
-            b = q['borrow']
-            src = (ROOT / 'crops' / b['e'] / ('%d.png' % b['q'])).as_uri()
+            # 빌려 온 문항은 크롭 그림이 곧 문제다 — 글로 다시 그리지 않는다.
+            # 원본 회차 크롭이 아니라 **제 폴더의 머리띠 잘린 사본**을 싣는다.
+            # 원본을 그대로 실으면 「문제 44 · 정답률 74%」 머리글이 PDF 에 새어
+            # 번호가 둘이 되고 정답률 힌트가 노출된다 (render() 주석 참조).
+            src = (ROOT / 'crops' / d['id'] / ('%d.png' % q['n'])).as_uri()
             body.append(
                 '<section class="q" data-n="%d">'
                 '<div class="qh"><span class="qn">문제 %02d</span>'
@@ -383,10 +539,11 @@ def page_html(d, need, borrowed_as_img=False):
         if fig:
             note = fig
         elif q['fig'] and (d['id'], q['n']) not in legacy_figs.NOFIG:
-            why = legacy_figs.LEFT.get((d['id'], q['n']))
-            note = ('<div class="note">이 문항은 원문에 그림·표가 있습니다%s.</div>'
-                    % ((' — ' + why) if why else
-                       '. 문제지에서 %d번을 함께 보세요' % q['n']))
+            # ⚠ LEFT 의 사유는 **개발 메모**다(「원본 확인 전에는 못 그린다」).
+            #    학생 지면에는 학생에게 하는 말만 싣는다 — 실제로 그 반말 메모가
+            #    문제지 PDF 에 그대로 인쇄된 적이 있다.
+            note = ('<div class="note">이 문항의 그림은 준비 중입니다. '
+                    '선생님께 문의해 주세요.</div>')
         body.append(
             '<section class="q" data-n="%d">'
             '<div class="qh"><span class="qn">문제 %02d</span>'
@@ -395,6 +552,8 @@ def page_html(d, need, borrowed_as_img=False):
             % (q['n'], q['n'], _esc(q['area']),
                ('<span class="ql">%s</span>' % _esc(q['src'])) if q['src'] else '',
                _esc(q['stem']) or '(본문이 문제지에 있습니다)', ch, note))
+    if paper:
+        body.append(_dsheet_html())
     return ('<!doctype html><html lang="ko"><head><meta charset="utf-8">'
             '<title>%s</title><style>%s</style></head><body>%s</body></html>'
             % (_esc(d['meta']['title']), CSS, ''.join(body)))
@@ -412,7 +571,12 @@ def render(d):
     cd.mkdir(parents=True, exist_ok=True)
     for old in cd.glob('*.png'):
         old.unlink()
-    # 빌려 온 문항은 원본 크롭을 **제 폴더로 복사한다.**
+    # 빌려 온 문항은 원본 크롭의 **머리띠를 잘라** 제 폴더에 넣는다.
+    #
+    # 원본 크롭 맨 위에는 「문제 44 · 정답률: 74% · [화학올림피아드 2012년 44번]」
+    # 머리글과 가로줄이 있다. 그대로 실으면 ① 화면 라벨 「55번」 아래 그림이
+    # 「문제 44」 라고 말해 번호가 둘이 되고 ② 풀기 전에 정답률 힌트가 새고
+    # ③ 출처 연도가 노출된다. 머리글 밑 가로줄을 찾아 그 아래부터 싣는다.
     #
     # 처음에는 srcmap 으로 «가리키게» 했는데, 그러면 이 회차만 반쪽 지도를 갖게
     # 되어 크롭 주소를 만드는 자리마다(final·final-submit·weak60·검사) 빈 자리를
@@ -422,8 +586,8 @@ def render(d):
     for q in d['q']:
         if q['borrow']:
             b = q['borrow']
-            shutil.copyfile(ROOT / 'crops' / b['e'] / ('%d.png' % b['q']),
-                            cd / ('%d.png' % q['n']))
+            _copy_trimmed(ROOT / 'crops' / b['e'] / ('%d.png' % b['q']),
+                          cd / ('%d.png' % q['n']))
     tmp = Path(tempfile.mkdtemp(prefix='legacy-'))
     try:
         shot = tmp / 'shot.js'
@@ -441,7 +605,8 @@ def render(d):
                 im.save(cd / ('%d.png' % n), optimize=True)
         # ② 문제지 PDF — 예순 문항 전부
         page2 = tmp / 'paper.html'
-        page2.write_text(page_html(d, {q['n'] for q in d['q']}, borrowed_as_img=True),
+        page2.write_text(page_html(d, {q['n'] for q in d['q']},
+                                   borrowed_as_img=True, paper=True),
                          encoding='utf-8')
         subprocess.run([NODE, str(shot), str(page2), '-',
                         str(ROOT / ('%s-problem.pdf' % d['id']))],

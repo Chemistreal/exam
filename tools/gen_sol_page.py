@@ -63,11 +63,27 @@ th{background:#f1eee7;font-weight:700}
 .area{font-size:12.5px;color:var(--ink2);background:#f1eee7;border-radius:99px;padding:2px 9px}
 .ans{margin-left:auto;font-weight:700;color:var(--ms)}
 .sol{font-size:14.5px}
+/* 해설 본문이 실제로 입는 옷 — 답지(answers)의 explanationHtml 이
+   <h4>·.step·.k(정답 근거)·.x(오답 표시) 를 쓰는데 여기 옷이 없으면
+   해설지에서만 맨몸으로 나간다(final.html 은 제 옷이 따로 있다). */
+.sol h4{margin:12px 0 5px;color:var(--teal);font-size:13.5px;letter-spacing:.02em}
+/* 착화합물 사슬([Co(NH₃)₆]³⁺·…)처럼 끊을 자리가 없는 긴 수식이 360px
+   화면을 옆으로 밀었다 — 필요할 때만 토막 내게 허락한다. */
+.sol{overflow-wrap:anywhere}
+.sol p.step{margin:6px 0;white-space:pre-wrap}
+.sol .k{color:var(--teal);font-weight:700}
+.sol .x{color:var(--ms);font-weight:700}
 .tip{margin-top:9px;padding:9px 11px;border-left:3px solid var(--gold);background:#faf7f1;
  font-size:13.5px;color:var(--ink2)}
 .rev{margin-top:9px;padding:9px 11px;border-left:3px solid var(--ms);background:#fdf3ef;
  font-size:13px;color:#8a3a1d}
-@media print{body{background:#fff}.q{break-inside:avoid}}
+/* 정답표 → 그 문항 해설로 건너뛰는 길. 표가 세로 2,000px 를 넘는 회차가
+   많아 표에서 해설까지 손가락으로 미는 거리가 너무 멀었다. */
+td a.jump{color:var(--teal);text-decoration:none;font-weight:700}
+td a.jump:hover{text-decoration:underline}
+.q{scroll-margin-top:14px}
+.q:target{border-color:var(--teal);box-shadow:0 0 0 2px rgba(14,90,76,.18)}
+@media print{body{background:#fff}.q{break-inside:avoid}.warn{display:none}}
 """
 
 
@@ -187,16 +203,24 @@ def build(exam_id: str) -> str:
         )
         out.append(f'<nav class="source-assets" aria-label="시험 자료 직접 다운로드">{links}</nav>')
 
+    # ⚠ 이 띠는 학생·학부모도 읽는다 — 「배포 전에 확인해 주세요」 는 선생님께
+    #   하는 말이라 받는 쪽을 헷갈리게 한다(내가 받은 게 배포 전 문서인가?).
+    #   읽는 사람이 할 일이 있는 말만 적고, 인쇄물에는 싣지 않는다(@media print).
     if unreviewed and has_exp:
-        out.append(f"<div class=\"warn\"><b>검수 전 해설입니다.</b> {len(unreviewed)}문항의 사고과정이 "
-                   "아직 선생님 검수를 거치지 않았습니다. 배포 전에 확인해 주세요.</div>")
+        out.append(f"<div class=\"warn\"><b>해설 업데이트 안내</b> · {len(unreviewed)}문항의 사고과정은 "
+                   "선생님 검토에 따라 표현이 다듬어질 수 있습니다. 정답·채점 기준은 확정입니다.</div>")
 
+    # 사고과정 카드가 실제로 서는 문항 — 정답표에서 그 카드로 건너뛰게 한다.
+    # 정답표가 세로 2,000px 를 넘는 회차가 많아, 표에서 본 문항의 해설을
+    # 찾으려면 수십 화면을 밀어야 했다. 표의 문항 번호가 곧 문이 된다.
+    carded = {k for k in q if str(q[k].get("explanationHtml") or "").strip()}
     out.append("<main><h3>정답 · 영역 · 개념</h3><table><thead><tr>"
                "<th scope=\"col\">문항</th><th scope=\"col\">정답</th>"
                "<th scope=\"col\">영역</th><th scope=\"col\">개념(유형)</th></tr></thead><tbody>")
     for k in sorted(q, key=int):
         r = q[k]
-        out.append(f"<tr><td>{k}</td><td>{ansOf(k, r)}</td>"
+        cell = f'<a class="jump" href="#q{k}">{k}</a>' if k in carded else k
+        out.append(f"<tr><td>{cell}</td><td>{ansOf(k, r)}</td>"
                    f"<td>{esc(r.get('area',''))}</td><td>{esc(r.get('concept',''))}</td></tr>")
     out.append("</tbody></table>")
 
@@ -207,7 +231,7 @@ def build(exam_id: str) -> str:
             body = str(r.get("explanationHtml") or "").strip()
             if not body:
                 continue
-            out.append("<div class=\"q\"><div class=\"qh\">"
+            out.append(f"<div class=\"q\" id=\"q{k}\"><div class=\"qh\">"
                        f"<span class=\"qno\">문제 {k}</span>"
                        f"<span class=\"area\">{esc(r.get('concept',''))}</span>"
                        # '정답 전원정답'·'정답 ①·④ 복수정답' 은 말이 겹친다 —

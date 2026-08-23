@@ -25,11 +25,27 @@ th{background:#f1eee7;font-weight:700}
 .area{font-size:12.5px;color:var(--ink2);background:#f1eee7;border-radius:99px;padding:2px 9px}
 .ans{margin-left:auto;font-weight:700;color:var(--ms)}
 .sol{font-size:14.5px}
+/* 해설 본문이 실제로 입는 옷 — 답지(answers)의 explanationHtml 이
+   <h4>·.step·.k(정답 근거)·.x(오답 표시) 를 쓰는데 여기 옷이 없으면
+   해설지에서만 맨몸으로 나간다(final.html 은 제 옷이 따로 있다). */
+.sol h4{margin:12px 0 5px;color:var(--teal);font-size:13.5px;letter-spacing:.02em}
+/* 착화합물 사슬([Co(NH₃)₆]³⁺·…)처럼 끊을 자리가 없는 긴 수식이 360px
+   화면을 옆으로 밀었다 — 필요할 때만 토막 내게 허락한다. */
+.sol{overflow-wrap:anywhere}
+.sol p.step{margin:6px 0;white-space:pre-wrap}
+.sol .k{color:var(--teal);font-weight:700}
+.sol .x{color:var(--ms);font-weight:700}
 .tip{margin-top:9px;padding:9px 11px;border-left:3px solid var(--gold);background:#faf7f1;
  font-size:13.5px;color:var(--ink2)}
 .rev{margin-top:9px;padding:9px 11px;border-left:3px solid var(--ms);background:#fdf3ef;
  font-size:13px;color:#8a3a1d}
-@media print{body{background:#fff}.q{break-inside:avoid}}
+/* 정답표 → 그 문항 해설로 건너뛰는 길. 표가 세로 2,000px 를 넘는 회차가
+   많아 표에서 해설까지 손가락으로 미는 거리가 너무 멀었다. */
+td a.jump{color:var(--teal);text-decoration:none;font-weight:700}
+td a.jump:hover{text-decoration:underline}
+.q{scroll-margin-top:14px}
+.q:target{border-color:var(--teal);box-shadow:0 0 0 2px rgba(14,90,76,.18)}
+@media print{body{background:#fff}.q{break-inside:avoid}.warn{display:none}}
 
 .sol-part{margin:13px 0}.sol-part h4{margin:0 0 5px;color:var(--teal);font-size:13.5px;letter-spacing:.02em}
 .sol-part p{margin:5px 0;white-space:pre-wrap}
@@ -52,368 +68,405 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <h1>화학1 1단원 모의고사</h1>
 <div class="sub">문항별 정답 · 영역 · 개념 · 사고과정 해설 · 60문항</div>
 <div class="sub" style="margin-top:6px">문제 지문은 문제지(PDF)에 있습니다 — 성적표 화면에서 함께 내려받을 수 있습니다.</div><a class="back" href="final.html">‹ 파이널로</a></header>
-<div class="warn"><b>검수 전 해설입니다.</b> 60문항의 사고과정이 아직 선생님 검수를 거치지 않았습니다. 배포 전에 확인해 주세요.</div>
+<div class="warn"><b>해설 업데이트 안내</b> · 60문항의 사고과정은 선생님 검토에 따라 표현이 다듬어질 수 있습니다. 정답·채점 기준은 확정입니다.</div>
 <main><h3>정답 · 영역 · 개념</h3><table><thead><tr><th scope="col">문항</th><th scope="col">정답</th><th scope="col">영역</th><th scope="col">개념(유형)</th></tr></thead><tbody>
-<tr><td>1</td><td>④</td><td>원자의구조</td><td>수소원자</td></tr>
-<tr><td>2</td><td>②</td><td>원자의구조</td><td>납</td></tr>
-<tr><td>3</td><td>④</td><td>원자의구조</td><td>이온</td></tr>
-<tr><td>4</td><td>②</td><td>원자의구조</td><td>중성자수</td></tr>
-<tr><td>5</td><td>②</td><td>원자의구조</td><td>원자의크기</td></tr>
-<tr><td>6</td><td>①</td><td>원자의구조</td><td>원자핵의크기</td></tr>
-<tr><td>7</td><td>②</td><td>원자의구조</td><td>원자의크기</td></tr>
-<tr><td>8</td><td>③</td><td>원자의구조</td><td>원자의크기</td></tr>
-<tr><td>9</td><td>③</td><td>열화학</td><td>Q=CmT</td></tr>
-<tr><td>10</td><td>④</td><td>열화학</td><td>그래프해석</td></tr>
-<tr><td>11</td><td>②</td><td>열화학</td><td>온도</td></tr>
-<tr><td>12</td><td>④</td><td>원자의구조</td><td>표기법</td></tr>
-<tr><td>13</td><td>②</td><td>원자의구조</td><td>순물질</td></tr>
-<tr><td>14</td><td>①</td><td>원자의구조</td><td>원자</td></tr>
-<tr><td>15</td><td>②</td><td>원자의구조</td><td>동위원소</td></tr>
-<tr><td>16</td><td>①</td><td>화학식량</td><td>평균원자량</td></tr>
-<tr><td>17</td><td>③</td><td>원자의구조</td><td>동위원소</td></tr>
-<tr><td>18</td><td>③</td><td>화학식량</td><td>질량비</td></tr>
-<tr><td>19</td><td>①</td><td>화학식량</td><td>비율</td></tr>
-<tr><td>20</td><td>④</td><td>화학식량</td><td>평균원자량</td></tr>
-<tr><td>21</td><td>③</td><td>원자의구조</td><td>동위원소</td></tr>
-<tr><td>22</td><td>④</td><td>원자의구조</td><td>질량분석</td></tr>
-<tr><td>23</td><td>③</td><td>원자의구조</td><td>동위원소</td></tr>
-<tr><td>24</td><td>④</td><td>몰과개수</td><td>몰=질량/분자량</td></tr>
-<tr><td>25</td><td>④</td><td>몰과개수</td><td>몰=질량/분자량</td></tr>
-<tr><td>26</td><td>③</td><td>몰과개수</td><td>몰=질량/분자량</td></tr>
-<tr><td>27</td><td>③</td><td>몰과개수</td><td>몰=질량/분자량</td></tr>
-<tr><td>28</td><td>②</td><td>몰과개수</td><td>몰=질량/분자량</td></tr>
-<tr><td>29</td><td>①</td><td>몰과개수</td><td>몰=질량/분자량</td></tr>
-<tr><td>30</td><td>①</td><td>몰과질량</td><td>몰=질량/분자량</td></tr>
-<tr><td>31</td><td>②</td><td>몰과질량</td><td>몰해석</td></tr>
-<tr><td>32</td><td>③</td><td>몰과질량</td><td>원자의크기</td></tr>
-<tr><td>33</td><td>②</td><td>몰과질량</td><td>몰=질량/분자량</td></tr>
-<tr><td>34</td><td>①</td><td>몰과질량</td><td>몰=질량/분자량</td></tr>
-<tr><td>35</td><td>③</td><td>몰과질량</td><td>몰=질량/분자량</td></tr>
-<tr><td>36</td><td>③</td><td>몰과개수</td><td>몰과개수</td></tr>
-<tr><td>37</td><td>④</td><td>몰과부피</td><td>PV=nRT</td></tr>
-<tr><td>38</td><td>③</td><td>기체</td><td>PV=nRT</td></tr>
-<tr><td>39</td><td>④</td><td>기체</td><td>PV=nRT</td></tr>
-<tr><td>40</td><td>④</td><td>기체</td><td>PV=nRT</td></tr>
-<tr><td>41</td><td>④</td><td>몰과부피</td><td>PV=nRT</td></tr>
-<tr><td>42</td><td>①</td><td>기체</td><td>PV=nRT</td></tr>
-<tr><td>43</td><td>①</td><td>기체</td><td>PV=nRT</td></tr>
-<tr><td>44</td><td>③</td><td>계수맞추기</td><td>PV=nRT</td></tr>
-<tr><td>45</td><td>③</td><td>몰과부피</td><td>PV=nRT</td></tr>
-<tr><td>46</td><td>②</td><td>몰과부피</td><td>PV=nRT</td></tr>
-<tr><td>47</td><td>④</td><td>기체</td><td>PV=nRT</td></tr>
-<tr><td>48</td><td>②</td><td>몰과부피</td><td>PV=nRT</td></tr>
-<tr><td>49</td><td>③</td><td>기체</td><td>PV=nRT</td></tr>
-<tr><td>50</td><td>③</td><td>몰과부피</td><td>PV=nRT</td></tr>
-<tr><td>51</td><td>②</td><td>열화학</td><td>기체</td></tr>
-<tr><td>52</td><td>①</td><td>원소분석장치</td><td>리비히원소분석장치</td></tr>
-<tr><td>53</td><td>③</td><td>원소분석장치</td><td>실험식</td></tr>
-<tr><td>54</td><td>①</td><td>원소분석장치</td><td>실험식</td></tr>
-<tr><td>55</td><td>③</td><td>원소분석장치</td><td>실험식</td></tr>
-<tr><td>56</td><td>③</td><td>계수맞추기</td><td>계수맞추기</td></tr>
-<tr><td>57</td><td>②</td><td>계수맞추기</td><td>한계반응물</td></tr>
-<tr><td>58</td><td>①</td><td>계수맞추기</td><td>양적관계</td></tr>
-<tr><td>59</td><td>③</td><td>양적관계</td><td>양적관계</td></tr>
-<tr><td>60</td><td>②</td><td>양적관계</td><td>양적관계</td></tr>
+<tr><td><a class="jump" href="#q1">1</a></td><td>④</td><td>원자의구조</td><td>수소원자</td></tr>
+<tr><td><a class="jump" href="#q2">2</a></td><td>②</td><td>원자의구조</td><td>납</td></tr>
+<tr><td><a class="jump" href="#q3">3</a></td><td>④</td><td>원자의구조</td><td>이온</td></tr>
+<tr><td><a class="jump" href="#q4">4</a></td><td>②</td><td>원자의구조</td><td>중성자수</td></tr>
+<tr><td><a class="jump" href="#q5">5</a></td><td>②</td><td>원자의구조</td><td>원자의크기</td></tr>
+<tr><td><a class="jump" href="#q6">6</a></td><td>①</td><td>원자의구조</td><td>원자핵의크기</td></tr>
+<tr><td><a class="jump" href="#q7">7</a></td><td>②</td><td>원자의구조</td><td>원자의크기</td></tr>
+<tr><td><a class="jump" href="#q8">8</a></td><td>③</td><td>원자의구조</td><td>원자의크기</td></tr>
+<tr><td><a class="jump" href="#q9">9</a></td><td>③</td><td>열화학</td><td>Q=CmT</td></tr>
+<tr><td><a class="jump" href="#q10">10</a></td><td>④</td><td>열화학</td><td>그래프해석</td></tr>
+<tr><td><a class="jump" href="#q11">11</a></td><td>②</td><td>열화학</td><td>온도</td></tr>
+<tr><td><a class="jump" href="#q12">12</a></td><td>④</td><td>원자의구조</td><td>표기법</td></tr>
+<tr><td><a class="jump" href="#q13">13</a></td><td>②</td><td>원자의구조</td><td>순물질</td></tr>
+<tr><td><a class="jump" href="#q14">14</a></td><td>①</td><td>원자의구조</td><td>원자</td></tr>
+<tr><td><a class="jump" href="#q15">15</a></td><td>②</td><td>원자의구조</td><td>동위원소</td></tr>
+<tr><td><a class="jump" href="#q16">16</a></td><td>①</td><td>화학식량</td><td>평균원자량</td></tr>
+<tr><td><a class="jump" href="#q17">17</a></td><td>③</td><td>원자의구조</td><td>동위원소</td></tr>
+<tr><td><a class="jump" href="#q18">18</a></td><td>③</td><td>화학식량</td><td>질량비</td></tr>
+<tr><td><a class="jump" href="#q19">19</a></td><td>①</td><td>화학식량</td><td>비율</td></tr>
+<tr><td><a class="jump" href="#q20">20</a></td><td>④</td><td>화학식량</td><td>평균원자량</td></tr>
+<tr><td><a class="jump" href="#q21">21</a></td><td>③</td><td>원자의구조</td><td>동위원소</td></tr>
+<tr><td><a class="jump" href="#q22">22</a></td><td>④</td><td>원자의구조</td><td>질량분석</td></tr>
+<tr><td><a class="jump" href="#q23">23</a></td><td>③</td><td>원자의구조</td><td>동위원소</td></tr>
+<tr><td><a class="jump" href="#q24">24</a></td><td>④</td><td>몰과개수</td><td>몰=질량/분자량</td></tr>
+<tr><td><a class="jump" href="#q25">25</a></td><td>④</td><td>몰과개수</td><td>몰=질량/분자량</td></tr>
+<tr><td><a class="jump" href="#q26">26</a></td><td>③</td><td>몰과개수</td><td>몰=질량/분자량</td></tr>
+<tr><td><a class="jump" href="#q27">27</a></td><td>③</td><td>몰과개수</td><td>몰=질량/분자량</td></tr>
+<tr><td><a class="jump" href="#q28">28</a></td><td>②</td><td>몰과개수</td><td>몰=질량/분자량</td></tr>
+<tr><td><a class="jump" href="#q29">29</a></td><td>①</td><td>몰과개수</td><td>몰=질량/분자량</td></tr>
+<tr><td><a class="jump" href="#q30">30</a></td><td>①</td><td>몰과질량</td><td>몰=질량/분자량</td></tr>
+<tr><td><a class="jump" href="#q31">31</a></td><td>②</td><td>몰과질량</td><td>몰해석</td></tr>
+<tr><td><a class="jump" href="#q32">32</a></td><td>③</td><td>몰과질량</td><td>원자의크기</td></tr>
+<tr><td><a class="jump" href="#q33">33</a></td><td>②</td><td>몰과질량</td><td>몰=질량/분자량</td></tr>
+<tr><td><a class="jump" href="#q34">34</a></td><td>①</td><td>몰과질량</td><td>몰=질량/분자량</td></tr>
+<tr><td><a class="jump" href="#q35">35</a></td><td>③</td><td>몰과질량</td><td>몰=질량/분자량</td></tr>
+<tr><td><a class="jump" href="#q36">36</a></td><td>③</td><td>몰과개수</td><td>몰과개수</td></tr>
+<tr><td><a class="jump" href="#q37">37</a></td><td>④</td><td>몰과부피</td><td>PV=nRT</td></tr>
+<tr><td><a class="jump" href="#q38">38</a></td><td>③</td><td>기체</td><td>PV=nRT</td></tr>
+<tr><td><a class="jump" href="#q39">39</a></td><td>④</td><td>기체</td><td>PV=nRT</td></tr>
+<tr><td><a class="jump" href="#q40">40</a></td><td>④</td><td>기체</td><td>PV=nRT</td></tr>
+<tr><td><a class="jump" href="#q41">41</a></td><td>④</td><td>몰과부피</td><td>PV=nRT</td></tr>
+<tr><td><a class="jump" href="#q42">42</a></td><td>①</td><td>기체</td><td>PV=nRT</td></tr>
+<tr><td><a class="jump" href="#q43">43</a></td><td>①</td><td>기체</td><td>PV=nRT</td></tr>
+<tr><td><a class="jump" href="#q44">44</a></td><td>③</td><td>계수맞추기</td><td>PV=nRT</td></tr>
+<tr><td><a class="jump" href="#q45">45</a></td><td>③</td><td>몰과부피</td><td>PV=nRT</td></tr>
+<tr><td><a class="jump" href="#q46">46</a></td><td>②</td><td>몰과부피</td><td>PV=nRT</td></tr>
+<tr><td><a class="jump" href="#q47">47</a></td><td>④</td><td>기체</td><td>PV=nRT</td></tr>
+<tr><td><a class="jump" href="#q48">48</a></td><td>②</td><td>몰과부피</td><td>PV=nRT</td></tr>
+<tr><td><a class="jump" href="#q49">49</a></td><td>③</td><td>기체</td><td>PV=nRT</td></tr>
+<tr><td><a class="jump" href="#q50">50</a></td><td>③</td><td>몰과부피</td><td>PV=nRT</td></tr>
+<tr><td><a class="jump" href="#q51">51</a></td><td>②</td><td>열화학</td><td>기체</td></tr>
+<tr><td><a class="jump" href="#q52">52</a></td><td>①</td><td>원소분석장치</td><td>리비히원소분석장치</td></tr>
+<tr><td><a class="jump" href="#q53">53</a></td><td>③</td><td>원소분석장치</td><td>실험식</td></tr>
+<tr><td><a class="jump" href="#q54">54</a></td><td>①</td><td>원소분석장치</td><td>실험식</td></tr>
+<tr><td><a class="jump" href="#q55">55</a></td><td>③</td><td>원소분석장치</td><td>실험식</td></tr>
+<tr><td><a class="jump" href="#q56">56</a></td><td>③</td><td>계수맞추기</td><td>계수맞추기</td></tr>
+<tr><td><a class="jump" href="#q57">57</a></td><td>②</td><td>계수맞추기</td><td>한계반응물</td></tr>
+<tr><td><a class="jump" href="#q58">58</a></td><td>①</td><td>계수맞추기</td><td>양적관계</td></tr>
+<tr><td><a class="jump" href="#q59">59</a></td><td>③</td><td>양적관계</td><td>양적관계</td></tr>
+<tr><td><a class="jump" href="#q60">60</a></td><td>②</td><td>양적관계</td><td>양적관계</td></tr>
 </tbody></table>
 <h3>문항별 사고과정</h3>
-<div class="q"><div class="qh"><span class="qno">문제 1</span><span class="area">수소원자</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">우리 몸에 가장 많은 분자는 물(H₂O), 가장 많은 원자는 수소이며 대부분 ¹₁H(양성자 1, 전자 1, 중성자 0)이다.</p>
+<div class="q" id="q1"><div class="qh"><span class="qno">문제 1</span><span class="area">수소원자</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">우리 몸에 가장 많은 분자는 물(H<sub>2</sub>O), 가장 많은 원자는 수소이며 대부분 <sup>1</sup><sub>1</sub>H(양성자 1, 전자 1, 중성자 0)이다.</p>
 <p class="step">따라서 들어 있는 입자는 양성자와 전자.</p>
-<p class="step">정답 ④.</p></div>
+<p class="step">정답 <b>④</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 2</span><span class="area">납</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">중성자 수=질량수−원자번호=207−82=125.</p>
-<p class="step">정답 ②.</p></div>
+<div class="q" id="q2"><div class="qh"><span class="qno">문제 2</span><span class="area">납</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">중성자 수=질량수−원자번호=207−82=125.</p>
+<p class="step">정답 <b>②</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 3</span><span class="area">이온</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">(가): 전하 +2 → 전자=양성자−2=20−2=18.</p>
+<div class="q" id="q3"><div class="qh"><span class="qno">문제 3</span><span class="area">이온</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">(가): 전하 +2 → 전자=양성자−2=20−2=18.</p>
 <p class="step">(나): 전하=양성자−전자=23−20=+3.</p>
-<p class="step">(다): ⁵⁶Fe 중성자=56−26=30.</p>
+<p class="step">(다): <sup>56</sup>Fe 중성자=56−26=30.</p>
 <p class="step">(가)+(나)+(다)=18+3+30=51.</p>
-<p class="step">정답 ④.</p></div>
+<p class="step">정답 <b>④</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 4</span><span class="area">중성자수</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">중성자 수=질량수−원자번호(이온 전하는 핵 구성 불변).</p>
-<p class="step">²³⁸U:238−92=146, ⁴⁰Cu²⁺:40−20=20, ⁵¹V³⁺:51−23=28.</p>
+<div class="q" id="q4"><div class="qh"><span class="qno">문제 4</span><span class="area">중성자수</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">중성자 수=질량수−원자번호(이온 전하는 핵 구성 불변).</p>
+<p class="step"><sup>238</sup>U:238−92=146, <sup>40</sup>Ca<sup>2+</sup>:40−20=20, <sup>51</sup>V<sup>3+</sup>:51−23=28.</p>
 <p class="step">합 146+20+28=194.</p>
-<p class="step">정답 ②.</p></div>
+<p class="step">정답 <b>②</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 5</span><span class="area">원자의크기</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">1 Å=10⁻¹⁰ m, 1 pm=10⁻¹² m이므로 1 Å=10⁻¹⁰/10⁻¹²=10²=100 pm.</p>
-<p class="step">정답 ②.</p></div>
+<div class="q" id="q5"><div class="qh"><span class="qno">문제 5</span><span class="area">원자의크기</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">1 Å=10<sup>−10</sup> m, 1 pm=10<sup>−12</sup> m이므로 1 Å=10<sup>−10</sup>/10<sup>−12</sup>=10<sup>2</sup>=100 pm.</p>
+<p class="step">정답 <b>②</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 6</span><span class="area">원자핵의크기</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">H⁺는 원자핵(양성자) 그 자체.</p>
-<p class="step">원자 지름이 10⁻⁸ cm일 때 원자핵 반지름은 약 5×10⁻¹⁶ m=5×10⁻¹⁴ cm 규모로, 가장 가까운 값은 10⁻¹³ cm.</p>
-<p class="step">정답 ①.</p></div>
+<div class="q" id="q6"><div class="qh"><span class="qno">문제 6</span><span class="area">원자핵의크기</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">H<sup>+</sup>는 원자핵(양성자) 그 자체.</p>
+<p class="step">원자 지름이 10<sup>−8</sup> cm일 때 원자핵 반지름은 약 5×10<sup>−16</sup> m=5×10<sup>−14</sup> cm 규모로, 가장 가까운 값은 10<sup>−13</sup> cm.</p>
+<p class="step">정답 <b>①</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 7</span><span class="area">원자의크기</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">원자 반지름 약 0.5×10⁻¹⁰ m, 원자핵 반지름 약 0.5×10⁻¹⁵ m → 비율=10⁻¹⁰/10⁻¹⁵=10⁵.</p>
-<p class="step">정답 ②.</p></div>
+<div class="q" id="q7"><div class="qh"><span class="qno">문제 7</span><span class="area">원자의크기</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">원자 반지름 약 0.5×10<sup>−10</sup> m, 원자핵 반지름 약 0.5×10<sup>−15</sup> m → 비율=10<sup>−10</sup>/10<sup>−15</sup>=10<sup>5</sup>.</p>
+<p class="step">정답 <b>②</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 8</span><span class="area">원자의크기</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">하루 1 mm 성장, 하루=86400초 → 1초에 자라는 길이=1×10⁻³/86400≈1.16×10⁻⁸ m.</p>
-<p class="step">원자 지름 1.0×10⁻¹⁰ m → 초당 약 1.16×10⁻⁸/10⁻¹⁰≈100개.</p>
-<p class="step">정답 ③.</p></div>
+<div class="q" id="q8"><div class="qh"><span class="qno">문제 8</span><span class="area">원자의크기</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">하루 1 mm 성장, 하루=86400초 → 1초에 자라는 길이=1×10<sup>−3</sup>/86400≈1.16×10<sup>−8</sup></p>
+<p class="step">m. 원자 지름 1.0×10<sup>−10</sup> m → 초당 약 1.16×10<sup>−8</sup>/10<sup>−10</sup>≈100개.</p>
+<p class="step">정답 <b>③</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 9</span><span class="area">Q=CmT</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">Q=cmΔt → 2280=0.70×36×Δt → Δt=2280/25.2≈90.5°C.</p>
+<div class="q" id="q9"><div class="qh"><span class="qno">문제 9</span><span class="area">Q=CmT</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">Q=cmΔt → 2280=0.70×36×Δt → Δt=2280/25.2≈90.5°C.</p>
 <p class="step">25°C + 90.5°C ≈ 115°C가 녹는점.</p>
-<p class="step">정답 ③.</p></div>
+<p class="step">정답 <b>③</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 10</span><span class="area">그래프해석</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">가열 곡선에서 고체 가열 구간(0~80분)과 융해 평평 구간(80~128분)을 읽어 비열·용융열을 계산.</p>
-<p class="step">207 g=1 mol Pb 기준으로 ①②③은 성립하나 ④의 '27°C→융해 최소 에너지 8 kJ/mol'은 고체 가열에 필요한 열까지 포함하면 맞지 않아 옳지 않다.</p>
-<p class="step">정답 ④.</p></div>
+<div class="q" id="q10"><div class="qh"><span class="qno">문제 10</span><span class="area">그래프해석</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">납의 원자량이 207이므로 207 g은 정확히 1 mol이다.</p>
+<p class="step">가열 속도가 분당 100 J이므로 가열 곡선의 각 구간에 공급된 열량은 시간으로 바로 계산된다.</p>
+<p class="step">곡선에서 0~80분은 고체가 27°C에서 녹는점 327°C까지 온도가 오르는 구간, 80~128분은 327°C에서 평평한 융해 구간이다.</p>
+<p class="step">① 융해 구간의 열량은 100 J/min × (128−80)분 = 4800 J = 4.8 kJ이고 이것이 1 mol을 녹이는 데 쓰였으므로 용융열은 4.8 kJ/mol — 옳다.</p>
+<p class="step">② 고체 가열 구간의 열량은 100 × 80 = 8000 J, 온도 변화 ΔT = 327 − 27 = 300 K이므로 비열 = 8000 ÷ (207 g × 300 K) ≈ 0.13 J·g<sup>−1</sup>·K<sup>−1</sup> — 옳다.</p>
+<p class="step">③ 몰비열 = 8000 ÷ (1 mol × 300 K) ≈ 27 J·mol<sup>−1</sup>·K<sup>−1</sup> — 옳다.</p>
+<p class="step">④ 27°C의 고체 1 mol을 '모두 녹이려면' 327°C까지 가열하는 8.0 kJ에 융해열 4.8 kJ를 더해 최소 12.8 kJ가 필요하다.</p>
+<p class="step">8 kJ는 녹는점에 도달할 때까지의 열량일 뿐이므로 옳지 않다.</p>
+<p class="step">오답 유인: 80분 × 100 J = 8000 J이라는 숫자가 계산 중에 그대로 등장하므로 ④의 '8 kJ'를 옳은 진술로 넘기기 쉽다.</p>
+<p class="step">'모두 녹인다'에는 융해열 4.8 kJ/mol이 반드시 추가되어야 한다.</p>
+<p class="step">정답 <b>④</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 11</span><span class="area">온도</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">0°C=40°Z(어는점), 100°C=120°Z(끓는점)이므로 100°C 구간이 80°Z 구간에 대응 → 1°C=0.8°Z.</p>
+<div class="q" id="q11"><div class="qh"><span class="qno">문제 11</span><span class="area">온도</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">0°C=40°Z(어는점), 100°C=120°Z(끓는점)이므로 100°C 구간이 80°Z 구간에 대응 → 1°C=0.8°Z.</p>
 <p class="step">x°Z=0.8·x(°C)+40.</p>
 <p class="step">40°C → 0.8×40+40=72°Z.</p>
-<p class="step">정답 ②.</p></div>
+<p class="step">정답 <b>②</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 12</span><span class="area">표기법</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">아래첨자는 원자번호.</p>
+<div class="q" id="q12"><div class="qh"><span class="qno">문제 12</span><span class="area">표기법</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">아래첨자는 원자번호.</p>
 <p class="step">Li=3, C=6, P=15는 옳다.</p>
-<p class="step">구리(Cu)의 원자번호는 29인데 ⁶⁵₃₀Cu로 30으로 표기되어 옳지 않다(올바른 표기는 ⁶⁵₂₉Cu).</p>
-<p class="step">정답 ④.</p></div>
+<p class="step">구리(Cu)의 원자번호는 29인데 <sup>65</sup><sub>30</sub>Cu로 30으로 표기되어 옳지 않다(올바른 표기는 <sup>65</sup><sub>29</sub>Cu).</p>
+<p class="step">정답 <b>④</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 13</span><span class="area">순물질</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">I은 화합물(물 같은)이면서 순물질, II는 홑원소물질(수소 같은)이면서 순물질, III은 서로 다른 물질이 섞인 혼합물, IV도 혼합물.</p>
+<div class="q" id="q13"><div class="qh"><span class="qno">문제 13</span><span class="area">순물질</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">I은 화합물(물 같은)이면서 순물질, II는 홑원소물질(수소 같은)이면서 순물질, III은 서로 다른 물질이 섞인 혼합물, IV도 혼합물.</p>
 <p class="step">순물질은 I, II.</p>
-<p class="step">정답 ②.</p></div>
+<p class="step">정답 <b>②</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 14</span><span class="area">원자</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">원소를 결정하는 것은 양성자 수(원자번호).</p>
+<div class="q" id="q14"><div class="qh"><span class="qno">문제 14</span><span class="area">원자</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">원소를 결정하는 것은 양성자 수(원자번호).</p>
 <p class="step">양성자 수가 달라지면 항상 다른 원소가 된다(①).</p>
 <p class="step">중성자 수 차이는 동위원소, 전자 수 차이는 이온이며 같은 원소로 남는다.</p>
-<p class="step">정답 ①.</p></div>
+<p class="step">정답 <b>①</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 15</span><span class="area">동위원소</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">동위원소는 양성자수(원자번호)는 같고 질량수가 다른 원소.</p>
-<p class="step">a.</p>
-<p class="step">¹₁H·²₁H(원자번호 1 동일), b.</p>
-<p class="step">³₂He·⁴₂He(원자번호 2 동일)는 동위원소.</p>
+<div class="q" id="q15"><div class="qh"><span class="qno">문제 15</span><span class="area">동위원소</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">동위원소는 양성자수(원자번호)는 같고 질량수가 다른 원소.</p>
+<p class="step">a. <sup>1</sup><sub>1</sub>H·<sup>2</sup><sub>1</sub>H(원자번호 1 동일),</p>
+<p class="step">b. <sup>3</sup><sub>2</sub>He·<sup>4</sup><sub>2</sub>He(원자번호 2 동일)는 동위원소.</p>
 <p class="step">c·d는 원자번호가 달라 아님.</p>
-<p class="step">정답 ②(a, b).</p></div>
+<p class="step">정답 <b>②</b>(a, b).</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 16</span><span class="area">평균원자량</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">평균원자량 12.011은 ¹²C(98.9%)·¹³C·¹⁴C 동위원소의 가중 평균일 뿐, 실제 한 개의 탄소 원자는 정수 질량수(12, 13, 14)만 가진다.</p>
+<div class="q" id="q16"><div class="qh"><span class="qno">문제 16</span><span class="area">평균원자량</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">평균원자량 12.011은 <sup>12</sup>C(98.9%)·<sup>13</sup>C·<sup>14</sup>C 동위원소의 가중 평균일 뿐, 실제 한 개의 탄소 원자는 정수 질량수(12, 13, 14)만 가진다.</p>
 <p class="step">정확히 12.011의 질량을 갖는 탄소는 존재하지 않으므로 확률 0%.</p>
-<p class="step">정답 ①.</p></div>
+<p class="step">정답 <b>①</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 17</span><span class="area">동위원소</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">동위원소는 양성자수(=전자수)는 같고 중성자수·질량수가 다른 원소.</p>
-<p class="step">¹²C·¹³C·¹⁴C에 대해 옳은 것은 '양성자 수는 같고 중성자 수는 다르다'.</p>
-<p class="step">정답 ③.</p></div>
+<div class="q" id="q17"><div class="qh"><span class="qno">문제 17</span><span class="area">동위원소</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">동위원소는 양성자수(=전자수)는 같고 중성자수·질량수가 다른 원소.</p>
+<p class="step"><sup>12</sup>C·<sup>13</sup>C·<sup>14</sup>C에 대해 옳은 것은 '양성자 수는 같고 중성자 수는 다르다'.</p>
+<p class="step">정답 <b>③</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 18</span><span class="area">질량비</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">A₂B에서 2A:B=60:40=6:4 → A:B(원자 1개 질량비)=3:4.</p>
-<p class="step">AB₂에서 A:2B=3:8=27:72 ≈ 27:73.</p>
-<p class="step">정답 ③.</p></div>
+<div class="q" id="q18"><div class="qh"><span class="qno">문제 18</span><span class="area">질량비</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">A<sub>2</sub>B에서 2A:B=60:40=6:4 → A:B(원자 1개 질량비)=3:4.</p>
+<p class="step">AB<sub>2</sub>에서 A:2B=3:8=27:72 ≈ 27:73.</p>
+<p class="step">정답 <b>③</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 19</span><span class="area">비율</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">114.8=112.9×(x/100)+114.9×((100−x)/100) → 11480=112.9x+11490−114.9x → 2x=10 → x=5.</p>
-<p class="step">¹¹³A:¹¹⁵A=5:95.</p>
-<p class="step">정답 ①.</p></div>
+<div class="q" id="q19"><div class="qh"><span class="qno">문제 19</span><span class="area">비율</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">평균 원자량은 동위원소 질량의 존재비 가중 평균이다.</p>
+<p class="step"><sup>113</sup>A의 비율을 x%, <sup>115</sup>A를 (100−x)%로 놓으면 112.9 × x + 114.9 × (100 − x) = 114.8 × 100.</p>
+<p class="step">전개하면 112.9x + 11490 − 114.9x = 11480 → −2x = −10 → x = 5.</p>
+<p class="step">따라서 <sup>113</sup>A : <sup>115</sup>A = 5 : 95이다.</p>
+<p class="step">검산: 112.9 × 0.05 + 114.9 × 0.95 = 5.645 + 109.155 = 114.8로 일치한다.</p>
+<p class="step">지렛대 원리로 더 빠르게 확인할 수도 있다.</p>
+<p class="step">평균 114.8은 114.9와 0.1, 112.9와 1.9만큼 떨어져 있으므로 존재비는 거리의 역비, 즉 <sup>113</sup>A : <sup>115</sup>A = 0.1 : 1.9 = 5 : 95가 된다.</p>
+<p class="step">오답 유인: 평균이 115 쪽에 아주 가깝다는 인상만으로 어림해 10 : 90(②)을 고르거나, 지렛대 관계를 거리의 정비(1.9 : 0.1)로 뒤집어 95 : 5로 읽고 보기에서 순서를 혼동하는 실수가 잦다.</p>
+<p class="step">평균에서 먼 동위원소일수록 존재비가 작다는 방향을 기억해야 한다.</p>
+<p class="step">정답 <b>①</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 20</span><span class="area">평균원자량</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">63.5=62.9×0.69 + M×0.31 → M=(63.5−43.4)/0.31≈64.8 amu.</p>
-<p class="step">정답 ④.</p></div>
+<div class="q" id="q20"><div class="qh"><span class="qno">문제 20</span><span class="area">평균원자량</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">63.5=62.9×0.69 + M×0.31 → M=(63.5−43.4)/0.31≈64.8 amu.</p>
+<p class="step">정답 <b>④</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 21</span><span class="area">동위원소</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">① 평균 원자량 35×0.75+37×0.25=35.5(옳음).</p>
-<p class="step">② Cl₂는 질량수 70·72·74 세 피크(옳음).</p>
-<p class="step">③ 각 조합 확률 ³⁵Cl₂ 9/16(질량 70), ³⁵Cl³⁷Cl 6/16(72), ³⁷Cl₂ 1/16(74) → 가장 큰 피크는 70이지 71이 아님(틀림).</p>
-<p class="step">④ Cl₂ 몰 분자량 71 g(옳음).</p>
-<p class="step">정답 ③.</p></div>
+<div class="q" id="q21"><div class="qh"><span class="qno">문제 21</span><span class="area">동위원소</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">① 평균 원자량 35×0.75+37×0.25=35.5(옳음).</p>
+<p class="step">② Cl<sub>2</sub>는 질량수 70·72·74 세 피크(옳음).</p>
+<p class="step">③ 각 조합 확률 <sup>35</sup>Cl<sub>2</sub> 9/16(질량 70), <sup>35</sup>Cl<sup>37</sup>Cl 6/16(72), <sup>37</sup>Cl<sub>2</sub> 1/16(74) → 가장 큰 피크는 70이지 71이 아님(틀림).</p>
+<p class="step">④ Cl<sub>2</sub> 몰 분자량 71 g(옳음).</p>
+<p class="step">정답 <b>③</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 22</span><span class="area">질량분석</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">두 Cl의 조합 확률: (³⁵Cl)₂=3/4×3/4=9/16, ³⁵Cl³⁷Cl=2×(3/4×1/4)=6/16, (³⁷Cl)₂=1/4×1/4=1/16.</p>
-<p class="step">[M]⁺:[M+2]⁺:[M+4]⁺=9:6:1.</p>
-<p class="step">정답 ④.</p></div>
+<div class="q" id="q22"><div class="qh"><span class="qno">문제 22</span><span class="area">질량분석</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">두 Cl의 조합 확률: (<sup>35</sup>Cl)<sub>2</sub>=3/4×3/4=9/16, <sup>35</sup>Cl<sup>37</sup>Cl=2×(3/4×1/4)=6/16, (<sup>37</sup>Cl)<sub>2</sub>=1/4×1/4=1/16.</p>
+<p class="step">[M]<sup>+</sup>:[M+2]<sup>+</sup>:[M+4]<sup>+</sup>=9:6:1.</p>
+<p class="step">정답 <b>④</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 23</span><span class="area">동위원소</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">가.</p>
-<p class="step">AB 질량은 30·31·32 세 종류(31 중복)라 '4종류'는 틀림.</p>
-<p class="step">나.</p>
-<p class="step">B 동위원소는 같은 원소라 B₂의 양성자 수 동일(옳음).</p>
-<p class="step">다.</p>
-<p class="step">A 평균 원자량 14×0.4+15×0.6=14.6 → A₂ 평균 분자량 29.2이지 29.0 아님(틀림).</p>
-<p class="step">라.</p>
-<p class="step">가장 큰 B₂=¹⁷B+¹⁷B=34(옳음).</p>
-<p class="step">옳은 것 나, 라.</p>
-<p class="step">정답 ③.</p></div>
+<div class="q" id="q23"><div class="qh"><span class="qno">문제 23</span><span class="area">동위원소</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">가. AB 질량은 30·31·32 세 종류(31 중복)라 '4종류'는 틀림.</p>
+<p class="step">나. B 동위원소는 같은 원소라 B<sub>2</sub>의 양성자 수 동일(옳음).</p>
+<p class="step">다. A 평균 원자량 14×0.4+15×0.6=14.6 → A<sub>2</sub> 평균 분자량 29.2이지 29.0 아님(틀림).</p>
+<p class="step">라. 가장 큰 B<sub>2</sub>=<sup>17</sup>B+<sup>17</sup>B=34(옳음).</p>
+<p class="step">옳은 것 나,</p>
+<p class="step">라. 정답 ③.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 24</span><span class="area">몰=질량/분자량</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">70 kg=70000 g H₂O.</p>
+<div class="q" id="q24"><div class="qh"><span class="qno">문제 24</span><span class="area">몰=질량/분자량</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">70 kg=70000 g H<sub>2</sub>O.</p>
 <p class="step">물 분자량 18, 한 분자에 원자 3개.</p>
-<p class="step">원자수=(70000/18)×6.02×10²³×3≈7×10²⁷×3≈2×10²⁸ → 가장 가까운 10²⁸.</p>
-<p class="step">정답 ④.</p></div>
+<p class="step">원자수=(70000/18)×6.02×10<sup>23</sup>×3≈7×10<sup>27</sup>×3≈2×10<sup>28</sup> → 가장 가까운 10<sup>28</sup>.</p>
+<p class="step">정답 <b>④</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 25</span><span class="area">몰=질량/분자량</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">물 밀도 1 g/mL → 500 mL=500 g.</p>
-<p class="step">물 3원자분자.</p>
-<p class="step">원자수=(500/18)×6.02×10²³×3≈5.0×10²⁵.</p>
-<p class="step">정답 ④.</p></div>
+<div class="q" id="q25"><div class="qh"><span class="qno">문제 25</span><span class="area">몰=질량/분자량</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">물 밀도 1 g/mL → 500 mL=500</p>
+<p class="step">g. 물 3원자분자.</p>
+<p class="step">원자수=(500/18)×6.02×10<sup>23</sup>×3≈5.0×10<sup>25</sup>.</p>
+<p class="step">정답 <b>④</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 26</span><span class="area">몰=질량/분자량</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">1.0 L=1000 g.</p>
-<p class="step">물 분자수=(1000/18)×6.02×10²³≈3.34×10²⁵.</p>
-<p class="step">3원자분자라 원자수=3.34×10²⁵×3≈1.0×10²⁶.</p>
-<p class="step">정답 ③.</p></div>
+<div class="q" id="q26"><div class="qh"><span class="qno">문제 26</span><span class="area">몰=질량/분자량</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">1.0 L=1000</p>
+<p class="step">g. 물 분자수=(1000/18)×6.02×10<sup>23</sup>≈3.34×10<sup>25</sup>.</p>
+<p class="step">3원자분자라 원자수=3.34×10<sup>25</sup>×3≈1.0×10<sup>26</sup>.</p>
+<p class="step">정답 <b>③</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 27</span><span class="area">몰=질량/분자량</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">체중 50 kg의 70%가 물 → 35 kg=35000 g.</p>
-<p class="step">물 분자수=(35000/18)×6.02×10²³≈1.16×10²⁷ → 가장 가까운 10²⁷.</p>
-<p class="step">정답 ③.</p></div>
+<div class="q" id="q27"><div class="qh"><span class="qno">문제 27</span><span class="area">몰=질량/분자량</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">체중 50 kg의 70%가 물 → 35 kg=35000</p>
+<p class="step">g. 물 분자수=(35000/18)×6.02×10<sup>23</sup>≈1.16×10<sup>27</sup> → 가장 가까운 10<sup>27</sup>.</p>
+<p class="step">정답 <b>③</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 28</span><span class="area">몰=질량/분자량</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">물 1분자(H₂O) 최외각전자=H 2개×1 + O 6 = 8개.</p>
+<div class="q" id="q28"><div class="qh"><span class="qno">문제 28</span><span class="area">몰=질량/분자량</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">물 1분자(H<sub>2</sub>O) 최외각전자=H 2개×1 + O 6 = 8개.</p>
 <p class="step">물 18 g=1 mol → 최외각전자 몰수=1×8=8 mol.</p>
-<p class="step">정답 ②.</p></div>
+<p class="step">정답 <b>②</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 29</span><span class="area">몰=질량/분자량</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">H 몰수 비교: ① 물 100 g → (100/18)×2≈11.1 mol.</p>
-<p class="step">② 3×10²⁴ 수소분자 → (3×10²⁴/6.02×10²³)×2≈10 mol.</p>
-<p class="step">③ 표준상태 H₂ 10 L → (10/22.4)×2≈0.89 mol.</p>
-<p class="step">④ 질량분율 10% 100 g(H 10 g) → 10 mol.</p>
-<p class="step">가장 많은 것은 ① 물 100 g.</p>
-<p class="step">정답 ①.</p></div>
+<div class="q" id="q29"><div class="qh"><span class="qno">문제 29</span><span class="area">몰=질량/분자량</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">네 보기를 모두 H 원자의 몰수로 통일해 비교한다.</p>
+<p class="step">① 물 100 g: H<sub>2</sub>O 몰수 = 100 ÷ 18 ≈ 5.56 mol, 분자당 H 2개이므로 H = 5.56 × 2 ≈ 11.1 mol.</p>
+<p class="step">② 수소 분자 3×10<sup>24</sup>개: 몰수 = 3×10<sup>24</sup> ÷ 6.02×10<sup>23</sup> ≈ 4.98 mol, H = 4.98 × 2 ≈ 9.97 mol.</p>
+<p class="step">③ 표준 상태 H<sub>2</sub> 10 L: 몰수 = 10 ÷ 22.4 ≈ 0.446 mol, H = 0.446 × 2 ≈ 0.89 mol.</p>
+<p class="step">④ 수소 질량 분율 10%인 물질 100 g: H의 질량 = 10 g이고 H 원자량이 1이므로 H = 10 mol.</p>
+<p class="step">따라서 11.1 &gt; 10 ≈ 9.97 &gt; 0.89 순서가 되어 물 100 g이 가장 많다.</p>
+<p class="step">오답 유인: ②의 3×10<sup>24</sup>이 아보가드로 수의 약 5배라는 크기감에 눌려 ②를 최대로 고르거나, ①에서 물 분자당 H가 2개라는 ×2를 빠뜨려 5.56 mol로 계산하면 ②·④보다 작아 보이게 된다.</p>
+<p class="step">또 ④에서 '질량 분율 10%'를 몰 분율로 착각하면 비교가 무너진다.</p>
+<p class="step">정답 <b>①</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 30</span><span class="area">몰=질량/분자량</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">시속 60 km → 분당 1 km 이동 → 분당 0.350 kg=350 g CO 발생.</p>
+<div class="q" id="q30"><div class="qh"><span class="qno">문제 30</span><span class="area">몰=질량/분자량</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">시속 60 km → 분당 1 km 이동 → 분당 0.350 kg=350 g CO 발생.</p>
 <p class="step">CO 분자량 28 → 350/28=12.5 mol.</p>
-<p class="step">정답 ①.</p></div>
+<p class="step">정답 <b>①</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 31</span><span class="area">몰해석</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">가.</p>
-<p class="step">0.1 mol O₂ 분자 개수=0.1 mol O 원자 개수(둘 다 0.1 N_A)로 같음 → 틀림.</p>
-<p class="step">나.</p>
-<p class="step">SO₂ 3.3/64=0.05 mol &gt; N₂O₄ 4.0/92=0.043 mol → 옳음.</p>
-<p class="step">다.</p>
-<p class="step">MgCl₂ 1.0 mol 이온수 3 mol &gt; NaOH 1.0 mol 이온수 2 mol → 옳음.</p>
-<p class="step">라.</p>
-<p class="step">0.5 M×0.5 L=0.25 mol Na⁺ &lt; NaCl 29.2/58.5=0.5 mol Na⁺ → 틀림.</p>
-<p class="step">옳은 것 나, 다.</p>
-<p class="step">정답 ②.</p></div>
+<div class="q" id="q31"><div class="qh"><span class="qno">문제 31</span><span class="area">몰해석</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">가. 0.1 mol O<sub>2</sub> 분자 개수=0.1 mol O 원자 개수(둘 다 0.1 N_A)로 같음 → 틀림.</p>
+<p class="step">나. SO<sub>2</sub> 3.3/64=0.05 mol &gt; N<sub>2</sub>O<sub>4</sub> 4.0/92=0.043 mol → 옳음.</p>
+<p class="step">다. MgCl<sub>2</sub> 1.0 mol 이온수 3 mol &gt; NaOH 1.0 mol 이온수 2 mol → 옳음.</p>
+<p class="step">라. 0.5 M×0.5 L=0.25 mol Na<sup>+</sup> &lt; NaCl 29.2/58.5=0.5 mol Na<sup>+</sup> → 틀림.</p>
+<p class="step">옳은 것 나,</p>
+<p class="step">다. 정답 ②.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 32</span><span class="area">원자의크기</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">H₂ 1몰 부피=2 g/0.069≈29 cm³.</p>
-<p class="step">분자 1개 부피=29/(6.02×10²³)≈4.8×10⁻²³ cm³.</p>
-<p class="step">한 변 길이≈(4.8×10⁻²³)^(1/3)≈3.6×10⁻⁸ cm=0.36 nm → 가장 가까운 0.5 nm.</p>
-<p class="step">정답 ③.</p></div>
+<div class="q" id="q32"><div class="qh"><span class="qno">문제 32</span><span class="area">원자의크기</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">H<sub>2</sub>의 분자량은 2.0이므로 액체 수소 1 mol이 차지하는 부피는 2.0 g ÷ 0.069 g/cm<sup>3</sup> ≈ 29 cm<sup>3</sup>이다.</p>
+<p class="step">이 안에 분자가 6.02×10<sup>23</sup>개 있으므로 분자 1개가 차지하는 부피는 29 ÷ (6.02×10<sup>23</sup>) ≈ 4.8×10<sup>−23</sup> cm<sup>3</sup>이다.</p>
+<p class="step">분자들이 고르게 분포한다고 가정하면 각 분자는 이 부피의 작은 정육면체를 하나씩 차지하고, 가장 가까운 이웃 분자 중심 간 거리는 그 한 변의 길이, 즉 세제곱근이 된다.</p>
+<p class="step">(4.8×10<sup>−23</sup>)^(1/3)을 계산하기 위해 48×10<sup>−24</sup>로 고쳐 쓰면 ∛48 ≈ 3.6, ∛10<sup>−24</sup> = 10<sup>−8</sup>이므로 3.6×10<sup>−8</sup> cm = 3.6×10<sup>−10</sup> m = 0.36 nm이다.</p>
+<p class="step">보기 중 0.36 nm에 가장 가까운 값은 0.5 nm이다(0.1 nm과의 차 0.26, 0.5 nm과의 차 0.14).</p>
+<p class="step">오답 유인: 수소 '원자'의 크기(지름 약 0.1 nm)를 떠올려 ②를 고르거나, 세제곱근을 취할 때 지수 −23만 3으로 나누고 가수 4.8을 그대로 두어 자릿수를 틀리는 경로가 흔하다.</p>
+<p class="step">반드시 4.8×10<sup>−23</sup> = 48×10<sup>−24</sup>처럼 지수를 3의 배수로 맞춘 뒤 계산해야 한다.</p>
+<p class="step">정답 <b>③</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 33</span><span class="area">몰=질량/분자량</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">Ti 결정 밀도 4.5 g/cm³ → 1 cm³ 질량 4.5 g.</p>
-<p class="step">원자량 48로 간주 → 원자 수=(질량/원자량)×N_A=(4.5/48)×N_A.</p>
-<p class="step">정답 ②.</p></div>
+<div class="q" id="q33"><div class="qh"><span class="qno">문제 33</span><span class="area">몰=질량/분자량</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">Ti 결정 밀도 4.5 g/cm<sup>3</sup> → 1 cm<sup>3</sup> 질량 4.5</p>
+<p class="step">g. 원자량 48로 간주 → 원자 수=(질량/원자량)×N_A=(4.5/48)×N_A.</p>
+<p class="step">정답 <b>②</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 34</span><span class="area">몰=질량/분자량</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">100 mL(≈물 100 g)당 포도당 100 mg.</p>
-<p class="step">물 몰수/포도당 몰수=(100/18)/(0.1/180)=10⁴(부피·개수 비).</p>
-<p class="step">한 방향(1차원) 간격은 세제곱근: ∛10⁴≈21.5 → 약 20.</p>
-<p class="step">물 분자 20개당 포도당 1개.</p>
-<p class="step">정답 ①.</p></div>
+<div class="q" id="q34"><div class="qh"><span class="qno">문제 34</span><span class="area">몰=질량/분자량</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">혈액 100 mL는 거의 물이므로 물의 질량을 약 100 g으로 놓는다.</p>
+<p class="step">물의 몰수는 100 g ÷ 18 g/mol ≈ 5.56 mol이고, 포도당은 100 mg = 0.100 g이므로 0.100 ÷ 180 = 5.56×10<sup>−4</sup> mol이다.</p>
+<p class="step">따라서 같은 부피 안에서 물 분자 수와 포도당 분자 수의 비는 5.56 ÷ (5.56×10<sup>−4</sup>) = 10<sup>4</sup>, 즉 부피(3차원) 기준으로는 물 10,000개당 포도당 1개다.</p>
+<p class="step">그런데 문제가 묻는 것은 '한 방향으로 볼 때'이므로, 포도당 1개가 물 분자 10<sup>4</sup>개로 이루어진 정육면체의 중심에 하나씩 놓여 있다고 보면 한 변(1차원)에 늘어선 물 분자 수는 세제곱근인 ∛10<sup>4</sup> = 10^(4/3) ≈ 21.5개가 된다.</p>
+<p class="step">따라서 한 방향으로는 물 분자 약 20개마다 포도당 분자가 1개씩 있는 셈이다.</p>
+<p class="step">오답 유인: 부피 비 10<sup>4</sup>를 그대로 읽어 ④ 20000을 고르기 쉽다.</p>
+<p class="step">'한 방향'은 1차원 간격이므로 개수 비 10<sup>4</sup>에 반드시 세제곱근을 취해 약 20을 얻어야 한다.</p>
+<p class="step">정답 <b>①</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 35</span><span class="area">몰=질량/분자량</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">한 변 a=50 Å=5×10⁻⁹ m.</p>
-<p class="step">부피 a³=1.25×10⁻²⁵ m³.</p>
-<p class="step">물 밀도 1 g/cm³=10⁶ g/m³ → 물 질량=1.25×10⁻²⁵×10⁶=1.25×10⁻¹⁹ g.</p>
-<p class="step">물 분자수=(1.25×10⁻¹⁹/18)×6.02×10²³≈4.18×10³ → 가장 가까운 4000.</p>
-<p class="step">정답 ③.</p></div>
+<div class="q" id="q35"><div class="qh"><span class="qno">문제 35</span><span class="area">몰=질량/분자량</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">한 변 a=50 Å=5×10<sup>−9</sup></p>
+<p class="step">m. 부피 a<sup>3</sup>=1.25×10<sup>−25</sup> m<sup>3</sup>.</p>
+<p class="step">물 밀도 1 g/cm<sup>3</sup>=10<sup>6</sup> g/m<sup>3</sup> → 물 질량=1.25×10<sup>−25</sup>×10<sup>6</sup>=1.25×10<sup>−19</sup></p>
+<p class="step">g. 물 분자수=(1.25×10<sup>−19</sup>/18)×6.02×10<sup>23</sup>≈4.18×10<sup>3</sup> → 가장 가까운 4000.</p>
+<p class="step">정답 <b>③</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 36</span><span class="area">몰과개수</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">1개 주머니: (3.8×10⁶)/(6.02×10²³)=6.3×10⁻¹⁸ mol=6.3 amol/vesicle.</p>
-<p class="step">1개 세포(3.0×10⁴ 주머니): 6.3×10⁻¹⁸×3.0×10⁴=1.89×10⁻¹³ mol=189×10⁻¹⁵ mol≈190 fmol/cell.</p>
-<p class="step">정답 ③.</p></div>
+<div class="q" id="q36"><div class="qh"><span class="qno">문제 36</span><span class="area">몰과개수</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">1개 주머니: (3.8×10<sup>6</sup>)/(6.02×10<sup>23</sup>)=6.3×10<sup>−18</sup> mol=6.3 amol/vesicle.</p>
+<p class="step">1개 세포(3.0×10<sup>4</sup> 주머니): 6.3×10<sup>−18</sup>×3.0×10<sup>4</sup>=1.89×10<sup>−13</sup> mol=189×10<sup>−15</sup> mol≈190 fmol/cell.</p>
+<p class="step">정답 <b>③</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 37</span><span class="area">PV=nRT</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">실험 1·2(같은 온도, 압력·부피)로 보일 법칙, 1·3(같은 압력, 온도·부피)로 샤를 법칙 확인 가능.</p>
+<div class="q" id="q37"><div class="qh"><span class="qno">문제 37</span><span class="area">PV=nRT</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">실험 1·2(같은 온도, 압력·부피)로 보일 법칙, 1·3(같은 압력, 온도·부피)로 샤를 법칙 확인 가능.</p>
 <p class="step">즉 실험 1·2·3만으로 보일-샤를 법칙을 확인할 수 있어 실험 4는 반드시 필요하지 않다.</p>
-<p class="step">정답 ④.</p></div>
+<p class="step">정답 <b>④</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 38</span><span class="area">PV=nRT</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">R=0.082 atm·L/mol·K=8.314 J/mol·K로 단위가 에너지/(몰·온도)이다.</p>
+<div class="q" id="q38"><div class="qh"><span class="qno">문제 38</span><span class="area">PV=nRT</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">R=0.082 atm·L/mol·K=8.314 J/mol·K로 단위가 에너지/(몰·온도)이다.</p>
 <p class="step">따라서 R은 이상기체 1몰의 온도를 1 K(=1°C) 높이는 데 대응하는 에너지 규모를 나타낸다.</p>
-<p class="step">정답 ③.</p></div>
+<p class="step">정답 <b>③</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 39</span><span class="area">PV=nRT</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">풍선이 상승하면 외부 압력이 작아진다.</p>
+<div class="q" id="q39"><div class="qh"><span class="qno">문제 39</span><span class="area">PV=nRT</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">풍선이 상승하면 외부 압력이 작아진다.</p>
 <p class="step">외부 공기가 풍선 벽면에 충돌하는 빈도가 감소하여 외부 압력이 낮아지므로 풍선이 팽창한다.</p>
-<p class="step">정답 ④.</p></div>
+<p class="step">정답 <b>④</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 40</span><span class="area">PV=nRT</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">PV=nRT.</p>
+<div class="q" id="q40"><div class="qh"><span class="qno">문제 40</span><span class="area">PV=nRT</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">PV=nRT.</p>
 <p class="step">압력 6.4→1.0 atm(부피 6.4배), 온도 281 K→298 K(부피 298/281배).</p>
 <p class="step">V=2.1×6.4×(298/281)≈2.1×6.8≈14.3 mL.</p>
-<p class="step">정답 ④.</p></div>
+<p class="step">정답 <b>④</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 41</span><span class="area">PV=nRT</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">1×10⁻¹⁰ Pa=10⁻¹⁵ atm, 1 mL=10⁻³ L, 300 K.</p>
-<p class="step">n=PV/RT=(10⁻¹⁵×10⁻³)/(0.082×300)≈4×10⁻²⁰ mol.</p>
-<p class="step">분자수=4×10⁻²⁰×6.02×10²³≈2.4×10⁴.</p>
-<p class="step">정답 ④.</p></div>
+<div class="q" id="q41"><div class="qh"><span class="qno">문제 41</span><span class="area">PV=nRT</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">1×10<sup>−10</sup> Pa=10<sup>−15</sup> atm, 1 mL=10<sup>−3</sup> L, 300</p>
+<p class="step">K. n=PV/RT=(10<sup>−15</sup>×10<sup>−3</sup>)/(0.082×300)≈4×10<sup>−20</sup> mol.</p>
+<p class="step">분자수=4×10<sup>−20</sup>×6.02×10<sup>23</sup>≈2.4×10<sup>4</sup>.</p>
+<p class="step">정답 <b>④</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 42</span><span class="area">PV=nRT</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">부피 일정 조건에서 P∝T.</p>
+<div class="q" id="q42"><div class="qh"><span class="qno">문제 42</span><span class="area">PV=nRT</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">부피 일정 조건에서 P∝T.</p>
 <p class="step">압력을 0.8배로 낮추려면 온도도 0.8배: 298 K×0.8=238.4 K=238.4−273≈−34.6°C → 가장 가까운 −30°C.</p>
-<p class="step">정답 ①.</p></div>
+<p class="step">정답 <b>①</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 43</span><span class="area">PV=nRT</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">P·n 일정 → 샤를 법칙 V∝T.</p>
+<div class="q" id="q43"><div class="qh"><span class="qno">문제 43</span><span class="area">PV=nRT</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">P·n 일정 → 샤를 법칙 V∝T.</p>
 <p class="step">부피가 3/4배(30/40) → 온도도 3/4배.</p>
 <p class="step">298 K×0.75=223.5 K=223.5−273≈−49.5°C → −50°C.</p>
-<p class="step">정답 ①.</p></div>
+<p class="step">정답 <b>①</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 44</span><span class="area">PV=nRT</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">2H₂+O₂→2H₂O.</p>
+<div class="q" id="q44"><div class="qh"><span class="qno">문제 44</span><span class="area">PV=nRT</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">2H<sub>2</sub>+O<sub>2</sub>→2H<sub>2</sub>O.</p>
 <p class="step">수소 n몰·산소 n몰이면 2:1이라 수소가 한계반응물.</p>
 <p class="step">(i) 액체 물: 남은 기체=산소 n/2몰(물은 액체, 부피 무시).</p>
 <p class="step">(ii) 수증기: 남은 기체=산소 n/2 + 수증기 n = 3n/2몰.</p>
 <p class="step">부피 비 (ii):(i)=(3n/2):(n/2)=3배.</p>
-<p class="step">정답 ③.</p></div>
+<p class="step">정답 <b>③</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 45</span><span class="area">PV=nRT</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">n=PV/RT=(7.0×10⁻⁹×0.20)/(0.082×2773)≈6×10⁻¹² mol.</p>
-<p class="step">원자수=6×10⁻¹²×6.02×10²³≈3.6×10¹².</p>
-<p class="step">정답 ③.</p></div>
+<div class="q" id="q45"><div class="qh"><span class="qno">문제 45</span><span class="area">PV=nRT</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">n=PV/RT=(7.0×10<sup>−9</sup>×0.20)/(0.082×2773)≈6×10<sup>−12</sup> mol.</p>
+<p class="step">원자수=6×10<sup>−12</sup>×6.02×10<sup>23</sup>≈3.6×10<sup>12</sup>.</p>
+<p class="step">정답 <b>③</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 46</span><span class="area">PV=nRT</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">같은 온도·압력에서 d=PM/RT이므로 밀도는 분자량에 비례.</p>
-<p class="step">분자량비 H₂:Cl₂:CH₄=2:71:16 → 가장 큰 Cl₂가 밀도 최대.</p>
-<p class="step">정답 ②.</p></div>
+<div class="q" id="q46"><div class="qh"><span class="qno">문제 46</span><span class="area">PV=nRT</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">같은 온도·압력에서 d=PM/RT이므로 밀도는 분자량에 비례.</p>
+<p class="step">분자량비 H<sub>2</sub>:Cl<sub>2</sub>:CH<sub>4</sub>=2:71:16 → 가장 큰 Cl<sub>2</sub>가 밀도 최대.</p>
+<p class="step">정답 <b>②</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 47</span><span class="area">PV=nRT</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">1기압·25°C에서 기체 1몰 부피 V=RT/P=0.082×298≈24.4 L.</p>
-<p class="step">CO₂ 몰질량 44 g → 밀도=44/24.4≈1.8 g/L → 가장 가까운 2 g/L.</p>
-<p class="step">정답 ④.</p></div>
+<div class="q" id="q47"><div class="qh"><span class="qno">문제 47</span><span class="area">PV=nRT</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">1기압·25°C에서 기체 1몰 부피 V=RT/P=0.082×298≈24.4</p>
+<p class="step">L. CO<sub>2</sub> 몰질량 44 g → 밀도=44/24.4≈1.8 g/L → 가장 가까운 2 g/L.</p>
+<p class="step">정답 <b>④</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 48</span><span class="area">PV=nRT</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">수소의 부분압=전체압−수증기압=1.032−0.042=0.99 atm.</p>
-<p class="step">부피 0.24 L, 303 K.</p>
-<p class="step">n=PV/RT=(0.99×0.24)/(0.082×303)≈9.56×10⁻³ 몰.</p>
-<p class="step">정답 ②.</p></div>
+<div class="q" id="q48"><div class="qh"><span class="qno">문제 48</span><span class="area">PV=nRT</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">수상치환으로 포집한 기체 공간에는 수소와 함께 수증기가 섞여 있으므로, 돌턴의 부분 압력 법칙으로 수소의 분압부터 구한다.</p>
+<p class="step">P(전체) = P(H<sub>2</sub>) + P(수증기)이므로 P(H<sub>2</sub>) = 1.032 − 0.042 = 0.990 atm이다.</p>
+<p class="step">부피는 240 mL = 0.240 L, 온도는 30°C = 303 K로 환산한다.</p>
+<p class="step">이상 기체 상태 방정식 PV = nRT에서 n = PV ÷ RT = (0.990 × 0.240) ÷ (0.082 × 303) = 0.2376 ÷ 24.9 ≈ 9.56×10<sup>−3</sup> mol이다.</p>
+<p class="step">자릿수 검산: 분자는 약 0.24, 분모는 약 25이므로 0.24 ÷ 25 ≈ 0.0096, 즉 10<sup>−2</sup> 바로 아래 크기임이 확인된다.</p>
+<p class="step">오답 유인: 보기가 자릿수(10<sup>−4</sup>~10<sup>−1</sup>)만 다르므로 단위 환산 실수가 곧바로 오답으로 이어진다.</p>
+<p class="step">온도를 켈빈으로 바꾸지 않고 30을 그대로 대입하면 n ≈ 9.6×10<sup>−2</sup> mol이 되어 ③을 고르게 되고, 240 mL를 L로 환산하지 않으면 자릿수가 통째로 어긋난다.</p>
+<p class="step">수증기압 0.042 atm 보정도 잊지 말아야 한다.</p>
+<p class="step">정답 <b>②</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 49</span><span class="area">PV=nRT</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">벽 충돌 빈도 N∝P/√(M·T).</p>
-<p class="step">① 압력↑(T 일정) → N↑.</p>
-<p class="step">② 부피↓(T 일정, P↑) → N↑.</p>
-<p class="step">④ 기체 주입(V·T 일정, P↑) → N↑.</p>
-<p class="step">③ 압력 일정·온도↑ → N∝1/√T로 오히려 감소.</p>
-<p class="step">증가시키지 않는 것은 ③.</p>
-<p class="step">정답 ③.</p></div>
+<div class="q" id="q49"><div class="qh"><span class="qno">문제 49</span><span class="area">PV=nRT</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">기체 분자 운동론에서 단위 면적·단위 시간당 벽에 충돌하는 분자 수 Z는 (분자 수밀도 N/V)×(평균 속력 v̄)에 비례한다.</p>
+<p class="step">이상 기체에서 N/V ∝ P/T이고 v̄ ∝ √T이므로 결국 Z ∝ P/√T이다.</p>
+<p class="step">이제 보기별로 확인한다.</p>
+<p class="step">① T 일정, P 증가 → Z ∝ P이므로 증가.</p>
+<p class="step">② T 일정, V 감소 → 같은 수의 분자가 더 좁은 공간에 있어 수밀도와 압력이 커지므로 증가.</p>
+<p class="step">④ V·T 일정, 기체 추가 주입 → 수밀도가 직접 커지므로 증가.</p>
+<p class="step">반면 ③ P 일정, T 증가 → 속력은 √T배로 빨라지지만 기체가 팽창해 수밀도가 1/T로 더 크게 줄어들어 Z ∝ 1/√T, 오히려 감소한다.</p>
+<p class="step">예컨대 절대온도를 2배로 하면 속력은 √2 ≈ 1.41배가 되지만 수밀도는 1/2배가 되어 충돌 수는 약 0.71배로 줄어든다.</p>
+<p class="step">증가시키는 경우가 아닌 것은 ③이다.</p>
+<p class="step">오답 유인: '온도가 높으면 분자가 빨라져 더 자주 부딪힌다'는 직관만으로 ③도 증가라고 판단하기 쉽다.</p>
+<p class="step">압력 일정 조건에서는 팽창에 의한 수밀도 감소(1/T)가 속력 증가(√T)를 이긴다는 점이 핵심이다.</p>
+<p class="step">정답 <b>③</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 50</span><span class="area">PV=nRT</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">STP 22.4 cm³=10⁻³ mol=6.02×10²⁰개 질소 분자.</p>
-<p class="step">전체 흡착 면적=6.02×10²⁰×2×10⁻¹⁹=120 m².</p>
-<p class="step">촉매 8 g → 비표면적=120/8=15 m²/g.</p>
-<p class="step">정답 ③.</p></div>
+<div class="q" id="q50"><div class="qh"><span class="qno">문제 50</span><span class="area">PV=nRT</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">탈착시킨 질소의 양을 먼저 몰수로 바꾼다.</p>
+<p class="step">273 K·1기압(표준 상태)에서 측정한 부피가 22.4 cm<sup>3</sup> = 0.0224 L이므로 몰수 = 0.0224 ÷ 22.4 = 1.00×10<sup>−3</sup> mol이다.</p>
+<p class="step">분자 수로 바꾸면 10<sup>−3</sup> × 6.02×10<sup>23</sup> = 6.02×10<sup>20</sup>개다.</p>
+<p class="step">단일층(단분자층) 흡착이므로 촉매의 전체 표면적은 분자 수 × 분자 1개가 덮는 면적과 같다.</p>
+<p class="step">표면적 = 6.02×10<sup>20</sup> × 2×10<sup>−19</sup> m<sup>2</sup> = 12.0×10<sup>1</sup> = 120 m<sup>2</sup>.</p>
+<p class="step">이것이 촉매 8 g의 표면적이므로 1 g당 비표면적은 120 ÷ 8 = 15 m<sup>2</sup>·g<sup>−1</sup>이다.</p>
+<p class="step">오답 유인: 22.4 'cm<sup>3</sup>'를 22.4 L로 잘못 읽어 1 mol로 계산하면 표면적이 1.2×10<sup>5</sup> m<sup>2</sup>로 천 배 커지고, 마지막에 8 g으로 나누는 단계를 잊으면 120이라는 숫자에서 보기와 맞출 수 없어 당황하게 된다.</p>
+<p class="step">cm<sup>3</sup> → L 환산(÷1000)과 'm<sup>2</sup>·g<sup>−1</sup>'이라는 단위 요구가 두 개의 관문이다.</p>
+<p class="step">정답 <b>③</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 51</span><span class="area">기체</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">금속 용기라 온도 변화에도 부피는 일정.</p>
+<div class="q" id="q51"><div class="qh"><span class="qno">문제 51</span><span class="area">기체</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">금속 용기라 온도 변화에도 부피는 일정.</p>
 <p class="step">−5°C는 수소 끓는점(−242.8°C)보다 훨씬 높아 수소는 여전히 기체이며, 온도가 내려가면 분자의 운동에너지·속도만 줄고 분포는 여전히 고르게 퍼져 있다.</p>
-<p class="step">정답 ②.</p></div>
+<p class="step">정답 <b>②</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 52</span><span class="area">리비히원소분석장치</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">연소 분석에서 물은 건조제(실리카겔 등)에 흡수시켜 질량을 재고, 이산화탄소는 염기(수산화나트륨/소다석회)에 흡수시켜 잰다.</p>
+<div class="q" id="q52"><div class="qh"><span class="qno">문제 52</span><span class="area">리비히원소분석장치</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">연소 분석에서 물은 건조제(실리카겔 등)에 흡수시켜 질량을 재고, 이산화탄소는 염기(수산화나트륨/소다석회)에 흡수시켜 잰다.</p>
 <p class="step">(가) 물=실리카겔, (나) 이산화탄소=수산화나트륨.</p>
-<p class="step">정답 ①.</p></div>
+<p class="step">정답 <b>①</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 53</span><span class="area">실험식</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">NₓHᵧ에서 질소 1.00 g당 수소 질량비 = (y×1.008)/(x×14.0).</p>
-<p class="step">A: 0.0240 = 1.008/42.0 → N₃H.</p>
-<p class="step">B: 0.216 = 3.024/14.0 → NH₃.</p>
-<p class="step">C: 0.144 = 2.016/14.0 → NH₂.</p>
+<div class="q" id="q53"><div class="qh"><span class="qno">문제 53</span><span class="area">실험식</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">NₓHᵧ에서 질소 1.00 g당 수소 질량비 = (y×1.008)/(x×14.0).</p>
+<p class="step">A: 0.0240 = 1.008/42.0 → N<sub>3</sub>H.</p>
+<p class="step">B: 0.216 = 3.024/14.0 → NH<sub>3</sub>.</p>
+<p class="step">C: 0.144 = 2.016/14.0 → NH<sub>2</sub>.</p>
 <p class="step">따라서 ③.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 54</span><span class="area">실험식</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">성분 몰비 C:H:O = 40.0/12.0 : 6.67/1.008 : 53.3/16.0 = 3.33:6.62:3.33 = 1:2:1.</p>
-<p class="step">실험식 CH₂O (글루코스 C₆H₁₂O₆·아세트산 C₂H₄O₂의 공통 실험식).</p>
+<div class="q" id="q54"><div class="qh"><span class="qno">문제 54</span><span class="area">실험식</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">성분 몰비 C:H:O = 40.0/12.0 : 6.67/1.008 : 53.3/16.0 = 3.33:6.62:3.33 = 1:2:1.</p>
+<p class="step">실험식 CH<sub>2</sub>O (글루코스 C<sub>6</sub>H<sub>12</sub>O<sub>6</sub>·아세트산 C<sub>2</sub>H<sub>4</sub>O<sub>2</sub>의 공통 실험식).</p>
 <p class="step">원자 수 1+2+1 = 4.</p>
 <p class="step">따라서 ①.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 55</span><span class="area">실험식</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">C 질량=176×(3/11)=48 g, H 질량=108×(1/9)=12 g, O 질량=92−48−12=32 g.</p>
-<p class="step">몰수비 C:H:O=48/12:12/1:32/16=4:12:2=2:6:1 → 실험식 C₂H₆O.</p>
-<p class="step">정답 ③.</p></div>
+<div class="q" id="q55"><div class="qh"><span class="qno">문제 55</span><span class="area">실험식</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">C 질량=176×(3/11)=48 g, H 질량=108×(1/9)=12 g, O 질량=92−48−12=32</p>
+<p class="step">g. 몰수비 C:H:O=48/12:12/1:32/16=4:12:2=2:6:1 → 실험식 C<sub>2</sub>H<sub>6</sub>O.</p>
+<p class="step">정답 <b>③</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 56</span><span class="area">계수맞추기</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">a(CH₃)₂N₂H₂ + 2N₂O₄ → xN₂ + yH₂O + zCO₂.</p>
+<div class="q" id="q56"><div class="qh"><span class="qno">문제 56</span><span class="area">계수맞추기</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">a(CH<sub>3</sub>)<sub>2</sub>N<sub>2</sub>H<sub>2</sub> + 2N<sub>2</sub>O<sub>4</sub> → xN<sub>2</sub> + yH<sub>2</sub>O + zCO<sub>2</sub>.</p>
 <p class="step">C: 2a=z, H: 8a=2y, N: 2a+4=2x, O: 8=y+2z.</p>
 <p class="step">a=1 → z=2, y=4, x=3.</p>
-<p class="step">(CH₃)₂N₂H₂ 계수 1 + N₂ 계수 3 = 4.</p>
-<p class="step">정답 ③.</p></div>
+<p class="step">(CH<sub>3</sub>)<sub>2</sub>N<sub>2</sub>H<sub>2</sub> 계수 1 + N<sub>2</sub> 계수 3 = 4.</p>
+<p class="step">정답 <b>③</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 57</span><span class="area">한계반응물</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">NH₃ 17 g=1 mol, CuO 80 g=1 mol.</p>
-<p class="step">반응비 2NH₃:3CuO.</p>
-<p class="step">CuO 1 mol에 필요한 NH₃는 0.67 mol(NH₃ 여유), NH₃ 1 mol에 필요한 CuO는 1.5 mol(CuO 부족).</p>
+<div class="q" id="q57"><div class="qh"><span class="qno">문제 57</span><span class="area">한계반응물</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">NH<sub>3</sub> 17 g=1 mol, CuO 80 g=1 mol.</p>
+<p class="step">반응비 2NH<sub>3</sub>:3CuO.</p>
+<p class="step">CuO 1 mol에 필요한 NH<sub>3</sub>는 0.67 mol(NH<sub>3</sub> 여유), NH<sub>3</sub> 1 mol에 필요한 CuO는 1.5 mol(CuO 부족).</p>
 <p class="step">따라서 CuO가 한계 시약.</p>
-<p class="step">정답 ②.</p></div>
+<p class="step">정답 <b>②</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 58</span><span class="area">양적관계</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">휘발유 50 L=40 kg=40000 g.</p>
-<p class="step">옥탄 분자량 114 → 350 mol.</p>
-<p class="step">C₈H₁₈+(25/2)O₂→8CO₂+9H₂O → CO₂ 350×8=2800 mol.</p>
-<p class="step">25°C·1기압 기체 1몰≈25 L → 2800×25=70000 L → 가장 가까운 100,000 L.</p>
-<p class="step">정답 ①.</p></div>
+<div class="q" id="q58"><div class="qh"><span class="qno">문제 58</span><span class="area">양적관계</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">하루 사용한 휘발유의 질량은 50 L × 0.8 kg/L = 40 kg = 4.0×10<sup>4</sup> g이다.</p>
+<p class="step">옥탄 C<sub>8</sub>H<sub>18</sub>의 분자량은 12×8 + 1×18 = 114이므로 몰수는 40000 ÷ 114 ≈ 351 mol이다.</p>
+<p class="step">완전 연소식은 2C<sub>8</sub>H<sub>18</sub> + 25O<sub>2</sub> → 16CO<sub>2</sub> + 18H<sub>2</sub>O로, 옥탄 1몰당 CO<sub>2</sub> 8몰이 생성된다.</p>
+<p class="step">따라서 CO<sub>2</sub> = 351 × 8 ≈ 2.8×10<sup>3</sup> mol이다.</p>
+<p class="step">표준 상태에서 기체 1몰의 부피는 약 22.4 L이므로 CO<sub>2</sub>의 부피는 2800 × 22.4 ≈ 6.3×10<sup>4</sup> L, 약 63,000 L이다.</p>
+<p class="step">보기 중 이 값에 가장 가까운 것은 100,000 L이다(300,000 L과는 4배 가까이 차이).</p>
+<p class="step">오답 유인: 계수비 8을 빠뜨리고 351 × 22.4 ≈ 7,900 L로 계산해 답을 못 찾고 헤매거나, CO<sub>2</sub>의 질량(351×8×44 ≈ 1.2×10<sup>5</sup> g)까지 구해 놓고 기체 부피로 환산하는 마지막 단계를 잊는 경로가 흔하다.</p>
+<p class="step">탄소 원자 1개가 CO<sub>2</sub> 1분자가 되므로 몰비 8을 반드시 곱해야 한다.</p>
+<p class="step">정답 <b>①</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 59</span><span class="area">양적관계</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">부피·온도 일정에서 압력 20% 증가=몰수 20% 증가.</p>
-<p class="step">초기 기체 5몰(O₂) → 최종 6몰.</p>
-<p class="step">C 5몰 모두 소비(CO x + CO₂ y, x+y=5).</p>
-<p class="step">O₂ 소비=x/2+y, O₂ 잔여=5−(x/2+y).</p>
-<p class="step">최종 몰수=x+y+잔여=5+x/2=6 → x=2(CO), y=3(CO₂), O₂ 잔여=1.</p>
-<p class="step">가장 많음 CO₂(3), 가장 적음 O₂(1).</p>
-<p class="step">정답 ③.</p></div>
+<div class="q" id="q59"><div class="qh"><span class="qno">문제 59</span><span class="area">양적관계</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">부피와 온도가 일정한 용기에서는 압력이 몰수에 비례하므로, 압력 20.0% 증가는 기체 몰수 20% 증가를 뜻한다.</p>
+<p class="step">연소 전 기체는 O<sub>2</sub> 5.00몰뿐이고(흑연은 고체라 압력에 기여하지 않음) 최종 기체 몰수는 5.00 × 1.2 = 6.00몰이다.</p>
+<p class="step">흑연 5몰이 모두 연소되어 CO x몰과 CO<sub>2</sub> y몰이 되었다면 탄소 보존에서 x + y = 5.</p>
+<p class="step">산소 소비량은 반응식 C + ½O<sub>2</sub> → CO, C + O<sub>2</sub> → CO<sub>2</sub>에서 x/2 + y몰이므로 남은 O<sub>2</sub> = 5 − (x/2 + y)몰이다.</p>
+<p class="step">최종 기체 총몰수 = x + y + 5 − x/2 − y = 5 + x/2 = 6에서 x = 2, 따라서 y = 3, 남은 O<sub>2</sub> = 5 − (1 + 3) = 1몰이다.</p>
+<p class="step">최종 혼합 기체는 CO<sub>2</sub> 3몰, CO 2몰, O<sub>2</sub> 1몰이므로 가장 많은 것은 CO<sub>2</sub>, 가장 적은 것은 O<sub>2</sub>다.</p>
+<p class="step">오답 유인: 초기 몰수에 고체인 흑연 5몰까지 넣어 10몰 → 12몰로 세우면 x + y + 잔여 O<sub>2</sub> 계산이 어긋나고, '불완전 연소'라는 말에 이끌려 CO가 가장 많을 것이라 짐작해 ①·②를 고르기 쉽다.</p>
+<p class="step">반드시 기체만 세고 방정식으로 확정해야 한다.</p>
+<p class="step">정답 <b>③</b>.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 60</span><span class="area">양적관계</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">A 2g→C 3g, A 4g→C 6g로 A에 비례 증가하므로 A가 한계반응물.</p>
+<div class="q" id="q60"><div class="qh"><span class="qno">문제 60</span><span class="area">양적관계</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">A 2g→C 3g, A 4g→C 6g로 A에 비례 증가하므로 A가 한계반응물.</p>
 <p class="step">질량보존으로 A 2g 반응 시 B 1g 반응(C 3g) → 반응 질량비 A:B:C=2:1:3.</p>
 <p class="step">A 6g·8g에서는 B가 한계가 되어 C가 6g로 일정(B 양에 의해 제한).</p>
 <p class="step">A=8,B=8에서 P_B:P_C=1:2를 몰비로 환산하면 반응 계수 관계로부터 c=2.</p>
-<p class="step">정답 ②.</p></div>
+<p class="step">정답 <b>②</b>.</p></div>
 </div>
 <script data-lec-back>
 (function(){function ok(raw){if(!raw)return null;try{var u=new URL(raw,location.href);

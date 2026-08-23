@@ -276,7 +276,10 @@ console.log('\n── 복수정답 문항은 인정 답을 다 적는다 ──'
       const t = fs.readFileSync(f, 'utf8');
       /* 표 한 줄과 문항 머리 두 곳에 다 적혀야 한다 — 한쪽만 고치면
          목차와 본문이 다른 말을 한다. */
-      const inTable = t.includes(`<tr><td>${n}</td><td>${label}</td>`);
+      /* 정답표의 문항 칸은 사고과정 카드가 있으면 #qN 앞줄(jump)로 싼다 —
+         맨숫자·앞줄 두 꼴 다 인정한다. */
+      const inTable = t.includes(`<tr><td>${n}</td><td>${label}</td>`)
+        || t.includes(`<tr><td><a class="jump" href="#q${n}">${n}</a></td><td>${label}</td>`);
       const inHead = t.includes(`문제 ${n}</span>`) && t.includes(`<span class="ans">${label}</span>`);
       if (!inTable || !inHead) missing.push(`${e.id} ${n}번(표 ${inTable} 머리 ${inHead})`);
     });

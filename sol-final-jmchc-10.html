@@ -25,11 +25,27 @@ th{background:#f1eee7;font-weight:700}
 .area{font-size:12.5px;color:var(--ink2);background:#f1eee7;border-radius:99px;padding:2px 9px}
 .ans{margin-left:auto;font-weight:700;color:var(--ms)}
 .sol{font-size:14.5px}
+/* 해설 본문이 실제로 입는 옷 — 답지(answers)의 explanationHtml 이
+   <h4>·.step·.k(정답 근거)·.x(오답 표시) 를 쓰는데 여기 옷이 없으면
+   해설지에서만 맨몸으로 나간다(final.html 은 제 옷이 따로 있다). */
+.sol h4{margin:12px 0 5px;color:var(--teal);font-size:13.5px;letter-spacing:.02em}
+/* 착화합물 사슬([Co(NH₃)₆]³⁺·…)처럼 끊을 자리가 없는 긴 수식이 360px
+   화면을 옆으로 밀었다 — 필요할 때만 토막 내게 허락한다. */
+.sol{overflow-wrap:anywhere}
+.sol p.step{margin:6px 0;white-space:pre-wrap}
+.sol .k{color:var(--teal);font-weight:700}
+.sol .x{color:var(--ms);font-weight:700}
 .tip{margin-top:9px;padding:9px 11px;border-left:3px solid var(--gold);background:#faf7f1;
  font-size:13.5px;color:var(--ink2)}
 .rev{margin-top:9px;padding:9px 11px;border-left:3px solid var(--ms);background:#fdf3ef;
  font-size:13px;color:#8a3a1d}
-@media print{body{background:#fff}.q{break-inside:avoid}}
+/* 정답표 → 그 문항 해설로 건너뛰는 길. 표가 세로 2,000px 를 넘는 회차가
+   많아 표에서 해설까지 손가락으로 미는 거리가 너무 멀었다. */
+td a.jump{color:var(--teal);text-decoration:none;font-weight:700}
+td a.jump:hover{text-decoration:underline}
+.q{scroll-margin-top:14px}
+.q:target{border-color:var(--teal);box-shadow:0 0 0 2px rgba(14,90,76,.18)}
+@media print{body{background:#fff}.q{break-inside:avoid}.warn{display:none}}
 
 .source-assets{max-width:860px;margin:14px auto 0;padding:0 20px;display:flex;gap:8px;flex-wrap:wrap}
 .source-assets a{display:inline-flex;align-items:center;padding:8px 11px;border:1px solid var(--line);
@@ -59,335 +75,385 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="sub" style="margin-top:6px">문제 지문은 문제지(PDF)에 있습니다 — 성적표 화면에서 함께 내려받을 수 있습니다.</div><a class="back" href="final.html">‹ 파이널로</a></header>
 <nav class="source-assets" aria-label="시험 자료 직접 다운로드"><a href="jmchc-10-problem.pdf" download>공식 문제 PDF ↓</a><a href="jmchc-10-answer.pdf" download>공식 정답 PDF ↓</a></nav>
 <main><h3>정답 · 영역 · 개념</h3><table><thead><tr><th scope="col">문항</th><th scope="col">정답</th><th scope="col">영역</th><th scope="col">개념(유형)</th></tr></thead><tbody>
-<tr><td>1</td><td>②</td><td>총괄성</td><td>어는점내림</td></tr>
-<tr><td>2</td><td>③</td><td>총괄성</td><td>분자량</td></tr>
-<tr><td>3</td><td>②</td><td>총괄성</td><td>총괄성</td></tr>
-<tr><td>4</td><td>①</td><td>삼투압</td><td>몰농도</td></tr>
-<tr><td>5</td><td>③</td><td>삼투압</td><td>삼투압</td></tr>
-<tr><td>6</td><td>③</td><td>삼투압</td><td>삼투압</td></tr>
-<tr><td>7</td><td>②</td><td>삼투압</td><td>농도전환</td></tr>
-<tr><td>8</td><td>②</td><td>삼투압</td><td>삼투압</td></tr>
-<tr><td>9</td><td>③</td><td>삼투압</td><td>기체상수</td></tr>
-<tr><td>10</td><td>④</td><td>열화학</td><td>결합에너지</td></tr>
-<tr><td>11</td><td>④</td><td>열화학</td><td>Q=c m T</td></tr>
-<tr><td>12</td><td>④</td><td>열화학</td><td>중화엔탈피</td></tr>
-<tr><td>13</td><td>②</td><td>열화학</td><td>양적관계</td></tr>
-<tr><td>14</td><td>②</td><td>엔탈피</td><td>양적관계</td></tr>
-<tr><td>15</td><td>③</td><td>헤스법칙</td><td>표준증발엔탈피</td></tr>
-<tr><td>16</td><td>③</td><td>엔탈피</td><td>격자에너지</td></tr>
-<tr><td>17</td><td>②</td><td>헤스법칙</td><td>헤스법칙</td></tr>
-<tr><td>18</td><td>③</td><td>헤스법칙</td><td>헤스법칙</td></tr>
-<tr><td>19</td><td>①</td><td>결합에너지</td><td>생성엔탈피</td></tr>
-<tr><td>20</td><td>④</td><td>결합에너지</td><td>표준생성엔탈피</td></tr>
-<tr><td>21</td><td>④</td><td>연소엔탈피</td><td>연소열</td></tr>
-<tr><td>22</td><td>①</td><td>연소엔탈피</td><td>표준생성엔탈피</td></tr>
-<tr><td>23</td><td>④</td><td>결합에너지</td><td>결합에너지</td></tr>
-<tr><td>24</td><td>①</td><td>생성엔탈피</td><td>반응엔탈피</td></tr>
-<tr><td>25</td><td>①</td><td>결합에너지</td><td>결합에너지</td></tr>
-<tr><td>26</td><td>③</td><td>결합에너지</td><td>생성엔탈피</td></tr>
-<tr><td>27</td><td>③</td><td>결합에너지</td><td>안정성</td></tr>
-<tr><td>28</td><td>②</td><td>결합에너지</td><td>결합에너지</td></tr>
-<tr><td>29</td><td>④</td><td>엔탈피</td><td>수소결합</td></tr>
-<tr><td>30</td><td>③</td><td>엔트로피</td><td>엔트로피</td></tr>
-<tr><td>31</td><td>③</td><td>엔트로피</td><td>엔트로피</td></tr>
-<tr><td>32</td><td>④</td><td>엔트로피</td><td>엔트로피</td></tr>
-<tr><td>33</td><td>③</td><td>엔탈피</td><td>엔트로피</td></tr>
-<tr><td>34</td><td>④</td><td>깁스자유에너지</td><td>엔트로피</td></tr>
-<tr><td>35</td><td>②</td><td>깁스자유에너지</td><td>평형온도</td></tr>
-<tr><td>36</td><td>②</td><td>깁스자유에너지</td><td>기체분자수</td></tr>
-<tr><td>37</td><td>②</td><td>깁스자유에너지</td><td>평형온도</td></tr>
-<tr><td>38</td><td>②</td><td>깁스자유에너지</td><td>부호</td></tr>
-<tr><td>39</td><td>④</td><td>깁스자유에너지</td><td>자발성</td></tr>
-<tr><td>40</td><td>③</td><td>깁스자유에너지</td><td>깁스자유에너지</td></tr>
-<tr><td>41</td><td>②</td><td>깁스자유에너지</td><td>결합에너지</td></tr>
-<tr><td>42</td><td>④</td><td>깁스자유에너지</td><td>부호</td></tr>
-<tr><td>43</td><td>④</td><td>깁스자유에너지</td><td>그래프해석</td></tr>
-<tr><td>44</td><td>③</td><td>평형농도</td><td>평형농도</td></tr>
-<tr><td>45</td><td>③</td><td>평형농도</td><td>평형농도</td></tr>
-<tr><td>46</td><td>④</td><td>평형상수</td><td>평형상수</td></tr>
-<tr><td>47</td><td>④</td><td>평형상수</td><td>평형상수</td></tr>
-<tr><td>48</td><td>③</td><td>평형농도</td><td>평형농도</td></tr>
-<tr><td>49</td><td>④</td><td>평형상수</td><td>엔트로피</td></tr>
-<tr><td>50</td><td>전원정답</td><td>평형상수</td><td>반응도표</td></tr>
-<tr><td>51</td><td>④</td><td>조건반대</td><td>르샤틀리에원리</td></tr>
-<tr><td>52</td><td>①</td><td>조건반대</td><td>르샤틀리에원리</td></tr>
-<tr><td>53</td><td>④</td><td>조건반대</td><td>르샤틀리에원리</td></tr>
-<tr><td>54</td><td>②</td><td>조건반대</td><td>르샤틀리에원리</td></tr>
-<tr><td>55</td><td>①</td><td>평형상수</td><td>르샤틀리에원리</td></tr>
-<tr><td>56</td><td>②</td><td>평형농도</td><td>르샤틀리에원리</td></tr>
-<tr><td>57</td><td>③</td><td>조건반대</td><td>르샤틀리에원리</td></tr>
-<tr><td>58</td><td>④</td><td>조건반대</td><td>르샤틀리에원리</td></tr>
-<tr><td>59</td><td>③</td><td>조건반대</td><td>르샤틀리에원리</td></tr>
-<tr><td>60</td><td>①</td><td>조건반대</td><td>르샤틀리에원리</td></tr>
+<tr><td><a class="jump" href="#q1">1</a></td><td>②</td><td>총괄성</td><td>어는점내림</td></tr>
+<tr><td><a class="jump" href="#q2">2</a></td><td>③</td><td>총괄성</td><td>분자량</td></tr>
+<tr><td><a class="jump" href="#q3">3</a></td><td>②</td><td>총괄성</td><td>총괄성</td></tr>
+<tr><td><a class="jump" href="#q4">4</a></td><td>①</td><td>삼투압</td><td>몰농도</td></tr>
+<tr><td><a class="jump" href="#q5">5</a></td><td>③</td><td>삼투압</td><td>삼투압</td></tr>
+<tr><td><a class="jump" href="#q6">6</a></td><td>③</td><td>삼투압</td><td>삼투압</td></tr>
+<tr><td><a class="jump" href="#q7">7</a></td><td>②</td><td>삼투압</td><td>농도전환</td></tr>
+<tr><td><a class="jump" href="#q8">8</a></td><td>②</td><td>삼투압</td><td>삼투압</td></tr>
+<tr><td><a class="jump" href="#q9">9</a></td><td>③</td><td>삼투압</td><td>기체상수</td></tr>
+<tr><td><a class="jump" href="#q10">10</a></td><td>④</td><td>열화학</td><td>결합에너지</td></tr>
+<tr><td><a class="jump" href="#q11">11</a></td><td>④</td><td>열화학</td><td>Q=c m T</td></tr>
+<tr><td><a class="jump" href="#q12">12</a></td><td>④</td><td>열화학</td><td>중화엔탈피</td></tr>
+<tr><td><a class="jump" href="#q13">13</a></td><td>②</td><td>열화학</td><td>양적관계</td></tr>
+<tr><td><a class="jump" href="#q14">14</a></td><td>②</td><td>엔탈피</td><td>양적관계</td></tr>
+<tr><td><a class="jump" href="#q15">15</a></td><td>③</td><td>헤스법칙</td><td>표준증발엔탈피</td></tr>
+<tr><td><a class="jump" href="#q16">16</a></td><td>③</td><td>엔탈피</td><td>격자에너지</td></tr>
+<tr><td><a class="jump" href="#q17">17</a></td><td>②</td><td>헤스법칙</td><td>헤스법칙</td></tr>
+<tr><td><a class="jump" href="#q18">18</a></td><td>③</td><td>헤스법칙</td><td>헤스법칙</td></tr>
+<tr><td><a class="jump" href="#q19">19</a></td><td>①</td><td>결합에너지</td><td>생성엔탈피</td></tr>
+<tr><td><a class="jump" href="#q20">20</a></td><td>④</td><td>결합에너지</td><td>표준생성엔탈피</td></tr>
+<tr><td><a class="jump" href="#q21">21</a></td><td>④</td><td>연소엔탈피</td><td>연소열</td></tr>
+<tr><td><a class="jump" href="#q22">22</a></td><td>①</td><td>연소엔탈피</td><td>표준생성엔탈피</td></tr>
+<tr><td><a class="jump" href="#q23">23</a></td><td>④</td><td>결합에너지</td><td>결합에너지</td></tr>
+<tr><td><a class="jump" href="#q24">24</a></td><td>①</td><td>생성엔탈피</td><td>반응엔탈피</td></tr>
+<tr><td><a class="jump" href="#q25">25</a></td><td>①</td><td>결합에너지</td><td>결합에너지</td></tr>
+<tr><td><a class="jump" href="#q26">26</a></td><td>③</td><td>결합에너지</td><td>생성엔탈피</td></tr>
+<tr><td><a class="jump" href="#q27">27</a></td><td>③</td><td>결합에너지</td><td>안정성</td></tr>
+<tr><td><a class="jump" href="#q28">28</a></td><td>②</td><td>결합에너지</td><td>결합에너지</td></tr>
+<tr><td><a class="jump" href="#q29">29</a></td><td>④</td><td>엔탈피</td><td>수소결합</td></tr>
+<tr><td><a class="jump" href="#q30">30</a></td><td>③</td><td>엔트로피</td><td>엔트로피</td></tr>
+<tr><td><a class="jump" href="#q31">31</a></td><td>③</td><td>엔트로피</td><td>엔트로피</td></tr>
+<tr><td><a class="jump" href="#q32">32</a></td><td>④</td><td>엔트로피</td><td>엔트로피</td></tr>
+<tr><td><a class="jump" href="#q33">33</a></td><td>③</td><td>엔탈피</td><td>엔트로피</td></tr>
+<tr><td><a class="jump" href="#q34">34</a></td><td>④</td><td>깁스자유에너지</td><td>엔트로피</td></tr>
+<tr><td><a class="jump" href="#q35">35</a></td><td>②</td><td>깁스자유에너지</td><td>평형온도</td></tr>
+<tr><td><a class="jump" href="#q36">36</a></td><td>②</td><td>깁스자유에너지</td><td>기체분자수</td></tr>
+<tr><td><a class="jump" href="#q37">37</a></td><td>②</td><td>깁스자유에너지</td><td>평형온도</td></tr>
+<tr><td><a class="jump" href="#q38">38</a></td><td>②</td><td>깁스자유에너지</td><td>부호</td></tr>
+<tr><td><a class="jump" href="#q39">39</a></td><td>④</td><td>깁스자유에너지</td><td>자발성</td></tr>
+<tr><td><a class="jump" href="#q40">40</a></td><td>③</td><td>깁스자유에너지</td><td>깁스자유에너지</td></tr>
+<tr><td><a class="jump" href="#q41">41</a></td><td>②</td><td>깁스자유에너지</td><td>결합에너지</td></tr>
+<tr><td><a class="jump" href="#q42">42</a></td><td>④</td><td>깁스자유에너지</td><td>부호</td></tr>
+<tr><td><a class="jump" href="#q43">43</a></td><td>④</td><td>깁스자유에너지</td><td>그래프해석</td></tr>
+<tr><td><a class="jump" href="#q44">44</a></td><td>③</td><td>평형농도</td><td>평형농도</td></tr>
+<tr><td><a class="jump" href="#q45">45</a></td><td>③</td><td>평형농도</td><td>평형농도</td></tr>
+<tr><td><a class="jump" href="#q46">46</a></td><td>④</td><td>평형상수</td><td>평형상수</td></tr>
+<tr><td><a class="jump" href="#q47">47</a></td><td>④</td><td>평형상수</td><td>평형상수</td></tr>
+<tr><td><a class="jump" href="#q48">48</a></td><td>③</td><td>평형농도</td><td>평형농도</td></tr>
+<tr><td><a class="jump" href="#q49">49</a></td><td>④</td><td>평형상수</td><td>엔트로피</td></tr>
+<tr><td><a class="jump" href="#q50">50</a></td><td>전원정답</td><td>평형상수</td><td>반응도표</td></tr>
+<tr><td><a class="jump" href="#q51">51</a></td><td>④</td><td>조건반대</td><td>르샤틀리에원리</td></tr>
+<tr><td><a class="jump" href="#q52">52</a></td><td>①</td><td>조건반대</td><td>르샤틀리에원리</td></tr>
+<tr><td><a class="jump" href="#q53">53</a></td><td>④</td><td>조건반대</td><td>르샤틀리에원리</td></tr>
+<tr><td><a class="jump" href="#q54">54</a></td><td>②</td><td>조건반대</td><td>르샤틀리에원리</td></tr>
+<tr><td><a class="jump" href="#q55">55</a></td><td>①</td><td>평형상수</td><td>르샤틀리에원리</td></tr>
+<tr><td><a class="jump" href="#q56">56</a></td><td>②</td><td>평형농도</td><td>르샤틀리에원리</td></tr>
+<tr><td><a class="jump" href="#q57">57</a></td><td>③</td><td>조건반대</td><td>르샤틀리에원리</td></tr>
+<tr><td><a class="jump" href="#q58">58</a></td><td>④</td><td>조건반대</td><td>르샤틀리에원리</td></tr>
+<tr><td><a class="jump" href="#q59">59</a></td><td>③</td><td>조건반대</td><td>르샤틀리에원리</td></tr>
+<tr><td><a class="jump" href="#q60">60</a></td><td>①</td><td>조건반대</td><td>르샤틀리에원리</td></tr>
 </tbody></table>
 <h3>문항별 사고과정</h3>
-<div class="q"><div class="qh"><span class="qno">문제 1</span><span class="area">어는점내림</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q1"><div class="qh"><span class="qno">문제 1</span><span class="area">어는점내림</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">몰랄 = (0.494/329.25)/0.1 = 0.015m. <span class="eq">i = 0.112/(1.86×0.015) ≈ 4</span> → 입자 4개.</p>
     <p class="step">K<sub>3</sub>Fe(CN)<sub>6</sub> → 3K⁺ + Fe(CN)<sub>6</sub>³⁻ (3+1=4). 착이온은 그대로 유지. → <b>②</b></p>
     <div class="tip">반트호프 i로 해리 입자 수를 센다. 배위권 안의 CN⁻은 착이온 Fe(CN)<sub>6</sub>³⁻에 묶여 따로 떨어지지 않는다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 2</span><span class="area">분자량</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q2"><div class="qh"><span class="qno">문제 2</span><span class="area">분자량</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">①(M=ρRT/P)·②(삼투압은 몰농도=mol/L 사용, g/L에서 직접)·④(그레이엄 법칙)는 충분.</p>
     <p class="step"><span class="x">③</span> 어는점 내림은 <b>몰랄농도</b>(mol/kg 용매)가 필요한데, g/L(용액)은 <b>밀도</b> 없이 몰랄로 환산 불가. → <b>③</b></p>
     <div class="tip">삼투압은 몰농도(부피 기준), 어는점 내림은 몰랄농도(질량 기준). g/L 용액 농도는 밀도 없이 몰랄로 못 바꾼다. 결정적 차이.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 3</span><span class="area">총괄성</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q3"><div class="qh"><span class="qno">문제 3</span><span class="area">총괄성</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">①(삼투)·③④(어는점 내림)는 총괄성. <span class="x">②</span> 호수가 표면부터 어는 건 물의 <b>밀도 이상</b>(4°C서 최대밀도)이라 차가운 물이 위에 머무는 현상 → 총괄성 아님. → <b>②</b></p>
     <div class="tip">총괄성 = 용질 입자 수가 좌우하는 성질(어는점·끓는점·삼투·증기압). 물이 표면부터 어는 건 순수 물의 밀도-온도 관계다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 4</span><span class="area">몰농도</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">삼투압 <b>π = MRT</b>에서 M은 <b>몰농도</b>(mol/L). → <b>①</b></p>
-    <div class="tip">삼투압은 부피 기준 몰농도를 쓴다(어는점 내림의 몰랄농도와 대비). 같은 총괄성이라도 사용 농도 단위가 다르다.</div></div>
+<div class="q" id="q4"><div class="qh"><span class="qno">문제 4</span><span class="area">몰농도</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">삼투압 π = MRT에서 M은 몰농도(mol/L).</p>
+<p class="step">→ <b>①</b></p>
+<div class="tip">삼투압은 부피 기준 몰농도를 쓴다(어는점 내림의 몰랄농도와 대비). 같은 총괄성이라도 사용 농도 단위가 다르다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 5</span><span class="area">삼투압</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">NaCl은 i=2라 입자 농도가 2배 → 삼투압이 더 큼 → 물이 글루코오스(묽음)에서 <b>NaCl쪽으로</b> 이동.</p>
-    <p class="step">→ <b>NaCl 수위 상승, 글루코오스 수위 하강</b>. → <b>③</b></p>
-    <div class="tip">물은 입자 농도가 높은(삼투압 큰) 쪽으로 간다. NaCl이 i=2라 같은 몰랄이어도 입자가 2배라 그쪽이 올라간다.</div></div>
+<div class="q" id="q5"><div class="qh"><span class="qno">문제 5</span><span class="area">삼투압</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">NaCl은 i=2라 입자 농도가 2배 → 삼투압이 더 큼 → 물이 글루코오스(묽음)에서 NaCl쪽으로 이동.</p>
+<p class="step">→ NaCl 수위 상승, 글루코오스 수위 하강.</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">물은 입자 농도가 높은(삼투압 큰) 쪽으로 간다. NaCl이 i=2라 같은 몰랄이어도 입자가 2배라 그쪽이 올라간다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 6</span><span class="area">삼투압</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q6"><div class="qh"><span class="qno">문제 6</span><span class="area">삼투압</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">가한 압력이 삼투압과 같아지는 농도가 한계: <span class="eq">7.5 = iMRT = 2×M×0.0821×300 → M = 7.5/49.3 ≈ 0.15 M</span>. → <b>③</b></p>
     <div class="tip">역삼투로 물을 뽑으려면 압력 &gt; 삼투압이어야 한다. 한계 농도는 삼투압=가한 압력인 지점. NaCl은 i=2.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 7</span><span class="area">농도전환</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">5.8% NaCl ≈ 58g/L → 58/58.5 ≈ 1몰. NaCl i=2라 유효 입자 농도 ≈ <b>2 osmol/L</b>.</p>
-    <p class="step">포도당(i=1)으로 같으려면 <b>2 M</b> 필요. → <b>②</b></p>
-    <div class="tip">삼투압은 입자 농도(i×M)에 비례. NaCl 1M은 입자 2M에 해당하니 포도당 2M과 같은 삼투압을 낸다.</div></div>
+<div class="q" id="q7"><div class="qh"><span class="qno">문제 7</span><span class="area">농도전환</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">5.8% NaCl ≈ 58g/L → 58/58.5 ≈ 1몰.</p>
+<p class="step">NaCl i=2라 유효 입자 농도 ≈ 2 osmol/L.</p>
+<p class="step">포도당(i=1)으로 같으려면 2 M 필요.</p>
+<p class="step">→ <b>②</b></p>
+<div class="tip">삼투압은 입자 농도(i×M)에 비례. NaCl 1M은 입자 2M에 해당하니 포도당 2M과 같은 삼투압을 낸다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 8</span><span class="area">삼투압</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">증기압 순: <b>물 &gt; 포도당(i=1) &gt; NaCl(i=2)</b>. NaCl이 입자 2배라 증기압 최저 → 수은을 가장 적게 누름(수은 높이 최대).</p>
-    <p class="step">수은 높이로 A=포도당, B=물, C=소금. → <b>②</b></p>
-    <div class="tip">용질 입자가 많을수록 증기압이 낮아진다(라울). NaCl은 i=2라 같은 몰랄이어도 포도당보다 증기압을 더 낮춘다.</div></div>
+<div class="q" id="q8"><div class="qh"><span class="qno">문제 8</span><span class="area">삼투압</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">증기압 순: 물 &gt; 포도당(i=1) &gt; NaCl(i=2).</p>
+<p class="step">NaCl이 입자 2배라 증기압 최저 → 수은을 가장 적게 누름(수은 높이 최대).</p>
+<p class="step">수은 높이로 A=포도당, B=물, C=소금.</p>
+<p class="step">→ <b>②</b></p>
+<div class="tip">용질 입자가 많을수록 증기압이 낮아진다(라울). NaCl은 i=2라 같은 몰랄이어도 포도당보다 증기압을 더 낮춘다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 9</span><span class="area">기체상수</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step"><b>(가)</b> 속도(m/s)는 SI 에너지 단위라 <b>R=8.314 J/K·mol(b)</b>. <b>(나)</b> 압력 atm·농도 mol/L면 <b>R=0.082 L·atm/K·mol(a)</b>. → <b>③</b></p>
-    <div class="tip">단위를 맞추는 게 핵심. 역학·에너지(J)는 8.314, 기체 압력(atm·L)은 0.082를 쓴다.</div></div>
+<div class="q" id="q9"><div class="qh"><span class="qno">문제 9</span><span class="area">기체상수</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">(가) 속도(m/s)는 SI 에너지 단위라 R=8.314 J/K·mol(b).</p>
+<p class="step">(나) 압력 atm·농도 mol/L면 R=0.082 L·atm/K·mol(a).</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">단위를 맞추는 게 핵심. 역학·에너지(J)는 8.314, 기체 압력(atm·L)은 0.082를 쓴다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 10</span><span class="area">결합에너지</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">ㄱ(물 생성)·ㄴ(HCl 생성)·ㄷ(암모니아 합성, 하버법) 모두 안정한 결합을 형성하며 에너지를 방출 → <b>발열</b>. → <b>④</b></p>
-    <div class="tip">원소에서 안정한 화합물이 생성되는 반응은 대개 발열. 세 반응 모두 강한 결합을 만들며 열을 낸다.</div></div>
+<div class="q" id="q10"><div class="qh"><span class="qno">문제 10</span><span class="area">결합에너지</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">ㄱ(물 생성)·ㄴ(HCl 생성)·ㄷ(암모니아 합성, 하버법) 모두 안정한 결합을 형성하며 에너지를 방출 → 발열.</p>
+<p class="step">→ <b>④</b></p>
+<div class="tip">원소에서 안정한 화합물이 생성되는 반응은 대개 발열. 세 반응 모두 강한 결합을 만들며 열을 낸다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 11</span><span class="area">Q=c m T</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">총 발열 = 0.752×26.4 = 19.85kJ. 물 흡수 = 1000×4.18×3.60 = 15.05kJ. 열량계 흡수 = 19.85 − 15.05 = 4.80kJ.</p>
-    <p class="step">열용량 = 4.80/3.60 = <b>1.33 kJ/°C</b>. → <b>④</b></p>
-    <div class="tip">총 발열 = 물 흡수 + 열량계 흡수. 열량계 몫을 ΔT로 나누면 열용량. 표준물질(벤조산)로 열량계를 보정하는 방법.</div></div>
+<div class="q" id="q11"><div class="qh"><span class="qno">문제 11</span><span class="area">Q=c m T</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">총 발열 = 0.752×26.4 = 19.85kJ.</p>
+<p class="step">물 흡수 = 1000×4.18×3.60 = 15.05kJ.</p>
+<p class="step">열량계 흡수 = 19.85 − 15.05 = 4.80kJ.</p>
+<p class="step">열용량 = 4.80/3.60 = 1.33 kJ/°C.</p>
+<p class="step">→ <b>④</b></p>
+<div class="tip">총 발열 = 물 흡수 + 열량계 흡수. 열량계 몫을 ΔT로 나누면 열용량. 표준물질(벤조산)로 열량계를 보정하는 방법.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 12</span><span class="area">중화엔탈피</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">HA 몰수 = NaOH = 1.0×0.005 = 0.005몰. 용액 25g. 발열 = 25×4×3.0 = 300J.</p>
-    <p class="step">ΔH = −300/0.005 = −60000 J/mol = <b>60 kJ/mol</b>. → <b>④</b></p>
-    <div class="tip">종말점 NaOH 몰수 = HA 몰수. 발열량을 몰수로 나눠 몰당 엔탈피로. 강산-강염기 중화열(~57kJ)에 가깝다.</div></div>
+<div class="q" id="q12"><div class="qh"><span class="qno">문제 12</span><span class="area">중화엔탈피</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">HA 몰수 = NaOH = 1.0×0.005 = 0.005몰.</p>
+<p class="step">용액 25g.</p>
+<p class="step">발열 = 25×4×3.0 = 300J.</p>
+<p class="step">ΔH = −300/0.005 = −60000 J/mol = 60 kJ/mol.</p>
+<p class="step">→ <b>④</b></p>
+<div class="tip">종말점 NaOH 몰수 = HA 몰수. 발열량을 몰수로 나눠 몰당 엔탈피로. 강산-강염기 중화열(~57kJ)에 가깝다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 13</span><span class="area">양적관계</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">Fe 1몰당 1652/4 = 413kJ. ①826kJ(Fe<sub>2</sub>O<sub>3</sub> 1몰), ④826kJ(Fe 2몰). ②③은 한계 반응물 판별:</p>
-    <p class="step"><b>②</b> Fe 10g=0.179몰(한계) → 74kJ. <b>③</b> Fe 20g=0.358몰(한계) → 148kJ. 최소는 <b>②</b>. → <b>②</b></p>
-    <div class="tip">발열량은 한계 반응물 양에 비례. ②③ 모두 산소가 충분/철이 한계라 철 양(10g&lt;20g)이 적은 ②가 열량 최소.</div></div>
+<div class="q" id="q13"><div class="qh"><span class="qno">문제 13</span><span class="area">양적관계</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">Fe 1몰당 1652/4 = 413kJ.</p>
+<p class="step">①826kJ(Fe2O3 1몰), ④826kJ(Fe 2몰).</p>
+<p class="step">②③은 한계 반응물 판별: ② Fe 10g=0.179몰(한계) → 74kJ.</p>
+<p class="step">③ Fe 20g=0.358몰(한계) → 148kJ.</p>
+<p class="step">최소는 ②.</p>
+<p class="step">→ <b>②</b></p>
+<div class="tip">발열량은 한계 반응물 양에 비례. ②③ 모두 산소가 충분/철이 한계라 철 양(10g&lt;20g)이 적은 ②가 열량 최소.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 14</span><span class="area">양적관계</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q14"><div class="qh"><span class="qno">문제 14</span><span class="area">양적관계</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">PbS 몰수 = 1000/239 = 4.18몰. <span class="eq">ΔH = 4.18 × (−414) = −1732 kJ ≈ −1500 kJ</span>. → <b>②</b></p>
     <div class="tip">질량을 몰수로 바꿔 몰당 ΔH를 곱한다. 실측 −1732에 가장 가까운 보기가 −1500.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 15</span><span class="area">표준증발엔탈피</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q15"><div class="qh"><span class="qno">문제 15</span><span class="area">표준증발엔탈피</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">승화 = 융용 + 증발. <span class="eq">증발 = 승화 − 융용 = 40.1 − 10.6 = +29.5 kJ/mol</span>. → <b>③</b></p>
     <div class="tip">고체→기체(승화) = 고체→액체(융용) + 액체→기체(증발). 헤스 법칙은 상변화에도 적용된다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 16</span><span class="area">격자에너지</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q16"><div class="qh"><span class="qno">문제 16</span><span class="area">격자에너지</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">용해 = 격자(끊기) + 수화. <span class="eq">수화 = 용해 − 격자 = 17.2 − 701.2 = −684 kJ/mol</span>. → <b>③</b></p>
     <div class="tip">기체 이온이 물에 둘러싸이는 수화는 강한 발열(−684). 격자를 깨는 흡열(+701)을 수화 발열이 거의 상쇄해 용해열은 작다(+17).</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 17</span><span class="area">헤스법칙</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">ΔH<sub>2</sub> + ΔH<sub>1</sub> = 3438 + (−2439) = +999kJ → 이는 <b>4PCl<sub>5</sub></b>→4PCl<sub>3</sub>+4Cl<sub>2</sub>의 값.</p>
-    <p class="step">1몰당 = 999/4 = <b>250 kJ</b>. → <b>②</b></p>
-    <div class="tip">두 식을 더하면 P<sub>4</sub>가 상쇄되며 4PCl<sub>5</sub> 반응이 된다. 목표가 1몰이라 4로 나눠야 한다(999는 4몰 함정).</div></div>
+<div class="q" id="q17"><div class="qh"><span class="qno">문제 17</span><span class="area">헤스법칙</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">ΔH2 + ΔH1 = 3438 + (−2439) = +999kJ → 이는 4PCl5→4PCl3+4Cl2의 값.</p>
+<p class="step">1몰당 = 999/4 = 250 kJ.</p>
+<p class="step">→ <b>②</b></p>
+<div class="tip">두 식을 더하면 P4가 상쇄되며 4PCl5 반응이 된다. 목표가 1몰이라 4로 나눠야 한다(999는 4몰 함정).</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 18</span><span class="area">헤스법칙</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q18"><div class="qh"><span class="qno">문제 18</span><span class="area">헤스법칙</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">½I<sub>2</sub>(s)+½Cl<sub>2</sub>→ICl: 승화 ½(65) + I−I 끊기 ½(150) + Cl−Cl 끊기 ½(243) − I−Cl 형성 211.</p>
     <p class="step"><span class="eq">= 32.5 + 75 + 121.5 − 211 = +18 kJ/mol</span>. → <b>③</b></p>
     <div class="tip">I<sub>2</sub>는 고체라 승화(65)도 거쳐야 한다. 반쪽 결합씩 끊고 I−Cl 하나 만든다. 절반 계수에 주의.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 19</span><span class="area">생성엔탈피</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q19"><div class="qh"><span class="qno">문제 19</span><span class="area">생성엔탈피</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step"><span class="eq">90 = ½(941)+½(499) − D(NO) = 720 − D(NO) → D(NO) = 630 ≈ 600</span>. → <b>①</b></p>
     <div class="tip">생성열 = 끊은 결합 − 만든 결합. N≡N·O=O 반쪽씩 끊고 N=O 하나 만든다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 20</span><span class="area">표준생성엔탈피</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q20"><div class="qh"><span class="qno">문제 20</span><span class="area">표준생성엔탈피</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step"><span class="eq">−271 = ½(432)+½(154) − D(HF) = 293 − D(HF) → D(HF) = 293+271 = 564 kJ/mol</span>. → <b>④</b></p>
     <div class="tip">발열 생성열(−271)이라 D(HF)가 끊은 결합 합(293)보다 크다. HF 결합이 매우 강함을 보여준다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 21</span><span class="area">연소열</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q21"><div class="qh"><span class="qno">문제 21</span><span class="area">연소열</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step"><span class="x">①</span> C 연소열 = −788/2 = −394/몰. <span class="x">②</span> CO 생성열 = −222/2 = −111/몰. <span class="x">③</span> CO 14g=0.5몰 → 566/2×0.5 = 141.5kJ.</p>
     <p class="step"><span class="k">④</span> C+O<sub>2</sub>→CO<sub>2</sub>는 곧 <b>C의 연소이자 CO<sub>2</sub>의 생성</b>(같은 반응) → 크기 같음. → <b>④</b></p>
     <div class="tip">탄소의 연소(C+O<sub>2</sub>→CO<sub>2</sub>)는 정의상 CO<sub>2</sub>의 생성 반응과 동일하다. 도식 값은 모두 2몰 기준이라 2로 나눠야 몰당 값.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 22</span><span class="area">표준생성엔탈피</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q22"><div class="qh"><span class="qno">문제 22</span><span class="area">표준생성엔탈피</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">ΔH<sub>rxn</sub>=ΔH<sub>f</sub>이려면 <b>표준상태 원소</b>에서 화합물 1몰 생성이어야 한다.</p>
     <p class="step"><span class="k">①</span> Xe(g)·F<sub>2</sub>(g) 모두 표준상태 → 생성 반응. <span class="x">②</span> SO<sub>2</sub>는 원소 아님. <span class="x">③</span> O<sub>3</sub>는 표준상태(O<sub>2</sub>) 아님. <span class="x">④</span> 다이아몬드는 표준상태(흑연) 아님. → <b>①</b></p>
     <div class="tip">표준 생성 반응의 조건: 표준상태 원소들 → 화합물 1몰. 흑연(O<sub>2</sub>·F<sub>2</sub>·Xe기체)이 표준상태이고 다이아몬드·O<sub>3</sub>·SO<sub>2</sub>는 아니다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 23</span><span class="area">결합에너지</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">C−H 결합에너지는 약 <b>410~415 kJ/mol</b>. → <b>400 kJ/mol</b>이 가장 가깝다. → <b>④</b></p>
-    <div class="tip">일반적인 단일 결합 에너지는 수백 kJ/mol 규모. C−H ≈ 410, C−C ≈ 350, O−H ≈ 460 정도를 기억해두면 좋다.</div></div>
+<div class="q" id="q23"><div class="qh"><span class="qno">문제 23</span><span class="area">결합에너지</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">C−H 결합에너지는 약 410~415 kJ/mol.</p>
+<p class="step">→ 400 kJ/mol이 가장 가깝다.</p>
+<p class="step">→ <b>④</b></p>
+<div class="tip">일반적인 단일 결합 에너지는 수백 kJ/mol 규모. C−H ≈ 410, C−C ≈ 350, O−H ≈ 460 정도를 기억해두면 좋다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 24</span><span class="area">반응엔탈피</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q24"><div class="qh"><span class="qno">문제 24</span><span class="area">반응엔탈피</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">ΔH = Σ생성열(생성물) − Σ생성열(반응물) = <span class="eq">[−111 + 0] − [−75 + (−242)] = −111 + 317 = +206 kJ</span>. → <b>①</b></p>
     <div class="tip">생성열로 반응열 구하기: 생성물 − 반응물(H<sub>2</sub>는 0). 수증기 개질은 흡열이라 고온이 필요하다(수소 생산 공정).</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 25</span><span class="area">결합에너지</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">변하는 결합만: 끊기 C−H(411) + Cl−Cl(240) = 651. 만들기 C−Cl(327) + H−Cl(428) = 755.</p>
-    <p class="step">ΔH = 651 − 755 = <b>−104 kJ/mol</b>. → <b>①</b></p>
-    <div class="tip">CH<sub>4</sub>의 C−H 4개 중 1개만 바뀐다. 변하지 않는 결합은 빼고 끊는/만드는 결합만 센다.</div></div>
+<div class="q" id="q25"><div class="qh"><span class="qno">문제 25</span><span class="area">결합에너지</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">변하는 결합만: 끊기 C−H(411) + Cl−Cl(240) = 651.</p>
+<p class="step">만들기 C−Cl(327) + H−Cl(428) = 755.</p>
+<p class="step">ΔH = 651 − 755 = −104 kJ/mol.</p>
+<p class="step">→ <b>①</b></p>
+<div class="tip">CH4의 C−H 4개 중 1개만 바뀐다. 변하지 않는 결합은 빼고 끊는/만드는 결합만 센다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 26</span><span class="area">생성엔탈피</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q26"><div class="qh"><span class="qno">문제 26</span><span class="area">생성엔탈피</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">먼저 결합에너지로 ΔH<sub>rxn</sub> = [413+242] − [339+432] = 655 − 771 = −116kJ.</p>
     <p class="step">생성열식: −116 = [ΔH<sub>f</sub>(C<sub>3</sub>H<sub>7</sub>Cl) + (−92)] − [(−104)] → <span class="eq">ΔH<sub>f</sub> = −116 + 92 − 104 = −128 kJ/mol</span>. → <b>③</b></p>
     <div class="tip">두 방법을 잇는다: 결합에너지로 ΔH<sub>rxn</sub>을 구하고, 그걸 생성열 식에 넣어 미지 생성열을 역산한다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 27</span><span class="area">안정성</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">B(이중결합 1개)+C(2개) = 이중결합 3개분. A(벤젠)도 형식상 3개지만 <b>방향족 안정화(공명에너지)</b>로 덜 방출.</p>
-    <p class="step">→ <b>A &lt; B + C</b>. → <b>③</b></p>
-    <div class="tip">벤젠의 수소화열이 "이중결합 3개"예상치보다 작은 것이 방향족 안정화(공명에너지 ~150kJ)의 고전적 증거다.</div></div>
+<div class="q" id="q27"><div class="qh"><span class="qno">문제 27</span><span class="area">안정성</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">B(이중결합 1개)+C(2개) = 이중결합 3개분.</p>
+<p class="step">A(벤젠)도 형식상 3개지만 방향족 안정화(공명에너지)로 덜 방출.</p>
+<p class="step">→ A &lt; B + C.</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">벤젠의 수소화열이 "이중결합 3개"예상치보다 작은 것이 방향족 안정화(공명에너지 ~150kJ)의 고전적 증거다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 28</span><span class="area">결합에너지</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">전기음성도가 다른 원자 사이의 결합은 이온성 기여로 <b>평균보다 강하다</b> → E<sub>AB</sub> &gt; (E<sub>A</sub>+E<sub>B</sub>)/2. → <b>②</b></p>
-    <div class="tip">폴링의 전기음성도 정의 기반. 초과 결합에너지 Δ = E<sub>AB</sub> − 평균이 전기음성도 차이에서 온다(이온성 공명 안정화).</div></div>
+<div class="q" id="q28"><div class="qh"><span class="qno">문제 28</span><span class="area">결합에너지</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">전기음성도가 다른 원자 사이의 결합은 이온성 기여로 평균보다 강하다 → EAB &gt; (EA+EB)/2.</p>
+<p class="step">→ <b>②</b></p>
+<div class="tip">폴링의 전기음성도 정의 기반. 초과 결합에너지 Δ = EAB − 평균이 전기음성도 차이에서 온다(이온성 공명 안정화).</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 29</span><span class="area">수소결합</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q29"><div class="qh"><span class="qno">문제 29</span><span class="area">수소결합</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">아세톤-클로로폼은 수소결합으로 <b>음의 편차</b>(서로 잘 끌림). <span class="x">가</span> 이상 평균 330torr보다 <b>낮다</b>(거짓). <span class="x">나</span> 끌림이 강해 <b>발열</b> ΔH&lt;0(거짓). → <b>④</b></p>
     <div class="tip">음의 편차의 대표 예. 두 분자가 수소결합으로 강하게 끌려 증기압↓·발열·부피 수축. 양의 편차(흡열)와 정반대.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 30</span><span class="area">엔트로피</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q30"><div class="qh"><span class="qno">문제 30</span><span class="area">엔트로피</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step"><span class="x">①</span> 원자 많은 SO<sub>3</sub>가 큼. <span class="x">②</span> 기체가 고체보다 훨씬 큼. <span class="x">④</span> 용해된 KBr(aq)가 큼.</p>
     <p class="step"><span class="k">③</span> 3몰 O<sub>2</sub>(3×205=615) &gt; 2몰 O<sub>3</sub>(2×239=478) — 기체 몰수 많아 큼. → <b>③</b></p>
     <div class="tip">기체 몰수가 많을수록·원자 많을수록·녹을수록 엔트로피 증가. 같은 O 원자 6개라도 O<sub>2</sub> 3몰이 O<sub>3</sub> 2몰보다 크다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 31</span><span class="area">엔트로피</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q31"><div class="qh"><span class="qno">문제 31</span><span class="area">엔트로피</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step"><span class="k">가</span>(기체 2→3)·<span class="k">다</span>(가열)·<span class="k">라</span>(용해)는 증가. <span class="x">나</span> 응축(기체→액체) 감소. <span class="x">마</span> 광합성은 복잡한 포도당 생성(질서↑)이라 감소. → <b>③</b></p>
     <div class="tip">마(광합성)는 기체 몰수가 6→6으로 같지만 액체 물이 고체 포도당으로 조직화돼 엔트로피가 줄어든다(생명체가 질서를 만드는 대가).</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 32</span><span class="area">엔트로피</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q32"><div class="qh"><span class="qno">문제 32</span><span class="area">엔트로피</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step"><span class="x">a</span> 중화는 발열(ΔH&lt;0). <span class="k">b</span> 끓임: 흡열·기체화(ΔH&gt;0, ΔS&gt;0). <span class="k">c</span> NaNO<sub>3</sub> 용해: 흡열·이온 분산(ΔH&gt;0, ΔS&gt;0). → <b>④</b></p>
     <div class="tip">NaNO<sub>3</sub> 용해는 흡열(냉각 팩 원리)이라 엔탈피도 증가. 중화만 발열이라 제외된다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 33</span><span class="area">엔트로피</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">기화는 열을 흡수(<b>흡열, b</b>)하고 기체가 액체보다 무질서(<b>엔트로피 증가, c</b>). → <b>③</b></p>
-    <div class="tip">증발은 흡열·무질서 증가의 대표 예. 그래서 땀이 증발하면 시원하다(열을 빼앗아감).</div></div>
+<div class="q" id="q33"><div class="qh"><span class="qno">문제 33</span><span class="area">엔트로피</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">기화는 열을 흡수(흡열, b)하고 기체가 액체보다 무질서(엔트로피 증가, c).</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">증발은 흡열·무질서 증가의 대표 예. 그래서 땀이 증발하면 시원하다(열을 빼앗아감).</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 34</span><span class="area">엔트로피</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">단사정계가 고온서 안정 → 전이가 고온서 자발적이려면 <b>ΔS&gt;0</b>. 고온상이 엔탈피도 높아 <b>ΔH&gt;0</b>(흡열). → <b>④</b></p>
-    <div class="tip">고온에서 안정한 상은 보통 엔탈피·엔트로피가 모두 더 높다. 전이 온도(95°C)에서 ΔG=0, 그 위에선 단사정계로.</div></div>
+<div class="q" id="q34"><div class="qh"><span class="qno">문제 34</span><span class="area">엔트로피</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">단사정계가 고온서 안정 → 전이가 고온서 자발적이려면 ΔS&gt;0.</p>
+<p class="step">고온상이 엔탈피도 높아 ΔH&gt;0(흡열).</p>
+<p class="step">→ <b>④</b></p>
+<div class="tip">고온에서 안정한 상은 보통 엔탈피·엔트로피가 모두 더 높다. 전이 온도(95°C)에서 ΔG=0, 그 위에선 단사정계로.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 35</span><span class="area">평형온도</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q35"><div class="qh"><span class="qno">문제 35</span><span class="area">평형온도</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">증발 ΔH = −360−(−410) = 50kJ. 증발 ΔS = 250−130 = 120 J/K. 끓는점서 ΔG=0이라 <span class="eq">T = ΔH/ΔS = 50000/120 ≈ 417 ≈ 420 K</span>. → <b>②</b></p>
     <div class="tip">정상 끓는점은 액체-기체 평형(ΔG=0)이라 T=ΔH<sub>vap</sub>/ΔS<sub>vap</sub>. 단위(kJ→J) 맞춰 나눈다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 36</span><span class="area">기체분자수</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">결합 끊기라 <b>ΔH&gt;0</b>(흡열), 1몰→2몰 기체라 <b>ΔS&gt;0</b>. ΔG = ΔH − TΔS는 <b>고온</b>서 음수(TΔS가 우세). → <b>②</b></p>
-    <div class="tip">ΔH&gt;0·ΔS&gt;0이면 고온에서만 자발적. 결합 해리는 흡열이지만 입자가 늘어 고온에서 일어난다.</div></div>
+<div class="q" id="q36"><div class="qh"><span class="qno">문제 36</span><span class="area">기체분자수</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">결합 끊기라 ΔH&gt;0(흡열), 1몰→2몰 기체라 ΔS&gt;0.</p>
+<p class="step">ΔG = ΔH − TΔS는 고온서 음수(TΔS가 우세).</p>
+<p class="step">→ <b>②</b></p>
+<div class="tip">ΔH&gt;0·ΔS&gt;0이면 고온에서만 자발적. 결합 해리는 흡열이지만 입자가 늘어 고온에서 일어난다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 37</span><span class="area">평형온도</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q37"><div class="qh"><span class="qno">문제 37</span><span class="area">평형온도</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">융용점(273K)에서 고체-액체 평형이라 ΔG=0. <span class="eq">ΔS = ΔH/T = 6030/273 ≈ 22.1 J/K·mol</span>. → <b>②</b></p>
     <div class="tip">상평형 온도에서 ΔG=0 → ΔS=ΔH/T. 얼음 융용점 0°C=273K로 나눈다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 38</span><span class="area">부호</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">ΔH = [4×33.2] − [2×11.3] = <b>+110 kJ</b>. ΔS = [4×240+204] − [2×655] = 1164−1310 = <b>−146 J/K</b>. → <b>②</b></p>
-    <div class="tip">기체 몰수는 2→5로 늘지만 N<sub>2</sub>O<sub>5</sub>의 표준 엔트로피(655)가 워낙 커서 ΔS가 음수. 주어진 값으로 직접 계산이 원칙.</div></div>
+<div class="q" id="q38"><div class="qh"><span class="qno">문제 38</span><span class="area">부호</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">ΔH = [4×33.2] − [2×11.3] = +110 kJ.</p>
+<p class="step">ΔS = [4×240+204] − [2×655] = 1164−1310 = −146 J/K.</p>
+<p class="step">→ <b>②</b></p>
+<div class="tip">기체 몰수는 2→5로 늘지만 N2O5의 표준 엔트로피(655)가 워낙 커서 ΔS가 음수. 주어진 값으로 직접 계산이 원칙.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 39</span><span class="area">자발성</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">ΔG = ΔH − TΔS = (+) − T(−) = (+) + T(+) → <b>항상 양수</b> → 모든 온도서 비자발적. → <b>④</b></p>
-    <div class="tip">ΔH&gt;0·ΔS&lt;0이면 온도 불문 ΔG&gt;0. 역반응(ΔH&lt;0·ΔS&gt;0)은 모든 온도서 자발적이다.</div></div>
+<div class="q" id="q39"><div class="qh"><span class="qno">문제 39</span><span class="area">자발성</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">ΔG = ΔH − TΔS = (+) − T(−) = (+) + T(+) → 항상 양수 → 모든 온도서 비자발적.</p>
+<p class="step">→ <b>④</b></p>
+<div class="tip">ΔH&gt;0·ΔS&lt;0이면 온도 불문 ΔG&gt;0. 역반응(ΔH&lt;0·ΔS&gt;0)은 모든 온도서 자발적이다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 40</span><span class="area">깁스자유에너지</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">융해라 ΔH&gt;0·ΔS&gt;0(①②는 거짓). 4°C(녹는점 위)서 <b>자발적</b>이라 ΔG&lt;0(④ 거짓).</p>
-    <p class="step">ΔG = ΔH − TΔS &lt; 0 → <b>TΔS &gt; ΔH</b>. → <b>③</b></p>
-    <div class="tip">0°C 위에서는 융해가 자발적이라 TΔS 항이 ΔH를 넘어선다(ΔG&lt;0). 그게 얼음이 녹는 이유.</div></div>
+<div class="q" id="q40"><div class="qh"><span class="qno">문제 40</span><span class="area">깁스자유에너지</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">융해라 ΔH&gt;0·ΔS&gt;0(①②는 거짓).</p>
+<p class="step">4°C(녹는점 위)서 자발적이라 ΔG&lt;0(④ 거짓).</p>
+<p class="step">ΔG = ΔH − TΔS &lt; 0 → TΔS &gt; ΔH.</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">0°C 위에서는 융해가 자발적이라 TΔS 항이 ΔH를 넘어선다(ΔG&lt;0). 그게 얼음이 녹는 이유.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 41</span><span class="area">결합에너지</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">안정한 N<sub>2</sub>(N≡N 941)·CO<sub>2</sub> 생성이라 강한 <b>발열</b>(①④ 거짓). 액체 9몰→기체 25몰이라 <b>ΔS&gt;0</b>.</p>
-    <p class="step">ΔH&lt;0·ΔS&gt;0 → ΔG&lt;0 <b>모든 온도서 자발적</b>. (산화제는 N<sub>2</sub>O<sub>4</sub>, ③ 거짓) → <b>②</b></p>
-    <div class="tip">메틸하이드라진+N<sub>2</sub>O<sub>4</sub>는 자동점화 로켓 추진제. 발열+엔트로피 폭증(액→기체)이라 항상 자발적. 연료는 하이드라진, 산화제는 N<sub>2</sub>O<sub>4</sub>.</div></div>
+<div class="q" id="q41"><div class="qh"><span class="qno">문제 41</span><span class="area">결합에너지</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">안정한 N2(N≡N 941)·CO2 생성이라 강한 발열(①④ 거짓).</p>
+<p class="step">액체 9몰→기체 25몰이라 ΔS&gt;0.</p>
+<p class="step">ΔH&lt;0·ΔS&gt;0 → ΔG&lt;0 모든 온도서 자발적.</p>
+<p class="step">(산화제는 N2O4, ③ 거짓)</p>
+<p class="step">→ <b>②</b></p>
+<div class="tip">메틸하이드라진+N2O4는 자동점화 로켓 추진제. 발열+엔트로피 폭증(액→기체)이라 항상 자발적. 연료는 하이드라진, 산화제는 N2O4.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 42</span><span class="area">부호</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q42"><div class="qh"><span class="qno">문제 42</span><span class="area">부호</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step"><span class="x">①</span> 연소는 발열(ΔH&lt;0). <span class="x">②</span> 연쇄 다단계 반응. <span class="x">③</span> 기체 15→18몰이라 ΔS&gt;0 <b>알 수 있다</b>.</p>
     <p class="step"><span class="k">④</span> ΔH&lt;0·ΔS&gt;0 → ΔG = (−)−T(+) &lt; 0 <b>항상 음수</b>(온도 무관 같은 부호). → <b>④</b></p>
     <div class="tip">ΔH&lt;0·ΔS&gt;0이면 ΔG가 모든 온도서 음수라 부호가 안 바뀐다. 연소는 항상 자발적인 대표 예.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 43</span><span class="area">그래프해석</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q43"><div class="qh"><span class="qno">문제 43</span><span class="area">그래프해석</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">기울기 = −ΔS. (가)(나)는 기체 1→0이라 양의 기울기(ΔS&lt;0), (다)만 기체 1→2라 음의 기울기(ΔS&gt;0).</p>
     <p class="step"><span class="x">ㄱ</span> ΔS&gt;0은 (다) <b>하나</b>뿐. <span class="x">ㄴ</span> FeO 환원은 (다)가 (나) 아래로 가는 <b>고온</b>(T₂ 위)서 자발. <span class="x">ㄷ</span> CuO 환원은 T₁ 위서 이미 자발 → T₁&lt;T&lt;T₂서 자발(비자발 아님). 모두 거짓 → <b>0</b>. → <b>④</b></p>
     <div class="tip">엘링엄 도식: ΔG-T 기울기가 엔트로피 부호. 탄소(다) 선이 금속 산화물 선 아래로 내려가는 온도 위에서 탄소가 그 산화물을 환원한다(제련 원리).</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 44</span><span class="area">평형농도</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">초기 [A]=[B]=0.2M. K = x²/(0.2−x)² = 144 → <b>√144 = 12</b>. x/(0.2−x) = 12 → 13x = 2.4 → x = <b>0.185 M</b>. → <b>③</b></p>
-    <div class="tip">생성물이 C+D(1:1)라 [C]=x. 44번은 K가 완전제곱이라 제곱근 한 번으로 1차식이 된다.</div></div>
+<div class="q" id="q44"><div class="qh"><span class="qno">문제 44</span><span class="area">평형농도</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">초기 [A]=[B]=0.2M.</p>
+<p class="step">K = x<sup>2</sup>/(0.2−x)<sup>2</sup> = 144 → √144 = 12.</p>
+<p class="step">x/(0.2−x) = 12 → 13x = 2.4 → x = 0.185 M.</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">생성물이 C+D(1:1)라 [C]=x. 44번은 K가 완전제곱이라 제곱근 한 번으로 1차식이 된다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 45</span><span class="area">평형농도</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">초기 [시스]=2.0mM. K = x/(2.0−x) = 1.5 → 2.5x = 3.0 → x = <b>1.2 mmol/L</b>. → <b>③</b></p>
-    <div class="tip">기체 몰수 변화가 없는 이성질화는 단순 비율. K=1.5라 트랜스(1.2):시스(0.8) ≈ 1.5:1로 나뉜다.</div></div>
+<div class="q" id="q45"><div class="qh"><span class="qno">문제 45</span><span class="area">평형농도</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">초기 [시스]=2.0mM.</p>
+<p class="step">K = x/(2.0−x) = 1.5 → 2.5x = 3.0 → x = 1.2 mmol/L.</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">기체 몰수 변화가 없는 이성질화는 단순 비율. K=1.5라 트랜스(1.2):시스(0.8) ≈ 1.5:1로 나뉜다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 46</span><span class="area">평형상수</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q46"><div class="qh"><span class="qno">문제 46</span><span class="area">평형상수</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">O<sub>2</sub> 소모 = 1−0.60 = 0.40 → NO 소모 0.80, NO<sub>2</sub> 생성 0.80. 평형 NO=0.20, O<sub>2</sub>=0.60, NO<sub>2</sub>=0.80.</p>
     <p class="step"><span class="eq">K<sub>p</sub> = 0.80²/(0.20²×0.60) = 0.64/0.024 ≈ 27</span>. → <b>④</b></p>
     <div class="tip">O<sub>2</sub> 소모량을 기준으로 계수비(2NO:1O<sub>2</sub>:2NO<sub>2</sub>)로 나머지 변화를 구한다. 분모의 NO는 제곱.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 47</span><span class="area">평형상수</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q47"><div class="qh"><span class="qno">문제 47</span><span class="area">평형상수</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">①(K는 T 의존)·②(ΔH&lt;0 발열)·③(기체 3→2몰, ΔS&lt;0)는 옳다.</p>
     <p class="step"><span class="x">④</span> 부분압 모두 1이면 Q = 1²/(1²×1) = 1 ≪ K = 10¹² → <b>정반응</b> 자발(역반응 아님). → <b>④</b></p>
     <div class="tip">Q&lt;K면 정반응이 자발적. K가 10¹²로 거대하니 표준 상태(모두 1기압)에서도 정반응이 강하게 진행된다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 48</span><span class="area">평형농도</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q48"><div class="qh"><span class="qno">문제 48</span><span class="area">평형농도</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">K 거대 → 거의 완결. P<sub>2</sub>O<sub>4</sub>(0.60)이 한계라 모두 소모: O<sub>2</sub> = 0.50−0.30 = 0.20, P<sub>2</sub>O<sub>5</sub> = 0.40+0.60 = 1.0.</p>
     <p class="step">잔여 P<sub>2</sub>O<sub>4</sub> = <span class="eq">√(1.0²/(2×10⁵×0.20)) = √(2.5×10⁻⁵) ≈ 0.005</span>. → <b>③</b></p>
     <div class="tip">K가 매우 크면 한계 반응물 기준으로 완결시킨 뒤, 미량 남은 농도를 K 식으로 역산한다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 49</span><span class="area">엔트로피</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">이좌배위 en이 더 안정한 착물 형성 → <b>K<sub>1</sub> &lt; K<sub>2</sub></b>. 반응1은 입자 5→5(Δn=0), 반응2는 3→5(Δn=+2)라 <b>엔트로피</b> 증가가 원인. → <b>④</b></p>
-    <div class="tip">킬레이트 효과: 다좌배위 리간드가 단좌보다 안정한 착물을 만든다. 결합 세기(엔탈피)는 비슷하나 자유 분자를 더 많이 방출해 엔트로피가 유리하다.</div></div>
+<div class="q" id="q49"><div class="qh"><span class="qno">문제 49</span><span class="area">엔트로피</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">이좌배위 en이 더 안정한 착물 형성 → K1 &lt; K2.</p>
+<p class="step">반응1은 입자 5→5(Δn=0), 반응2는 3→5(Δn=+2)라 엔트로피 증가가 원인.</p>
+<p class="step">→ <b>④</b></p>
+<div class="tip">킬레이트 효과: 다좌배위 리간드가 단좌보다 안정한 착물을 만든다. 결합 세기(엔탈피)는 비슷하나 자유 분자를 더 많이 방출해 엔트로피가 유리하다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 50</span><span class="area">반응도표</span><span class="ans">전원정답</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q50"><div class="qh"><span class="qno">문제 50</span><span class="area">반응도표</span><span class="ans">전원정답</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step"><span class="k">c</span> E가 A보다 낮아 ΔG°&lt;0 → K&gt;1(참). <span class="k">d</span> 비표준 조건(Q&gt;K)이면 정반응 비자발 가능(참). <span class="x">b</span> 평형 속도는 평형 농도(=초기 농도 의존)에 좌우(거짓).</p>
     <p class="step"><span style="color:#b5651d">a(중간체 C를 평형 공존 "화합물"로 셀지)가 모호해 정답 개수가 2 또는 3으로 갈림 → <b>전원정답</b> 처리.</span></p>
     <div class="tip">중간체가 안정한 화합물인지 반응 중간체인지 해석에 따라 개수가 달라진다. c·d는 명확히 참, b는 명확히 거짓이라 a의 모호성이 무효처리를 부른다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 51</span><span class="area">르샤틀리에원리</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q51"><div class="qh"><span class="qno">문제 51</span><span class="area">르샤틀리에원리</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">계수 균형 후 기체 7→8몰. <span class="x">a</span> 압력↑면 기체 적은 <b>반응물(7)</b>쪽 → N<sub>2</sub> 감소.</p>
     <p class="step"><span class="k">b</span>(반응물 O<sub>2</sub> 첨가)·<span class="k">c</span>(생성물 H<sub>2</sub>O 제거)·<span class="k">d</span>(발열, 냉각)은 정방향 → N<sub>2</sub> 증가. → <b>④</b></p>
     <div class="tip">계수를 세어 기체 몰수를 비교하는 게 핵심(7 vs 8). H<sub>2</sub>O가 기체라 생성물 쪽 몰수가 더 많아 압력↑는 오히려 역효과.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 52</span><span class="area">르샤틀리에원리</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q52"><div class="qh"><span class="qno">문제 52</span><span class="area">르샤틀리에원리</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">가열하면 <b>정·역 속도 모두 빨라진다</b>(a·b 참). <span class="x">c</span> 발열이라 K는 <b>감소</b>(변함). <span class="x">d</span> 발열이라 역방향 이동 → 생성물 <b>감소</b>. → <b>①</b></p>
     <div class="tip">온도를 올리면 양방향 속도가 다 빨라지지만, 발열 반응은 평형이 역방향으로 가 K가 줄고 생성물이 감소한다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 53</span><span class="area">르샤틀리에원리</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q53"><div class="qh"><span class="qno">문제 53</span><span class="area">르샤틀리에원리</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">K는 <b>오직 온도</b>에만 의존. <span class="x">①</span>(농도)·<span class="x">③</span>(부피)는 K 안 바꿈. <span class="x">②</span> 온도 바꾸면 K 변함.</p>
     <p class="step"><span class="k">④</span> 부피 2배(압력↓)면 기체 많은 <b>반응물(2몰)</b>쪽 이동 → COCl<sub>2</sub> 분압이 직후값보다 더 감소. → <b>④</b></p>
     <div class="tip">평형상수는 농도·부피·압력·촉매로 안 변하고 오직 온도로만 변한다. ①②③은 모두 이 원칙 위반. ④만 르샤틀리에를 옳게 적용.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 54</span><span class="area">르샤틀리에원리</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q54"><div class="qh"><span class="qno">문제 54</span><span class="area">르샤틀리에원리</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step"><span class="x">①</span> 고체 황 첨가는 평형 불변. <span class="x">③</span> 반응물 HF 제거는 역방향. <span class="x">④</span> 발열 가열은 역방향.</p>
     <p class="step"><span class="k">②</span> 4NH<sub>3</sub>+5O<sub>2</sub>(9몰)⇌4NO+6H<sub>2</sub>O(10몰), 압력↓면 기체 많은 <b>생성물</b>쪽. → <b>②</b></p>
     <div class="tip">압력을 낮추면 기체 몰수가 많은 쪽으로 이동. ②는 생성물 몰수(10)가 반응물(9)보다 많아 감압이 생성물에 유리.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 55</span><span class="area">르샤틀리에원리</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">Q = [B]²[C]/[A]² = (5.0)²(0.10)/(0.0010)² = <b>2.5×10⁶</b> &gt; K(1.6×10⁴) → <b>역반응</b>. → <b>①</b></p>
-    <div class="tip">생성물 농도가 높고 반응물이 극소라 Q≫K → 역반응으로 A를 만든다.</div></div>
+<div class="q" id="q55"><div class="qh"><span class="qno">문제 55</span><span class="area">르샤틀리에원리</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">Q = [B]<sup>2</sup>[C]/[A]<sup>2</sup> = (5.0)<sup>2</sup>(0.10)/(0.0010)<sup>2</sup> = 2.5×10<sup>6</sup> &gt; K(1.6×10<sup>4</sup>) → 역반응.</p>
+<p class="step">→ <b>①</b></p>
+<div class="tip">생성물 농도가 높고 반응물이 극소라 Q≫K → 역반응으로 A를 만든다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 56</span><span class="area">르샤틀리에원리</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">K가 고온서 작아짐 → 정반응이 <b>발열</b>. 냉각하면 <b>정방향</b> 이동 → 생성물 [B] 증가. → <b>②</b></p>
-    <div class="tip">발열 반응은 냉각하면 정방향(생성물↑). 2→3몰이라 전체 농도는 오히려 증가(④ 거짓).</div></div>
+<div class="q" id="q56"><div class="qh"><span class="qno">문제 56</span><span class="area">르샤틀리에원리</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">K가 고온서 작아짐 → 정반응이 발열.</p>
+<p class="step">냉각하면 정방향 이동 → 생성물 [B] 증가.</p>
+<p class="step">→ <b>②</b></p>
+<div class="tip">발열 반응은 냉각하면 정방향(생성물↑). 2→3몰이라 전체 농도는 오히려 증가(④ 거짓).</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 57</span><span class="area">르샤틀리에원리</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q57"><div class="qh"><span class="qno">문제 57</span><span class="area">르샤틀리에원리</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">①(발열이라 저온이 평형 유리)·②(4→2몰이라 고압 유리)·④(촉매로 속도 보완)는 옳다.</p>
     <p class="step"><span class="x">③</span> 반응 속도는 <b>고온</b>이 유리(저온은 느림). → <b>③</b></p>
     <div class="tip">하버 공정의 딜레마: 저온은 평형(수율)에 유리하나 속도가 느리다. 그래서 적당한 온도+고압+촉매로 타협한다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 58</span><span class="area">르샤틀리에원리</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q58"><div class="qh"><span class="qno">문제 58</span><span class="area">르샤틀리에원리</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">①(ΔH&gt;0 흡열)·②(흡열이라 K↑)·③(촉매는 K 불변)은 옳다.</p>
     <p class="step"><span class="x">④</span> 부피↓(압력↑)면 기체 적은 <b>N<sub>2</sub>O<sub>4</sub>(반응물)</b>쪽 이동 + 압축 효과 → 반응물 농도 <b>증가</b>("감소"는 거짓). → <b>④</b></p>
     <div class="tip">압축하면 반응물(N<sub>2</sub>O<sub>4</sub>) 농도는 두 이유(압축·평형 이동)로 모두 증가한다. 1→2몰 반응이라 압축은 반응물 쪽으로 보낸다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 59</span><span class="area">르샤틀리에원리</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q59"><div class="qh"><span class="qno">문제 59</span><span class="area">르샤틀리에원리</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">(a)(b)(d)는 CaCO<sub>3</sub>이 있어 분해되며 CO<sub>2</sub>·CaO 생성 → 셋 다 공존 가능.</p>
     <p class="step"><span class="k">(c)</span>는 CaCO<sub>3</sub>이 <b>없고</b> P&lt;K<sub>p</sub>라 역반응(CaO+CO<sub>2</sub>→CaCO<sub>3</sub>)이 안 일어남(역반응은 P&gt;K<sub>p</sub>서 진행). → CaCO<sub>3</sub> 생성 불가 → <b>③</b></p>
     <div class="tip">CaCO<sub>3</sub>이 생기려면 처음부터 있거나(a·b·d), CO<sub>2</sub> 압력이 K<sub>p</sub>보다 커서 역반응이 진행돼야 한다. (c)는 둘 다 아니라 셋이 공존 못 한다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 60</span><span class="area">르샤틀리에원리</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q60"><div class="qh"><span class="qno">문제 60</span><span class="area">르샤틀리에원리</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step"><span class="k">①</span> 생성물 O<sub>2</sub> 제거 → 정방향. <span class="x">②</span> Hg는 순액체라 평형 불변. <span class="x">③</span> 흡열이라 냉각은 역방향. <span class="x">④</span> HgO(s)는 반응(기체 HgO)과 다른 상이라 무관. → <b>①</b></p>
     <div class="tip">생성물(O<sub>2</sub>)을 빼면 정방향으로 보충하려 한다. 순수 액체(Hg)와 고체는 평형식에 안 들어가 농도 변화가 평형을 옮기지 못한다.</div></div>
 </div>

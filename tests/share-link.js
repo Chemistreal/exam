@@ -327,9 +327,15 @@ async function radarAndSharedUI(browser, errs) {
     for (let q = 1; q <= cur.nQ; q += 3) setAns(q, (cur.key[q - 1] % 4) + 1);
     scoreAuto();
     await new Promise(r => setTimeout(r, 2500));
-    const svg = [].slice.call(document.querySelectorAll('.sec svg')).find(s => s.querySelector('polygon'));
-    // `.barrow` 는 '개념(유형) 숙련도' 섹션에서도 쓰인다. 레이더가 들어 있는
-    // '영역별 성취' 섹션 안에서만 세야 축 수와 견줄 수 있다.
+    /* polygon 이 든 «첫» svg 로 찾으면 안 된다 — 수상권 목표 정렬(사다리
+       그림)도 polygon 을 쓰고, 절 순서가 바뀌면 그쪽이 먼저 걸린다.
+       이 검사가 재는 것은 레이더이니, 레이더가 사는 '영역별 성취' 절의
+       svg 를 집는다(아래 barrow 세기와 같은 절이어야 견줄 수 있다). */
+    const svg = [].slice.call(document.querySelectorAll('.sec svg')).find(s => {
+      if (!s.querySelector('polygon')) return false;
+      const t = s.closest('.sec') && s.closest('.sec').querySelector('.sec__t');
+      return t && /영역별 성취/.test(t.textContent);
+    });
     const sec = svg ? svg.closest('.sec') : null;
     const bars = new Set(sec ? [].slice.call(sec.querySelectorAll('.barrow .ba')).map(e => e.textContent) : []);
     return { axes: svg ? svg.querySelectorAll('text').length : 0,

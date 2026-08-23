@@ -196,10 +196,12 @@ console.log('\n── 해설지가 데이터를 그대로 담는다 ──');
      살아 있어야 한다. '검수 전 문항이 있을 때만 안내가 뜬다'로 검사한다. */
   const unreviewed = Object.keys(q).filter(k => !String(q[k].verificationStatus || '').startsWith('verified'));
   chk('전 문항이 검수를 마쳤다', unreviewed, []);
+  /* 띠의 말은 학생어로 바꿨다(「해설 업데이트 안내」) — 「배포 전에 확인해
+     주세요」 는 선생님께 하는 말이라 받는 학생을 헷갈리게 했다. */
   chk('검수 전 안내가 뜨는지는 데이터가 정한다',
-      /검수 전 해설입니다/.test(page), unreviewed.length > 0);
+      /해설 업데이트 안내/.test(page), unreviewed.length > 0);
   chk('생성기에 안내 규칙이 살아 있다',
-      /검수 전 해설입니다/.test(fs.readFileSync(path.join(ROOT, 'tools', 'gen_sol_page.py'), 'utf8')), true);
+      /해설 업데이트 안내/.test(fs.readFileSync(path.join(ROOT, 'tools', 'gen_sol_page.py'), 'utf8')), true);
 
   /* 해설은 정답 키에 맞춰 쓴다. 답을 되묻는 메모가 남아 있으면
      학생·학부모가 보는 해설지에 '확인 필요'가 찍힌다. */
