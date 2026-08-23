@@ -115,8 +115,8 @@ def _mend(parts):
 # 아예 네모로 나온다. 해설지·성적표가 쓰는 <sup>/<sub> 로 바꾼다.
 # 핵종 표기(²³⁸₉₂U)는 첨자 묶음이 「위 → 아래 → 원소」 순서라, 묶음별로
 # 바꾸면 그대로 <sup>238</sup><sub>92</sub>U 표준꼴이 된다.
-_SUP = str.maketrans('⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻ⁿ', '0123456789+-n')
-_SUB = str.maketrans('₀₁₂₃₄₅₆₇₈₉₊₋', '0123456789+-')
+_SUP = str.maketrans('⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻ⁿ', '0123456789+−n')
+_SUB = str.maketrans('₀₁₂₃₄₅₆₇₈₉₊₋', '0123456789+−')
 _SUP_RUN = re.compile('[⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻ⁿ]+')
 _SUB_RUN = re.compile('[₀₁₂₃₄₅₆₇₈₉₊₋]+')
 
@@ -142,6 +142,9 @@ def squash(s):
                  ('&#x27;', "'"), ('&#39;', "'"), ('&nbsp;', ''), ('&amp;', '&')):
         s = s.replace(a, b)
     s = re.sub(r'\s+', '', unicodedata.normalize('NFKC', s))
+    # 빼기 부호 셋(U+2212 −·하이픈·엔대시)을 하나로 — NFKC 가 '⁻' 를 U+2212 로
+    # 보내는데 손으로 쓴 글은 하이픈이라, 같은 말이 다른 글자로 비교된다.
+    s = s.replace('\u2212', '-').replace('\u2013', '-')
     return re.sub(r'(정답|→)+', '→', s)
 
 

@@ -46,6 +46,10 @@ function cut(from, to) {
 const compose = new Function(
   cut('const RXMAP=', '\n') + '\n' + cut('const RX={', '\n};') + '\n'
   + cut('function retryBand', '\n}') + '\n'
+  /* 쌍둥이 열쇠(g) 도우미 셋 — retryCompose 가 부른다 */
+  + cut('function retryGK', '\n}') + '\n'
+  + cut('function retryUsed', '\n}') + '\n'
+  + cut('function retryMark', '\n}') + '\n'
   + cut('function retryCompose', '\n  return take.length?take:null;\n}')
   + ';return retryCompose;')();
 
@@ -103,6 +107,28 @@ console.log('\n── 오답이 여러 영역에 흩어질 때 ──');
 }
 
 /* ── ③ 복수정답 문항은 애초에 풀에 없다 ── */
+/* ── 쌍둥이(같은 문제가 두 회차에) — 한 몸으로 세는가 ── */
+console.log('\n── 쌍둥이 문항 ──');
+{
+  const gk = x => x.g ? x.g.replace(':', '#') : (x.e + '#' + x.q);
+  /* ①· 열 개 안에 같은 문제(쌍둥이 포함)가 두 번 서지 않는다 */
+  let twinDup = 0, servedTwin = 0, tot = 0;
+  const twinned = EXAMS.filter(e => POOL.some(x => x.e === e.id && x.g));
+  for (const e of twinned) {
+    const nQ = e.nQ || (e.key ? e.key.length : 0);
+    const wrong = []; for (let q = 1; q <= nQ; q++) if (q % 3 === 1) wrong.push(q);
+    const t = compose(e, wrong, POOL.slice(), 10); if (!t) continue;
+    tot++;
+    const seen = {};
+    for (const x of t) { const k = gk(x); if (seen[k]) twinDup++; seen[k] = 1; }
+    /* ② 방금 푼 시험의 쌍둥이(원문 화올 문항)도 「새 문항」 으로 나오면 안 된다 */
+    const mineTwin = {}; POOL.forEach(x => { if (x.e === e.id && x.g) mineTwin[gk(x)] = 1; });
+    for (const x of t) if (mineTwin[gk(x)]) servedTwin++;
+  }
+  chk('열 개 안에 쌍둥이가 겹으로 없다', twinDup === 0, tot + '회차 검사 · 겹침 ' + twinDup);
+  chk('방금 푼 시험의 쌍둥이가 안 나온다', servedTwin === 0, servedTwin + '건');
+}
+
 console.log('\n── 복수정답 문항 ──');
 {
   const bad = [];

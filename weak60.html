@@ -1542,6 +1542,9 @@ function _w60key(K, meta, items, types, areas, hist, a1, a2, verd, imgs, studyFi
     if(expl) K.lines(expl,{size:18,after:30}).forEach(function(p){ b.push(p); });
     else b.push(K.txt('(풀이가 아직 없습니다.)',{color:K.MUTED,size:17}));
     var mis=String(a.misconception||'').trim();
+    /* 풀이 꼬리에 이미 같은 문장이 들어 있으면(생성기가 「→ ③ <오개념>」 을
+       풀이로 옮겨 심은 1,600여 문항) 같은 말을 두 번 적지 않는다. */
+    if(mis && expl.replace(/\s+/g,'').indexOf(mis.replace(/\s+/g,''))>=0) mis='';
     if(mis) b.push(K.P([K.run('오개념  ',{bold:true,size:17,color:K.GOLD}),
                         K.run(mis,{size:17,color:K.MUTED})],{before:60,after:0}));
     /* ── 이 아이가 **고른 그 선지**에 붙은 오개념 ────────────────────────

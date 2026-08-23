@@ -32,6 +32,8 @@ input.txt{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-rad
 input.txt:focus{border-color:var(--teal);outline:none}
 .row2{display:flex;gap:10px}.row2>div{flex:1}
 .omr{display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:7px 6px;margin-top:8px}
+/* 빈 문항 경고에서 '취소' 를 누르면 첫 빈 칸을 이 테두리로 짚어 준다 */
+.missq{outline:2px solid #B04A2E !important;box-shadow:0 0 0 3px rgba(176,74,46,.28);border-radius:8px}
 .qc{display:flex;flex-direction:column;align-items:center}
 .qc__n{font-size:11.5px;color:var(--muted);margin-bottom:2px}
 .qc input{width:100%;height:38px;text-align:center;font-size:17px;border:1.5px solid var(--line);border-radius:9px;background:#fff}
@@ -487,7 +489,9 @@ function cropsPanel(exam){
     +'<span style="display:flex;gap:7px"><button type="button" class="pdftoggle" onclick="togglePdf()" id="pdftgl">접기</button>'
     +(exam.pdf?'<a class="pdfopen" href="'+esc(exam.pdf)+'" target="_blank" rel="noopener">인쇄용 PDF ↗</a>':'')
     +'</span></div>'
-    +'<div class="hint">이 시험지는 나를 위해 만들어진 문제들입니다. 문제를 읽고 아래에 답안을 입력해 제출하세요.</div>'
+    +((exam.srcmap&&exam.srcmap.length)
+       ?'<div class="hint">이 시험지는 나를 위해 만들어진 문제들입니다. 문제를 읽고 아래에 답안을 입력해 제출하세요.</div>'
+       :'<div class="hint">문제를 읽고 아래에 답안을 입력해 제출하세요.</div>')
     +'<div class="croplist">'+rows+'</div>'
     +'</div>';
 }
@@ -529,13 +533,20 @@ function openExam(id){
     +'<div class="card"><label for="nm">이름 *</label><input class="txt" id="nm" autocomplete="off" oninput="saveDraft()">'
     +'<div class="row2"><div><label for="sch">학교 *</label><input class="txt" id="sch" autocomplete="off" oninput="saveDraft()"></div>'
     +'<div><label for="grd">학년</label><input class="txt" id="grd" inputmode="numeric" placeholder="예: 2" autocomplete="off" oninput="saveDraft()"></div></div></div>'
-    +'<div class="card"><label>답안 (1~4)</label><div class="hint">숫자를 입력하면 다음 칸으로 넘어갑니다. 답안 숫자열을 붙여넣으면 한 번에 채워집니다.</div>'
+    +'<div class="card"><label>답안 (1~4)</label><div class="hint">숫자를 입력하면 다음 칸으로 넘어갑니다. 답안 숫자열을 붙여넣으면 <b>붙여넣은 칸부터</b> 순서대로 채워집니다(0은 빈칸).</div>'
     +'<div class="omr" id="omr" onpaste="onPaste(event)">'+omr+'</div>'
     +'<div class="prog" id="prog"></div></div>'
     +'<button class="btn" id="submit" onclick="submitAns()">제출하기</button>';
   restoreDraft(id);
   updateProg(); window.scrollTo(0,0);
-  const f=document.getElementById('nm'); if(f&&!f.value) f.focus();
+  /* ⚠ 자동 포커스가 화면을 이름칸까지 끌어내려, 직링크로 들어온 첫 화면이
+     제목이 아니라 시험지 꼬리(54~60번)였다. 시험지가 있는 회차는 '먼저
+     풀어 보세요' 가 설계 동선이니 포커스를 얹지 않고, 없는 회차만
+     스크롤을 건드리지 않는 포커스를 준다. */
+  const f=document.getElementById('nm');
+  if(f&&!f.value&&!document.getElementById('pdfcard')){
+    try{ f.focus({preventScroll:true}); }catch(e){ }
+  }
 }
 /* 저장된 임시 답안을 화면에 복원(있을 때만) */
 function restoreDraft(id){
@@ -576,14 +587,22 @@ function cfPaint(){ for(const q in conf){ const b=document.getElementById('c'+q)
 function nextQ(q){ const nQ=cur.nQ||cur.key.length; return q<nQ?q+1:q; }
 function prevQ(q){ return q>1?q-1:q; }
 function onPaste(e){ e.preventDefault(); const raw=((e.clipboardData||window.clipboardData).getData('text')||'').replace(/[^0-4]/g,''); if(!raw)return;
+  /* 붙여넣은 **그 칸부터** 채운다 — 예전에는 늘 1번부터라, 뒷부분만 적어 온
+     학생이 31번 칸에 붙여넣는 순간 1~30번 답이 소리 없이 덮였다(그리고
+     임시저장까지 덮였다). 0 은 빈칸(무응답)으로 지운다. */
   const nQ=cur.nQ||cur.key.length; let i=1;
+  const m=e.target&&e.target.id&&/^a(\d+)$/.exec(e.target.id); if(m) i=+m[1];
   for(const ch of raw){ if(i>nQ)break; const v=+ch; const el=document.getElementById('a'+i);
-    if(v>=1&&v<=4){ sel[i]=v; if(el){el.value=v;el.classList.add('on');} } i++; }
+    if(v>=1&&v<=4){ sel[i]=v; if(el){el.value=v;el.classList.add('on');} }
+    else if(v===0){ delete sel[i]; if(el){el.value='';el.classList.remove('on');} }
+    i++; }
   updateProg(); saveDraft(); }
 function updateProg(){ const nQ=cur.nQ||cur.key.length; const ac=allcSet(cur); let tot=0,done=0;
   /* 전원정답 문항은 비워 두어도 되므로 '작성해야 할 것' 에 넣지 않는다. */
   for(let q=1;q<=nQ;q++){ if(ac.has(q))continue; tot++; if(sel[q])done++; }
-  const el=document.getElementById('prog'); if(el)el.textContent='작성 '+done+' / '+tot+' 문항'+(done<tot?' · 미작성 '+(tot-done)+'개':' · 모두 작성됨'); }
+  const miss=[]; if(done<tot){ for(let q=1;q<=nQ;q++){ if(ac.has(q))continue; if(!sel[q])miss.push(q); } }
+  const el=document.getElementById('prog'); if(el)el.textContent='작성 '+done+' / '+tot+' 문항'
+    +(done<tot?' · 미작성 '+(tot-done)+'개'+(miss.length<=10?' ('+miss.join(', ')+'번)':''):' · 모두 작성됨'); }
 
 
 /* ══ 시트로 보내기 — 화면을 떠나도 닿게 ═══════════════════════════════
@@ -694,8 +713,20 @@ function submitAns(){
   if(!nm){ toast('이름을 입력하세요'); document.getElementById('nm').focus(); return; }
   if(!sch){ toast('학교를 입력하세요'); document.getElementById('sch').focus(); return; }
   const nQ=cur.nQ||cur.key.length; const ac=allcSet(cur);
-  let unfilled=0; for(let q=1;q<=nQ;q++){ if(ac.has(q))continue; if(!sel[q])unfilled++; }
-  if(unfilled && !confirm(unfilled+'문항이 비어 있습니다. 무응답으로 제출할까요?')) return;
+  const empties=[]; for(let q=1;q<=nQ;q++){ if(ac.has(q))continue; if(!sel[q])empties.push(q); }
+  if(empties.length){
+    const names=empties.slice(0,8).join(', ')+(empties.length>8?' 외 '+(empties.length-8)+'개':'');
+    /* 몇 번이 비었는지 말하고, 취소하면 첫 빈 칸으로 데려간다 — 개수만
+       말하면 60칸을 눈으로 훑어야 한다. 오답 −1 채점에서는 무응답과
+       오답이 다르게 계산되므로 이 실수는 점수를 바꾼다. */
+    if(!confirm(empties.length+'문항이 비어 있습니다 ('+names+'번). 무응답으로 제출할까요?')){
+      const first=document.getElementById('a'+empties[0]);
+      if(first){ try{ first.scrollIntoView({block:'center'}); }catch(e){ first.scrollIntoView(); }
+        first.classList.add('missq'); try{ first.focus({preventScroll:true}); }catch(e){}
+        setTimeout(function(){ first.classList.remove('missq'); },2600); }
+      return;
+    }
+  }
   // 중복 제출 방지(검증 통과 후 잠금 — 버튼 연타·DOM 교체 전 재호출로 시트에 중복 행이 쌓이는 것을 막는다)
   SUBMITTING=true;
   var _btn=document.getElementById('submit'); if(_btn){ _btn.disabled=true; _btn.textContent='제출 중…'; }
@@ -723,12 +754,15 @@ function submitAns(){
     link:withEnv(shareLink(cur,sel,nm)) };
   /* 보내기 **전에** 적어 둔다. 여기서 화면이 꺼져도 다음에 다시 보낸다. */
   pendAdd(payload);
-  toast('제출되었습니다 · '+nm);
+  toast('제출을 보냈습니다 · '+nm);
   clearDraft(cur.id); // 제출 완료 → 임시저장 답안 삭제
 
   // 다른 회차와 동일한 전체 진단 성적표 엔진으로 바로 이어 준다.
   // 축약 showResult는 네트워크/내비게이션 예외 때만 남겨 두는 안전망이다.
-  const reportUrl=withEnv(shareLink(cur,sel,nm));
+  /* 성적표 첫 줄이 「제출되었습니다」 를 말할 수 있게 표식을 싣는다 —
+     no-cors 라 전송 확인이 구조적으로 불가하니, 화면 문구가 유일한
+     안심 장치다(final.html 이 sm=1 을 읽고 배너를 그린다). */
+  const reportUrl=withEnv(shareLink(cur,sel,nm)).replace('#','#sm=1&');
   /* 보내는 것이 끝난 **뒤에** 넘어간다. 이 한 줄이 없어서 한 회차가 시트에
      닿지 못했다 — 화면은 성적표까지 멀쩡히 나오는데 줄만 없었다. */
   sheetPost(payload).then(function(){
@@ -856,7 +890,18 @@ async function start(){
          겁주면 진짜 경보를 못 읽는다 — 건수가 **늘었을 때만** 말한다. */
       var seen=0; try{ seen=+localStorage.getItem('exam.submit.stucktold.v1')||0; }catch(e){}
       if(stuck.length>seen){
-        toast('시트에서 확인 안 된 답안 '+stuck.length+'건 — 시트에 줄이 있는지 한 번 봐 주세요');
+        /* 이 경보가 뜨는 순간이 「한 회차가 통째로 사라질 뻔한」 그 순간이다.
+           '시트'·'줄' 은 선생님의 구글시트 말이고 토스트는 몇 초 뒤 사라진다 —
+           학생이 읽고 **실행할 수 있는** 말로, 화면에 남는 배너로 세운다. */
+        try{
+          var bn=document.createElement('div');
+          bn.style.cssText='position:sticky;top:0;z-index:60;background:#B04A2E;color:#fff;'
+            +'padding:11px 14px;border-radius:0 0 10px 10px;font-size:13.5px;line-height:1.55';
+          bn.innerHTML='<b>제출 확인이 안 된 답안이 '+stuck.length+'건 있습니다.</b> '
+            +'이 화면을 닫지 말고, 선생님께 카카오톡·문자로 <b>이름과 시험 이름</b>을 보내 주세요. '
+            +'이 화면을 다시 열면 자동으로 한 번 더 전송됩니다.';
+          document.body.insertBefore(bn, document.body.firstChild);
+        }catch(e){ toast('제출 확인이 안 된 답안 '+stuck.length+'건 — 선생님께 이름과 시험 이름을 보내 주세요'); }
         try{ localStorage.setItem('exam.submit.stucktold.v1', String(stuck.length)); }catch(e){}
       } else if(n) toast('지난 답안 '+n+'건을 한 번 더 보냈습니다');
     });
