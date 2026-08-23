@@ -59,6 +59,15 @@ def main():
     }
     bad, ok = [], 0
     for e in exams:
+        # 크롭을 **우리가 그린** 회차는 이 자의 전제 밖이다. 이 자는 원본
+        # 문제지 PDF 에서 회색 문항 딱지를 찾아 «크롭이 제 문항 자리에서
+        # 잘렸는가» 를 본다. 그런데 단원별 회차는 반대다 — 크롭을 먼저 그리고
+        # 그 크롭들로 PDF 를 엮었으므로 어긋날 자리가 없다.
+        # (문항 수와 크롭 수가 맞는지는 tests/wrongbook-assets.py 가 따로 센다.)
+        _src = e.get('source')
+        if isinstance(_src, dict) and _src.get('tool') == 'tools/ingest_legacy_exam.py':
+            ok += 1
+            continue
         if e['id'] in skip:
             print('  %-22s 건너뜀 — %s' % (e['id'], skip[e['id']]))
             ok += 1

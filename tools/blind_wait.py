@@ -55,7 +55,12 @@ CEIL = {
     'tests/rank-baseline.js': (3, 5200),
     'tests/docx-report.js': (3, 4900),
     'tests/wrongbook-interactive.js': (4, 4600),
-    'tests/offline.js': (2, 4500),
+    # 2026-08-23 — 고정 3초·1.5초로 «다 그려졌겠지» 하고 세던 두 자리를
+    # 조건 대기로 바꿨다(느린 기계에서 안 그려진 화면을 세던 자리다).
+    # 시간은 4500ms → 950ms 로 줄었지만 **자리 수는 늘었다** — 조건 대기 뒤에
+    # 남는 짧은 정착 시간이 자리마다 하나씩 붙기 때문이다. 시간을 낮췄으니
+    # 그 값으로 박아 둔다.
+    'tests/offline.js': (4, 950),
     'tests/retest-sheet.js': (4, 4300),
     'tests/hub-touch.js': (3, 4200),
     'tests/lec-back.js': (7, 4150),

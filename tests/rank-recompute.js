@@ -252,7 +252,13 @@ const EX50 = (() => {
      아니다 — 앱이 모르는 시험이라 실을 자리가 없다.
      그래서 견주는 대상은 **앱이 아는 회차** 로 좁히고, 남는 것은 따로 말한다.
      (2026-08 자동 갱신이 j0·kmchc-2018 을 들여왔는데 둘 다 시험 목록에 없다.) */
-  const known = Object.keys(baseline).filter(id => exams.some(e => e.id === id));
+  /* ⚠ 기준 기록 중에는 **점수 분포(hist)가 없는 것**도 있다 — 공식 정답률과
+     응시 인원으로 세운 반쪽 기록(from:'rate')이 그렇다. 또래 정답률은 서지만
+     석차 모집단은 만들 수 없으므로 .gs 표에 실을 값 자체가 없다. 안 실린 것이
+     맞으니 견주는 대상에서 뺀다 (2026-08-23). */
+  const rank = id => !!(baseline[id] && baseline[id].hist);
+  const known = Object.keys(baseline)
+    .filter(id => rank(id) && exams.some(e => e.id === id));
   const orphan = Object.keys(baseline).filter(id => !exams.some(e => e.id === id));
   const withBase = exams.filter(e => gas.EXAM_COHORT[e.title].base.length).length;
   chk('앱이 아는 회차는 기준 기록이 다 실렸다', withBase, known.length);
@@ -267,7 +273,11 @@ console.log('\n── 제출이 없는 회차도 훑는다 ──');
   const sh = fakeSheet([
     row(T6, '가학생', 'A중', 40, { day: 0, n: 11 }),
     row(T14, '라학생', 'C중', 30, { day: 0, n: 5 }),
-    row('화학1 1단원 모의고사', '마학생', 'D중', 20, { day: 0, n: 3 }),   // 설정 없는 옛 시험
+    /* ⚠ 여기 쓸 이름은 **앞으로도 회차가 될 리 없는** 것이어야 한다.
+       예전에는 '화학1 1단원 모의고사' 를 썼는데, 그 시험이 실제로 들어오자
+       (2026-08-23) 앱이 아는 회차가 되어 인원이 다시 계산됐고 이 검사가
+       빨간불이 됐다 — 자가 틀린 게 아니라 붙박이가 낡은 것이었다. */
+    row('없는 시험 99회 (검사용)', '마학생', 'D중', 20, { day: 0, n: 3 }),   // 설정 없는 옛 시험
   ]);
   const gas = load(sh);
   gas.recomputeAllExams();

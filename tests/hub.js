@@ -1234,7 +1234,7 @@ console.log('\n── 안 한 것이 떠오르게 (넛지) ──');
 
   ctx.SENT.clear(); ctx.SNZ.clear();
   ctx.PEND_ROWS = [
-    { name:'최예린', course:'ch1', round:12, days:9, score:68 },   // 오래됐고 안 보냄
+    { name:'최나래', course:'ch1', round:12, days:9, score:68 },   // 오래됐고 안 보냄
     { name:'박서준', course:'ch1', round:12, days:2, score:70 },   // 아직 이르다
     { name:'김도윤', course:'ch1', round:11, days:20, score:55 },  // 오래됐지만 보냈다
   ];
@@ -1259,7 +1259,7 @@ console.log('\n── 안 한 것이 떠오르게 (넛지) ──');
   chk('열어 본 사람은 안 짚는다', n.some(function(x){ return x.name==='한지우'; }), false);
   chk('어제 보낸 것은 아직 안 짚는다', n.some(function(x){ return x.name==='오사랑'; }), false);
   chk('오래 밀린 재시를 짚는다',
-      n.some(function(x){ return x.name==='최예린' && x.kind==='아직 안 보냄'; }), true);
+      n.some(function(x){ return x.name==='최나래' && x.kind==='아직 안 보냄'; }), true);
   chk('며칠 안 된 것은 안 짚는다', n.some(function(x){ return x.name==='박서준'; }), false);
   /* 이미 보낸 것을 다시 짚으면 넛지를 안 믿게 된다. */
   chk('이미 보낸 것은 안 짚는다', n.some(function(x){ return x.name==='김도윤'; }), false);
@@ -1275,12 +1275,12 @@ console.log('\n── 안 한 것이 떠오르게 (넛지) ──');
   /* '무시' 는 미루기를 그대로 쓴다 — 새로 저장할 곳을 만들지 않는다. */
   chk('무시는 미루기를 쓴다', /w\.snoozeStu\(\{ kind:p\[0\], name:p\[1\], course:p\[2\], round:p\[3\], until:until \}\)/.test(body), true);
   chk('무시한 것은 내려간다', (function(){
-    const k = ctx.ndgKey('pend', '최예린', 'ch1', 12);
+    const k = ctx.ndgKey('pend', '최나래', 'ch1', 12);
     ctx.SNZ.set(k, ctx.dayKey(7));
-    return ctx.nudges().some(function(x){ return x.name==='최예린'; }); })(), false);
+    return ctx.nudges().some(function(x){ return x.name==='최나래'; }); })(), false);
   /* 열쇠가 보낸 표시와 겹치면, 넛지를 무시했다고 문자까지 미룬 것이 된다. */
   chk('열쇠가 보낸 표시와 겹치지 않는다',
-      ctx.ndgKey('pend','최예린','ch1',12) !== ctx.sentKey('pend','최예린','ch1',12), true);
+      ctx.ndgKey('pend','최나래','ch1',12) !== ctx.sentKey('pend','최나래','ch1',12), true);
   /* 여섯 줄이 넘으면 그것도 훑고 만다. */
   chk('너무 많으면 줄이고 몇 건인지 적는다',
       /all\.slice\(0, NDG_MAX\)/.test(body) && /외 '\+\(all\.length-NDG_MAX\)\+'건/.test(body), true);
@@ -1934,13 +1934,13 @@ console.log('\n── 지금 DT 반에 없는 학생 ──');
   ctx.DT_CACHE = {
     'dt:names': { val: Object.assign([], { classes: [
       { label:'화학1 일6-10', course:'ch1', kind:'dt',
-        students:[{name:'김마루'},{name:'최예린'}] },
+        students:[{name:'김마루'},{name:'최나래'}] },
       { label:'파이널 목7-10', course:'', kind:'exam',
         students:[{name:'박바다'}] },
     ] }) },
     'dt:passed':  { val: [ {name:'김마루', course:'ch1', round:3},
                            {name:'떠난학생', course:'ch1', round:3} ] },
-    'dt:pending': { val: [ {name:'최예린', course:'ch1', round:4},
+    'dt:pending': { val: [ {name:'최나래', course:'ch1', round:4},
                            {name:'떠난학생', course:'ch1', round:4},
                            {name:'박바다',  course:'ch1', round:4} ] },
     'dt:absentees': { val: [] },
@@ -1949,7 +1949,7 @@ console.log('\n── 지금 DT 반에 없는 학생 ──');
   chk('명단에 있는 학생만 통과 목록에 남는다',
       ctx.PASS_ROWS.map(function(r){ return r.name; }), ['김마루']);
   chk('명단 밖 학생은 재시 대기에서 빠진다',
-      ctx.PEND_ROWS.map(function(r){ return r.name; }), ['최예린']);
+      ctx.PEND_ROWS.map(function(r){ return r.name; }), ['최나래']);
   /* 파이널 반 학생은 DT 를 안 본다 — DT 알림을 만들면 안 된다. */
   chk('파이널 반 학생도 DT 알림에서 빠진다',
       ctx.PEND_ROWS.some(function(r){ return r.name === '박바다'; }), false);
@@ -1994,7 +1994,7 @@ console.log('\n── 인원·수입은 파이널 반까지 센다 ──');
   ctx.DT_CACHE = {
     'dt:names': { val: Object.assign([], { classes: [
       { label:'화학1 일6-10', course:'ch1', kind:'dt',
-        students:[{name:'김마루'},{name:'최예린'}] },
+        students:[{name:'김마루'},{name:'최나래'}] },
       { label:'파이널 목7-10', course:'', kind:'exam',
         students:[{name:'박바다'},{name:'이도윤'},{name:'김마루'}] },
     ] }) },

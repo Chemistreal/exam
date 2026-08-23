@@ -28,6 +28,8 @@
      · 그때 답안 칸을 세우지 않는다 — 고를 게 없어야 잘못 못 고른다
      · 임시 저장이 있어도 **다른 회차를 대신 열지 않는다**
      · 살아 있는 회차 링크는 예전 그대로 바로 열린다(막다가 막지 말 것)
+     · **망이 미끄러졌을 때 살아 있는 링크를 죽었다고 하지 않는다** — 회차
+       목록을 못 받은 것과 회차가 없는 것은 학생에게 정반대의 뜻이다
 
    실행:
        PLAYWRIGHT_MODULE=… CHROMIUM_PATH=… node tests/dead-link.js
@@ -127,6 +129,27 @@ const DEAD = 's4w000h6h6l0';
   r = await open('?exam=' + live);
   chk('바로 열린다', r.form && r.cur === live, r.cur + ' / ' + live);
   chk('죽었다는 말이 안 뜬다', !/찾지 못했습니다/.test(r.text));
+
+  /* ── ③-2 망이 미끄러졌을 때 — **살아 있는 링크를 죽었다고 하면 안 된다** ──
+     없는 회차를 붙잡아 세우기 시작한 뒤로, 회차 목록을 못 받은 것과 회차가
+     없는 것을 구분하지 않으면 그 말이 곧 «네 링크 죽었다» 는 단언이 된다.
+     학생은 시험을 못 보고 선생님은 왜 안 왔는지 모른다. */
+  console.log('\n── student-finals.json 이 안 올 때 ──');
+  let blocked = true;
+  await ctx.route('**/student-finals.json', r => blocked ? r.abort() : r.continue());
+  r = await open('?exam=' + live);
+  chk('죽었다고 말하지 않는다', !/찾지 못했습니다|내려갔습니다/.test(r.text),
+    r.text.replace(/\s+/g, ' ').slice(0, 70));
+  chk('불러오는 중이라고 말한다', /불러오는 중/.test(r.text));
+  chk('링크는 살아 있다고 알려 준다', r.text.indexOf(live) >= 0);
+  /* 망이 돌아오면 학생이 아무것도 안 해도 그 시험이 열려야 한다. */
+  blocked = false;
+  await p.waitForFunction(() => !!document.getElementById('nm'), null, { timeout: 30000 })
+    .then(() => chk('망이 돌아오면 저절로 열린다', true))
+    .catch(() => chk('망이 돌아오면 저절로 열린다', false, '30초 안에 안 열렸다'));
+  const backCur = await p.evaluate(() => (typeof cur !== 'undefined' && cur) ? cur.id : null);
+  chk('열린 것이 그 학생 회차다', backCur === live, backCur + ' / ' + live);
+  await ctx.unroute('**/student-finals.json');
 
   /* ── ④ 회차 없이 들어오면 임시 저장 복원은 그대로 산다 ── */
   console.log('\n── 회차 없이 들어온다 (임시 저장 복원) ──');

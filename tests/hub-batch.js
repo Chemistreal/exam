@@ -73,9 +73,9 @@ function partOf(action) {
     case 'names': return { ok: true, classes: [
       { label: '화학1 토1:30', course: 'ch1', students: [
         { name: '김마루', school: '휘문중', year: '2' },
-        { name: '최예린', school: '역삼중', year: '2' } ] } ] };
+        { name: '최나래', school: '역삼중', year: '2' } ] } ] };
     case 'pending': return { ok: true, pending: { activeDays: 14, generatedAt: 'T', stale: [], active: [
-      { studentKey: 's1', name: '최예린', school: '역삼중', year: '2', course: 'ch1', round: 12,
+      { studentKey: 's1', name: '최나래', school: '역삼중', year: '2', course: 'ch1', round: 12,
         lastAttempt: '정시', nextNeeded: '재시', score: 68, days: 9, lastDate: '6/17',
         reportLink: 'https://x/report.html?student=a', active: true } ] } };
     case 'absentees': return { ok: true, absentees: { generatedAt: 'T', classes: [

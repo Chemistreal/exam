@@ -283,8 +283,9 @@ console.log('\n── 시트 쪽 창구 ──');
   chk('앞에 붙은 따옴표를 뗀다', /replace\(\/\^'\/, ''\)/.test(fn), true);
   chk('저장시각을 함께 준다', /ts: \(r\[3\] instanceof Date\)/.test(fn), true);
   /* 시트에는 그때 쓰던 제목이 적혀 있다('화올 2018' → 'KMChC 2018').
-     제목을 id 로 되돌리지 않으면 이름이 바뀐 회차의 옛 기록이 통째로 빠진다. */
-  chk('제목을 회차 id 로 되돌린다', /var eid = _idOfTitle_\(r\[0\]\);/.test(fn), true);
+     제목을 id 로 되돌리지 않으면 이름이 바뀐 회차의 옛 기록이 통째로 빠진다.
+     표에 없는 새 회차(학생별 파이널)는 공유링크에서 꺼낸다 — tests/sheet-recall.js */
+  chk('제목을 회차 id 로 되돌린다', /var eid = _idOfRow_\(r\);/.test(fn), true);
   chk('못 되돌리면 넘긴다', /if \(!eid\) continue;/.test(fn), true);
   const rev = cut(GAS, '_idOfTitle_');
   chk('옛 제목도 표에서 찾는다', /if \(!\(ts instanceof Array\)\) ts = \[ts\];/.test(rev), true);

@@ -299,6 +299,16 @@ def check():
         # 출처에 파일 이름을 적으면 안 된다 — 선생님이 주는 파일 이름에는
         # 학생 실명이 들어 있고, 이 JSON 은 공개 사이트가 서빙한다. 코드 옆에
         # 실명이 서면 가명화가 통째로 풀린다 (2026-08-21 에 실제로 그랬다).
+        # ⚠ 열쇠 이름이 아니라 **값**을 본다. 예전에는 'file' 이라는 열쇠만
+        # 막았는데, 같은 파일 이름을 source.src / source.origin 에 넣거나 note
+        # 에 적으면 그대로 통과했다. 막고 싶은 것은 열쇠가 아니라 «원본 파일
+        # 이름이 이 공개 JSON 에 실리는 일» 이다.
+        for where, val in list((e.get('source') or {}).items()) + \
+                [('note', e.get('note')), ('title', e.get('title'))]:
+            v = str(val or '')
+            if v.lower().endswith(('.pdf', '.hwpx', '.hwp', '.docx', '.doc', '.zip')):
+                bad.append('%s: source/%s 에 원본 파일 이름이 있다 (%r) — 실명이 '
+                           '들어 있을 수 있는 자리다. 지워라' % (e['id'], where, v))
         if 'file' in (e.get('source') or {}):
             bad.append('%s: source.file 이 있다 — 실명이 들어 있을 수 있는 자리다. 지워라' % e['id'])
         if not _mine(e):
