@@ -736,7 +736,7 @@ var EXAM_COHORT = {
   'KMChC 2011': { q: 60, base: [] },
   'KMChC 2010': { q: 60, base: [] },
   'KMChC 2009': { q: 60, base: [] },
-  'USNCO 2026 National Part I': { q: 60, base: [] },
+  'USNCO 2026 National Part I': { q: 60, base: [17,24,25,26,29] },
   '화학1 1단원 모의고사': { q: 60, base: [] },
   '화학1 1-2단원 모의고사': { q: 60, base: [] },
   '화학1 1-2단원 모의고사 (동형)': { q: 60, base: [] },
