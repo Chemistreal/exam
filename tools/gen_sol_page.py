@@ -67,6 +67,9 @@ th{background:#f1eee7;font-weight:700}
    <h4>·.step·.k(정답 근거)·.x(오답 표시) 를 쓰는데 여기 옷이 없으면
    해설지에서만 맨몸으로 나간다(final.html 은 제 옷이 따로 있다). */
 .sol h4{margin:12px 0 5px;color:var(--teal);font-size:13.5px;letter-spacing:.02em}
+/* 착화합물 사슬([Co(NH₃)₆]³⁺·…)처럼 끊을 자리가 없는 긴 수식이 360px
+   화면을 옆으로 밀었다 — 필요할 때만 토막 내게 허락한다. */
+.sol{overflow-wrap:anywhere}
 .sol p.step{margin:6px 0;white-space:pre-wrap}
 .sol .k{color:var(--teal);font-weight:700}
 .sol .x{color:var(--ms);font-weight:700}
