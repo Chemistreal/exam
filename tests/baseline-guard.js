@@ -111,7 +111,10 @@ console.log('\n── 지금 저장소에 든 기준 기록 ──');
        mergeBaselineQ 가 qc 없으면 그대로 돌려보낸다) — 없는 것을 있다고 하지
        않는다. 엑셀로 그 회차를 채우면 저절로 이 자의 감시 아래로 들어온다. */
   const lostQ = Object.keys(BASE)
-    .filter(id => (!BASE[id].q || !BASE[id].qc) && BASE[id].from !== 'sheet');
+    /* from:'rate' 는 공식 정답률로 세운 반쪽 기록이다 — q·hist 가 애초에 없다.
+       'sheet' 와 같은 자리에서 봐준다(2026-08-23). */
+    .filter(id => (!BASE[id].q || !BASE[id].qc)
+                  && BASE[id].from !== 'sheet' && BASE[id].from !== 'rate');
   chk('문항별 통계를 가졌던 회차가 잃지 않았다', lostQ, []);
   const sheetOnly = Object.keys(BASE).filter(id => !BASE[id].q || !BASE[id].qc);
   if (sheetOnly.length) console.log('  점수 분포만 있는 회차 ' + sheetOnly.length

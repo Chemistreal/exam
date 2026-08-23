@@ -117,6 +117,17 @@ def counts(base):
     return out
 
 
+def rate_only(base):
+    """정답률만 있고 석차 모집단은 없는 회차.
+
+    엑셀이 없어도 **또래 정답률**은 세울 수 있다 — 그 회차 정답률과 응시 인원이
+    등기에 있으면 문항별 정답자 수가 나온다(tools/ingest_legacy_exam.py).
+    하지만 석차·백분위는 «몇 점이 몇 명인가»(hist)가 있어야 하고 그것은 엑셀에만
+    있다. 반쪽인 것을 온전한 것으로 세면 «있다» 고 잘못 읽힌다 — 따로 센다."""
+    return sorted(k for k, v in base.items()
+                  if (v or {}).get('qc') and not (v or {}).get('hist'))
+
+
 def main():
     check = '--check' in sys.argv
     seal = '--seal' in sys.argv
@@ -153,6 +164,15 @@ def main():
         for n, i, t in sorted(rows):
             mark = '  ← 얇다' if n < 10 else ''
             print('  %5d명  %-22s %s%s' % (n, i, t, mark))
+
+    half = rate_only(base)
+    if half:
+        print('\n또래 정답률만 있는 시험 %d개 — 석차·백분위는 아직 이 브라우저 기준이다'
+              % len(half))
+        for k in half:
+            print('  %-24s 응시 %s명 · 문항별 정답률 있음 · hist 없음'
+                  % (k, (base.get(k) or {}).get('n', '?')))
+        print('  → 성적표 엑셀을 받으면 tools/gen_cohort_baseline.py 가 채운다.')
 
     if known:
         print('\n아직 응시 전이라 없는 것이 맞는 시험 %d개' % len(known))

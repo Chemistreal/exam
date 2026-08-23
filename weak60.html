@@ -359,7 +359,9 @@ const cohortKey=id=>COHORT_ALIAS[id]||id;
 function subs(id){try{return JSON.parse(localStorage.getItem(PFX+cohortKey(id))||'[]')}catch(e){return[]}}
 const DH_SETS={'hwol-2018':['hwol-2018','kmchc-2018'],
                'hwol-2019':['hwol-2019','kmchc-2019'],
-               'hwol-2024':['hwol-2024','kmchc-2024-1']};
+               'hwol-2024':['hwol-2024','kmchc-2024-1'],
+               'kch1u1':[], 'kch1to2':[], 'kch1to2-b':[], 'kch1to3':[],
+               'kch1to3-b':[], 'chem2-1':[], 'kch2to3':[], 'kch2final':[]};
 const dhSetIds=id=>DH_SETS[id]||[id];
 async function loadAnalogues(id){
   var out={};
@@ -1967,9 +1969,17 @@ async function makeTrapCard(code){
      crops 회차    제 크롭이 있다(선생님이 한글로 낸 변형본·실전세트) */
 function paperURLs(e){
   var sm=(e.srcmap||[]);
-  if(sm.length) return sm.map(function(m){ return cropU(m.e,m.q); });
-  if(e.crops){ var out=[];
-    for(var q=1;q<=e.nQ;q++) out.push(cropU(e.id,q)); return out; }
+  /* srcmap 은 **문항마다** 있을 수도 없을 수도 있다 — 단원별 회차는 출처가
+     또렷한 문항만 원본 크롭을 빌리고 나머지는 제 크롭을 쓴다. 빈 자리를
+     만나면 제 크롭으로 간다(예전엔 통째로 srcmap 만 봐서 구멍이 났다). */
+  if(sm.length || e.crops){
+    var out=[];
+    for(var q=1;q<=e.nQ;q++){
+      var m=sm[q-1];
+      out.push((m&&m.e)?cropU(m.e,m.q):cropU(e.id,q));
+    }
+    return out;
+  }
   return [];
 }
 async function makeFinalPaper(code){

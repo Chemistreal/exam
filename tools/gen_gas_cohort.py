@@ -78,7 +78,11 @@ def build() -> dict[str, dict]:
     for exam in exams:
         scores: list[int] = []
         rec = base.get(exam["id"])
-        if rec:
+        # ⚠ 기준 기록에 `hist` 가 **없을 수 있다.** 성적표 엑셀 없이 등기의
+        # 정답률·응시 인원만으로 세운 반쪽 기록이 그렇다(또래 정답률은 되지만
+        # 석차 모집단은 못 만든다 — tools/ingest_legacy_exam.py 의 put_baseline).
+        # 그 회차는 문자에 석차를 못 싣는다. 있는 척하는 것보다 낫다.
+        if rec and rec.get("hist"):
             # `miss`(채점 제외)가 있으면 여태 통째로 건너뛰었다 — "앱은 그
             # 문항을 빼고 세는데 기준 기록은 전 문항으로 셌다" 는 이유였다.
             # **지금은 안 그렇다.** 앱의 allc() 는 miss 를 voided 와 똑같이

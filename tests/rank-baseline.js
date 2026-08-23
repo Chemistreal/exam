@@ -92,14 +92,25 @@ const RANKS = `(function(){ var out=[];
   // 값이 전부 숫자여야 한다. 이름이 섞이면 여기서 걸린다.
   const shapeOK = ids.every(id => {
     const e = base.exams[id];
-    return typeof e.n === 'number' && e.hist &&
+    if (typeof e.n !== 'number') return false;
+    /* from:'rate' — 공식 정답률과 응시 인원으로 세운 반쪽 기록이다. 문항별
+       정답자 수(qc)는 있지만 점수 분포(hist)는 엑셀에만 있어 없다. 없는 것을
+       지어내지 않았다 — 대신 있는 것이 숫자뿐인지는 여기서 그대로 본다.
+       (2026-08-23, 단원별 여덟 회차) */
+    if (e.from === 'rate') {
+      return !e.hist && Array.isArray(e.qc) &&
+        e.qc.every(v => Number.isInteger(v) && v >= 0 && v <= e.n);
+    }
+    return e.hist &&
       Object.entries(e.hist).every(([k, v]) => /^\d+$/.test(k) && Number.isInteger(v) && v > 0);
   });
   chk('히스토그램이 숫자뿐이다', shapeOK, true);
   // 사람 이름이 들어갈 자리가 없어야 한다 — exams 안에 한글이 하나도 없다
   const body = raw.slice(raw.indexOf('"exams"'));
   chk('exams 안에 한글이 없다(이름 유출 방지)', (body.match(/[가-힣]/g) || []).length, 0);
-  const sums = ids.every(id => base.exams[id].n ===
+  /* 히스토그램이 있는 회차만 견준다 — from:'rate' 는 애초에 hist 가 없다. */
+  const withHist = ids.filter(id => base.exams[id].hist);
+  const sums = withHist.every(id => base.exams[id].n ===
     Object.values(base.exams[id].hist).reduce((a, b) => a + b, 0));
   chk('n 과 히스토그램 합이 맞는다', sums, true);
   const total = ids.reduce((a, id) => a + base.exams[id].n, 0);

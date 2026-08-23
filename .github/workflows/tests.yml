@@ -626,6 +626,12 @@ jobs:
       - name: 선생님 PDF 시험지가 온전하다
         timeout-minutes: 5
         run: python3 tools/ingest_pdf_exam.py --check
+      # 단원별 여덟 회차(화학1·화학2)는 index.html 등기와 exam_*.json 두 벌로
+      # 흩어져 있었다. 합칠 때 **정답이 두 곳에서 같은지** 대조하는 것이 핵심이다
+      # — 성적표는 정답이 틀리면 조용히 틀리고 그 조용함이 가장 나쁘다.
+      - name: 단원별 회차가 온전하다 (정답이 두 곳에서 같다)
+        timeout-minutes: 5
+        run: python3 tools/ingest_legacy_exam.py --check
       # 「즉시 재도전 10제」가 고르는 문항 풀. 회차·답지가 바뀌면 같이 바뀌어야
       # 한다 — 안 그러면 없는 문항을 골라 크롭이 안 뜬다.
       - name: 재도전 문항 풀이 회차·답지와 맞는다
