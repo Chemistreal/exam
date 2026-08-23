@@ -6656,7 +6656,10 @@ function scoreAuto(again){
    ${legendHTML(W,effCut(cur))}
    ${motivationSec(cur,sel)}
    ${fold(tierPathSec(cur,sel),'수상권까지의 경로 — 어느 영역에서 몇 문항을 되찾으면 다음 등급인지')}
-   ${fold(percSec(cur,correct,cs),'백분위 · 분포 곡선 — 자세히 보기')}
+   ${/* percSec 은 접지 않는다 — 석차와 「몇 명짜리 숫자인지」(표본 크기)는
+        반드시 보이게 한다는 약속이 있는 절이다(MINP=1 결정·rank-baseline 검사).
+        닫힌 details 안의 글은 innerText 로도 안 읽힌다. */''}
+   ${percSec(cur,correct,cs)}
    ${confidenceLine(cs)}
    ${fold(quadSec(cur,sel,cs),'신호등 사분면 — 난이도×정오로 본 문항 지도')}
    ${fold(depthSec(cur,sel,cs),'개념 깊이 · 사고력 — 쉬운·어려운 문항 정답률')}
