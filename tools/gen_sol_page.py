@@ -63,7 +63,7 @@ th{background:#f1eee7;font-weight:700}
 .area{font-size:12.5px;color:var(--ink2);background:#f1eee7;border-radius:99px;padding:2px 9px}
 .ans{margin-left:auto;font-weight:700;color:var(--ms)}
 .sol{font-size:14.5px}
-/* 해설 본문이 실제로 입는 옷 — answers/*.json 의 explanationHtml 이
+/* 해설 본문이 실제로 입는 옷 — 답지(answers)의 explanationHtml 이
    <h4>·.step·.k(정답 근거)·.x(오답 표시) 를 쓰는데 여기 옷이 없으면
    해설지에서만 맨몸으로 나간다(final.html 은 제 옷이 따로 있다). */
 .sol h4{margin:12px 0 5px;color:var(--teal);font-size:13.5px;letter-spacing:.02em}
