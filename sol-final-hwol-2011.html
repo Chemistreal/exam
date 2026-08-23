@@ -25,11 +25,24 @@ th{background:#f1eee7;font-weight:700}
 .area{font-size:12.5px;color:var(--ink2);background:#f1eee7;border-radius:99px;padding:2px 9px}
 .ans{margin-left:auto;font-weight:700;color:var(--ms)}
 .sol{font-size:14.5px}
+/* 해설 본문이 실제로 입는 옷 — answers/*.json 의 explanationHtml 이
+   <h4>·.step·.k(정답 근거)·.x(오답 표시) 를 쓰는데 여기 옷이 없으면
+   해설지에서만 맨몸으로 나간다(final.html 은 제 옷이 따로 있다). */
+.sol h4{margin:12px 0 5px;color:var(--teal);font-size:13.5px;letter-spacing:.02em}
+.sol p.step{margin:6px 0;white-space:pre-wrap}
+.sol .k{color:var(--teal);font-weight:700}
+.sol .x{color:var(--ms);font-weight:700}
 .tip{margin-top:9px;padding:9px 11px;border-left:3px solid var(--gold);background:#faf7f1;
  font-size:13.5px;color:var(--ink2)}
 .rev{margin-top:9px;padding:9px 11px;border-left:3px solid var(--ms);background:#fdf3ef;
  font-size:13px;color:#8a3a1d}
-@media print{body{background:#fff}.q{break-inside:avoid}}
+/* 정답표 → 그 문항 해설로 건너뛰는 길. 표가 세로 2,000px 를 넘는 회차가
+   많아 표에서 해설까지 손가락으로 미는 거리가 너무 멀었다. */
+td a.jump{color:var(--teal);text-decoration:none;font-weight:700}
+td a.jump:hover{text-decoration:underline}
+.q{scroll-margin-top:14px}
+.q:target{border-color:var(--teal);box-shadow:0 0 0 2px rgba(14,90,76,.18)}
+@media print{body{background:#fff}.q{break-inside:avoid}.warn{display:none}}
 
 .source-assets{max-width:860px;margin:14px auto 0;padding:0 20px;display:flex;gap:8px;flex-wrap:wrap}
 .source-assets a{display:inline-flex;align-items:center;padding:8px 11px;border:1px solid var(--line);
@@ -58,402 +71,402 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="sub">문항별 정답 · 영역 · 개념 · 사고과정 해설 · 60문항</div>
 <div class="sub" style="margin-top:6px">문제 지문은 문제지(PDF)에 있습니다 — 성적표 화면에서 함께 내려받을 수 있습니다.</div><a class="back" href="final.html">‹ 파이널로</a></header>
 <nav class="source-assets" aria-label="시험 자료 직접 다운로드"><a href="hwol-2011-problem.pdf" download>공식 문제 PDF ↓</a><a href="hwol-2011-answer.pdf" download>공식 정답 PDF ↓</a></nav>
-<div class="warn"><b>검수 전 해설입니다.</b> 60문항의 사고과정이 아직 선생님 검수를 거치지 않았습니다. 배포 전에 확인해 주세요.</div>
+<div class="warn"><b>해설 업데이트 안내</b> · 60문항의 사고과정은 선생님 검토에 따라 표현이 다듬어질 수 있습니다. 정답·채점 기준은 확정입니다.</div>
 <main><h3>정답 · 영역 · 개념</h3><table><thead><tr><th scope="col">문항</th><th scope="col">정답</th><th scope="col">영역</th><th scope="col">개념(유형)</th></tr></thead><tbody>
-<tr><td>1</td><td>②</td><td>용해도</td><td>용해도</td></tr>
-<tr><td>2</td><td>④</td><td>방사성붕괴</td><td>방사능단위</td></tr>
-<tr><td>3</td><td>③</td><td>몰과개수</td><td>몰과개수</td></tr>
-<tr><td>4</td><td>②</td><td>용해도</td><td>수화물의용해도</td></tr>
-<tr><td>5</td><td>②</td><td>다양성자산의적정</td><td>적정곡선</td></tr>
-<tr><td>6</td><td>①</td><td>산화환원</td><td>산화환원의정의</td></tr>
-<tr><td>7</td><td>②</td><td>평형상수</td><td>평형농도</td></tr>
-<tr><td>8</td><td>③</td><td>전기화학</td><td>표준전위</td></tr>
-<tr><td>9</td><td>②</td><td>산화환원반응</td><td>산화제환원제</td></tr>
-<tr><td>10</td><td>①</td><td>상평형</td><td>클라우지우스-클라페이롱</td></tr>
-<tr><td>11</td><td>②</td><td>전기화학</td><td>화학전지</td></tr>
-<tr><td>12</td><td>③</td><td>화학평형</td><td>평형상수</td></tr>
-<tr><td>13</td><td>③</td><td>양적관계</td><td>불완전연소</td></tr>
-<tr><td>14</td><td>②</td><td>분자의모양</td><td>분자의극성</td></tr>
-<tr><td>15</td><td>④</td><td>기체</td><td>분자운동속도</td></tr>
-<tr><td>16</td><td>③</td><td>반응속도</td><td>활성화에너지</td></tr>
-<tr><td>17</td><td>①</td><td>분자의모양</td><td>결합각</td></tr>
-<tr><td>18</td><td>③</td><td>평형상수</td><td>평형농도</td></tr>
-<tr><td>19</td><td>④</td><td>산화수</td><td>산화수</td></tr>
-<tr><td>20</td><td>①</td><td>고체</td><td>탄소동소체</td></tr>
-<tr><td>21</td><td>③</td><td>전자기파</td><td>광자에너지</td></tr>
-<tr><td>22</td><td>①</td><td>화학평형</td><td>평형이동</td></tr>
-<tr><td>23</td><td>③</td><td>양자수</td><td>스핀양자수</td></tr>
-<tr><td>24</td><td>④</td><td>에너지</td><td>에너지크기비교</td></tr>
-<tr><td>25</td><td>①</td><td>옥텟규칙</td><td>옥텟규칙</td></tr>
-<tr><td>26</td><td>④</td><td>분자의모양</td><td>분자의구조</td></tr>
-<tr><td>27</td><td>①</td><td>결합에너지</td><td>결합에너지</td></tr>
-<tr><td>28</td><td>③</td><td>전자배치</td><td>축퇴</td></tr>
-<tr><td>29</td><td>②</td><td>용해평형</td><td>공통이온효과</td></tr>
-<tr><td>30</td><td>④</td><td>화학식량</td><td>동위원소</td></tr>
-<tr><td>31</td><td>①</td><td>원자의크기</td><td>이온반지름</td></tr>
-<tr><td>32</td><td>③</td><td>화학평형</td><td>평형이동</td></tr>
-<tr><td>33</td><td>④</td><td>상평형</td><td>상평형도</td></tr>
-<tr><td>34</td><td>①</td><td>분자오비탈</td><td>결합차수</td></tr>
-<tr><td>35</td><td>③</td><td>화학식량</td><td>동위원소</td></tr>
-<tr><td>36</td><td>①</td><td>화학결합</td><td>형식전하</td></tr>
-<tr><td>37</td><td>④</td><td>혼성오비탈</td><td>혼성오비탈</td></tr>
-<tr><td>38</td><td>②</td><td>계수맞추기</td><td>계수맞추기</td></tr>
-<tr><td>39</td><td>③</td><td>용해평형</td><td>용해도곱</td></tr>
-<tr><td>40</td><td>③</td><td>고체의구조</td><td>단위세포</td></tr>
-<tr><td>41</td><td>①</td><td>양적관계</td><td>혼합물조성</td></tr>
-<tr><td>42</td><td>④</td><td>반응속도</td><td>반응메커니즘</td></tr>
-<tr><td>43</td><td>①</td><td>분자의모양</td><td>분자의구조</td></tr>
-<tr><td>44</td><td>②</td><td>열역학</td><td>열기관효율</td></tr>
-<tr><td>45</td><td>①</td><td>분자의모양</td><td>비공유전자쌍</td></tr>
-<tr><td>46</td><td>②</td><td>기체</td><td>이상기체방정식</td></tr>
-<tr><td>47</td><td>③</td><td>방사성붕괴</td><td>핵반응</td></tr>
-<tr><td>48</td><td>②</td><td>화학결합</td><td>형식전하</td></tr>
-<tr><td>49</td><td>②</td><td>반응속도</td><td>효소반응</td></tr>
-<tr><td>50</td><td>①</td><td>반응속도</td><td>반응차수</td></tr>
-<tr><td>51</td><td>②</td><td>총괄성</td><td>어는점내림</td></tr>
-<tr><td>52</td><td>①</td><td>용해평형</td><td>용해도와pH</td></tr>
-<tr><td>53</td><td>②</td><td>고체의구조</td><td>고체의 밀도</td></tr>
-<tr><td>54</td><td>②</td><td>물의자동이온화</td><td>물의이온곱</td></tr>
-<tr><td>55</td><td>②</td><td>열역학</td><td>엔탈피엔트로피부호</td></tr>
-<tr><td>56</td><td>④</td><td>깁스자유에너지</td><td>자발성</td></tr>
-<tr><td>57</td><td>③</td><td>양적관계</td><td>연소반응</td></tr>
-<tr><td>58</td><td>④</td><td>평형상수</td><td>평형상수조합</td></tr>
-<tr><td>59</td><td>②</td><td>주기율</td><td>준금속</td></tr>
-<tr><td>60</td><td>②</td><td>기체</td><td>기체의성질</td></tr>
+<tr><td><a class="jump" href="#q1">1</a></td><td>②</td><td>용해도</td><td>용해도</td></tr>
+<tr><td><a class="jump" href="#q2">2</a></td><td>④</td><td>방사성붕괴</td><td>방사능단위</td></tr>
+<tr><td><a class="jump" href="#q3">3</a></td><td>③</td><td>몰과개수</td><td>몰과개수</td></tr>
+<tr><td><a class="jump" href="#q4">4</a></td><td>②</td><td>용해도</td><td>수화물의용해도</td></tr>
+<tr><td><a class="jump" href="#q5">5</a></td><td>②</td><td>다양성자산의적정</td><td>적정곡선</td></tr>
+<tr><td><a class="jump" href="#q6">6</a></td><td>①</td><td>산화환원</td><td>산화환원의정의</td></tr>
+<tr><td><a class="jump" href="#q7">7</a></td><td>②</td><td>평형상수</td><td>평형농도</td></tr>
+<tr><td><a class="jump" href="#q8">8</a></td><td>③</td><td>전기화학</td><td>표준전위</td></tr>
+<tr><td><a class="jump" href="#q9">9</a></td><td>②</td><td>산화환원반응</td><td>산화제환원제</td></tr>
+<tr><td><a class="jump" href="#q10">10</a></td><td>①</td><td>상평형</td><td>클라우지우스-클라페이롱</td></tr>
+<tr><td><a class="jump" href="#q11">11</a></td><td>②</td><td>전기화학</td><td>화학전지</td></tr>
+<tr><td><a class="jump" href="#q12">12</a></td><td>③</td><td>화학평형</td><td>평형상수</td></tr>
+<tr><td><a class="jump" href="#q13">13</a></td><td>③</td><td>양적관계</td><td>불완전연소</td></tr>
+<tr><td><a class="jump" href="#q14">14</a></td><td>②</td><td>분자의모양</td><td>분자의극성</td></tr>
+<tr><td><a class="jump" href="#q15">15</a></td><td>④</td><td>기체</td><td>분자운동속도</td></tr>
+<tr><td><a class="jump" href="#q16">16</a></td><td>③</td><td>반응속도</td><td>활성화에너지</td></tr>
+<tr><td><a class="jump" href="#q17">17</a></td><td>①</td><td>분자의모양</td><td>결합각</td></tr>
+<tr><td><a class="jump" href="#q18">18</a></td><td>③</td><td>평형상수</td><td>평형농도</td></tr>
+<tr><td><a class="jump" href="#q19">19</a></td><td>④</td><td>산화수</td><td>산화수</td></tr>
+<tr><td><a class="jump" href="#q20">20</a></td><td>①</td><td>고체</td><td>탄소동소체</td></tr>
+<tr><td><a class="jump" href="#q21">21</a></td><td>③</td><td>전자기파</td><td>광자에너지</td></tr>
+<tr><td><a class="jump" href="#q22">22</a></td><td>①</td><td>화학평형</td><td>평형이동</td></tr>
+<tr><td><a class="jump" href="#q23">23</a></td><td>③</td><td>양자수</td><td>스핀양자수</td></tr>
+<tr><td><a class="jump" href="#q24">24</a></td><td>④</td><td>에너지</td><td>에너지크기비교</td></tr>
+<tr><td><a class="jump" href="#q25">25</a></td><td>①</td><td>옥텟규칙</td><td>옥텟규칙</td></tr>
+<tr><td><a class="jump" href="#q26">26</a></td><td>④</td><td>분자의모양</td><td>분자의구조</td></tr>
+<tr><td><a class="jump" href="#q27">27</a></td><td>①</td><td>결합에너지</td><td>결합에너지</td></tr>
+<tr><td><a class="jump" href="#q28">28</a></td><td>③</td><td>전자배치</td><td>축퇴</td></tr>
+<tr><td><a class="jump" href="#q29">29</a></td><td>②</td><td>용해평형</td><td>공통이온효과</td></tr>
+<tr><td><a class="jump" href="#q30">30</a></td><td>④</td><td>화학식량</td><td>동위원소</td></tr>
+<tr><td><a class="jump" href="#q31">31</a></td><td>①</td><td>원자의크기</td><td>이온반지름</td></tr>
+<tr><td><a class="jump" href="#q32">32</a></td><td>③</td><td>화학평형</td><td>평형이동</td></tr>
+<tr><td><a class="jump" href="#q33">33</a></td><td>④</td><td>상평형</td><td>상평형도</td></tr>
+<tr><td><a class="jump" href="#q34">34</a></td><td>①</td><td>분자오비탈</td><td>결합차수</td></tr>
+<tr><td><a class="jump" href="#q35">35</a></td><td>③</td><td>화학식량</td><td>동위원소</td></tr>
+<tr><td><a class="jump" href="#q36">36</a></td><td>①</td><td>화학결합</td><td>형식전하</td></tr>
+<tr><td><a class="jump" href="#q37">37</a></td><td>④</td><td>혼성오비탈</td><td>혼성오비탈</td></tr>
+<tr><td><a class="jump" href="#q38">38</a></td><td>②</td><td>계수맞추기</td><td>계수맞추기</td></tr>
+<tr><td><a class="jump" href="#q39">39</a></td><td>③</td><td>용해평형</td><td>용해도곱</td></tr>
+<tr><td><a class="jump" href="#q40">40</a></td><td>③</td><td>고체의구조</td><td>단위세포</td></tr>
+<tr><td><a class="jump" href="#q41">41</a></td><td>①</td><td>양적관계</td><td>혼합물조성</td></tr>
+<tr><td><a class="jump" href="#q42">42</a></td><td>④</td><td>반응속도</td><td>반응메커니즘</td></tr>
+<tr><td><a class="jump" href="#q43">43</a></td><td>①</td><td>분자의모양</td><td>분자의구조</td></tr>
+<tr><td><a class="jump" href="#q44">44</a></td><td>②</td><td>열역학</td><td>열기관효율</td></tr>
+<tr><td><a class="jump" href="#q45">45</a></td><td>①</td><td>분자의모양</td><td>비공유전자쌍</td></tr>
+<tr><td><a class="jump" href="#q46">46</a></td><td>②</td><td>기체</td><td>이상기체방정식</td></tr>
+<tr><td><a class="jump" href="#q47">47</a></td><td>③</td><td>방사성붕괴</td><td>핵반응</td></tr>
+<tr><td><a class="jump" href="#q48">48</a></td><td>②</td><td>화학결합</td><td>형식전하</td></tr>
+<tr><td><a class="jump" href="#q49">49</a></td><td>②</td><td>반응속도</td><td>효소반응</td></tr>
+<tr><td><a class="jump" href="#q50">50</a></td><td>①</td><td>반응속도</td><td>반응차수</td></tr>
+<tr><td><a class="jump" href="#q51">51</a></td><td>②</td><td>총괄성</td><td>어는점내림</td></tr>
+<tr><td><a class="jump" href="#q52">52</a></td><td>①</td><td>용해평형</td><td>용해도와pH</td></tr>
+<tr><td><a class="jump" href="#q53">53</a></td><td>②</td><td>고체의구조</td><td>고체의 밀도</td></tr>
+<tr><td><a class="jump" href="#q54">54</a></td><td>②</td><td>물의자동이온화</td><td>물의이온곱</td></tr>
+<tr><td><a class="jump" href="#q55">55</a></td><td>②</td><td>열역학</td><td>엔탈피엔트로피부호</td></tr>
+<tr><td><a class="jump" href="#q56">56</a></td><td>④</td><td>깁스자유에너지</td><td>자발성</td></tr>
+<tr><td><a class="jump" href="#q57">57</a></td><td>③</td><td>양적관계</td><td>연소반응</td></tr>
+<tr><td><a class="jump" href="#q58">58</a></td><td>④</td><td>평형상수</td><td>평형상수조합</td></tr>
+<tr><td><a class="jump" href="#q59">59</a></td><td>②</td><td>주기율</td><td>준금속</td></tr>
+<tr><td><a class="jump" href="#q60">60</a></td><td>②</td><td>기체</td><td>기체의성질</td></tr>
 </tbody></table>
 <h3>문항별 사고과정</h3>
-<div class="q"><div class="qh"><span class="qno">문제 1</span><span class="area">용해도</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q1"><div class="qh"><span class="qno">문제 1</span><span class="area">용해도</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">라듐은 2족이라 바륨과 같은 무리로 본다.</p>
 <p class="step">녹고 안 녹고는 금속이 아니라 음이온의 갈래로 가른다.</p>
 <p class="step">질산염은 예외 없이 녹고, 2족 염화물도 녹는다.</p>
-<p class="step">수산화물은 2족에서 아래로 갈수록 잘 녹아 Ra(OH)₂ 는 녹는 쪽이다.</p>
+<p class="step">수산화물은 2족에서 아래로 갈수록 잘 녹아 Ra(OH)<sub>2</sub> 는 녹는 쪽이다.</p>
 <p class="step">남는 것은 탄산염 — 1족과 암모늄을 뺀 탄산염은 거의 녹지 않는다.</p>
 <p class="step">→ <b>②</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 2</span><span class="area">방사능단위</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q2"><div class="qh"><span class="qno">문제 2</span><span class="area">방사능단위</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">방사능 세기의 SI 단위는 베크렐(Bq)이고 1 Bq 은 초당 붕괴 한 번이다.</p>
 <p class="step">퀴리(Ci)는 라듐 1 g 의 붕괴 세기로 정의한 옛 단위라 훨씬 큰 값이다.</p>
 <p class="step">→ <b>④</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 3</span><span class="area">몰과개수</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q3"><div class="qh"><span class="qno">문제 3</span><span class="area">몰과개수</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">몸무게 50 kg 의 70% 인 35 kg = 35000 g 이 물이다.</p>
-<p class="step">물의 몰질량 18 로 나누면 약 1944 mol 이고, 아보가드로 수를 곱하면 1.2 × 10²⁷ 개다.</p>
+<p class="step">물의 몰질량 18 로 나누면 약 1944 mol 이고, 아보가드로 수를 곱하면 1.2 × 10<sup>27</sup> 개다.</p>
 <p class="step">→ <b>③</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 4</span><span class="area">수화물의용해도</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-<p class="step">18 °C 에서 물 100 g 에 CuSO₄ 20 g 이 녹는다.</p>
-<p class="step">결정 CuSO₄·5H₂O(250)는 그 안에 무수물(160)과 물(90)을 함께 갖고 있어, 녹인 결정이 물도 보태 준다.</p>
+<div class="q" id="q4"><div class="qh"><span class="qno">문제 4</span><span class="area">수화물의용해도</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">18 °C 에서 물 100 g 에 CuSO<sub>4</sub> 20 g 이 녹는다.</p>
+<p class="step">결정 CuSO<sub>4</sub>·5H<sub>2</sub>O(250)는 그 안에 무수물(160)과 물(90)을 함께 갖고 있어, 녹인 결정이 물도 보태 준다.</p>
 <p class="step">그 몫까지 넣어 풀면 약 35 g 이다.</p>
 <p class="step">→ <b>②</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 5</span><span class="area">적정곡선</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-<p class="step">H₃PO₄ 와 NaH₂PO₄ 를 2:1 로 섞으면 첫 당량점 앞쪽에 완충 구간이 있고, 이어서 pKa₁ 과 pKa₂ 사이에 층이 생긴다.</p>
+<div class="q" id="q5"><div class="qh"><span class="qno">문제 5</span><span class="area">적정곡선</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">H<sub>3</sub>PO<sub>4</sub> 와 NaH<sub>2</sub>PO<sub>4</sub> 를 2:1 로 섞으면 첫 당량점 앞쪽에 완충 구간이 있고, 이어서 pKa<sub>1</sub> 과 pKa<sub>2</sub> 사이에 층이 생긴다.</p>
 <p class="step">층의 개수와 시작 pH 가 맞는 곡선을 고른다.</p>
 <p class="step">→ <b>②</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 6</span><span class="area">산화환원의정의</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q6"><div class="qh"><span class="qno">문제 6</span><span class="area">산화환원의정의</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">산화수가 변하는지 본다.</p>
 <p class="step">소다의 열분해는 탄소·수소·산소의 산화수가 모두 그대로라 산화-환원이 아니다.</p>
 <p class="step">나머지는 홑원소가 화합물이 되며 산화수가 변한다.</p>
 <p class="step">→ <b>①</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 7</span><span class="area">평형농도</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q7"><div class="qh"><span class="qno">문제 7</span><span class="area">평형농도</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">ICE 로 푼다.</p>
-<p class="step">A·B 를 각각 0.2 M 로 잡고 변화량을 x 라 하면 (2x)²/((0.2−x)(0.2−x)) = 144 다.</p>
-<p class="step">2x/(0.2−x) = 12 에서 x = 0.171 이고 [C] = 2x ≈ 0.34 M 로 0.4 M 에 가깝다.</p>
+<p class="step">A·B 를 각각 0.2 M 로 잡고 변화량을 x 라 하면 (2x)<sup>2</sup>/((0.2−x)(0.2−x)) = 144</p>
+<p class="step">다. 2x/(0.2−x) = 12 에서 x = 0.171 이고 [C] = 2x ≈ 0.34 M 로 0.4 M 에 가깝다.</p>
 <p class="step">→ <b>②</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 8</span><span class="area">표준전위</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-<p class="step">전지 전압은 (환원 전극 전위) − (산화 전극 전위) 다.</p>
-<p class="step">납축전지에서 PbO₂ 쪽이 환원, PbSO₄/Pb 쪽이 산화이므로 두 표준 전위를 그 순서로 빼면 약 2.0 V 가 나온다.</p>
+<div class="q" id="q8"><div class="qh"><span class="qno">문제 8</span><span class="area">표준전위</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">전지 전압은 (환원 전극 전위) − (산화 전극 전위)</p>
+<p class="step">다. 납축전지에서 PbO<sub>2</sub> 쪽이 환원, PbSO<sub>4</sub>/Pb 쪽이 산화이므로 두 표준 전위를 그 순서로 빼면 약 2.0 V 가 나온다.</p>
 <p class="step">→ <b>③</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 9</span><span class="area">산화제환원제</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q9"><div class="qh"><span class="qno">문제 9</span><span class="area">산화제환원제</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">묽은 산에서는 반응하지 않던 구리가 진한 질산에서는 녹는다.</p>
 <p class="step">산화되는 것은 구리(0 → +2)이고, 환원되는 것은 수소가 아니라 질산의 질소(+5 → +4)라 이산화질소가 나온다.</p>
 <p class="step">→ <b>②</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 10</span><span class="area">클라우지우스-클라페이롱</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q10"><div class="qh"><span class="qno">문제 10</span><span class="area">클라우지우스-클라페이롱</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">ln P 를 1/T 에 대해 그리면 기울기가 −ΔHvap/R 이다.</p>
 <p class="step">기울기가 더 가파른(더 음인) 쪽이 증발 엔탈피가 크다.</p>
 <p class="step">그래프에서 그 쪽을 고른다.</p>
 <p class="step">→ <b>①</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 11</span><span class="area">화학전지</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-<p class="step">표준 전위가 더 큰 Sn²⁺/Sn 쪽이 환원 전극이고, 더 작은 Zn²⁺/Zn 쪽이 산화 전극이다.</p>
-<p class="step">아연이 녹아 Zn²⁺ 가 늘고 주석이 석출되며 전자는 아연에서 주석으로 흐른다.</p>
+<div class="q" id="q11"><div class="qh"><span class="qno">문제 11</span><span class="area">화학전지</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">표준 전위가 더 큰 Sn<sup>2+</sup>/Sn 쪽이 환원 전극이고, 더 작은 Zn<sup>2+</sup>/Zn 쪽이 산화 전극이다.</p>
+<p class="step">아연이 녹아 Zn<sup>2+</sup> 가 늘고 주석이 석출되며 전자는 아연에서 주석으로 흐른다.</p>
 <p class="step">→ <b>②</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 12</span><span class="area">평형상수</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-<p class="step">H₂O(g) → H₂O(l) 은 응결이라 발열이다.</p>
+<div class="q" id="q12"><div class="qh"><span class="qno">문제 12</span><span class="area">평형상수</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">H<sub>2</sub>O(g) → H<sub>2</sub>O(l) 은 응결이라 발열이다.</p>
 <p class="step">발열 반응의 K 는 온도가 오르면 작아지므로, 온도가 높아질수록 내려가는 곡선을 고른다.</p>
 <p class="step">→ <b>③</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 13</span><span class="area">불완전연소</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q13"><div class="qh"><span class="qno">문제 13</span><span class="area">불완전연소</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">부피와 온도가 그대로이니 압력이 20.0% 늘었다는 것은 기체 몰수가 20.0% 늘었다는 뜻이다.</p>
-<p class="step">흑연은 고체라 처음 기체는 O₂ 5.00몰뿐이고, 나중 기체는 5.00 × 1.200 = 6.00몰이다.</p>
-<p class="step">탄소 5.00몰이 모두 탔으므로 CO + CO₂ = 5.00 이고, 남은 O₂ 는 6.00 − 5.00 = 1.00몰이다.</p>
-<p class="step">산소 원자를 세면 처음 10.0 = CO + 2CO₂ + 2(1.00) 이라 CO + 2CO₂ = 8.00 이다.</p>
-<p class="step">두 식을 풀면 CO₂ 3.00몰, CO 2.00몰 — 가장 많은 것은 CO₂, 가장 적은 것은 남은 O₂ 다.</p>
+<p class="step">흑연은 고체라 처음 기체는 O<sub>2</sub> 5.00몰뿐이고, 나중 기체는 5.00 × 1.200 = 6.00몰이다.</p>
+<p class="step">탄소 5.00몰이 모두 탔으므로 CO + CO<sub>2</sub> = 5.00 이고, 남은 O<sub>2</sub> 는 6.00 − 5.00 = 1.00몰이다.</p>
+<p class="step">산소 원자를 세면 처음 10.0 = CO + 2CO<sub>2</sub> + 2(1.00) 이라 CO + 2CO<sub>2</sub> = 8.00 이다.</p>
+<p class="step">두 식을 풀면 CO<sub>2</sub> 3.00몰, CO 2.00몰 — 가장 많은 것은 CO<sub>2</sub>, 가장 적은 것은 남은 O<sub>2</sub> 다.</p>
 <p class="step">→ <b>③</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 14</span><span class="area">분자의극성</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-<p class="step">뜨거운 진한 황산이 구리를 녹일 때 나오는 이성분 기체 A 는 SO₂ 다.</p>
-<p class="step">굽은형이라 극성이고, 황의 산화수가 +6 에서 +4 로 내려갔으므로 황산이 산화제로 작용했다.</p>
+<div class="q" id="q14"><div class="qh"><span class="qno">문제 14</span><span class="area">분자의극성</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">뜨거운 진한 황산이 구리를 녹일 때 나오는 이성분 기체 A 는 SO<sub>2</sub></p>
+<p class="step">다. 굽은형이라 극성이고, 황의 산화수가 +6 에서 +4 로 내려갔으므로 황산이 산화제로 작용했다.</p>
 <p class="step">→ <b>②</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 15</span><span class="area">분자운동속도</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q15"><div class="qh"><span class="qno">문제 15</span><span class="area">분자운동속도</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">온도가 높을수록 분포가 오른쪽으로 넓게 퍼지고 봉우리는 낮아진다.</p>
 <p class="step">평균 운동 에너지는 온도에만 매이므로 온도가 다르면 다르다.</p>
 <p class="step">그래프의 봉우리 위치로 온도 순서를 정한다.</p>
 <p class="step">→ <b>④</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 16</span><span class="area">활성화에너지</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q16"><div class="qh"><span class="qno">문제 16</span><span class="area">활성화에너지</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">도표를 읽는다.</p>
 <p class="step">촉매는 활성화 에너지를 낮출 뿐 반응물과 생성물의 에너지 차(ΔH)는 바꾸지 않는다.</p>
 <p class="step">그 점을 어긴 진술을 고른다.</p>
 <p class="step">→ <b>③</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 17</span><span class="area">결합각</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q17"><div class="qh"><span class="qno">문제 17</span><span class="area">결합각</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">중심 원자 둘레의 전자 영역과 고립쌍으로 각을 견준다.</p>
 <p class="step">고립쌍이 있으면 좁아지고, 이중결합이 낀 쪽은 넓어진다.</p>
-<p class="step">NO₃⁻ 는 평면삼각형 120°, NH₃ 는 107° 근처다.</p>
+<p class="step">NO<sub>3</sub><sup>-</sup> 는 평면삼각형 120°, NH<sub>3</sub> 는 107° 근처다.</p>
 <p class="step">→ <b>①</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 18</span><span class="area">평형농도</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q18"><div class="qh"><span class="qno">문제 18</span><span class="area">평형농도</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">부분 압력으로 ICE 를 세운다.</p>
 <p class="step">처음 값에서 변화량을 빼고 더한 뒤 평형 조건에 맞춰 각 기체의 부분 압력을 구한다.</p>
 <p class="step">→ <b>③</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 19</span><span class="area">산화수</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q19"><div class="qh"><span class="qno">문제 19</span><span class="area">산화수</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">각 원소의 산화수를 따로 센다.</p>
-<p class="step">PCl₅ 에서 P 는 +5, SO₂ 에서 S 는 +4 인데 생성물에서 어떻게 바뀌는지 짚으면 무엇이 산화·환원되었는지 갈린다.</p>
+<p class="step">PCl<sub>5</sub> 에서 P 는 +5, SO<sub>2</sub> 에서 S 는 +4 인데 생성물에서 어떻게 바뀌는지 짚으면 무엇이 산화·환원되었는지 갈린다.</p>
 <p class="step">→ <b>④</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 20</span><span class="area">탄소동소체</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q20"><div class="qh"><span class="qno">문제 20</span><span class="area">탄소동소체</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">탄소 동소체의 전기 전도는 자유로운 π 전자가 있는지로 갈린다.</p>
 <p class="step">그물 구조로 모든 전자가 σ 결합에 묶인 다이아몬드가 전기 저항이 가장 크다.</p>
 <p class="step">→ <b>①</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 21</span><span class="area">광자에너지</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q21"><div class="qh"><span class="qno">문제 21</span><span class="area">광자에너지</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">E = hc/λ 에서 결합을 끊을 수 있는 최대 파장은 결합 에너지에 해당한다.</p>
-<p class="step">941 kJ/mol 을 광자 하나로 바꾸면 약 1.56 × 10⁻¹⁸ J 이고 λ ≈ 127 nm 라 자외선이다.</p>
+<p class="step">941 kJ/mol 을 광자 하나로 바꾸면 약 1.56 × 10<sup>-18</sup> J 이고 λ ≈ 127 nm 라 자외선이다.</p>
 <p class="step">→ <b>③</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 22</span><span class="area">평형이동</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q22"><div class="qh"><span class="qno">문제 22</span><span class="area">평형이동</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">흡열 반응이므로 온도를 올리면 정반응으로 간다.</p>
-<p class="step">액체인 Hg 은 K 식에 들어가지 않고, O₂ 를 없애면 정반응 쪽으로 간다.</p>
+<p class="step">액체인 Hg 은 K 식에 들어가지 않고, O<sub>2</sub> 를 없애면 정반응 쪽으로 간다.</p>
 <p class="step">그 가운데 옳은 것을 고른다.</p>
 <p class="step">→ <b>①</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 23</span><span class="area">스핀양자수</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q23"><div class="qh"><span class="qno">문제 23</span><span class="area">스핀양자수</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">자기장에서 원자살이 **두 갈래**로 갈라진 것은 전자가 두 가지 스핀만 가질 수 있다는 뜻이다(슈테른-게를라흐).</p>
 <p class="step">전하나 핵의 구성으로는 설명되지 않는다.</p>
 <p class="step">→ <b>③</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 24</span><span class="area">에너지크기비교</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q24"><div class="qh"><span class="qno">문제 24</span><span class="area">에너지크기비교</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">드는 에너지의 크기를 견준다.</p>
 <p class="step">전자를 떼어내는 이온화가 가장 크고, 그다음이 결합을 끊는 것이며, 진동·회전은 훨씬 작다.</p>
 <p class="step">→ <b>④</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 25</span><span class="area">옥텟규칙</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q25"><div class="qh"><span class="qno">문제 25</span><span class="area">옥텟규칙</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">중심 원자 둘레의 전자를 센다.</p>
-<p class="step">BH₃ 는 결합 셋으로 여섯 개뿐이라 옥텟을 못 채운다.</p>
+<p class="step">BH<sub>3</sub> 는 결합 셋으로 여섯 개뿐이라 옥텟을 못 채운다.</p>
 <p class="step">나머지는 여덟이다.</p>
 <p class="step">→ <b>①</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 26</span><span class="area">분자의구조</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q26"><div class="qh"><span class="qno">문제 26</span><span class="area">분자의구조</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">중심 원자의 고립쌍을 센다.</p>
-<p class="step">XeF₂ 는 고립쌍 셋이지만 직선형이고, CO₂ 와 HCN 도 직선이다.</p>
-<p class="step">NO₂ 는 홀전자가 있어 굽은형이다.</p>
+<p class="step">XeF<sub>2</sub> 는 고립쌍 셋이지만 직선형이고, CO<sub>2</sub> 와 HCN 도 직선이다.</p>
+<p class="step">NO<sub>2</sub> 는 홀전자가 있어 굽은형이다.</p>
 <p class="step">→ <b>④</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 27</span><span class="area">결합에너지</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q27"><div class="qh"><span class="qno">문제 27</span><span class="area">결합에너지</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">NO 생성엔탈피로 결합 에너지를 역산한다.</p>
-<p class="step">½N₂ + ½O₂ → NO, ΔH = +90 이므로 90 = ½(941) + ½(499) − E(NO) 에서 E(NO) = 470.5 + 249.5 − 90 = 630 으로 600 에 가깝다.</p>
+<p class="step">½N<sub>2</sub> + ½O<sub>2</sub> → NO, ΔH = +90 이므로 90 = ½(941) + ½(499) − E(NO) 에서 E(NO) = 470.5 + 249.5 − 90 = 630 으로 600 에 가깝다.</p>
 <p class="step">→ <b>①</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 28</span><span class="area">축퇴</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q28"><div class="qh"><span class="qno">문제 28</span><span class="area">축퇴</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">전자가 하나뿐인 원자(수소꼴)에서만 같은 껍질의 s·p 가 축퇴된다.</p>
 <p class="step">리튬처럼 전자가 여럿이면 가림 때문에 2s 가 더 낮다.</p>
 <p class="step">등전자 이온의 크기는 양성자가 적을수록 크다.</p>
 <p class="step">→ <b>③</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 29</span><span class="area">공통이온효과</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q29"><div class="qh"><span class="qno">문제 29</span><span class="area">공통이온효과</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">공통 이온이 있으면 덜 녹는다.</p>
-<p class="step">증류수에 포화시킨 쪽이 [Ba²⁺] 가 가장 크고, SO₄²⁻ 나 Ba²⁺ 가 이미 들어 있는 쪽은 더 작다.</p>
+<p class="step">증류수에 포화시킨 쪽이 [Ba<sup>2+</sup>] 가 가장 크고, SO<sub>4</sub><sup>2-</sup> 나 Ba<sup>2+</sup> 가 이미 들어 있는 쪽은 더 작다.</p>
 <p class="step">각 비커의 조건으로 견준다.</p>
 <p class="step">→ <b>②</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 30</span><span class="area">동위원소</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q30"><div class="qh"><span class="qno">문제 30</span><span class="area">동위원소</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">염소 두 개를 고르는 조합을 센다.</p>
-<p class="step">³⁵Cl : ³⁷Cl = 3 : 1 이므로 (35,35) : (35,37) : (37,37) = 9 : 6 : 1 이다.</p>
+<p class="step"><sup>35</sup>Cl : <sup>37</sup>Cl = 3 : 1 이므로 (35,35) : (35,37) : (37,37) = 9 : 6 : 1 이다.</p>
 <p class="step">피크 비는 9 : 6 : 1 이다.</p>
 <p class="step">→ <b>④</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 31</span><span class="area">이온반지름</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q31"><div class="qh"><span class="qno">문제 31</span><span class="area">이온반지름</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">등전자 무리로 나눈다.</p>
-<p class="step">K⁺·Br⁻ 은 Ar 배치, Rb⁺·Sr²⁺·I⁻ 은 Kr·Xe 쪽이다.</p>
+<p class="step">K<sup>+</sup>·Br<sup>-</sup> 은 Ar 배치, Rb<sup>+</sup>·Sr<sup>2+</sup>·I<sup>-</sup> 은 Kr·Xe 쪽이다.</p>
 <p class="step">껍질 수와 양성자 수로 줄을 세우면 세 번째가 정해진다.</p>
 <p class="step">→ <b>①</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 32</span><span class="area">평형이동</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q32"><div class="qh"><span class="qno">문제 32</span><span class="area">평형이동</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">발열 반응이고 기체 몰수가 3 에서 2 로 준다.</p>
 <p class="step">정반응으로 보내려면 온도를 낮추거나 압력을 높이면 된다.</p>
 <p class="step">그 조건에 맞는 것을 고른다.</p>
 <p class="step">→ <b>③</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 33</span><span class="area">상평형도</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q33"><div class="qh"><span class="qno">문제 33</span><span class="area">상평형도</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">상평형도에서 경계선이 만나는 점마다 삼중점이 하나씩이다.</p>
 <p class="step">고체 상태가 다섯이면 삼중점도 여럿이다.</p>
 <p class="step">각 진술을 그림과 맞춘다.</p>
 <p class="step">→ <b>④</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 34</span><span class="area">결합차수</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q34"><div class="qh"><span class="qno">문제 34</span><span class="area">결합차수</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">원자가 전자 수로 결합 차수를 센다.</p>
-<p class="step">N₂ 는 3, N₂⁺ 는 2.5, O₂ 는 2, O₂⁺ 는 2.5 다.</p>
-<p class="step">가장 낮은 것은 O₂ 다.</p>
+<p class="step">N<sub>2</sub> 는 3, N<sub>2</sub><sup>+</sup> 는 2.5, O<sub>2</sub> 는 2, O<sub>2</sub><sup>+</sup> 는 2.5</p>
+<p class="step">다. 가장 낮은 것은 O<sub>2</sub> 다.</p>
 <p class="step">→ <b>①</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 35</span><span class="area">동위원소</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q35"><div class="qh"><span class="qno">문제 35</span><span class="area">동위원소</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">무거운 동위원소가 든 물은 증기압이 낮아 덜 증발한다.</p>
-<p class="step">온도가 낮을수록 그 차이가 커지므로 눈에 남는 ²H/¹H 비가 온도를 알려 준다.</p>
+<p class="step">온도가 낮을수록 그 차이가 커지므로 눈에 남는 <sup>2</sup>H/<sup>1</sup>H 비가 온도를 알려 준다.</p>
 <p class="step">→ <b>③</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 36</span><span class="area">형식전하</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q36"><div class="qh"><span class="qno">문제 36</span><span class="area">형식전하</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">형식 전하 = 원자가 전자 − 고립쌍 전자 − 결합 수다.</p>
 <p class="step">그림의 구조에서 질소와 산소에 각각 적용해 값을 낸다.</p>
 <p class="step">→ <b>①</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 37</span><span class="area">혼성오비탈</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q37"><div class="qh"><span class="qno">문제 37</span><span class="area">혼성오비탈</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">전자 영역 수로 혼성을 정한다.</p>
-<p class="step">SO₂ 는 셋이라 sp², XeF₄ 는 여섯이라 sp³d², HCN 의 탄소는 둘이라 sp 다.</p>
-<p class="step">SF₆ 는 여섯이라 sp³d² 여야 하는데 sp³d 로 적혀 있어 틀렸다.</p>
+<p class="step">SO<sub>2</sub> 는 셋이라 sp<sup>2</sup>, XeF<sub>4</sub> 는 여섯이라 sp<sup>3</sup>d<sup>2</sup>, HCN 의 탄소는 둘이라 sp</p>
+<p class="step">다. SF<sub>6</sub> 는 여섯이라 sp<sup>3</sup>d<sup>2</sup> 여야 하는데 sp<sup>3</sup>d 로 적혀 있어 틀렸다.</p>
 <p class="step">→ <b>④</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 38</span><span class="area">계수맞추기</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q38"><div class="qh"><span class="qno">문제 38</span><span class="area">계수맞추기</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">한 쪽에만 있는 원소부터 잡아 계수를 맞춘다.</p>
 <p class="step">F 와 Cl 을 먼저 잡고 나트륨·탄소·산소를 차례로 맞추면 정수비가 나온다.</p>
 <p class="step">→ <b>②</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 39</span><span class="area">용해도곱</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q39"><div class="qh"><span class="qno">문제 39</span><span class="area">용해도곱</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">침전이 **시작**되는 순간은 Q 가 Ksp 에 막 닿은 때다.</p>
-<p class="step">섞은 뒤 [SO₄²⁻] 를 구하고 Ksp/[SO₄²⁻] 로 [Ba²⁺] 를 낸 뒤, 묽힘 전 농도로 되돌린다.</p>
+<p class="step">섞은 뒤 [SO<sub>4</sub><sup>2-</sup>] 를 구하고 Ksp/[SO<sub>4</sub><sup>2-</sup>] 로 [Ba<sup>2+</sup>] 를 낸 뒤, 묽힘 전 농도로 되돌린다.</p>
 <p class="step">→ <b>③</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 40</span><span class="area">단위세포</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q40"><div class="qh"><span class="qno">문제 40</span><span class="area">단위세포</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">다이아몬드꼴 단위 세포에서 자리별 몫을 센다.</p>
 <p class="step">꼭짓점 1/8, 면심 1/2, 내부는 온전히 1 로 세면 B 와 N 의 개수비가 나온다.</p>
 <p class="step">→ <b>③</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 41</span><span class="area">혼합물조성</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q41"><div class="qh"><span class="qno">문제 41</span><span class="area">혼합물조성</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">질량 백분율로 몰수를 잡는다.</p>
 <p class="step">NaCl 을 x g, NaBr 을 (100−x) g 이라 하면 Na 질량은 23(x/58.5) + 23((100−x)/103) 이고 이것이 23.0 g 이 되도록 풀면 x 가 나온다.</p>
 <p class="step">→ <b>①</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 42</span><span class="area">반응메커니즘</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q42"><div class="qh"><span class="qno">문제 42</span><span class="area">반응메커니즘</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">도표에서 골은 중간체, 봉우리는 전이 상태다.</p>
 <p class="step">봉우리가 둘이면 단계가 둘이고 중간체가 하나 있다.</p>
 <p class="step">더 높은 봉우리가 속도 결정 단계다.</p>
 <p class="step">→ <b>④</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 43</span><span class="area">분자의구조</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q43"><div class="qh"><span class="qno">문제 43</span><span class="area">분자의구조</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">옥텟을 지키며 단일 결합만으로 이어진 XYZ 를 그린다.</p>
 <p class="step">중심 원자에 고립쌍이 남으므로 굽은형이고, 최외각 전자의 합은 그 구조에서 세면 나온다.</p>
 <p class="step">→ <b>①</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 44</span><span class="area">열기관효율</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q44"><div class="qh"><span class="qno">문제 44</span><span class="area">열기관효율</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">이론적 효율 식에 절대온도를 넣는다.</p>
 <p class="step">섭씨로 주어진 값을 273 을 더해 켈빈으로 바꾼 뒤 (T_high − T_low)/T_high 를 셈한다.</p>
 <p class="step">→ <b>②</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 45</span><span class="area">비공유전자쌍</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q45"><div class="qh"><span class="qno">문제 45</span><span class="area">비공유전자쌍</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">분자 전체의 비공유 전자쌍을 센다.</p>
-<p class="step">CCl₄ 는 염소 넷에 3쌍씩 12, H₂O₂ 는 산소 둘에 2쌍씩 4, H₂S 는 2, NH₃ 는 1 이다.</p>
-<p class="step">가장 많은 것은 CCl₄ 다.</p>
+<p class="step">CCl<sub>4</sub> 는 염소 넷에 3쌍씩 12, H<sub>2</sub>O<sub>2</sub> 는 산소 둘에 2쌍씩 4, H<sub>2</sub>S 는 2, NH<sub>3</sub> 는 1 이다.</p>
+<p class="step">가장 많은 것은 CCl<sub>4</sub> 다.</p>
 <p class="step">→ <b>①</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 46</span><span class="area">이상기체방정식</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q46"><div class="qh"><span class="qno">문제 46</span><span class="area">이상기체방정식</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">① 부피는 V = nRT/P 이니 A 는 1 × 800 / 0.20, B 는 2 × 400 / 0.40 — A 가 B 의 2배다(옳다).</p>
 <p class="step">② 평균 제곱 속도는 3RT/M 이라 온도만이 아니라 몰질량도 함께 본다.</p>
-<p class="step">A 는 S₂(몰질량 64) 800 K, B 는 O₂(몰질량 32) 400 K — 온도가 2배인 만큼 몰질량도 2배라 3RT/M 이 서로 같다.</p>
+<p class="step">A 는 S<sub>2</sub>(몰질량 64) 800 K, B 는 O<sub>2</sub>(몰질량 32) 400 K — 온도가 2배인 만큼 몰질량도 2배라 3RT/M 이 서로 같다.</p>
 <p class="step">'2배' 가 어긋난다.</p>
 <p class="step">③ 평균 운동 에너지는 (3/2)kT 로 온도만의 함수라 800 K 인 A 가 2배다(옳다).</p>
-<p class="step">④ 표준 조건에서 가장 안정한 동소체는 산소가 O₂, 황은 S₈ 이라 S₂ 는 아니다(옳다).</p>
+<p class="step">④ 표준 조건에서 가장 안정한 동소체는 산소가 O<sub>2</sub>, 황은 S<sub>8</sub> 이라 S<sub>2</sub> 는 아니다(옳다).</p>
 <p class="step">→ <b>②</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 47</span><span class="area">핵반응</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q47"><div class="qh"><span class="qno">문제 47</span><span class="area">핵반응</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">핵반응식을 질량수와 원자번호로 함께 맞춘다.</p>
-<p class="step">²³⁸U 이 중성자를 흡수하면 ²³⁹U 이 되고, 베타 붕괴를 두 번 거쳐 ²³⁹Pu 가 된다.</p>
+<p class="step"><sup>238</sup>U 이 중성자를 흡수하면 <sup>239</sup>U 이 되고, 베타 붕괴를 두 번 거쳐 <sup>239</sup>Pu 가 된다.</p>
 <p class="step">→ <b>③</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 48</span><span class="area">형식전하</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q48"><div class="qh"><span class="qno">문제 48</span><span class="area">형식전하</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">형식 전하를 세고 옥텟을 확인한다.</p>
 <p class="step">중심 탄소가 여덟을 못 채우면 반응성이 커서 상온에서 안정하지 않다.</p>
 <p class="step">보기의 진술을 그 잣대로 가른다.</p>
 <p class="step">→ <b>②</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 49</span><span class="area">효소반응</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q49"><div class="qh"><span class="qno">문제 49</span><span class="area">효소반응</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">기질 농도가 낮을 때는 속도가 농도에 비례하지만, 효소가 모두 기질과 결합하면 더 넣어도 빨라지지 않아 속도가 일정해진다.</p>
 <p class="step">→ <b>②</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 50</span><span class="area">반응차수</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
-<p class="step">속도식 k[P_NO]²[P_O₂] 에 넣는다.</p>
-<p class="step">두 부분 압력을 모두 절반으로 하면 속도는 (1/2)² × (1/2) = 1/8 이 된다.</p>
+<div class="q" id="q50"><div class="qh"><span class="qno">문제 50</span><span class="area">반응차수</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">속도식 k[P_NO]<sup>2</sup>[P_O<sub>2</sub>] 에 넣는다.</p>
+<p class="step">두 부분 압력을 모두 절반으로 하면 속도는 (1/2)<sup>2</sup> × (1/2) = 1/8 이 된다.</p>
 <p class="step">온도를 함께 바꾸면 k 도 달라진다.</p>
 <p class="step">→ <b>①</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 51</span><span class="area">어는점내림</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q51"><div class="qh"><span class="qno">문제 51</span><span class="area">어는점내림</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">어는점 내림으로 입자 수를 센다.</p>
-<p class="step">0.494/329.25 = 0.0015 mol 이고 몰랄 농도는 0.015 m 다.</p>
-<p class="step">ΔTf = 1.86 × 0.015 = 0.0279 인데 실제는 0.112 이라 약 4 배 — 입자가 넷으로 나뉜다는 뜻이라 K⁺ 셋과 착이온 하나다.</p>
+<p class="step">0.494/329.25 = 0.0015 mol 이고 몰랄 농도는 0.015 m</p>
+<p class="step">다. ΔTf = 1.86 × 0.015 = 0.0279 인데 실제는 0.112 이라 약 4 배 — 입자가 넷으로 나뉜다는 뜻이라 K<sup>+</sup> 셋과 착이온 하나다.</p>
 <p class="step">→ <b>②</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 52</span><span class="area">용해도와pH</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
-<p class="step">포화 용액이니 [Zn²⁺] = Ksp/[OH⁻]² 다.</p>
-<p class="step">pH 가 1 낮아지면 [OH⁻] 는 1/10 이 되고 제곱이라 [Zn²⁺] 는 100배가 된다.</p>
+<div class="q" id="q52"><div class="qh"><span class="qno">문제 52</span><span class="area">용해도와pH</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">포화 용액이니 [Zn<sup>2+</sup>] = Ksp/[OH<sup>-</sup>]<sup>2</sup></p>
+<p class="step">다. pH 가 1 낮아지면 [OH<sup>-</sup>] 는 1/10 이 되고 제곱이라 [Zn<sup>2+</sup>] 는 100배가 된다.</p>
 <p class="step">그러니 보기 가운데 pH 가 가장 낮은 것이 답이다.</p>
-<p class="step">pH 3 이면 [OH⁻] = 10⁻¹¹ 이라 [Zn²⁺] = 4.5×10⁻¹⁷/10⁻²² = 4.5×10⁵ M — 터무니없이 큰 값은 그 산성도에서는 다 녹아 버린다는 뜻이다.</p>
+<p class="step">pH 3 이면 [OH<sup>-</sup>] = 10<sup>-11</sup> 이라 [Zn<sup>2+</sup>] = 4.5×10<sup>-17</sup>/10<sup>-22</sup> = 4.5×10<sup>5</sup> M — 터무니없이 큰 값은 그 산성도에서는 다 녹아 버린다는 뜻이다.</p>
 <p class="step">→ <b>①</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 53</span><span class="area">고체의 밀도</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q53"><div class="qh"><span class="qno">문제 53</span><span class="area">고체의 밀도</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">입방최조밀은 면심입방이라 세포당 원자가 넷이다.</p>
-<p class="step">밀도 = (4 × 108)/(6.02×10²³ × (408×10⁻¹⁰)³) 를 셈하면 약 10.5 g/cm³ 다.</p>
+<p class="step">밀도 = (4 × 108)/(6.02×10<sup>23</sup> × (408×10<sup>-10</sup>)<sup>3</sup>) 를 셈하면 약 10.5 g/cm<sup>3</sup> 다.</p>
 <p class="step">→ <b>②</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 54</span><span class="area">물의이온곱</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-<p class="step">중성이면 [H⁺] = [OH⁻] 이므로 Kw = [H⁺]² 다.</p>
-<p class="step">pH 6.63 이면 [H⁺] = 10⁻⁶·⁶³ ≈ 2.34×10⁻⁷ 이고 Kw ≈ 5.5×10⁻¹⁴ 다.</p>
+<div class="q" id="q54"><div class="qh"><span class="qno">문제 54</span><span class="area">물의이온곱</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">중성이면 [H<sup>+</sup>] = [OH<sup>-</sup>] 이므로 Kw = [H<sup>+</sup>]<sup>2</sup></p>
+<p class="step">다. pH 6.63 이면 [H<sup>+</sup>] = 10<sup>-6</sup>·<sup>63</sup> ≈ 2.34×10<sup>-7</sup> 이고 Kw ≈ 5.5×10<sup>-14</sup> 다.</p>
 <p class="step">→ <b>②</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 55</span><span class="area">엔탈피엔트로피부호</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q55"><div class="qh"><span class="qno">문제 55</span><span class="area">엔탈피엔트로피부호</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">두 부호를 따로 읽는다.</p>
 <p class="step">① ΔS 는 **반응식의 기체 몰수 변화**로 정한다 — 기체 몰수가 늘면 ΔS &gt; 0, 줄면 ΔS &lt; 0(액체·고체만 오가면 거의 0).</p>
 <p class="step">② ΔH 는 **발열이냐 흡열이냐**로 정한다 — 자료에 열이 난다고 적혀 있으면 ΔH &lt; 0, 열을 빨아들이면 ΔH &gt; 0.</p>
 <p class="step">③ 두 부호를 짝지어 보기와 맞춘다.</p>
 <p class="step">→ <b>②</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 56</span><span class="area">자발성</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q56"><div class="qh"><span class="qno">문제 56</span><span class="area">자발성</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">ΔG = ΔH − TΔS 에서 두 부호가 같으면 온도가 갈림길이 된다.</p>
 <p class="step">ΔH/ΔS 로 경계 온도를 구하고 어느 쪽이 자발적인지 가른다.</p>
 <p class="step">→ <b>④</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 57</span><span class="area">연소반응</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-<p class="step">C₄H₁₀ + 13/2 O₂ → 4CO₂ + 5H₂O 다.</p>
-<p class="step">뷰테인 0.1 mol 이면 산소는 0.1 × 6.5 = 0.65 mol 이 든다.</p>
+<div class="q" id="q57"><div class="qh"><span class="qno">문제 57</span><span class="area">연소반응</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">C<sub>4</sub>H<sub>10</sub> + 13/2 O<sub>2</sub> → 4CO<sub>2</sub> + 5H<sub>2</sub>O</p>
+<p class="step">다. 뷰테인 0.1 mol 이면 산소는 0.1 × 6.5 = 0.65 mol 이 든다.</p>
 <p class="step">→ <b>③</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 58</span><span class="area">평형상수조합</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q58"><div class="qh"><span class="qno">문제 58</span><span class="area">평형상수조합</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">목표 반응을 아는 평형의 조합으로 쪼갠다.</p>
 <p class="step">반응을 뒤집으면 K 는 역수, 계수를 n 배 하면 K 는 n 제곱, 더하면 곱이다.</p>
 <p class="step">→ <b>④</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 59</span><span class="area">준금속</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q59"><div class="qh"><span class="qno">문제 59</span><span class="area">준금속</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">준금속은 겉모습이 금속 같고 전도도가 금속과 절연체 사이이며 산과 잘 반응하지 않는다.</p>
 <p class="step">표에서 그 조합에 맞는 것을 고른다.</p>
 <p class="step">→ <b>②</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 60</span><span class="area">기체의성질</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q60"><div class="qh"><span class="qno">문제 60</span><span class="area">기체의성질</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">부피가 일정한 밀폐 용기라 질량과 부피가 그대로다.</p>
 <p class="step">밀도는 변하지 않고, 압력과 평균 속력·평균 운동 에너지는 온도와 함께 오른다.</p>
 <p class="step">→ <b>②</b></p></div>

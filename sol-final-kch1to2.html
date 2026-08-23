@@ -25,11 +25,24 @@ th{background:#f1eee7;font-weight:700}
 .area{font-size:12.5px;color:var(--ink2);background:#f1eee7;border-radius:99px;padding:2px 9px}
 .ans{margin-left:auto;font-weight:700;color:var(--ms)}
 .sol{font-size:14.5px}
+/* 해설 본문이 실제로 입는 옷 — answers/*.json 의 explanationHtml 이
+   <h4>·.step·.k(정답 근거)·.x(오답 표시) 를 쓰는데 여기 옷이 없으면
+   해설지에서만 맨몸으로 나간다(final.html 은 제 옷이 따로 있다). */
+.sol h4{margin:12px 0 5px;color:var(--teal);font-size:13.5px;letter-spacing:.02em}
+.sol p.step{margin:6px 0;white-space:pre-wrap}
+.sol .k{color:var(--teal);font-weight:700}
+.sol .x{color:var(--ms);font-weight:700}
 .tip{margin-top:9px;padding:9px 11px;border-left:3px solid var(--gold);background:#faf7f1;
  font-size:13.5px;color:var(--ink2)}
 .rev{margin-top:9px;padding:9px 11px;border-left:3px solid var(--ms);background:#fdf3ef;
  font-size:13px;color:#8a3a1d}
-@media print{body{background:#fff}.q{break-inside:avoid}}
+/* 정답표 → 그 문항 해설로 건너뛰는 길. 표가 세로 2,000px 를 넘는 회차가
+   많아 표에서 해설까지 손가락으로 미는 거리가 너무 멀었다. */
+td a.jump{color:var(--teal);text-decoration:none;font-weight:700}
+td a.jump:hover{text-decoration:underline}
+.q{scroll-margin-top:14px}
+.q:target{border-color:var(--teal);box-shadow:0 0 0 2px rgba(14,90,76,.18)}
+@media print{body{background:#fff}.q{break-inside:avoid}.warn{display:none}}
 
 .sol-part{margin:13px 0}.sol-part h4{margin:0 0 5px;color:var(--teal);font-size:13.5px;letter-spacing:.02em}
 .sol-part p{margin:5px 0;white-space:pre-wrap}
@@ -52,198 +65,195 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <h1>화학1 1-2단원 모의고사</h1>
 <div class="sub">문항별 정답 · 영역 · 개념 · 사고과정 해설 · 60문항</div>
 <div class="sub" style="margin-top:6px">문제 지문은 문제지(PDF)에 있습니다 — 성적표 화면에서 함께 내려받을 수 있습니다.</div><a class="back" href="final.html">‹ 파이널로</a></header>
-<div class="warn"><b>검수 전 해설입니다.</b> 60문항의 사고과정이 아직 선생님 검수를 거치지 않았습니다. 배포 전에 확인해 주세요.</div>
+<div class="warn"><b>해설 업데이트 안내</b> · 60문항의 사고과정은 선생님 검토에 따라 표현이 다듬어질 수 있습니다. 정답·채점 기준은 확정입니다.</div>
 <main><h3>정답 · 영역 · 개념</h3><table><thead><tr><th scope="col">문항</th><th scope="col">정답</th><th scope="col">영역</th><th scope="col">개념(유형)</th></tr></thead><tbody>
-<tr><td>1</td><td>②</td><td>원자의구조</td><td>중성자수</td></tr>
-<tr><td>2</td><td>①</td><td>원자모형</td><td>보어반지름</td></tr>
-<tr><td>3</td><td>③</td><td>원자의구조</td><td>열화학</td></tr>
-<tr><td>4</td><td>①</td><td>원자의구조</td><td>원자량</td></tr>
-<tr><td>5</td><td>③</td><td>원자의구조</td><td>평균원자량</td></tr>
-<tr><td>6</td><td>③</td><td>몰과양적관계</td><td>원자수</td></tr>
-<tr><td>7</td><td>①</td><td>몰과양적관계</td><td>원자수</td></tr>
-<tr><td>8</td><td>③</td><td>몰과양적관계</td><td>몰</td></tr>
-<tr><td>9</td><td>④</td><td>몰과양적관계</td><td>PV=nRT</td></tr>
-<tr><td>10</td><td>①</td><td>몰과양적관계</td><td>PV=nRT</td></tr>
-<tr><td>11</td><td>③</td><td>양적관계</td><td>ICE식</td></tr>
-<tr><td>12</td><td>③</td><td>몰과양적관계</td><td>PV=nRT</td></tr>
-<tr><td>13</td><td>②</td><td>몰과양적관계</td><td>밀도</td></tr>
-<tr><td>14</td><td>④</td><td>몰과양적관계</td><td>밀도</td></tr>
-<tr><td>15</td><td>①</td><td>원소분석장치</td><td>리비히원소분석장치</td></tr>
-<tr><td>16</td><td>①</td><td>원소분석장치</td><td>원소분석</td></tr>
-<tr><td>17</td><td>③</td><td>원소분석장치</td><td>실험식</td></tr>
-<tr><td>18</td><td>③</td><td>양적관계</td><td>계수맞추기</td></tr>
-<tr><td>19</td><td>③</td><td>양적관계</td><td>ICE식</td></tr>
-<tr><td>20</td><td>③</td><td>양적관계</td><td>ICE식</td></tr>
-<tr><td>21</td><td>②</td><td>원소의기원</td><td>빅뱅</td></tr>
-<tr><td>22</td><td>④</td><td>원소의기원</td><td>별에서의핵융합</td></tr>
-<tr><td>23</td><td>④</td><td>원소의기원</td><td>인체의구성원소</td></tr>
-<tr><td>24</td><td>④</td><td>원소의기원</td><td>질량비</td></tr>
-<tr><td>25</td><td>②</td><td>원소의기원</td><td>원소</td></tr>
-<tr><td>26</td><td>③</td><td>방사성붕괴</td><td>방사성붕괴</td></tr>
-<tr><td>27</td><td>③</td><td>방사성붕괴</td><td>방사성붕괴</td></tr>
-<tr><td>28</td><td>①</td><td>방사성붕괴</td><td>투과력</td></tr>
-<tr><td>29</td><td>③</td><td>방사성붕괴</td><td>방사성붕괴</td></tr>
-<tr><td>30</td><td>①</td><td>방사성붕괴</td><td>방사성붕괴</td></tr>
-<tr><td>31</td><td>④</td><td>원자모형</td><td>돌턴</td></tr>
-<tr><td>32</td><td>①</td><td>원자모형</td><td>톰슨</td></tr>
-<tr><td>33</td><td>②</td><td>원자모형</td><td>러더퍼드</td></tr>
-<tr><td>34</td><td>③</td><td>원자모형</td><td>전자기파</td></tr>
-<tr><td>35</td><td>②</td><td>원자모형</td><td>전자기파</td></tr>
-<tr><td>36</td><td>③</td><td>원자모형</td><td>수소원자</td></tr>
-<tr><td>37</td><td>②</td><td>원자모형</td><td>발머계열</td></tr>
-<tr><td>38</td><td>④</td><td>원자모형</td><td>수소원자</td></tr>
-<tr><td>39</td><td>②</td><td>원자모형</td><td>가시광선</td></tr>
-<tr><td>40</td><td>④</td><td>원자모형</td><td>수소원자</td></tr>
-<tr><td>41</td><td>②</td><td>양자수</td><td>양자화학</td></tr>
-<tr><td>42</td><td>①</td><td>양자수</td><td>파동성</td></tr>
-<tr><td>43</td><td>②</td><td>양자수</td><td>광전효과</td></tr>
-<tr><td>44</td><td>①</td><td>양자수</td><td>물질파</td></tr>
-<tr><td>45</td><td>②</td><td>양자수</td><td>에너지</td></tr>
-<tr><td>46</td><td>①</td><td>전자배치</td><td>양자수</td></tr>
-<tr><td>47</td><td>②</td><td>전자배치</td><td>에너지준위</td></tr>
-<tr><td>48</td><td>③</td><td>전자배치</td><td>양자수</td></tr>
-<tr><td>49</td><td>③</td><td>전자배치</td><td>홀전자수</td></tr>
-<tr><td>50</td><td>③</td><td>전자배치</td><td>전자배치</td></tr>
-<tr><td>51</td><td>②</td><td>원자반지름</td><td>원자반지름</td></tr>
-<tr><td>52</td><td>④</td><td>원자반지름</td><td>이온반지름</td></tr>
-<tr><td>53</td><td>④</td><td>이온화에너지</td><td>이온화에너지</td></tr>
-<tr><td>54</td><td>③</td><td>이온화에너지</td><td>이온화에너지</td></tr>
-<tr><td>55</td><td>②</td><td>이온화에너지</td><td>순차적이온화에너지</td></tr>
-<tr><td>56</td><td>④</td><td>이온화에너지</td><td>순차적이온화에너지</td></tr>
-<tr><td>57</td><td>①</td><td>원자반지름</td><td>주기적성질</td></tr>
-<tr><td>58</td><td>②</td><td>주기율</td><td>전자친화도</td></tr>
-<tr><td>59</td><td>③</td><td>주기율</td><td>전기음성도</td></tr>
-<tr><td>60</td><td>②</td><td>주기율</td><td>전기음성도</td></tr>
+<tr><td><a class="jump" href="#q1">1</a></td><td>②</td><td>원자의구조</td><td>중성자수</td></tr>
+<tr><td><a class="jump" href="#q2">2</a></td><td>①</td><td>원자모형</td><td>보어반지름</td></tr>
+<tr><td><a class="jump" href="#q3">3</a></td><td>③</td><td>원자의구조</td><td>열화학</td></tr>
+<tr><td><a class="jump" href="#q4">4</a></td><td>①</td><td>원자의구조</td><td>원자량</td></tr>
+<tr><td><a class="jump" href="#q5">5</a></td><td>③</td><td>원자의구조</td><td>평균원자량</td></tr>
+<tr><td><a class="jump" href="#q6">6</a></td><td>③</td><td>몰과양적관계</td><td>원자수</td></tr>
+<tr><td><a class="jump" href="#q7">7</a></td><td>①</td><td>몰과양적관계</td><td>원자수</td></tr>
+<tr><td><a class="jump" href="#q8">8</a></td><td>③</td><td>몰과양적관계</td><td>몰</td></tr>
+<tr><td><a class="jump" href="#q9">9</a></td><td>④</td><td>몰과양적관계</td><td>PV=nRT</td></tr>
+<tr><td><a class="jump" href="#q10">10</a></td><td>①</td><td>몰과양적관계</td><td>PV=nRT</td></tr>
+<tr><td><a class="jump" href="#q11">11</a></td><td>③</td><td>양적관계</td><td>ICE식</td></tr>
+<tr><td><a class="jump" href="#q12">12</a></td><td>③</td><td>몰과양적관계</td><td>PV=nRT</td></tr>
+<tr><td><a class="jump" href="#q13">13</a></td><td>②</td><td>몰과양적관계</td><td>밀도</td></tr>
+<tr><td><a class="jump" href="#q14">14</a></td><td>④</td><td>몰과양적관계</td><td>밀도</td></tr>
+<tr><td><a class="jump" href="#q15">15</a></td><td>①</td><td>원소분석장치</td><td>리비히원소분석장치</td></tr>
+<tr><td><a class="jump" href="#q16">16</a></td><td>①</td><td>원소분석장치</td><td>원소분석</td></tr>
+<tr><td><a class="jump" href="#q17">17</a></td><td>③</td><td>원소분석장치</td><td>실험식</td></tr>
+<tr><td><a class="jump" href="#q18">18</a></td><td>③</td><td>양적관계</td><td>계수맞추기</td></tr>
+<tr><td><a class="jump" href="#q19">19</a></td><td>③</td><td>양적관계</td><td>ICE식</td></tr>
+<tr><td><a class="jump" href="#q20">20</a></td><td>③</td><td>양적관계</td><td>ICE식</td></tr>
+<tr><td><a class="jump" href="#q21">21</a></td><td>②</td><td>원소의기원</td><td>빅뱅</td></tr>
+<tr><td><a class="jump" href="#q22">22</a></td><td>④</td><td>원소의기원</td><td>별에서의핵융합</td></tr>
+<tr><td><a class="jump" href="#q23">23</a></td><td>④</td><td>원소의기원</td><td>인체의구성원소</td></tr>
+<tr><td><a class="jump" href="#q24">24</a></td><td>④</td><td>원소의기원</td><td>질량비</td></tr>
+<tr><td><a class="jump" href="#q25">25</a></td><td>②</td><td>원소의기원</td><td>원소</td></tr>
+<tr><td><a class="jump" href="#q26">26</a></td><td>③</td><td>방사성붕괴</td><td>방사성붕괴</td></tr>
+<tr><td><a class="jump" href="#q27">27</a></td><td>③</td><td>방사성붕괴</td><td>방사성붕괴</td></tr>
+<tr><td><a class="jump" href="#q28">28</a></td><td>①</td><td>방사성붕괴</td><td>투과력</td></tr>
+<tr><td><a class="jump" href="#q29">29</a></td><td>③</td><td>방사성붕괴</td><td>방사성붕괴</td></tr>
+<tr><td><a class="jump" href="#q30">30</a></td><td>①</td><td>방사성붕괴</td><td>방사성붕괴</td></tr>
+<tr><td><a class="jump" href="#q31">31</a></td><td>④</td><td>원자모형</td><td>돌턴</td></tr>
+<tr><td><a class="jump" href="#q32">32</a></td><td>①</td><td>원자모형</td><td>톰슨</td></tr>
+<tr><td><a class="jump" href="#q33">33</a></td><td>②</td><td>원자모형</td><td>러더퍼드</td></tr>
+<tr><td><a class="jump" href="#q34">34</a></td><td>③</td><td>원자모형</td><td>전자기파</td></tr>
+<tr><td><a class="jump" href="#q35">35</a></td><td>②</td><td>원자모형</td><td>전자기파</td></tr>
+<tr><td><a class="jump" href="#q36">36</a></td><td>③</td><td>원자모형</td><td>수소원자</td></tr>
+<tr><td><a class="jump" href="#q37">37</a></td><td>②</td><td>원자모형</td><td>발머계열</td></tr>
+<tr><td><a class="jump" href="#q38">38</a></td><td>④</td><td>원자모형</td><td>수소원자</td></tr>
+<tr><td><a class="jump" href="#q39">39</a></td><td>②</td><td>원자모형</td><td>가시광선</td></tr>
+<tr><td><a class="jump" href="#q40">40</a></td><td>④</td><td>원자모형</td><td>수소원자</td></tr>
+<tr><td><a class="jump" href="#q41">41</a></td><td>②</td><td>양자수</td><td>양자화학</td></tr>
+<tr><td><a class="jump" href="#q42">42</a></td><td>①</td><td>양자수</td><td>파동성</td></tr>
+<tr><td><a class="jump" href="#q43">43</a></td><td>②</td><td>양자수</td><td>광전효과</td></tr>
+<tr><td><a class="jump" href="#q44">44</a></td><td>①</td><td>양자수</td><td>물질파</td></tr>
+<tr><td><a class="jump" href="#q45">45</a></td><td>②</td><td>양자수</td><td>에너지</td></tr>
+<tr><td><a class="jump" href="#q46">46</a></td><td>①</td><td>전자배치</td><td>양자수</td></tr>
+<tr><td><a class="jump" href="#q47">47</a></td><td>②</td><td>전자배치</td><td>에너지준위</td></tr>
+<tr><td><a class="jump" href="#q48">48</a></td><td>③</td><td>전자배치</td><td>양자수</td></tr>
+<tr><td><a class="jump" href="#q49">49</a></td><td>③</td><td>전자배치</td><td>홀전자수</td></tr>
+<tr><td><a class="jump" href="#q50">50</a></td><td>③</td><td>전자배치</td><td>전자배치</td></tr>
+<tr><td><a class="jump" href="#q51">51</a></td><td>②</td><td>원자반지름</td><td>원자반지름</td></tr>
+<tr><td><a class="jump" href="#q52">52</a></td><td>④</td><td>원자반지름</td><td>이온반지름</td></tr>
+<tr><td><a class="jump" href="#q53">53</a></td><td>④</td><td>이온화에너지</td><td>이온화에너지</td></tr>
+<tr><td><a class="jump" href="#q54">54</a></td><td>③</td><td>이온화에너지</td><td>이온화에너지</td></tr>
+<tr><td><a class="jump" href="#q55">55</a></td><td>②</td><td>이온화에너지</td><td>순차적이온화에너지</td></tr>
+<tr><td><a class="jump" href="#q56">56</a></td><td>④</td><td>이온화에너지</td><td>순차적이온화에너지</td></tr>
+<tr><td><a class="jump" href="#q57">57</a></td><td>①</td><td>원자반지름</td><td>주기적성질</td></tr>
+<tr><td><a class="jump" href="#q58">58</a></td><td>②</td><td>주기율</td><td>전자친화도</td></tr>
+<tr><td><a class="jump" href="#q59">59</a></td><td>③</td><td>주기율</td><td>전기음성도</td></tr>
+<tr><td><a class="jump" href="#q60">60</a></td><td>②</td><td>주기율</td><td>전기음성도</td></tr>
 </tbody></table>
 <h3>문항별 사고과정</h3>
-<div class="q"><div class="qh"><span class="qno">문제 1</span><span class="area">중성자수</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">중성자수는 각각 238-92=146, 40-20=20, 51-23=28개이다.</p>
+<div class="q" id="q1"><div class="qh"><span class="qno">문제 1</span><span class="area">중성자수</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">중성자수는 각각 238-92=146, 40-20=20, 51-23=28개이다.</p>
 <p class="step">전체 중성자수는 146+20+28=194이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 2</span><span class="area">보어반지름</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">보어 반지름은 50pm=5×10⁻¹¹m=0.05nm이다.</p></div>
+<div class="q" id="q2"><div class="qh"><span class="qno">문제 2</span><span class="area">보어반지름</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">보어 반지름은 50pm=5×10<sup>-11</sup>m=0.05nm이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 3</span><span class="area">열화학</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">이다.</p>
+<div class="q" id="q3"><div class="qh"><span class="qno">문제 3</span><span class="area">열화학</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">이다.</p>
 <p class="step">이고
 25°C부터 녹는점까지 90.5°C 더 높여야 하기 때문에 녹는점은 115°C이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 4</span><span class="area">원자량</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">¹¹³A : ¹¹⁵A=5:95이다.</p></div>
+<div class="q" id="q4"><div class="qh"><span class="qno">문제 4</span><span class="area">원자량</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step"><sup>113</sup>A : <sup>115</sup>A=5:95이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 5</span><span class="area">평균원자량</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">① Cl의 평균 원자량은 35.5이다.</p>
+<div class="q" id="q5"><div class="qh"><span class="qno">문제 5</span><span class="area">평균원자량</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">① Cl의 평균 원자량은 35.5이다.</p>
 <p class="step">⇒ 옳은 설명, 35×0.75+37×0.25=35.5 이다.</p>
-<p class="step">② 질량 스펙트럼에서 Cl₂에 대한 피크는 세 개로 나타난다.</p>
-<p class="step">⇒ 옳은 설명, Cl₂에 대한 피크에서 Cl₂의 질량수는 70, 72, 74 세 개로 나타난다.</p>
-<p class="step">③ Cl₂의 피크 중 가장 큰 것은 71에서 나타난다.</p>
+<p class="step">② 질량 스펙트럼에서 Cl<sub>2</sub>에 대한 피크는 세 개로 나타난다.</p>
+<p class="step">⇒ 옳은 설명, Cl<sub>2</sub>에 대한 피크에서 Cl<sub>2</sub>의 질량수는 70, 72, 74 세 개로 나타난다.</p>
+<p class="step">③ Cl<sub>2</sub>의 피크 중 가장 큰 것은 71에서 나타난다.</p>
 <p class="step">⇒ 틀린 설명, 피크 중 가장 큰 것은 70이다.</p>
-<p class="step">④ Cl₂의 몰 분자량은 71g이다.</p>
-<p class="step">⇒ 옳은 설명, Cl의 평균원자량이 35.5이므로 Cl₂의 몰분자량은 71g이다.</p></div>
+<p class="step">④ Cl<sub>2</sub>의 몰 분자량은 71g이다.</p>
+<p class="step">⇒ 옳은 설명, Cl의 평균원자량이 35.5이므로 Cl<sub>2</sub>의 몰분자량은 71g이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 6</span><span class="area">원자수</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">물의 밀도가 1g/cm³이므로 1.0L=1000ml=1000cm³=1000g이다.</p>
+<div class="q" id="q6"><div class="qh"><span class="qno">문제 6</span><span class="area">원자수</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">물의 밀도가 1g/cm<sup>3</sup>이므로 1.0L=1000ml=1000cm<sup>3</sup>=1000g이다.</p>
 <p class="step">물의 분자수는 이다.</p>
 <p class="step">물은 3원자분자이므로 물 분자에 존재하는 원자의 개수는 이다.</p>
 <p class="step">따라서 1.0 L에 존재하는 원자의 개수는 ③ 이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 7</span><span class="area">원자수</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">① 물 100g
+<div class="q" id="q7"><div class="qh"><span class="qno">문제 7</span><span class="area">원자수</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">① 물 100g
 ⇒
-② 3 × 10²⁴ 개의 수소 분자
+② 3 × 10<sup>24</sup> 개의 수소 분자
 ⇒
 ③ 표준 상태에서 수소 기체 10L
 ⇒
 ④ 수소의 질량 분율이 10% 인 물질 100g
 ⇒</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 8</span><span class="area">몰</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">1개의 아드레날 세포에는 3.0×10⁴개의 주머니가 있다.</p>
-<p class="step">1개의 주머니에는 3.8×10⁶개의 에피네프린이 있다.</p>
+<div class="q" id="q8"><div class="qh"><span class="qno">문제 8</span><span class="area">몰</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">1개의 아드레날 세포에는 3.0×10<sup>4</sup>개의 주머니가 있다.</p>
+<p class="step">1개의 주머니에는 3.8×10<sup>6</sup>개의 에피네프린이 있다.</p>
 <p class="step">1개의 주머니당 들어있는 에피네프린의 몰수는 다음과 같다.</p>
 <p class="step">1개의 주머니에 있는 에피네프린 몰수 :
-(1 amol=1×10⁻¹⁸ mol, 1 fmol=1×10⁻¹⁵ mol) 이기 때문에 6.3amol/주머니 이다.</p>
-<p class="step">1개의 세포에는 3.0×10⁴개의 주머니가 있기 때문에 1개의 세포당 들어있는 에피네프린의 몰수는 6.3×10⁻¹⁸×3.0×10⁴=1.89×10⁻¹³mol=189×10⁻¹⁵mol=189fmol 이다.</p></div>
+(1 amol=1×10<sup>-18</sup> mol, 1 fmol=1×10<sup>-15</sup> mol) 이기 때문에 6.3amol/주머니 이다.</p>
+<p class="step">1개의 세포에는 3.0×10<sup>4</sup>개의 주머니가 있기 때문에 1개의 세포당 들어있는 에피네프린의 몰수는 6.3×10<sup>-18</sup>×3.0×10<sup>4</sup>=1.89×10<sup>-13</sup>mol=189×10<sup>-15</sup>mol=189fmol 이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 9</span><span class="area">PV=nRT</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">PV=nRT를 이용하는 문제이다.</p>
-<p class="step">1기압=10⁵Pa이므로 1Pa=10⁻⁵기압이다.</p>
-<p class="step">초고진공 상태는 10⁻¹⁰Pa=10⁻¹⁵atm이다.</p>
-<p class="step">27°C=300K, 1mL=10⁻³ L이다.</p>
-<p class="step">이고, 1몰은 6.02×10²³개이다.</p>
-<p class="step">따라서 초 진공 상태에 포함된 공기 분자 수는 2.4×10⁴개이다.</p></div>
+<div class="q" id="q9"><div class="qh"><span class="qno">문제 9</span><span class="area">PV=nRT</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">PV=nRT를 이용하는 문제이다.</p>
+<p class="step">1기압=10<sup>5</sup>Pa이므로 1Pa=10<sup>-5</sup>기압이다.</p>
+<p class="step">초고진공 상태는 10<sup>-10</sup>Pa=10<sup>-15</sup>atm이다.</p>
+<p class="step">27°C=300K, 1mL=10<sup>-3</sup> L이다.</p>
+<p class="step">이고, 1몰은 6.02×10<sup>23</sup>개이다.</p>
+<p class="step">따라서 초 진공 상태에 포함된 공기 분자 수는 2.4×10<sup>4</sup>개이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 10</span><span class="area">PV=nRT</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">PV=nRT에서 P와 n이 일정하기 때문에 V=kT(샤를법칙)을 적용할 수 있다.</p>
+<div class="q" id="q10"><div class="qh"><span class="qno">문제 10</span><span class="area">PV=nRT</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">PV=nRT에서 P와 n이 일정하기 때문에 V=kT(샤를법칙)을 적용할 수 있다.</p>
 <p class="step">부피가 3/4배 되었기 때문에 온도도 3/4배가 된다.</p>
 <p class="step">초기 온도가 298K이므로 223.5K이고 섭씨온도로 나타내면 –49.5°C이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 11</span><span class="area">ICE식</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">n몰의 수소와 n몰의 산소가 반응하면, 계수비가 2:1:2이므로 수소가 한계반응물이다.</p>
+<div class="q" id="q11"><div class="qh"><span class="qno">문제 11</span><span class="area">ICE식</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">n몰의 수소와 n몰의 산소가 반응하면, 계수비가 2:1:2이므로 수소가 한계반응물이다.</p>
 <p class="step">반응 후 기체는 산소 몰과 수증기 n몰로 총 몰이 존재한다.</p>
 <p class="step">n몰의 수소와 n몰의 산소가 반응하면, 계수비가 2:1:2이므로 수소가 한계반응물이다.</p>
 <p class="step">반응 후 기체는 산소 몰이 존재하고 생성된 물은 액체이므로 기체의 부피에 비해 무시할 수 있을 정도로 작다.</p>
 <p class="step">따라서 반응 전과 반응 후의 최종 부피는 3배 차이이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 12</span><span class="area">PV=nRT</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">PV=nRT 이고 이다.</p>
-<p class="step">1몰의 개수는 아보가드로수로 6.02×10²³개 이므로 총 텅스텐 원자수는 다음과 같다.</p>
-<p class="step">6×10⁻¹²×6.02×10²³개=3.6×10¹²개 이다.</p></div>
+<div class="q" id="q12"><div class="qh"><span class="qno">문제 12</span><span class="area">PV=nRT</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">PV=nRT 이고 이다.</p>
+<p class="step">1몰의 개수는 아보가드로수로 6.02×10<sup>23</sup>개 이므로 총 텅스텐 원자수는 다음과 같다.</p>
+<p class="step">6×10<sup>-12</sup>×6.02×10<sup>23</sup>개=3.6×10<sup>12</sup>개 이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 13</span><span class="area">밀도</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">H₂, Cl₂, CH₄ 가 같은 온도, 같은 압력 조건에 있다.</p>
+<div class="q" id="q13"><div class="qh"><span class="qno">문제 13</span><span class="area">밀도</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">H<sub>2</sub>, Cl<sub>2</sub>, CH<sub>4</sub> 가 같은 온도, 같은 압력 조건에 있다.</p>
 <p class="step">이다.</p>
 <p class="step">이고 이다.</p>
-<p class="step">분자량비=밀도비 이므로 H₂:Cl₂:CH₄=2:71:16 이다.</p>
+<p class="step">분자량비=밀도비 이므로 H<sub>2</sub>:Cl<sub>2</sub>:CH<sub>4</sub>=2:71:16 이다.</p>
 <p class="step">따라서 가장 높은 밀도를 가지는 기체는 염소이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 14</span><span class="area">밀도</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">표준상태 1기압, 25°C에서 기체 1몰의 부피는 이다.</p>
+<div class="q" id="q14"><div class="qh"><span class="qno">문제 14</span><span class="area">밀도</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">표준상태 1기압, 25°C에서 기체 1몰의 부피는 이다.</p>
 <p class="step">이산화탄소 1몰의 질량은 44g이므로 밀도는 1.8g/L이다.</p>
 <p class="step">가장 가까운 값은 ④ 2 g/L이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 15</span><span class="area">리비히원소분석장치</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">(가): 물을 흡수하는 물질(흡습제) → 염화칼슘, 실리카겔 등
+<div class="q" id="q15"><div class="qh"><span class="qno">문제 15</span><span class="area">리비히원소분석장치</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">(가): 물을 흡수하는 물질(흡습제) → 염화칼슘, 실리카겔 등
 (나): 이산화탄소를 흡수하는 물질(염기) → 수산화나트륨, 수산화칼륨, 수산화칼슘 등</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 16</span><span class="area">원소분석</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">실험식은 ① C₅H₇N이다.</p></div>
+<div class="q" id="q16"><div class="qh"><span class="qno">문제 16</span><span class="area">원소분석</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">실험식은 ① C<sub>5</sub>H<sub>7</sub>N이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 17</span><span class="area">실험식</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">각 원소의 질량은 다음과 같다.</p>
+<div class="q" id="q17"><div class="qh"><span class="qno">문제 17</span><span class="area">실험식</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">각 원소의 질량은 다음과 같다.</p>
 <p class="step">이다.</p>
-<p class="step">따라서 실험식은 C₂H₆O이다.</p></div>
+<p class="step">따라서 실험식은 C<sub>2</sub>H<sub>6</sub>O이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 18</span><span class="area">계수맞추기</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">C:2a=z
+<div class="q" id="q18"><div class="qh"><span class="qno">문제 18</span><span class="area">계수맞추기</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">C:2a=z
 H:8a=2y
 N:2a+4=2x
 O:8=y+2z
 a=1이라고 가정하면 (z=2, a=1, y=4, x=3)이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 19</span><span class="area">ICE식</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">이고 반응질량비=계수비×분자량이다.</p>
+<div class="q" id="q19"><div class="qh"><span class="qno">문제 19</span><span class="area">ICE식</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">이고 반응질량비=계수비×분자량이다.</p>
 <p class="step">반응질량비= 180 : 6×32 : 6×44 : 6×18 = 15:16:22:9 이다.</p>
 <p class="step">따라서 1g의 포도당이 충분한 산소와 반응하면 이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 20</span><span class="area">ICE식</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">CmHn + ()O₂ → mCO₂ + H₂O 이다.</p>
+<div class="q" id="q20"><div class="qh"><span class="qno">문제 20</span><span class="area">ICE식</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">CmHn + ()O<sub>2</sub> → mCO<sub>2</sub> + H<sub>2</sub>O 이다.</p>
 <p class="step">뷰테인의 완전연소는 다음과 같다.</p>
 <p class="step">, 계수비=반응몰수비 이므로 뷰테인 0.1몰을 완전연소시키기 위해 필요한 산소는 0.65몰이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 21</span><span class="area">빅뱅</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">빅뱅을 통해 수소와 헬륨이 탄생했고 별에서의 핵융합을 통해 헬륨~철까지 초신성폭발을 통해 ~우라늄까지 생성가능하다.</p>
+<div class="q" id="q21"><div class="qh"><span class="qno">문제 21</span><span class="area">빅뱅</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">빅뱅을 통해 수소와 헬륨이 탄생했고 별에서의 핵융합을 통해 헬륨~철까지 초신성폭발을 통해 ~우라늄까지 생성가능하다.</p>
 <p class="step">우라늄보다 무거운 원소는 인공적으로 합성가능하다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 22</span><span class="area">별에서의핵융합</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">별에서 핵융합을 통해 만들어지는 원소는 헬륨~철까지 이다.</p>
+<div class="q" id="q22"><div class="qh"><span class="qno">문제 22</span><span class="area">별에서의핵융합</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">별에서 핵융합을 통해 만들어지는 원소는 헬륨~철까지 이다.</p>
 <p class="step">수소는 빅뱅을 통해 생성된 원소이다.</p>
 <p class="step">따라서 답은 ④ 탄소, 산소, 질소, 인이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 23</span><span class="area">인체의구성원소</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">인체와 우주에서 개수 비율이 가장 많은 원소는 수소이다.</p>
+<div class="q" id="q23"><div class="qh"><span class="qno">문제 23</span><span class="area">인체의구성원소</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">인체와 우주에서 개수 비율이 가장 많은 원소는 수소이다.</p>
 <p class="step">인체에서 질량비로는 가장 큰 값을 가지지만, 개수 비율로는 두 번째로 큰 원소가 산소이다.</p>
 <p class="step">지각은 대부분 규산염 광물로 만들어져있다.</p>
 <p class="step">지각의 구성 원소 중 무게 비율이 가장 큰 원소는 산소이다.</p>
 <p class="step">지각의 구성 원소 중 두 번째로 무게 비율이 높은 원소는 규소이고, 인체에서 두 번째로 무게 비율이 높은 원소는 탄소이다.</p>
 <p class="step">인체의 구성 원소와 지각의 구성 원소 질량비는 다음 표에 나타내었다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 24</span><span class="area">질량비</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">이므로 1개당 질량비는 1:4이다.</p>
+<div class="q" id="q24"><div class="qh"><span class="qno">문제 24</span><span class="area">질량비</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">이므로 1개당 질량비는 1:4이다.</p>
 <p class="step">수소와 헬륨의 질량비가 3:1이므로
 이다.</p>
 <p class="step">따라서 가장 가까운 값은 ④ 10:1이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 25</span><span class="area">원소</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">a.</p>
-<p class="step">원자번호가 큰 원자는 원자번호가 작은 원자보다 항상 무겁다.</p>
+<div class="q" id="q25"><div class="qh"><span class="qno">문제 25</span><span class="area">원소</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">a. 원자번호가 큰 원자는 원자번호가 작은 원자보다 항상 무겁다.</p>
 <p class="step">⇒ 틀린 설명, 일반적으로 원자번호가 클수록 무거워지지만, 등 다양한 원소들이 존재하고 각 원소들의 동위원소에 따라 질량이 다르므로 다양한 예외들이 있다.</p>
-<p class="step">b.</p>
-<p class="step">거의 대부분의 원자들은 빅뱅 직후 만들어졌다.</p>
+<p class="step">b. 거의 대부분의 원자들은 빅뱅 직후 만들어졌다.</p>
 <p class="step">⇒ 틀린 설명, 빅뱅 직후에 만들어진 원소는 수소와 헬륨이고 리튬부터 철까지는 별에서의 핵융합에 의해 만들어졌다.</p>
 <p class="step">철보다 무거운 원소는 초신성폭발을 통해 만들어졌다.</p>
-<p class="step">c.</p>
-<p class="step">원자핵에 있는 중성자의 수가 양성자의 수보다 적은 원자도 있다.</p>
+<p class="step">c. 원자핵에 있는 중성자의 수가 양성자의 수보다 적은 원자도 있다.</p>
 <p class="step">⇒ 옳은 설명, 수소는 원자번호 1번으로 양성자수는 1개, 중성자수는 0개이다.</p>
 <p class="step">는 양성자수 2개 중성자수 1개이다.</p>
 <p class="step">따라서 원자핵에 있는 중성자의 수가 양성자의 수보다 적은 원자도 있다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 26</span><span class="area">방사성붕괴</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">① Fe가 가장 안정한 핵이라는 것과 지구 중심의 주성분이 Fe라는 사실은 상관관계가 있다.</p>
+<div class="q" id="q26"><div class="qh"><span class="qno">문제 26</span><span class="area">방사성붕괴</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">① Fe가 가장 안정한 핵이라는 것과 지구 중심의 주성분이 Fe라는 사실은 상관관계가 있다.</p>
 <p class="step">⇒ 옳은 설명, 철은 가장 안정한 핵을 가지고 있고 밀도도 크기 때문에 지구 중심의 주성분으로 여겨진다.</p>
 <p class="step">용융된 철의 질량은 지구 전체 무게의 35%정도로 볼 수 있다.</p>
 <p class="step">② 무거운 핵이 더 작은 핵들로 쪼개지는 핵분열은 자발적인 과정이다.</p>
@@ -253,7 +263,7 @@ a=1이라고 가정하면 (z=2, a=1, y=4, x=3)이다.</p></div>
 <p class="step">④ 태양 에너지는 수소 핵이 헬륨으로 변환되는 핵융합에 기인한다.</p>
 <p class="step">⇒ 옳은 설명, 태양에서는 반응이 일어난다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 27</span><span class="area">방사성붕괴</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">① 반감기가 길수록 천천히 붕괴된다.</p>
+<div class="q" id="q27"><div class="qh"><span class="qno">문제 27</span><span class="area">방사성붕괴</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">① 반감기가 길수록 천천히 붕괴된다.</p>
 <p class="step">⇒ 옳은 설명, 반감기는 반으로 감소하는데 걸리는 기간이다.</p>
 <p class="step">따라서 반감기가 길수록 천천히 붕괴된다.</p>
 <p class="step">② 반감기는 남아있는 방사성물질의 양과 관계없다.</p>
@@ -263,21 +273,18 @@ a=1이라고 가정하면 (z=2, a=1, y=4, x=3)이다.</p></div>
 <p class="step">④ 알파입자는 헬륨의 원자핵이다.</p>
 <p class="step">⇒ 옳은 설명, 알파입자는 이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 28</span><span class="area">투과력</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">가.</p>
-<p class="step">⇒ 옳은 설명, 금은 79번, 백금은 78번이다.</p>
+<div class="q" id="q28"><div class="qh"><span class="qno">문제 28</span><span class="area">투과력</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">가. ⇒ 옳은 설명, 금은 79번, 백금은 78번이다.</p>
 <p class="step">가.는 전자포획이다.</p>
-<p class="step">나.</p>
-<p class="step">핵분열 반응은 상온에서 일어나지만 핵융합반응은 상온에서 일어나지 않는다.</p>
+<p class="step">나. 핵분열 반응은 상온에서 일어나지만 핵융합반응은 상온에서 일어나지 않는다.</p>
 <p class="step">⇒ 옳은 설명, 핵분열은 상온에서 일어나지만 핵융합반응은 1000만K 이상에서 일어난다.</p>
-<p class="step">다.</p>
-<p class="step">방사능 붕괴과정에서 생성되는 α 입자, β 입자, γ-선 중에서 인체에 대한 투과력은 
+<p class="step">다. 방사능 붕괴과정에서 생성되는 α 입자, β 입자, γ-선 중에서 인체에 대한 투과력은 
 α 입자 &gt; β 입자 &gt; γ-선 순서이다.</p>
 <p class="step">⇒ 틀린 설명, 인체에 대한 투과력은 α 입자 &lt; β 입자 &lt; γ-선 순서이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 29</span><span class="area">방사성붕괴</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">이다.</p>
+<div class="q" id="q29"><div class="qh"><span class="qno">문제 29</span><span class="area">방사성붕괴</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">이다.</p>
 <p class="step">따라서 x+y+z=139이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 30</span><span class="area">방사성붕괴</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">① (가) 변환은 γ선을 방출하는 원자핵 변환이다.</p>
+<div class="q" id="q30"><div class="qh"><span class="qno">문제 30</span><span class="area">방사성붕괴</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">① (가) 변환은 γ선을 방출하는 원자핵 변환이다.</p>
 <p class="step">⇒ 틀린 설명, 감마붕괴의 경우 양성자수와 중성자수는 변하지 않는다.</p>
 <p class="step">② 안정한 원자핵에는 보통 양성자보다 중성자가 많다.</p>
 <p class="step">⇒ 옳은 설명, 일반적으로 원자번호가 커질수록 양성자의 수보다 중성자의 수가 더 많을 때 안정하다.</p>
@@ -288,41 +295,36 @@ a=1이라고 가정하면 (z=2, a=1, y=4, x=3)이다.</p></div>
 <p class="step">⇒ 옳은 설명, 양성자수가 1감소하고 중성자수가 1증가하는 변환이다.</p>
 <p class="step">이는 양전자방출과 전자포획이 있다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 31</span><span class="area">돌턴</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">가.</p>
-<p class="step">물질은 원자라고 불리는 입자로 구성된다.</p>
+<div class="q" id="q31"><div class="qh"><span class="qno">문제 31</span><span class="area">돌턴</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">가. 물질은 원자라고 불리는 입자로 구성된다.</p>
 <p class="step">⇒ 옳은 설명, 물질은 원자로 구성되어있다.</p>
-<p class="step">나.</p>
-<p class="step">원자는 파괴되지도 더 이상 쪼개지지도 않는다.</p>
+<p class="step">나. 원자는 파괴되지도 더 이상 쪼개지지도 않는다.</p>
 <p class="step">⇒ 틀린 설명, 방사성붕괴를 통해 다른 원소로 변환되기도 한다.</p>
 <p class="step">또한 물리적으로 나눌 때 원자는 원자핵과 전자로 구성된다.</p>
-<p class="step">다.</p>
-<p class="step">한 원소의 원자들은 모두 같다.</p>
+<p class="step">다. 한 원소의 원자들은 모두 같다.</p>
 <p class="step">⇒ 틀린 설명, 동위원소가 존재하기 때문에 모두 같지는 않다.</p>
-<p class="step">라.</p>
-<p class="step">서로 다른 원소들은 다른 종류의 원자로 되어 있다.</p>
+<p class="step">라. 서로 다른 원소들은 다른 종류의 원자로 되어 있다.</p>
 <p class="step">⇒ 옳은 설명, 서로 다른 원소들은 양성자수가 다르기 때문에 다른 종류의 원자로 되어있다고 볼 수 있다.</p>
-<p class="step">마.</p>
-<p class="step">서로 다른 원소의 원자들이 결합하여 화합물을 생성할 때 간단한 정수비로 결합한다.</p>
+<p class="step">마. 서로 다른 원소의 원자들이 결합하여 화합물을 생성할 때 간단한 정수비로 결합한다.</p>
 <p class="step">⇒ 옳은 설명, 서로 다른 원소의 원자들이 결합하여 화합물을 생성할 때 원자들의 배열만 바뀌게 된다.</p>
 <p class="step">화학반응에서 하나의 원소가 다른 원소로 바뀐다든지 없던 원소가 생성된다든지 있던 원소가 없어지는 일을 일어나지 않는다.</p>
 <p class="step">따라서 원자들 사이에 간단한 정수비로 결합하게 된다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 32</span><span class="area">톰슨</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">1897년 영국의 과학자 톰슨의 음극선실험 이전에는 돌턴의 원자모형이 지배적이었다.</p>
+<div class="q" id="q32"><div class="qh"><span class="qno">문제 32</span><span class="area">톰슨</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">1897년 영국의 과학자 톰슨의 음극선실험 이전에는 돌턴의 원자모형이 지배적이었다.</p>
 <p class="step">돌턴의 원자모형에서 원자는 더 이상 쪼개지지 않는 단단한 기본입자로 정의한다.</p>
 <p class="step">단단한 입자이고 더 이상 쪼개지지 않는다고 생각했지만 톰슨의 실험을 통해 입자가 방출되는 것을 확인했으므로 원자는 더 작은 구성입자인 전자가 존재한다는 것을 알 수 있었다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 33</span><span class="area">러더퍼드</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">말랑 말랑한 구에 전자가 박혀있는 톰슨모형에 알파선을 충돌시키면 모두 다 통과해야만 한다.</p>
+<div class="q" id="q33"><div class="qh"><span class="qno">문제 33</span><span class="area">러더퍼드</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">말랑 말랑한 구에 전자가 박혀있는 톰슨모형에 알파선을 충돌시키면 모두 다 통과해야만 한다.</p>
 <p class="step">하지만 대부분의 알파선은 통과하고 일부분은 휘어지고 극히 일부는 튕겨져나오게 되었다.</p>
 <p class="step">이는 원자의 대부분은 빈공간이고 원자 질량의 대부분은 양전하를 띤 원자핵에 집중되어있다는 것을 보여주는 것이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 34</span><span class="area">전자기파</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">감마선, X선, 자외선은 분자에 따라 달라질 수는 있지만 이러한 전자기파에 의해 이온화, 전자의 들뜸, 결합의 분해가 일어난다.</p>
+<div class="q" id="q34"><div class="qh"><span class="qno">문제 34</span><span class="area">전자기파</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">감마선, X선, 자외선은 분자에 따라 달라질 수는 있지만 이러한 전자기파에 의해 이온화, 전자의 들뜸, 결합의 분해가 일어난다.</p>
 <p class="step">적외선에 의해 진동운동, 마이크로파에 의해 회전운동, 라디오파에 의해 원자의 핵스핀들뜸이 일어난다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 35</span><span class="area">전자기파</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">빛의 파장이 짧은 전자기파부터 긴 순서로 나열하면 다음과 같다.</p>
+<div class="q" id="q35"><div class="qh"><span class="qno">문제 35</span><span class="area">전자기파</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">빛의 파장이 짧은 전자기파부터 긴 순서로 나열하면 다음과 같다.</p>
 <p class="step">진동수: 선&gt;X선&gt;자외선&gt;가시광선(보&gt;남&gt;파&gt;초&gt;노&gt;주&gt;빨)&gt;적외선&gt;마이크로파&gt;라디오파
 따라서 빨간색의 불빛보다 낮은 진동수를 갖는 것은 적외선이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 36</span><span class="area">수소원자</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">① n=5에서 n=3으로의 전이에 해당하는 에너지는 n=3에서 n=1로의 전이에 해당하는 에너지 보다 크다.</p>
+<div class="q" id="q36"><div class="qh"><span class="qno">문제 36</span><span class="area">수소원자</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">① n=5에서 n=3으로의 전이에 해당하는 에너지는 n=3에서 n=1로의 전이에 해당하는 에너지 보다 크다.</p>
 <p class="step">⇒ 틀린 설명, 이고 이다.</p>
 <p class="step">(k=1312kJ/mol)
 ② 바닥상태는 전자의 가장 불안정한 에너지 상태를 나타낸다.</p>
@@ -333,17 +335,17 @@ a=1이라고 가정하면 (z=2, a=1, y=4, x=3)이다.</p></div>
 <p class="step">④ 전자가 높은 에너지 준위로 전이될 때 빛을 방출한다.</p>
 <p class="step">⇒ 틀린 설명, 전자가 높은 에너지 준위로 전이될 때 에너지를 흡수해야한다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 37</span><span class="area">발머계열</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">자외선은 라이먼 계열, 가시광선은 발머 계열, 적외선은 파셴 계열이다.</p></div>
+<div class="q" id="q37"><div class="qh"><span class="qno">문제 37</span><span class="area">발머계열</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">자외선은 라이먼 계열, 가시광선은 발머 계열, 적외선은 파셴 계열이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 38</span><span class="area">수소원자</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">높은 에너지준위에서 낮은 에너지준위로 전자전이가 일어날 경우 빛을 방출한다.</p>
+<div class="q" id="q38"><div class="qh"><span class="qno">문제 38</span><span class="area">수소원자</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">높은 에너지준위에서 낮은 에너지준위로 전자전이가 일어날 경우 빛을 방출한다.</p>
 <p class="step">반대로 낮은 에너지준위에서 높은 에너지준위로 전자전이가 일어나기위해서는 빛을 흡수해야 한다.</p>
 <p class="step">이므로 에너지는 진동수(υ)에 비례하고, 파장(λ)에는 반비례한다.</p>
 <p class="step">두 경우 중 더 긴 파장의 빛(적은 에너지의 빛)은 (b) n = 3 → n = 2 이고, 방출하는 빛이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 39</span><span class="area">가시광선</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">434nm는 5→2 이다.</p>
+<div class="q" id="q39"><div class="qh"><span class="qno">문제 39</span><span class="area">가시광선</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">434nm는 5→2 이다.</p>
 <p class="step">K(n=1), L(n=2), M(n=3), N(n=4), O(n=5) 이므로 ② O → L이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 40</span><span class="area">수소원자</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">① 선 w는 a → e 전자 전이에 해당한다.</p>
+<div class="q" id="q40"><div class="qh"><span class="qno">문제 40</span><span class="area">수소원자</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">① 선 w는 a → e 전자 전이에 해당한다.</p>
 <p class="step">⇒ 틀린 설명, w는 6→2에 해당한다.</p>
 <p class="step">② 선 z는 d → e 전자 전이에 해당한다.</p>
 <p class="step">⇒ 틀린 설명, z는 3→2에 해당한다.</p>
@@ -356,7 +358,7 @@ a=1이라고 가정하면 (z=2, a=1, y=4, x=3)이다.</p></div>
 <p class="step">⇒ 옳은 설명, 수소의 이온화에너지는 e에 해당한다.</p>
 <p class="step">따라서 선 w의 파장보다 짧다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 41</span><span class="area">양자화학</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">① 플랑크
+<div class="q" id="q41"><div class="qh"><span class="qno">문제 41</span><span class="area">양자화학</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">① 플랑크
 막스플랑크는 1918년 노벨물리학상을 받았다.</p>
 <p class="step">흑체복사에 대해 연구하였으며 플랑크상수를 발견하였고, 에너지가 양자화되어있음을 밝혔다.</p>
 <p class="step">1957년부터 1973년까지 독일 2마르크 동전모델이기도 했다.</p>
@@ -395,21 +397,21 @@ a=1이라고 가정하면 (z=2, a=1, y=4, x=3)이다.</p></div>
 <p class="step">지도교수는 아인슈타인에게 전화를 걸어 국제전화로 통화하며 의논하기도했다.</p>
 <p class="step">32세에 박사학위를 취득하게 된 것이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 42</span><span class="area">파동성</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">빛의 입자성을 보여주는 실험은 광전효과이고, 전자의 파동성을 보여주는 실험은 금속 결정을 이용한 회절실험이다.</p></div>
+<div class="q" id="q42"><div class="qh"><span class="qno">문제 42</span><span class="area">파동성</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">빛의 입자성을 보여주는 실험은 광전효과이고, 전자의 파동성을 보여주는 실험은 금속 결정을 이용한 회절실험이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 43</span><span class="area">광전효과</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">빛의 세기를 2배로 하면, 광자의 양이 2배가 된다고 볼 수 있다.</p>
+<div class="q" id="q43"><div class="qh"><span class="qno">문제 43</span><span class="area">광전효과</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">빛의 세기를 2배로 하면, 광자의 양이 2배가 된다고 볼 수 있다.</p>
 <p class="step">빛의 파장이 일정하기 때문에 빛 에너지는 일정하고 전자들의 평균 운동에너지 또한 일정하다.</p>
 <p class="step">하지만 빛의 세기가 2배가 되어 광자의 양이 2배가 되었으니 방출되는 전자의 수는 2배이다.</p>
 <p class="step">② 2n, E이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 44</span><span class="area">물질파</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">드 브로이 물질파 λ=h/(mv)이므로 운동량(질량×속도)이 클수록 파장이 짧다.</p>
+<div class="q" id="q44"><div class="qh"><span class="qno">문제 44</span><span class="area">물질파</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">드 브로이 물질파 λ=h/(mv)이므로 운동량(질량×속도)이 클수록 파장이 짧다.</p>
 <p class="step">전자현미경은 전자의 짧은 파장(고분해능)을 이용한다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 45</span><span class="area">에너지</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">E=hυ 이다.</p>
+<div class="q" id="q45"><div class="qh"><span class="qno">문제 45</span><span class="area">에너지</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">E=hυ 이다.</p>
 <p class="step">파장이 560nm에서 280nm로 줄었다는 것은 광자 1개당 에너지가 2배로 증가했다는 것을 의미한다.</p>
 <p class="step">100W로 일률이 동일한 램프에서 광자 1개당 에너지가 2배로 증가했다면 방출하는 광자수는 절반으로 줄어든다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 46</span><span class="area">양자수</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">오비탈과 양자수는 다음과 같다.</p>
+<div class="q" id="q46"><div class="qh"><span class="qno">문제 46</span><span class="area">양자수</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">오비탈과 양자수는 다음과 같다.</p>
 <p class="step">1) 주양자수 : 껍질수 (n=1, 2, 3, 4, …)
  2) 부양자수 : 오비탈의 종류 (l=0, 1, 2, 3, …)
  3) 자기양자수 : 오비탈()
@@ -417,61 +419,57 @@ a=1이라고 가정하면 (z=2, a=1, y=4, x=3)이다.</p></div>
 주양자수 n에 가능한 부양자수는 l=n-1이고, , 이다.</p>
 <p class="step">따라서 ① 에서 주양자수가 1이면 부양자수는 0만 가능하다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 47</span><span class="area">에너지준위</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">일전자계 오비탈의 에너지 준위 :1s&lt;2s=2p&lt;3s=3p=3d&lt;4s=4p=4d=4f
+<div class="q" id="q47"><div class="qh"><span class="qno">문제 47</span><span class="area">에너지준위</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">일전자계 오비탈의 에너지 준위 :1s&lt;2s=2p&lt;3s=3p=3d&lt;4s=4p=4d=4f
 다전자계 오비탈의 에너지 준위 :1s&lt;2s&lt;2p&lt;3s&lt;3p&lt;★4s&lt;3d★&lt;4p</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 48</span><span class="area">양자수</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">P에 존재하는 홀전자는 3p(3,1)에 존재한다.</p>
-<p class="step">Cr⁺에 존재하는 홀전자는 3d(3,2)에 존재한다.</p></div>
+<div class="q" id="q48"><div class="qh"><span class="qno">문제 48</span><span class="area">양자수</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">P에 존재하는 홀전자는 3p(3,1)에 존재한다.</p>
+<p class="step">Cr<sup>+</sup>에 존재하는 홀전자는 3d(3,2)에 존재한다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 49</span><span class="area">홀전자수</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">① ₃₃As: [Ar]4s²3d¹⁰4p³
-② ₃₅Br: [Ar]4s²3d¹⁰4p⁵
-③ ₅₂Te: [Kr]5s²4d¹⁰5p⁴
-④ ₃₉Y: [Kr]5s²4d¹
+<div class="q" id="q49"><div class="qh"><span class="qno">문제 49</span><span class="area">홀전자수</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">① <sub>33</sub>As: [Ar]4s<sup>2</sup>3d<sup>10</sup>4p<sup>3</sup>
+② <sub>35</sub>Br: [Ar]4s<sup>2</sup>3d<sup>10</sup>4p<sup>5</sup>
+③ <sub>52</sub>Te: [Kr]5s<sup>2</sup>4d<sup>10</sup>5p<sup>4</sup>
+④ <sub>39</sub>Y: [Kr]5s<sup>2</sup>4d<sup>1</sup>
 홀전자가 2개인인 원소는 Te이다.</p>
 <p class="step">전자배치를 그려보지 않더라도 1,2,13,14,15,16,17,18족의 홀전자수는 10123210이다.</p>
 <p class="step">보기를 보고 10123210을 생각한다면, 2개의 홀전자인 14족 또는 16족을 고르면 된다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 50</span><span class="area">전자배치</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">들뜬 상태 중 가장 안정한 전자배치는 이다.</p></div>
+<div class="q" id="q50"><div class="qh"><span class="qno">문제 50</span><span class="area">전자배치</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">들뜬 상태 중 가장 안정한 전자배치는 이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 51</span><span class="area">원자반지름</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">원자반지름은 주기율표 왼쪽, 아래로 갈수록 크다.</p>
+<div class="q" id="q51"><div class="qh"><span class="qno">문제 51</span><span class="area">원자반지름</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">원자반지름은 주기율표 왼쪽, 아래로 갈수록 크다.</p>
 <p class="step">① Si ② Mg ③ O ④ C 중 가장 왼쪽, 아래에 있는 원소는 Mg이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 52</span><span class="area">이온반지름</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">O²⁻, F⁻, Ne, Na⁺는 모두 전자배치가 동일하다.</p>
+<div class="q" id="q52"><div class="qh"><span class="qno">문제 52</span><span class="area">이온반지름</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">O<sup>2-</sup>, F<sup>-</sup>, Ne, Na<sup>+</sup>는 모두 전자배치가 동일하다.</p>
 <p class="step">껍질 수가 작거나 핵 전하량이 크면 반지름이 작다.</p>
-<p class="step">따라서 O²⁻, F⁻, Ne, Na⁺ 순으로 반지름이 작아진다.</p></div>
+<p class="step">따라서 O<sup>2-</sup>, F<sup>-</sup>, Ne, Na<sup>+</sup> 순으로 반지름이 작아진다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 53</span><span class="area">이온화에너지</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">"1차 이온화 에너지"의 정의는 기체 상태의 중성원자 1개에서 전자 1개 떼어낼 때 흡수하는 에너지 이다.</p>
-<p class="step">이 정의에 해당하는 식은 ④ Na(g) → Na⁺(g) + e⁻이다.</p></div>
+<div class="q" id="q53"><div class="qh"><span class="qno">문제 53</span><span class="area">이온화에너지</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">"1차 이온화 에너지"의 정의는 기체 상태의 중성원자 1개에서 전자 1개 떼어낼 때 흡수하는 에너지 이다.</p>
+<p class="step">이 정의에 해당하는 식은 ④ Na(g) → Na<sup>+</sup>(g) + e<sup>-</sup>이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 54</span><span class="area">이온화에너지</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">2주기 원소의 1차 이온화 에너지 값은 다음과 같다.</p>
+<div class="q" id="q54"><div class="qh"><span class="qno">문제 54</span><span class="area">이온화에너지</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">2주기 원소의 1차 이온화 에너지 값은 다음과 같다.</p>
 <p class="step">Li&lt;B&lt;Be&lt;C&lt;O&lt;N&lt;F&lt;Ne</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 55</span><span class="area">순차적이온화에너지</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">제1차이온화에너지가 801kJ/mol 이므로 B이다.</p>
-<p class="step">IE₁&lt;IE₂&lt;IE₃&lt;&lt;IE₄이므로 13족임을 알 수 있다.</p>
+<div class="q" id="q55"><div class="qh"><span class="qno">문제 55</span><span class="area">순차적이온화에너지</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">제1차이온화에너지가 801kJ/mol 이므로 B이다.</p>
+<p class="step">IE<sub>1</sub>&lt;IE<sub>2</sub>&lt;IE<sub>3</sub>&lt;&lt;IE<sub>4</sub>이므로 13족임을 알 수 있다.</p>
 <p class="step">보기 중 13족인 것은 B이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 56</span><span class="area">순차적이온화에너지</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">금속원자 M은 일차이온화에너지가 578kJ/mol이다.</p>
-<p class="step">IE₃&lt;&lt;IE₄이므로 13족이다.</p>
+<div class="q" id="q56"><div class="qh"><span class="qno">문제 56</span><span class="area">순차적이온화에너지</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">금속원자 M은 일차이온화에너지가 578kJ/mol이다.</p>
+<p class="step">IE<sub>3</sub>&lt;&lt;IE<sub>4</sub>이므로 13족이다.</p>
 <p class="step">금속원자 M=Al이다.</p>
-<p class="step">3주기에 속하는 원자의 전자배치가 [Ar]과 같은 음이온들 P³⁻, S²⁻, Cl⁻ 중 반지름이 가장 작은 것은 핵전하량이 큰 Cl이다.</p>
-<p class="step">M과 X의 화합물은 AlCl₃이다.</p></div>
+<p class="step">3주기에 속하는 원자의 전자배치가 [Ar]과 같은 음이온들 P<sup>3-</sup>, S<sup>2-</sup>, Cl<sup>-</sup> 중 반지름이 가장 작은 것은 핵전하량이 큰 Cl이다.</p>
+<p class="step">M과 X의 화합물은 AlCl<sub>3</sub>이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 57</span><span class="area">주기적성질</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">가.</p>
-<p class="step">반지름의 크기는 순이다.</p>
+<div class="q" id="q57"><div class="qh"><span class="qno">문제 57</span><span class="area">주기적성질</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">가. 반지름의 크기는 순이다.</p>
 <p class="step">⇒ 옳은 설명, 위의 물질들의 전자배치는 모두 Ne과 동일하다.</p>
 <p class="step">등전자인 경우 껍질 수가 동일하기 때문에 핵 전하량이 클수록 반지름이 작다.</p>
-<p class="step">나.</p>
-<p class="step">위의 화학종에서 전자를 1개 떼어내는데 필요한 에너지는
+<p class="step">나. 위의 화학종에서 전자를 1개 떼어내는데 필요한 에너지는
  순이다.</p>
 <p class="step">⇒ 옳은 설명, 위의 물질들은 동일한 전자배치를 가지고 있기 때문에 핵 전하량이 클수록 전자를 떼어내는 데 필요한 에너지가 커진다.</p>
-<p class="step">다.</p>
-<p class="step">전자의 수는 순이다.</p>
+<p class="step">다. 전자의 수는 순이다.</p>
 <p class="step">⇒ 틀린 설명, 위의 물질들은 Ne의 전자배치를 가진다.</p>
-<p class="step">라.</p>
-<p class="step">양성자수는 순이다.</p>
+<p class="step">라. 양성자수는 순이다.</p>
 <p class="step">⇒ 틀린 설명, 양성자수는 순이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 58</span><span class="area">전자친화도</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">① 양이온의 반지름은 해당 원자 반지름보다 크다.</p>
+<div class="q" id="q58"><div class="qh"><span class="qno">문제 58</span><span class="area">전자친화도</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">① 양이온의 반지름은 해당 원자 반지름보다 크다.</p>
 <p class="step">⇒ 틀린 설명, 금속은 양이온이 잘 되고 원자반지름이 이온반지름보다 크고 비금속은 음이온이 잘 되고 원자반지름보다 이온반지름이 더 크다.</p>
 <p class="step">② 원자 반지름의 크기는 F &lt; Cl &lt; S 순서이다.</p>
 <p class="step">⇒ 옳은 설명, F와 Cl을 비교하면 F가 2주기, Cl이 3주기이므로 껍질수가 크면 반지름이 크다.</p>
@@ -482,12 +480,12 @@ a=1이라고 가정하면 (z=2, a=1, y=4, x=3)이다.</p></div>
 <p class="step">④ 원자의 전자배치는 항상 주양자수(n) 값이 작은 것부터 채워진다.</p>
 <p class="step">⇒ 틀린 설명, 다전자원자의 전자배치에서는 1s&lt;2s&lt;2p&lt;3s&lt;3p&lt;4s&lt;3d&lt;4p&lt;5s 순이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 59</span><span class="area">전기음성도</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">전기 음성도(electronegativity)
+<div class="q" id="q59"><div class="qh"><span class="qno">문제 59</span><span class="area">전기음성도</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">전기 음성도(electronegativity)
 : 공유전자쌍을 잡아당기는 상대적인 힘(기준: 플루오린, F 4.0)
 ① 전기음성도 순서
 : F &gt; O &gt; Cl &gt; N &gt; Br &gt; I &gt; S &gt; C &gt; H &gt; P</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 60</span><span class="area">전기음성도</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">① 2 주기에서 오른쪽으로 갈수록 전기음성도는 증가한다.</p>
+<div class="q" id="q60"><div class="qh"><span class="qno">문제 60</span><span class="area">전기음성도</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">① 2 주기에서 오른쪽으로 갈수록 전기음성도는 증가한다.</p>
 <p class="step">⇒ 옳은 설명, 전기음성도는 2주기에서 오른쪽으로 갈수록 약 0.5씩 커진다.</p>
 <p class="step">② 2 주기에서 오른쪽으로 갈수록 1차 이온화 에너지는 감소한다.</p>
 <p class="step">⇒ 틀린 설명, 2주기에서 1차 이온화 에너지는 Li&lt;B&lt;Be&lt;C&lt;O&lt;N&lt;F&lt;Ne 순이다.</p>

@@ -25,11 +25,24 @@ th{background:#f1eee7;font-weight:700}
 .area{font-size:12.5px;color:var(--ink2);background:#f1eee7;border-radius:99px;padding:2px 9px}
 .ans{margin-left:auto;font-weight:700;color:var(--ms)}
 .sol{font-size:14.5px}
+/* 해설 본문이 실제로 입는 옷 — answers/*.json 의 explanationHtml 이
+   <h4>·.step·.k(정답 근거)·.x(오답 표시) 를 쓰는데 여기 옷이 없으면
+   해설지에서만 맨몸으로 나간다(final.html 은 제 옷이 따로 있다). */
+.sol h4{margin:12px 0 5px;color:var(--teal);font-size:13.5px;letter-spacing:.02em}
+.sol p.step{margin:6px 0;white-space:pre-wrap}
+.sol .k{color:var(--teal);font-weight:700}
+.sol .x{color:var(--ms);font-weight:700}
 .tip{margin-top:9px;padding:9px 11px;border-left:3px solid var(--gold);background:#faf7f1;
  font-size:13.5px;color:var(--ink2)}
 .rev{margin-top:9px;padding:9px 11px;border-left:3px solid var(--ms);background:#fdf3ef;
  font-size:13px;color:#8a3a1d}
-@media print{body{background:#fff}.q{break-inside:avoid}}
+/* 정답표 → 그 문항 해설로 건너뛰는 길. 표가 세로 2,000px 를 넘는 회차가
+   많아 표에서 해설까지 손가락으로 미는 거리가 너무 멀었다. */
+td a.jump{color:var(--teal);text-decoration:none;font-weight:700}
+td a.jump:hover{text-decoration:underline}
+.q{scroll-margin-top:14px}
+.q:target{border-color:var(--teal);box-shadow:0 0 0 2px rgba(14,90,76,.18)}
+@media print{body{background:#fff}.q{break-inside:avoid}.warn{display:none}}
 
 .source-assets{max-width:860px;margin:14px auto 0;padding:0 20px;display:flex;gap:8px;flex-wrap:wrap}
 .source-assets a{display:inline-flex;align-items:center;padding:8px 11px;border:1px solid var(--line);
@@ -59,360 +72,411 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="sub" style="margin-top:6px">문제 지문은 문제지(PDF)에 있습니다 — 성적표 화면에서 함께 내려받을 수 있습니다.</div><a class="back" href="final.html">‹ 파이널로</a></header>
 <nav class="source-assets" aria-label="시험 자료 직접 다운로드"><a href="jmchc-4-problem.pdf" download>공식 문제 PDF ↓</a><a href="jmchc-4-answer.pdf" download>공식 정답 PDF ↓</a></nav>
 <main><h3>정답 · 영역 · 개념</h3><table><thead><tr><th scope="col">문항</th><th scope="col">정답</th><th scope="col">영역</th><th scope="col">개념(유형)</th></tr></thead><tbody>
-<tr><td>1</td><td>①</td><td>원자모형</td><td>톰슨</td></tr>
-<tr><td>2</td><td>③</td><td>전자기파</td><td>마이크로파</td></tr>
-<tr><td>3</td><td>①</td><td>전자기파</td><td>에너지간격</td></tr>
-<tr><td>4</td><td>②</td><td>전자기파</td><td>파장</td></tr>
-<tr><td>5</td><td>④</td><td>전자기파</td><td>에너지크기</td></tr>
-<tr><td>6</td><td>②</td><td>수소스펙트럼</td><td>계열</td></tr>
-<tr><td>7</td><td>④</td><td>수소스펙트럼</td><td>전자전이</td></tr>
-<tr><td>8</td><td>④</td><td>수소스펙트럼</td><td>에너지비</td></tr>
-<tr><td>9</td><td>②</td><td>원자모형</td><td>양자화학</td></tr>
-<tr><td>10</td><td>②</td><td>원자모형</td><td>광전효과</td></tr>
-<tr><td>11</td><td>②</td><td>원자모형</td><td>광전효과</td></tr>
-<tr><td>12</td><td>①</td><td>양자수</td><td>양자수</td></tr>
-<tr><td>13</td><td>③</td><td>양자수</td><td>양자수</td></tr>
-<tr><td>14</td><td>③</td><td>전자배치</td><td>에너지</td></tr>
-<tr><td>15</td><td>①</td><td>양자수</td><td>들뜬상태</td></tr>
-<tr><td>16</td><td>③</td><td>전자배치</td><td>전자배치</td></tr>
-<tr><td>17</td><td>②</td><td>전자배치</td><td>금속</td></tr>
-<tr><td>18</td><td>④</td><td>원자반지름</td><td>반지름</td></tr>
-<tr><td>19</td><td>④</td><td>원자반지름</td><td>원소기호</td></tr>
-<tr><td>20</td><td>②</td><td>원자반지름</td><td>반지름</td></tr>
-<tr><td>21</td><td>④</td><td>원자반지름</td><td>이온반지름</td></tr>
-<tr><td>22</td><td>③</td><td>원자반지름</td><td>이온반지름</td></tr>
-<tr><td>23</td><td>③</td><td>원자반지름</td><td>이온반지름</td></tr>
-<tr><td>24</td><td>③</td><td>원자반지름</td><td>등전자이온</td></tr>
-<tr><td>25</td><td>④</td><td>이온화에너지</td><td>이온화에너지 정의</td></tr>
-<tr><td>26</td><td>④</td><td>이온화에너지</td><td>이온화에너지</td></tr>
-<tr><td>27</td><td>②</td><td>이온화에너지</td><td>순차적이온화에너지</td></tr>
-<tr><td>28</td><td>③</td><td>이온화에너지</td><td>순차적이온화에너지</td></tr>
-<tr><td>29</td><td>④</td><td>이온화에너지</td><td>순차적이온화에너지</td></tr>
-<tr><td>30</td><td>①</td><td>이온화에너지</td><td>크기비교</td></tr>
-<tr><td>31</td><td>③</td><td>이온화에너지</td><td>특징</td></tr>
-<tr><td>32</td><td>①</td><td>이온화에너지</td><td>전자친화도</td></tr>
-<tr><td>33</td><td>③</td><td>이온화에너지</td><td>수소</td></tr>
-<tr><td>34</td><td>①</td><td>전기음성도</td><td>전기음성도</td></tr>
-<tr><td>35</td><td>③</td><td>이온화에너지</td><td>성질</td></tr>
-<tr><td>36</td><td>전원정답</td><td>전기음성도</td><td>크기비교</td></tr>
-<tr><td>37</td><td>③</td><td>이온화에너지</td><td>본하버순환</td></tr>
-<tr><td>38</td><td>③</td><td>전기음성도</td><td>격자에너지</td></tr>
-<tr><td>39</td><td>④</td><td>화학결합</td><td>정전기력</td></tr>
-<tr><td>40</td><td>②</td><td>분자의구조</td><td>비공유전자쌍</td></tr>
-<tr><td>41</td><td>①</td><td>옥텟규칙</td><td>옥텟규칙</td></tr>
-<tr><td>42</td><td>③</td><td>전기음성도</td><td>형식전하</td></tr>
-<tr><td>43</td><td>③</td><td>전기음성도</td><td>형식전하</td></tr>
-<tr><td>44</td><td>②</td><td>분자의모양</td><td>결합각</td></tr>
-<tr><td>45</td><td>③</td><td>분자의모양</td><td>전자</td></tr>
-<tr><td>46</td><td>③</td><td>옥텟규칙</td><td>결합각</td></tr>
-<tr><td>47</td><td>①</td><td>분자의모양</td><td>결합각</td></tr>
-<tr><td>48</td><td>①</td><td>분자의모양</td><td>결합각</td></tr>
-<tr><td>49</td><td>①</td><td>옥텟규칙</td><td>루이스구조</td></tr>
-<tr><td>50</td><td>④</td><td>분자의구조</td><td>비공유전자쌍</td></tr>
-<tr><td>51</td><td>④</td><td>분자의모양</td><td>분자의모양</td></tr>
-<tr><td>52</td><td>②</td><td>분자의모양</td><td>결합각</td></tr>
-<tr><td>53</td><td>④</td><td>분자의모양</td><td>직선구조</td></tr>
-<tr><td>54</td><td>①</td><td>분자의모양</td><td>삼각피라미드</td></tr>
-<tr><td>55</td><td>③</td><td>분자의모양</td><td>분자의모양</td></tr>
-<tr><td>56</td><td>②</td><td>분자의모양</td><td>분자의모양</td></tr>
-<tr><td>57</td><td>②</td><td>분자의모양</td><td>분자의모양</td></tr>
-<tr><td>58</td><td>④</td><td>혼성오비탈</td><td>혼성오비탈</td></tr>
-<tr><td>59</td><td>②</td><td>혼성오비탈</td><td>혼성오비탈</td></tr>
-<tr><td>60</td><td>④</td><td>혼성오비탈</td><td>혼성오비탈</td></tr>
+<tr><td><a class="jump" href="#q1">1</a></td><td>①</td><td>원자모형</td><td>톰슨</td></tr>
+<tr><td><a class="jump" href="#q2">2</a></td><td>③</td><td>전자기파</td><td>마이크로파</td></tr>
+<tr><td><a class="jump" href="#q3">3</a></td><td>①</td><td>전자기파</td><td>에너지간격</td></tr>
+<tr><td><a class="jump" href="#q4">4</a></td><td>②</td><td>전자기파</td><td>파장</td></tr>
+<tr><td><a class="jump" href="#q5">5</a></td><td>④</td><td>전자기파</td><td>에너지크기</td></tr>
+<tr><td><a class="jump" href="#q6">6</a></td><td>②</td><td>수소스펙트럼</td><td>계열</td></tr>
+<tr><td><a class="jump" href="#q7">7</a></td><td>④</td><td>수소스펙트럼</td><td>전자전이</td></tr>
+<tr><td><a class="jump" href="#q8">8</a></td><td>④</td><td>수소스펙트럼</td><td>에너지비</td></tr>
+<tr><td><a class="jump" href="#q9">9</a></td><td>②</td><td>원자모형</td><td>양자화학</td></tr>
+<tr><td><a class="jump" href="#q10">10</a></td><td>②</td><td>원자모형</td><td>광전효과</td></tr>
+<tr><td><a class="jump" href="#q11">11</a></td><td>②</td><td>원자모형</td><td>광전효과</td></tr>
+<tr><td><a class="jump" href="#q12">12</a></td><td>①</td><td>양자수</td><td>양자수</td></tr>
+<tr><td><a class="jump" href="#q13">13</a></td><td>③</td><td>양자수</td><td>양자수</td></tr>
+<tr><td><a class="jump" href="#q14">14</a></td><td>③</td><td>전자배치</td><td>에너지</td></tr>
+<tr><td><a class="jump" href="#q15">15</a></td><td>①</td><td>양자수</td><td>들뜬상태</td></tr>
+<tr><td><a class="jump" href="#q16">16</a></td><td>③</td><td>전자배치</td><td>전자배치</td></tr>
+<tr><td><a class="jump" href="#q17">17</a></td><td>②</td><td>전자배치</td><td>금속</td></tr>
+<tr><td><a class="jump" href="#q18">18</a></td><td>④</td><td>원자반지름</td><td>반지름</td></tr>
+<tr><td><a class="jump" href="#q19">19</a></td><td>④</td><td>원자반지름</td><td>원소기호</td></tr>
+<tr><td><a class="jump" href="#q20">20</a></td><td>②</td><td>원자반지름</td><td>반지름</td></tr>
+<tr><td><a class="jump" href="#q21">21</a></td><td>④</td><td>원자반지름</td><td>이온반지름</td></tr>
+<tr><td><a class="jump" href="#q22">22</a></td><td>③</td><td>원자반지름</td><td>이온반지름</td></tr>
+<tr><td><a class="jump" href="#q23">23</a></td><td>③</td><td>원자반지름</td><td>이온반지름</td></tr>
+<tr><td><a class="jump" href="#q24">24</a></td><td>③</td><td>원자반지름</td><td>등전자이온</td></tr>
+<tr><td><a class="jump" href="#q25">25</a></td><td>④</td><td>이온화에너지</td><td>이온화에너지 정의</td></tr>
+<tr><td><a class="jump" href="#q26">26</a></td><td>④</td><td>이온화에너지</td><td>이온화에너지</td></tr>
+<tr><td><a class="jump" href="#q27">27</a></td><td>②</td><td>이온화에너지</td><td>순차적이온화에너지</td></tr>
+<tr><td><a class="jump" href="#q28">28</a></td><td>③</td><td>이온화에너지</td><td>순차적이온화에너지</td></tr>
+<tr><td><a class="jump" href="#q29">29</a></td><td>④</td><td>이온화에너지</td><td>순차적이온화에너지</td></tr>
+<tr><td><a class="jump" href="#q30">30</a></td><td>①</td><td>이온화에너지</td><td>크기비교</td></tr>
+<tr><td><a class="jump" href="#q31">31</a></td><td>③</td><td>이온화에너지</td><td>특징</td></tr>
+<tr><td><a class="jump" href="#q32">32</a></td><td>①</td><td>이온화에너지</td><td>전자친화도</td></tr>
+<tr><td><a class="jump" href="#q33">33</a></td><td>③</td><td>이온화에너지</td><td>수소</td></tr>
+<tr><td><a class="jump" href="#q34">34</a></td><td>①</td><td>전기음성도</td><td>전기음성도</td></tr>
+<tr><td><a class="jump" href="#q35">35</a></td><td>③</td><td>이온화에너지</td><td>성질</td></tr>
+<tr><td><a class="jump" href="#q36">36</a></td><td>전원정답</td><td>전기음성도</td><td>크기비교</td></tr>
+<tr><td><a class="jump" href="#q37">37</a></td><td>③</td><td>이온화에너지</td><td>본하버순환</td></tr>
+<tr><td><a class="jump" href="#q38">38</a></td><td>③</td><td>전기음성도</td><td>격자에너지</td></tr>
+<tr><td><a class="jump" href="#q39">39</a></td><td>④</td><td>화학결합</td><td>정전기력</td></tr>
+<tr><td><a class="jump" href="#q40">40</a></td><td>②</td><td>분자의구조</td><td>비공유전자쌍</td></tr>
+<tr><td><a class="jump" href="#q41">41</a></td><td>①</td><td>옥텟규칙</td><td>옥텟규칙</td></tr>
+<tr><td><a class="jump" href="#q42">42</a></td><td>③</td><td>전기음성도</td><td>형식전하</td></tr>
+<tr><td><a class="jump" href="#q43">43</a></td><td>③</td><td>전기음성도</td><td>형식전하</td></tr>
+<tr><td><a class="jump" href="#q44">44</a></td><td>②</td><td>분자의모양</td><td>결합각</td></tr>
+<tr><td><a class="jump" href="#q45">45</a></td><td>③</td><td>분자의모양</td><td>전자</td></tr>
+<tr><td><a class="jump" href="#q46">46</a></td><td>③</td><td>옥텟규칙</td><td>결합각</td></tr>
+<tr><td><a class="jump" href="#q47">47</a></td><td>①</td><td>분자의모양</td><td>결합각</td></tr>
+<tr><td><a class="jump" href="#q48">48</a></td><td>①</td><td>분자의모양</td><td>결합각</td></tr>
+<tr><td><a class="jump" href="#q49">49</a></td><td>①</td><td>옥텟규칙</td><td>루이스구조</td></tr>
+<tr><td><a class="jump" href="#q50">50</a></td><td>④</td><td>분자의구조</td><td>비공유전자쌍</td></tr>
+<tr><td><a class="jump" href="#q51">51</a></td><td>④</td><td>분자의모양</td><td>분자의모양</td></tr>
+<tr><td><a class="jump" href="#q52">52</a></td><td>②</td><td>분자의모양</td><td>결합각</td></tr>
+<tr><td><a class="jump" href="#q53">53</a></td><td>④</td><td>분자의모양</td><td>직선구조</td></tr>
+<tr><td><a class="jump" href="#q54">54</a></td><td>①</td><td>분자의모양</td><td>삼각피라미드</td></tr>
+<tr><td><a class="jump" href="#q55">55</a></td><td>③</td><td>분자의모양</td><td>분자의모양</td></tr>
+<tr><td><a class="jump" href="#q56">56</a></td><td>②</td><td>분자의모양</td><td>분자의모양</td></tr>
+<tr><td><a class="jump" href="#q57">57</a></td><td>②</td><td>분자의모양</td><td>분자의모양</td></tr>
+<tr><td><a class="jump" href="#q58">58</a></td><td>④</td><td>혼성오비탈</td><td>혼성오비탈</td></tr>
+<tr><td><a class="jump" href="#q59">59</a></td><td>②</td><td>혼성오비탈</td><td>혼성오비탈</td></tr>
+<tr><td><a class="jump" href="#q60">60</a></td><td>④</td><td>혼성오비탈</td><td>혼성오비탈</td></tr>
 </tbody></table>
 <h3>문항별 사고과정</h3>
-<div class="q"><div class="qh"><span class="qno">문제 1</span><span class="area">톰슨</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">음극선이 <b>음극 물질과 무관하게 동일</b> = 모든 원자에 공통으로 들어있는 입자(전자)가 존재한다는 뜻.</p>
-    <p class="step">즉 원자가 더 작은 입자(전자)로 <b>나뉠 수 있음</b>을 의미. → <b>①</b></p>
-    <p class="step">② 러더포드, ③ 채드윅, ④ 모즐리의 발견으로 톰슨 실험과 무관하다.</p>
-    <div class="tip">"물질 종류와 무관하게 같다" = 보편적 구성 입자 = 전자. 톰슨의 전자 발견이 원자 가분성의 첫 증거다.</div></div>
+<div class="q" id="q1"><div class="qh"><span class="qno">문제 1</span><span class="area">톰슨</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">음극선이 음극 물질과 무관하게 동일 = 모든 원자에 공통으로 들어있는 입자(전자)가 존재한다는 뜻.</p>
+<p class="step">즉 원자가 더 작은 입자(전자)로 나뉠 수 있음을 의미.</p>
+<p class="step">→ <b>①</b></p>
+<div class="tip">② 러더포드, ③ 채드윅, ④ 모즐리의 발견으로 톰슨 실험과 무관하다. "물질 종류와 무관하게 같다" = 보편적 구성 입자 = 전자. 톰슨의 전자 발견이 원자 가분성의 첫 증거다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 2</span><span class="area">마이크로파</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">마이크로파는 분자의 <b>회전 운동</b> 에너지 간격에 해당한다. 물 분자가 마이크로파를 흡수해 회전이 빨라지며 열로 전환된다. → <b>③</b></p>
-    <div class="tip">에너지 순서: 회전(마이크로파) &lt; 진동(적외선) &lt; 전자(가시·자외선). 전자레인지가 물을 데우는 원리.</div></div>
+<div class="q" id="q2"><div class="qh"><span class="qno">문제 2</span><span class="area">마이크로파</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">마이크로파는 분자의 회전 운동 에너지 간격에 해당한다.</p>
+<p class="step">물 분자가 마이크로파를 흡수해 회전이 빨라지며 열로 전환된다.</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">에너지 순서: 회전(마이크로파) &lt; 진동(적외선) &lt; 전자(가시·자외선). 전자레인지가 물을 데우는 원리.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 3</span><span class="area">에너지간격</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">에너지 간격: <b>전자 전이</b> &gt; 진동 &gt; 회전 &gt; 병진. 전자 전이가 가장 크다. → <b>①</b></p>
-    <div class="tip">각 운동에 대응하는 빛: 전자(가시·자외선), 진동(적외선), 회전(마이크로파). 파장이 짧을수록 에너지 간격이 크다.</div></div>
+<div class="q" id="q3"><div class="qh"><span class="qno">문제 3</span><span class="area">에너지간격</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">에너지 간격: 전자 전이 &gt; 진동 &gt; 회전 &gt; 병진.</p>
+<p class="step">전자 전이가 가장 크다.</p>
+<p class="step">→ <b>①</b></p>
+<div class="tip">각 운동에 대응하는 빛: 전자(가시·자외선), 진동(적외선), 회전(마이크로파). 파장이 짧을수록 에너지 간격이 크다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 4</span><span class="area">파장</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">파장 긴 순: 라디오 전파 &gt; <b>마이크로파</b> &gt; 빨간 빛 &gt; 자외선. 가장 긴 것은 라디오, 두 번째는 마이크로파. → <b>②</b></p>
-    <div class="tip">전자기파 파장(긴 순): 라디오 &gt; 마이크로파 &gt; 적외선 &gt; 가시광(빨강~보라) &gt; 자외선 &gt; X선 &gt; 감마선.</div></div>
+<div class="q" id="q4"><div class="qh"><span class="qno">문제 4</span><span class="area">파장</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">파장 긴 순: 라디오 전파 &gt; 마이크로파 &gt; 빨간 빛 &gt; 자외선.</p>
+<p class="step">가장 긴 것은 라디오, 두 번째는 마이크로파.</p>
+<p class="step">→ <b>②</b></p>
+<div class="tip">전자기파 파장(긴 순): 라디오 &gt; 마이크로파 &gt; 적외선 &gt; 가시광(빨강~보라) &gt; 자외선 &gt; X선 &gt; 감마선.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 5</span><span class="area">에너지크기</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q5"><div class="qh"><span class="qno">문제 5</span><span class="area">에너지크기</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">다(이온화, 전자 제거) ≫ 가(결합 끊기) ≫ 나(회전). 이온화 에너지가 결합에너지보다 크고, 회전은 매우 작다.</p>
     <p class="step">큰 순서: <span class="k">다 &gt; 가 &gt; 나</span>. → <b>④</b></p>
     <div class="tip">전자를 완전히 떼는 이온화가 가장 큰 에너지. 결합 끊기는 그다음, 회전 빠르게 하기는 가장 작다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 6</span><span class="area">계열</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">n → 2 전이가 <b>가시광선</b>(발머 계열). → <b>②</b></p>
-    <div class="tip">계열별 도달 준위: 라이먼(→1, 자외선), <b>발머(→2, 가시광선)</b>, 파셴(→3, 적외선).</div></div>
+<div class="q" id="q6"><div class="qh"><span class="qno">문제 6</span><span class="area">계열</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">n → 2 전이가 가시광선(발머 계열).</p>
+<p class="step">→ <b>②</b></p>
+<div class="tip">계열별 도달 준위: 라이먼(→1, 자외선), 발머(→2, 가시광선), 파셴(→3, 적외선).</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 7</span><span class="area">전자전이</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">(a)·(b) 모두 낮은 준위로 내려가는 <b>방출</b>. 더 긴 파장 = 작은 에너지 = 준위 간격이 좁은 (b)(n=3→2).</p>
-    <p class="step">(A) = 방출, (B) = (b). → <b>④</b></p>
-    <div class="tip">바닥 근처 전이(n=2→1)는 에너지가 크고 파장이 짧다. 위쪽 인접 전이(n=3→2)가 파장이 길다.</div></div>
+<div class="q" id="q7"><div class="qh"><span class="qno">문제 7</span><span class="area">전자전이</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">(a)·(b) 모두 낮은 준위로 내려가는 방출.</p>
+<p class="step">더 긴 파장 = 작은 에너지 = 준위 간격이 좁은 (b)(n=3→2).</p>
+<p class="step">(A) = 방출, (B) = (b).</p>
+<p class="step">→ <b>④</b></p>
+<div class="tip">바닥 근처 전이(n=2→1)는 에너지가 크고 파장이 짧다. 위쪽 인접 전이(n=3→2)가 파장이 길다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 8</span><span class="area">에너지비</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q8"><div class="qh"><span class="qno">문제 8</span><span class="area">에너지비</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">선들은 발머(n→2=d): z(656)=c→d, y(486)=b→d, x(434)=n5→d, w(410)=n6→d.</p>
     <p class="step"><span class="x">①</span> w는 n6→d(a→e 아님). <span class="x">②</span> z는 c→d(d→e 아님). <span class="x">③</span> E∝1/λ → 비는 486:434이지 4:9 아님.</p>
     <p class="step"><span class="k">④</span> 이온화(n=1→∞) 파장 = 1/R<sub>H</sub> ≈ 91 nm &lt; w(410 nm) → 더 짧다. 참. → <b>④</b></p>
     <div class="tip">이온화 에너지(R<sub>H</sub> 전체)는 가장 큰 에너지 = 가장 짧은 파장(≈91 nm). 가시광선 선들보다 훨씬 짧다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 9</span><span class="area">양자화학</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q9"><div class="qh"><span class="qno">문제 9</span><span class="area">양자화학</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">플랑크(양자 가설), 아인슈타인(광전효과), 드브로이(물질파)는 양자론의 기초를 놓았다.</p>
     <p class="step"><span class="x">볼츠만</span>은 19세기 <b>고전 통계역학·열역학</b>의 인물로 양자역학 창시와는 거리가 있다. → <b>②</b></p>
     <div class="tip">볼츠만의 업적(엔트로피·분자운동론)은 위대하지만 고전물리. 양자 창시 3인방은 플랑크·아인슈타인·드브로이(+보어).</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 10</span><span class="area">광전효과</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">광전효과에서 빛의 <b>세기(밝기)</b>는 광자의 개수를 결정 → 방출 전자 수 <b>n → 2n</b>.</p>
-    <p class="step">전자의 운동에너지는 빛의 <b>진동수</b>에만 의존(세기 무관) → <b>E 불변</b>. → <b>②</b></p>
-    <div class="tip">광전효과의 핵심: 세기 = 전자 수, 진동수 = 전자 에너지. 두 변수가 독립적이라는 점이 고전이론을 무너뜨렸다.</div></div>
+<div class="q" id="q10"><div class="qh"><span class="qno">문제 10</span><span class="area">광전효과</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">광전효과에서 빛의 세기(밝기)는 광자의 개수를 결정 → 방출 전자 수 n → 2n.</p>
+<p class="step">전자의 운동에너지는 빛의 진동수에만 의존(세기 무관) → E 불변.</p>
+<p class="step">→ <b>②</b></p>
+<div class="tip">광전효과의 핵심: 세기 = 전자 수, 진동수 = 전자 에너지. 두 변수가 독립적이라는 점이 고전이론을 무너뜨렸다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 11</span><span class="area">광전효과</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q11"><div class="qh"><span class="qno">문제 11</span><span class="area">광전효과</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">출력(W) = (광자 수) × (광자 1개 에너지 hc/λ). 같은 100W에서 <span class="eq">광자 수 ∝ λ</span>.</p>
     <p class="step">280 nm은 560 nm의 절반 파장 → 광자 1개 에너지 2배 → 광자 수는 절반. <span class="eq">(1/2)X</span>. → <b>②</b></p>
     <div class="tip">짧은 파장 = 에너지 큰 광자 = 같은 출력에 더 적은 개수. 출력이 같으니 개수와 파장이 비례한다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 12</span><span class="area">양자수</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q12"><div class="qh"><span class="qno">문제 12</span><span class="area">양자수</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">규칙: <span class="eq">l ≤ n−1</span>, <span class="eq">−l ≤ m<sub>l</sub> ≤ +l</span>, m<sub>s</sub> = ±½.</p>
     <p class="step"><span class="x">①</span> n=1이면 l은 0만 가능(l ≤ 0). l=1은 <b>불가</b>. → <b>①</b>. (②③④는 모두 규칙 만족)</p>
     <div class="tip">n=1 껍질엔 s 오비탈(l=0)만 존재. l 값이 n보다 작아야 한다는 게 첫 점검 사항.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 13</span><span class="area">양자수</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">P([Ne]3s²3p³): 홀전자 3개가 모두 <b>3p</b> → (n, l) = (3, 1).</p>
-    <p class="step">Cr<sup>+</sup>: Cr([Ar]3d⁵4s¹)에서 4s 전자가 빠져 <b>[Ar]3d⁵</b> → 홀전자 5개가 모두 <b>3d</b> → (3, 2). → <b>③</b></p>
-    <div class="tip">l 값: s=0, p=1, d=2. Cr은 3d⁵4s¹의 예외 배치라 Cr<sup>+</sup>는 3d⁵(홀전자 5개)이 된다.</div></div>
+<div class="q" id="q13"><div class="qh"><span class="qno">문제 13</span><span class="area">양자수</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">P([Ne]3s<sup>2</sup>3p<sup>3</sup>): 홀전자 3개가 모두 3p → (n, l) = (3, 1).</p>
+<p class="step">Cr+: Cr([Ar]3d<sup>5</sup>4s<sup>1</sup>)에서 4s 전자가 빠져 [Ar]3d<sup>5</sup> → 홀전자 5개가 모두 3d → (3, 2).</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">l 값: s=0, p=1, d=2. Cr은 3d<sup>5</sup>4s<sup>1</sup>의 예외 배치라 Cr+는 3d<sup>5</sup>(홀전자 5개)이 된다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 14</span><span class="area">에너지</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">홀전자 수: As(4p³)=3, Br(4p⁵)=1, <b>Te(5p⁴)=2</b>, Y(4d¹)=1.</p>
-    <p class="step">p⁴ 배치(↑↓,↑,↑)는 홀전자 2개. → <b>③</b></p>
-    <div class="tip">p⁴는 산소와 같은 패턴(홀전자 2개). 16족(O, S, Se, Te)이 모두 홀전자 2개를 가진다.</div></div>
+<div class="q" id="q14"><div class="qh"><span class="qno">문제 14</span><span class="area">에너지</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">홀전자 수: As(4p<sup>3</sup>)=3, Br(4p<sup>5</sup>)=1, Te(5p<sup>4</sup>)=2, Y(4d<sup>1</sup>)=1.</p>
+<p class="step">p<sup>4</sup> 배치(↑↓,↑,↑)는 홀전자 2개.</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">p<sup>4</sup>는 산소와 같은 패턴(홀전자 2개). 16족(O, S, Se, Te)이 모두 홀전자 2개를 가진다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 15</span><span class="area">들뜬상태</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q15"><div class="qh"><span class="qno">문제 15</span><span class="area">들뜬상태</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">오비탈: 가=3d, 나=5s, 다=4d, 라=4p. 다전자 원자의 쌓음 순서는 <span class="eq">3d &lt; 4p &lt; 5s &lt; 4d</span>.</p>
     <p class="step">따라서 가(3d) &lt; 라(4p) &lt; 나(5s) &lt; 다(4d). → <b>①</b></p>
     <div class="tip">쌓음 순서: ...4s 3d 4p 5s 4d 5p... (n+l 규칙). 5s가 4d보다 먼저 채워진다는 게 핵심.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 16</span><span class="area">전자배치</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q16"><div class="qh"><span class="qno">문제 16</span><span class="area">전자배치</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">①은 바닥상태(훈트 만족)라 "들뜬 상태"가 아니다. 들뜬 상태 ②④는 전자를 더 높은 오비탈(3s, 2p)로 <b>승위</b>시켜 에너지가 크다.</p>
     <p class="step"><span class="k">③</span>은 같은 바닥 배치(1s²2s²2p⁴)에서 훈트 규칙만 위반(짝지음) — 승위가 없어 <b>가장 작은 에너지의 들뜬 상태</b>. → <b>③</b></p>
     <div class="tip">들뜬 상태의 에너지: "오비탈 승위" ≫ "훈트 위반(짝지음 에너지)". 같은 배치 내 스핀 재배열이 가장 낮은 들뜬 상태다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 17</span><span class="area">금속</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">SnCO<sub>3</sub> = Sn<sup>2+</sup> + CO<sub>3</sub><sup>2−</sup>. Sn([Kr]4d¹⁰5s²5p²)에서 <b>5p² 두 개</b>가 빠져 Sn<sup>2+</sup> = [Kr]4d¹⁰5s². → <b>②</b></p>
-    <div class="tip">주족 금속은 이온화 시 최외각 p 전자가 먼저 빠진다. Sn<sup>2+</sup>은 5s²가 남아 [Kr]5s²4d¹⁰.</div></div>
+<div class="q" id="q17"><div class="qh"><span class="qno">문제 17</span><span class="area">금속</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">SnCO3 = Sn2+ + CO32−.</p>
+<p class="step">Sn([Kr]4d<sup>10</sup>5s<sup>2</sup>5p<sup>2</sup>)에서 5p<sup>2</sup> 두 개가 빠져 Sn2+ = [Kr]4d<sup>10</sup>5s<sup>2</sup>.</p>
+<p class="step">→ <b>②</b></p>
+<div class="tip">주족 금속은 이온화 시 최외각 p 전자가 먼저 빠진다. Sn2+은 5s<sup>2</sup>가 남아 [Kr]5s<sup>2</sup>4d<sup>10</sup>.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 18</span><span class="area">반지름</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q18"><div class="qh"><span class="qno">문제 18</span><span class="area">반지름</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step"><span class="x">①</span> 전자를 잘 내주는 강한 <b>환원제</b>. <span class="x">②</span> 이들은 <b>알칼리 금속</b>(1족)이지 토금속(2족)이 아님. <span class="x">③</span> 물과 격렬히 반응하므로 <b>기름 속</b>에 보관.</p>
     <p class="step"><span class="k">④</span> 각 주기의 맨 왼쪽이라 그 주기에서 원자 반경이 가장 크다. 참. → <b>④</b></p>
     <div class="tip">알칼리 금속(1족)은 주기 맨 왼쪽 = 최대 반경, 최저 이온화에너지, 강한 환원제. 보관은 기름 속.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 19</span><span class="area">원소기호</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step"><b>베르셀리우스</b>가 알파벳 기반의 현대적 원소 기호(H, O, Na 등)와 화학식 표기법을 도입했다. → <b>④</b></p>
-    <p class="step">멘델레예프(주기율표), 라부아지에(질량보존·산소 명명), 프리스틀리(산소 발견)와 구별.</p>
-    <div class="tip">현대 원소 기호 = 베르셀리우스. 주기율표 = 멘델레예프. 둘을 혼동하지 말 것.</div></div>
+<div class="q" id="q19"><div class="qh"><span class="qno">문제 19</span><span class="area">원소기호</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">베르셀리우스가 알파벳 기반의 현대적 원소 기호(H, O, Na 등)와 화학식 표기법을 도입했다.</p>
+<p class="step">→ <b>④</b></p>
+<div class="tip">멘델레예프(주기율표), 라부아지에(질량보존·산소 명명), 프리스틀리(산소 발견)와 구별. 현대 원소 기호 = 베르셀리우스. 주기율표 = 멘델레예프. 둘을 혼동하지 말 것.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 20</span><span class="area">반지름</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">Mg(3주기·2족)는 같은 3주기 Si보다 왼쪽이라 크고, 2주기 O·C보다 아래라 크다. → <b>②</b></p>
-    <div class="tip">반지름은 왼쪽으로·아래로 갈수록 커진다. Mg는 후보 중 가장 왼쪽이며 충분히 아래(3주기)다.</div></div>
+<div class="q" id="q20"><div class="qh"><span class="qno">문제 20</span><span class="area">반지름</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">Mg(3주기·2족)는 같은 3주기 Si보다 왼쪽이라 크고, 2주기 O·C보다 아래라 크다.</p>
+<p class="step">→ <b>②</b></p>
+<div class="tip">반지름은 왼쪽으로·아래로 갈수록 커진다. Mg는 후보 중 가장 왼쪽이며 충분히 아래(3주기)다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 21</span><span class="area">이온반지름</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">모두 전자 10개(등전자). 핵전하가 클수록 작다: O(8) &lt; F(9) &lt; Ne(10) &lt; <b>Na(11)</b>.</p>
-    <p class="step">Na<sup>+</sup>이 양성자가 가장 많아 가장 작다. → <b>④</b></p>
-    <div class="tip">등전자에서는 양성자 수가 크기를 결정. 양성자 많을수록 전자를 강하게 끌어 작아진다.</div></div>
+<div class="q" id="q21"><div class="qh"><span class="qno">문제 21</span><span class="area">이온반지름</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">모두 전자 10개(등전자).</p>
+<p class="step">핵전하가 클수록 작다: O(8) &lt; F(9) &lt; Ne(10) &lt; Na(11).</p>
+<p class="step">Na+이 양성자가 가장 많아 가장 작다.</p>
+<p class="step">→ <b>④</b></p>
+<div class="tip">등전자에서는 양성자 수가 크기를 결정. 양성자 많을수록 전자를 강하게 끌어 작아진다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 22</span><span class="area">이온반지름</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">Br<sup>−</sup>(35개 양성자)와 Se<sup>2−</sup>(34개)는 등전자(36개 전자). 양성자 적은 <b>Se<sup>2−</sup>이 더 크다</b> → Br<sup>−</sup> &lt; Se<sup>2−</sup>.</p>
-    <p class="step">Rb<sup>+</sup>(37)와 Sr<sup>2+</sup>(38)도 등전자. 양성자 적은 <b>Rb<sup>+</sup>이 더 크다</b> → Rb<sup>+</sup> &gt; Sr<sup>2+</sup>. → <b>③</b></p>
-    <div class="tip">두 쌍 모두 등전자 비교. 같은 전자 수면 양성자가 적은 쪽이 크다(전하 −가 클수록, +가 작을수록 큼).</div></div>
+<div class="q" id="q22"><div class="qh"><span class="qno">문제 22</span><span class="area">이온반지름</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">Br−(35개 양성자)와 Se2−(34개)는 등전자(36개 전자).</p>
+<p class="step">양성자 적은 Se2−이 더 크다 → Br− &lt; Se2−.</p>
+<p class="step">Rb+(37)와 Sr2+(38)도 등전자.</p>
+<p class="step">양성자 적은 Rb+이 더 크다 → Rb+ &gt; Sr2+.</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">두 쌍 모두 등전자 비교. 같은 전자 수면 양성자가 적은 쪽이 크다(전하 −가 클수록, +가 작을수록 큼).</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 23</span><span class="area">이온반지름</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">K → K<sup>+</sup>: 양이온은 전자를 잃어 <b>원자보다 작아진다</b>. 따라서 K 원자는 138보다 훨씬 큰 ~230 pm.</p>
-    <p class="step">F → F<sup>−</sup>: 음이온은 전자를 얻어 <b>원자보다 커진다</b>. 따라서 F 원자는 133보다 작은 ~65 pm. → <b>③</b></p>
-    <div class="tip">양이온 &lt; 중성 원자 &lt; 음이온. K<sup>+</sup>(138)과 F<sup>−</sup>(133)이 비슷해도 중성 원자는 K(큼)·F(작음)으로 크게 갈린다.</div></div>
+<div class="q" id="q23"><div class="qh"><span class="qno">문제 23</span><span class="area">이온반지름</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">K → K+: 양이온은 전자를 잃어 원자보다 작아진다.</p>
+<p class="step">따라서 K 원자는 138보다 훨씬 큰 ~230 pm.</p>
+<p class="step">F → F−: 음이온은 전자를 얻어 원자보다 커진다.</p>
+<p class="step">따라서 F 원자는 133보다 작은 ~65 pm.</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">양이온 &lt; 중성 원자 &lt; 음이온. K+(138)과 F−(133)이 비슷해도 중성 원자는 K(큼)·F(작음)으로 크게 갈린다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 24</span><span class="area">등전자이온</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">F<sup>−</sup>(9+1), Ne(10), Na<sup>+</sup>(11−1), Mg<sup>2+</sup>(12−2) 모두 <b>전자 10개</b>(등전자, Ne 배치). → <b>③</b></p>
-    <div class="tip">"등전자(isoelectronic)" = 전자 수가 같음. 양성자·중성자·산화수는 제각각 다르다.</div></div>
+<div class="q" id="q24"><div class="qh"><span class="qno">문제 24</span><span class="area">등전자이온</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">F−(9+1), Ne(10), Na+(11−1), Mg2+(12−2) 모두 전자 10개(등전자, Ne 배치).</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">"등전자(isoelectronic)" = 전자 수가 같음. 양성자·중성자·산화수는 제각각 다르다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 25</span><span class="area">이온화에너지 정의</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q25"><div class="qh"><span class="qno">문제 25</span><span class="area">이온화에너지 정의</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
 <p class="step">이온화 에너지는 기체 상태의 원자에서 전자 1개를 떼어 기체 상태의 이온을 만드는 데 필요한 에너지로 정의된다.</p>
 <p class="step">따라서 Na(g) → Na+(g) + e−.</p>
 <p class="step">→ <b>④</b></p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 26</span><span class="area">이온화에너지</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q26"><div class="qh"><span class="qno">문제 26</span><span class="area">이온화에너지</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">①②③은 옳다(핵전하↑로 2s IE↑, 같은 원자 안에서 2s&gt;2p, 1s(내부)&gt;2p(원자가)).</p>
     <p class="step"><span class="x">④</span> He(Z=2)는 H(Z=1)보다 핵전하가 커서 1s 전자를 더 세게 잡는다 → He의 1s IE &gt; H. "H &gt; He"는 거짓. → <b>④</b></p>
     <div class="tip">같은 1s라도 핵전하가 크면(He) 더 강하게 묶인다. H의 이온화에너지(1312)보다 He(2372)가 훨씬 크다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 27</span><span class="area">순차적이온화에너지</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">I₃(3660) → I₄(25025)에서 약 7배 <b>급증</b> → 원자가 전자가 <b>3개</b> → 13족.</p>
-    <p class="step">13족이며 I₁=801인 원소 = <b>붕소(B)</b>(I₁=801과 일치). → <b>②</b></p>
-    <div class="tip">3번째와 4번째 IE 사이 도약 = 원자가 전자 3개. Be(2족)·C(4족)·N(5족)은 도약 위치가 다르다.</div></div>
+<div class="q" id="q27"><div class="qh"><span class="qno">문제 27</span><span class="area">순차적이온화에너지</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">I<sub>3</sub>(3660) → I<sub>4</sub>(25025)에서 약 7배 급증 → 원자가 전자가 3개 → 13족.</p>
+<p class="step">13족이며 I<sub>1</sub>=801인 원소 = 붕소(B)(I<sub>1</sub>=801과 일치).</p>
+<p class="step">→ <b>②</b></p>
+<div class="tip">3번째와 4번째 IE 사이 도약 = 원자가 전자 3개. Be(2족)·C(4족)·N(5족)은 도약 위치가 다르다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 28</span><span class="area">순차적이온화에너지</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">I₅(6278) → I₆(22230) <b>급증</b> → 원자가 전자 <b>5개</b> → 15족.</p>
-    <p class="step">15족 중 I₁=1012는 질소(1402)엔 너무 작고 <b>인(P)</b>에 해당(P는 3주기, Si와 비슷한 영역). → <b>③</b></p>
-    <div class="tip">C(1086)·Si(786) 정보로 주기를 가늠: I₁=1012는 3주기(Si 근처) 수준 → 3주기 15족 = 인.</div></div>
+<div class="q" id="q28"><div class="qh"><span class="qno">문제 28</span><span class="area">순차적이온화에너지</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">I<sub>5</sub>(6278) → I<sub>6</sub>(22230) 급증 → 원자가 전자 5개 → 15족.</p>
+<p class="step">15족 중 I<sub>1</sub>=1012는 질소(1402)엔 너무 작고 인(P)에 해당(P는 3주기, Si와 비슷한 영역).</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">C(1086)·Si(786) 정보로 주기를 가늠: I<sub>1</sub>=1012는 3주기(Si 근처) 수준 → 3주기 15족 = 인.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 29</span><span class="area">순차적이온화에너지</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">M: I₃(2.75) → I₄(11.6) 급증 → 원자가 전자 3개 → <b>Al<sup>3+</sup></b>(3주기 13족).</p>
-    <p class="step">X: [Ar] 배치 음이온(Cl<sup>−</sup>, S<sup>2−</sup>, P<sup>3−</sup>) 중 핵전하 가장 큰 <b>Cl<sup>−</sup></b>이 가장 작다 → X = Cl.</p>
-    <p class="step">Al<sup>3+</sup> + 3Cl<sup>−</sup> → <b>AlCl<sub>3</sub></b>. → <b>④</b></p>
-    <div class="tip">두 단서 결합: IE 도약(M=Al) + 등전자 음이온 최소 반지름(X=Cl). 전하 +3·−1로 AlCl<sub>3</sub>.</div></div>
+<div class="q" id="q29"><div class="qh"><span class="qno">문제 29</span><span class="area">순차적이온화에너지</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">M: I<sub>3</sub>(2.75) → I<sub>4</sub>(11.6) 급증 → 원자가 전자 3개 → Al3+(3주기 13족).</p>
+<p class="step">X: [Ar] 배치 음이온(Cl−, S2−, P3−) 중 핵전하 가장 큰 Cl−이 가장 작다 → X = Cl.</p>
+<p class="step">Al3+ + 3Cl− → AlCl3.</p>
+<p class="step">→ <b>④</b></p>
+<div class="tip">두 단서 결합: IE 도약(M=Al) + 등전자 음이온 최소 반지름(X=Cl). 전하 +3·−1로 AlCl3.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 30</span><span class="area">크기비교</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q30"><div class="qh"><span class="qno">문제 30</span><span class="area">크기비교</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">모두 등전자(전자 10개). <span class="k">가</span> 핵전하 클수록 작으니 반지름은 O<sup>2−</sup>이 최대 — 참. <span class="k">나</span> 핵전하 클수록 떼기 어려우니 Mg<sup>2+</sup>이 최대 — 참.</p>
     <p class="step"><span class="x">다</span> 전자 수는 모두 10개로 <b>같다</b>(부등호 거짓). <span class="x">라</span> 양성자는 O(8)&lt;...&lt;Mg(12)로 <b>증가</b>(부등호 방향 반대). → <b>①</b></p>
     <div class="tip">등전자에서 변하는 건 양성자(핵전하). 그것이 반지름(반비례)·이온화에너지(비례)를 결정한다. 전자 수는 불변.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 31</span><span class="area">특징</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q31"><div class="qh"><span class="qno">문제 31</span><span class="area">특징</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">① Li(520) &lt; H(1312) &lt; He(2372), Li 최소 — 참. ② Li³⁺는 수소꼴(Z=3), <span class="eq">IE ∝ Z² = 9배</span> — 참.</p>
     <p class="step"><span class="x">③</span> He는 1s²로 홀전자가 없어(반자성) 자석으로 작용하지 않는다 — 거짓. → <b>③</b></p>
     <div class="tip">홀전자가 있어야 상자성(작은 자석). H·Li는 홀전자 1개라 상자성이지만 He(1s²)는 짝지어져 반자성이다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 32</span><span class="area">전자친화도</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q32"><div class="qh"><span class="qno">문제 32</span><span class="area">전자친화도</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step"><span class="k">①</span> Mg<sup>+</sup>→Mg<sup>2+</sup>+e<sup>−</sup>(이온화)와 Mg<sup>2+</sup>+e<sup>−</sup>→Mg<sup>+</sup>(전자친화도)는 같은 과정의 정·역 → 크기 같고 부호 반대. 참. → <b>①</b></p>
     <p class="step"><span class="x">②③</span> 같은 과정처럼 보여도 화학종(원자번호)이 달라 값이 다르다. <span class="x">④</span> 비활성기체·2족·N 등은 전자친화도가 양(흡열)이라 "항상 음"은 거짓.</p>
     <div class="tip">A<sup>n+</sup>의 이온화 = A<sup>(n+1)+</sup>의 전자친화도(역과정). 단, 핵전하가 같아야 한다(같은 원소).</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 33</span><span class="area">수소</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q33"><div class="qh"><span class="qno">문제 33</span><span class="area">수소</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step"><span class="k">a</span> H(1312)&lt;He(2372) 참. <span class="k">c</span> HCl·HF처럼 공유결합 참. <span class="k">e</span> NaH의 H는 H<sup>−</sup>(전자 2개)라 중성 H보다 전자밀도 큼 → "H가 더 낮다" 참.</p>
     <p class="step"><span class="x">b</span> H<sup>−</sup>는 전자가 늘어 H보다 <b>크다</b>(거짓). <span class="x">d</span> H<sup>+</sup>와 H의 핵은 둘 다 양성자 하나로 <b>같다</b>(거짓). → <b>③</b></p>
     <div class="tip">H<sup>−</sup>(수소화 이온)는 전자 2개로 커지고 전자밀도가 높다. H<sup>+</sup>는 전자가 없을 뿐 핵(양성자)은 H와 동일.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 34</span><span class="area">전기음성도</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q34"><div class="qh"><span class="qno">문제 34</span><span class="area">전기음성도</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">eV 환산: I.E. = <span class="eq">1312.0/96.485 ≈ 13.6 eV</span>, E.A. = <span class="eq">72.77/96.485 ≈ 0.75 eV</span>.</p>
     <p class="step">N = <span class="eq">(13.6 + 0.75)/2 ≈ 7.17</span>. → <b>①</b></p>
     <div class="tip">멀리컨 전기음성도 = (이온화에너지 + 전자친화도)/2. kJ/mol을 eV로 먼저 환산하는 게 핵심.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 35</span><span class="area">성질</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step"><b>A(증가)</b> = 원자가전자 수(1→8 일정 증가). <b>B(감소)</b> = 원자반지름(왼→오 감소).</p>
-    <p class="step"><b>C(증가 후 감소)</b> = 녹는점(탄소에서 정점 후 N·O·F·Ne로 급락). → <b>③</b></p>
-    <div class="tip">원자가전자 수는 깔끔한 직선 증가, 반지름은 단조 감소, 녹는점은 그물형 고체(C)에서 봉우리를 그린다.</div></div>
+<div class="q" id="q35"><div class="qh"><span class="qno">문제 35</span><span class="area">성질</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">A(증가) = 원자가전자 수(1→8 일정 증가).</p>
+<p class="step">B(감소) = 원자반지름(왼→오 감소).</p>
+<p class="step">C(증가 후 감소) = 녹는점(탄소에서 정점 후 N·O·F·Ne로 급락).</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">원자가전자 수는 깔끔한 직선 증가, 반지름은 단조 감소, 녹는점은 그물형 고체(C)에서 봉우리를 그린다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 36</span><span class="area">크기비교</span><span class="ans">전원정답</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q36"><div class="qh"><span class="qno">문제 36</span><span class="area">크기비교</span><span class="ans">전원정답</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step"><span class="x">가</span> 반지름은 왼→오 감소 → C &gt; N &gt; O &gt; F(거꾸로, 거짓). <span class="x">나</span> 알칼리 금속 밀도에서 <b>K(0.86) &lt; Na(0.97)</b>이라 단조 증가 아님(거짓).</p>
     <p class="step"><span class="x">다</span> 결합에너지는 <b>Cl<sub>2</sub> &gt; F<sub>2</sub></b>(F<sub>2</sub>는 고립쌍 반발로 낮음)이라 거짓. <span class="k">라</span> 등전자 IE는 핵전하 순으로 옳음(참).</p>
     <p class="step">"라만 옳음"인데 그에 해당하는 선택지가 없어(①~④ 모두 틀린 보기 포함) <b>전원정답 처리</b>됨.</p>
     <div class="tip">정답이 "라만"인데 보기엔 없는 출제 오류 사례. F<sub>2</sub>&lt;Cl<sub>2</sub> 결합에너지와 K&lt;Na 밀도는 자주 출제되는 예외다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 37</span><span class="area">본하버순환</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q37"><div class="qh"><span class="qno">문제 37</span><span class="area">본하버순환</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">이온화 단계는 <span class="eq">Li(g) → Li<sup>+</sup>(g) + e<sup>−</sup></span>로, 준위도에서 <b>520 kJ</b> 흡열 과정이다. → <b>③</b></p>
     <p class="step">161=승화, 77=½ 결합해리, −328=F 전자친화도, −1047=격자에너지로 각각 구별된다.</p>
     <div class="tip">보른-하버 단계 식별: "기체 원자 → 기체 양이온 + e<sup>−</sup>"이 이온화. 각 화살표가 어떤 물리량인지 라벨을 읽는다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 38</span><span class="area">격자에너지</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q38"><div class="qh"><span class="qno">문제 38</span><span class="area">격자에너지</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">①②④는 타당하다(Cl<sup>2−</sup>·Na<sup>2+</sup> 생성에 드는 큰 에너지가 안정화를 넘어선다).</p>
     <p class="step"><span class="x">③</span> 격자에너지는 전하곱에 비례 → <b>Na<sup>2+</sup>Cl<sup>2−</sup>(2×2)가 Na<sup>+</sup>Cl<sup>−</sup>(1×1)보다 격자 안정화가 크다</b>. 즉 격자에너지는 오히려 +2/−2를 선호 — 이유가 거꾸로라 거짓. → <b>③</b></p>
     <div class="tip">핵심 역설: 격자에너지만 보면 +2/−2가 유리하다. 그럼에도 +1/−1인 것은 Na<sup>2+</sup>·Cl<sup>2−</sup> 형성 비용이 그 이득을 압도하기 때문.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 39</span><span class="area">정전기력</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">모든 화학결합의 본질은 원자핵(+)과 전자(−) 사이의 <b>정전기적 인력</b>(쿨롱 힘)이다. → <b>④</b></p>
-    <div class="tip">이온결합·공유결합·금속결합 모두 근본은 정전기력. 수소결합·쌍극자 인력은 그 특수한 약한 형태일 뿐.</div></div>
+<div class="q" id="q39"><div class="qh"><span class="qno">문제 39</span><span class="area">정전기력</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">모든 화학결합의 본질은 원자핵(+)과 전자(−) 사이의 정전기적 인력(쿨롱 힘)이다.</p>
+<p class="step">→ <b>④</b></p>
+<div class="tip">이온결합·공유결합·금속결합 모두 근본은 정전기력. 수소결합·쌍극자 인력은 그 특수한 약한 형태일 뿐.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 40</span><span class="area">비공유전자쌍</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">고립쌍 수: CO(C 1 + O 1 = 2), <b>HCl(Cl 3 = 3)</b>, N<sub>2</sub>(각 N 1 = 2), CH<sub>3</sub>OH(O 2 = 2).</p>
-    <p class="step">HCl의 Cl이 고립쌍 3개로 최다. → <b>②</b></p>
-    <div class="tip">할로젠은 단일결합 시 고립쌍 3개. CO·N<sub>2</sub>는 삼중결합이라 각 원자 고립쌍 1개씩뿐.</div></div>
+<div class="q" id="q40"><div class="qh"><span class="qno">문제 40</span><span class="area">비공유전자쌍</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">고립쌍 수: CO(C 1 + O 1 = 2), HCl(Cl 3 = 3), N2(각 N 1 = 2), CH3OH(O 2 = 2).</p>
+<p class="step">HCl의 Cl이 고립쌍 3개로 최다.</p>
+<p class="step">→ <b>②</b></p>
+<div class="tip">할로젠은 단일결합 시 고립쌍 3개. CO·N2는 삼중결합이라 각 원자 고립쌍 1개씩뿐.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 41</span><span class="area">옥텟규칙</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q41"><div class="qh"><span class="qno">문제 41</span><span class="area">옥텟규칙</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step"><span class="x">BH<sub>3</sub></span>의 B는 결합 3개 = 6전자(전자 부족) → 옥텟 위반. CO<sub>2</sub>(C 8)·NH<sub>4</sub><sup>+</sup>(N 8)·CH<sub>4</sub>(C 8)는 모두 옥텟 만족. → <b>①</b></p>
     <div class="tip">B는 전자 부족 화합물의 대표(BH<sub>3</sub>, BF<sub>3</sub>). 13족 중심원자는 결합 3개로 6전자에 그치기 쉽다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 42</span><span class="area">형식전하</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q42"><div class="qh"><span class="qno">문제 42</span><span class="area">형식전하</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">형식전하 −1을 가장 전기음성인 원자에 두는 구조가 가장 안정. N(3.0) &gt; S(2.5)이므로 <b>−1을 N에</b> 둔다.</p>
     <p class="step">이때 구조는 <span class="eq">[:N̈=C=S:]<sup>−</sup></span>로, N은 이중결합 1개 + <b>고립쌍 2개</b>(형식전하 −1). → <b>③</b></p>
     <div class="tip">최적 루이스 구조의 원칙: ① 형식전하 절대값 최소, ② 음전하는 더 전기음성인 원자에. N이 S보다 전기음성하므로 −1은 N에 놓인다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 43</span><span class="area">형식전하</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">형식전하 최소인 구조는 ②(−1 on N)와 ③(−1 on O). 둘 다 |형식전하| 합 = 1.</p>
-    <p class="step">동점일 때 음전하는 더 전기음성인 원자에. <b>O(3.5) &gt; N(3.0)</b>이므로 <b>−1을 O에 둔 ③</b>이 가장 안정. → <b>③</b></p>
-    <div class="tip">42번(NCS<sup>−</sup>)은 N에, 43번(NCO<sup>−</sup>)은 O에 음전하 — 말단 원자 중 어느 쪽이 더 전기음성인지가 갈림길이다.</div></div>
+<div class="q" id="q43"><div class="qh"><span class="qno">문제 43</span><span class="area">형식전하</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">형식전하 최소인 구조는 ②(−1 on N)와 ③(−1 on O).</p>
+<p class="step">둘 다 |형식전하| 합 = 1.</p>
+<p class="step">동점일 때 음전하는 더 전기음성인 원자에.</p>
+<p class="step">O(3.5) &gt; N(3.0)이므로 −1을 O에 둔 ③이 가장 안정.</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">42번(NCS−)은 N에, 43번(NCO−)은 O에 음전하 — 말단 원자 중 어느 쪽이 더 전기음성인지가 갈림길이다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 44</span><span class="area">결합각</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">(b) 카르보닐 탄소는 sp²(C=O) → <b>120°</b>. (a) 메틸 탄소는 sp³ → <b>109.5°</b>. (c) 하이드록실 O는 고립쌍 2개 → <b>~105°</b>(109.5°보다 작음).</p>
-    <p class="step">큰 순서: (b) 120° &gt; (a) 109.5° &gt; (c) 105°. → <b>②</b></p>
-    <div class="tip">혼성(sp²&gt;sp³)이 결합각을 정하고, 고립쌍은 각을 더 좁힌다. 카르보닐 C(120°) &gt; 메틸 C(109.5°) &gt; O(고립쌍, 더 작음).</div></div>
+<div class="q" id="q44"><div class="qh"><span class="qno">문제 44</span><span class="area">결합각</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">(b) 카르보닐 탄소는 sp<sup>2</sup>(C=O) → 120°.</p>
+<p class="step">(a) 메틸 탄소는 sp<sup>3</sup> → 109.5°.</p>
+<p class="step">(c) 하이드록실 O는 고립쌍 2개 → ~105°(109.5°보다 작음).</p>
+<p class="step">큰 순서: (b) 120° &gt; (a) 109.5° &gt; (c) 105°.</p>
+<p class="step">→ <b>②</b></p>
+<div class="tip">혼성(sp<sup>2</sup>&gt;sp<sup>3</sup>)이 결합각을 정하고, 고립쌍은 각을 더 좁힌다. 카르보닐 C(120°) &gt; 메틸 C(109.5°) &gt; O(고립쌍, 더 작음).</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 45</span><span class="area">전자</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">결합각은 중심원자 주위 <b>전자쌍</b>(결합쌍 + 고립쌍)의 반발(VSEPR)로 결정된다. → <b>③</b></p>
-    <p class="step">물의 산소에 있는 고립쌍 2개가 결합각을 109.5°에서 104.5°로 좁힌다.</p>
-    <div class="tip">분자 모양 = 전자쌍 반발의 결과. 핵 안의 양성자·중성자는 결합각과 직접 관계없다.</div></div>
+<div class="q" id="q45"><div class="qh"><span class="qno">문제 45</span><span class="area">전자</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">결합각은 중심원자 주위 전자쌍(결합쌍 + 고립쌍)의 반발(VSEPR)로 결정된다.</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">물의 산소에 있는 고립쌍 2개가 결합각을 109.5°에서 104.5°로 좁힌다. 분자 모양 = 전자쌍 반발의 결과. 핵 안의 양성자·중성자는 결합각과 직접 관계없다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 46</span><span class="area">결합각</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">이중결합 1개 + 단일결합 1개로 모든 원자가 옥텟을 만족하려면 중심원자에 <b>고립쌍 1개</b>가 필요 → 오존(O<sub>3</sub>)형 구조.</p>
-    <p class="step">O<sub>3</sub>형은 원자가전자 <b>18개</b>(3×6), 중심 전자영역 3개(결합 2+고립쌍 1) → 결합각 <b>~120°</b>(굽은형). → <b>③</b></p>
-    <div class="tip">O<sub>3</sub>·SO<sub>2</sub>가 전형: 한쪽 이중·한쪽 단일, 중심 고립쌍 1개, 굽은 120°. 원자가전자 18개가 이 구조를 만든다.</div></div>
+<div class="q" id="q46"><div class="qh"><span class="qno">문제 46</span><span class="area">결합각</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">이중결합 1개 + 단일결합 1개로 모든 원자가 옥텟을 만족하려면 중심원자에 고립쌍 1개가 필요 → 오존(O3)형 구조.</p>
+<p class="step">O3형은 원자가전자 18개(3×6), 중심 전자영역 3개(결합 2+고립쌍 1) → 결합각 ~120°(굽은형).</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">O3·SO2가 전형: 한쪽 이중·한쪽 단일, 중심 고립쌍 1개, 굽은 120°. 원자가전자 18개가 이 구조를 만든다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 47</span><span class="area">결합각</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">H<sub>2</sub>O(고립쌍 2, 굽은형 <b>104.5°</b>) &lt; SO<sub>3</sub>(평면삼각형 <b>120°</b>) &lt; CO<sub>2</sub>(직선 <b>180°</b>). → <b>①</b></p>
-    <div class="tip">결합각은 (중심 고립쌍이 적을수록)·(결합 원자가 적을수록) 커진다. 굽은형 &lt; 평면삼각 &lt; 직선.</div></div>
+<div class="q" id="q47"><div class="qh"><span class="qno">문제 47</span><span class="area">결합각</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">H2O(고립쌍 2, 굽은형 104.5°) &lt; SO3(평면삼각형 120°) &lt; CO2(직선 180°).</p>
+<p class="step">→ <b>①</b></p>
+<div class="tip">결합각은 (중심 고립쌍이 적을수록)·(결합 원자가 적을수록) 커진다. 굽은형 &lt; 평면삼각 &lt; 직선.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 48</span><span class="area">결합각</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">나(NO<sub>3</sub><sup>−</sup>)는 평면삼각형 정확히 <b>120°</b>. COCl<sub>2</sub>는 C=O 이중결합이 더 큰 반발 → <b>다(O−C−Cl) &gt; 120°(~124°)</b>, <b>라(Cl−C−Cl) &lt; 120°(~111°)</b>. 가(NH<sub>3</sub>)는 고립쌍으로 <b>~107°</b>.</p>
-    <p class="step">큰 순서: 다(124) &gt; 나(120) &gt; 라(111) &gt; 가(107). → <b>①</b></p>
-    <div class="tip">이중결합은 단일결합보다 전자밀도가 커서 더 크게 벌린다 → O−C−Cl이 120°보다 크고 Cl−C−Cl이 작아진다.</div></div>
+<div class="q" id="q48"><div class="qh"><span class="qno">문제 48</span><span class="area">결합각</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">나(NO3−)는 평면삼각형 정확히 120°.</p>
+<p class="step">COCl2는 C=O 이중결합이 더 큰 반발 → 다(O−C−Cl) &gt; 120°(~124°), 라(Cl−C−Cl) &lt; 120°(~111°).</p>
+<p class="step">가(NH3)는 고립쌍으로 ~107°.</p>
+<p class="step">큰 순서: 다(124) &gt; 나(120) &gt; 라(111) &gt; 가(107).</p>
+<p class="step">→ <b>①</b></p>
+<div class="tip">이중결합은 단일결합보다 전자밀도가 커서 더 크게 벌린다 → O−C−Cl이 120°보다 크고 Cl−C−Cl이 작아진다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 49</span><span class="area">루이스구조</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q49"><div class="qh"><span class="qno">문제 49</span><span class="area">루이스구조</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step"><span class="x">XeF<sub>4</sub></span>: Xe는 결합 4 + 고립쌍 2 = <b>12전자</b>(확장 옥텟) → 위반. SiF<sub>4</sub>·NF<sub>3</sub>·CF<sub>4</sub>는 중심이 8전자(옥텟 만족). → <b>①</b></p>
     <div class="tip">확장 옥텟은 3주기 이하 중심원자(Xe·S·P)에서만 가능. 2주기(C·N·Si는 3주기지만 4결합으로 8) 화합물은 옥텟을 지킨다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 50</span><span class="area">비공유전자쌍</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">Xe 고립쌍: XeOF<sub>2</sub>(2), XeO<sub>3</sub>(1), XeF<sub>4</sub>(2), <b>XeF<sub>2</sub>(3)</b>.</p>
-    <p class="step">XeF<sub>2</sub>는 결합 2 + 고립쌍 3 = 전자쌍 5(직선형). → <b>④</b></p>
-    <div class="tip">Xe(8전자)가 결합이 적을수록 고립쌍이 많다. XeF<sub>2</sub>(결합 2)가 고립쌍 3개로 가장 많다.</div></div>
+<div class="q" id="q50"><div class="qh"><span class="qno">문제 50</span><span class="area">비공유전자쌍</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">Xe 고립쌍: XeOF2(2), XeO3(1), XeF4(2), XeF2(3).</p>
+<p class="step">XeF2는 결합 2 + 고립쌍 3 = 전자쌍 5(직선형).</p>
+<p class="step">→ <b>④</b></p>
+<div class="tip">Xe(8전자)가 결합이 적을수록 고립쌍이 많다. XeF2(결합 2)가 고립쌍 3개로 가장 많다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 51</span><span class="area">분자의모양</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">SO<sub>2</sub>는 결합 2 + 고립쌍 1 → <b>굽은형(~119°)</b>. CO<sub>2</sub>·BeCl<sub>2</sub>·XeF<sub>2</sub>는 모두 <b>직선형</b>.</p>
-    <p class="step">굽은형과 같은 구조가 보기에 없다. → <b>④</b></p>
-    <div class="tip">SO<sub>2</sub>는 중심 고립쌍 1개로 굽었지만, XeF<sub>2</sub>는 고립쌍 3개여도 직선이다. 고립쌍 수가 아니라 최종 모양으로 비교.</div></div>
+<div class="q" id="q51"><div class="qh"><span class="qno">문제 51</span><span class="area">분자의모양</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">SO2는 결합 2 + 고립쌍 1 → 굽은형(~119°).</p>
+<p class="step">CO2·BeCl2·XeF2는 모두 직선형.</p>
+<p class="step">굽은형과 같은 구조가 보기에 없다.</p>
+<p class="step">→ <b>④</b></p>
+<div class="tip">SO2는 중심 고립쌍 1개로 굽었지만, XeF2는 고립쌍 3개여도 직선이다. 고립쌍 수가 아니라 최종 모양으로 비교.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 52</span><span class="area">결합각</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q52"><div class="qh"><span class="qno">문제 52</span><span class="area">결합각</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">결합 세기는 <b>결합 길이가 짧을수록</b> 크다. 결합 길이: PO<sub>4</sub><sup>3−</sup>(P−O ~154 pm, P가 3주기 큰 원자) &gt; O<sub>3</sub>(O−O ~128 pm) &gt; NO<sub>3</sub><sup>−</sup>(N−O ~126 pm).</p>
     <p class="step">따라서 세기(역순)는 <span class="k">NO<sub>3</sub><sup>−</sup> &gt; O<sub>3</sub> &gt; PO<sub>4</sub><sup>3−</sup></span>. → <b>②</b></p>
     <div class="tip">P는 3주기 원자라 P−O 결합이 가장 길고 약하다. 짧은 N−O 결합(2주기 원자)이 가장 강하다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 53</span><span class="area">직선구조</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q53"><div class="qh"><span class="qno">문제 53</span><span class="area">직선구조</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">XeF<sub>2</sub>(고립쌍 3, 직선)·CO<sub>2</sub>·HCN은 모두 직선형.</p>
     <p class="step"><span class="x">NO<sub>2</sub></span>는 홀전자를 가진 라디칼로 중심 N에 전자영역이 있어 <b>굽은형</b>(~134°). → <b>④</b></p>
     <div class="tip">NO<sub>2</sub>(라디칼, 굽은형)와 NO<sub>2</sub><sup>+</sup>(직선)·NO<sub>2</sub><sup>−</sup>(굽은형)를 구별. 홀전자/고립쌍이 있으면 굽는다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 54</span><span class="area">삼각피라미드</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">삼각뿔 = 결합 3 + 고립쌍 1. <b>ClO<sub>3</sub><sup>−</sup>·AsH<sub>3</sub></b>(고립쌍 1)가 해당.</p>
-    <p class="step">BF<sub>3</sub>(고립쌍 0, 평면삼각형), IF<sub>3</sub>(고립쌍 2, T자형)는 제외. → <b>①</b></p>
-    <div class="tip">결합 원자 3개여도 고립쌍 수에 따라 평면삼각(0)·삼각뿔(1)·T자(2)로 갈린다.</div></div>
+<div class="q" id="q54"><div class="qh"><span class="qno">문제 54</span><span class="area">삼각피라미드</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">삼각뿔 = 결합 3 + 고립쌍 1.</p>
+<p class="step">ClO3−·AsH3(고립쌍 1)가 해당.</p>
+<p class="step">BF3(고립쌍 0, 평면삼각형), IF3(고립쌍 2, T자형)는 제외.</p>
+<p class="step">→ <b>①</b></p>
+<div class="tip">결합 원자 3개여도 고립쌍 수에 따라 평면삼각(0)·삼각뿔(1)·T자(2)로 갈린다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 55</span><span class="area">분자의모양</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q55"><div class="qh"><span class="qno">문제 55</span><span class="area">분자의모양</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">SF<sub>4</sub>(시소)·ClF<sub>3</sub>(T자)·BrF<sub>5</sub>(사각뿔)는 라벨이 맞다.</p>
     <p class="step"><span class="x">XeF<sub>4</sub></span>는 결합 4 + 고립쌍 2 → <b>정사각 평면</b>이지 정사면체가 아니다. → <b>③</b></p>
     <div class="tip">XeF<sub>4</sub>의 고립쌍 2개가 상하로 배치되어 F 4개가 한 평면에 놓인다(정사각 평면). 정사면체(CH<sub>4</sub>)와 구별.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 56</span><span class="area">분자의모양</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q56"><div class="qh"><span class="qno">문제 56</span><span class="area">분자의모양</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">BF<sub>3</sub>·SO<sub>3</sub>·NO<sub>3</sub><sup>−</sup>은 고립쌍 0 → <b>평면삼각형</b>.</p>
     <p class="step"><span class="x">NF<sub>3</sub></span>는 N에 고립쌍 1개 → <b>삼각뿔</b>. → <b>②</b></p>
     <div class="tip">중심원자 고립쌍 유무가 평면(0)이냐 삼각뿔(1)이냐를 가른다. NF<sub>3</sub>만 고립쌍이 있다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 57</span><span class="area">분자의모양</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">결합 4 + 고립쌍 0 = <b>정사면체</b>. CH<sub>4</sub>·MnO<sub>4</sub><sup>−</sup>·NH<sub>4</sub><sup>+</sup>이 모두 정사면체. → <b>②</b></p>
-    <p class="step">SF<sub>4</sub>(시소), XeF<sub>4</sub>(정사각 평면)는 고립쌍이 있어 정사면체가 아니다.</p>
-    <div class="tip">중심원자 주위 결합 4개라도 고립쌍이 있으면(SF<sub>4</sub>, XeF<sub>4</sub>) 정사면체가 깨진다.</div></div>
+<div class="q" id="q57"><div class="qh"><span class="qno">문제 57</span><span class="area">분자의모양</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">결합 4 + 고립쌍 0 = 정사면체.</p>
+<p class="step">CH4·MnO4−·NH4+이 모두 정사면체.</p>
+<p class="step">→ <b>②</b></p>
+<div class="tip">SF4(시소), XeF4(정사각 평면)는 고립쌍이 있어 정사면체가 아니다. 중심원자 주위 결합 4개라도 고립쌍이 있으면(SF4, XeF4) 정사면체가 깨진다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 58</span><span class="area">혼성오비탈</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q58"><div class="qh"><span class="qno">문제 58</span><span class="area">혼성오비탈</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">①②③은 옳다(혼성 개수 보존, σ결합은 혼성 오비탈끼리).</p>
     <p class="step"><span class="x">④</span> π-결합은 <b>혼성에 참여하지 않은 순수 p 오비탈</b>이 옆으로 겹쳐 형성된다(혼성 오비탈 아님). → <b>④</b></p>
     <div class="tip">σ결합 = 혼성 오비탈(정면 겹침), π결합 = 남은 p 오비탈(측면 겹침). 이 구분이 핵심.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 59</span><span class="area">혼성오비탈</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q59"><div class="qh"><span class="qno">문제 59</span><span class="area">혼성오비탈</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">sp² 탄소: 피리딘 <b>고리 탄소 5개</b>(방향족, 고리의 나머지 한 자리는 N) + <b>알데하이드 탄소 1개</b>(C=O) = <span class="k">6개</span>.</p>
     <p class="step">CH<sub>2</sub>OH 탄소·CH<sub>3</sub> 탄소는 sp³(단일결합만). → <b>②</b></p>
     <div class="tip">방향족 고리 탄소와 카르보닐 탄소가 sp². 고리에 N이 하나 있어 고리 탄소는 6개가 아니라 5개임에 주의.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 60</span><span class="area">혼성오비탈</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">가 NH<sub>3</sub>: 결합 3 + 고립쌍 1 = 4영역 → <b>sp³</b>. 나 NO<sub>2</sub><sup>−</sup>: 결합 2 + 고립쌍 1 = 3영역 → <b>sp²</b>. 다 N<sub>2</sub>: 삼중결합 + 고립쌍 1 = 2영역 → <b>sp</b>.</p>
-    <p class="step">셋 다 혼성이 달라(sp³·sp²·sp) 같은 것이 없다. → <b>④</b></p>
-    <div class="tip">전자영역 수 = 혼성: 4→sp³, 3→sp², 2→sp. 세 화학종이 영역 수가 모두 달라 혼성도 전부 다르다.</div></div>
+<div class="q" id="q60"><div class="qh"><span class="qno">문제 60</span><span class="area">혼성오비탈</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">가 NH3: 결합 3 + 고립쌍 1 = 4영역 → sp<sup>3</sup>.</p>
+<p class="step">나 NO2−: 결합 2 + 고립쌍 1 = 3영역 → sp<sup>2</sup>.</p>
+<p class="step">다 N2: 삼중결합 + 고립쌍 1 = 2영역 → sp.</p>
+<p class="step">셋 다 혼성이 달라(sp<sup>3</sup>·sp<sup>2</sup>·sp) 같은 것이 없다.</p>
+<p class="step">→ <b>④</b></p>
+<div class="tip">전자영역 수 = 혼성: 4→sp<sup>3</sup>, 3→sp<sup>2</sup>, 2→sp. 세 화학종이 영역 수가 모두 달라 혼성도 전부 다르다.</div></div>
 </div>
 <script data-lec-back>
 (function(){function ok(raw){if(!raw)return null;try{var u=new URL(raw,location.href);

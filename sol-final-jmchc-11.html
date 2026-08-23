@@ -25,11 +25,24 @@ th{background:#f1eee7;font-weight:700}
 .area{font-size:12.5px;color:var(--ink2);background:#f1eee7;border-radius:99px;padding:2px 9px}
 .ans{margin-left:auto;font-weight:700;color:var(--ms)}
 .sol{font-size:14.5px}
+/* 해설 본문이 실제로 입는 옷 — answers/*.json 의 explanationHtml 이
+   <h4>·.step·.k(정답 근거)·.x(오답 표시) 를 쓰는데 여기 옷이 없으면
+   해설지에서만 맨몸으로 나간다(final.html 은 제 옷이 따로 있다). */
+.sol h4{margin:12px 0 5px;color:var(--teal);font-size:13.5px;letter-spacing:.02em}
+.sol p.step{margin:6px 0;white-space:pre-wrap}
+.sol .k{color:var(--teal);font-weight:700}
+.sol .x{color:var(--ms);font-weight:700}
 .tip{margin-top:9px;padding:9px 11px;border-left:3px solid var(--gold);background:#faf7f1;
  font-size:13.5px;color:var(--ink2)}
 .rev{margin-top:9px;padding:9px 11px;border-left:3px solid var(--ms);background:#fdf3ef;
  font-size:13px;color:#8a3a1d}
-@media print{body{background:#fff}.q{break-inside:avoid}}
+/* 정답표 → 그 문항 해설로 건너뛰는 길. 표가 세로 2,000px 를 넘는 회차가
+   많아 표에서 해설까지 손가락으로 미는 거리가 너무 멀었다. */
+td a.jump{color:var(--teal);text-decoration:none;font-weight:700}
+td a.jump:hover{text-decoration:underline}
+.q{scroll-margin-top:14px}
+.q:target{border-color:var(--teal);box-shadow:0 0 0 2px rgba(14,90,76,.18)}
+@media print{body{background:#fff}.q{break-inside:avoid}.warn{display:none}}
 
 .source-assets{max-width:860px;margin:14px auto 0;padding:0 20px;display:flex;gap:8px;flex-wrap:wrap}
 .source-assets a{display:inline-flex;align-items:center;padding:8px 11px;border:1px solid var(--line);
@@ -59,330 +72,401 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="sub" style="margin-top:6px">문제 지문은 문제지(PDF)에 있습니다 — 성적표 화면에서 함께 내려받을 수 있습니다.</div><a class="back" href="final.html">‹ 파이널로</a></header>
 <nav class="source-assets" aria-label="시험 자료 직접 다운로드"><a href="jmchc-11-problem.pdf" download>공식 문제 PDF ↓</a><a href="jmchc-11-answer.pdf" download>공식 정답 PDF ↓</a></nav>
 <main><h3>정답 · 영역 · 개념</h3><table><thead><tr><th scope="col">문항</th><th scope="col">정답</th><th scope="col">영역</th><th scope="col">개념(유형)</th></tr></thead><tbody>
-<tr><td>1</td><td>④</td><td>수득률</td><td>수득률</td></tr>
-<tr><td>2</td><td>③</td><td>수득률</td><td>수득률</td></tr>
-<tr><td>3</td><td>②</td><td>상평형</td><td>평형상수</td></tr>
-<tr><td>4</td><td>①</td><td>상평형</td><td>삼중점</td></tr>
-<tr><td>5</td><td>①</td><td>상평형</td><td>압력</td></tr>
-<tr><td>6</td><td>②</td><td>상평형</td><td>분별증류</td></tr>
-<tr><td>7</td><td>④</td><td>상평형</td><td>상평형도</td></tr>
-<tr><td>8</td><td>③</td><td>상평형</td><td>상평형도</td></tr>
-<tr><td>9</td><td>①</td><td>용해도</td><td>기체의용해도</td></tr>
-<tr><td>10</td><td>①</td><td>용해도</td><td>용해도</td></tr>
-<tr><td>11</td><td>③</td><td>용해도</td><td>유유상종</td></tr>
-<tr><td>12</td><td>②</td><td>용해도</td><td>이온분위기</td></tr>
-<tr><td>13</td><td>②</td><td>용해도</td><td>양적관계</td></tr>
-<tr><td>14</td><td>①</td><td>용해도</td><td>용해도</td></tr>
-<tr><td>15</td><td>②</td><td>용해도</td><td>용해도</td></tr>
-<tr><td>16</td><td>①</td><td>용해평형</td><td>이온농도</td></tr>
-<tr><td>17</td><td>④</td><td>용해평형</td><td>이온수</td></tr>
-<tr><td>18</td><td>③</td><td>용해평형</td><td>용해도곱상수</td></tr>
-<tr><td>19</td><td>③</td><td>용해평형</td><td>용해도곱상수</td></tr>
-<tr><td>20</td><td>③</td><td>용해평형</td><td>용해도곱상수</td></tr>
-<tr><td>21</td><td>③</td><td>앙금생성</td><td>앙금생성</td></tr>
-<tr><td>22</td><td>③</td><td>앙금생성</td><td>앙금생성</td></tr>
-<tr><td>23</td><td>③</td><td>앙금생성</td><td>양적관계</td></tr>
-<tr><td>24</td><td>②</td><td>앙금생성</td><td>앙금생성</td></tr>
-<tr><td>25</td><td>③</td><td>용해평형</td><td>용해도곱상수</td></tr>
-<tr><td>26</td><td>①</td><td>이온화도</td><td>다양성자산</td></tr>
-<tr><td>27</td><td>③</td><td>물의자동이온화</td><td>물의자동이온화</td></tr>
-<tr><td>28</td><td>③</td><td>이온화도</td><td>해리도</td></tr>
-<tr><td>29</td><td>②</td><td>이온화도</td><td>해리백분율</td></tr>
-<tr><td>30</td><td>②</td><td>pH</td><td>희석</td></tr>
-<tr><td>31</td><td>③</td><td>이온화상수</td><td>평형상수</td></tr>
-<tr><td>32</td><td>③</td><td>이온화상수</td><td>평형상수</td></tr>
-<tr><td>33</td><td>③</td><td>pH</td><td>pH</td></tr>
-<tr><td>34</td><td>②</td><td>pH</td><td>약염기</td></tr>
-<tr><td>35</td><td>②</td><td>물의자동이온화</td><td>물의자동이온화</td></tr>
-<tr><td>36</td><td>④</td><td>물의자동이온화</td><td>물의자동이온화</td></tr>
-<tr><td>37</td><td>④</td><td>이온화상수</td><td>약산</td></tr>
-<tr><td>38</td><td>①</td><td>지시약</td><td>지시약</td></tr>
-<tr><td>39</td><td>②</td><td>지시약</td><td>지시약</td></tr>
-<tr><td>40</td><td>②</td><td>중화반응</td><td>농부가</td></tr>
-<tr><td>41</td><td>④</td><td>pH</td><td>pH</td></tr>
-<tr><td>42</td><td>①</td><td>염의가수분해</td><td>약염기</td></tr>
-<tr><td>43</td><td>③</td><td>중화반응</td><td>용해도</td></tr>
-<tr><td>44</td><td>④</td><td>염의가수분해</td><td>염기성</td></tr>
-<tr><td>45</td><td>①</td><td>염의가수분해</td><td>농도</td></tr>
-<tr><td>46</td><td>①</td><td>염의가수분해</td><td>염의가수분해</td></tr>
-<tr><td>47</td><td>④</td><td>pH</td><td>염의가수분해</td></tr>
-<tr><td>48</td><td>④</td><td>염의가수분해</td><td>완충용액</td></tr>
-<tr><td>49</td><td>③</td><td>pH</td><td>완충용액</td></tr>
-<tr><td>50</td><td>③</td><td>염의가수분해</td><td>NaF</td></tr>
-<tr><td>51</td><td>③</td><td>중화반응</td><td>중화점</td></tr>
-<tr><td>52</td><td>②</td><td>pH</td><td>pH</td></tr>
-<tr><td>53</td><td>①</td><td>중화반응</td><td>전도도</td></tr>
-<tr><td>54</td><td>①</td><td>pH</td><td>pH</td></tr>
-<tr><td>55</td><td>②</td><td>지시약</td><td>지시약</td></tr>
-<tr><td>56</td><td>①</td><td>중화반응</td><td>중화적정</td></tr>
-<tr><td>57</td><td>①</td><td>중화반응</td><td>중화적정</td></tr>
-<tr><td>58</td><td>④</td><td>중화반응</td><td>중화적정</td></tr>
-<tr><td>59</td><td>③</td><td>전기화학</td><td>전류세기</td></tr>
-<tr><td>60</td><td>①</td><td>전기화학</td><td>용해도곱상수</td></tr>
+<tr><td><a class="jump" href="#q1">1</a></td><td>④</td><td>수득률</td><td>수득률</td></tr>
+<tr><td><a class="jump" href="#q2">2</a></td><td>③</td><td>수득률</td><td>수득률</td></tr>
+<tr><td><a class="jump" href="#q3">3</a></td><td>②</td><td>상평형</td><td>평형상수</td></tr>
+<tr><td><a class="jump" href="#q4">4</a></td><td>①</td><td>상평형</td><td>삼중점</td></tr>
+<tr><td><a class="jump" href="#q5">5</a></td><td>①</td><td>상평형</td><td>압력</td></tr>
+<tr><td><a class="jump" href="#q6">6</a></td><td>②</td><td>상평형</td><td>분별증류</td></tr>
+<tr><td><a class="jump" href="#q7">7</a></td><td>④</td><td>상평형</td><td>상평형도</td></tr>
+<tr><td><a class="jump" href="#q8">8</a></td><td>③</td><td>상평형</td><td>상평형도</td></tr>
+<tr><td><a class="jump" href="#q9">9</a></td><td>①</td><td>용해도</td><td>기체의용해도</td></tr>
+<tr><td><a class="jump" href="#q10">10</a></td><td>①</td><td>용해도</td><td>용해도</td></tr>
+<tr><td><a class="jump" href="#q11">11</a></td><td>③</td><td>용해도</td><td>유유상종</td></tr>
+<tr><td><a class="jump" href="#q12">12</a></td><td>②</td><td>용해도</td><td>이온분위기</td></tr>
+<tr><td><a class="jump" href="#q13">13</a></td><td>②</td><td>용해도</td><td>양적관계</td></tr>
+<tr><td><a class="jump" href="#q14">14</a></td><td>①</td><td>용해도</td><td>용해도</td></tr>
+<tr><td><a class="jump" href="#q15">15</a></td><td>②</td><td>용해도</td><td>용해도</td></tr>
+<tr><td><a class="jump" href="#q16">16</a></td><td>①</td><td>용해평형</td><td>이온농도</td></tr>
+<tr><td><a class="jump" href="#q17">17</a></td><td>④</td><td>용해평형</td><td>이온수</td></tr>
+<tr><td><a class="jump" href="#q18">18</a></td><td>③</td><td>용해평형</td><td>용해도곱상수</td></tr>
+<tr><td><a class="jump" href="#q19">19</a></td><td>③</td><td>용해평형</td><td>용해도곱상수</td></tr>
+<tr><td><a class="jump" href="#q20">20</a></td><td>③</td><td>용해평형</td><td>용해도곱상수</td></tr>
+<tr><td><a class="jump" href="#q21">21</a></td><td>③</td><td>앙금생성</td><td>앙금생성</td></tr>
+<tr><td><a class="jump" href="#q22">22</a></td><td>③</td><td>앙금생성</td><td>앙금생성</td></tr>
+<tr><td><a class="jump" href="#q23">23</a></td><td>③</td><td>앙금생성</td><td>양적관계</td></tr>
+<tr><td><a class="jump" href="#q24">24</a></td><td>②</td><td>앙금생성</td><td>앙금생성</td></tr>
+<tr><td><a class="jump" href="#q25">25</a></td><td>③</td><td>용해평형</td><td>용해도곱상수</td></tr>
+<tr><td><a class="jump" href="#q26">26</a></td><td>①</td><td>이온화도</td><td>다양성자산</td></tr>
+<tr><td><a class="jump" href="#q27">27</a></td><td>③</td><td>물의자동이온화</td><td>물의자동이온화</td></tr>
+<tr><td><a class="jump" href="#q28">28</a></td><td>③</td><td>이온화도</td><td>해리도</td></tr>
+<tr><td><a class="jump" href="#q29">29</a></td><td>②</td><td>이온화도</td><td>해리백분율</td></tr>
+<tr><td><a class="jump" href="#q30">30</a></td><td>②</td><td>pH</td><td>희석</td></tr>
+<tr><td><a class="jump" href="#q31">31</a></td><td>③</td><td>이온화상수</td><td>평형상수</td></tr>
+<tr><td><a class="jump" href="#q32">32</a></td><td>③</td><td>이온화상수</td><td>평형상수</td></tr>
+<tr><td><a class="jump" href="#q33">33</a></td><td>③</td><td>pH</td><td>pH</td></tr>
+<tr><td><a class="jump" href="#q34">34</a></td><td>②</td><td>pH</td><td>약염기</td></tr>
+<tr><td><a class="jump" href="#q35">35</a></td><td>②</td><td>물의자동이온화</td><td>물의자동이온화</td></tr>
+<tr><td><a class="jump" href="#q36">36</a></td><td>④</td><td>물의자동이온화</td><td>물의자동이온화</td></tr>
+<tr><td><a class="jump" href="#q37">37</a></td><td>④</td><td>이온화상수</td><td>약산</td></tr>
+<tr><td><a class="jump" href="#q38">38</a></td><td>①</td><td>지시약</td><td>지시약</td></tr>
+<tr><td><a class="jump" href="#q39">39</a></td><td>②</td><td>지시약</td><td>지시약</td></tr>
+<tr><td><a class="jump" href="#q40">40</a></td><td>②</td><td>중화반응</td><td>농부가</td></tr>
+<tr><td><a class="jump" href="#q41">41</a></td><td>④</td><td>pH</td><td>pH</td></tr>
+<tr><td><a class="jump" href="#q42">42</a></td><td>①</td><td>염의가수분해</td><td>약염기</td></tr>
+<tr><td><a class="jump" href="#q43">43</a></td><td>③</td><td>중화반응</td><td>용해도</td></tr>
+<tr><td><a class="jump" href="#q44">44</a></td><td>④</td><td>염의가수분해</td><td>염기성</td></tr>
+<tr><td><a class="jump" href="#q45">45</a></td><td>①</td><td>염의가수분해</td><td>농도</td></tr>
+<tr><td><a class="jump" href="#q46">46</a></td><td>①</td><td>염의가수분해</td><td>염의가수분해</td></tr>
+<tr><td><a class="jump" href="#q47">47</a></td><td>④</td><td>pH</td><td>염의가수분해</td></tr>
+<tr><td><a class="jump" href="#q48">48</a></td><td>④</td><td>염의가수분해</td><td>완충용액</td></tr>
+<tr><td><a class="jump" href="#q49">49</a></td><td>③</td><td>pH</td><td>완충용액</td></tr>
+<tr><td><a class="jump" href="#q50">50</a></td><td>③</td><td>염의가수분해</td><td>NaF</td></tr>
+<tr><td><a class="jump" href="#q51">51</a></td><td>③</td><td>중화반응</td><td>중화점</td></tr>
+<tr><td><a class="jump" href="#q52">52</a></td><td>②</td><td>pH</td><td>pH</td></tr>
+<tr><td><a class="jump" href="#q53">53</a></td><td>①</td><td>중화반응</td><td>전도도</td></tr>
+<tr><td><a class="jump" href="#q54">54</a></td><td>①</td><td>pH</td><td>pH</td></tr>
+<tr><td><a class="jump" href="#q55">55</a></td><td>②</td><td>지시약</td><td>지시약</td></tr>
+<tr><td><a class="jump" href="#q56">56</a></td><td>①</td><td>중화반응</td><td>중화적정</td></tr>
+<tr><td><a class="jump" href="#q57">57</a></td><td>①</td><td>중화반응</td><td>중화적정</td></tr>
+<tr><td><a class="jump" href="#q58">58</a></td><td>④</td><td>중화반응</td><td>중화적정</td></tr>
+<tr><td><a class="jump" href="#q59">59</a></td><td>③</td><td>전기화학</td><td>전류세기</td></tr>
+<tr><td><a class="jump" href="#q60">60</a></td><td>①</td><td>전기화학</td><td>용해도곱상수</td></tr>
 </tbody></table>
 <h3>문항별 사고과정</h3>
-<div class="q"><div class="qh"><span class="qno">문제 1</span><span class="area">수득률</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">한계 반응물 판별: A/2 = 3.0 &lt; B/1 = 4.0 → <b>A가 한계</b>. 이론 C = 6.0×(3/2) = 9.0몰.</p>
-    <p class="step">수득율 = 8.1/9.0 = <b>90%</b>. → <b>④</b></p>
-    <div class="tip">수득율 = 실제/이론. 이론량은 반드시 한계 반응물 기준으로 계산. A/2와 B/1을 비교해 작은 쪽이 한계.</div></div>
+<div class="q" id="q1"><div class="qh"><span class="qno">문제 1</span><span class="area">수득률</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">한계 반응물 판별: A/2 = 3.0 &lt; B/1 = 4.0 → A가 한계.</p>
+<p class="step">이론 C = 6.0×(3/2) = 9.0몰.</p>
+<p class="step">수득율 = 8.1/9.0 = 90%.</p>
+<p class="step">→ <b>④</b></p>
+<div class="tip">수득율 = 실제/이론. 이론량은 반드시 한계 반응물 기준으로 계산. A/2와 B/1을 비교해 작은 쪽이 한계.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 2</span><span class="area">수득률</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">4Al + 3O<sub>2</sub> → 2Al<sub>2</sub>O<sub>3</sub>. Al 160/27 = 5.93몰 → 이론 Al<sub>2</sub>O<sub>3</sub> = 2.96몰 = 2.96×102 ≈ 302g.</p>
-    <p class="step">수득률 = 260/302 ≈ <b>86%</b>. → <b>③</b></p>
-    <div class="tip">Al:Al<sub>2</sub>O<sub>3</sub> = 4:2 = 2:1. 몰수로 이론 질량을 구한 뒤 실제와 비교한다.</div></div>
+<div class="q" id="q2"><div class="qh"><span class="qno">문제 2</span><span class="area">수득률</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">4Al + 3O2 → 2Al2O3.</p>
+<p class="step">Al 160/27 = 5.93몰 → 이론 Al2O3 = 2.96몰 = 2.96×102 ≈ 302g.</p>
+<p class="step">수득률 = 260/302 ≈ 86%.</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">Al:Al2O3 = 4:2 = 2:1. 몰수로 이론 질량을 구한 뒤 실제와 비교한다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 3</span><span class="area">평형상수</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q3"><div class="qh"><span class="qno">문제 3</span><span class="area">평형상수</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">①(K는 T 의존)·③(상전이 중 온도 일정)·④(촉매는 K 불변)는 옳다.</p>
     <p class="step"><span class="x">②</span> 증기압은 <b>온도</b>에만 의존하고 대기압과 무관. → <b>②</b></p>
     <div class="tip">증기압 = 액체와 평형인 증기의 압력으로 온도만의 함수. 외부 대기압을 바꿔도 증기압 자체는 변하지 않는다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 4</span><span class="area">삼중점</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q4"><div class="qh"><span class="qno">문제 4</span><span class="area">삼중점</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step"><span class="x">①</span> 25°C &lt; 임계점 31°C라 <b>충분히 가압하면 액화 가능</b>(거짓).</p>
     <p class="step">②(1atm&lt;삼중점 5.1atm이라 승화)·③(35°C&gt;임계점이라 액체 불가)·④(같은 온도서 액체 증기압&gt;고체)는 옳다. → <b>①</b></p>
     <div class="tip">임계온도 아래면 가압으로 액화 가능. 25°C는 임계점(31°C)보다 낮으니 액체 CO<sub>2</sub>를 만들 수 있다(소화기 내부처럼).</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 5</span><span class="area">압력</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q5"><div class="qh"><span class="qno">문제 5</span><span class="area">압력</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">가압은 <b>밀도 큰(부피 작은) 상</b>을 선호. ②③④는 모두 더 조밀한 상으로 가는 변화라 가압에 유리.</p>
     <p class="step"><span class="x">①</span> 고체→기체는 가장 성긴 상으로 가는 변화라 가압 시 가능성 최저. → <b>①</b></p>
     <div class="tip">르샤틀리에: 압력↑면 부피가 작은 쪽으로. 고체→기체는 부피가 폭증하는 방향이라 가압에 가장 불리하다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 6</span><span class="area">분별증류</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q6"><div class="qh"><span class="qno">문제 6</span><span class="area">분별증류</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step"><span class="k">②</span> <b>삼중점</b>(0.01°C·0.006atm)에서 3상 공존(참).</p>
     <p class="step"><span class="x">①</span> 에탄올-물은 공비혼합물이라 완전 분리 불가. <span class="x">③</span> CaCl<sub>2</sub>(i=3)가 NaCl(i=2)보다 효과적. <span class="x">④</span> 0~4°C선 밀도 증가. → <b>②</b></p>
     <div class="tip">삼중점은 3상이 공존하는 유일한 온도·압력. 물의 밀도 이상(4°C 최대)과 공비혼합물은 단골 함정.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 7</span><span class="area">상평형도</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q7"><div class="qh"><span class="qno">문제 7</span><span class="area">상평형도</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">①(고체-액체선 양의 기울기)·②(상온 1atm서 기체)·③(1atm&lt;삼중점 5.1atm이라 액체 없음)는 옳다.</p>
     <p class="step"><span class="x">④</span> 상평형도는 <b>순수 CO<sub>2</sub>(1atm)</b> 기준. 대기 중 CO<sub>2</sub> 분압은 ~0.0004atm이라 −80°C서도 응결(눈)되지 않는다. → <b>④</b></p>
     <div class="tip">−80°C 승화점은 순수 CO<sub>2</sub>가 1기압일 때. 실제 대기의 CO<sub>2</sub> 분압은 매우 낮아 훨씬 더 차가워야 응결한다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 8</span><span class="area">상평형도</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q8"><div class="qh"><span class="qno">문제 8</span><span class="area">상평형도</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">①(녹는점 119°C&gt;95°C)·②(고체1·2·액체·기체로 삼중점 3개)·④(1atm서 119°C 녹음)는 옳다.</p>
     <p class="step"><span class="x">③</span> 상온(25°C)은 삼중점(95°C)보다 한참 낮아 증기압이 10⁻⁴atm(0.076torr) 미만 → 1torr보다 <b>작다</b>. → <b>③</b></p>
     <div class="tip">다형 물질은 삼중점이 여러 개. 상온이 녹는점(119°C)보다 훨씬 낮으면 고체의 증기압은 매우 작다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 9</span><span class="area">기체의용해도</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q9"><div class="qh"><span class="qno">문제 9</span><span class="area">기체의용해도</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step"><span class="x">①</span> 태초의 광합성은 <b>바다</b>(해양 남세균·조류)에서 일어났다(지상 식물은 훨씬 후). 거짓.</p>
     <p class="step">②(해양 광합성에 CO<sub>2</sub> 용해 중요)·③(O<sub>2</sub> 무극성이라 난용)·④(O<sub>2</sub> 축적 후 육상 진출)는 옳다. → <b>①</b></p>
     <div class="tip">생명·산소의 역사: 바다 광합성 → 대기 산소 축적 → 오존층 형성 → 육상 진출. 광합성의 시작은 물속이었다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 10</span><span class="area">용해도</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">각 1.5g(0.5L). 25°C 용해 한계: A 2.4×0.5=1.2g, B 1.2×0.5=0.6g. 석출: A 1.5−1.2 = <b>0.3g</b>, B 1.5−0.6 = <b>0.9g</b>.</p>
-    <p class="step">총 1.2g 중 A 0.3/1.2 = <b>25%</b>, B 75%. → <b>①</b></p>
-    <div class="tip">석출량 = 녹아있던 양 − 냉각 온도의 용해 한계. 용해도가 작은 B가 더 많이 석출된다.</div></div>
+<div class="q" id="q10"><div class="qh"><span class="qno">문제 10</span><span class="area">용해도</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">각 1.5g(0.5L).</p>
+<p class="step">25°C 용해 한계: A 2.4×0.5=1.2g, B 1.2×0.5=0.6g.</p>
+<p class="step">석출: A 1.5−1.2 = 0.3g, B 1.5−0.6 = 0.9g.</p>
+<p class="step">총 1.2g 중 A 0.3/1.2 = 25%, B 75%.</p>
+<p class="step">→ <b>①</b></p>
+<div class="tip">석출량 = 녹아있던 양 − 냉각 온도의 용해 한계. 용해도가 작은 B가 더 많이 석출된다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 11</span><span class="area">유유상종</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step"><b>에탄올</b>(−OH로 수소결합, 물과 섞임) &gt; <b>클로로폼</b>(극성, 약간 녹음) &gt; <b>에테인</b>(무극성, 거의 안 녹음). → <b>③</b></p>
-    <div class="tip">"비슷한 것끼리 녹는다": 수소결합&gt;극성&gt;무극성 순으로 물에 잘 녹는다. 에탄올은 물과 무한히 섞인다.</div></div>
+<div class="q" id="q11"><div class="qh"><span class="qno">문제 11</span><span class="area">유유상종</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">에탄올(−OH로 수소결합, 물과 섞임) &gt; 클로로폼(극성, 약간 녹음) &gt; 에테인(무극성, 거의 안 녹음).</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">"비슷한 것끼리 녹는다": 수소결합&gt;극성&gt;무극성 순으로 물에 잘 녹는다. 에탄올은 물과 무한히 섞인다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 12</span><span class="area">이온분위기</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q12"><div class="qh"><span class="qno">문제 12</span><span class="area">이온분위기</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">KHT → K⁺ + HT⁻. <span class="k">A</span>(최대 증가)=MgSO<sub>4</sub>(2+2− 이온세기 최대). <span class="k">B</span>=NaCl. <span class="k">C</span>(일정)=글루코오스(비전해질). <span class="x">D</span>(감소)=KCl(공통이온 K⁺). → <b>②</b></p>
     <div class="tip">전하 큰 무관 염(MgSO<sub>4</sub>)은 이온세기를 높여 용해도↑(염 효과). 비전해질은 무영향. 공통이온(KCl의 K⁺)은 용해도↓.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 13</span><span class="area">양적관계</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q13"><div class="qh"><span class="qno">문제 13</span><span class="area">양적관계</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">수화물 x g 중 CuSO<sub>4</sub> = 0.64x, 결정수 = 0.36x(용매에 더해짐). 포화: <span class="eq">0.64x/(100+0.36x) = 0.2 → 0.568x = 20 → x ≈ 35g</span>. → <b>②</b></p>
     <div class="tip">수화물이 녹으면 결정수가 용매 물에 합쳐진다. 이 추가 물을 분모에 넣지 않으면 답이 틀린다(흔한 함정).</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 14</span><span class="area">용해도</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q14"><div class="qh"><span class="qno">문제 14</span><span class="area">용해도</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step"><span class="k">①</span> HCl이 CO<sub>3</sub>²⁻를 소모(CO<sub>2</sub>↑) → CaCO<sub>3</sub> 용해도 증가(참).</p>
     <p class="step"><span class="x">②</span> SO<sub>4</sub>²⁻는 공통이온이라 BaSO<sub>4</sub> 용해도 <b>감소</b>. <span class="x">③</span> K<sub>sp</sub>는 온도만의 함수라 <b>불변</b>(용해도만 감소). → <b>①</b></p>
     <div class="tip">용해도곱 상수 K<sub>sp</sub>는 온도로만 변한다. 공통이온은 용해도를 낮추지만 K<sub>sp</sub>는 그대로. 약산 음이온은 산으로 제거해 용해도를 높인다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 15</span><span class="area">용해도</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">Ra는 2족(Ba와 유사). 염화물·질산염은 가용, Ra(OH)<sub>2</sub>도 가용(Ba(OH)<sub>2</sub>처럼). <b>탄산염 RaCO<sub>3</sub></b>만 난용(CaCO<sub>3</sub>·BaCO<sub>3</sub>처럼). → <b>②</b></p>
-    <div class="tip">용해도 규칙: 질산염·대부분 염화물은 가용, 2족 탄산염은 난용. 2족 수산화물은 아래로 갈수록 용해도 증가.</div></div>
+<div class="q" id="q15"><div class="qh"><span class="qno">문제 15</span><span class="area">용해도</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">Ra는 2족(Ba와 유사).</p>
+<p class="step">염화물·질산염은 가용, Ra(OH)2도 가용(Ba(OH)2처럼).</p>
+<p class="step">탄산염 RaCO3만 난용(CaCO3·BaCO3처럼).</p>
+<p class="step">→ <b>②</b></p>
+<div class="tip">용해도 규칙: 질산염·대부분 염화물은 가용, 2족 탄산염은 난용. 2족 수산화물은 아래로 갈수록 용해도 증가.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 16</span><span class="area">이온농도</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">[Zn²⁺] = K<sub>sp</sub>/[OH⁻]². [OH⁻]가 작을수록(<b>pH 낮을수록</b>) [Zn²⁺] 최대. pH 3이 가장 산성. → <b>①</b></p>
-    <div class="tip">수산화물은 산성일수록 잘 녹는다(OH⁻가 적어 평형이 용해 쪽으로). pH가 2 낮아지면 [Zn²⁺]는 10⁴배 커진다.</div></div>
+<div class="q" id="q16"><div class="qh"><span class="qno">문제 16</span><span class="area">이온농도</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">[Zn<sup>2+</sup>] = Ksp/[OH<sup>-</sup>]<sup>2</sup>.</p>
+<p class="step">[OH<sup>-</sup>]가 작을수록(pH 낮을수록) [Zn<sup>2+</sup>] 최대.</p>
+<p class="step">pH 3이 가장 산성.</p>
+<p class="step">→ <b>①</b></p>
+<div class="tip">수산화물은 산성일수록 잘 녹는다(OH<sup>-</sup>가 적어 평형이 용해 쪽으로). pH가 2 낮아지면 [Zn<sup>2+</sup>]는 10<sup>4</sup>배 커진다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 17</span><span class="area">이온수</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">AlCl<sub>3</sub>→4개, FeCl<sub>3</sub>→4개, H<sub>2</sub>SO<sub>4</sub>→3개. <b>KMnO<sub>4</sub> → K⁺ + MnO<sub>4</sub>⁻ = 2개</b>로 최소. → <b>④</b></p>
-    <div class="tip">MnO<sub>4</sub>⁻는 다원자 이온이라 통째로 하나. 해리 이온 수는 화학식의 양이온·음이온 개수 합.</div></div>
+<div class="q" id="q17"><div class="qh"><span class="qno">문제 17</span><span class="area">이온수</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">AlCl3→4개, FeCl3→4개, H2SO4→3개.</p>
+<p class="step">KMnO4 → K<sup>+</sup> + MnO4<sup>-</sup> = 2개로 최소.</p>
+<p class="step">→ <b>④</b></p>
+<div class="tip">MnO4<sup>-</sup>는 다원자 이온이라 통째로 하나. 해리 이온 수는 화학식의 양이온·음이온 개수 합.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 18</span><span class="area">용해도곱상수</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">AgCl ⇌ Ag⁺ + Cl⁻. K<sub>sp</sub> = s·s = s² → <b>s = (K<sub>sp</sub>)<sup>1/2</sup></b>. → <b>③</b></p>
-    <div class="tip">1:1 염은 K<sub>sp</sub>=s². 화학량론에 따라 지수가 달라지니(다음 문제 참고) 계수를 꼭 반영한다.</div></div>
+<div class="q" id="q18"><div class="qh"><span class="qno">문제 18</span><span class="area">용해도곱상수</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">AgCl ⇌ Ag<sup>+</sup> + Cl<sup>-</sup>.</p>
+<p class="step">Ksp = s·s = s<sup>2</sup> → s = (Ksp)1/2.</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">1:1 염은 Ksp=s<sup>2</sup>. 화학량론에 따라 지수가 달라지니(다음 문제 참고) 계수를 꼭 반영한다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 19</span><span class="area">용해도곱상수</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">Ca<sub>3</sub>(PO<sub>4</sub>)<sub>2</sub> ⇌ 3Ca²⁺ + 2PO<sub>4</sub>³⁻. K<sub>sp</sub> = (3s)³(2s)² = 27s³·4s² = <b>108s⁵</b> → s = (K<sub>sp</sub>/108)<sup>1/5</sup>. → <b>③</b></p>
-    <div class="tip">계수가 농도의 지수이자 곱하는 수가 된다: (3s)³·(2s)² = 27·4·s⁵ = 108s⁵. 총 이온수 5라 5제곱근.</div></div>
+<div class="q" id="q19"><div class="qh"><span class="qno">문제 19</span><span class="area">용해도곱상수</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">Ca3(PO4)2 ⇌ 3Ca<sup>2+</sup> + 2PO4<sup>3-</sup>.</p>
+<p class="step">Ksp = (3s)<sup>3</sup>(2s)<sup>2</sup> = 27s<sup>3</sup>·4s<sup>2</sup> = 108s<sup>5</sup> → s = (Ksp/108)1/5.</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">계수가 농도의 지수이자 곱하는 수가 된다: (3s)<sup>3</sup>·(2s)<sup>2</sup> = 27·4·s<sup>5</sup> = 108s<sup>5</sup>. 총 이온수 5라 5제곱근.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 20</span><span class="area">용해도곱상수</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">화학량론이 달라 몰용해도 s를 직접 계산: Sn(OH)<sub>2</sub>(4s³) ≈ 9×10⁻¹⁰, CdS(s²) = 10⁻¹⁴, <b>Al(OH)<sub>3</sub>(27s⁴) ≈ 5×10⁻⁹</b>, Pb<sub>3</sub>(PO<sub>4</sub>)<sub>2</sub>(108s⁵) ≈ 6×10⁻¹². → <b>③</b></p>
-    <div class="tip">K<sub>sp</sub>가 작다고 용해도가 작은 게 아니다. 화학량론이 다르면 반드시 s로 환산해 비교(Al(OH)<sub>3</sub>는 작은 K<sub>sp</sub>에도 s 최대).</div></div>
+<div class="q" id="q20"><div class="qh"><span class="qno">문제 20</span><span class="area">용해도곱상수</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">화학량론이 달라 몰용해도 s를 직접 계산: Sn(OH)2(4s<sup>3</sup>) ≈ 9×10<sup>-10</sup>, CdS(s<sup>2</sup>) = 10<sup>-14</sup>, Al(OH)3(27s<sup>4</sup>) ≈ 5×10<sup>-9</sup>, Pb3(PO4)2(108s<sup>5</sup>) ≈ 6×10<sup>-12</sup>.</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">Ksp가 작다고 용해도가 작은 게 아니다. 화학량론이 다르면 반드시 s로 환산해 비교(Al(OH)3는 작은 Ksp에도 s 최대).</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 21</span><span class="area">앙금생성</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">첨가 후 [Ag⁺] ≈ (0.010×0.05)/100 = 5×10⁻⁶ M. 각 Q와 K<sub>sp</sub> 비교:</p>
-    <p class="step">AgCl Q=5×10⁻⁷ &gt; 10⁻¹⁰✓, AgBr Q=2.5×10⁻⁹ &gt; 4×10⁻¹³✓, Ag<sub>2</sub>CrO<sub>4</sub> Q=(5×10⁻⁶)²×0.020 = 5×10⁻¹³ &lt; 2×10⁻¹²✗. → <b>AgCl+AgBr</b>. → <b>③</b></p>
-    <div class="tip">침전 여부는 이온곱 Q와 K<sub>sp</sub>를 비교: Q&gt;K<sub>sp</sub>면 침전. Ag<sub>2</sub>CrO<sub>4</sub>만 Q&lt;K<sub>sp</sub>라 안 생긴다([Ag⁺]이 제곱으로 들어감).</div></div>
+<div class="q" id="q21"><div class="qh"><span class="qno">문제 21</span><span class="area">앙금생성</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">첨가 후 [Ag<sup>+</sup>] ≈ (0.010×0.05)/100 = 5×10<sup>-6</sup></p>
+<p class="step">M. 각 Q와 Ksp 비교: AgCl Q=5×10<sup>-7</sup> &gt; 10<sup>-10</sup>✓, AgBr Q=2.5×10<sup>-9</sup> &gt; 4×10<sup>-13</sup>✓, Ag2CrO4 Q=(5×10<sup>-6</sup>)<sup>2</sup>×0.020 = 5×10<sup>-13</sup> &lt; 2×10<sup>-12</sup>✗.</p>
+<p class="step">→ AgCl+AgBr.</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">침전 여부는 이온곱 Q와 Ksp를 비교: Q&gt;Ksp면 침전. Ag2CrO4만 Q&lt;Ksp라 안 생긴다([Ag<sup>+</sup>]이 제곱으로 들어감).</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 22</span><span class="area">앙금생성</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q22"><div class="qh"><span class="qno">문제 22</span><span class="area">앙금생성</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">s = √(7.7×10⁻¹³) = 8.77×10⁻⁷ mol/L. g/L = <span class="eq">8.77×10⁻⁷ × 188 = 1.65×10⁻⁴ g/L</span>. → <b>③</b></p>
     <div class="tip">몰용해도(mol/L)를 구한 뒤 화학식량을 곱해 g/L로. 단위 변환을 빠뜨리지 말 것.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 23</span><span class="area">양적관계</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q23"><div class="qh"><span class="qno">문제 23</span><span class="area">양적관계</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">[SO<sub>4</sub>²⁻] = (1×0.050)/0.5 = 0.1M. 침전 시작점서 Q=K<sub>sp</sub>: <span class="eq">[Ba²⁺] = K<sub>sp</sub>/[SO<sub>4</sub>²⁻] = 10⁻¹⁰/0.1 = 1×10⁻⁹ M</span>. → <b>③</b></p>
     <div class="tip">침전이 "막 시작"하는 순간은 Q=K<sub>sp</sub>인 임계점. 이때 아직 침전이 없어 희석된 [Ba²⁺]가 그대로 답.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 24</span><span class="area">앙금생성</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q24"><div class="qh"><span class="qno">문제 24</span><span class="area">앙금생성</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">A·D는 순수 포화: [Ba²⁺] = √K<sub>sp</sub> = 1×10⁻⁵. B·C는 [SO<sub>4</sub>²⁻]=0.1 공통이온: [Ba²⁺] = 10⁻¹⁰/0.1 = 1×10⁻⁹.</p>
     <p class="step"><span class="k">②</span> A=D=10⁻⁵ 동일(참). <span class="x">①</span>A가 더 많음. <span class="x">③</span>공통이온은 낮춤. <span class="x">④</span>고체량 무관, B=C. → <b>②</b></p>
     <div class="tip">D는 Ba²⁺·SO<sub>4</sub>²⁻를 똑같이 넣어 거의 다 침전 → 순수 포화(A와 동일). 공통이온(B·C)은 용해도를 낮춘다. 고체 양은 [Ba²⁺]와 무관.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 25</span><span class="area">용해도곱상수</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">당량점 전 [Ag⁺]=K<sub>sp</sub>/[X⁻]. <b>왼쪽</b>: pAg⁺ 높을수록(=[Ag⁺] 낮을수록) [X⁻] 큼 → A&gt;B&gt;C. <b>오른쪽</b>: 같은 [X⁻]라 pAg⁺ 높을수록 K<sub>sp</sub> 작음 → 가&lt;나&lt;다. → <b>③</b></p>
-    <div class="tip">pAg⁺ = −log[Ag⁺]. 당량점 전 곡선 위치가 위(높은 pAg⁺)일수록 [Ag⁺]가 작고, 이는 음이온 농도가 크거나 K<sub>sp</sub>가 작음을 뜻한다.</div></div>
+<div class="q" id="q25"><div class="qh"><span class="qno">문제 25</span><span class="area">용해도곱상수</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">당량점 전 [Ag<sup>+</sup>]=Ksp/[X<sup>-</sup>].</p>
+<p class="step">왼쪽: pAg<sup>+</sup> 높을수록(=[Ag<sup>+</sup>] 낮을수록) [X<sup>-</sup>] 큼 → A&gt;B&gt;C.</p>
+<p class="step">오른쪽: 같은 [X<sup>-</sup>]라 pAg<sup>+</sup> 높을수록 Ksp 작음 → 가&lt;나&lt;다.</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">pAg<sup>+</sup> = −log[Ag<sup>+</sup>]. 당량점 전 곡선 위치가 위(높은 pAg<sup>+</sup>)일수록 [Ag<sup>+</sup>]가 작고, 이는 음이온 농도가 크거나 Ksp가 작음을 뜻한다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 26</span><span class="area">다양성자산</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">다양성자산은 K<sub>a1</sub>&gt;K<sub>a2</sub>&gt;K<sub>a3</sub>(단계마다 약해짐). 1차 해리하는 <b>H<sub>3</sub>Y</b>가 가장 강한 산. → <b>①</b></p>
-    <div class="tip">음전하가 늘수록 H⁺를 떼기 어렵다. 그래서 첫 번째 양성자가 가장 쉽게 떨어진다(K<sub>a1</sub> 최대).</div></div>
+<div class="q" id="q26"><div class="qh"><span class="qno">문제 26</span><span class="area">다양성자산</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">다양성자산은 Ka1&gt;Ka2&gt;Ka3(단계마다 약해짐).</p>
+<p class="step">1차 해리하는 H3Y가 가장 강한 산.</p>
+<p class="step">→ <b>①</b></p>
+<div class="tip">음전하가 늘수록 H<sup>+</sup>를 떼기 어렵다. 그래서 첫 번째 양성자가 가장 쉽게 떨어진다(Ka1 최대).</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 27</span><span class="area">물의자동이온화</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q27"><div class="qh"><span class="qno">문제 27</span><span class="area">물의자동이온화</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">[H⁺] ≈ 10⁻⁴(HBr). 물에서 나온 H⁺ = [OH⁻](물 자체이온화는 1:1) = <span class="eq">K<sub>w</sub>/[H⁺] = 10⁻¹⁴/10⁻⁴ = 10⁻¹⁰ M</span>. → <b>③</b></p>
     <div class="tip">산성 용액에서도 물은 H⁺와 OH⁻를 같은 양 만든다. 물 유래 H⁺ = [OH⁻]. 산이 누른 만큼 물의 기여는 작아진다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 28</span><span class="area">해리도</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">[H⁺] = √(K<sub>a</sub>·C) = √(10⁻⁵×0.1) = 10⁻³ M. 해리도 = 10⁻³/0.1 × 100 = <b>1%</b>. → <b>③</b></p>
-    <div class="tip">약산 근사: [H⁺]≈√(K<sub>a</sub>C). 해리도 = [H⁺]/초기 농도. 농도가 묽어지면 해리도는 커진다(오스트발트 희석률).</div></div>
+<div class="q" id="q28"><div class="qh"><span class="qno">문제 28</span><span class="area">해리도</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">[H<sup>+</sup>] = √(Ka·C) = √(10<sup>-5</sup>×0.1) = 10<sup>-3</sup></p>
+<p class="step">M. 해리도 = 10<sup>-3</sup>/0.1 × 100 = 1%.</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">약산 근사: [H<sup>+</sup>]≈√(KaC). 해리도 = [H<sup>+</sup>]/초기 농도. 농도가 묽어지면 해리도는 커진다(오스트발트 희석률).</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 29</span><span class="area">해리백분율</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">[H⁺] = 10⁻³ M = 해리된 HA. 해리율 = 10⁻³/0.50 × 100 = <b>0.20%</b>. → <b>②</b></p>
-    <div class="tip">pH로 [H⁺](=해리량)를 구하고 초기 농도로 나눈다. 진한 용액(0.50M)이라 해리율이 작다.</div></div>
+<div class="q" id="q29"><div class="qh"><span class="qno">문제 29</span><span class="area">해리백분율</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">[H<sup>+</sup>] = 10<sup>-3</sup> M = 해리된 HA.</p>
+<p class="step">해리율 = 10<sup>-3</sup>/0.50 × 100 = 0.20%.</p>
+<p class="step">→ <b>②</b></p>
+<div class="tip">pH로 [H<sup>+</sup>](=해리량)를 구하고 초기 농도로 나눈다. 진한 용액(0.50M)이라 해리율이 작다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 30</span><span class="area">희석</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">강산이면 10배 희석 시 pH가 정확히 1 증가(→4.0). 하지만 <b>약산</b>은 희석하면 해리도가 커져 [H⁺]가 10배보다 덜 떨어짐 → <b>3.0 &lt; pH &lt; 4.0</b>. → <b>②</b></p>
-    <div class="tip">약산은 희석할수록 더 많이 해리돼 pH 변화가 강산보다 둔하다. 10배 희석에 pH는 1 미만 증가.</div></div>
+<div class="q" id="q30"><div class="qh"><span class="qno">문제 30</span><span class="area">희석</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">강산이면 10배 희석 시 pH가 정확히 1 증가(→4.0).</p>
+<p class="step">하지만 약산은 희석하면 해리도가 커져 [H<sup>+</sup>]가 10배보다 덜 떨어짐 → 3.0 &lt; pH &lt; 4.0.</p>
+<p class="step">→ <b>②</b></p>
+<div class="tip">약산은 희석할수록 더 많이 해리돼 pH 변화가 강산보다 둔하다. 10배 희석에 pH는 1 미만 증가.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 31</span><span class="area">평형상수</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">K = K<sub>HX</sub>/K<sub>HY</sub>. K &lt; 1 → <b>K<sub>HX</sub> &lt; K<sub>HY</sub></b>. → <b>③</b></p>
-    <div class="tip">산-염기 반응은 강산→약산 방향이 유리. K&lt;1이면 HX가 더 약한 산(K<sub>HX</sub> 작음)이라 반응이 잘 안 간다.</div></div>
+<div class="q" id="q31"><div class="qh"><span class="qno">문제 31</span><span class="area">평형상수</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">K = KHX/KHY.</p>
+<p class="step">K &lt; 1 → KHX &lt; KHY.</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">산-염기 반응은 강산→약산 방향이 유리. K&lt;1이면 HX가 더 약한 산(KHX 작음)이라 반응이 잘 안 간다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 32</span><span class="area">평형상수</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">K = K<sub>a</sub>(HA)/K<sub>a</sub>(HB). pK<sub>a</sub>(HA)&lt;pK<sub>a</sub>(HB) → K<sub>a</sub>(HA)&gt;K<sub>a</sub>(HB)(HA가 강산) → <b>K &gt; 1</b>. → <b>③</b></p>
-    <div class="tip">pK<sub>a</sub>가 작을수록 강산. 강산(HA)이 약산(HB)으로 바뀌는 방향이라 K&gt;1(정반응 유리).</div></div>
+<div class="q" id="q32"><div class="qh"><span class="qno">문제 32</span><span class="area">평형상수</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">K = Ka(HA)/Ka(HB).</p>
+<p class="step">pKa(HA)&lt;pKa(HB) → Ka(HA)&gt;Ka(HB)(HA가 강산) → K &gt; 1.</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">pKa가 작을수록 강산. 강산(HA)이 약산(HB)으로 바뀌는 방향이라 K&gt;1(정반응 유리).</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 33</span><span class="area">pH</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">K = [Cr<sub>2</sub>O<sub>7</sub>²⁻]/([CrO<sub>4</sub>²⁻]²[H⁺]²): 3.0×10¹⁴ = 0.10/(0.01·[H⁺]²) → [H⁺]² = 3.3×10⁻¹⁴.</p>
-    <p class="step">[H⁺] = 1.8×10⁻⁷ → pH = <b>6.7</b>. → <b>③</b></p>
-    <div class="tip">평형식에 농도를 대입해 [H⁺]를 푼다. H⁺ 계수가 2라 제곱으로 들어간다. 크로뮴산-다이크로뮴산 평형은 pH 의존성이 크다.</div></div>
+<div class="q" id="q33"><div class="qh"><span class="qno">문제 33</span><span class="area">pH</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">K = [Cr2O7<sup>2-</sup>]/([CrO4<sup>2-</sup>]<sup>2</sup>[H<sup>+</sup>]<sup>2</sup>): 3.0×10<sup>14</sup> = 0.10/(0.01·[H<sup>+</sup>]<sup>2</sup>) → [H<sup>+</sup>]<sup>2</sup> = 3.3×10<sup>-14</sup>.</p>
+<p class="step">[H<sup>+</sup>] = 1.8×10<sup>-7</sup> → pH = 6.7.</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">평형식에 농도를 대입해 [H<sup>+</sup>]를 푼다. H<sup>+</sup> 계수가 2라 제곱으로 들어간다. 크로뮴산-다이크로뮴산 평형은 pH 의존성이 크다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 34</span><span class="area">약염기</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q34"><div class="qh"><span class="qno">문제 34</span><span class="area">약염기</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">[OH⁻] = 0.042×0.010 = 4.2×10⁻⁴. <span class="k">가</span> pOH = 4−0.623 = 3.38 → pH = 10.6(참).</p>
     <p class="step"><span class="x">나</span> 희석하면 해리도 <b>증가</b>(거짓). <span class="k">다</span> K<sub>b</sub>≈Cα²=1.8×10⁻⁵ → K<sub>a</sub>(BH⁺)=K<sub>w</sub>/K<sub>b</sub>=5.6×10⁻¹⁰(참). → <b>②</b></p>
     <div class="tip">해리도로 [OH⁻]→pOH→pH. 짝산 K<sub>a</sub>=K<sub>w</sub>/K<sub>b</sub>. 묽어질수록 해리도가 커지는 건 약전해질의 일반 성질.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 35</span><span class="area">물의자동이온화</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q35"><div class="qh"><span class="qno">문제 35</span><span class="area">물의자동이온화</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">순수 물 [H⁺]=[OH⁻]=10⁻⁶·⁶³. <span class="eq">K<sub>w</sub> = (10⁻⁶·⁶³)² = 10⁻¹³·²⁶ ≈ 5×10⁻¹⁴</span>. → <b>②</b></p>
     <div class="tip">물의 자체이온화는 흡열이라 고온서 K<sub>w</sub>↑. 50°C 중성 물의 pH가 7보다 작은 6.63인 이유(여전히 [H⁺]=[OH⁻]이라 중성).</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 36</span><span class="area">물의자동이온화</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q36"><div class="qh"><span class="qno">문제 36</span><span class="area">물의자동이온화</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">중성 D<sub>2</sub>O: [D⁺]=√(1.4×10⁻¹⁵)=√14×10⁻⁸. <span class="eq">pD = −(½log14 − 8) = −(0.575 − 8) = 7.4</span>. → <b>④</b></p>
     <div class="tip">중성 기준 pD는 7.0이 아니라 7.4. D<sub>2</sub>O는 H<sub>2</sub>O보다 이온화가 덜 돼(K<sub>w</sub> 작음) 중성점이 높다. pD&lt;7.4면 산성.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 37</span><span class="area">약산</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q37"><div class="qh"><span class="qno">문제 37</span><span class="area">약산</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">①(질량보존 [HA]+[A⁻]=0.010, +[H<sub>3</sub>O⁺]&gt;0.010)·②(약산이라 대부분 HA)·③(약산이라 [H⁺]&lt;0.010, pH&gt;2)는 옳다.</p>
     <p class="step"><span class="x">④</span> 전하 균형: [H<sub>3</sub>O⁺] = [A⁻] + [OH⁻] → <b>[H<sub>3</sub>O⁺] &gt; [A⁻]</b>(물의 OH⁻만큼 더 큼). → <b>④</b></p>
     <div class="tip">전하 균형으로 따지면 H<sub>3</sub>O⁺가 A⁻보다 미세하게 많다(물 자체이온화의 OH⁻ 때문). 약산 0.010M은 강산과 달리 pH&gt;2.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 38</span><span class="area">지시약</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">NH<sub>3</sub>(약염기)+HCl(강산) 당량점은 <b>산성</b>(NH<sub>4</sub>⁺, pH~5) → 산성 영역 지시약 <b>메틸오렌지</b>. 중화점 이후 과량 HCl로 산성 → 메틸오렌지 산성색 <b>오렌지</b>. → <b>①</b></p>
-    <div class="tip">약염기+강산 적정은 당량점이 산성이라 메틸오렌지·메틸레드를 쓴다. 페놀프탈레인(염기성 변색)은 부적합. 당량점 이후는 산성색.</div></div>
+<div class="q" id="q38"><div class="qh"><span class="qno">문제 38</span><span class="area">지시약</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">NH3(약염기)+HCl(강산) 당량점은 산성(NH4<sup>+</sup>, pH~5) → 산성 영역 지시약 메틸오렌지.</p>
+<p class="step">중화점 이후 과량 HCl로 산성 → 메틸오렌지 산성색 오렌지.</p>
+<p class="step">→ <b>①</b></p>
+<div class="tip">약염기+강산 적정은 당량점이 산성이라 메틸오렌지·메틸레드를 쓴다. 페놀프탈레인(염기성 변색)은 부적합. 당량점 이후는 산성색.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 39</span><span class="area">지시약</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">당량점: NH<sub>4</sub>⁺ 0.050M, K<sub>a</sub>=5.6×10⁻¹⁰ → [H⁺]=√(5.6×10⁻¹⁰×0.05)≈5.3×10⁻⁶ → <b>pH≈5.3</b>.</p>
-    <p class="step">pK<sub>a</sub>가 5.3에 가장 가까운 <b>메틸 레드(5.4)</b>. → <b>②</b></p>
-    <div class="tip">지시약은 당량점 pH에 변색 범위(pK<sub>a</sub>±1)가 걸리는 것을 고른다. 당량점 pH를 계산해 가장 가까운 pK<sub>a</sub>를 매칭.</div></div>
+<div class="q" id="q39"><div class="qh"><span class="qno">문제 39</span><span class="area">지시약</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">당량점: NH4<sup>+</sup> 0.050M, Ka=5.6×10<sup>-10</sup> → [H<sup>+</sup>]=√(5.6×10<sup>-10</sup>×0.05)≈5.3×10<sup>-6</sup> → pH≈5.3.</p>
+<p class="step">pKa가 5.3에 가장 가까운 메틸 레드(5.4).</p>
+<p class="step">→ <b>②</b></p>
+<div class="tip">지시약은 당량점 pH에 변색 범위(pKa±1)가 걸리는 것을 고른다. 당량점 pH를 계산해 가장 가까운 pKa를 매칭.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 40</span><span class="area">농부가</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">필요 NaOH = 산성 양성자 당량: ① 0.1×10×1 = 1.0, <b>② 0.1×15×1 = 1.5</b>, ③ 0.07×10×2 = 1.4, ④ 0.02×20×3 = 1.2 mmol. 최대는 <b>②</b>. → <b>②</b></p>
-    <div class="tip">마지막 당량점은 모든 산성 H를 중화. 다양성자산(H<sub>2</sub>SO<sub>4</sub> 2개·H<sub>3</sub>PO<sub>4</sub> 3개)의 양성자 수를 곱해야 한다. 강·약산 무관, 양은 같다.</div></div>
+<div class="q" id="q40"><div class="qh"><span class="qno">문제 40</span><span class="area">농부가</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">필요 NaOH = 산성 양성자 당량: ① 0.1×10×1 = 1.0, ② 0.1×15×1 = 1.5, ③ 0.07×10×2 = 1.4, ④ 0.02×20×3 = 1.2 mmol.</p>
+<p class="step">최대는 ②.</p>
+<p class="step">→ <b>②</b></p>
+<div class="tip">마지막 당량점은 모든 산성 H를 중화. 다양성자산(H2SO4 2개·H3PO4 3개)의 양성자 수를 곱해야 한다. 강·약산 무관, 양은 같다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 41</span><span class="area">pH</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q41"><div class="qh"><span class="qno">문제 41</span><span class="area">pH</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">①NaCl·③포도당은 중성(pH=7). ②NaHCO<sub>3</sub>는 염기성(pH~8.3). <span class="k">④</span> 10⁻⁸M HCl도 <b>약산성</b>(물+HCl 합쳐 pH~6.98 &lt; 7)이라 최저. → <b>④</b></p>
     <div class="tip">10⁻⁸M HCl을 pH 8로 착각하면 안 된다. 산을 희석해도 염기가 되지 않는다. 물의 자체이온화까지 합치면 pH는 7보다 살짝 아래.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 42</span><span class="area">약염기</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step"><b>HNO<sub>3</sub>는 강산</b>이라 짝염기 NO<sub>3</sub>⁻가 거의 염기성이 없다(가장 약한 염기). 나머지는 약산의 짝염기라 더 세다. → <b>①</b></p>
-    <div class="tip">산이 셀수록 짝염기는 약하다. 강산(HNO<sub>3</sub>)의 짝염기 NO<sub>3</sub>⁻가 가장 약한 염기.</div></div>
+<div class="q" id="q42"><div class="qh"><span class="qno">문제 42</span><span class="area">약염기</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">HNO3는 강산이라 짝염기 NO3<sup>-</sup>가 거의 염기성이 없다(가장 약한 염기).</p>
+<p class="step">나머지는 약산의 짝염기라 더 세다.</p>
+<p class="step">→ <b>①</b></p>
+<div class="tip">산이 셀수록 짝염기는 약하다. 강산(HNO3)의 짝염기 NO3<sup>-</sup>가 가장 약한 염기.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 43</span><span class="area">용해도</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q43"><div class="qh"><span class="qno">문제 43</span><span class="area">용해도</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">s = [Mg²⁺] = K<sub>sp</sub>/[OH⁻]². [OH⁻]=K<sub>w</sub>/[H⁺] 대입: <span class="eq">s = K<sub>sp</sub>[H⁺]²/K<sub>w</sub>²</span> → <b>s ∝ [H⁺]²</b>(아래로 볼록 포물선). → <b>③</b></p>
     <div class="tip">[OH⁻]를 [H⁺]로 바꾸면 제곱 관계가 드러난다. [H⁺]가 커질수록(산성) 기울기가 점점 가팔라지는 포물선.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 44</span><span class="area">염기성</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">RbI 중성, NH<sub>4</sub>NO<sub>3</sub> 산성. CH<sub>3</sub>COO⁻ K<sub>b</sub>=K<sub>w</sub>/K<sub>a</sub>=5.6×10⁻¹⁰, <b>CN⁻ K<sub>b</sub>=K<sub>w</sub>/(4×10⁻¹⁰)=2.5×10⁻⁵</b>. CN⁻이 훨씬 센 염기. → <b>④</b></p>
-    <div class="tip">모산이 약할수록 짝염기가 세다. HCN이 가장 약한 산(K<sub>a</sub>=4×10⁻¹⁰)이라 CN⁻이 가장 센 염기 → NaCN.</div></div>
+<div class="q" id="q44"><div class="qh"><span class="qno">문제 44</span><span class="area">염기성</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">RbI 중성, NH4NO3 산성.</p>
+<p class="step">CH3COO<sup>-</sup> Kb=Kw/Ka=5.6×10<sup>-10</sup>, CN<sup>-</sup> Kb=Kw/(4×10<sup>-10</sup>)=2.5×10<sup>-5</sup>.</p>
+<p class="step">CN<sup>-</sup>이 훨씬 센 염기.</p>
+<p class="step">→ <b>④</b></p>
+<div class="tip">모산이 약할수록 짝염기가 세다. HCN이 가장 약한 산(Ka=4×10<sup>-10</sup>)이라 CN<sup>-</sup>이 가장 센 염기 → NaCN.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 45</span><span class="area">농도</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q45"><div class="qh"><span class="qno">문제 45</span><span class="area">농도</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step"><span class="k">a·b</span> K⁺·Na⁺는 구경꾼 이온이라 넣은 그대로(0.030·0.10M, 참).</p>
     <p class="step"><span class="x">c</span> H<sub>2</sub>PO<sub>4</sub>⁻는 과량 OH⁻와 반응해 HPO<sub>4</sub>²⁻·PO<sub>4</sub>³⁻로 변함(0.030M 아님). <span class="x">d</span> OH⁻ 0.060몰 소모돼 0.040M 남음(0.10 아님). → <b>①</b></p>
     <div class="tip">구경꾼 이온(K⁺·Na⁺)의 농도는 반응과 무관하게 보존된다. 반응에 참여하는 H<sub>2</sub>PO<sub>4</sub>⁻·OH⁻는 소비된다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 46</span><span class="area">염의가수분해</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">K⁺는 중성 구경꾼. 네 음이온(CH<sub>3</sub>CO<sub>2</sub>⁻·F⁻·CN⁻·NO<sub>2</sub>⁻)은 모두 <b>약산</b>(아세트산·HF·HCN·HNO<sub>2</sub>)의 짝염기 → 모두 염기성. → <b>4개, ①</b></p>
-    <div class="tip">강염기 양이온(K⁺)+약산 음이온 = 염기성 염. HF·HCN·HNO<sub>2</sub>·아세트산이 모두 약산이라 네 염 다 염기성.</div></div>
+<div class="q" id="q46"><div class="qh"><span class="qno">문제 46</span><span class="area">염의가수분해</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">K<sup>+</sup>는 중성 구경꾼.</p>
+<p class="step">네 음이온(CH3CO2<sup>-</sup>·F<sup>-</sup>·CN<sup>-</sup>·NO2<sup>-</sup>)은 모두 약산(아세트산·HF·HCN·HNO2)의 짝염기 → 모두 염기성.</p>
+<p class="step">→ 4개, ① 강염기 양이온(K<sup>+</sup>)+약산 음이온 = 염기성 염.</p>
+<p class="step">HF·HCN·HNO2·아세트산이 모두 약산이라 네 염 다 염기성.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 47</span><span class="area">염의가수분해</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">a(0.1M 산, pH 2.9) &lt; d(0.01M 산, 3.4) &lt; <b>c(완충=pK<sub>a</sub>=4.76)</b> &lt; e(0.01M 염, 8.4) &lt; b(0.1M 염, 8.9). → <b>④</b></p>
-    <div class="tip">완충(c)은 pK<sub>a</sub>로 고정돼 중간. 산은 묽힐수록 pH↑, 염은 묽힐수록 pH↓(둘 다 7에 가까워짐).</div></div>
+<div class="q" id="q47"><div class="qh"><span class="qno">문제 47</span><span class="area">염의가수분해</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">a(0.1M 산, pH 2.9) &lt; d(0.01M 산, 3.4) &lt; c(완충=pKa=4.76) &lt; e(0.01M 염, 8.4) &lt; b(0.1M 염, 8.9).</p>
+<p class="step">→ <b>④</b></p>
+<div class="tip">완충(c)은 pKa로 고정돼 중간. 산은 묽힐수록 pH↑, 염은 묽힐수록 pH↓(둘 다 7에 가까워짐).</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 48</span><span class="area">완충용액</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q48"><div class="qh"><span class="qno">문제 48</span><span class="area">완충용액</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">pH=pK<sub>a</sub>이려면 [HA]=[A⁻]. ①②(직접 동량)·③(NaOH가 산 절반을 염으로 → 0.5:0.5)는 완충.</p>
     <p class="step"><span class="x">④</span> HCl 0.5가 아세트산염 0.5를 <b>모두</b> 산으로 바꿈 → 짝염기 0, 순수 약산만 남아 완충 안 됨. → <b>④</b></p>
     <div class="tip">완충은 약산·짝염기가 둘 다 있어야 한다. ④는 짝염기를 전부 중화해 약산만 남기니 완충이 아니다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 49</span><span class="area">완충용액</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">완충1: A⁻/HA = 0.040/0.080 = 1/2 → pH = pK<sub>a</sub> − log2. 완충2: 0.080/0.040 = 2 → pH = pK<sub>a</sub> + log2.</p>
-    <p class="step">차이 = 2log2 = <b>log4</b>. → <b>③</b></p>
-    <div class="tip">반당량점(pH=pK<sub>a</sub>)을 기준으로 대칭이라 두 pH가 ±log2. 차이는 log4가 된다.</div></div>
+<div class="q" id="q49"><div class="qh"><span class="qno">문제 49</span><span class="area">완충용액</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">완충1: A<sup>-</sup>/HA = 0.040/0.080 = 1/2 → pH = pKa − log2.</p>
+<p class="step">완충2: 0.080/0.040 = 2 → pH = pKa + log2.</p>
+<p class="step">차이 = 2log2 = log4.</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">반당량점(pH=pKa)을 기준으로 대칭이라 두 pH가 ±log2. 차이는 log4가 된다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 50</span><span class="area">NaF</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q50"><div class="qh"><span class="qno">문제 50</span><span class="area">NaF</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">①(등전자라 양성자 많은 Na⁺가 작음)·②(F⁻는 약산 HF의 짝염기라 염기성)·④(암염 구조라 배위수 6 동일)는 옳다.</p>
     <p class="step"><span class="x">③</span> 산성서 F⁻ + H⁺ → HF로 용해도 <b>증가</b> → pH 의존(거짓). → <b>③</b></p>
     <div class="tip">약산 음이온을 가진 염은 산성 용액서 용해도가 커진다(음이온이 산과 반응해 제거되며 평형이 용해 쪽으로). NaF도 마찬가지.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 51</span><span class="area">중화점</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">HCl·NaOH(강+강) → 당량점 pH=7. HCOOH(약산+강염기) → pH&gt;7. <b>NH<sub>3</sub>(약염기+강산)</b> → 당량점 NH<sub>4</sub>⁺이라 pH&lt;7. → <b>③</b></p>
-    <div class="tip">약염기를 강산으로 적정하면 당량점에서 약산성 짝산(NH<sub>4</sub>⁺)만 남아 산성. 약산+강염기는 반대로 염기성.</div></div>
+<div class="q" id="q51"><div class="qh"><span class="qno">문제 51</span><span class="area">중화점</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">HCl·NaOH(강+강) → 당량점 pH=7.</p>
+<p class="step">HCOOH(약산+강염기) → pH&gt;7.</p>
+<p class="step">NH3(약염기+강산) → 당량점 NH4<sup>+</sup>이라 pH&lt;7.</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">약염기를 강산으로 적정하면 당량점에서 약산성 짝산(NH4<sup>+</sup>)만 남아 산성. 약산+강염기는 반대로 염기성.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 52</span><span class="area">pH</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">B 2.0mmol, HX 1.0mmol → B 1.0·BH⁺ 1.0 완충, pOH=pK<sub>b</sub>=5.00(∵pH 9). HX 15mL면 B 0.5·BH⁺ 1.5.</p>
-    <p class="step">pOH = 5.00 + log(1.5/0.5) = 5.00 + 0.48 = 5.48 → <b>pH = 8.52</b>. → <b>②</b></p>
-    <div class="tip">첫 조건(반중화점)에서 pOH=pK<sub>b</sub>를 얻는다. 헨더슨-하셀바흐(염기형)로 비율 변화에 따른 pH를 계산.</div></div>
+<div class="q" id="q52"><div class="qh"><span class="qno">문제 52</span><span class="area">pH</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">B 2.0mmol, HX 1.0mmol → B 1.0·BH<sup>+</sup> 1.0 완충, pOH=pKb=5.00(∵pH 9).</p>
+<p class="step">HX 15mL면 B 0.5·BH<sup>+</sup> 1.5.</p>
+<p class="step">pOH = 5.00 + log(1.5/0.5) = 5.00 + 0.48 = 5.48 → pH = 8.52.</p>
+<p class="step">→ <b>②</b></p>
+<div class="tip">첫 조건(반중화점)에서 pOH=pKb를 얻는다. 헨더슨-하셀바흐(염기형)로 비율 변화에 따른 pH를 계산.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 53</span><span class="area">전도도</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">Ba²⁺ + SO<sub>4</sub>²⁻ → BaSO<sub>4</sub>↓, OH⁻ + NH<sub>4</sub>⁺ → NH<sub>3</sub>·H<sub>2</sub>O. <b>두 반응이 모두 이온을 제거</b> → 당량점까지 전도도 <b>감소</b>, 이후 과량 이온으로 <b>증가</b>(V자). → <b>①</b></p>
-    <div class="tip">침전과 중화가 동시에 일어나 이온이 양쪽 다 제거된다. 당량점에서 전도도가 최소가 되는 뚜렷한 V자.</div></div>
+<div class="q" id="q53"><div class="qh"><span class="qno">문제 53</span><span class="area">전도도</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">Ba<sup>2+</sup> + SO4<sup>2-</sup> → BaSO4↓, OH<sup>-</sup> + NH4<sup>+</sup> → NH3·H2O.</p>
+<p class="step">두 반응이 모두 이온을 제거 → 당량점까지 전도도 감소, 이후 과량 이온으로 증가(V자).</p>
+<p class="step">→ <b>①</b></p>
+<div class="tip">침전과 중화가 동시에 일어나 이온이 양쪽 다 제거된다. 당량점에서 전도도가 최소가 되는 뚜렷한 V자.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 54</span><span class="area">pH</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">당량점: NH<sub>3</sub> 모두 NH<sub>4</sub>⁺로, [NH<sub>4</sub>⁺]=0.0144/2=0.0072M. K<sub>a</sub>=K<sub>w</sub>/K<sub>b</sub>=5.6×10⁻¹⁰.</p>
-    <p class="step">[H⁺]=√(5.6×10⁻¹⁰×0.0072)=2.0×10⁻⁶ → pH = <b>5.7</b>. → <b>①</b></p>
-    <div class="tip">약염기+강산 당량점은 짝산(NH<sub>4</sub>⁺)의 가수분해로 산성. 부피 2배 희석된 농도로 [H⁺]=√(K<sub>a</sub>C).</div></div>
+<div class="q" id="q54"><div class="qh"><span class="qno">문제 54</span><span class="area">pH</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">당량점: NH3 모두 NH4<sup>+</sup>로, [NH4<sup>+</sup>]=0.0144/2=0.0072M.</p>
+<p class="step">Ka=Kw/Kb=5.6×10<sup>-10</sup>.</p>
+<p class="step">[H<sup>+</sup>]=√(5.6×10<sup>-10</sup>×0.0072)=2.0×10<sup>-6</sup> → pH = 5.7.</p>
+<p class="step">→ <b>①</b></p>
+<div class="tip">약염기+강산 당량점은 짝산(NH4<sup>+</sup>)의 가수분해로 산성. 부피 2배 희석된 농도로 [H<sup>+</sup>]=√(KaC).</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 55</span><span class="area">지시약</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">강염기서 phph⁻²(분홍) → phph⁻³(무색) 퇴색이라 둘 다 <b>감소</b>(③④ 탈락). 속도는 [OH⁻]에 비례 → <b>1.5M이 더 빨리 감소</b>(아래로), 0.75M은 천천히(위에). → <b>②</b></p>
-    <div class="tip">페놀프탈레인 퇴색은 강염기 농도가 높을수록 빠른 고전적 반응속도 실험. 분홍색 phph⁻²가 무색으로 줄어든다.</div></div>
+<div class="q" id="q55"><div class="qh"><span class="qno">문제 55</span><span class="area">지시약</span><span class="ans">정답 ②</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">강염기서 phph<sup>-2</sup>(분홍) → phph<sup>-3</sup>(무색) 퇴색이라 둘 다 감소(③④ 탈락).</p>
+<p class="step">속도는 [OH<sup>-</sup>]에 비례 → 1.5M이 더 빨리 감소(아래로), 0.75M은 천천히(위에).</p>
+<p class="step">→ <b>②</b></p>
+<div class="tip">페놀프탈레인 퇴색은 강염기 농도가 높을수록 빠른 고전적 반응속도 실험. 분홍색 phph<sup>-2</sup>가 무색으로 줄어든다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 56</span><span class="area">중화적정</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step"><b>pK<sub>a</sub>=8</b>은 더 약한 산이라 덜 해리 → 초기 pH가 더 높음 → 위쪽 곡선 <b>A</b>. <b>10배 묽힌 산</b>은 농도↓로 초기 pH가 더 높음(½(pK<sub>a</sub>−logC)) → <b>가</b>. → <b>①</b></p>
-    <div class="tip">약할수록·묽을수록 초기 pH가 높다. 반당량점 pH=pK<sub>a</sub>는 농도 무관이라 곡선들이 그 지점에서 교차한다.</div></div>
+<div class="q" id="q56"><div class="qh"><span class="qno">문제 56</span><span class="area">중화적정</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">pKa=8은 더 약한 산이라 덜 해리 → 초기 pH가 더 높음 → 위쪽 곡선</p>
+<p class="step">A. 10배 묽힌 산은 농도↓로 초기 pH가 더 높음(½(pKa−logC)) → 가.</p>
+<p class="step">→ <b>①</b></p>
+<div class="tip">약할수록·묽을수록 초기 pH가 높다. 반당량점 pH=pKa는 농도 무관이라 곡선들이 그 지점에서 교차한다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 57</span><span class="area">중화적정</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">초기 pH가 가장 높은 <b>A</b>가 가장 센 약염기 → 짝산이 가장 약함 → 당량점 pH가 7에 가장 가까움(가장 큼). → <b>①</b></p>
-    <div class="tip">약염기+강산 당량점은 짝산의 세기로 결정. 센 염기일수록 짝산이 약해 당량점 pH가 덜 산성(높음).</div></div>
+<div class="q" id="q57"><div class="qh"><span class="qno">문제 57</span><span class="area">중화적정</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">초기 pH가 가장 높은 A가 가장 센 약염기 → 짝산이 가장 약함 → 당량점 pH가 7에 가장 가까움(가장 큼).</p>
+<p class="step">→ <b>①</b></p>
+<div class="tip">약염기+강산 당량점은 짝산의 세기로 결정. 센 염기일수록 짝산이 약해 당량점 pH가 덜 산성(높음).</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 58</span><span class="area">중화적정</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q58"><div class="qh"><span class="qno">문제 58</span><span class="area">중화적정</span><span class="ans">정답 ④</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">두 단계 부피비 = 10:(30−10) = <b>1:2</b>. 순수 Na<sub>2</sub>CO<sub>3</sub>면 1:1(③ 탈락).</p>
     <p class="step"><span class="k">④</span> 1단계는 CO<sub>3</sub>²⁻→HCO<sub>3</sub>⁻만(n), 2단계는 전체 HCO<sub>3</sub>⁻(CO<sub>3</sub>²⁻ 유래 n + 원래 n = 2n)→H<sub>2</sub>CO<sub>3</sub>이라 1:2. → <b>④</b></p>
     <div class="tip">탄산염은 두 단계로 적정된다. 중탄산이 더 있으면 두 번째 단계만 커져 비가 1:2가 된다(순수 탄산염은 1:1).</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 59</span><span class="area">전류세기</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
-    <p class="step">O<sub>2</sub> 1몰당 전자 4몰. 전자 = 0.80×4 = 3.2 mmol. 전하 = 3.2×10⁻³×96500 = 309C.</p>
-    <p class="step">전류 = 309/3600s = <b>0.086 A = 86 mA</b>. → <b>③</b></p>
-    <div class="tip">전류 = 전하/시간. 전하 = 전자 몰수×F. O<sub>2</sub> 한 분자가 4전자를 받는 걸 잊지 말 것.</div></div>
+<div class="q" id="q59"><div class="qh"><span class="qno">문제 59</span><span class="area">전류세기</span><span class="ans">정답 ③</span></div><div class="sol"><h4>사고과정</h4>
+<p class="step">O2 1몰당 전자 4몰.</p>
+<p class="step">전자 = 0.80×4 = 3.2 mmol.</p>
+<p class="step">전하 = 3.2×10<sup>-3</sup>×96500 = 309C.</p>
+<p class="step">전류 = 309/3600s = 0.086 A = 86 mA.</p>
+<p class="step">→ <b>③</b></p>
+<div class="tip">전류 = 전하/시간. 전하 = 전자 몰수×F. O2 한 분자가 4전자를 받는 걸 잊지 말 것.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 60</span><span class="area">용해도곱상수</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
+<div class="q" id="q60"><div class="qh"><span class="qno">문제 60</span><span class="area">용해도곱상수</span><span class="ans">정답 ①</span></div><div class="sol"><h4>사고과정</h4>
     <p class="step">용해 반응 = (Mg(OH)<sub>2</sub> 환원) − (Mg²⁺ 환원). E°<sub>cell</sub> = −2.69 − (−2.36) = −0.33V.</p>
     <p class="step"><span class="eq">log K<sub>sp</sub> = nE°/0.0592 = 2(−0.33)/0.0592 = −11.15</span> → K<sub>sp</sub> ≈ <b>7×10⁻¹²</b>. → <b>①</b></p>
     <div class="tip">두 반쪽 전위를 빼서 용해 반응의 E°를 얻고, log K = nE°/0.0592로 환산한다. K<sub>sp</sub>가 매우 작아 Mg(OH)<sub>2</sub>는 난용.</div></div>

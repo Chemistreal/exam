@@ -25,11 +25,24 @@ th{background:#f1eee7;font-weight:700}
 .area{font-size:12.5px;color:var(--ink2);background:#f1eee7;border-radius:99px;padding:2px 9px}
 .ans{margin-left:auto;font-weight:700;color:var(--ms)}
 .sol{font-size:14.5px}
+/* 해설 본문이 실제로 입는 옷 — answers/*.json 의 explanationHtml 이
+   <h4>·.step·.k(정답 근거)·.x(오답 표시) 를 쓰는데 여기 옷이 없으면
+   해설지에서만 맨몸으로 나간다(final.html 은 제 옷이 따로 있다). */
+.sol h4{margin:12px 0 5px;color:var(--teal);font-size:13.5px;letter-spacing:.02em}
+.sol p.step{margin:6px 0;white-space:pre-wrap}
+.sol .k{color:var(--teal);font-weight:700}
+.sol .x{color:var(--ms);font-weight:700}
 .tip{margin-top:9px;padding:9px 11px;border-left:3px solid var(--gold);background:#faf7f1;
  font-size:13.5px;color:var(--ink2)}
 .rev{margin-top:9px;padding:9px 11px;border-left:3px solid var(--ms);background:#fdf3ef;
  font-size:13px;color:#8a3a1d}
-@media print{body{background:#fff}.q{break-inside:avoid}}
+/* 정답표 → 그 문항 해설로 건너뛰는 길. 표가 세로 2,000px 를 넘는 회차가
+   많아 표에서 해설까지 손가락으로 미는 거리가 너무 멀었다. */
+td a.jump{color:var(--teal);text-decoration:none;font-weight:700}
+td a.jump:hover{text-decoration:underline}
+.q{scroll-margin-top:14px}
+.q:target{border-color:var(--teal);box-shadow:0 0 0 2px rgba(14,90,76,.18)}
+@media print{body{background:#fff}.q{break-inside:avoid}.warn{display:none}}
 
 .sol-part{margin:13px 0}.sol-part h4{margin:0 0 5px;color:var(--teal);font-size:13.5px;letter-spacing:.02em}
 .sol-part p{margin:5px 0;white-space:pre-wrap}
@@ -53,56 +66,56 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="sub">문항별 정답 · 영역 · 개념 · 사고과정 해설 · 30문항</div>
 <div class="sub" style="margin-top:6px">문제 지문은 문제지(PDF)에 있습니다 — 성적표 화면에서 함께 내려받을 수 있습니다.</div><a class="back" href="final.html">‹ 파이널로</a></header>
 <main><h3>정답 · 영역 · 개념</h3><table><thead><tr><th scope="col">문항</th><th scope="col">정답</th><th scope="col">영역</th><th scope="col">개념(유형)</th></tr></thead><tbody>
-<tr><td>1</td><td>③</td><td>원자의구조</td><td>원자의구조</td></tr>
-<tr><td>2</td><td>①</td><td>에너지</td><td>에너지</td></tr>
-<tr><td>3</td><td>②</td><td>에너지</td><td>에너지</td></tr>
-<tr><td>4</td><td>②</td><td>원자의구조</td><td>원자의구조</td></tr>
-<tr><td>5</td><td>④</td><td>화학결합</td><td>화학결합</td></tr>
-<tr><td>6</td><td>③</td><td>산화환원</td><td>산화환원</td></tr>
-<tr><td>7</td><td>①</td><td>상평형</td><td>상평형</td></tr>
-<tr><td>8</td><td>③</td><td>화학평형</td><td>화학평형</td></tr>
-<tr><td>9</td><td>①</td><td>평형상수</td><td>평형상수</td></tr>
-<tr><td>10</td><td>③</td><td>완충용액</td><td>완충용액</td></tr>
-<tr><td>11</td><td>①</td><td>산화환원반응</td><td>산화환원반응</td></tr>
-<tr><td>12</td><td>③</td><td>반응속도</td><td>반응속도</td></tr>
-<tr><td>13</td><td>①</td><td>아미노산</td><td>아미노산</td></tr>
-<tr><td>14</td><td>③</td><td>아미노산</td><td>아미노산</td></tr>
-<tr><td>15</td><td>③</td><td>수소결합</td><td>수소결합</td></tr>
-<tr><td>16</td><td>②</td><td>산화수</td><td>산화수</td></tr>
-<tr><td>17</td><td>③</td><td>양적관계</td><td>양적관계</td></tr>
-<tr><td>18</td><td>②</td><td>양적관계</td><td>양적관계</td></tr>
-<tr><td>19</td><td>④</td><td>화학평형</td><td>화학평형</td></tr>
-<tr><td>20</td><td>①</td><td>지시약</td><td>지시약</td></tr>
-<tr><td>21</td><td>③</td><td>지시약</td><td>지시약</td></tr>
-<tr><td>22</td><td>③</td><td>용해도</td><td>용해도</td></tr>
-<tr><td>23</td><td>①</td><td>용해도</td><td>용해도</td></tr>
-<tr><td>24</td><td>④</td><td>원자의구조</td><td>원자의구조</td></tr>
-<tr><td>25</td><td>④</td><td>원자의구조</td><td>원자의구조</td></tr>
-<tr><td>26</td><td>①</td><td>양적관계</td><td>양적관계</td></tr>
-<tr><td>27</td><td>③</td><td>양적관계</td><td>양적관계</td></tr>
-<tr><td>28</td><td>①</td><td>깁스자유에너지</td><td>깁스자유에너지</td></tr>
-<tr><td>29</td><td>②</td><td>에너지</td><td>에너지</td></tr>
-<tr><td>30</td><td>④</td><td>양적관계</td><td>양적관계</td></tr>
+<tr><td><a class="jump" href="#q1">1</a></td><td>③</td><td>원자의구조</td><td>원자의구조</td></tr>
+<tr><td><a class="jump" href="#q2">2</a></td><td>①</td><td>에너지</td><td>에너지</td></tr>
+<tr><td><a class="jump" href="#q3">3</a></td><td>②</td><td>에너지</td><td>에너지</td></tr>
+<tr><td><a class="jump" href="#q4">4</a></td><td>②</td><td>원자의구조</td><td>원자의구조</td></tr>
+<tr><td><a class="jump" href="#q5">5</a></td><td>④</td><td>화학결합</td><td>화학결합</td></tr>
+<tr><td><a class="jump" href="#q6">6</a></td><td>③</td><td>산화환원</td><td>산화환원</td></tr>
+<tr><td><a class="jump" href="#q7">7</a></td><td>①</td><td>상평형</td><td>상평형</td></tr>
+<tr><td><a class="jump" href="#q8">8</a></td><td>③</td><td>화학평형</td><td>화학평형</td></tr>
+<tr><td><a class="jump" href="#q9">9</a></td><td>①</td><td>평형상수</td><td>평형상수</td></tr>
+<tr><td><a class="jump" href="#q10">10</a></td><td>③</td><td>완충용액</td><td>완충용액</td></tr>
+<tr><td><a class="jump" href="#q11">11</a></td><td>①</td><td>산화환원반응</td><td>산화환원반응</td></tr>
+<tr><td><a class="jump" href="#q12">12</a></td><td>③</td><td>반응속도</td><td>반응속도</td></tr>
+<tr><td><a class="jump" href="#q13">13</a></td><td>①</td><td>아미노산</td><td>아미노산</td></tr>
+<tr><td><a class="jump" href="#q14">14</a></td><td>③</td><td>아미노산</td><td>아미노산</td></tr>
+<tr><td><a class="jump" href="#q15">15</a></td><td>③</td><td>수소결합</td><td>수소결합</td></tr>
+<tr><td><a class="jump" href="#q16">16</a></td><td>②</td><td>산화수</td><td>산화수</td></tr>
+<tr><td><a class="jump" href="#q17">17</a></td><td>③</td><td>양적관계</td><td>양적관계</td></tr>
+<tr><td><a class="jump" href="#q18">18</a></td><td>②</td><td>양적관계</td><td>양적관계</td></tr>
+<tr><td><a class="jump" href="#q19">19</a></td><td>④</td><td>화학평형</td><td>화학평형</td></tr>
+<tr><td><a class="jump" href="#q20">20</a></td><td>①</td><td>지시약</td><td>지시약</td></tr>
+<tr><td><a class="jump" href="#q21">21</a></td><td>③</td><td>지시약</td><td>지시약</td></tr>
+<tr><td><a class="jump" href="#q22">22</a></td><td>③</td><td>용해도</td><td>용해도</td></tr>
+<tr><td><a class="jump" href="#q23">23</a></td><td>①</td><td>용해도</td><td>용해도</td></tr>
+<tr><td><a class="jump" href="#q24">24</a></td><td>④</td><td>원자의구조</td><td>원자의구조</td></tr>
+<tr><td><a class="jump" href="#q25">25</a></td><td>④</td><td>원자의구조</td><td>원자의구조</td></tr>
+<tr><td><a class="jump" href="#q26">26</a></td><td>①</td><td>양적관계</td><td>양적관계</td></tr>
+<tr><td><a class="jump" href="#q27">27</a></td><td>③</td><td>양적관계</td><td>양적관계</td></tr>
+<tr><td><a class="jump" href="#q28">28</a></td><td>①</td><td>깁스자유에너지</td><td>깁스자유에너지</td></tr>
+<tr><td><a class="jump" href="#q29">29</a></td><td>②</td><td>에너지</td><td>에너지</td></tr>
+<tr><td><a class="jump" href="#q30">30</a></td><td>④</td><td>양적관계</td><td>양적관계</td></tr>
 </tbody></table>
 <h3>문항별 사고과정</h3>
-<div class="q"><div class="qh"><span class="qno">문제 1</span><span class="area">원자의구조</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">난이도 중 수소 원자살은 홀전자 1개(1s¹)를 가지고 있어서 자기장을 통과하면 위쪽과 아래쪽 두 가지 방향으로 나누어진다.다음 중 원자살이 자기장을 통과하였을 때 두 가지 방향으로 나누어지는 것을 모두 고르면? &lt;보 기&gt; Na, Ca, Cd, Ag ① 없음 ② Ca, Cd ③ Na, Ag ④ Na, Ca, Cd, Ag ■ 무엇을 묻는 문제인가 슈테른-게를라흐 실험을 소재로 삼아 전자 배치를 묻는 문제입니다.</p>
+<div class="q" id="q1"><div class="qh"><span class="qno">문제 1</span><span class="area">원자의구조</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">난이도 중 수소 원자살은 홀전자 1개(1s<sup>1</sup>)를 가지고 있어서 자기장을 통과하면 위쪽과 아래쪽 두 가지 방향으로 나누어진다.다음 중 원자살이 자기장을 통과하였을 때 두 가지 방향으로 나누어지는 것을 모두 고르면? &lt;보 기&gt; Na, Ca, Cd, Ag ① 없음 ② Ca, Cd ③ Na, Ag ④ Na, Ca, Cd, Ag ■ 무엇을 묻는 문제인가 슈테른-게를라흐 실험을 소재로 삼아 전자 배치를 묻는 문제입니다.</p>
 <p class="step">원자살이 자기장에서 갈라지려면 홀전자(짝짓지 않은 전자)가 있어야 하므로, 결국 네 원소의 바닥상태 전자 배치를 정확히 쓸 수 있는지, 특히 Ag 같은 예외 배치를 아는지가 관건입니다.</p>
 <p class="step">1) 전자는 스핀 자기 양자수 ms = ±1/2 를 가집니다.</p>
 <p class="step">서로 짝지은 두 전자는 스핀이 +1/2과 -1/2로 반대라 자기 모멘트가 상쇄됩니다.</p>
 <p class="step">2) 모든 전자가 짝지어져 있으면 알짜 스핀 자기 모멘트가 0이 되어(반자성) 자기장 속에서 갈라지지 않고 그대로 직진합니다.</p>
-<p class="step">홀전자가 있으면(상자성) 스핀 방향에 따라 위/아래로 갈라져 두 줄기로 나뉩니다.3) 수소는 1s¹로 홀전자가 1개이므로 두 갈래로 갈라집니다.</p>
+<p class="step">홀전자가 있으면(상자성) 스핀 방향에 따라 위/아래로 갈라져 두 줄기로 나뉩니다.3) 수소는 1s<sup>1</sup>로 홀전자가 1개이므로 두 갈래로 갈라집니다.</p>
 <p class="step">발문에서 말한 상황이 바로 그것입니다.</p>
-<p class="step">4) 전자 배치의기본 순서는 1s 2s 2p 3s 3p 4s 3d 4p 5s 4d 5p 6s 4f 5d 6p 이며, d⁵·d¹⁰ 근처에서는 안정성 때문에 예외가 생깁니다(Cr, Cu, Mo, Ag, Au 등).</p>
-<p class="step">5) 채워진 부껍질(ns², np⁶, nd¹⁰, nf¹⁴)은 전자가 모두 짝지어져 홀전자가 없습니다.단계 1) Na (원자번호 11) ― 1s²2s²2p⁶3s¹ 입니다.</p>
+<p class="step">4) 전자 배치의기본 순서는 1s 2s 2p 3s 3p 4s 3d 4p 5s 4d 5p 6s 4f 5d 6p 이며, d<sup>5</sup>·d<sup>10</sup> 근처에서는 안정성 때문에 예외가 생깁니다(Cr, Cu, Mo, Ag, Au 등).</p>
+<p class="step">5) 채워진 부껍질(ns<sup>2</sup>, np<sup>6</sup>, nd<sup>10</sup>, nf<sup>14</sup>)은 전자가 모두 짝지어져 홀전자가 없습니다.단계 1) Na (원자번호 11) ― 1s<sup>2</sup>2s<sup>2</sup>2p<sup>6</sup>3s<sup>1</sup> 입니다.</p>
 <p class="step">3s에 전자가 하나뿐이므로 홀전자 1개, 갈라집니다.</p>
-<p class="step">단계 2) Ca (원자번호 20) ― [Ar]4s² 입니다.</p>
+<p class="step">단계 2) Ca (원자번호 20) ― [Ar]4s<sup>2</sup> 입니다.</p>
 <p class="step">아르곤 심부는 모두 채워졌고 4s도 두 전자가 짝을 이루므로 홀전자가없습니다.</p>
 <p class="step">갈라지지 않습니다.</p>
-<p class="step">단계 3) Cd (원자번호 48) ― [Kr]4d¹⁰5s² 입니다.</p>
+<p class="step">단계 3) Cd (원자번호 48) ― [Kr]4d<sup>10</sup>5s<sup>2</sup> 입니다.</p>
 <p class="step">전자 수를 확인하면 36(Kr) + 10 + 2 = 48 로 맞습니다.</p>
 <p class="step">4d가 완전히 채워지고 5s도 짝지어져 홀전자가 없습니다.</p>
 <p class="step">갈라지지 않습니다.</p>
-<p class="step">단계 4) Ag (원자번호 47) ― [Kr]4d¹⁰5s¹ 입니다.</p>
+<p class="step">단계 4) Ag (원자번호 47) ― [Kr]4d<sup>10</sup>5s<sup>1</sup> 입니다.</p>
 <p class="step">Cu, Au와 마찬가지로 d 부껍질을 꽉 채우는 것이 더 안정하기 때문에 5s가 하나만 채워지는 예외 배치입니다.</p>
 <p class="step">전자 수는 36 + 10 + 1 = 47 로 맞습니다.</p>
 <p class="step">5s에 홀전자 1개가 있으므로 갈라집니다.</p>
@@ -113,25 +126,25 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">둘 다 모든 전자가 짝지어진 반자성 원자라 갈라지지 않습니다.</p>
 <p class="step">정답과 정확히 반대인 함정 선지입니다.</p>
 <p class="step">③ Na, Ag ⇒ 옳음(정답).</p>
-<p class="step">Na은 3s¹,Ag는 5s¹으로 각각 홀전자 1개를 가진 상자성 원자입니다.</p>
+<p class="step">Na은 3s<sup>1</sup>,Ag는 5s<sup>1</sup>으로 각각 홀전자 1개를 가진 상자성 원자입니다.</p>
 <p class="step">④ Na, Ca, Cd, Ag ⇒ 틀림.</p>
 <p class="step">Ca과 Cd가 포함되어 있어오답입니다.</p>
-<p class="step">③ 홀전자를 가진 Na(3s¹)과 Ag(5s¹)만 자기장에서 두 갈래로 나뉩니다.</p></div>
+<p class="step">③ 홀전자를 가진 Na(3s<sup>1</sup>)과 Ag(5s<sup>1</sup>)만 자기장에서 두 갈래로 나뉩니다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 2</span><span class="area">에너지</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">난이도 중 다음 열화학 자료를 이용하여 계산한 NaCl(s)의 격자 에너지(lattice energy)(kJ/mol)로 가장 가까운 값은? 반응 엔탈피 변화 Na(s) + 1/2 Cl₂(g) → NaCl(s) ΔH = -411 kJ/mol ----------(1) Na(s) → Na(g) ΔH = 108 kJ/mol ------------(2) Cl₂(g) → 2Cl(g) ΔH = 242 kJ/mol -----------(3) Na(g) → Na⁺(g) + e⁻ ΔH = 496 kJ/mol -----------(4) Cl(g) + e⁻ → Cl⁻(g) ΔH = -349 kJ/mol ----------(5) ① -787 ② -291 ③ -679 ④ -908 ■ 무엇을 묻는 문제인가 이온 결합 물질의 격자 에너지를 직접 측정할 수 없기 때문에, 승화 에너지·결합 해리 에너지·이온화 에너지·전자 친화도·생성 엔탈피를 조합해서 간접적으로 구하는 Born-Haber 순환을 쓸 줄 아느냐를 묻는 문제입니다.</p>
+<div class="q" id="q2"><div class="qh"><span class="qno">문제 2</span><span class="area">에너지</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">난이도 중 다음 열화학 자료를 이용하여 계산한 NaCl(s)의 격자 에너지(lattice energy)(kJ/mol)로 가장 가까운 값은? 반응 엔탈피 변화 Na(s) + 1/2 Cl<sub>2</sub>(g) → NaCl(s) ΔH = -411 kJ/mol ----------(1) Na(s) → Na(g) ΔH = 108 kJ/mol ------------(2) Cl<sub>2</sub>(g) → 2Cl(g) ΔH = 242 kJ/mol -----------(3) Na(g) → Na<sup>+</sup>(g) + e<sup>-</sup> ΔH = 496 kJ/mol -----------(4) Cl(g) + e<sup>-</sup> → Cl<sup>-</sup>(g) ΔH = -349 kJ/mol ----------(5) ① -787 ② -291 ③ -679 ④ -908 ■ 무엇을 묻는 문제인가 이온 결합 물질의 격자 에너지를 직접 측정할 수 없기 때문에, 승화 에너지·결합 해리 에너지·이온화 에너지·전자 친화도·생성 엔탈피를 조합해서 간접적으로 구하는 Born-Haber 순환을 쓸 줄 아느냐를 묻는 문제입니다.</p>
 <p class="step">결국 핵심은 "엔탈피는 상태 함수이므로 경로를 어떻게 잡아도 총합은 같다"는 헤스 법칙입니다.</p>
-<p class="step">· 격자 에너지(여기서의 정의): 기체 상태의 이온이 모여 고체 이온 결정을 만들 때의 엔탈피 변화, 즉 Na⁺(g) +Cl⁻(g) → NaCl(s)의 ΔH입니다.</p>
+<p class="step">· 격자 에너지(여기서의 정의): 기체 상태의 이온이 모여 고체 이온 결정을 만들 때의 엔탈피 변화, 즉 Na<sup>+</sup>(g) +Cl<sup>-</sup>(g) → NaCl(s)의 ΔH입니다.</p>
 <p class="step">이온이 서로 강하게 끌려 안정해지므로 값은 항상 큰 음수입니다.</p>
 <p class="step">· 헤스 법칙: 반응을 여러 단계로 쪼개도 각 단계 ΔH의 합은 전체 ΔH와 같습니다.</p>
-<p class="step">· Born-Haber 순환: Na(s) + 1/2 Cl₂(g)에서NaCl(s)로 가는 길을 두 가지로 놓습니다.</p>
-<p class="step">직접 경로 = (1) 생성 엔탈피 우회 경로 = 승화(2) + 결합 해리의 절반(1/2)×(3) + 이온화(4) + 전자 친화(5) + 격자 에너지 U · Cl₂ 결합 해리는 Cl 원자 2개를 만드는 값이므로, Cl 원자1개만 필요할 때는 반드시 1/2배 해야 합니다.</p>
+<p class="step">· Born-Haber 순환: Na(s) + 1/2 Cl<sub>2</sub>(g)에서NaCl(s)로 가는 길을 두 가지로 놓습니다.</p>
+<p class="step">직접 경로 = (1) 생성 엔탈피 우회 경로 = 승화(2) + 결합 해리의 절반(1/2)×(3) + 이온화(4) + 전자 친화(5) + 격자 에너지 U · Cl<sub>2</sub> 결합 해리는 Cl 원자 2개를 만드는 값이므로, Cl 원자1개만 필요할 때는 반드시 1/2배 해야 합니다.</p>
 <p class="step">여기서 실수가 가장 많이 납니다.</p>
 <p class="step">단계 1) 순환식을 세웁니다.</p>
 <p class="step">ΔH(1) = ΔH(2) + (1/2)ΔH(3) + ΔH(4) + ΔH(5) + U 단계 2) 숫자를 대입합니다.</p>
 <p class="step">-411 = 108 + (1/2)(242) + 496 + (-349) + U -411 = 108 + 121 + 496 - 349 + U 단계 3) 오른쪽 상수부를 정리합니다.</p>
 <p class="step">108 + 121 = 229, 229 + 496 = 725, 725 - 349 = 376 -411 = 376 + U 단계 4) U를 구합니다.</p>
 <p class="step">U = -411 - 376 = -787 kJ/mol 단계 5) 타당성 검산 ― 실험적으로 알려진 NaCl의 격자 에너지는 약 -787 kJ/mol이며, KF의 -821 kJ/mol보다 크기가 조금 작습니다.</p>
-<p class="step">Na⁺와 Cl⁻의 거리(약 283 pm)가 K⁺와 F⁻의 거리(약 271 pm)보다 멀기 때문으로, 계산 결과가 화학적 감각과 어긋나지 않습니다.</p>
+<p class="step">Na<sup>+</sup>와 Cl<sup>-</sup>의 거리(약 283 pm)가 K<sup>+</sup>와 F<sup>-</sup>의 거리(약 271 pm)보다 멀기 때문으로, 계산 결과가 화학적 감각과 어긋나지 않습니다.</p>
 <p class="step">① -787 ⇒ 옳음.</p>
 <p class="step">위 계산과 정확히 일치하며 실험값과도 맞습니다.</p>
 <p class="step">② -291 ⇒ 틀림.</p>
@@ -139,27 +152,27 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">③ -679 ⇒ 틀림.</p>
 <p class="step">승화 에너지 108을 빼먹었을 때나오는 값입니다(121 + 496 - 349 = 268, -411 - 268 = -679).</p>
 <p class="step">④ -908 ⇒ 틀림.</p>
-<p class="step">Cl₂ 해리 에너지 242를 절반으로 나누지 않고 그대로 쓰면 -908이 나옵니다.</p>
+<p class="step">Cl<sub>2</sub> 해리 에너지 242를 절반으로 나누지 않고 그대로 쓰면 -908이 나옵니다.</p>
 <p class="step">가장 흔한 함정입니다.</p>
 <p class="step">15 ① 격자 에너지는 -787 kJ/mol입니다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 3</span><span class="area">에너지</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">난이도 중 이온결합 화합물 RbI, NaF, BaTe 및 MgO를 격자 에너지가 감소하는 순서대로 바르게 나열한 것은? ① MgO &gt; BaTe &gt; RbI &gt; NaF ② MgO &gt; BaTe &gt; NaF &gt; RbI ③ BaTe &gt; MgO &gt; NaF &gt; RbI ④ BaTe &gt; MgO &gt; RbI &gt; NaF ■ 무엇을 묻는 문제인가 격자 에너지가 이온의 전하와 이온 간 거리로 어떻게 결정되는지를 알고, 그 두 요소 중 어느 쪽이 우선인지 판단할수 있는지 묻습니다.</p>
+<div class="q" id="q3"><div class="qh"><span class="qno">문제 3</span><span class="area">에너지</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">난이도 중 이온결합 화합물 RbI, NaF, BaTe 및 MgO를 격자 에너지가 감소하는 순서대로 바르게 나열한 것은? ① MgO &gt; BaTe &gt; RbI &gt; NaF ② MgO &gt; BaTe &gt; NaF &gt; RbI ③ BaTe &gt; MgO &gt; NaF &gt; RbI ④ BaTe &gt; MgO &gt; RbI &gt; NaF ■ 무엇을 묻는 문제인가 격자 에너지가 이온의 전하와 이온 간 거리로 어떻게 결정되는지를 알고, 그 두 요소 중 어느 쪽이 우선인지 판단할수 있는지 묻습니다.</p>
 <p class="step">격자 에너지는 기체 상태의 이온들이 모여 1몰의 이온 결정을 만들 때 방출되는 에너지의 크기입니다.</p>
-<p class="step">쿨롱 법칙에서 출발하면 |U| ∝ |z₊ × z₋| / (r₊ + r₋) 로 근사됩니다.</p>
+<p class="step">쿨롱 법칙에서 출발하면 |U| ∝ |z<sub>+</sub> × z<sub>-</sub>| / (r<sub>+</sub> + r<sub>-</sub>) 로 근사됩니다.</p>
 <p class="step">여기서 z는 이온 전하, r는 이온 반지름입니다.</p>
 <p class="step">분자에 있는 전하는 곱으로 들어가고 분모의 거리는1제곱으로만 들어가므로, 전하가 미치는 영향이 훨씬 큽니다.</p>
 <p class="step">전하가 각각 2배가 되면 곱은 4배가 되지만, 반지름합이 두 배 커져도 격자 에너지는 절반으로만 줄기 때문입니다.</p>
 <p class="step">그래서 격자 에너지 비교는 언제나 "전하 먼저, 반지름 나중"입니다.</p>
 <p class="step">이온 반지름 경향도 필요합니다.</p>
-<p class="step">같은 족에서 아래로 갈수록 커지므로 Na⁺ &lt; K⁺ &lt; Rb⁺, F⁻ &lt; Cl⁻&lt; I⁻, O²⁻ &lt; S²⁻ &lt; Se²⁻ &lt; Te²⁻이고, Mg²⁺(72 pm)은 Ba²⁺(135 pm)보다 훨씬 작습니다.</p>
+<p class="step">같은 족에서 아래로 갈수록 커지므로 Na<sup>+</sup> &lt; K<sup>+</sup> &lt; Rb<sup>+</sup>, F<sup>-</sup> &lt; Cl<sup>-</sup>&lt; I<sup>-</sup>, O<sup>2-</sup> &lt; S<sup>2-</sup> &lt; Se<sup>2-</sup> &lt; Te<sup>2-</sup>이고, Mg<sup>2+</sup>(72 pm)은 Ba<sup>2+</sup>(135 pm)보다 훨씬 작습니다.</p>
 <p class="step">단계 1) 전하 곱을 계산해 두 그룹으로 나눕니다.</p>
-<p class="step">MgO: Mg²⁺와 O²⁻ ⇒ |z₊z₋| = 4 BaTe: Ba²⁺와 Te²⁻ ⇒ |z₊z₋| = 4 NaF: Na⁺와 F⁻ ⇒ |z₊z₋| = 1 RbI: Rb⁺와 I⁻ ⇒ |z₊z₋| = 1 따라서 (MgO, BaTe) 그룹이 (NaF, RbI) 그룹보다 격자 에너지가 훨씬 큽니다.</p>
+<p class="step">MgO: Mg<sup>2+</sup>와 O<sup>2-</sup> ⇒ |z<sub>+</sub>z<sub>-</sub>| = 4 BaTe: Ba<sup>2+</sup>와 Te<sup>2-</sup> ⇒ |z<sub>+</sub>z<sub>-</sub>| = 4 NaF: Na<sup>+</sup>와 F<sup>-</sup> ⇒ |z<sub>+</sub>z<sub>-</sub>| = 1 RbI: Rb<sup>+</sup>와 I<sup>-</sup> ⇒ |z<sub>+</sub>z<sub>-</sub>| = 1 따라서 (MgO, BaTe) 그룹이 (NaF, RbI) 그룹보다 격자 에너지가 훨씬 큽니다.</p>
 <p class="step">단계 2) 2가 그룹 내부 비교.</p>
-<p class="step">Mg²⁺(72 pm) + O²⁻(140 pm) = 212 pm, Ba²⁺(135 pm) + Te²⁻(221 pm) = 356pm.</p>
+<p class="step">Mg<sup>2+</sup>(72 pm) + O<sup>2-</sup>(140 pm) = 212 pm, Ba<sup>2+</sup>(135 pm) + Te<sup>2-</sup>(221 pm) = 356pm.</p>
 <p class="step">거리가 짧은 MgO가 더 큽니다.</p>
 <p class="step">실제 값도 MgO 약 3795 kJ/mol, BaTe 약 2050 kJ/mol입니다.</p>
 <p class="step">단계 3) 1가 그룹 내부 비교.</p>
-<p class="step">Na⁺(102 pm) + F⁻(133 pm) = 235 pm, Rb⁺(152 pm) + I⁻(220 pm) = 372 pm.</p>
+<p class="step">Na<sup>+</sup>(102 pm) + F<sup>-</sup>(133 pm) = 235 pm, Rb<sup>+</sup>(152 pm) + I<sup>-</sup>(220 pm) = 372 pm.</p>
 <p class="step">거리가 짧은 NaF가 더 큽니다.</p>
 <p class="step">실제 값은 NaF 약 923 kJ/mol, RbI 약 617 kJ/mol.</p>
 <p class="step">단계 4) 두 그룹 사이도 확인합니다.</p>
@@ -176,46 +189,44 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">틀림.</p>
 <p class="step">16 ② MgO &gt; BaTe &gt; NaF &gt; RbI 입니다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 4</span><span class="area">원자의구조</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">난이도 중 다음 알칼리 금속에 대한 화학 반응식 중 타당하지 않은 것은? ① 2Rb(s) + 2H₂O(l) → 2RbOH(aq) + H₂(g) ② Na(s) + H₂(g) → NaH₂(s) ③ 4Li(s) + O₂(g) → 2Li₂O(s) ④ 2K(s) + Cl₂(g) → 2KCl(s) ■ 무엇을 묻는 문제인가 1족 알칼리 금속의 화학적 성질, 특히 "이들은 오직 +1가 양이온만 만든다"는 원칙을 알고 있는지 묻습니다.</p>
+<div class="q" id="q4"><div class="qh"><span class="qno">문제 4</span><span class="area">원자의구조</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">난이도 중 다음 알칼리 금속에 대한 화학 반응식 중 타당하지 않은 것은? ① 2Rb(s) + 2H<sub>2</sub>O(l) → 2RbOH(aq) + H<sub>2</sub>(g) ② Na(s) + H<sub>2</sub>(g) → NaH<sub>2</sub>(s) ③ 4Li(s) + O<sub>2</sub>(g) → 2Li<sub>2</sub>O(s) ④ 2K(s) + Cl<sub>2</sub>(g) → 2KCl(s) ■ 무엇을 묻는 문제인가 1족 알칼리 금속의 화학적 성질, 특히 "이들은 오직 +1가 양이온만 만든다"는 원칙을 알고 있는지 묻습니다.</p>
 <p class="step">반응식이 그럴듯해 보여도 생성물의 화학식이 원소의 산화수 규칙과 어긋나면 성립할 수 없습니다.</p>
 <p class="step">알칼리 금속(Li, Na, K, Rb, Cs)은 최외각에 s 전자 1개를 가집니다.</p>
 <p class="step">이 전자 하나를 잃으면 바로 앞 비활성 기체와같은 안정한 전자 배치가 되므로 1차 이온화 에너지는 매우 작지만, 2차 이온화 에너지는 안쪽 닫힌 껍질을 깨야 하므로 폭발적으로 커집니다.</p>
 <p class="step">Na의 경우 1차가 496 kJ/mol인데 2차는 4562 kJ/mol로 아홉 배가 넘습니다.</p>
 <p class="step">그래서화합물에서 산화수는 항상 +1입니다.</p>
 <p class="step">알칼리 금속의 대표 반응은 다음과 같습니다.</p>
-<p class="step">- 수소와 반응: 2M + H₂ → 2MH (이때 H는 드물게 -1가인 수소화 이온) - 산소와 반응: Li만 산화물 Li₂O를 잘 만들고, Na는 과산화물 Na₂O₂, K·Rb·Cs는 초과산화물 KO₂ 형태를 선호합니다.</p>
-<p class="step">- 물과 반응: 2M + 2H₂O → 2MOH + H₂ (아래로 갈수록 격렬) - 할로젠과 반응: 2M + X₂ → 2MX 단계 1) ①은 Rb의 물과의 반응입니다.</p>
+<p class="step">- 수소와 반응: 2M + H<sub>2</sub> → 2MH (이때 H는 드물게 -1가인 수소화 이온) - 산소와 반응: Li만 산화물 Li<sub>2</sub>O를 잘 만들고, Na는 과산화물 Na<sub>2</sub>O<sub>2</sub>, K·Rb·Cs는 초과산화물 KO<sub>2</sub> 형태를 선호합니다.</p>
+<p class="step">- 물과 반응: 2M + 2H<sub>2</sub>O → 2MOH + H<sub>2</sub> (아래로 갈수록 격렬) - 할로젠과 반응: 2M + X<sub>2</sub> → 2MX 단계 1) ①은 Rb의 물과의 반응입니다.</p>
 <p class="step">Rb는 0 → +1로 산화되고 물의 H는 +1 → 0으로 환원되어 수소 기체가 발생합니다.</p>
 <p class="step">계수도 양변 Rb 2, H 4, O 2로 맞습니다.</p>
 <p class="step">타당합니다.</p>
-<p class="step">단계 2) ②의 NaH₂를 검사합니다.</p>
+<p class="step">단계 2) ②의 NaH<sub>2</sub>를 검사합니다.</p>
 <p class="step">금속 수소화물에서 H는 -1이므로 H 2개의 총 전하는 -2이고, 전기적으로 중성이되려면 Na가 +2여야 합니다.</p>
 <p class="step">그런데 Na의 2차 이온화 에너지는 4562 kJ/mol로 격자 에너지로 감당할 수 없을만큼 큽니다.</p>
-<p class="step">따라서 Na는 +1만 가능하고 옳은 식은 2Na(s) + H₂(g) → 2NaH(s)입니다.</p>
+<p class="step">따라서 Na는 +1만 가능하고 옳은 식은 2Na(s) + H<sub>2</sub>(g) → 2NaH(s)입니다.</p>
 <p class="step">타당하지 않습니다.</p>
-<p class="step">단계 3) ③은 Li 4개가 전자를 1개씩 총 4개 내놓고, O₂가 4개의 전자를 받아 O²⁻ 2개가 됩니다.</p>
-<p class="step">Li₂O에서 (+1)×2 +(-2) = 0으로 타당합니다.</p>
-<p class="step">단계 4) ④는 K 2개가 전자를 1개씩 내놓고 Cl₂가 2개의 전자를 받아 Cl⁻ 2개가 됩니다.</p>
+<p class="step">단계 3) ③은 Li 4개가 전자를 1개씩 총 4개 내놓고, O<sub>2</sub>가 4개의 전자를 받아 O<sup>2-</sup> 2개가 됩니다.</p>
+<p class="step">Li<sub>2</sub>O에서 (+1)×2 +(-2) = 0으로 타당합니다.</p>
+<p class="step">단계 4) ④는 K 2개가 전자를 1개씩 내놓고 Cl<sub>2</sub>가 2개의 전자를 받아 Cl<sup>-</sup> 2개가 됩니다.</p>
 <p class="step">KCl에서 (+1) + (-1) = 0이고계수도 K 2, Cl 2로 맞습니다.</p>
 <p class="step">타당합니다.</p>
-<p class="step">① 2Rb + 2H₂O → 2RbOH + H₂ ⇒ 타당함.</p>
+<p class="step">① 2Rb + 2H<sub>2</sub>O → 2RbOH + H<sub>2</sub> ⇒ 타당함.</p>
 <p class="step">수소 기체가 발생하는 알칼리 금속의 대표 반응.</p>
-<p class="step">② Na + H₂ → NaH₂⇒ 타당하지 않음.</p>
-<p class="step">H가 -1인 수소화물에서 Na가 +2가 되어야 하는데 알칼리 금속은 +2가 이온이 될 수 없습니다.2Na + H₂ → 2NaH이어야 합니다.</p>
-<p class="step">③ 4Li + O₂ → 2Li₂O ⇒ 타당함.</p>
+<p class="step">② Na + H<sub>2</sub> → NaH<sub>2</sub>⇒ 타당하지 않음.</p>
+<p class="step">H가 -1인 수소화물에서 Na가 +2가 되어야 하는데 알칼리 금속은 +2가 이온이 될 수 없습니다.2Na + H<sub>2</sub> → 2NaH이어야 합니다.</p>
+<p class="step">③ 4Li + O<sub>2</sub> → 2Li<sub>2</sub>O ⇒ 타당함.</p>
 <p class="step">Li는 알칼리 금속 중 유일하게 정상 산화물을잘 만듦.</p>
-<p class="step">④ 2K + Cl₂ → 2KCl ⇒ 타당함.</p>
+<p class="step">④ 2K + Cl<sub>2</sub> → 2KCl ⇒ 타당함.</p>
 <p class="step">1족과 17족이 만나 1 : 1 이온성 염을 만드는 전형적인 반응.</p>
-<p class="step">② 알칼리 금속은 +2가 이온이 될 수 없으므로 NaH₂는 만들어지지 않습니다.</p>
+<p class="step">② 알칼리 금속은 +2가 이온이 될 수 없으므로 NaH<sub>2</sub>는 만들어지지 않습니다.</p>
 <p class="step">17</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 5</span><span class="area">화학결합</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">난이도 상 아자이드 이온(N₃⁻)은 옥텟 규칙을 만족하는 세 가지 공명 구조를 생각할 수 있다.</p>
-<p class="step">이에 대한 다음 설명 중 옳은 것만을 모두 고른 것은? 가.</p>
-<p class="step">아자이드 이온의 기하학적 구조는 선형이다.</p>
-<p class="step">나.</p>
-<p class="step">공명 혼성에 가장 많이 기여하는 공명 구조는 가운데 질소 원자의 양쪽이 모두 이중 결합이며 양 끝 질소 원자가 각각 -1의 형식전하를 가지고 있다.</p>
-<p class="step">다.</p>
-<p class="step">공명 혼성에 가장 적게 기여하는 공명 구조는 한쪽 끝 질소 원자와 가운데 질소 원자 사이가 단일 결합이며그 끝 질소 원자가 -2의 형식전하를 가지고 있다.</p>
+<div class="q" id="q5"><div class="qh"><span class="qno">문제 5</span><span class="area">화학결합</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">난이도 상 아자이드 이온(N<sub>3</sub><sup>-</sup>)은 옥텟 규칙을 만족하는 세 가지 공명 구조를 생각할 수 있다.</p>
+<p class="step">이에 대한 다음 설명 중 옳은 것만을 모두 고른 것은?</p>
+<p class="step">가. 아자이드 이온의 기하학적 구조는 선형이다.</p>
+<p class="step">나. 공명 혼성에 가장 많이 기여하는 공명 구조는 가운데 질소 원자의 양쪽이 모두 이중 결합이며 양 끝 질소 원자가 각각 -1의 형식전하를 가지고 있다.</p>
+<p class="step">다. 공명 혼성에 가장 적게 기여하는 공명 구조는 한쪽 끝 질소 원자와 가운데 질소 원자 사이가 단일 결합이며그 끝 질소 원자가 -2의 형식전하를 가지고 있다.</p>
 <p class="step">① 가, 나 ② 나, 다 ③ 가, 다 ④ 가, 나, 다 ■ 무엇을 묻는 문제인가 세 개의 공명 구조를 직접 그리고 각 원자의 형식전하를 계산한 뒤, "어느 구조가 실제 이온에 더 많이 닮았는가"를판정하는 규칙을 적용할 수 있는지 묻습니다.</p>
 <p class="step">형식전하 계산과 공명 기여도 판정 기준을 모두 요구하는 고난도 문항입니다.</p>
 <p class="step">1) 형식전하 = (원자가 전자 수) - (비공유 전자 수) - (결합 수) 2) 공명 구조의 기여도 판정 기준 (위에서부터 우선)- 옥텟을 만족할 것 - 개별 형식전하의 절댓값이 작을 것, 즉 전하 분리가 작을 것 - 음의 형식전하가 전기음성도가 큰 원자에 놓일 것 - 같은 부호의 전하가 인접하지 않을 것 아자이드 이온은 세 원자가 모두 질소라서 전기음성도 비교가 무의미하므로, 판정은 두 번째 기준인 "전하 분리의크기"로 결정됩니다.</p>
@@ -225,7 +236,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">공명 구조가 무엇이든 이 사실은 변하지 않습니다.</p>
 <p class="step">단계 1) 옥텟을 만족하는 세 공명 구조를 그리고 형식전하를 계산합니다.</p>
 <p class="step">양 끝 질소를 Na, Nc, 가운데를 Nb라 하겠습니다.</p>
-<p class="step">구조 A: [Na=Nb=Nc]⁻ (양쪽 모두 이중 결합, 끝 질소는 각각 비공유 전자쌍 2개) Na: 5 - 4 - 2 = -1, Nb: 5 - 0 - 4 = +1, Nc: 5 - 4 - 2 = -1 전자 수 검산: 결합 8개 + 비공유 8개 = 16 ○, 전하 합 = -1 ○ 구조 B: [Na≡Nb-Nc]⁻ (왼쪽 삼중, 오른쪽 단일) Na: 5 - 2 - 3 = 0, Nb: 5 - 0 - 4 = +1, Nc: 5 - 6 - 1 = -2 전자 수 검산: 결합 8개 + 비공유 8개 = 16 ○, 전하 합 = -1 ○ 구조 C: [Na-Nb≡Nc]⁻ (구조 B의 좌우 대칭 구조) Na: 5 - 6 - 1 = -2, Nb: +1, Nc: 0 단계 2) 기하 구조를 판정합니다.</p>
+<p class="step">구조 A: [Na=Nb=Nc]<sup>-</sup> (양쪽 모두 이중 결합, 끝 질소는 각각 비공유 전자쌍 2개) Na: 5 - 4 - 2 = -1, Nb: 5 - 0 - 4 = +1, Nc: 5 - 4 - 2 = -1 전자 수 검산: 결합 8개 + 비공유 8개 = 16 ○, 전하 합 = -1 ○ 구조 B: [Na≡Nb-Nc]<sup>-</sup> (왼쪽 삼중, 오른쪽 단일) Na: 5 - 2 - 3 = 0, Nb: 5 - 0 - 4 = +1, Nc: 5 - 6 - 1 = -2 전자 수 검산: 결합 8개 + 비공유 8개 = 16 ○, 전하 합 = -1 ○ 구조 C: [Na-Nb≡Nc]<sup>-</sup> (구조 B의 좌우 대칭 구조) Na: 5 - 6 - 1 = -2, Nb: +1, Nc: 0 단계 2) 기하 구조를 판정합니다.</p>
 <p class="step">세 구조 모두 가운데 질소의 전자 영역이 2개이므로 결합각 180°의 선형입니다.</p>
 <p class="step">⇒가는 옳습니다.</p>
 <p class="step">단계 3) 가장 많이 기여하는 구조를 고릅니다.</p>
@@ -240,40 +251,40 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">⇒ 다는 옳습니다.</p>
 <p class="step">단계 5) 옳은 것은 가, 나, 다 ⇒ ④ 가 ⇒ 가운데 N의 전자 영역이 2개(sp 혼성)이므로 선형.</p>
 <p class="step">옳음.</p>
-<p class="step">나 ⇒ 전하 분리가 가장 작은 대칭 구조 [N=N=N]⁻ 가 주된 기여 구조이고, 그때 양 끝 질소는 각각 -1, 가운데는 +1입니다.</p>
+<p class="step">나 ⇒ 전하 분리가 가장 작은 대칭 구조 [N=N=N]<sup>-</sup> 가 주된 기여 구조이고, 그때 양 끝 질소는 각각 -1, 가운데는 +1입니다.</p>
 <p class="step">옳음.</p>
-<p class="step">다 ⇒ 기여도가 가장 낮은 구조 [N≡N-N]⁻ 에서 단일 결합 쪽 끝 질소는 비공유 전자 6개와 결합 1개를 가지므로 5 -6 - 1 = -2입니다.</p>
+<p class="step">다 ⇒ 기여도가 가장 낮은 구조 [N≡N-N]<sup>-</sup> 에서 단일 결합 쪽 끝 질소는 비공유 전자 6개와 결합 1개를 가지므로 5 -6 - 1 = -2입니다.</p>
 <p class="step">옳음.</p>
 <p class="step">따라서 ④ 가, 나, 다가 정답입니다.</p>
 <p class="step">④ 가, 나, 다</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 6</span><span class="area">산화환원</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">난이도 중 과망가니즈산 이온(MnO₄⁻)은 강한 산화제로 작용하여 산성 수용액 내의 Fe²⁺를 산화시켜 Fe³⁺로 만든다.</p>
-<p class="step">산성 조건에서 0.20M Fe²⁺ 수용액 30.0mL 안의 Fe²⁺를 모두 Fe³⁺로 산화시키는데 필요한 0.15M MnO₄⁻ 수용액의 부피(mL)는? ① 4 ② 6 ③ 8 ④ 12 ■ 무엇을 묻는 문제인가 산화-환원 적정의 대표 반응인 과망가니즈산 적정에서, 전자 수지(주고받은 전자 수가 같다)를 이용해 필요한 산화제의 부피를 구하는 문제입니다.</p>
+<div class="q" id="q6"><div class="qh"><span class="qno">문제 6</span><span class="area">산화환원</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">난이도 중 과망가니즈산 이온(MnO<sub>4</sub><sup>-</sup>)은 강한 산화제로 작용하여 산성 수용액 내의 Fe<sup>2+</sup>를 산화시켜 Fe<sup>3+</sup>로 만든다.</p>
+<p class="step">산성 조건에서 0.20M Fe<sup>2+</sup> 수용액 30.0mL 안의 Fe<sup>2+</sup>를 모두 Fe<sup>3+</sup>로 산화시키는데 필요한 0.15M MnO<sub>4</sub><sup>-</sup> 수용액의 부피(mL)는? ① 4 ② 6 ③ 8 ④ 12 ■ 무엇을 묻는 문제인가 산화-환원 적정의 대표 반응인 과망가니즈산 적정에서, 전자 수지(주고받은 전자 수가 같다)를 이용해 필요한 산화제의 부피를 구하는 문제입니다.</p>
 <p class="step">산화-환원 적정의 핵심은 "잃은 전자의 총 몰수 = 얻은 전자의 총 몰수"입니다.</p>
-<p class="step">- 산화 반쪽: Fe²⁺ → Fe³⁺ + e⁻ (철 1개당 전자 1개를 잃음) - 환원 반쪽(산성): MnO₄⁻ + 8H⁺ + 5e⁻ → Mn²⁺ + 4H₂O (Mn의 산화수가 +7에서 +2로, 전자 5개를 얻음) 전자 수를 맞추기 위해 산화 반쪽에 5를 곱해 더하면 전체 반응식은 MnO₄⁻ + 5Fe²⁺ + 8H⁺ → Mn²⁺ + 5Fe³⁺ + 4H₂O 즉 MnO₄⁻ : Fe²⁺ = 1 : 5의 몰비로 반응합니다.</p>
-<p class="step">MnO₄⁻의 보라색이 Mn²⁺의 거의 무색으로 변하므로 별도의 지시약 없이 종말점을 알 수 있습니다.</p>
-<p class="step">단계 1) Fe²⁺의 몰수를 구합니다.</p>
-<p class="step">0.20 M × 30.0 mL = 6.0 mmol 단계 2) 필요한 MnO₄⁻의 몰수를 몰비로 구합니다.</p>
+<p class="step">- 산화 반쪽: Fe<sup>2+</sup> → Fe<sup>3+</sup> + e<sup>-</sup> (철 1개당 전자 1개를 잃음) - 환원 반쪽(산성): MnO<sub>4</sub><sup>-</sup> + 8H<sup>+</sup> + 5e<sup>-</sup> → Mn<sup>2+</sup> + 4H<sub>2</sub>O (Mn의 산화수가 +7에서 +2로, 전자 5개를 얻음) 전자 수를 맞추기 위해 산화 반쪽에 5를 곱해 더하면 전체 반응식은 MnO<sub>4</sub><sup>-</sup> + 5Fe<sup>2+</sup> + 8H<sup>+</sup> → Mn<sup>2+</sup> + 5Fe<sup>3+</sup> + 4H<sub>2</sub>O 즉 MnO<sub>4</sub><sup>-</sup> : Fe<sup>2+</sup> = 1 : 5의 몰비로 반응합니다.</p>
+<p class="step">MnO<sub>4</sub><sup>-</sup>의 보라색이 Mn<sup>2+</sup>의 거의 무색으로 변하므로 별도의 지시약 없이 종말점을 알 수 있습니다.</p>
+<p class="step">단계 1) Fe<sup>2+</sup>의 몰수를 구합니다.</p>
+<p class="step">0.20 M × 30.0 mL = 6.0 mmol 단계 2) 필요한 MnO<sub>4</sub><sup>-</sup>의 몰수를 몰비로 구합니다.</p>
 <p class="step">6.0 mmol × (1/5) = 1.2 mmol 19 단계 3) 필요한 부피를 구합니다.</p>
 <p class="step">0.15 M × V = 1.2 mmol V = 1.2 ÷ 0.15 = 8.0 mL 단계 4) 전자 수로 검산합니다.</p>
-<p class="step">Fe²⁺가 내놓은 전자 = 6.0 mmol × 1 = 6.0 mmol e⁻.</p>
-<p class="step">MnO₄⁻가 받는 전자 = 1.2mmol × 5 = 6.0 mmol e⁻ ⇒ 정확히 일치합니다.</p>
+<p class="step">Fe<sup>2+</sup>가 내놓은 전자 = 6.0 mmol × 1 = 6.0 mmol e<sup>-</sup>.</p>
+<p class="step">MnO<sub>4</sub><sup>-</sup>가 받는 전자 = 1.2mmol × 5 = 6.0 mmol e<sup>-</sup> ⇒ 정확히 일치합니다.</p>
 <p class="step">① 4 ⇒ 틀림.</p>
-<p class="step">몰비를 1 : 10으로 잘못 보아 MnO₄⁻를 0.6 mmol로 계산했을 때 나오는 값입니다.</p>
+<p class="step">몰비를 1 : 10으로 잘못 보아 MnO<sub>4</sub><sup>-</sup>를 0.6 mmol로 계산했을 때 나오는 값입니다.</p>
 <p class="step">② 6 ⇒ 틀림.</p>
-<p class="step">필요한 몰수 1.2 mmol은 맞게 구했지만 산화제의 농도 0.15 M 대신 Fe²⁺의 농도 0.20 M으로 나눈 경우입니다.</p>
+<p class="step">필요한 몰수 1.2 mmol은 맞게 구했지만 산화제의 농도 0.15 M 대신 Fe<sup>2+</sup>의 농도 0.20 M으로 나눈 경우입니다.</p>
 <p class="step">③ 8⇒ 옳음.</p>
 <p class="step">1.2 mmol ÷ 0.15 M = 8.0 mL 입니다.</p>
 <p class="step">정답입니다.</p>
 <p class="step">④ 12 ⇒ 틀림.</p>
-<p class="step">MnO₄⁻의 농도를 0.15 M이 아니라0.10 M으로 잘못 읽었을 때 나오는 값입니다.</p>
-<p class="step">③ MnO₄⁻ : Fe²⁺ = 1 : 5이므로 필요한 몰수는 1.2 mmol이고, 0.15 M로 나누면 8 mL입니다.</p></div>
+<p class="step">MnO<sub>4</sub><sup>-</sup>의 농도를 0.15 M이 아니라0.10 M으로 잘못 읽었을 때 나오는 값입니다.</p>
+<p class="step">③ MnO<sub>4</sub><sup>-</sup> : Fe<sup>2+</sup> = 1 : 5이므로 필요한 몰수는 1.2 mmol이고, 0.15 M로 나누면 8 mL입니다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 7</span><span class="area">상평형</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">난이도 상 300 K에서 미지의 액체와 접촉하고 있는 공기가 그 액체의 증기로 포화되어 있다.</p>
+<div class="q" id="q7"><div class="qh"><span class="qno">문제 7</span><span class="area">상평형</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">난이도 상 300 K에서 미지의 액체와 접촉하고 있는 공기가 그 액체의 증기로 포화되어 있다.</p>
 <p class="step">이 때 혼합 기체의 전체 압력은1.000 atm이다.</p>
 <p class="step">포화된 혼합 기체 시료 6.00 L를 채취하여 미지의 액체 증기를 냉각, 응축시켜 미지의 액체 증기만모두 제거하였다.</p>
 <p class="step">이 때, 남아있는 공기의 부피는 250 K, 1.00 atm에서 4.00 L이다.</p>
-<p class="step">300 K에서 미지 액체의 증기압(atm)은? (단, R=0.08 atm·L·mol⁻¹·K⁻¹이고, 모든 기체는 이상 기체로 가정한다.) ① 0.20 ② 0.33 ③ 0.44 ④ 0.80 ■ 무엇을 묻는 문제인가 "포화 증기압"과 "돌턴의 부분 압력 법칙"을 결합한 문제입니다.</p>
+<p class="step">300 K에서 미지 액체의 증기압(atm)은? (단, R=0.08 atm·L·mol<sup>-1</sup>·K<sup>-1</sup>이고, 모든 기체는 이상 기체로 가정한다.) ① 0.20 ② 0.33 ③ 0.44 ④ 0.80 ■ 무엇을 묻는 문제인가 "포화 증기압"과 "돌턴의 부분 압력 법칙"을 결합한 문제입니다.</p>
 <p class="step">조건이 다른 상태에서 측정한 공기의 양을 몰수로환산한 뒤, 원래 조건에서의 부분 압력을 되살려 내는 과정을 정확히 밟아야 합니다.</p>
 <p class="step">① 포화 증기압: 액체와 접촉한 공간이 그 액체의 증기로 포화되면, 증기의 부분 압력은 그 온도에서의 증기압과 같아집니다.</p>
 <p class="step">증기압은 온도만의 함수이며, 공기가 함께 있어도 값이 달라지지 않습니다.</p>
@@ -298,27 +309,27 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">이것은 공기의 부분 압력 자체입니다.돌턴의 법칙으로 전체 압력에서 빼는 마지막 단계를 잊으면 이 값을 고르게 됩니다.</p>
 <p class="step">① 공기의 부분 압력이 0.800 atm이므로 증기압은 1.000 - 0.800 = 0.20 atm 입니다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 8</span><span class="area">화학평형</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">난이도 중 NaHCO₃는 아래와 같이 분해될 수 있다.</p>
-<p class="step">2NaHCO₃(s) ⇄ Na₂CO₃(s) + CO₂(g) + H₂O(g) 특정 온도에서 50g의 NaHCO₃를 4L의 밀폐된 반응기에 넣고 반응시킨 후, 평형에 도달했을 때, 두 화학종의 고체상이 존재하고 3atm의 압력이 관찰되었다.</p>
-<p class="step">200g의 NaHCO₃를 동일한 온도와 부피의 반응기에서 반응시켰을 때,평형 상태에서의 압력(atm)은? ① 0.75 ② 1.5 ③ 3 ④ 12 ■ 무엇을 묻는 문제인가 고체가 관여하는 불균일 평형에서, 고체를 더 많이 넣으면 평형 압력이 달라지는지를 묻는 문제입니다.</p>
+<div class="q" id="q8"><div class="qh"><span class="qno">문제 8</span><span class="area">화학평형</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">난이도 중 NaHCO<sub>3</sub>는 아래와 같이 분해될 수 있다.</p>
+<p class="step">2NaHCO<sub>3</sub>(s) ⇄ Na<sub>2</sub>CO<sub>3</sub>(s) + CO<sub>2</sub>(g) + H<sub>2</sub>O(g) 특정 온도에서 50g의 NaHCO<sub>3</sub>를 4L의 밀폐된 반응기에 넣고 반응시킨 후, 평형에 도달했을 때, 두 화학종의 고체상이 존재하고 3atm의 압력이 관찰되었다.</p>
+<p class="step">200g의 NaHCO<sub>3</sub>를 동일한 온도와 부피의 반응기에서 반응시켰을 때,평형 상태에서의 압력(atm)은? ① 0.75 ② 1.5 ③ 3 ④ 12 ■ 무엇을 묻는 문제인가 고체가 관여하는 불균일 평형에서, 고체를 더 많이 넣으면 평형 압력이 달라지는지를 묻는 문제입니다.</p>
 <p class="step">"두 화학종의 고체상이 존재한다"는 단서가 풀이의 열쇠입니다.</p>
 <p class="step">1) 순수한 고체와 순수한 액체의 활동도는 1로 정의합니다.</p>
 <p class="step">양이 많든 적든 밀도(농도)가 일정하기 때문입니다.</p>
 <p class="step">따라서 평형 상수식에는 기체와 용액 화학종만 들어갑니다.</p>
-<p class="step">2) 이 반응의 평형 상수는 Kp = P(CO₂) × P(H₂O) 로, 고체 NaHCO₃와 Na₂CO₃는 식에 나타나지 않습니다.</p>
+<p class="step">2) 이 반응의 평형 상수는 Kp = P(CO<sub>2</sub>) × P(H<sub>2</sub>O) 로, 고체 NaHCO<sub>3</sub>와 Na<sub>2</sub>CO<sub>3</sub>는 식에 나타나지 않습니다.</p>
 <p class="step">3) Kp는 온도만의 함수입니다.</p>
 <p class="step">온도가 같으면 Kp가 같고, 따라서 평형에서의 기체 분압 조합도 같습니다.</p>
-<p class="step">4) 화학량론에서 CO₂ : H₂O = 1 : 1로 생성되므로 두 기체의 분압이 항상 같고, 결국 총압도 한 값으로 고정됩니다.</p>
+<p class="step">4) 화학량론에서 CO<sub>2</sub> : H<sub>2</sub>O = 1 : 1로 생성되므로 두 기체의 분압이 항상 같고, 결국 총압도 한 값으로 고정됩니다.</p>
 <p class="step">5) 단, 고체가 남아 있어야 이 논리가 성립합니다.</p>
 <p class="step">고체가 전부분해되어 사라지면 평형이 아니라 "다 반응한 상태"가 되어 압력이 넣은 양에 비례합니다.</p>
 <p class="step">문제에서 두 고체가 모두존재한다고 못 박은 이유입니다.</p>
 <p class="step">단계 1) 첫 실험: 50 g, 4 L, 온도 T에서 평형 총압 = 3 atm이고 두 고체가 남아 있습니다.</p>
-<p class="step">단계 2) 화학량론 비가 1 : 1이므로 P(CO₂) = 3 ÷ 2 = 1.5 atm, P(H₂O) = 3 ÷ 2 = 1.5 atm 단계 3) 이 온도의 평형 상수는 21 Kp = (1.5) × (1.5) = 2.25 (atm² 단위) 단계 4) 두 번째 실험은 온도와 부피가 같으므로 Kp = 2.25로 동일합니다.</p>
-<p class="step">총압을 P라 하면 같은 몰비가 유지되어각 분압은 0.5P이므로 (0.5P) × (0.5P) = 2.25 0.25P² = 2.25 ⇒ P² = 9 ⇒ P = 3 atm 단계 5) 고체를 4배로 넣어도 여분은 그대로 고체로 남을 뿐이고, 기체 분압은 변하지 않습니다.</p>
+<p class="step">단계 2) 화학량론 비가 1 : 1이므로 P(CO<sub>2</sub>) = 3 ÷ 2 = 1.5 atm, P(H<sub>2</sub>O) = 3 ÷ 2 = 1.5 atm 단계 3) 이 온도의 평형 상수는 21 Kp = (1.5) × (1.5) = 2.25 (atm<sup>2</sup> 단위) 단계 4) 두 번째 실험은 온도와 부피가 같으므로 Kp = 2.25로 동일합니다.</p>
+<p class="step">총압을 P라 하면 같은 몰비가 유지되어각 분압은 0.5P이므로 (0.5P) × (0.5P) = 2.25 0.25P<sup>2</sup> = 2.25 ⇒ P<sup>2</sup> = 9 ⇒ P = 3 atm 단계 5) 고체를 4배로 넣어도 여분은 그대로 고체로 남을 뿐이고, 기체 분압은 변하지 않습니다.</p>
 <p class="step">따라서 평형 압력은3 atm입니다.</p>
 <p class="step">① 0.75 ⇒ 틀림.</p>
 <p class="step">고체를 4배 넣었으니 압력이 1/4이 된다고 본 오답으로, 어떤 근거도 없습니다.</p>
-<p class="step">② 1.5 ⇒ 틀림.CO₂ 한 성분의 분압일 뿐 총압이 아닙니다.</p>
+<p class="step">② 1.5 ⇒ 틀림.CO<sub>2</sub> 한 성분의 분압일 뿐 총압이 아닙니다.</p>
 <p class="step">묻는 것은 반응기의 전체 압력입니다.</p>
 <p class="step">③ 3 ⇒ 옳음.</p>
 <p class="step">같은 온도라면 Kp가 같고 고체가 남아 있으므로 평형 총압은 처음과 같습니다.</p>
@@ -327,63 +338,63 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">고체는 평형 상수식에 들어가지 않습니다.</p>
 <p class="step">③ 평형 압력은 처음과 같은 3 atm이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 9</span><span class="area">평형상수</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">난이도 중 25 °C에서 일어나는 다음 반응 중 평형상수가 1보다 큰 것은? ① ΔG° = -237.1 kJ/mol인 수소 기체가 연소되어 액체 물이 되는 반응 ② 난용성 염 AgCl이 물에 용해되는 반응 ③ ΔG° = 130.4 kJ/mol인 탄산 칼슘(CaCO₃)이 산화 칼슘과 이산화 탄소로 분해되는 반응 ④ 아세트산(CH₃COOH)이 수용액에서 이온화되는 반응 ■ 무엇을 묻는 문제인가 표준 자유 에너지 변화 ΔG° 와 평형상수 K 사이의 관계식을 이해하고 있는지, 그리고 우리가 잘 아는 몇 가지 반응(난용성 염의 용해, 약산의 이온화)의 평형상수 크기를 감으로 알고 있는지를 함께 묻는 문제입니다.</p>
+<div class="q" id="q9"><div class="qh"><span class="qno">문제 9</span><span class="area">평형상수</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">난이도 중 25 °C에서 일어나는 다음 반응 중 평형상수가 1보다 큰 것은? ① ΔG° = -237.1 kJ/mol인 수소 기체가 연소되어 액체 물이 되는 반응 ② 난용성 염 AgCl이 물에 용해되는 반응 ③ ΔG° = 130.4 kJ/mol인 탄산 칼슘(CaCO<sub>3</sub>)이 산화 칼슘과 이산화 탄소로 분해되는 반응 ④ 아세트산(CH<sub>3</sub>COOH)이 수용액에서 이온화되는 반응 ■ 무엇을 묻는 문제인가 표준 자유 에너지 변화 ΔG° 와 평형상수 K 사이의 관계식을 이해하고 있는지, 그리고 우리가 잘 아는 몇 가지 반응(난용성 염의 용해, 약산의 이온화)의 평형상수 크기를 감으로 알고 있는지를 함께 묻는 문제입니다.</p>
 <p class="step">1) 표준 자유 에너지와 평형상수의 관계는 ΔG° = -RT ln K 입니다.</p>
 <p class="step">여기서 R = 8.314 J/(mol·K), T는 절대 온도입니다.</p>
 <p class="step">2) 이 식을 K에 대해 풀면 K = e^(-ΔG°/RT) 입니다.</p>
 <p class="step">따라서 다음 관계가 성립합니다.</p>
 <p class="step">ΔG° &lt; 0 ⇔ K &gt; 1 (생성물 쪽이 유리) ΔG° = 0 ⇔ K = 1 ΔG° &gt; 0 ⇔ K &lt; 1 (반응물 쪽이 유리) 3) 난용성 염의 용해 평형상수는 용해도곱 Ksp 입니다.</p>
 <p class="step">"난용성"이라는 말 자체가 거의 녹지 않는다는 뜻이므로 Ksp 는 아주 작은 값입니다.</p>
-<p class="step">AgCl 의 Ksp 는 약 1.8×10⁻¹⁰ 입니다.</p>
+<p class="step">AgCl 의 Ksp 는 약 1.8×10<sup>-10</sup> 입니다.</p>
 <p class="step">4) 약산의이온화 평형상수는 Ka 입니다.</p>
-<p class="step">아세트산의 Ka 는 1.8×10⁻⁵ 로 1보다 훨씬 작습니다.</p>
+<p class="step">아세트산의 Ka 는 1.8×10<sup>-5</sup> 로 1보다 훨씬 작습니다.</p>
 <p class="step">"약산"이라는 말이 곧 K가 작다는 뜻입니다.</p>
 <p class="step">5) 25 °C 에서 RT = 8.314 × 298 = 2478 J/mol 입니다.</p>
 <p class="step">단계 1) 기준을 세웁니다.</p>
 <p class="step">K &gt; 1 이 되려면 ΔG° &lt; 0 이어야 합니다.</p>
 <p class="step">이 한 줄이 문제 전체의 열쇠입니다.</p>
 <p class="step">단계 2) ①을 봅니다.</p>
-<p class="step">H₂(g) + 1/2 O₂(g) → H₂O(l) 의 ΔG° = -237.1 kJ/mol 로 음수입니다.</p>
-<p class="step">22 ln K = -ΔG°/(RT) = 237100 ÷ 2478 ≈ 95.7 K = e⁹⁵·⁷ ≈ 3×10⁴¹ 로 1보다 압도적으로 큽니다.</p>
+<p class="step">H<sub>2</sub>(g) + 1/2 O<sub>2</sub>(g) → H<sub>2</sub>O(l) 의 ΔG° = -237.1 kJ/mol 로 음수입니다.</p>
+<p class="step">22 ln K = -ΔG°/(RT) = 237100 ÷ 2478 ≈ 95.7 K = e<sup>95</sup>·<sup>7</sup> ≈ 3×10<sup>41</sup> 로 1보다 압도적으로 큽니다.</p>
 <p class="step">단계 3) ②를 봅니다.</p>
-<p class="step">AgCl(s) ⇌ Ag⁺(aq) + Cl⁻(aq) 의 평형상수는 Ksp = 1.8×10⁻¹⁰ 으로 1보다 훨씬 작습니다.참고로 ΔG° = -RT ln(1.8×10⁻¹⁰) ≈ +55.6 kJ/mol 로 양수입니다.</p>
+<p class="step">AgCl(s) ⇌ Ag<sup>+</sup>(aq) + Cl<sup>-</sup>(aq) 의 평형상수는 Ksp = 1.8×10<sup>-10</sup> 으로 1보다 훨씬 작습니다.참고로 ΔG° = -RT ln(1.8×10<sup>-10</sup>) ≈ +55.6 kJ/mol 로 양수입니다.</p>
 <p class="step">단계 4) ③을 봅니다.</p>
 <p class="step">ΔG° = +130.4 kJ/mol 로 양수입니다.</p>
-<p class="step">ln K = -130400 ÷ 2478 ≈ -52.6 K = e⁻⁵²·⁶ ≈ 1×10⁻²³ 으로 사실상 0에 가깝습니다.</p>
+<p class="step">ln K = -130400 ÷ 2478 ≈ -52.6 K = e<sup>-52</sup>·<sup>6</sup> ≈ 1×10<sup>-23</sup> 으로 사실상 0에 가깝습니다.</p>
 <p class="step">석회석을 상온에 두어도 저절로 분해되지 않는 이유입니다.단계 5) ④를 봅니다.</p>
-<p class="step">CH₃COOH ⇌ CH₃COO⁻ + H⁺ 의 평형상수는 Ka = 1.8×10⁻⁵ 로 1보다 작습니다.</p>
+<p class="step">CH<sub>3</sub>COOH ⇌ CH<sub>3</sub>COO<sup>-</sup> + H<sup>+</sup> 의 평형상수는 Ka = 1.8×10<sup>-5</sup> 로 1보다 작습니다.</p>
 <p class="step">단계 6) 따라서 K &gt; 1 인 것은 ① 하나뿐입니다.</p>
 <p class="step">① ΔG° = -237.1 kJ/mol 인 수소의 연소 ⇒ 옳음.</p>
-<p class="step">ΔG°가 크게 음수이므로 K = e^(237100/RT) ≈ e⁹⁵·⁷ 로 1보다 압도적으로 큽니다.</p>
+<p class="step">ΔG°가 크게 음수이므로 K = e^(237100/RT) ≈ e<sup>95</sup>·<sup>7</sup> 로 1보다 압도적으로 큽니다.</p>
 <p class="step">이것이 정답입니다.</p>
 <p class="step">② 난용성 염 AgCl의 용해 ⇒ 틀림.</p>
-<p class="step">평형상수가 곧 Ksp 이고 그 값이1.8×10⁻¹⁰ 로 1보다 훨씬 작습니다.</p>
+<p class="step">평형상수가 곧 Ksp 이고 그 값이1.8×10<sup>-10</sup> 로 1보다 훨씬 작습니다.</p>
 <p class="step">"난용성"이라는 단어가 이미 K가 작다는 뜻입니다.</p>
 <p class="step">③ ΔG° = 130.4 kJ/mol 인탄산 칼슘의 분해 ⇒ 틀림.</p>
 <p class="step">ΔG°가 양수이므로 K &lt; 1 입니다.</p>
 <p class="step">이 반응은 고온(약 900 °C 이상)에서 TΔS 항이 커져야비로소 자발적이 됩니다.</p>
 <p class="step">④ 아세트산의 이온화 ⇒ 틀림.</p>
-<p class="step">Ka = 1.8×10⁻⁵ 로 1보다 작습니다.</p>
+<p class="step">Ka = 1.8×10<sup>-5</sup> 로 1보다 작습니다.</p>
 <p class="step">약산은 대부분 분자상태로 남아 있습니다.</p>
 <p class="step">① ΔG°가 음수인 반응만이 K &gt; 1 이 되며, 주어진 네 반응 중에서는 수소의 연소 반응 하나뿐입니다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 10</span><span class="area">완충용액</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">난이도 중 25°C에서 0.2M NH₃와 0.1M NH₄Cl의 완충 용액 1.0L에 HCl 0.1mol을 첨가하였다.</p>
-<p class="step">이 용액의 pH는? (단, pKw= 14.0이고, NH₃의 pKb = 4.7이며, log2 = 0.3이다) ① 4.4 ② 5.0 ③ 9.0 ④ 9.6 ■ 무엇을 묻는 문제인가 약염기와 그 짝산으로 이루어진 완충 용액에 강산을 넣었을 때의 pH를 구하는 문제입니다.</p>
+<div class="q" id="q10"><div class="qh"><span class="qno">문제 10</span><span class="area">완충용액</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">난이도 중 25°C에서 0.2M NH<sub>3</sub>와 0.1M NH<sub>4</sub>Cl의 완충 용액 1.0L에 HCl 0.1mol을 첨가하였다.</p>
+<p class="step">이 용액의 pH는? (단, pKw= 14.0이고, NH<sub>3</sub>의 pKb = 4.7이며, log2 = 0.3이다) ① 4.4 ② 5.0 ③ 9.0 ④ 9.6 ■ 무엇을 묻는 문제인가 약염기와 그 짝산으로 이루어진 완충 용액에 강산을 넣었을 때의 pH를 구하는 문제입니다.</p>
 <p class="step">강산 첨가 → 약염기 소모·짝산 생성이라는 몰수 변화를 먼저 처리한 뒤 헨더슨-하셀바흐 식을 적용하는 2단 구조입니다.</p>
-<p class="step">1) 완충 용액은 약염기 B와 짝산 BH⁺가 함께 있는 용액입니다.</p>
-<p class="step">여기서는 B = NH₃, BH⁺ = NH₄⁺입니다.</p>
-<p class="step">2) 강산H⁺를 넣으면 약염기와 정량적으로 반응합니다.</p>
-<p class="step">NH₃ + H⁺ → NH₄⁺ 즉 넣어 준 H⁺ 몰수만큼 NH₃가 줄고 NH₄⁺가 늘어납니다.</p>
-<p class="step">(강염기를 넣을 때와 방향이 정확히 반대입니다.) 3) 염기형 헨더슨-하셀바흐 식: pOH = pKb + log([BH⁺]/[B]) 부피가 같으므로 농도비 대신 몰수비를 그대로 넣어도 됩니다.</p>
+<p class="step">1) 완충 용액은 약염기 B와 짝산 BH<sup>+</sup>가 함께 있는 용액입니다.</p>
+<p class="step">여기서는 B = NH<sub>3</sub>, BH<sup>+</sup> = NH<sub>4</sub><sup>+</sup>입니다.</p>
+<p class="step">2) 강산H<sup>+</sup>를 넣으면 약염기와 정량적으로 반응합니다.</p>
+<p class="step">NH<sub>3</sub> + H<sup>+</sup> → NH<sub>4</sub><sup>+</sup> 즉 넣어 준 H<sup>+</sup> 몰수만큼 NH<sub>3</sub>가 줄고 NH<sub>4</sub><sup>+</sup>가 늘어납니다.</p>
+<p class="step">(강염기를 넣을 때와 방향이 정확히 반대입니다.) 3) 염기형 헨더슨-하셀바흐 식: pOH = pKb + log([BH<sup>+</sup>]/[B]) 부피가 같으므로 농도비 대신 몰수비를 그대로 넣어도 됩니다.</p>
 <p class="step">4) 25 °C에서 pH + pOH = pKw = 14.0입니다.</p>
-<p class="step">5) 첨가한 H⁺가 NH₃의 몰수를 넘지 않아야 완충 용액으로 남습니다.</p>
+<p class="step">5) 첨가한 H<sup>+</sup>가 NH<sub>3</sub>의 몰수를 넘지 않아야 완충 용액으로 남습니다.</p>
 <p class="step">넘으면 강산이 남아 계산 방법 자체가 달라집니다.</p>
 <p class="step">23 단계 1) 처음 몰수를 구합니다.</p>
-<p class="step">부피 1.0 L이므로 NH₃ = 0.2 M × 1.0 L = 0.20 mol, NH₄⁺ = 0.1 M × 1.0 L = 0.10 mol 단계 2) HCl 0.10 mol을 넣으면 NH₃가 그만큼 소모되고 NH₄⁺가 그만큼 생깁니다.</p>
-<p class="step">NH₃: 0.20 - 0.10 = 0.10 mol NH₄⁺: 0.10 + 0.10 = 0.20 mol (H⁺는 모두 소모되므로 강산이 남지 않습니다.</p>
-<p class="step">NH₃ 0.20 mol ≥ 첨가한 0.10 mol이므로 완충 조건도 지켜집니다.) 단계 3) 헨더슨-하셀바흐 식에 대입합니다.</p>
+<p class="step">부피 1.0 L이므로 NH<sub>3</sub> = 0.2 M × 1.0 L = 0.20 mol, NH<sub>4</sub><sup>+</sup> = 0.1 M × 1.0 L = 0.10 mol 단계 2) HCl 0.10 mol을 넣으면 NH<sub>3</sub>가 그만큼 소모되고 NH<sub>4</sub><sup>+</sup>가 그만큼 생깁니다.</p>
+<p class="step">NH<sub>3</sub>: 0.20 - 0.10 = 0.10 mol NH<sub>4</sub><sup>+</sup>: 0.10 + 0.10 = 0.20 mol (H<sup>+</sup>는 모두 소모되므로 강산이 남지 않습니다.</p>
+<p class="step">NH<sub>3</sub> 0.20 mol ≥ 첨가한 0.10 mol이므로 완충 조건도 지켜집니다.) 단계 3) 헨더슨-하셀바흐 식에 대입합니다.</p>
 <p class="step">pOH = 4.7 + log(0.20 / 0.10) = 4.7 + log2 = 4.7 + 0.3 = 5.0 단계 4) pH로 바꿉니다.</p>
-<p class="step">pH = 14.0 - 5.0 = 9.0 단계 5) 방향 검산 ― 첨가 전 용액은 NH₃ : NH₄⁺ = 2 : 1 이라 pOH = 4.7 - 0.3 = 4.4, 즉 pH = 9.6이었습니다.</p>
+<p class="step">pH = 14.0 - 5.0 = 9.0 단계 5) 방향 검산 ― 첨가 전 용액은 NH<sub>3</sub> : NH<sub>4</sub><sup>+</sup> = 2 : 1 이라 pOH = 4.7 - 0.3 = 4.4, 즉 pH = 9.6이었습니다.</p>
 <p class="step">강산을 넣었으므로 pH는 내려가야 하고, 실제로 9.6 → 9.0으로 0.6만큼 내려갔습니다.</p>
 <p class="step">모순이 없습니다.</p>
 <p class="step">① 4.4 ⇒ 틀림.</p>
@@ -399,32 +410,32 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">강산을 넣었는데 pH가 그대로라는 것은 모순입니다.</p>
 <p class="step">③ 첨가 후 용액의 pH는 9.0이다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 11</span><span class="area">산화환원반응</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">난이도 중 다음 화학반응식 중 산화-환원 반응을 모두 고른 것은? 가.</p>
-<p class="step">2Al(s) + 3Cl₂(g) → 2AlCl₃(s) 나.</p>
-<p class="step">2KClO₃(s) → 2KCl(s) + 3O₂(g) 다.</p>
-<p class="step">Ba(OH)₂(aq) + 2HNO₃(aq) → Ba(NO₃)₂(aq) + 2H₂O(l) ① 가, 나 ② 가, 다 ③ 나, 다 ④ 가, 나, 다 ■ 무엇을 묻는 문제인가 겉모습이 다른 반응식들 속에서 "산화수가 실제로 변한 원소가 있는가"만 가려내는 문제입니다.</p>
+<div class="q" id="q11"><div class="qh"><span class="qno">문제 11</span><span class="area">산화환원반응</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">난이도 중 다음 화학반응식 중 산화-환원 반응을 모두 고른 것은?</p>
+<p class="step">가. 2Al(s) + 3Cl<sub>2</sub>(g) → 2AlCl<sub>3</sub>(s)</p>
+<p class="step">나. 2KClO<sub>3</sub>(s) → 2KCl(s) + 3O<sub>2</sub>(g)</p>
+<p class="step">다. Ba(OH)<sub>2</sub>(aq) + 2HNO<sub>3</sub>(aq) → Ba(NO<sub>3</sub>)<sub>2</sub>(aq) + 2H<sub>2</sub>O(l) ① 가, 나 ② 가, 다 ③ 나, 다 ④ 가, 나, 다 ■ 무엇을 묻는 문제인가 겉모습이 다른 반응식들 속에서 "산화수가 실제로 변한 원소가 있는가"만 가려내는 문제입니다.</p>
 <p class="step">산화-환원 반응의판별 기준은 오직 하나, 산화수 변화의 유무입니다.</p>
 <p class="step">- 산화-환원 반응 = 어떤 원소의 산화수가 증가(산화)하고 동시에 다른 원소의 산화수가 감소(환원)하는 반응.</p>
 <p class="step">- 산화수 변화가 전혀 없으면 산-염기 중화, 침전, 복분해 같은 비(非)산화환원 반응입니다.</p>
 <p class="step">- 산화수 규칙: 홑원소 = 0, 화합물의 O = -2(과산화물·홑원소 제외), H = +1, 1족 금속 = +1, 2족 = +2, 단원자 이온 = 전하 그대로.</p>
 <p class="step">다원자 이온은 산화수 합 = 이온 전하.</p>
-<p class="step">- ClO₃⁻(염소산 이온)에서 Cl은 (-1) - 3×(-2) = +5 입니다.</p>
-<p class="step">24 - NO₃⁻(질산 이온)에서 N은 (-1) - 3×(-2) = +5 입니다.</p>
+<p class="step">- ClO<sub>3</sub><sup>-</sup>(염소산 이온)에서 Cl은 (-1) - 3×(-2) = +5 입니다.</p>
+<p class="step">24 - NO<sub>3</sub><sup>-</sup>(질산 이온)에서 N은 (-1) - 3×(-2) = +5 입니다.</p>
 <p class="step">단계 1) 가를 봅니다.</p>
-<p class="step">반응물 Al은 홑원소이므로 0, Cl₂도 홑원소이므로 0입니다.</p>
-<p class="step">생성물 AlCl₃에서 Al = +3, Cl = -1입니다.</p>
+<p class="step">반응물 Al은 홑원소이므로 0, Cl<sub>2</sub>도 홑원소이므로 0입니다.</p>
+<p class="step">생성물 AlCl<sub>3</sub>에서 Al = +3, Cl = -1입니다.</p>
 <p class="step">Al은 0 → +3으로 산화되고 Cl은 0 → -1로 환원됩니다.</p>
 <p class="step">산화-환원 반응입니다.</p>
 <p class="step">단계 2) 나를 봅니다.</p>
-<p class="step">KClO₃에서 K = +1, O = -2×3 = -6 이므로 Cl = +5 입니다.</p>
-<p class="step">생성물 KCl에서 Cl = -1, O₂에서O = 0 입니다.</p>
+<p class="step">KClO<sub>3</sub>에서 K = +1, O = -2×3 = -6 이므로 Cl = +5 입니다.</p>
+<p class="step">생성물 KCl에서 Cl = -1, O<sub>2</sub>에서O = 0 입니다.</p>
 <p class="step">Cl은 +5 → -1로 환원되고, O는 -2 → 0으로 산화됩니다.</p>
 <p class="step">한 화합물 안의 서로 다른 두 원소가 각각환원되고 산화되는 산화-환원 반응입니다.</p>
 <p class="step">단계 3) 다를 봅니다.</p>
-<p class="step">Ba(OH)₂에서 Ba = +2, O = -2, H = +1.</p>
-<p class="step">HNO₃에서 H = +1, N = +5, O = -2.</p>
-<p class="step">생성물Ba(NO₃)₂에서 Ba = +2, N = +5, O = -2.</p>
-<p class="step">H₂O에서 H = +1, O = -2.</p>
+<p class="step">Ba(OH)<sub>2</sub>에서 Ba = +2, O = -2, H = +1.</p>
+<p class="step">HNO<sub>3</sub>에서 H = +1, N = +5, O = -2.</p>
+<p class="step">생성물Ba(NO<sub>3</sub>)<sub>2</sub>에서 Ba = +2, N = +5, O = -2.</p>
+<p class="step">H<sub>2</sub>O에서 H = +1, O = -2.</p>
 <p class="step">반응 전후로 Ba(+2 → +2), N(+5 → +5),O(-2 → -2), H(+1 → +1) 모두 그대로입니다.</p>
 <p class="step">산화수 변화 없음 → 염기와 산이 만나 염과 물을 만드는 중화 반응입니다.</p>
 <p class="step">단계 4) 따라서 산화-환원 반응은 가, 나입니다.</p>
@@ -433,12 +444,12 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">금속과 할로젠이 직접 결합하는 대표적 산화-환원입니다.나 ⇒ 산화-환원 맞음.</p>
 <p class="step">Cl(+5 → -1) 환원, O(-2 → 0) 산화.</p>
 <p class="step">염소산 칼륨을 가열해 산소를 얻는 실험실 반응입니다.다 ⇒ 산화-환원 아님.</p>
-<p class="step">NO₃⁻가 통째로 옮겨 다닐 뿐 어떤 원소의 산화수도 변하지 않습니다.</p>
+<p class="step">NO<sub>3</sub><sup>-</sup>가 통째로 옮겨 다닐 뿐 어떤 원소의 산화수도 변하지 않습니다.</p>
 <p class="step">전형적인 중화 반응입니다.</p>
 <p class="step">따라서 ① 가, 나가 정답입니다.</p>
 <p class="step">① 가와 나에서만 산화수가 변합니다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 12</span><span class="area">반응속도</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">난이도 중 다음은 2단계로 진행되는 네 가지 반응 A~D의 반응경로에 따른 에너지를 나타낸 것이다.</p>
+<div class="q" id="q12"><div class="qh"><span class="qno">문제 12</span><span class="area">반응속도</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">난이도 중 다음은 2단계로 진행되는 네 가지 반응 A~D의 반응경로에 따른 에너지를 나타낸 것이다.</p>
 <p class="step">네 반응 모두 반응물의 에너지를 0 kJ/mol로 맞추었고, 표의 값은 각 지점의 에너지(kJ/mol)이다.</p>
 <p class="step">반응 중간체를 분리하기 가장 좋은 반응은무엇인가? 반응 1단계 전이상태 반응 중간체 2단계 전이상태 A 180 25 60 B 100 40 165 C 190 20 155 D 185 130 205 ① A ② B ③ C ④ D ■ 무엇을 묻는 문제인가 2단계 반응의 에너지 자료를 읽고, 중간에 있는 골(우물)에 갇힌 중간체가 얼마나 오래 살아남을 수 있는지를 판단하는 문제입니다.</p>
 <p class="step">중간체를 실험적으로 분리하려면 그 중간체가 앞으로도 뒤로도 쉽게 빠져나가지 못해야 하므로,두 방향의 활성화에너지를 동시에 봐야 합니다.</p>
@@ -474,83 +485,83 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">골의 깊이가 55와 75로 C보다 훨씬 얕고, 무엇보다 중간체 자체가 에너지 130이라는 높은 자리에 있어 열역학적으로 불안정합니다.</p>
 <p class="step">두 장벽 중 작은 값 55가 C의 135보다 훨씬 작습니다.③ 중간체가 놓인 골이 가장 깊어 정반응 쪽 장벽(135)과 역반응 쪽 장벽(170)이 모두 크므로 중간체를 분리하기 가장 좋습니다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 13</span><span class="area">아미노산</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">난이도 중 다음은 단백질을 구성하는 기본 단위인 아미노산의 일반 구조이다.</p>
-<p class="step">H₂N-CH(R)-COOH (R는 곁사슬이며 산·염기성질이 없다고 가정한다) 중성 수용액에서 아미노산은 한 분자 내 양전하와 음전하를 모두 띠는 쯔비터이온이다.</p>
-<p class="step">강26 한 산성 수용액에서 아미노산의 주된 형태는 무엇인가? ① R-CH(NH₃⁺)-COOH ② R-CH(NH₃⁺)-COO⁻ ③ R-CH(NH₂)-COO⁻ ④ R-CH(NH₂)-COOH ■ 무엇을 묻는 문제인가 아미노산이 카복시기(-COOH, 산성)와 아미노기(-NH₂, 염기성)를 한 분자에 함께 가진 양쪽성 물질이라는 점을 이해하고, 주변 pH에 따라 어떤 형태로 존재하는지를 판단하는 문제입니다.</p>
+<div class="q" id="q13"><div class="qh"><span class="qno">문제 13</span><span class="area">아미노산</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">난이도 중 다음은 단백질을 구성하는 기본 단위인 아미노산의 일반 구조이다.</p>
+<p class="step">H<sub>2</sub>N-CH(R)-COOH (R는 곁사슬이며 산·염기성질이 없다고 가정한다) 중성 수용액에서 아미노산은 한 분자 내 양전하와 음전하를 모두 띠는 쯔비터이온이다.</p>
+<p class="step">강26 한 산성 수용액에서 아미노산의 주된 형태는 무엇인가? ① R-CH(NH<sub>3</sub><sup>+</sup>)-COOH ② R-CH(NH<sub>3</sub><sup>+</sup>)-COO<sup>-</sup> ③ R-CH(NH<sub>2</sub>)-COO<sup>-</sup> ④ R-CH(NH<sub>2</sub>)-COOH ■ 무엇을 묻는 문제인가 아미노산이 카복시기(-COOH, 산성)와 아미노기(-NH<sub>2</sub>, 염기성)를 한 분자에 함께 가진 양쪽성 물질이라는 점을 이해하고, 주변 pH에 따라 어떤 형태로 존재하는지를 판단하는 문제입니다.</p>
 <p class="step">산·염기 평형의 기본 원리를 유기·생화학소재에 그대로 적용하는 유형입니다.</p>
 <p class="step">1) 아미노산의 두 작용기 -COOH : 산성 작용기.</p>
-<p class="step">양성자를 내놓아 -COO⁻ 가 됩니다.</p>
-<p class="step">(pKa 약 2) -NH₂ : 염기성 작용기.</p>
-<p class="step">양성자를 받아 -NH₃⁺ 가 됩니다.</p>
-<p class="step">(짝산 -NH₃⁺의 pKa 약 9~10) 2) 쯔비터이온(양쪽성 이온, zwitterion): 중성 부근에서 -COOH가 -NH₂에 양성자를 넘겨 준 형태로, -COO⁻ 와 -NH₃⁺ 를 동시에 가집니다.</p>
+<p class="step">양성자를 내놓아 -COO<sup>-</sup> 가 됩니다.</p>
+<p class="step">(pKa 약 2) -NH<sub>2</sub> : 염기성 작용기.</p>
+<p class="step">양성자를 받아 -NH<sub>3</sub><sup>+</sup> 가 됩니다.</p>
+<p class="step">(짝산 -NH<sub>3</sub><sup>+</sup>의 pKa 약 9~10) 2) 쯔비터이온(양쪽성 이온, zwitterion): 중성 부근에서 -COOH가 -NH<sub>2</sub>에 양성자를 넘겨 준 형태로, -COO<sup>-</sup> 와 -NH<sub>3</sub><sup>+</sup> 를 동시에 가집니다.</p>
 <p class="step">전체 알짜 전하는 0이지만 분자 안에는 (+)와 (-)가 모두 있습니다.</p>
 <p class="step">아미노산이 녹는점이높고 물에 잘 녹는 이유가 이 이온성 때문입니다.</p>
-<p class="step">3) pH에 따른 형태 변화 (양성자를 하나씩 붙였다 떼는 계단으로이해합니다) 강한 산성: H⁺가 넘치므로 -COO⁻ 도 양성자를 받아 -COOH 가 됩니다.</p>
-<p class="step">형태는 R-CH(NH₃⁺)-COOH, 알짜 전하 +1 (양이온) 중성 부근: R-CH(NH₃⁺)-COO⁻, 알짜 전하 0 (쯔비터이온) 강한 염기성: OH⁻가 -NH₃⁺의 양성자를 빼앗아 -NH₂ 가 됩니다.</p>
-<p class="step">형태는 R-CH(NH₂)-COO⁻, 알짜 전하 -1 (음이온) 4) 등전점(pI): 알짜전하가 0이 되는 pH이며, 이 근처에서 쯔비터이온이 최대가 됩니다.</p>
+<p class="step">3) pH에 따른 형태 변화 (양성자를 하나씩 붙였다 떼는 계단으로이해합니다) 강한 산성: H<sup>+</sup>가 넘치므로 -COO<sup>-</sup> 도 양성자를 받아 -COOH 가 됩니다.</p>
+<p class="step">형태는 R-CH(NH<sub>3</sub><sup>+</sup>)-COOH, 알짜 전하 +1 (양이온) 중성 부근: R-CH(NH<sub>3</sub><sup>+</sup>)-COO<sup>-</sup>, 알짜 전하 0 (쯔비터이온) 강한 염기성: OH<sup>-</sup>가 -NH<sub>3</sub><sup>+</sup>의 양성자를 빼앗아 -NH<sub>2</sub> 가 됩니다.</p>
+<p class="step">형태는 R-CH(NH<sub>2</sub>)-COO<sup>-</sup>, 알짜 전하 -1 (음이온) 4) 등전점(pI): 알짜전하가 0이 되는 pH이며, 이 근처에서 쯔비터이온이 최대가 됩니다.</p>
 <p class="step">5) 판단 요령: 산성이면 "양성자를 최대한 붙인형태", 염기성이면 "양성자를 최대한 뗀 형태"입니다.</p>
 <p class="step">단계 1) 기준이 되는 중성 형태(쯔비터이온)를 씁니다.</p>
-<p class="step">R-CH(NH₃⁺)-COO⁻ (알짜 전하 0) 단계 2) 강한 산성 수용액에서는 H⁺가 넘치므로 염기성이 남아 있는 자리에 양성자가 붙습니다.</p>
-<p class="step">쯔비터이온에서 아직 양성자를 받을 수 있는 곳은 -COO⁻ 뿐입니다.</p>
-<p class="step">-COO⁻ + H⁺ → -COOH 단계 3) 따라서 산성 조건의 주된 형태는 R-CH(NH₃⁺)-COOH , 알짜 전하 +1 (양이온) 아미노기는 이미 -NH₃⁺ 상태이므로 그대로 유지됩니다.</p>
-<p class="step">단계 4) 선택지에서 -COOH 와 -NH₃⁺ 를 동시에 가진 구조를 찾으면 ① 입니다.</p>
+<p class="step">R-CH(NH<sub>3</sub><sup>+</sup>)-COO<sup>-</sup> (알짜 전하 0) 단계 2) 강한 산성 수용액에서는 H<sup>+</sup>가 넘치므로 염기성이 남아 있는 자리에 양성자가 붙습니다.</p>
+<p class="step">쯔비터이온에서 아직 양성자를 받을 수 있는 곳은 -COO<sup>-</sup> 뿐입니다.</p>
+<p class="step">-COO<sup>-</sup> + H<sup>+</sup> → -COOH 단계 3) 따라서 산성 조건의 주된 형태는 R-CH(NH<sub>3</sub><sup>+</sup>)-COOH , 알짜 전하 +1 (양이온) 아미노기는 이미 -NH<sub>3</sub><sup>+</sup> 상태이므로 그대로 유지됩니다.</p>
+<p class="step">단계 4) 선택지에서 -COOH 와 -NH<sub>3</sub><sup>+</sup> 를 동시에 가진 구조를 찾으면 ① 입니다.</p>
 <p class="step">단계 5) 전기영동으로 검증할 수도 있습니다.</p>
 <p class="step">산성 완충 용액에서 아미노산은 (+) 전하를 띠므로 (-)극 쪽으로 이동합니다.</p>
 <p class="step">이 사실과 ①의 알짜 전하 +1이 정확히 일치합니다.</p>
-<p class="step">① R-CH(NH₃⁺)-COOH ⇒ 옳음.</p>
+<p class="step">① R-CH(NH<sub>3</sub><sup>+</sup>)-COOH ⇒ 옳음.</p>
 <p class="step">양성자를 최대한 얻은 형태로 알짜 전하가 +1인 양이온입니다.</p>
 <p class="step">강한 산성 수용액의 주된 형태가 맞습니다.</p>
-<p class="step">② R-CH(NH₃⁺)-COO⁻ ⇒ 틀림.</p>
+<p class="step">② R-CH(NH<sub>3</sub><sup>+</sup>)-COO<sup>-</sup> ⇒ 틀림.</p>
 <p class="step">쯔비터이온으로, 중성 부근(등전점 근처)의 주된 형태입니다.</p>
 <p class="step">문제가 묻는 것은 산성 조건이므로 여기서 양성자를 하나 더 붙여야 합니다.</p>
-<p class="step">③ R-CH(NH₂)-COO⁻ ⇒ 틀림.</p>
+<p class="step">③ R-CH(NH<sub>2</sub>)-COO<sup>-</sup> ⇒ 틀림.</p>
 <p class="step">양성자를 최대한 잃은 형태로 알짜 전하가 -1인 음이온이며, 강한 염기성 수용액에서의 주된 형태입니다.</p>
 <p class="step">산성조건과는 정반대입니다.</p>
-<p class="step">④ R-CH(NH₂)-COOH ⇒ 틀림.</p>
+<p class="step">④ R-CH(NH<sub>2</sub>)-COOH ⇒ 틀림.</p>
 <p class="step">두 작용기 모두 중성인 "종이 위의 형태"로, 수용액에서는실제로 거의 존재하지 않습니다.</p>
-<p class="step">분자 내에서 -COOH의 양성자가 -NH₂로 곧바로 넘어가 쯔비터이온이 되기 때문입니다.</p>
-<p class="step">① 강한 산성에서는 -COO⁻가 양성자를 받아 R-CH(NH₃⁺)-COOH 형태(알짜 전하 +1)가 됩니다.</p></div>
+<p class="step">분자 내에서 -COOH의 양성자가 -NH<sub>2</sub>로 곧바로 넘어가 쯔비터이온이 되기 때문입니다.</p>
+<p class="step">① 강한 산성에서는 -COO<sup>-</sup>가 양성자를 받아 R-CH(NH<sub>3</sub><sup>+</sup>)-COOH 형태(알짜 전하 +1)가 됩니다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 14</span><span class="area">아미노산</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">난이도 중 히스티딘(Histidine)은 천연 아미노산의 하나로서, pH에 따라 다른 화학종 형태로 존재한다.</p>
-<p class="step">25 °C에서 LH₃²⁺의pKa값이 각각 1.82(-COOH), 6.00(이미다졸 고리의 -NH⁺), 9.17(-NH₃⁺) 일 때, 25 °C, pH 7.5에서 가장 많이 존재하는 화학종은? ① LH₃²⁺ ② LH₂⁺ ③ LH ④ L⁻ ■ 무엇을 묻는 문제인가 여러 개의 산성 자리를 가진 다양성자성 화학종에서, 주어진 pH일 때 어떤 형태가 우세한지를 판정하는 문제입니다.</p>
+<div class="q" id="q14"><div class="qh"><span class="qno">문제 14</span><span class="area">아미노산</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">난이도 중 히스티딘(Histidine)은 천연 아미노산의 하나로서, pH에 따라 다른 화학종 형태로 존재한다.</p>
+<p class="step">25 °C에서 LH<sub>3</sub><sup>2+</sup>의pKa값이 각각 1.82(-COOH), 6.00(이미다졸 고리의 -NH<sup>+</sup>), 9.17(-NH<sub>3</sub><sup>+</sup>) 일 때, 25 °C, pH 7.5에서 가장 많이 존재하는 화학종은? ① LH<sub>3</sub><sup>2+</sup> ② LH<sub>2</sub><sup>+</sup> ③ LH ④ L<sup>-</sup> ■ 무엇을 묻는 문제인가 여러 개의 산성 자리를 가진 다양성자성 화학종에서, 주어진 pH일 때 어떤 형태가 우세한지를 판정하는 문제입니다.</p>
 <p class="step">계산기를 두드릴 필요 없이 pH와 각 pKa의 대소만 비교하면 되는데, 그 근거가 헨더슨-하셀바흐 식이라는 점을이해하고 있어야 합니다.</p>
 <p class="step">히스티딘은 곁사슬에 이미다졸 고리가 있어 pKa가 세 개라는 구조적 이해도 함께 묻습니다.</p>
-<p class="step">1) 히스티딘은 -COOH 한 개, α-NH₂ 한 개, 그리고 곁사슬의 이미다졸 고리 질소 한 개를 가진 아미노산입니다.</p>
-<p class="step">완전히 양성자화된 형태는 이미다졸륨(+1)과 암모늄(+1)을 합쳐 알짜 전하 +2인 LH₃²⁺이고, 산성이 가장 강한 자리부터 순서대로 양성자를 잃습니다.</p>
-<p class="step">LH₃²⁺ ⇌ LH₂⁺ + H⁺ pKa1 = 1.82 (-COOH가 떨어짐) LH₂⁺ ⇌ LH + H⁺ pKa2 = 6.00 (이미다졸륨 -NH⁺가 떨어짐) LH ⇌ L⁻ + H⁺ pKa3 = 9.17 (α-NH₃⁺가 떨어짐) 2) 헨더슨-하셀바흐 식: pH = pKa + log([짝염기]/[짝산]).</p>
+<p class="step">1) 히스티딘은 -COOH 한 개, α-NH<sub>2</sub> 한 개, 그리고 곁사슬의 이미다졸 고리 질소 한 개를 가진 아미노산입니다.</p>
+<p class="step">완전히 양성자화된 형태는 이미다졸륨(+1)과 암모늄(+1)을 합쳐 알짜 전하 +2인 LH<sub>3</sub><sup>2+</sup>이고, 산성이 가장 강한 자리부터 순서대로 양성자를 잃습니다.</p>
+<p class="step">LH<sub>3</sub><sup>2+</sup> ⇌ LH<sub>2</sub><sup>+</sup> + H<sup>+</sup> pKa1 = 1.82 (-COOH가 떨어짐) LH<sub>2</sub><sup>+</sup> ⇌ LH + H<sup>+</sup> pKa2 = 6.00 (이미다졸륨 -NH<sup>+</sup>가 떨어짐) LH ⇌ L<sup>-</sup> + H<sup>+</sup> pKa3 = 9.17 (α-NH<sub>3</sub><sup>+</sup>가 떨어짐) 2) 헨더슨-하셀바흐 식: pH = pKa + log([짝염기]/[짝산]).</p>
 <p class="step">- pH = pKa 이면 짝산과 짝염기의 농도가 같습니다(반당량점, 완충 용액).</p>
 <p class="step">- pH &lt; pKa 이면 log 값이 음수이므로 짝산(양성자가 붙어 있는 형태)이 우세합니다.</p>
 <p class="step">- pH &gt; pKa 이면 짝염기(양성자를 잃은 형태)가 우세합니다.</p>
 <p class="step">pH가 pKa보다 1 차이 나면 농도비가 10배, 2 차이 나면 100배로 벌어집니다.</p>
-<p class="step">3) 적정 곡선의 특징적인 지점 제1반당량점 pH = pKa1 = 1.82 ([LH₃²⁺] = [LH₂⁺]) 제1당량점 pH = (pKa1 + pKa2)/2 = (1.82 + 6.00)/2 = 3.91 (LH₂⁺가 최대) 제2반당량점 pH = pKa2 = 6.00 ([LH₂⁺] = [LH]) 제2당량점 pH = (pKa2 + pKa3)/2 = (6.00 + 9.17)/2 = 7.59 (LH가 최대, 히스티딘의 등전점) 제3반당량점 pH = pKa3 = 9.17 ([LH] = [L⁻]) 4) 양쪽성 화학종(LH₂⁺, LH)이 최대가 되는 pH는 그 화학종을 둘러싼 두 pKa의 평균입니다.</p>
+<p class="step">3) 적정 곡선의 특징적인 지점 제1반당량점 pH = pKa1 = 1.82 ([LH<sub>3</sub><sup>2+</sup>] = [LH<sub>2</sub><sup>+</sup>]) 제1당량점 pH = (pKa1 + pKa2)/2 = (1.82 + 6.00)/2 = 3.91 (LH<sub>2</sub><sup>+</sup>가 최대) 제2반당량점 pH = pKa2 = 6.00 ([LH<sub>2</sub><sup>+</sup>] = [LH]) 제2당량점 pH = (pKa2 + pKa3)/2 = (6.00 + 9.17)/2 = 7.59 (LH가 최대, 히스티딘의 등전점) 제3반당량점 pH = pKa3 = 9.17 ([LH] = [L<sup>-</sup>]) 4) 양쪽성 화학종(LH<sub>2</sub><sup>+</sup>, LH)이 최대가 되는 pH는 그 화학종을 둘러싼 두 pKa의 평균입니다.</p>
 <p class="step">단계 1) 주어진 pH 7.5가 어느 pKa 구간에 있는지 봅니다.</p>
 <p class="step">6.00 &lt; 7.5 &lt; 9.17 즉 pKa2보다 크고 pKa3보다 작습니다.</p>
 <p class="step">단계 2) pKa2와 비교합니다.</p>
 <p class="step">pH(7.5) &gt; pKa2(6.00) 이므로 이미다졸륨은 이미 양성자를 잃었습니다.</p>
-<p class="step">[LH]/[LH₂⁺] = 10^(7.5 - 6.00) = 10^1.5 ≈ 32 LH₂⁺는 LH의 약 30분의 1에 불과합니다.</p>
+<p class="step">[LH]/[LH<sub>2</sub><sup>+</sup>] = 10^(7.5 - 6.00) = 10^1.5 ≈ 32 LH<sub>2</sub><sup>+</sup>는 LH의 약 30분의 1에 불과합니다.</p>
 <p class="step">단계 3) pKa3과 비교합니다.</p>
-<p class="step">pH(7.5) &lt; pKa3(9.17) 이므로 α-NH₃⁺는 아직 양성자를 붙들고 있습니다.</p>
-<p class="step">[L⁻]/[LH] = 10^(7.5 - 9.17) = 10^(-1.67) ≈ 2×10⁻² L⁻도 거의 없습니다.</p>
+<p class="step">pH(7.5) &lt; pKa3(9.17) 이므로 α-NH<sub>3</sub><sup>+</sup>는 아직 양성자를 붙들고 있습니다.</p>
+<p class="step">[L<sup>-</sup>]/[LH] = 10^(7.5 - 9.17) = 10^(-1.67) ≈ 2×10<sup>-2</sup> L<sup>-</sup>도 거의 없습니다.</p>
 <p class="step">28 단계 4) 양성자를 두 개 잃은 형태, 즉 중성 화학종 LH가 압도적으로 우세합니다.</p>
-<p class="step">구조로 보면 -COO⁻ 하나에 -NH₃⁺ 하나가 남고 이미다졸 고리는 중성인, 알짜 전하 0의 양쪽성 이온입니다.</p>
+<p class="step">구조로 보면 -COO<sup>-</sup> 하나에 -NH<sub>3</sub><sup>+</sup> 하나가 남고 이미다졸 고리는 중성인, 알짜 전하 0의 양쪽성 이온입니다.</p>
 <p class="step">단계 5) 검산.</p>
 <p class="step">LH가 가장 많아지는 지점(제2당량점, 곧 등전점)의 pH는 (6.00 + 9.17)/2 = 7.59 인데, 문제의 pH7.5는 이 값과 거의 같습니다.</p>
 <p class="step">즉 LH의 존재 비율이 최대에 가까운 지점입니다.</p>
-<p class="step">LH₃²⁺는 pH가 1.82보다 훨씬커서 사실상 자취를 감춥니다.</p>
-<p class="step">① LH₃²⁺ ⇒ 틀림.</p>
+<p class="step">LH<sub>3</sub><sup>2+</sup>는 pH가 1.82보다 훨씬커서 사실상 자취를 감춥니다.</p>
+<p class="step">① LH<sub>3</sub><sup>2+</sup> ⇒ 틀림.</p>
 <p class="step">이 형태가 우세하려면 pH가 pKa1(1.82)보다 작아야 합니다.</p>
 <p class="step">pH 7.5에서는 무시할 수 있는 양입니다.</p>
-<p class="step">② LH₂⁺ ⇒ 틀림.</p>
+<p class="step">② LH<sub>2</sub><sup>+</sup> ⇒ 틀림.</p>
 <p class="step">pKa1과 pKa2 사이, 즉 pH 2~6 구간에서 우세하고 pH 3.91에서 최대가 됩니다.</p>
 <p class="step">pH 7.5에서는 LH의 약 30분의 1입니다.</p>
 <p class="step">③ LH ⇒ 옳음.</p>
 <p class="step">pKa2 &lt; pH &lt; pKa3 구간이므로 양성자를 두 개 잃은 중성 형태가우세하고, pH 7.5는 LH가 최대가 되는 등전점 7.59에 거의 일치합니다.</p>
-<p class="step">④ L⁻ ⇒ 틀림.</p>
+<p class="step">④ L<sup>-</sup> ⇒ 틀림.</p>
 <p class="step">완전히 양성자를 잃은 형태이므로 pH가 pKa3(9.17)보다 커야 우세해집니다.</p>
 <p class="step">강한 염기성 조건에서만 나타납니다.</p>
 <p class="step">③ pH 7.5는 pKa2(6.00)와 pKa3(9.17) 사이이므로 양성자를 두 개 잃은 중성 화학종 LH가 가장 많이 존재합니다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 15</span><span class="area">수소결합</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">난이도 상 80개의 C-H 결합을 가진 분자 중, 분자량이 가장 작은 분자의 분자량은? (단, H와 C의 원자량은 1, 12이다) ① 524 ② 536 ③ 548 ④ 560 ■ 무엇을 묻는 문제인가 "C-H 결합 80개"라는 조건을 만족하면서 분자량이 최소가 되도록 탄소 골격을 설계하는 문제입니다.</p>
+<div class="q" id="q15"><div class="qh"><span class="qno">문제 15</span><span class="area">수소결합</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">난이도 상 80개의 C-H 결합을 가진 분자 중, 분자량이 가장 작은 분자의 분자량은? (단, H와 C의 원자량은 1, 12이다) ① 524 ② 536 ③ 548 ④ 560 ■ 무엇을 묻는 문제인가 "C-H 결합 80개"라는 조건을 만족하면서 분자량이 최소가 되도록 탄소 골격을 설계하는 문제입니다.</p>
 <p class="step">탄화수소에서탄소 수와 수소 수의 관계, 특히 포화 사슬 알케인의 일반식 CnH2n+2를 정확히 이해했는지가 관건입니다.</p>
 <p class="step">· C-H 결합 80개 = 탄소에 붙은 수소가 정확히 80개입니다(수소는 결합을 하나만 만들 수 있으므로 H 개수 = C-H결합 개수).</p>
 <p class="step">· 따라서 수소가 기여하는 질량 80은 고정입니다.</p>
@@ -560,22 +571,22 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">· 그러므로 수소 80개를 확보하려면 2n + 2 ≥ 80 이어야 합니다.</p>
 <p class="step">단계 1) 최소 탄소 수를 구합니다.</p>
 <p class="step">2n + 2 ≥ 80 ⇒ 2n ≥ 78 ⇒ n ≥ 39 단계 2) n = 39일 때 정확히 2(39) + 2 = 80개의 수소를 가질 수 있습니다.</p>
-<p class="step">즉 가지 없는 사슬이든 가지 달린 사슬이든 분자식은 C₃₉H₈₀ 입니다.</p>
+<p class="step">즉 가지 없는 사슬이든 가지 달린 사슬이든 분자식은 C<sub>39</sub>H<sub>80</sub> 입니다.</p>
 <p class="step">단계 3) n = 38이면 최대 수소는 2(38) + 2 = 78개뿐이라 80개를 만들 수 없습니다.</p>
 <p class="step">그러므로 39가 최소입니다.</p>
 <p class="step">29 단계 4) 분자량을 계산합니다.</p>
 <p class="step">C: 39 × 12 = 468 H: 80 × 1 = 80 분자량 = 468 + 80 = 548 ① 524 ⇒ 틀림.</p>
-<p class="step">C₃₇H₈₀에 해당하는데, 탄소 37개로는 수소를 최대 76개까지만 붙일 수 있어 구조가 존재하지 않습니다.</p>
+<p class="step">C<sub>37</sub>H<sub>80</sub>에 해당하는데, 탄소 37개로는 수소를 최대 76개까지만 붙일 수 있어 구조가 존재하지 않습니다.</p>
 <p class="step">② 536 ⇒ 틀림.</p>
-<p class="step">C₃₈H₈₀에 해당하며, 최대 수소가 78개라 두 개가 모자랍니다.</p>
+<p class="step">C<sub>38</sub>H<sub>80</sub>에 해당하며, 최대 수소가 78개라 두 개가 모자랍니다.</p>
 <p class="step">③ 548 ⇒ 옳음.</p>
-<p class="step">C₃₉H₈₀으로2n + 2 = 80을 정확히 만족하는 포화 사슬 탄화수소이며, 이보다 탄소가 적으면 존재할 수 없습니다.</p>
+<p class="step">C<sub>39</sub>H<sub>80</sub>으로2n + 2 = 80을 정확히 만족하는 포화 사슬 탄화수소이며, 이보다 탄소가 적으면 존재할 수 없습니다.</p>
 <p class="step">④ 560 ⇒ 틀림.</p>
-<p class="step">C₄₀H₈₀은 고리를 하나 가진 사이클로알케인으로 실제로 존재하지만, 탄소가 하나 더 많아 분자량이 12만큼 큽니다.</p>
+<p class="step">C<sub>40</sub>H<sub>80</sub>은 고리를 하나 가진 사이클로알케인으로 실제로 존재하지만, 탄소가 하나 더 많아 분자량이 12만큼 큽니다.</p>
 <p class="step">문제는 최소 분자량을 물었습니다.</p>
-<p class="step">③ C₃₉H₈₀, 분자량 548입니다.</p></div>
+<p class="step">③ C<sub>39</sub>H<sub>80</sub>, 분자량 548입니다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 16</span><span class="area">산화수</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">난이도 중 다음 중 밑줄 친 원자의 산화수와 형식전하 값이 가장 크게 차이 나는 화합물은? (밑줄 친 원자는 ① N₂H₄의 N, ②CCl₄의 C, ③ CO의 C, ④ H₂O₂의 O 이다.) ① N₂H₄ ② CCl₄ ③ CO ④ H₂O₂ ■ 무엇을 묻는 문제인가 산화수와 형식전하가 "같은 것을 다르게 세는 두 가지 방법"임을 이해하고 있는지 묻습니다.</p>
+<div class="q" id="q16"><div class="qh"><span class="qno">문제 16</span><span class="area">산화수</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">난이도 중 다음 중 밑줄 친 원자의 산화수와 형식전하 값이 가장 크게 차이 나는 화합물은? (밑줄 친 원자는 ① N<sub>2</sub>H<sub>4</sub>의 N, ②CCl<sub>4</sub>의 C, ③ CO의 C, ④ H<sub>2</sub>O<sub>2</sub>의 O 이다.) ① N<sub>2</sub>H<sub>4</sub> ② CCl<sub>4</sub> ③ CO ④ H<sub>2</sub>O<sub>2</sub> ■ 무엇을 묻는 문제인가 산화수와 형식전하가 "같은 것을 다르게 세는 두 가지 방법"임을 이해하고 있는지 묻습니다.</p>
 <p class="step">두 값이 크게 갈라지는경우는 결합 상대와의 전기음성도 차이가 클 때인데, 그 감각을 확인하는 문제입니다.</p>
 <p class="step">1) 산화수: 결합에 참여한 전자쌍을 전기음성도가 큰 원자가 "전부 가져간다"고 극단적으로 가정했을 때의 전하.</p>
 <p class="step">같은 원소끼리의 결합에서는 전자쌍을 반씩 나눕니다.</p>
@@ -583,25 +594,25 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">2) 형식전하: 결합에 참여한 전자쌍을 두 원자가 "정확히 반씩 나눠가진다"고 가정했을 때의 전하.</p>
 <p class="step">형식전하 = (그 원자의 원자가 전자 수) - (비공유 전자 수) - (결합 수) 3) 두 값의 차이가 커지는 원리: 전기음성도 차가 큰 원자와 여러 개의 결합을 이루고 있을수록, "전부 가져간다"와 "반씩 나눈다"의 결과가 크게 벌어집니다.</p>
 <p class="step">같은 원소끼리 결합한 부분(O-O, N-N)은 두 방법의 결과가 같아서 차이를 줄이는쪽으로 작용합니다.</p>
-<p class="step">단계 1) ① N₂H₄ (H₂N-NH₂)의 N 산화수: N-N 결합은 같은 원소라 전자를 반씩 나눕니다.</p>
-<p class="step">H 4개가 +1씩이므로 2N = -4 → N = -2 형식전하: N은 원자가 전자 5개, 비공유 전자 2개, 결합 3개(H 2개 + N 1개) → 5 - 2 - 3 = 0 차이 = |-2 - 0| = 2 단계 2) ② CCl₄의 C 산화수: Cl(전기음성도 3.16)이 C(2.55)보다 크므로 Cl이 -1씩 4개 → C = +4 형식전하: C는 원자가 전자 4개, 비공유 전자 0개, 결합 4개 → 4 - 0 - 4 = 0 차이 = |+4 - 0| = 4 30 단계 3) ③ CO (C≡O)의 C 산화수: O가 -2이므로 C = +2 형식전하: C는 원자가 전자 4개, 비공유 전자 2개(고립 전자쌍 1개), 결합 3개(삼중 결합) → 4 - 2 - 3 = -1 차이 = |+2 - (-1)| = 3 단계 4) ④ H₂O₂ (H-O-O-H)의 O 산화수: O-O 결합은 같은 원소이므로 전자를 반씩 나눕니다.</p>
-<p class="step">O-H에서만 O가 전자를 가져가므로 O = -1 형식전하:O는 원자가 전자 6개, 비공유 전자 4개, 결합 2개 → 6 - 4 - 2 = 0 차이 = |-1 - 0| = 1 단계 5) 차이를 비교하면 2, 4, 3, 1 이므로 ② CCl₄가 가장 큽니다.</p>
-<p class="step">① N₂H₄ ⇒ 산화수 -2, 형식전하 0.</p>
+<p class="step">단계 1) ① N<sub>2</sub>H<sub>4</sub> (H<sub>2</sub>N-NH<sub>2</sub>)의 N 산화수: N-N 결합은 같은 원소라 전자를 반씩 나눕니다.</p>
+<p class="step">H 4개가 +1씩이므로 2N = -4 → N = -2 형식전하: N은 원자가 전자 5개, 비공유 전자 2개, 결합 3개(H 2개 + N 1개) → 5 - 2 - 3 = 0 차이 = |-2 - 0| = 2 단계 2) ② CCl<sub>4</sub>의 C 산화수: Cl(전기음성도 3.16)이 C(2.55)보다 크므로 Cl이 -1씩 4개 → C = +4 형식전하: C는 원자가 전자 4개, 비공유 전자 0개, 결합 4개 → 4 - 0 - 4 = 0 차이 = |+4 - 0| = 4 30 단계 3) ③ CO (C≡O)의 C 산화수: O가 -2이므로 C = +2 형식전하: C는 원자가 전자 4개, 비공유 전자 2개(고립 전자쌍 1개), 결합 3개(삼중 결합) → 4 - 2 - 3 = -1 차이 = |+2 - (-1)| = 3 단계 4) ④ H<sub>2</sub>O<sub>2</sub> (H-O-O-H)의 O 산화수: O-O 결합은 같은 원소이므로 전자를 반씩 나눕니다.</p>
+<p class="step">O-H에서만 O가 전자를 가져가므로 O = -1 형식전하:O는 원자가 전자 6개, 비공유 전자 4개, 결합 2개 → 6 - 4 - 2 = 0 차이 = |-1 - 0| = 1 단계 5) 차이를 비교하면 2, 4, 3, 1 이므로 ② CCl<sub>4</sub>가 가장 큽니다.</p>
+<p class="step">① N<sub>2</sub>H<sub>4</sub> ⇒ 산화수 -2, 형식전하 0.</p>
 <p class="step">차이 2.</p>
 <p class="step">N-N 결합이 있어 산화수가 -3까지 내려가지 못합니다.</p>
-<p class="step">② CCl₄ ⇒ 산화수 +4, 형식전하 0.</p>
+<p class="step">② CCl<sub>4</sub> ⇒ 산화수 +4, 형식전하 0.</p>
 <p class="step">차이 4.</p>
 <p class="step">가장 큼.</p>
 <p class="step">옳음.</p>
 <p class="step">③ CO ⇒ 산화수 +2, 형식전하 -1.</p>
 <p class="step">차이 3.</p>
 <p class="step">형식전하가 0이 아닌 유일한선지지만 산화수 자체가 작아 차이는 2위입니다.</p>
-<p class="step">④ H₂O₂ ⇒ 산화수 -1, 형식전하 0.</p>
+<p class="step">④ H<sub>2</sub>O<sub>2</sub> ⇒ 산화수 -1, 형식전하 0.</p>
 <p class="step">차이 1.</p>
 <p class="step">가장 작습니다.</p>
-<p class="step">② CCl₄ ― C의 산화수는 +4, 형식전하는 0으로 차이가 4입니다.</p></div>
+<p class="step">② CCl<sub>4</sub> ― C의 산화수는 +4, 형식전하는 0으로 차이가 4입니다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 17</span><span class="area">양적관계</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">난이도 중 다음 각각의 화합물 20.0 g에 있는 수소 원자 개수가 가장 많은 것은? ① C₃H₈ ② H₂O ③ CH₄ ④ C₂H₆ ■ 무엇을 묻는 문제인가 같은 질량을 기준으로 놓았을 때 어느 물질이 수소 원자를 가장 많이 품고 있는지를 묻습니다.</p>
+<div class="q" id="q17"><div class="qh"><span class="qno">문제 17</span><span class="area">양적관계</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">난이도 중 다음 각각의 화합물 20.0 g에 있는 수소 원자 개수가 가장 많은 것은? ① C<sub>3</sub>H<sub>8</sub> ② H<sub>2</sub>O ③ CH<sub>4</sub> ④ C<sub>2</sub>H<sub>6</sub> ■ 무엇을 묻는 문제인가 같은 질량을 기준으로 놓았을 때 어느 물질이 수소 원자를 가장 많이 품고 있는지를 묻습니다.</p>
 <p class="step">분자 하나당 H 개수만 보고 답을 고르면 함정에 빠지도록 설계된 문제로, "질량 → 몰 → 원자 수"라는 화학량론의 기본 흐름을 정확히밟을 수 있는지를 확인합니다.</p>
 <p class="step">질량 w(g)인 물질의 몰수는 n = w/M (M은 몰질량, g/mol)입니다.</p>
 <p class="step">분자 1개에 H가 k개 들어 있다면 수소 원자의몰수는 n×k = (w/M)×k이고, 개수는 여기에 아보가드로 수 N_A를 곱합니다.</p>
@@ -609,104 +620,104 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">즉 "분자당 H 수를 몰질량으로 나눈 값이 큰 쪽이 이긴다"가 되며, 이 양은 사실상 그 물질의 수소 질량분율에 비례합니다.</p>
 <p class="step">몰질량은 원자량을 더해 구합니다(H 1.008, C 12.01,O 16.00).</p>
 <p class="step">단계 1) 각 물질의 몰질량 계산.</p>
-<p class="step">C₃H₈ = 3(12.01) + 8(1.008) = 36.03 + 8.06 = 44.09 H₂O = 2(1.008) + 16.00 = 18.02 CH₄ = 12.01 + 4(1.008) = 12.01 + 4.03 = 16.04 C₂H₆ = 2(12.01) + 6(1.008) = 24.02 + 6.05 = 30.07 단계 2) 분자당 H 수 k를 세고 k/M을 계산.</p>
-<p class="step">31 C₃H₈: 8/44.09 = 0.181 H₂O: 2/18.02 = 0.111 CH₄: 4/16.04 = 0.249 C₂H₆: 6/30.07 = 0.200 단계 3) 가장 큰 값은 CH₄의 0.249.</p>
-<p class="step">실제 개수로 확인하면 CH₄: (20.0/16.04)×4 = 1.247×4 = 4.99 mol H C₂H₆: (20.0/30.07)×6 = 0.665×6 = 3.99 mol H C₃H₈: (20.0/44.09)×8 = 0.454×8 = 3.63 mol H H₂O: (20.0/18.02)×2 = 1.110×2 = 2.22 mol H 로 CH₄가 가장 많습니다.</p>
-<p class="step">① C₃H₈ ⇒ 분자당 H가 8개로 가장 많지만 몰질량이 44.09로 커서 0.181.</p>
+<p class="step">C<sub>3</sub>H<sub>8</sub> = 3(12.01) + 8(1.008) = 36.03 + 8.06 = 44.09 H<sub>2</sub>O = 2(1.008) + 16.00 = 18.02 CH<sub>4</sub> = 12.01 + 4(1.008) = 12.01 + 4.03 = 16.04 C<sub>2</sub>H<sub>6</sub> = 2(12.01) + 6(1.008) = 24.02 + 6.05 = 30.07 단계 2) 분자당 H 수 k를 세고 k/M을 계산.</p>
+<p class="step">31 C<sub>3</sub>H<sub>8</sub>: 8/44.09 = 0.181 H<sub>2</sub>O: 2/18.02 = 0.111 CH<sub>4</sub>: 4/16.04 = 0.249 C<sub>2</sub>H<sub>6</sub>: 6/30.07 = 0.200 단계 3) 가장 큰 값은 CH<sub>4</sub>의 0.249.</p>
+<p class="step">실제 개수로 확인하면 CH<sub>4</sub>: (20.0/16.04)×4 = 1.247×4 = 4.99 mol H C<sub>2</sub>H<sub>6</sub>: (20.0/30.07)×6 = 0.665×6 = 3.99 mol H C<sub>3</sub>H<sub>8</sub>: (20.0/44.09)×8 = 0.454×8 = 3.63 mol H H<sub>2</sub>O: (20.0/18.02)×2 = 1.110×2 = 2.22 mol H 로 CH<sub>4</sub>가 가장 많습니다.</p>
+<p class="step">① C<sub>3</sub>H<sub>8</sub> ⇒ 분자당 H가 8개로 가장 많지만 몰질량이 44.09로 커서 0.181.</p>
 <p class="step">3위입니다.</p>
 <p class="step">틀림.</p>
-<p class="step">② H₂O ⇒ 0.111로 가장 작습니다.</p>
+<p class="step">② H<sub>2</sub>O ⇒ 0.111로 가장 작습니다.</p>
 <p class="step">틀림.</p>
-<p class="step">③ CH₄ ⇒ k/M = 0.249로 최대.</p>
+<p class="step">③ CH<sub>4</sub> ⇒ k/M = 0.249로 최대.</p>
 <p class="step">분자당 H는 4개뿐이지만 몰질량이 가장 작아 20.0 g 안에 분자가 압도적으로 많습니다.</p>
 <p class="step">옳음.</p>
-<p class="step">④ C₂H₆ ⇒ 0.200으로 2위.</p>
+<p class="step">④ C<sub>2</sub>H<sub>6</sub> ⇒ 0.200으로 2위.</p>
 <p class="step">틀림.</p>
-<p class="step">③ 20.0 g 기준 수소 원자가 가장 많은 것은 CH₄입니다.</p></div>
+<p class="step">③ 20.0 g 기준 수소 원자가 가장 많은 것은 CH<sub>4</sub>입니다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 18</span><span class="area">양적관계</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">난이도 하 질량이 400 g인 실험용 흰쥐의 몸을 구성하는 물질 중 가장 많은 것은 물이다.</p>
+<div class="q" id="q18"><div class="qh"><span class="qno">문제 18</span><span class="area">양적관계</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">난이도 하 질량이 400 g인 실험용 흰쥐의 몸을 구성하는 물질 중 가장 많은 것은 물이다.</p>
 <p class="step">전체 질량 중 H와 O가 물로써 존재하는 원소의 질량퍼센트는 H가 8.00 %, O가 64.00 %이다.</p>
-<p class="step">이 흰쥐의 몸속에 들어 있는 물 분자의 수와 가장 가까운값은? ① 10²³ ② 10²⁵ ③ 10²⁷ ④ 10²⁹ ■ 무엇을 묻는 문제인가 질량 → 몰수 → 입자 수로 이어지는 화학량론의 기본 사슬을 생물체라는 친숙한 소재로 물어본 문제입니다.</p>
+<p class="step">이 흰쥐의 몸속에 들어 있는 물 분자의 수와 가장 가까운값은? ① 10<sup>23</sup> ② 10<sup>25</sup> ③ 10<sup>27</sup> ④ 10<sup>29</sup> ■ 무엇을 묻는 문제인가 질량 → 몰수 → 입자 수로 이어지는 화학량론의 기본 사슬을 생물체라는 친숙한 소재로 물어본 문제입니다.</p>
 <p class="step">겉보기에는 생물 이야기 같지만 실제로 요구하는 계산은 "물의 질량을 구하고, 18 g/mol로 나눠 몰수를 구하고, 아보가드로수를 곱한다" 딱 세 단계뿐입니다.</p>
-<p class="step">게다가 선택지가 10²³, 10²⁵, 10²⁷, 10²⁹으로 100배씩 벌어져 있으므로 정밀 계산보다 자릿수 감각이 핵심입니다.</p>
+<p class="step">게다가 선택지가 10<sup>23</sup>, 10<sup>25</sup>, 10<sup>27</sup>, 10<sup>29</sup>으로 100배씩 벌어져 있으므로 정밀 계산보다 자릿수 감각이 핵심입니다.</p>
 <p class="step">1) 몰수 n = 질량 w / 몰질량 M 입니다.</p>
-<p class="step">H₂O의 몰질량은 1×2 + 16 = 18 g/mol 입니다.</p>
-<p class="step">2) 입자 수 N = n × NA 이고, 아보가드로수 NA = 6.02×10²³ /mol 입니다.</p>
+<p class="step">H<sub>2</sub>O의 몰질량은 1×2 + 16 = 18 g/mol 입니다.</p>
+<p class="step">2) 입자 수 N = n × NA 이고, 아보가드로수 NA = 6.02×10<sup>23</sup> /mol 입니다.</p>
 <p class="step">3) 질량퍼센트의 해석: "전체 질량 중 H가 8.00 %, O가 64.00 %가 물로 존재한다"는 말은 그 H와 O를 합치면 곧 물이라는 뜻입니다.</p>
 <p class="step">물 분자 안의 H와 O는 항상 질량비 (1×2) :16 = 1 : 8로 들어 있는데, 8.00 : 64.00 = 1 : 8이 정확히 맞아떨어지므로 두 값을 그대로 더하면 물의 질량퍼센트가됩니다.</p>
 <p class="step">8.00 + 64.00 = 72.00 % 4) 자릿수 관리: 답이 100배 단위로 벌어져 있는 문제일수록 단위 환산이나 곱셈 한 번의 실수가 곧바로 오답을 만듭니다.</p>
 <p class="step">지수부와 계수부를 나누어 계산하는 습관을 들이세요.</p>
 <p class="step">32 단계 1) 몸속 물의 질량을 구합니다.</p>
-<p class="step">전체 400 g 중 72.00 %가 물이므로 w(H₂O) = 400 g × 0.7200 = 288 g 단계 2) 물의 몰수를 구합니다.</p>
+<p class="step">전체 400 g 중 72.00 %가 물이므로 w(H<sub>2</sub>O) = 400 g × 0.7200 = 288 g 단계 2) 물의 몰수를 구합니다.</p>
 <p class="step">n = 288 g ÷ 18 g/mol = 16.0 mol 단계 3) 물 분자 수를 구합니다.</p>
-<p class="step">N = 16.0 mol × 6.02×10²³ /mol = 96.3×10²³ = 9.63×10²⁴ 개 단계 4) 선택지 중 자릿수가 같은 값을 고릅니다.</p>
-<p class="step">9.63×10²⁴ = 0.963×10²⁵ 이므로 10²⁵ 에 거의 정확히 일치합니다.</p>
-<p class="step">① 10²³ ⇒ 틀림.</p>
+<p class="step">N = 16.0 mol × 6.02×10<sup>23</sup> /mol = 96.3×10<sup>23</sup> = 9.63×10<sup>24</sup> 개 단계 4) 선택지 중 자릿수가 같은 값을 고릅니다.</p>
+<p class="step">9.63×10<sup>24</sup> = 0.963×10<sup>25</sup> 이므로 10<sup>25</sup> 에 거의 정확히 일치합니다.</p>
+<p class="step">① 10<sup>23</sup> ⇒ 틀림.</p>
 <p class="step">계산값보다 100배 작습니다.</p>
 <p class="step">물이 겨우 3 g(약 0.17 mol) 있을 때의 분자 수 규모로, 400 g짜리 몸에는 턱없이 부족합니다.</p>
-<p class="step">② 10²⁵ ⇒ 옳음.</p>
-<p class="step">9.63×10²⁴ 는 10²⁵ 의 96 %이므로 네 선택지 중 압도적으로 가깝습니다.③ 10²⁷ ⇒ 틀림.</p>
+<p class="step">② 10<sup>25</sup> ⇒ 옳음.</p>
+<p class="step">9.63×10<sup>24</sup> 는 10<sup>25</sup> 의 96 %이므로 네 선택지 중 압도적으로 가깝습니다.③ 10<sup>27</sup> ⇒ 틀림.</p>
 <p class="step">계산값보다 100배 큽니다.</p>
 <p class="step">질량 400 g을 400 kg으로 잘못 읽었을 때 나오는 규모입니다.</p>
-<p class="step">④ 10²⁹⇒ 틀림.</p>
-<p class="step">계산값보다 10⁴배 큽니다.</p>
+<p class="step">④ 10<sup>29</sup>⇒ 틀림.</p>
+<p class="step">계산값보다 10<sup>4</sup>배 큽니다.</p>
 <p class="step">물이 수 톤 있어야 나오는 값입니다.</p>
-<p class="step">② 물 288 g → 16.0 mol → 9.63×10²⁴개이므로 10²⁵이 가장 가깝습니다.</p></div>
+<p class="step">② 물 288 g → 16.0 mol → 9.63×10<sup>24</sup>개이므로 10<sup>25</sup>이 가장 가깝습니다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 19</span><span class="area">화학평형</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">난이도 중 25 °C에서 1.0 M HA 수용액의 pH = 3이다.</p>
-<p class="step">소량의 NaOH를 첨가하여 pH = 4가 되었을 때, HA와 A⁻의 농도비[HA]/[A⁻]와 가장 가까운 값은? ① 0.01 ② 1 ③ 10 ④ 100 ■ 무엇을 묻는 문제인가 두 단계로 이루어진 전형적인 약산·완충 문제입니다.</p>
+<div class="q" id="q19"><div class="qh"><span class="qno">문제 19</span><span class="area">화학평형</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">난이도 중 25 °C에서 1.0 M HA 수용액의 pH = 3이다.</p>
+<p class="step">소량의 NaOH를 첨가하여 pH = 4가 되었을 때, HA와 A<sup>-</sup>의 농도비[HA]/[A<sup>-</sup>]와 가장 가까운 값은? ① 0.01 ② 1 ③ 10 ④ 100 ■ 무엇을 묻는 문제인가 두 단계로 이루어진 전형적인 약산·완충 문제입니다.</p>
 <p class="step">앞부분은 "약산 수용액의 pH로부터 Ka를 역산"하는 계산이고, 뒷부분은 "Ka를 알고 pH가 주어졌을 때 짝산과 짝염기의 농도비를 구하는" 헨더슨-하셀바흐 계산입니다.</p>
 <p class="step">마지막에 구한 비의 방향(분자와 분모가 무엇인지)을 정확히 읽어야 함정을 피할 수 있습니다.</p>
-<p class="step">1) 약산의 해리: HA ⇌ H⁺ + A⁻, Ka = [H⁺][A⁻]/[HA] 2) 해리도 α를 써서 표현하면, 초기 농도가 C일 때 해리 후 [H⁺] = [A⁻] = Cα, [HA] = C(1-α)입니다.</p>
-<p class="step">α가 충분히 작아 1-α ≈ 1로 볼 수 있으면 [H⁺] = Cα, Ka = (Cα)²/C = Cα² 이 근사는 보통 α &lt; 0.05일 때 안전합니다.</p>
-<p class="step">3) 헨더슨-하셀바흐 식: Ka = [H⁺][A⁻]/[HA]의 양변에 -log를 취하면 pH = pKa + log([A⁻]/[HA]) 여기서 pKa = -log Ka입니다.</p>
+<p class="step">1) 약산의 해리: HA ⇌ H<sup>+</sup> + A<sup>-</sup>, Ka = [H<sup>+</sup>][A<sup>-</sup>]/[HA] 2) 해리도 α를 써서 표현하면, 초기 농도가 C일 때 해리 후 [H<sup>+</sup>] = [A<sup>-</sup>] = Cα, [HA] = C(1-α)입니다.</p>
+<p class="step">α가 충분히 작아 1-α ≈ 1로 볼 수 있으면 [H<sup>+</sup>] = Cα, Ka = (Cα)<sup>2</sup>/C = Cα<sup>2</sup> 이 근사는 보통 α &lt; 0.05일 때 안전합니다.</p>
+<p class="step">3) 헨더슨-하셀바흐 식: Ka = [H<sup>+</sup>][A<sup>-</sup>]/[HA]의 양변에 -log를 취하면 pH = pKa + log([A<sup>-</sup>]/[HA]) 여기서 pKa = -log Ka입니다.</p>
 <p class="step">이 식은 완충 용액의 pH가 짝염기/짝산의 "비"로만 결정된다는 것을 보여 줍니다.</p>
-<p class="step">4)로그의 방향 감각: [A⁻]/[HA] = 1이면 pH = pKa, [A⁻]가 많아지면 pH &gt; pKa(염기 쪽), [HA]가 많아지면 pH &lt;pKa(산 쪽)입니다.</p>
-<p class="step">5) NaOH를 소량 넣으면 HA 일부가 중화되어 A⁻로 바뀌므로 완충 용액이 만들어집니다.</p>
+<p class="step">4)로그의 방향 감각: [A<sup>-</sup>]/[HA] = 1이면 pH = pKa, [A<sup>-</sup>]가 많아지면 pH &gt; pKa(염기 쪽), [HA]가 많아지면 pH &lt;pKa(산 쪽)입니다.</p>
+<p class="step">5) NaOH를 소량 넣으면 HA 일부가 중화되어 A<sup>-</sup>로 바뀌므로 완충 용액이 만들어집니다.</p>
 <p class="step">"소량"이라는 단서는 아직 중화점에 한참 못 미쳐 HA가 여전히 압도적으로 많다는 뜻입니다.</p>
-<p class="step">33 단계 1) 1.0 M HA의 pH가 3이라는 조건에서 [H⁺]를 읽습니다.</p>
-<p class="step">[H⁺] = 10⁻³ M 만약 HA가 강산이라면 [H⁺]가 1.0 M이 되어 pH = 0이어야 합니다.</p>
+<p class="step">33 단계 1) 1.0 M HA의 pH가 3이라는 조건에서 [H<sup>+</sup>]를 읽습니다.</p>
+<p class="step">[H<sup>+</sup>] = 10<sup>-3</sup> M 만약 HA가 강산이라면 [H<sup>+</sup>]가 1.0 M이 되어 pH = 0이어야 합니다.</p>
 <p class="step">pH가 3이라는 것은 HA가 약산이라는 뜻입니다.</p>
 <p class="step">단계 2) 해리도를 구합니다.</p>
-<p class="step">[H⁺] = Cα ⇒ 10⁻³ = 1.0 × α ⇒ α = 10⁻³ α = 0.001로 충분히 작으므로 근사가 타당합니다.</p>
+<p class="step">[H<sup>+</sup>] = Cα ⇒ 10<sup>-3</sup> = 1.0 × α ⇒ α = 10<sup>-3</sup> α = 0.001로 충분히 작으므로 근사가 타당합니다.</p>
 <p class="step">단계 3) Ka를 구합니다.</p>
-<p class="step">Ka = Cα² = 1.0 × (10⁻³)² = 10⁻⁶ 같은 결과를 Ka = [H⁺]²/C = (10⁻³)²/1.0 = 10⁻⁶/1 = 10⁻⁶ 로도 얻을 수 있습니다.</p>
+<p class="step">Ka = Cα<sup>2</sup> = 1.0 × (10<sup>-3</sup>)<sup>2</sup> = 10<sup>-6</sup> 같은 결과를 Ka = [H<sup>+</sup>]<sup>2</sup>/C = (10<sup>-3</sup>)<sup>2</sup>/1.0 = 10<sup>-6</sup>/1 = 10<sup>-6</sup> 로도 얻을 수 있습니다.</p>
 <p class="step">단계 4) pKa를 구합니다.</p>
-<p class="step">pKa = -log(10⁻⁶) = 6 단계 5) 헨더슨-하셀바흐 식에 pH = 4를 넣습니다.</p>
-<p class="step">4 = 6 + log([A⁻]/[HA]) log([A⁻]/[HA]) = 4 - 6 = -2 단계 6) 로그를 풉니다.</p>
-<p class="step">[A⁻]/[HA] = 10⁻² = 0.01 단계 7) 문제가 묻는 것은 [HA]/[A⁻]이므로 역수를 취합니다.</p>
-<p class="step">[HA]/[A⁻] = 1/0.01 = 100 단계 8) 타당성 확인: pH 4는 pKa 6보다 2만큼 작으므로 용액은 pKa 기준보다 산성 쪽에 있고, 따라서 산 형태인HA가 짝염기 A⁻보다 훨씬 많아야 합니다.</p>
+<p class="step">pKa = -log(10<sup>-6</sup>) = 6 단계 5) 헨더슨-하셀바흐 식에 pH = 4를 넣습니다.</p>
+<p class="step">4 = 6 + log([A<sup>-</sup>]/[HA]) log([A<sup>-</sup>]/[HA]) = 4 - 6 = -2 단계 6) 로그를 풉니다.</p>
+<p class="step">[A<sup>-</sup>]/[HA] = 10<sup>-2</sup> = 0.01 단계 7) 문제가 묻는 것은 [HA]/[A<sup>-</sup>]이므로 역수를 취합니다.</p>
+<p class="step">[HA]/[A<sup>-</sup>] = 1/0.01 = 100 단계 8) 타당성 확인: pH 4는 pKa 6보다 2만큼 작으므로 용액은 pKa 기준보다 산성 쪽에 있고, 따라서 산 형태인HA가 짝염기 A<sup>-</sup>보다 훨씬 많아야 합니다.</p>
 <p class="step">실제로 100배 많다는 결과와 방향이 일치합니다.</p>
-<p class="step">또 A⁻가 전체의 약1 %뿐이므로 넣은 NaOH의 양이 "소량"이라는 문제 조건과도 잘 맞습니다.</p>
+<p class="step">또 A<sup>-</sup>가 전체의 약1 %뿐이므로 넣은 NaOH의 양이 "소량"이라는 문제 조건과도 잘 맞습니다.</p>
 <p class="step">① 0.01 ⇒ 틀림.</p>
-<p class="step">이 값은 [A⁻]/[HA]로, 묻는 비의 역수입니다.</p>
+<p class="step">이 값은 [A<sup>-</sup>]/[HA]로, 묻는 비의 역수입니다.</p>
 <p class="step">헨더슨 식에서 로그 안의 분자·분모 순서(짝염기가위)와 문제가 묻는 순서(산이 위)가 반대라는 점을 놓쳤을 때 고르게 되는 대표적 함정입니다.</p>
 <p class="step">② 1 ⇒ 틀림.</p>
-<p class="step">[HA] =[A⁻]가 되는 것은 pH = pKa = 6일 때입니다.</p>
+<p class="step">[HA] =[A<sup>-</sup>]가 되는 것은 pH = pKa = 6일 때입니다.</p>
 <p class="step">문제의 pH는 4이므로 성립하지 않습니다.</p>
 <p class="step">③ 10 ⇒ 틀림.</p>
-<p class="step">pH와 pKa의 차이를 1로 잘못 잡았을 때, 즉 Ka를 10⁻⁵으로 계산했을 때 나오는 값입니다.</p>
-<p class="step">Ka = [H⁺]²/C 에서 C = 1.0을 0.1로착각하면 이렇게 됩니다.</p>
+<p class="step">pH와 pKa의 차이를 1로 잘못 잡았을 때, 즉 Ka를 10<sup>-5</sup>으로 계산했을 때 나오는 값입니다.</p>
+<p class="step">Ka = [H<sup>+</sup>]<sup>2</sup>/C 에서 C = 1.0을 0.1로착각하면 이렇게 됩니다.</p>
 <p class="step">④ 100 ⇒ 옳음.</p>
-<p class="step">pKa = 6, pH = 4이므로 pH가 pKa보다 2 낮고, 산 형태가 짝염기 형태의10² = 100배 존재합니다.</p>
-<p class="step">④ Ka = 10⁻⁶(pKa = 6)이고 pH = 4이므로 [HA]/[A⁻] = 100입니다.</p></div>
+<p class="step">pKa = 6, pH = 4이므로 pH가 pKa보다 2 낮고, 산 형태가 짝염기 형태의10<sup>2</sup> = 100배 존재합니다.</p>
+<p class="step">④ Ka = 10<sup>-6</sup>(pKa = 6)이고 pH = 4이므로 [HA]/[A<sup>-</sup>] = 100입니다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 20</span><span class="area">지시약</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">난이도 중 0.20 M NH₃ 수용액의 Kb = 1.8 × 10⁻⁵ 이다.</p>
+<div class="q" id="q20"><div class="qh"><span class="qno">문제 20</span><span class="area">지시약</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">난이도 중 0.20 M NH<sub>3</sub> 수용액의 Kb = 1.8 × 10<sup>-5</sup> 이다.</p>
 <p class="step">0.20 M HCl 수용액으로 적정할 때 가장 적절한 지시약은 무엇인가? ① 메틸 레드 (pKa = 5.0) ② 메틸 오렌지 (pKa = 3.8) ③ 브로모페놀블루 (pKa = 4.1) ④ 페놀프탈레인 (pKa = 9.2) 34 ■ 무엇을 묻는 문제인가 "약염기를 강산으로 적정하면 당량점이 산성이다"라는 사실을 알고, 그 당량점 pH를 실제로 계산한 뒤 변색 범위가맞는 지시약을 고르는 문제입니다.</p>
 <p class="step">지시약 선택의 기준은 오로지 하나, 지시약의 pKa가 당량점 pH에 가까워야 한다는 것입니다.</p>
-<p class="step">1) 약염기 NH₃를 강산 HCl로 적정하면 당량점에서 용액에는 짝산 NH₄⁺만 남습니다.</p>
-<p class="step">NH₄⁺는 가수분해하여 산성을 띠므로 당량점 pH &lt; 7 입니다.</p>
-<p class="step">NH₄⁺(aq) + H₂O(l) ⇌ NH₃(aq) + H₃O⁺(aq) 2) 짝산의 산 해리상수: Ka = Kw/Kb 3) 약산 수용액의 [H⁺] 근사식: [H⁺] = √(C × Ka) (Ka가 매우 작아 해리량이 초기 농도에 비해 무시할 만할 때 쓰는 표준 근사입니다.) 4) 산과 염기의 농도가 같으면 당량점에서 부피가 정확히 2배가 되므로, 생성된 NH₄⁺의 농도는 처음 염기 농도의 절반이 됩니다.</p>
-<p class="step">5) 지시약은 그 자체가 약산(HIn ⇌ H⁺+ In⁻)이고 pH = pKa 부근, 대략 pKa ± 1 범위에서 색이 바뀝니다.</p>
+<p class="step">1) 약염기 NH<sub>3</sub>를 강산 HCl로 적정하면 당량점에서 용액에는 짝산 NH<sub>4</sub><sup>+</sup>만 남습니다.</p>
+<p class="step">NH<sub>4</sub><sup>+</sup>는 가수분해하여 산성을 띠므로 당량점 pH &lt; 7 입니다.</p>
+<p class="step">NH<sub>4</sub><sup>+</sup>(aq) + H<sub>2</sub>O(l) ⇌ NH<sub>3</sub>(aq) + H<sub>3</sub>O<sup>+</sup>(aq) 2) 짝산의 산 해리상수: Ka = Kw/Kb 3) 약산 수용액의 [H<sup>+</sup>] 근사식: [H<sup>+</sup>] = √(C × Ka) (Ka가 매우 작아 해리량이 초기 농도에 비해 무시할 만할 때 쓰는 표준 근사입니다.) 4) 산과 염기의 농도가 같으면 당량점에서 부피가 정확히 2배가 되므로, 생성된 NH<sub>4</sub><sup>+</sup>의 농도는 처음 염기 농도의 절반이 됩니다.</p>
+<p class="step">5) 지시약은 그 자체가 약산(HIn ⇌ H<sup>+</sup>+ In<sup>-</sup>)이고 pH = pKa 부근, 대략 pKa ± 1 범위에서 색이 바뀝니다.</p>
 <p class="step">당량점 pH가 이 범위 안에 들어와야 종말점과 당량점이 일치합니다.</p>
-<p class="step">단계 1) NH₃가 약염기인지 확인합니다.</p>
-<p class="step">Kb = 1.8 × 10⁻⁵ 은 1보다 훨씬 작으므로 약염기입니다.</p>
-<p class="step">단계 2) 짝산 NH₄⁺의 Ka를 구합니다.</p>
-<p class="step">Ka = Kw/Kb = (1.0×10⁻¹⁴)/(1.8×10⁻⁵) = 5.6×10⁻¹⁰ 단계 3) 당량점에서 NH₄⁺의 농도를 구합니다.</p>
+<p class="step">단계 1) NH<sub>3</sub>가 약염기인지 확인합니다.</p>
+<p class="step">Kb = 1.8 × 10<sup>-5</sup> 은 1보다 훨씬 작으므로 약염기입니다.</p>
+<p class="step">단계 2) 짝산 NH<sub>4</sub><sup>+</sup>의 Ka를 구합니다.</p>
+<p class="step">Ka = Kw/Kb = (1.0×10<sup>-14</sup>)/(1.8×10<sup>-5</sup>) = 5.6×10<sup>-10</sup> 단계 3) 당량점에서 NH<sub>4</sub><sup>+</sup>의 농도를 구합니다.</p>
 <p class="step">0.20 M 염기를 같은 농도인 0.20 M HCl로 적정하므로 당량점에서부피가 2배가 됩니다.</p>
-<p class="step">C(NH₄⁺) = 0.20 M × (1/2) = 0.10 M 단계 4) 당량점의 [H⁺]를 구합니다.</p>
-<p class="step">[H⁺] = √(C × Ka) = √(0.10 × 5.6×10⁻¹⁰) = √(5.6×10⁻¹¹) = 7.5×10⁻⁶ M 단계 5) pH를 구합니다.</p>
-<p class="step">pH = -log(7.5×10⁻⁶) = 6 - log 7.5 = 6 - 0.88 = 5.1 단계 6) 당량점 pH 5.1에 가장 가까운 pKa를 가진 지시약을 고릅니다.</p>
+<p class="step">C(NH<sub>4</sub><sup>+</sup>) = 0.20 M × (1/2) = 0.10 M 단계 4) 당량점의 [H<sup>+</sup>]를 구합니다.</p>
+<p class="step">[H<sup>+</sup>] = √(C × Ka) = √(0.10 × 5.6×10<sup>-10</sup>) = √(5.6×10<sup>-11</sup>) = 7.5×10<sup>-6</sup> M 단계 5) pH를 구합니다.</p>
+<p class="step">pH = -log(7.5×10<sup>-6</sup>) = 6 - log 7.5 = 6 - 0.88 = 5.1 단계 6) 당량점 pH 5.1에 가장 가까운 pKa를 가진 지시약을 고릅니다.</p>
 <p class="step">메틸 레드 5.0(차이 0.1), 브로모페놀블루 4.1(차이 1.0), 메틸 오렌지 3.8(차이 1.3), 페놀프탈레인 9.2(차이 4.1) ⇒메틸 레드가 압도적으로 가깝습니다.</p>
 <p class="step">① 메틸 레드 (pKa = 5.0) ⇒ 옳음.</p>
 <p class="step">변색 범위가 대략 pH 4.4~6.2로 당량점 pH 5.1을 한가운데에 품습니다.</p>
@@ -722,20 +733,20 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">약산을 강염기로 적정할 때 쓰는 지시약입니다.</p>
 <p class="step">① 당량점 pH가 약 5.1이므로 pKa = 5.0인 메틸 레드가 가장 적절합니다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 21</span><span class="area">지시약</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">난이도 중 0.020 M 클로로아세트산(Ka = 1.0 × 10⁻³)을 0.020 M 수산화나트륨 표준용액으로 적정할 때, 지시약으로 가장적절한 것은? 지시약 pKa 메틸 오렌지 3.8 메틸 레드 5.4 브로모티몰 블루 6.8 9.2 페놀프탈레인 ① 메틸 오렌지 ② 메틸 레드 ③ 브로모티몰 블루 ④ 페놀프탈레인 ■ 무엇을 묻는 문제인가 "약산을 강염기로 적정하면 당량점이 염기성"이라는 사실을 알되, 그 염기성이 얼마나 강한지는 산의 세기와 농도에 따라 달라진다는 점을 계산으로 확인하는 문제입니다.</p>
+<div class="q" id="q21"><div class="qh"><span class="qno">문제 21</span><span class="area">지시약</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">난이도 중 0.020 M 클로로아세트산(Ka = 1.0 × 10<sup>-3</sup>)을 0.020 M 수산화나트륨 표준용액으로 적정할 때, 지시약으로 가장적절한 것은? 지시약 pKa 메틸 오렌지 3.8 메틸 레드 5.4 브로모티몰 블루 6.8 9.2 페놀프탈레인 ① 메틸 오렌지 ② 메틸 레드 ③ 브로모티몰 블루 ④ 페놀프탈레인 ■ 무엇을 묻는 문제인가 "약산을 강염기로 적정하면 당량점이 염기성"이라는 사실을 알되, 그 염기성이 얼마나 강한지는 산의 세기와 농도에 따라 달라진다는 점을 계산으로 확인하는 문제입니다.</p>
 <p class="step">약산이면 무조건 페놀프탈레인이라고 외워 두면 틀리게되는 문항입니다.</p>
-<p class="step">1) 적정 반응 ClCH₂COOH(aq) + NaOH(aq) → ClCH₂COONa(aq) + H₂O(l) 당량점에서는 산이 모두 짝염기 ClCH₂COO⁻로 바뀝니다.</p>
+<p class="step">1) 적정 반응 ClCH<sub>2</sub>COOH(aq) + NaOH(aq) → ClCH<sub>2</sub>COONa(aq) + H<sub>2</sub>O(l) 당량점에서는 산이 모두 짝염기 ClCH<sub>2</sub>COO<sup>-</sup>로 바뀝니다.</p>
 <p class="step">2) 짝염기는 물을 가수분해해 염기성을 띱니다.</p>
-<p class="step">ClCH₂COO⁻(aq) + H₂O(l) ⇌ ClCH₂COOH(aq) + OH⁻(aq) Ka × Kb = Kw = 1.0×10⁻¹⁴ 이므로 Kb = Kw/Ka 입니다.</p>
-<p class="step">3) 약염기 용액의 [OH⁻]는 [OH⁻] = √(Kb × C) 로 근사합니다(C는 짝염기의 농도).</p>
+<p class="step">ClCH<sub>2</sub>COO<sup>-</sup>(aq) + H<sub>2</sub>O(l) ⇌ ClCH<sub>2</sub>COOH(aq) + OH<sup>-</sup>(aq) Ka × Kb = Kw = 1.0×10<sup>-14</sup> 이므로 Kb = Kw/Ka 입니다.</p>
+<p class="step">3) 약염기 용액의 [OH<sup>-</sup>]는 [OH<sup>-</sup>] = √(Kb × C) 로 근사합니다(C는 짝염기의 농도).</p>
 <p class="step">4) 산이 셀수록(Ka가 클수록)짝염기가 약해져 당량점 pH가 7에 가까워지고, 용액이 묽을수록 당량점 pH는 더 7에 가까워집니다.</p>
 <p class="step">5) 지시약은대략 pH = pKa ± 1 구간에서 색이 변하므로, 그 구간이 당량점 pH를 품어야 오차가 작습니다.</p>
 <p class="step">단계 1) 당량점에서의 짝염기 농도를 구합니다.</p>
 <p class="step">두 용액의 농도가 0.020 M로 같으므로 같은 부피를 넣어야 당량점에 도달하고, 그만큼 부피가 두 배로 희석됩니다.</p>
-<p class="step">[ClCH₂COO⁻] = 0.020 M ÷ 2 = 0.010 M 단계 2) 짝염기의 Kb를 구합니다.</p>
-<p class="step">Kb = Kw/Ka = (1.0×10⁻¹⁴)/(1.0×10⁻³) = 1.0×10⁻¹¹ 단계 3) [OH⁻]를 구합니다.</p>
-<p class="step">[OH⁻] = √(Kb × C) = √(1.0×10⁻¹¹ × 0.010) = √(1.0×10⁻¹³) = 3.2×10⁻⁷ M 단계 4) pOH와 pH를 구합니다.</p>
-<p class="step">pOH = -log(3.2×10⁻⁷) = 6.5 pH = 14.0 - 6.5 = 7.5 단계 5) 표에서 pKa가 7.5에 가장 가까운 지시약을 고릅니다.</p>
+<p class="step">[ClCH<sub>2</sub>COO<sup>-</sup>] = 0.020 M ÷ 2 = 0.010 M 단계 2) 짝염기의 Kb를 구합니다.</p>
+<p class="step">Kb = Kw/Ka = (1.0×10<sup>-14</sup>)/(1.0×10<sup>-3</sup>) = 1.0×10<sup>-11</sup> 단계 3) [OH<sup>-</sup>]를 구합니다.</p>
+<p class="step">[OH<sup>-</sup>] = √(Kb × C) = √(1.0×10<sup>-11</sup> × 0.010) = √(1.0×10<sup>-13</sup>) = 3.2×10<sup>-7</sup> M 단계 4) pOH와 pH를 구합니다.</p>
+<p class="step">pOH = -log(3.2×10<sup>-7</sup>) = 6.5 pH = 14.0 - 6.5 = 7.5 단계 5) 표에서 pKa가 7.5에 가장 가까운 지시약을 고릅니다.</p>
 <p class="step">브로모티몰 블루(pKa = 6.8)의 변색 범위는 약 5.8 ~7.8로 당량점 pH 7.5를 품습니다.</p>
 <p class="step">페놀프탈레인은 8.2에서야 변색이 시작되므로 당량점을 지나쳐야 색이 바뀝니다.</p>
 <p class="step">① 메틸 오렌지 ⇒ 틀림.</p>
@@ -750,39 +761,39 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">"약산 적정은 무조건 페놀프탈레인"이라는 암기가 만드는 함정이며, 이 문제처럼 산이 비교적 세고 용액이 묽으면 당량점이 7 근처로 내려옵니다.</p>
 <p class="step">③ 당량점 pH ≈ 7.5 이므로 pKa 6.8인 브로모티몰 블루가 가장 적절합니다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 22</span><span class="area">용해도</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">난이도 중 Ca₃(PO₄)₂의 몰용해도를 용해도곱상수로 나타낸 것으로 옳은 것은? ① (Ksp/4)^(1/3) ② (Ksp/27)^(1/4) ③ (Ksp/108)^(1/5) ④ (Ksp/6)^(1/5) ■ 무엇을 묻는 문제인가 난용성 염의 화학식만 보고 용해 평형식을 세운 뒤, 몰용해도 x와 용해도곱상수 Ksp의 관계식을 유도해 x에 대해푸는 문제입니다.</p>
+<div class="q" id="q22"><div class="qh"><span class="qno">문제 22</span><span class="area">용해도</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">난이도 중 Ca<sub>3</sub>(PO<sub>4</sub>)<sub>2</sub>의 몰용해도를 용해도곱상수로 나타낸 것으로 옳은 것은? ① (Ksp/4)^(1/3) ② (Ksp/27)^(1/4) ③ (Ksp/108)^(1/5) ④ (Ksp/6)^(1/5) ■ 무엇을 묻는 문제인가 난용성 염의 화학식만 보고 용해 평형식을 세운 뒤, 몰용해도 x와 용해도곱상수 Ksp의 관계식을 유도해 x에 대해푸는 문제입니다.</p>
 <p class="step">계수가 이온 농도의 "배수"로도 들어가고 "지수"로도 들어간다는 이중 효과를 정확히 처리할 수있는지가 관건입니다.</p>
 <p class="step">1) 몰용해도(x): 1 L의 포화 용액에 녹아 들어간 염의 몰수입니다.</p>
 <p class="step">단위는 mol/L 입니다.</p>
 <p class="step">2) 용해도곱상수(Ksp): 난용성 염의 용해 평형에서 이온 농도의 곱입니다.</p>
 <p class="step">고체는 평형식에 넣지 않습니다.</p>
-<p class="step">3) Ca₃(PO₄)₂는 Ca²⁺ 세 개와PO₄³⁻ 두 개로 이루어진 A₃B₂형 염입니다.</p>
-<p class="step">Ca₃(PO₄)₂(s) ⇌ 3Ca²⁺(aq) + 2PO₄³⁻(aq) 전하 검산: (+2)×3 + (-3)×2 = 0 으로 맞습니다.</p>
-<p class="step">x mol이 녹으면 Ca²⁺는 3x M, PO₄³⁻는 2x M 이 됩니다.</p>
+<p class="step">3) Ca<sub>3</sub>(PO<sub>4</sub>)<sub>2</sub>는 Ca<sup>2+</sup> 세 개와PO<sub>4</sub><sup>3-</sup> 두 개로 이루어진 A<sub>3</sub>B<sub>2</sub>형 염입니다.</p>
+<p class="step">Ca<sub>3</sub>(PO<sub>4</sub>)<sub>2</sub>(s) ⇌ 3Ca<sup>2+</sup>(aq) + 2PO<sub>4</sub><sup>3-</sup>(aq) 전하 검산: (+2)×3 + (-3)×2 = 0 으로 맞습니다.</p>
+<p class="step">x mol이 녹으면 Ca<sup>2+</sup>는 3x M, PO<sub>4</sub><sup>3-</sup>는 2x M 이 됩니다.</p>
 <p class="step">계수가농도의 배수로 작용합니다.</p>
-<p class="step">4) 염 형태별 Ksp와 몰용해도의 관계 (반드시 외워 둘 표) AB형 (예: AgCl) : Ksp = (x)(x) = x² ⇒ x = √Ksp A₂B 또는 AB₂형 (예: Ag₂CO₃, PbI₂) : Ksp = (2x)²(x) = 4x³ ⇒ x = (Ksp/4)^(1/3) A₃B 또는 AB₃형 (예: Fe(OH)₃) : Ksp = (3x)³(x) = 27x⁴ ⇒ x = (Ksp/27)^(1/4) A₂B₃ 또는 A₃B₂형 (예: Ca₃(PO₄)₂) : Ksp = (3x)³(2x)² = 108x⁵ ⇒ x = (Ksp/108)^(1/5) 5) 총 이온 수가 n개면 Ksp는 x의 n제곱 꼴이 되고, 따라서 x는 Ksp의 n제곱근 꼴이 됩니다.</p>
+<p class="step">4) 염 형태별 Ksp와 몰용해도의 관계 (반드시 외워 둘 표) AB형 (예: AgCl) : Ksp = (x)(x) = x<sup>2</sup> ⇒ x = √Ksp A<sub>2</sub>B 또는 AB<sub>2</sub>형 (예: Ag<sub>2</sub>CO<sub>3</sub>, PbI<sub>2</sub>) : Ksp = (2x)<sup>2</sup>(x) = 4x<sup>3</sup> ⇒ x = (Ksp/4)^(1/3) A<sub>3</sub>B 또는 AB<sub>3</sub>형 (예: Fe(OH)<sub>3</sub>) : Ksp = (3x)<sup>3</sup>(x) = 27x<sup>4</sup> ⇒ x = (Ksp/27)^(1/4) A<sub>2</sub>B<sub>3</sub> 또는 A<sub>3</sub>B<sub>2</sub>형 (예: Ca<sub>3</sub>(PO<sub>4</sub>)<sub>2</sub>) : Ksp = (3x)<sup>3</sup>(2x)<sup>2</sup> = 108x<sup>5</sup> ⇒ x = (Ksp/108)^(1/5) 5) 총 이온 수가 n개면 Ksp는 x의 n제곱 꼴이 되고, 따라서 x는 Ksp의 n제곱근 꼴이 됩니다.</p>
 <p class="step">단계 1) 용해 평형식을 씁니다.</p>
-<p class="step">Ca₃(PO₄)₂(s) ⇌ 3Ca²⁺(aq) + 2PO₄³⁻(aq) 단계 2) 몰용해도를 x mol/L로 두고 농도 변화를 정리합니다.</p>
-<p class="step">처음(I): Ca₃(PO₄)₂ 고체(상수), [Ca²⁺] = 0, [PO₄³⁻] = 0 변화(C): 고체 -x, [Ca²⁺] +3x, [PO₄³⁻] +2x 평형(E): [Ca²⁺] = 3x, [PO₄³⁻] = 2x 단계 3) 용해도곱상수 식에 대입합니다.</p>
+<p class="step">Ca<sub>3</sub>(PO<sub>4</sub>)<sub>2</sub>(s) ⇌ 3Ca<sup>2+</sup>(aq) + 2PO<sub>4</sub><sup>3-</sup>(aq) 단계 2) 몰용해도를 x mol/L로 두고 농도 변화를 정리합니다.</p>
+<p class="step">처음(I): Ca<sub>3</sub>(PO<sub>4</sub>)<sub>2</sub> 고체(상수), [Ca<sup>2+</sup>] = 0, [PO<sub>4</sub><sup>3-</sup>] = 0 변화(C): 고체 -x, [Ca<sup>2+</sup>] +3x, [PO<sub>4</sub><sup>3-</sup>] +2x 평형(E): [Ca<sup>2+</sup>] = 3x, [PO<sub>4</sub><sup>3-</sup>] = 2x 단계 3) 용해도곱상수 식에 대입합니다.</p>
 <p class="step">계수는 지수로 올라갑니다.</p>
-<p class="step">Ksp = [Ca²⁺]³[PO₄³⁻]² = (3x)³ × (2x)² = 27x³ × 4x² = 108x⁵ 단계 4) x에 대해 풉니다.</p>
-<p class="step">37 x⁵ = Ksp/108 x = (Ksp/108)^(1/5) 단계 5) 총 이온 수로 검산합니다.</p>
-<p class="step">Ca²⁺ 3개 + PO₄³⁻ 2개 = 5개이므로 Ksp는 x⁵ 꼴이어야 하고, 답의 지수가 1/5인것이 맞습니다.</p>
+<p class="step">Ksp = [Ca<sup>2+</sup>]<sup>3</sup>[PO<sub>4</sub><sup>3-</sup>]<sup>2</sup> = (3x)<sup>3</sup> × (2x)<sup>2</sup> = 27x<sup>3</sup> × 4x<sup>2</sup> = 108x<sup>5</sup> 단계 4) x에 대해 풉니다.</p>
+<p class="step">37 x<sup>5</sup> = Ksp/108 x = (Ksp/108)^(1/5) 단계 5) 총 이온 수로 검산합니다.</p>
+<p class="step">Ca<sup>2+</sup> 3개 + PO<sub>4</sub><sup>3-</sup> 2개 = 5개이므로 Ksp는 x<sup>5</sup> 꼴이어야 하고, 답의 지수가 1/5인것이 맞습니다.</p>
 <p class="step">단계 6) 숫자로 감을 잡아 봅니다.</p>
-<p class="step">Ca₃(PO₄)₂의 Ksp는 대략 2.1×10⁻³³ 이므로 x = (2.1×10⁻³³ ÷ 108)^(1/5) = (1.94×10⁻³⁵)^(1/5) ≈ 1.1×10⁻⁷ M 뼈와 이의 주성분이 물에 거의 녹지 않는다는 사실과 잘 맞는 값입니다.</p>
+<p class="step">Ca<sub>3</sub>(PO<sub>4</sub>)<sub>2</sub>의 Ksp는 대략 2.1×10<sup>-33</sup> 이므로 x = (2.1×10<sup>-33</sup> ÷ 108)^(1/5) = (1.94×10<sup>-35</sup>)^(1/5) ≈ 1.1×10<sup>-7</sup> M 뼈와 이의 주성분이 물에 거의 녹지 않는다는 사실과 잘 맞는 값입니다.</p>
 <p class="step">① (Ksp/4)^(1/3) ⇒ 틀림.</p>
-<p class="step">Ksp = 4x³ 인 A₂B 또는 AB₂형(예: Ag₂CO₃, PbI₂)의 답입니다.</p>
+<p class="step">Ksp = 4x<sup>3</sup> 인 A<sub>2</sub>B 또는 AB<sub>2</sub>형(예: Ag<sub>2</sub>CO<sub>3</sub>, PbI<sub>2</sub>)의 답입니다.</p>
 <p class="step">이온이 총 3개일 때의 형태입니다.</p>
 <p class="step">② (Ksp/27)^(1/4) ⇒ 틀림.</p>
-<p class="step">Ksp = 27x⁴ 인 A₃B 또는 AB₃형(예: Fe(OH)₃, Ag₃PO₄)의 답입니다.Ca₃(PO₄)₂를 Ca₃PO₄처럼 잘못 읽으면 고르게 됩니다.</p>
+<p class="step">Ksp = 27x<sup>4</sup> 인 A<sub>3</sub>B 또는 AB<sub>3</sub>형(예: Fe(OH)<sub>3</sub>, Ag<sub>3</sub>PO<sub>4</sub>)의 답입니다.Ca<sub>3</sub>(PO<sub>4</sub>)<sub>2</sub>를 Ca<sub>3</sub>PO<sub>4</sub>처럼 잘못 읽으면 고르게 됩니다.</p>
 <p class="step">③ (Ksp/108)^(1/5) ⇒ 옳음.</p>
-<p class="step">A₃B₂형이므로 Ksp =(3x)³(2x)² = 108x⁵ 이고, 다섯제곱근을 취하면 이 식이 나옵니다.</p>
+<p class="step">A<sub>3</sub>B<sub>2</sub>형이므로 Ksp =(3x)<sup>3</sup>(2x)<sup>2</sup> = 108x<sup>5</sup> 이고, 다섯제곱근을 취하면 이 식이 나옵니다.</p>
 <p class="step">④ (Ksp/6)^(1/5) ⇒ 틀림.</p>
 <p class="step">지수는 맞지만 계수를곱셈으로만 처리해 3×2 = 6 으로 잘못 계산한 형태입니다.</p>
 <p class="step">계수를 지수로 올리는 단계를 빠뜨린 대표적 오답입니다.</p>
-<p class="step">③ Ca₃(PO₄)₂는 A₃B₂형이므로 Ksp = 108x⁵, 즉 x = (Ksp/108)^(1/5) 입니다.</p></div>
+<p class="step">③ Ca<sub>3</sub>(PO<sub>4</sub>)<sub>2</sub>는 A<sub>3</sub>B<sub>2</sub>형이므로 Ksp = 108x<sup>5</sup>, 즉 x = (Ksp/108)^(1/5) 입니다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 23</span><span class="area">용해도</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">난이도 중 80 °C의 물 400 mL에 화합물 A와 B를 녹여 포화시켰다.</p>
+<div class="q" id="q23"><div class="qh"><span class="qno">문제 23</span><span class="area">용해도</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">난이도 중 80 °C의 물 400 mL에 화합물 A와 B를 녹여 포화시켰다.</p>
 <p class="step">이 후 25 °C로 온도를 낮추었더니 고체(C)가 석출되었다.석출된 고체(C)를 걸러내고 남은 용액을 다시 10 °C로 온도를 낮추었더니 다시 고체(D)가 석출되었다.</p>
 <p class="step">고체(D)를이루고 있는 고체 A와 고체 B의 질량백분율(%)을 옳게 짝지은 것은? (단, A와 B는 서로 반응하지 않고, A와 B의 용해도는 서로 영향을 미치지 않는다.) 물에 대한 용해도(g/L) 온도 10 °C 25 °C 80 °C 화합물 A 0.6 3.0 6.0 화합물 B 0.2 1.0 2.5 ① A 75.0, B 25.0 ② A 70.1, B 29.9 ③ A 66.7, B 33.3 ④ A 50, B 50 ■ 무엇을 묻는 문제인가 온도를 낮추면 용해도가 줄어 초과분이 결정으로 떨어져 나오는 "분별 결정(fractional crystallization)"을 묻습니다.</p>
 <p class="step">여기서 반드시 조심할 점은 두 번째로 석출된 고체 D의 조성을 물었다는 것입니다.</p>
@@ -812,7 +823,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">A와B의 용해도 곡선이 다르므로 석출량이 같아질 이유가 없습니다.</p>
 <p class="step">① A 75.0 %, B 25.0 %</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 24</span><span class="area">원자의구조</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">난이도 하 표는 어떤 원소의 세 가지 동위 원소 A, B, C를 이루는 입자의 수를 나타낸 것이다.</p>
+<div class="q" id="q24"><div class="qh"><span class="qno">문제 24</span><span class="area">원자의구조</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">난이도 하 표는 어떤 원소의 세 가지 동위 원소 A, B, C를 이루는 입자의 수를 나타낸 것이다.</p>
 <p class="step">이에 대한 설명으로 옳지 않은 것은? 원자 양성자 수 중성자 수 전자 수 A 6 6 6 B 6 7 6 39 C 6 8 6 ① A, B, C의 원자 번호는 모두 같다.</p>
 <p class="step">② C의 질량수는 A의 질량수보다 2만큼 크다.</p>
 <p class="step">③ A와 C의 전자 수는 같다.</p>
@@ -824,17 +835,17 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">3) 질량수 A = 양성자 수 + 중성자 수입니다.</p>
 <p class="step">전자의 질량은 양성자의 약 1/1836에 지나지 않아 무시할 수 있으므로, 원자의 질량은 사실상 핵이 결정하고 원자량은 질량수와 거의 같은 값이 됩니다.</p>
 <p class="step">4) 동위 원소란 양성자 수는같지만 중성자 수가 달라 질량수가 다른 원자들을 말합니다.</p>
-<p class="step">양성자 수가 6이면 탄소이므로 이 표의 A, B, C는 각각¹²C, ¹³C, ¹⁴C 입니다.</p>
-<p class="step">¹⁴C는 방사성 동위 원소로 연대 측정에 쓰입니다.</p>
+<p class="step">양성자 수가 6이면 탄소이므로 이 표의 A, B, C는 각각<sup>12</sup>C, <sup>13</sup>C, <sup>14</sup>C 입니다.</p>
+<p class="step"><sup>14</sup>C는 방사성 동위 원소로 연대 측정에 쓰입니다.</p>
 <p class="step">단계 1) A를 봅니다.</p>
 <p class="step">양성자 6, 중성자 6, 전자 6 ⇒ 원자 번호 6, 질량수 = 6 + 6 = 12.</p>
-<p class="step">즉 ¹²C 입니다.</p>
+<p class="step">즉 <sup>12</sup>C 입니다.</p>
 <p class="step">단계 2) B를 봅니다.</p>
 <p class="step">양성자 6, 중성자 7, 전자 6 ⇒ 원자 번호 6, 질량수 = 6 + 7 = 13.</p>
-<p class="step">즉 ¹³C 입니다.</p>
+<p class="step">즉 <sup>13</sup>C 입니다.</p>
 <p class="step">단계 3) C를 봅니다.</p>
 <p class="step">양성자 6, 중성자 8, 전자 6 ⇒ 원자 번호 6, 질량수 = 6 + 8 = 14.</p>
-<p class="step">즉 ¹⁴C 입니다.</p>
+<p class="step">즉 <sup>14</sup>C 입니다.</p>
 <p class="step">단계 4) 정리하면 양성자 수는 A = B = C = 6, 전자 수도 A = B = C = 6으로 모두 같고, 달라지는 것은 중성자 수 6,7, 8과 그에 따른 질량수 12, 13, 14뿐입니다.</p>
 <p class="step">단계 5) "C의 중성자 수가 A의 두 배"라는 진술을 검산하면 A의 중성자는 6개, C의 중성자는 8개이므로 8 = 2 × 6= 12 가 되어야 하는데 성립하지 않습니다.</p>
 <p class="step">두 배가 아니라 2개 더 많을 뿐입니다.</p>
@@ -850,12 +861,10 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">이것이 정답입니다.</p>
 <p class="step">④ 중성자 수는 6개에서 8개로 2개 늘었을 뿐, 두 배가 된 것이 아닙니다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 25</span><span class="area">원자의구조</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">난이도 중 주기율표의 2주기 원소에 관한 설명으로 옳은 것만을 모두 고른 것은? ㄱ.</p>
-<p class="step">바닥상태에서 2d 오비탈에 전자가 채워진 원소가 있다.</p>
-<p class="step">ㄴ.</p>
-<p class="step">금속 원소는 2개이다.</p>
-<p class="step">ㄷ.</p>
-<p class="step">상온, 1기압에서 기체 상태인 홑원소 물질이 4가지 있다.</p>
+<div class="q" id="q25"><div class="qh"><span class="qno">문제 25</span><span class="area">원자의구조</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">난이도 중 주기율표의 2주기 원소에 관한 설명으로 옳은 것만을 모두 고른 것은?</p>
+<p class="step">ㄱ. 바닥상태에서 2d 오비탈에 전자가 채워진 원소가 있다.</p>
+<p class="step">ㄴ. 금속 원소는 2개이다.</p>
+<p class="step">ㄷ. 상온, 1기압에서 기체 상태인 홑원소 물질이 4가지 있다.</p>
 <p class="step">① ㄱ ② ㄴ ③ ㄱ, ㄴ ④ ㄴ, ㄷ 40 ■ 무엇을 묻는 문제인가 주기율표 2주기에 어떤 원소가 들어 있는지를 정확히 떠올린 뒤, 그 원소들이 어떤 오비탈까지 채우는가, 금속과 비금속이 각각 몇 개인가, 상온에서 어떤 상태인가를 하나씩 점검할 수 있는지 묻는 문제입니다.</p>
 <p class="step">1) 2주기 원소는 모두 8가지입니다.</p>
 <p class="step">Li(리튬), Be(베릴륨), B(붕소), C(탄소), N(질소), O(산소), F(플루오린),Ne(네온).</p>
@@ -864,10 +873,10 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">d 오비탈은 l = 2이므로 n이 3 이상이어야 하고, 실제로 전자가 채워지는 것은 4주기의 3d부터입니다.</p>
 <p class="step">3) 2주기의 금속은 Li, Be 두 가지이고, B는 준금속, C, N, O, F는 비금속, Ne은 비활성 기체입니다.</p>
 <p class="step">주기율표에서 왼쪽은 금속, 오른쪽은 비금속이며 그 경계에 준금속이 놓입니다.</p>
-<p class="step">4) 상온(약 25 °C), 1기압에서 액체인 홑원소 물질은 브로민(Br₂)과 수은(Hg) 단 두 가지뿐이며, 각각 4주기와 6주기 원소입니다.</p>
+<p class="step">4) 상온(약 25 °C), 1기압에서 액체인 홑원소 물질은 브로민(Br<sub>2</sub>)과 수은(Hg) 단 두 가지뿐이며, 각각 4주기와 6주기 원소입니다.</p>
 <p class="step">단계 1) ㄱ을 검토합니다.</p>
 <p class="step">2주기 원소의 바닥상태 전자 배치를 직접 써 봅니다.</p>
-<p class="step">Li: 1s²2s¹ Be: 1s²2s² B: 1s²2s²2p¹ C: 1s²2s²2p² N: 1s²2s²2p³ O: 1s²2s²2p⁴ F: 1s²2s²2p⁵ Ne: 1s²2s²2p⁶ 여덟 개어디에도 2d가 나오지 않습니다.</p>
+<p class="step">Li: 1s<sup>2</sup>2s<sup>1</sup> Be: 1s<sup>2</sup>2s<sup>2</sup> B: 1s<sup>2</sup>2s<sup>2</sup>2p<sup>1</sup> C: 1s<sup>2</sup>2s<sup>2</sup>2p<sup>2</sup> N: 1s<sup>2</sup>2s<sup>2</sup>2p<sup>3</sup> O: 1s<sup>2</sup>2s<sup>2</sup>2p<sup>4</sup> F: 1s<sup>2</sup>2s<sup>2</sup>2p<sup>5</sup> Ne: 1s<sup>2</sup>2s<sup>2</sup>2p<sup>6</sup> 여덟 개어디에도 2d가 나오지 않습니다.</p>
 <p class="step">애초에 n = 2 껍질에는 s와 p만 있으므로 2d 오비탈 자체가 없습니다.</p>
 <p class="step">⇒ ㄱ은 틀림.</p>
 <p class="step">단계 2) ㄴ을 검토합니다.</p>
@@ -875,20 +884,17 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">B는 준금속이라 금속에 넣지 않습니다.</p>
 <p class="step">⇒ ㄴ은 옳음(2개).</p>
 <p class="step">단계 3) ㄷ을 검토합니다.</p>
-<p class="step">상온에서 Li, Be, B, C는 고체이고 N₂, O₂, F₂, Ne은 기체입니다.</p>
+<p class="step">상온에서 Li, Be, B, C는 고체이고 N<sub>2</sub>, O<sub>2</sub>, F<sub>2</sub>, Ne은 기체입니다.</p>
 <p class="step">기체인 홑원소 물질을세면 4가지입니다.</p>
 <p class="step">⇒ ㄷ은 옳음.</p>
 <p class="step">단계 4) 옳은 것은 ㄴ과 ㄷ이므로 답은 ④입니다.</p>
-<p class="step">ㄱ .</p>
-<p class="step">2d 오비탈에 전자가 채워진 원소가 있다 ⇒ 틀림.</p>
+<p class="step">ㄱ. 2d 오비탈에 전자가 채워진 원소가 있다 ⇒ 틀림.</p>
 <p class="step">l은 0부터 n-1까지만 가능하므로 n = 2에는 s와 p만 있습니다.</p>
 <p class="step">2d는 존재하지 않는 오비탈입니다.</p>
-<p class="step">ㄴ .</p>
-<p class="step">금속 원소는 2개이다 ⇒ 옳음.</p>
+<p class="step">ㄴ. 금속 원소는 2개이다 ⇒ 옳음.</p>
 <p class="step">Li, Be 두 가지이며 B는 준금속입니다.</p>
-<p class="step">ㄷ .</p>
-<p class="step">기체 상태인 홑원소 물질이 4가지 있다 ⇒ 옳음.</p>
-<p class="step">N₂, O₂, F₂, Ne 네 가지입니다.</p>
+<p class="step">ㄷ. 기체 상태인 홑원소 물질이 4가지 있다 ⇒ 옳음.</p>
+<p class="step">N<sub>2</sub>, O<sub>2</sub>, F<sub>2</sub>, Ne 네 가지입니다.</p>
 <p class="step">고체는 Li, Be, B, C 네 가지이고 액체는 하나도 없습니다.</p>
 <p class="step">① ㄱ ⇒ 틀림.</p>
 <p class="step">② ㄴ ⇒ 맞지만 ㄷ이 빠졌습니다.</p>
@@ -896,73 +902,73 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">④ ㄴ, ㄷ ⇒ 옳음(정답).</p>
 <p class="step">④ 옳은 설명은 ㄴ과 ㄷ 두 개입니다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 26</span><span class="area">양적관계</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">난이도 상 정사각형 모양의 평평한 표면 위에 아산화질소(N₂O)를 한 겹으로 최대한 많이 깔았다.</p>
-<p class="step">25 °C, 1기압에서 모든 아산화질소가 기체가 되었을 때 부피를 측정하였더니 1.35 cm³이었다.</p>
-<p class="step">평평한 표면의 면적과 가장 가까운 값은 얼마인가? ① 1 m² ② 10 m² ③ 100 m² ④ 1000 m² ■ 무엇을 묻는 문제인가 41 정확한 값이 아니라 "자릿수"를 묻는 어림 계산(페르미 추정) 문제입니다.</p>
-<p class="step">기체의 몰부피로 분자 수를 구하고, 원자하나의 크기를 1 Å(=10⁻¹⁰ m) 수준으로 잡아 분자 하나가 바닥에 깔릴 때 차지하는 넓이를 추정한 뒤, 둘을 곱해 전체 면적을 얻는 흐름을 완주할 수 있는지 봅니다.</p>
+<div class="q" id="q26"><div class="qh"><span class="qno">문제 26</span><span class="area">양적관계</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">난이도 상 정사각형 모양의 평평한 표면 위에 아산화질소(N<sub>2</sub>O)를 한 겹으로 최대한 많이 깔았다.</p>
+<p class="step">25 °C, 1기압에서 모든 아산화질소가 기체가 되었을 때 부피를 측정하였더니 1.35 cm<sup>3</sup>이었다.</p>
+<p class="step">평평한 표면의 면적과 가장 가까운 값은 얼마인가? ① 1 m<sup>2</sup> ② 10 m<sup>2</sup> ③ 100 m<sup>2</sup> ④ 1000 m<sup>2</sup> ■ 무엇을 묻는 문제인가 41 정확한 값이 아니라 "자릿수"를 묻는 어림 계산(페르미 추정) 문제입니다.</p>
+<p class="step">기체의 몰부피로 분자 수를 구하고, 원자하나의 크기를 1 Å(=10<sup>-10</sup> m) 수준으로 잡아 분자 하나가 바닥에 깔릴 때 차지하는 넓이를 추정한 뒤, 둘을 곱해 전체 면적을 얻는 흐름을 완주할 수 있는지 봅니다.</p>
 <p class="step">선지가 10배씩 벌어져 있으므로 자릿수만 맞으면 됩니다.</p>
 <p class="step">1) 25 °C, 1기압에서 이상기체 1몰의 부피는 V = RT/P = (0.0821 L·atm/(mol·K) × 298 K)/1 atm ≈ 24.4 L 입니다.</p>
 <p class="step">0 °C, 1기압의 22.4 L와 혼동하지 않도록 온도를 꼭 확인하세요.</p>
-<p class="step">2) 몰수 n = 부피 / 몰부피, 분자 수 N = n × 아보가드로수(6.022×10²³ 개/mol).</p>
-<p class="step">3) 원자의 크기는 대략 1 Å = 10⁻¹⁰ m 수준입니다.</p>
+<p class="step">2) 몰수 n = 부피 / 몰부피, 분자 수 N = n × 아보가드로수(6.022×10<sup>23</sup> 개/mol).</p>
+<p class="step">3) 원자의 크기는 대략 1 Å = 10<sup>-10</sup> m 수준입니다.</p>
 <p class="step">이 값은 보어 반지름(0.529Å)이나 공유결합 반지름(N 0.75 Å, O 0.66 Å)에서 나오는 "화학에서 통하는 기본 눈금"입니다.</p>
-<p class="step">4) N₂O는 N=N=O직선형 삼원자 분자입니다.</p>
-<p class="step">CO₂와 마찬가지로 가운데 원자의 전자 영역이 2개라 결합각이 180°입니다.</p>
-<p class="step">바닥에 눕혀서 깔면 길이 방향으로 원자 3개, 폭 방향으로 원자 1개이므로 한 분자의 발자국 넓이는 (3×10⁻¹⁰ m) ×(1×10⁻¹⁰ m) = 3×10⁻²⁰ m² 로 잡습니다.</p>
-<p class="step">5) 단위 환산: 1 cm³ = 1 mL = 10⁻³ L 이므로 1.35 cm³ = 1.35 mL =1.35×10⁻³ L 입니다.</p>
+<p class="step">4) N<sub>2</sub>O는 N=N=O직선형 삼원자 분자입니다.</p>
+<p class="step">CO<sub>2</sub>와 마찬가지로 가운데 원자의 전자 영역이 2개라 결합각이 180°입니다.</p>
+<p class="step">바닥에 눕혀서 깔면 길이 방향으로 원자 3개, 폭 방향으로 원자 1개이므로 한 분자의 발자국 넓이는 (3×10<sup>-10</sup> m) ×(1×10<sup>-10</sup> m) = 3×10<sup>-20</sup> m<sup>2</sup> 로 잡습니다.</p>
+<p class="step">5) 단위 환산: 1 cm<sup>3</sup> = 1 mL = 10<sup>-3</sup> L 이므로 1.35 cm<sup>3</sup> = 1.35 mL =1.35×10<sup>-3</sup> L 입니다.</p>
 <p class="step">단계 1) 부피를 리터로 바꿉니다.</p>
-<p class="step">1.35 cm³ = 1.35 mL = 1.35×10⁻³ L 단계 2) 몰수를 구합니다.</p>
-<p class="step">n = (1.35×10⁻³ L)/(24.4 L/mol) = 5.53×10⁻⁵ mol 단계 3) 분자 수를 구합니다.</p>
-<p class="step">N = 5.53×10⁻⁵ mol × 6.022×10²³ 개/mol = 3.33×10¹⁹ 개 단계 4) 분자 하나가 차지하는 넓이를 추정합니다.</p>
-<p class="step">N₂O는 직선형 삼원자 분자이고 원자 지름을 10⁻¹⁰ m로 두면 넓이 = 3×10⁻¹⁰ m × 10⁻¹⁰ m = 3×10⁻²⁰ m² 단계 5) 전체 넓이를 구합니다.</p>
-<p class="step">S = 3.33×10¹⁹ 개 × 3×10⁻²⁰ m²/개 = 0.999 m² ≈ 1 m² 단계 6) 참고로 정사각형이므로 한 변은 √(1 m²) = 1 m 정도가 됩니다.</p>
+<p class="step">1.35 cm<sup>3</sup> = 1.35 mL = 1.35×10<sup>-3</sup> L 단계 2) 몰수를 구합니다.</p>
+<p class="step">n = (1.35×10<sup>-3</sup> L)/(24.4 L/mol) = 5.53×10<sup>-5</sup> mol 단계 3) 분자 수를 구합니다.</p>
+<p class="step">N = 5.53×10<sup>-5</sup> mol × 6.022×10<sup>23</sup> 개/mol = 3.33×10<sup>19</sup> 개 단계 4) 분자 하나가 차지하는 넓이를 추정합니다.</p>
+<p class="step">N<sub>2</sub>O는 직선형 삼원자 분자이고 원자 지름을 10<sup>-10</sup> m로 두면 넓이 = 3×10<sup>-10</sup> m × 10<sup>-10</sup> m = 3×10<sup>-20</sup> m<sup>2</sup> 단계 5) 전체 넓이를 구합니다.</p>
+<p class="step">S = 3.33×10<sup>19</sup> 개 × 3×10<sup>-20</sup> m<sup>2</sup>/개 = 0.999 m<sup>2</sup> ≈ 1 m<sup>2</sup> 단계 6) 참고로 정사각형이므로 한 변은 √(1 m<sup>2</sup>) = 1 m 정도가 됩니다.</p>
 <p class="step">책상 상판 하나 정도라는 감각을 가지면 좋습니다.</p>
-<p class="step">① 1 m² ⇒ 옳음.</p>
-<p class="step">3.33×10¹⁹ × 3×10⁻²⁰ ≈ 1.0 m² 로 계산과 일치합니다.</p>
-<p class="step">② 10 m² ⇒ 틀림.</p>
+<p class="step">① 1 m<sup>2</sup> ⇒ 옳음.</p>
+<p class="step">3.33×10<sup>19</sup> × 3×10<sup>-20</sup> ≈ 1.0 m<sup>2</sup> 로 계산과 일치합니다.</p>
+<p class="step">② 10 m<sup>2</sup> ⇒ 틀림.</p>
 <p class="step">자릿수가 하나 큽니다.</p>
-<p class="step">원자 지름을 3 Å로 과대평가해 발자국을 2.7×10⁻¹⁹ m²로 잡으면 약 9 m²가 나옵니다.</p>
-<p class="step">③ 100 m² ⇒ 틀림.</p>
-<p class="step">원자 지름을 10 Å(10⁻⁹ m)로 잡아 발자국을 3×10⁻¹⁸ m²로 두었을 때 나오는 값으로, 실제 원자보다 열 배나 큰 셈입니다.</p>
-<p class="step">④ 1000 m² ⇒ 틀림.</p>
-<p class="step">1.35 cm³를 1.35 L로 착각해 몰수를 1000배로 계산했을 때 나오는 값입니다.</p>
+<p class="step">원자 지름을 3 Å로 과대평가해 발자국을 2.7×10<sup>-19</sup> m<sup>2</sup>로 잡으면 약 9 m<sup>2</sup>가 나옵니다.</p>
+<p class="step">③ 100 m<sup>2</sup> ⇒ 틀림.</p>
+<p class="step">원자 지름을 10 Å(10<sup>-9</sup> m)로 잡아 발자국을 3×10<sup>-18</sup> m<sup>2</sup>로 두었을 때 나오는 값으로, 실제 원자보다 열 배나 큰 셈입니다.</p>
+<p class="step">④ 1000 m<sup>2</sup> ⇒ 틀림.</p>
+<p class="step">1.35 cm<sup>3</sup>를 1.35 L로 착각해 몰수를 1000배로 계산했을 때 나오는 값입니다.</p>
 <p class="step">이 정도면한 변이 30 m가 넘는 운동장 크기가 되어 비현실적입니다.</p>
-<p class="step">① 분자 수 3.33×10¹⁹ 개에 분자 하나의 발자국 3×10⁻²⁰ m²를 곱하면 약 1 m² 입니다.</p></div>
+<p class="step">① 분자 수 3.33×10<sup>19</sup> 개에 분자 하나의 발자국 3×10<sup>-20</sup> m<sup>2</sup>를 곱하면 약 1 m<sup>2</sup> 입니다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 27</span><span class="area">양적관계</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">난이도 하 탄산마그네슘(MgCO₃)과 염산(HCl)이 반응하면 이산화탄소(CO₂)가 발생한다.</p>
-<p class="step">탄산마그네슘 168 g이 과량의 염산과 반응할 때 생성되는 이산화탄소의 분자수와 가장 가까운 것은? 42 ① 10²⁰ ② 10²² ③ 10²⁴ ④ 10²⁶ ■ 무엇을 묻는 문제인가 질량 → 몰수 → (반응 계수) → 몰수 → 입자 수로 이어지는 화학량론의 기본 경로를 끝까지 연결할 수 있는지 묻는문제입니다.</p>
+<div class="q" id="q27"><div class="qh"><span class="qno">문제 27</span><span class="area">양적관계</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">난이도 하 탄산마그네슘(MgCO<sub>3</sub>)과 염산(HCl)이 반응하면 이산화탄소(CO<sub>2</sub>)가 발생한다.</p>
+<p class="step">탄산마그네슘 168 g이 과량의 염산과 반응할 때 생성되는 이산화탄소의 분자수와 가장 가까운 것은? 42 ① 10<sup>20</sup> ② 10<sup>22</sup> ③ 10<sup>24</sup> ④ 10<sup>26</sup> ■ 무엇을 묻는 문제인가 질량 → 몰수 → (반응 계수) → 몰수 → 입자 수로 이어지는 화학량론의 기본 경로를 끝까지 연결할 수 있는지 묻는문제입니다.</p>
 <p class="step">선지가 100배씩 벌어져 있으므로 정밀한 값이 아니라 자릿수만 맞으면 되는 어림 계산입니다.</p>
-<p class="step">1) 화학 반응식: MgCO₃ + 2HCl → MgCl₂ + CO₂ + H₂O 탄산염에 강산을 넣으면 이산화탄소가 발생하는 대표 반응입니다.</p>
+<p class="step">1) 화학 반응식: MgCO<sub>3</sub> + 2HCl → MgCl<sub>2</sub> + CO<sub>2</sub> + H<sub>2</sub>O 탄산염에 강산을 넣으면 이산화탄소가 발생하는 대표 반응입니다.</p>
 <p class="step">탄산칼슘이든 탄산마그네슘이든 계수 구조는 똑같습니다.</p>
-<p class="step">2) 화학식량: MgCO₃ = Mg 24 + C 12 + O 16×3 = 84 3) 몰수 = 질량 ÷ 화학식량 4) 아보가드로수: 1 mol = 6.022×10²³ 개 5) "과량의 염산"이라는 표현은 HCl이 남아돈다는 뜻이므로, 한계 반응물은 MgCO₃입니다.</p>
-<p class="step">생성물의 양은 전적으로 MgCO₃가 결정합니다.</p>
-<p class="step">6) 계수 관계에서MgCO₃ : CO₂ = 1 : 1이므로 반응한 탄산마그네슘의 몰수가 그대로 이산화탄소의 몰수가 됩니다.</p>
+<p class="step">2) 화학식량: MgCO<sub>3</sub> = Mg 24 + C 12 + O 16×3 = 84 3) 몰수 = 질량 ÷ 화학식량 4) 아보가드로수: 1 mol = 6.022×10<sup>23</sup> 개 5) "과량의 염산"이라는 표현은 HCl이 남아돈다는 뜻이므로, 한계 반응물은 MgCO<sub>3</sub>입니다.</p>
+<p class="step">생성물의 양은 전적으로 MgCO<sub>3</sub>가 결정합니다.</p>
+<p class="step">6) 계수 관계에서MgCO<sub>3</sub> : CO<sub>2</sub> = 1 : 1이므로 반응한 탄산마그네슘의 몰수가 그대로 이산화탄소의 몰수가 됩니다.</p>
 <p class="step">단계 1) 탄산마그네슘의 몰수를 구합니다.</p>
-<p class="step">n(MgCO₃) = 168 g ÷ 84 g/mol = 2.00 mol 단계 2) 반응의 진행을 정리합니다.</p>
-<p class="step">처음에 MgCO₃ 2.00 mol과 과량의 HCl이 있고, 생성물은 모두 0입니다.</p>
-<p class="step">한계반응물인 MgCO₃가 전부 소모되므로 변화량은 MgCO₃가 -2.00 mol, MgCl₂·CO₂·H₂O가 각각 +2.00 mol입니다.</p>
-<p class="step">반응이 끝나면 MgCO₃는 0, HCl은 여전히 과량으로 남고, MgCl₂와 CO₂와 H₂O가 각각 2.00 mol씩 존재합니다.</p>
-<p class="step">단계 3) 생성된 CO₂의 몰수를 확정합니다.</p>
-<p class="step">계수비가 1 : 1이므로 n(CO₂) = 2.00 mol 단계 4) 분자 수로 바꿉니다.</p>
-<p class="step">N = 2.00 mol × 6.022×10²³ 개/mol = 12.044×10²³ = 1.20×10²⁴ 개 단계 5) 자릿수를 맞춥니다.</p>
-<p class="step">1.20×10²⁴ 이므로 10²⁴에 가장 가깝습니다.</p>
-<p class="step">① 10²⁰ ⇒ 틀림.</p>
-<p class="step">계산값보다 10⁴배 작습니다.</p>
-<p class="step">이만큼의 CO₂를 만들려면 탄산마그네슘이 약 0.014 g이면 충분합니다.</p>
-<p class="step">② 10²² ⇒ 틀림.</p>
+<p class="step">n(MgCO<sub>3</sub>) = 168 g ÷ 84 g/mol = 2.00 mol 단계 2) 반응의 진행을 정리합니다.</p>
+<p class="step">처음에 MgCO<sub>3</sub> 2.00 mol과 과량의 HCl이 있고, 생성물은 모두 0입니다.</p>
+<p class="step">한계반응물인 MgCO<sub>3</sub>가 전부 소모되므로 변화량은 MgCO<sub>3</sub>가 -2.00 mol, MgCl<sub>2</sub>·CO<sub>2</sub>·H<sub>2</sub>O가 각각 +2.00 mol입니다.</p>
+<p class="step">반응이 끝나면 MgCO<sub>3</sub>는 0, HCl은 여전히 과량으로 남고, MgCl<sub>2</sub>와 CO<sub>2</sub>와 H<sub>2</sub>O가 각각 2.00 mol씩 존재합니다.</p>
+<p class="step">단계 3) 생성된 CO<sub>2</sub>의 몰수를 확정합니다.</p>
+<p class="step">계수비가 1 : 1이므로 n(CO<sub>2</sub>) = 2.00 mol 단계 4) 분자 수로 바꿉니다.</p>
+<p class="step">N = 2.00 mol × 6.022×10<sup>23</sup> 개/mol = 12.044×10<sup>23</sup> = 1.20×10<sup>24</sup> 개 단계 5) 자릿수를 맞춥니다.</p>
+<p class="step">1.20×10<sup>24</sup> 이므로 10<sup>24</sup>에 가장 가깝습니다.</p>
+<p class="step">① 10<sup>20</sup> ⇒ 틀림.</p>
+<p class="step">계산값보다 10<sup>4</sup>배 작습니다.</p>
+<p class="step">이만큼의 CO<sub>2</sub>를 만들려면 탄산마그네슘이 약 0.014 g이면 충분합니다.</p>
+<p class="step">② 10<sup>22</sup> ⇒ 틀림.</p>
 <p class="step">계산값보다 약 100배 작습니다.</p>
 <p class="step">탄산마그네슘의 질량을 168 g이 아니라 1.68 g으로 잘못 읽었을 때 나오는 값입니다.</p>
-<p class="step">③ 10²⁴ ⇒ 옳음.</p>
-<p class="step">계산값 1.20×10²⁴ 은 10²⁴ 과 자릿수가 같고 계수부도 1.2에 불과해 네 선지 중 압도적으로 가깝습니다.</p>
-<p class="step">④ 10²⁶ ⇒ 틀림.</p>
+<p class="step">③ 10<sup>24</sup> ⇒ 옳음.</p>
+<p class="step">계산값 1.20×10<sup>24</sup> 은 10<sup>24</sup> 과 자릿수가 같고 계수부도 1.2에 불과해 네 선지 중 압도적으로 가깝습니다.</p>
+<p class="step">④ 10<sup>26</sup> ⇒ 틀림.</p>
 <p class="step">계산값보다 약 100배 큽니다.</p>
 <p class="step">화학식량을 84가 아니라 0.84 정도로쓰거나 몰수 계산에서 지수를 두 자리 놓쳤을 때 나오는 값입니다.</p>
-<p class="step">③ 생성된 CO₂는 2.00 mol, 즉 약 1.20×10²⁴개이므로 10²⁴에 가장 가깝습니다.</p></div>
+<p class="step">③ 생성된 CO<sub>2</sub>는 2.00 mol, 즉 약 1.20×10<sup>24</sup>개이므로 10<sup>24</sup>에 가장 가깝습니다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 28</span><span class="area">깁스자유에너지</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">난이도 중 43 다음은 물과 사염화탄소를 한 용기에 넣고 세게 흔들었을 때의 변화를 나타낸 것이다.</p>
-<p class="step">다음 반응의 자발성에 대한설명으로 옳은 것은? [처음 상태] 위층은 물(H₂O), 아래층은 사염화탄소(CCl₄)로 두 층이 뚜렷이 나뉘어 있다.</p>
+<div class="q" id="q28"><div class="qh"><span class="qno">문제 28</span><span class="area">깁스자유에너지</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">난이도 중 43 다음은 물과 사염화탄소를 한 용기에 넣고 세게 흔들었을 때의 변화를 나타낸 것이다.</p>
+<p class="step">다음 반응의 자발성에 대한설명으로 옳은 것은? [처음 상태] 위층은 물(H<sub>2</sub>O), 아래층은 사염화탄소(CCl<sub>4</sub>)로 두 층이 뚜렷이 나뉘어 있다.</p>
 <p class="step">[나중 상태] 두 액체가 완전히 섞여 경계면이 사라진 균일한 한 층이 되었다.</p>
-<p class="step">반응: H₂O(l) + CCl₄(l) → 균일 혼합 용액 ① 높은 온도에서 자발적이다.</p>
+<p class="step">반응: H<sub>2</sub>O(l) + CCl<sub>4</sub>(l) → 균일 혼합 용액 ① 높은 온도에서 자발적이다.</p>
 <p class="step">② 낮은 온도에서 자발적이다.</p>
 <p class="step">③ 항상 자발적이다.</p>
 <p class="step">④ 항상 비자발적이다.</p>
@@ -976,13 +982,13 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">따라서 혼합은 ΔS &gt; 0 입니다.</p>
 <p class="step">4) 엔탈피 방향 판정: 용해 엔탈피는 (용매-용매 인력을 끊는 흡열) + (용질-용질인력을 끊는 흡열) + (용매-용질 인력을 만드는 발열)의 합입니다.</p>
 <p class="step">물은 수소결합으로 강하게 묶여 있고 사염화탄소는 무극성이라 물과 사이에 만들 수 있는 인력이 약한 분산력뿐이므로, 끊는 데 드는 에너지가 새로 얻는 에너지보다 큽니다.</p>
-<p class="step">즉 물과 CCl₄의 혼합은 흡열(ΔH &gt; 0)입니다.</p>
+<p class="step">즉 물과 CCl<sub>4</sub>의 혼합은 흡열(ΔH &gt; 0)입니다.</p>
 <p class="step">단계 1) 변화의 방향을 확인합니다.</p>
 <p class="step">처음이 두 층, 나중이 균일 혼합이므로 대상 반응은 "층분리 → 혼합"입니다.</p>
 <p class="step">단계 2) 엔트로피 변화를 판정합니다.</p>
 <p class="step">정돈된 상태에서 무질서한 상태로 갔으므로 ΔS &gt; 0 입니다.</p>
 <p class="step">단계 3) 엔탈피 변화를 판정합니다.</p>
-<p class="step">물-CCl₄ 혼합은 새로 만드는 인력이 약해 흡열이므로 ΔH &gt; 0 입니다.</p>
+<p class="step">물-CCl<sub>4</sub> 혼합은 새로 만드는 인력이 약해 흡열이므로 ΔH &gt; 0 입니다.</p>
 <p class="step">단계 4) ΔG = ΔH - TΔS 에 부호를 넣습니다.</p>
 <p class="step">ΔH &gt; 0 이므로 첫 항은 자발성에 불리합니다.</p>
 <p class="step">ΔS &gt; 0 이므로 -TΔS = -(T)(양수) = 음수가 되어 자발성에 유리하고,그 크기는 T에 비례합니다.</p>
@@ -1000,20 +1006,20 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">ΔH &gt; 0, ΔS &lt; 0 일 때의 결론입니다.</p>
 <p class="step">여기서는 ΔS &gt; 0 이므로 온도를 충분히 올리면 -TΔS 항이 ΔH를 넘어서 자발적이 될 수 있습니다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 29</span><span class="area">에너지</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">난이도 중 다음 자료를 활용하여 다이에틸 에터의 정상 끓는점을 계산한 값과 가장 유사한 것은? 물질 ΔHf°(kJ/mol) ΔS°(J/mol·K) C₄H₁₀O(l) -280 254 C₄H₁₀O(g) -253 343 ① 250 K ② 300 K ③ 350 K ④ 400 K ■ 무엇을 묻는 문제인가 "끓는점이란 무엇인가"를 열역학의 언어로 다시 정의할 수 있는지 묻는 문제입니다.</p>
+<div class="q" id="q29"><div class="qh"><span class="qno">문제 29</span><span class="area">에너지</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">난이도 중 다음 자료를 활용하여 다이에틸 에터의 정상 끓는점을 계산한 값과 가장 유사한 것은? 물질 ΔHf°(kJ/mol) ΔS°(J/mol·K) C<sub>4</sub>H<sub>10</sub>O(l) -280 254 C<sub>4</sub>H<sub>10</sub>O(g) -253 343 ① 250 K ② 300 K ③ 350 K ④ 400 K ■ 무엇을 묻는 문제인가 "끓는점이란 무엇인가"를 열역학의 언어로 다시 정의할 수 있는지 묻는 문제입니다.</p>
 <p class="step">끓는점은 액체와 기체가 평형을 이루는 온도이고, 평형이란 곧 ΔG = 0 인 상태입니다.</p>
 <p class="step">이 한 문장을 T = ΔH/ΔS 로 옮길 수 있으면 나머지는 표에서 뺄셈 두 번을 하는 일뿐입니다.</p>
 <p class="step">단위 환산(kJ ↔ J)이 유일한 함정입니다.</p>
 <p class="step">1) 깁스 자유에너지 ΔG = ΔH - TΔS 입니다.</p>
 <p class="step">ΔG &lt; 0 이면 자발적, ΔG = 0 이면 평형, ΔG &gt; 0 이면 비자발적입니다.2) 정상 끓는점은 1기압에서 액체와 기체가 공존하며 평형을 이루는 온도입니다.</p>
-<p class="step">기화 과정 C₄H₁₀O(l) →C₄H₁₀O(g) 에 대해 ΔG = 0 이 되는 온도가 바로 정상 끓는점이므로 0 = ΔH - TΔS → T = ΔH / ΔS 3) 헤스 법칙과 표준 생성엔탈피: ΔH° = (생성물의 ΔHf° 합) - (반응물의 ΔHf° 합) 입니다.</p>
+<p class="step">기화 과정 C<sub>4</sub>H<sub>10</sub>O(l) →C<sub>4</sub>H<sub>10</sub>O(g) 에 대해 ΔG = 0 이 되는 온도가 바로 정상 끓는점이므로 0 = ΔH - TΔS → T = ΔH / ΔS 3) 헤스 법칙과 표준 생성엔탈피: ΔH° = (생성물의 ΔHf° 합) - (반응물의 ΔHf° 합) 입니다.</p>
 <p class="step">엔트로피는 절대값이 존재하므로(열역학 제3법칙) 절대 엔트로피를 그대로 빼면 ΔS° 가 됩니다.</p>
 <p class="step">4) 기화는 언제나 ΔH &gt; 0(분자간 힘을 끊어야 하므로 흡열)이고 ΔS &gt; 0(기체가 훨씬 무질서)이므로 T = ΔH/ΔS 는 항상 양수입니다.</p>
 <p class="step">이 온도보다 높으면 -TΔS 항이 이겨 기화가 자발적, 낮으면 응축이 자발적입니다.</p>
 <p class="step">5) 단위 통일이 필수입니다.</p>
 <p class="step">ΔH는 kJ/mol, ΔS는J/mol·K 로 주어지므로 1000배 차이를 반드시 맞춰 주어야 합니다.</p>
 <p class="step">단계 1) 대상 반응을 씁니다.</p>
-<p class="step">C₄H₁₀O(l) → C₄H₁₀O(g) 단계 2) 기화 엔탈피를 구합니다.</p>
+<p class="step">C<sub>4</sub>H<sub>10</sub>O(l) → C<sub>4</sub>H<sub>10</sub>O(g) 단계 2) 기화 엔탈피를 구합니다.</p>
 <p class="step">ΔH = ΔHf°(기체) - ΔHf°(액체) = (-253) - (-280) = +27 kJ/mol 흡열이라는 예상과 부호가 맞습니다.</p>
 <p class="step">단계 3) 기화 엔트로피를 구합니다.</p>
 <p class="step">ΔS = S°(기체) - S°(액체) = 343 - 254 = +89 J/mol·K 기체가 되면서 엔트로피가 늘어난다는 예상과 맞습니다.</p>
@@ -1033,30 +1039,30 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">ΔS를 68 J/mol·K 정도로 지나치게 작게 잡거나 ΔHf° 두 값을 더하는 식으로 ΔH를 잘못 처리했을 때 나옵니다.</p>
 <p class="step">② 평형 조건 ΔG = 0 에서 T = ΔH/ΔS = 27000 J/mol ÷ 89 J/mol·K = 303 K 이므로 300 K가 가장 유사합니다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 30</span><span class="area">양적관계</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">난이도 중 황산구리 수용액을 전기분해 하면, (+)전극에서는 산소 기체가 발생하고, (-)전극에서는 구리가 석출된다.</p>
+<div class="q" id="q30"><div class="qh"><span class="qno">문제 30</span><span class="area">양적관계</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">난이도 중 황산구리 수용액을 전기분해 하면, (+)전극에서는 산소 기체가 발생하고, (-)전극에서는 구리가 석출된다.</p>
 <p class="step">1.93 A의일정한 전류를 500초 동안 사용하여 전기분해 하였을 때, 각각의 전극에서 생성된 생성물의 질량(g)은? (단, 다른산화/환원 반응은 일어나지 않는다고 가정한다.</p>
 <p class="step">Cu의 원자량은 63.5이고, O의 원자량은 16이다.</p>
 <p class="step">패러데이 상수 F= 96500 C/mol이다.) ① 구리 : 0.1588, 산소 : 0.040 ② 구리 : 0.1588, 산소 : 0.080 ③ 구리 : 0.3175, 산소 : 0.040 ④ 구리 : 0.3175, 산소 : 0.080 ■ 무엇을 묻는 문제인가 패러데이 전기분해 법칙의 표준 계산입니다.</p>
 <p class="step">전류와 시간 → 전하량 → 전자의 몰수 → 반쪽 반응의 계수로 나눈 생성물 몰수 → 질량, 이 다섯 칸의 사슬을 한 번도 끊지 않고 통과하는지 확인하는 문제입니다.</p>
 <p class="step">① 전하량: Q = I × t (단위 C = A × s).</p>
 <p class="step">전류 A는 초당 흐르는 전하량입니다.</p>
-<p class="step">② 전자의 몰수: n(e⁻) = Q / F, 여기서 F = 96500 C/mol 은 전자 1 mol이 나르는 전하량입니다.</p>
-<p class="step">③ 반쪽 반응에서의 전자 계수가 환산의 열쇠입니다.이 문제의 두 전극 반응은 (-)극(환원, 음극): Cu²⁺ + 2e⁻ → Cu ⇒ Cu 1 mol당 전자 2 mol (+)극(산화, 양극):2H₂O → O₂ + 4H⁺ + 4e⁻ ⇒ O₂ 1 mol당 전자 4 mol ④ 두 전극은 직렬로 같은 회로에 있으므로 흐른 전자 수가 똑같습니다.</p>
-<p class="step">그래서 언제나 n(Cu) : n(O₂) = (1/2) : (1/4) = 2 : 1 이 됩니다.</p>
-<p class="step">⑤ O₂의 분자량은 16 × 2 = 32 g/mol 입니다.</p>
+<p class="step">② 전자의 몰수: n(e<sup>-</sup>) = Q / F, 여기서 F = 96500 C/mol 은 전자 1 mol이 나르는 전하량입니다.</p>
+<p class="step">③ 반쪽 반응에서의 전자 계수가 환산의 열쇠입니다.이 문제의 두 전극 반응은 (-)극(환원, 음극): Cu<sup>2+</sup> + 2e<sup>-</sup> → Cu ⇒ Cu 1 mol당 전자 2 mol (+)극(산화, 양극):2H<sub>2</sub>O → O<sub>2</sub> + 4H<sup>+</sup> + 4e<sup>-</sup> ⇒ O<sub>2</sub> 1 mol당 전자 4 mol ④ 두 전극은 직렬로 같은 회로에 있으므로 흐른 전자 수가 똑같습니다.</p>
+<p class="step">그래서 언제나 n(Cu) : n(O<sub>2</sub>) = (1/2) : (1/4) = 2 : 1 이 됩니다.</p>
+<p class="step">⑤ O<sub>2</sub>의 분자량은 16 × 2 = 32 g/mol 입니다.</p>
 <p class="step">산소 "원자량 16"만 보고 16을 곱하는 함정에 걸리지 마세요.</p>
 <p class="step">단계 1) 전하량을 구합니다.</p>
 <p class="step">Q = I × t = 1.93 A × 500 s = 965 C 단계 2) 전자의 몰수를 구합니다.</p>
-<p class="step">n(e⁻) = 965 C ÷ 96500 C/mol = 0.0100 mol 단계 3) 구리의 몰수와 질량을 구합니다.</p>
+<p class="step">n(e<sup>-</sup>) = 965 C ÷ 96500 C/mol = 0.0100 mol 단계 3) 구리의 몰수와 질량을 구합니다.</p>
 <p class="step">전자 2 mol당 Cu 1 mol이므로 n(Cu) = 0.0100 ÷ 2 = 0.00500 mol m(Cu) = 0.00500 mol × 63.5 g/mol = 0.3175 g 단계 4) 산소의 몰수와 질량을 구합니다.</p>
-<p class="step">전자 4 mol당 O₂ 1 mol이므로 n(O₂) = 0.0100 ÷ 4 = 0.00250 mol 46 m(O₂) = 0.00250 mol × 32 g/mol = 0.0800 g 단계 5) 정리하면 구리 0.3175 g, 산소 0.080 g 입니다.</p>
+<p class="step">전자 4 mol당 O<sub>2</sub> 1 mol이므로 n(O<sub>2</sub>) = 0.0100 ÷ 4 = 0.00250 mol 46 m(O<sub>2</sub>) = 0.00250 mol × 32 g/mol = 0.0800 g 단계 5) 정리하면 구리 0.3175 g, 산소 0.080 g 입니다.</p>
 <p class="step">몰수 비도 0.00500 : 0.00250 = 2 : 1 로 개념 ④와 맞습니다.</p>
 <p class="step">① 구리 0.1588, 산소 0.040 ⇒ 틀림.</p>
 <p class="step">구리도 전자 4로 나누고(0.00250 × 63.5 = 0.1588), 산소도 몰질량을 16으로써서(0.00250 × 16 = 0.040) 두 군데 모두 틀린 값입니다.</p>
 <p class="step">② 구리 0.1588, 산소 0.080 ⇒ 틀림.</p>
 <p class="step">산소는 맞지만 구리를 전자 2가 아닌 4로 나누어 절반이 된 값입니다.</p>
 <p class="step">③ 구리 0.3175, 산소 0.040 ⇒ 틀림.</p>
-<p class="step">구리는 맞지만 O₂의 몰질량을 32가 아닌 16으로 써서 산소가 절반이 된 값입니다.</p>
+<p class="step">구리는 맞지만 O<sub>2</sub>의 몰질량을 32가 아닌 16으로 써서 산소가 절반이 된 값입니다.</p>
 <p class="step">가장 걸리기 쉬운 함정입니다.</p>
 <p class="step">④ 구리 0.3175, 산소0.080 ⇒ 옳음.</p>
 <p class="step">위 계산과 정확히 일치합니다.</p>

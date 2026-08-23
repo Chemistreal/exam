@@ -25,11 +25,24 @@ th{background:#f1eee7;font-weight:700}
 .area{font-size:12.5px;color:var(--ink2);background:#f1eee7;border-radius:99px;padding:2px 9px}
 .ans{margin-left:auto;font-weight:700;color:var(--ms)}
 .sol{font-size:14.5px}
+/* 해설 본문이 실제로 입는 옷 — answers/*.json 의 explanationHtml 이
+   <h4>·.step·.k(정답 근거)·.x(오답 표시) 를 쓰는데 여기 옷이 없으면
+   해설지에서만 맨몸으로 나간다(final.html 은 제 옷이 따로 있다). */
+.sol h4{margin:12px 0 5px;color:var(--teal);font-size:13.5px;letter-spacing:.02em}
+.sol p.step{margin:6px 0;white-space:pre-wrap}
+.sol .k{color:var(--teal);font-weight:700}
+.sol .x{color:var(--ms);font-weight:700}
 .tip{margin-top:9px;padding:9px 11px;border-left:3px solid var(--gold);background:#faf7f1;
  font-size:13.5px;color:var(--ink2)}
 .rev{margin-top:9px;padding:9px 11px;border-left:3px solid var(--ms);background:#fdf3ef;
  font-size:13px;color:#8a3a1d}
-@media print{body{background:#fff}.q{break-inside:avoid}}
+/* 정답표 → 그 문항 해설로 건너뛰는 길. 표가 세로 2,000px 를 넘는 회차가
+   많아 표에서 해설까지 손가락으로 미는 거리가 너무 멀었다. */
+td a.jump{color:var(--teal);text-decoration:none;font-weight:700}
+td a.jump:hover{text-decoration:underline}
+.q{scroll-margin-top:14px}
+.q:target{border-color:var(--teal);box-shadow:0 0 0 2px rgba(14,90,76,.18)}
+@media print{body{background:#fff}.q{break-inside:avoid}.warn{display:none}}
 
 .sol-part{margin:13px 0}.sol-part h4{margin:0 0 5px;color:var(--teal);font-size:13.5px;letter-spacing:.02em}
 .sol-part p{margin:5px 0;white-space:pre-wrap}
@@ -53,45 +66,45 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="sub">문항별 정답 · 영역 · 개념 · 사고과정 해설 · 10문항</div>
 <div class="sub" style="margin-top:6px">문제 지문은 문제지(PDF)에 있습니다 — 성적표 화면에서 함께 내려받을 수 있습니다.</div><a class="back" href="final.html">‹ 파이널로</a></header>
 <main><h3>정답 · 영역 · 개념</h3><table><thead><tr><th scope="col">문항</th><th scope="col">정답</th><th scope="col">영역</th><th scope="col">개념(유형)</th></tr></thead><tbody>
-<tr><td>1</td><td>④</td><td>염의가수분해</td><td>염의가수분해</td></tr>
-<tr><td>2</td><td>③</td><td>염의가수분해</td><td>염의가수분해</td></tr>
-<tr><td>3</td><td>④</td><td>염의가수분해</td><td>염의가수분해</td></tr>
-<tr><td>4</td><td>③</td><td>완충용액</td><td>완충용액</td></tr>
-<tr><td>5</td><td>④</td><td>염의가수분해</td><td>염의가수분해</td></tr>
-<tr><td>6</td><td>④</td><td>산의세기</td><td>산의세기</td></tr>
-<tr><td>7</td><td>①</td><td>이온화상수</td><td>이온화상수</td></tr>
-<tr><td>8</td><td>③</td><td>pH</td><td>pH</td></tr>
-<tr><td>9</td><td>③</td><td>이온화도</td><td>이온화도</td></tr>
-<tr><td>10</td><td>①</td><td>앙금생성</td><td>앙금생성</td></tr>
+<tr><td><a class="jump" href="#q1">1</a></td><td>④</td><td>염의가수분해</td><td>염의가수분해</td></tr>
+<tr><td><a class="jump" href="#q2">2</a></td><td>③</td><td>염의가수분해</td><td>염의가수분해</td></tr>
+<tr><td><a class="jump" href="#q3">3</a></td><td>④</td><td>염의가수분해</td><td>염의가수분해</td></tr>
+<tr><td><a class="jump" href="#q4">4</a></td><td>③</td><td>완충용액</td><td>완충용액</td></tr>
+<tr><td><a class="jump" href="#q5">5</a></td><td>④</td><td>염의가수분해</td><td>염의가수분해</td></tr>
+<tr><td><a class="jump" href="#q6">6</a></td><td>④</td><td>산의세기</td><td>산의세기</td></tr>
+<tr><td><a class="jump" href="#q7">7</a></td><td>①</td><td>이온화상수</td><td>이온화상수</td></tr>
+<tr><td><a class="jump" href="#q8">8</a></td><td>③</td><td>pH</td><td>pH</td></tr>
+<tr><td><a class="jump" href="#q9">9</a></td><td>③</td><td>이온화도</td><td>이온화도</td></tr>
+<tr><td><a class="jump" href="#q10">10</a></td><td>①</td><td>앙금생성</td><td>앙금생성</td></tr>
 </tbody></table>
 <h3>문항별 사고과정</h3>
-<div class="q"><div class="qh"><span class="qno">문제 1</span><span class="area">염의가수분해</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">즉시 재도전 염의가수분해 · 아세트산 ← JMChC 모의고사 12회 37번 아세트산 · 난이도 재도전 완충 용액이 효과적으로 작동하는 범위는 대략 pH = pKa ± 1, 즉 아세트산의 경우 pH 3.7 ~ 5.7이다.</p>
-<p class="step">pH 9에서는 [CH₃COO⁻]/[CH₃COOH]가 10^(9-4.74) ≈ 1.8×10⁴ 로 짝산이 거의 남아 있지 않아 산이 들어왔을 때 이를 흡수할 성분이 없다.</p>
+<div class="q" id="q1"><div class="qh"><span class="qno">문제 1</span><span class="area">염의가수분해</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">즉시 재도전 염의가수분해 · 아세트산 ← JMChC 모의고사 12회 37번 아세트산 · 난이도 재도전 완충 용액이 효과적으로 작동하는 범위는 대략 pH = pKa ± 1, 즉 아세트산의 경우 pH 3.7 ~ 5.7이다.</p>
+<p class="step">pH 9에서는 [CH<sub>3</sub>COO<sup>-</sup>]/[CH<sub>3</sub>COOH]가 10^(9-4.74) ≈ 1.8×10<sup>4</sup> 로 짝산이 거의 남아 있지 않아 산이 들어왔을 때 이를 흡수할 성분이 없다.</p>
 <p class="step">따라서 4가 틀렸다.</p>
 <p class="step">나머지 검토: 1은 pKa = 4.74이므로 옳다.</p>
 <p class="step">2는 에탄올 → 아세트알데하이드→ 아세트산의 산화 경로와 식초의 성분으로 옳다.</p>
-<p class="step">3은 x²/(0.10 - x) = 1.8×10⁻⁵ 에서 x = 1.33×10⁻³ M, 이온화율 = 1.33 % &lt; 2 %이므로 옳다.</p>
+<p class="step">3은 x<sup>2</sup>/(0.10 - x) = 1.8×10<sup>-5</sup> 에서 x = 1.33×10<sup>-3</sup> M, 이온화율 = 1.33 % &lt; 2 %이므로 옳다.</p>
 <p class="step">오개념 완충 능력은 pKa ± 1 범위에서만 유효하다 ― 비율을 극단으로 조절해도 범위 밖에서는 완충이 되지 않는다.</p>
 <p class="step">그때 왜 틀렸나 완충은 pKa±1 범위서 효과적.</p>
 <p class="step">아세트산은 pH 3.8~5.8 완충에 적합.</p>
 <p class="step">식초의 성분(에탄올 산화 산물).</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 2</span><span class="area">염의가수분해</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">즉시 재도전 염의가수분해 · 산성염 ← JMChC 모의고사 12회 41번 산성염 · 난이도 재도전 염의 액성은 두 이온의 유래로 판단한다.</p>
-<p class="step">CH₃NH₃Cl은 약염기 메틸아민(CH₃NH₂)의 짝산 CH₃NH₃⁺와 강산 HCl의 짝염기 Cl⁻로 이루어진다.</p>
-<p class="step">Cl⁻는 가수분해하지 않는 구경꾼이지만 CH₃NH₃⁺는 CH₃NH₃⁺ + H₂O ⇌ CH₃NH₂+ H₃O⁺ 로 가수분해해 H⁺를 내놓으므로 산성이다(Ka = Kw/Kb = 1.0×10⁻¹⁴/4.4×10⁻⁴ = 2.3×10⁻¹¹).</p>
-<p class="step">나머지는NaNO₂와 Ca(CH₃COO)₂가 약산의 짝염기를 가져 염기성, KBr은 강산·강염기 유래로 중성이다.</p>
+<div class="q" id="q2"><div class="qh"><span class="qno">문제 2</span><span class="area">염의가수분해</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">즉시 재도전 염의가수분해 · 산성염 ← JMChC 모의고사 12회 41번 산성염 · 난이도 재도전 염의 액성은 두 이온의 유래로 판단한다.</p>
+<p class="step">CH<sub>3</sub>NH<sub>3</sub>Cl은 약염기 메틸아민(CH<sub>3</sub>NH<sub>2</sub>)의 짝산 CH<sub>3</sub>NH<sub>3</sub><sup>+</sup>와 강산 HCl의 짝염기 Cl<sup>-</sup>로 이루어진다.</p>
+<p class="step">Cl<sup>-</sup>는 가수분해하지 않는 구경꾼이지만 CH<sub>3</sub>NH<sub>3</sub><sup>+</sup>는 CH<sub>3</sub>NH<sub>3</sub><sup>+</sup> + H<sub>2</sub>O ⇌ CH<sub>3</sub>NH<sub>2</sub>+ H<sub>3</sub>O<sup>+</sup> 로 가수분해해 H<sup>+</sup>를 내놓으므로 산성이다(Ka = Kw/Kb = 1.0×10<sup>-14</sup>/4.4×10<sup>-4</sup> = 2.3×10<sup>-11</sup>).</p>
+<p class="step">나머지는NaNO<sub>2</sub>와 Ca(CH<sub>3</sub>COO)<sub>2</sub>가 약산의 짝염기를 가져 염기성, KBr은 강산·강염기 유래로 중성이다.</p>
 <p class="step">오개념 산성 염은 '약염기의 짝산인 양이온'을 가진 염이다.</p>
 <p class="step">화학식에 H가 없어도 양이온의 가수분해로 산성이 될 수있다.</p>
 <p class="step">그때 왜 틀렸나 강산+약염기 염이 산성.</p>
-<p class="step">양이온이 약염기 짝산이면 가수분해로 H⁺를 낸다.</p></div>
+<p class="step">양이온이 약염기 짝산이면 가수분해로 H<sup>+</sup>를 낸다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 3</span><span class="area">염의가수분해</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">즉시 재도전 염의가수분해 · 염기성염 ← JMChC 모의고사 12회 42번 염기성염 · 난이도 재도전 산을 넣어 용해도가 커지려면 용해 평형에서 나온 음이온이 H⁺와 결합해 약전해질을 만들어 제거되어야 한다(르샤틀리에 원리).</p>
-<p class="step">CaF₂의 F⁻는 약산 HF로, BaCO₃의 CO₃²⁻는 HCO₃⁻/H₂CO₃(→CO₂)로, ZnS의 S²⁻는 HS⁻/H₂S로바뀌어 모두 용해도가 커진다.</p>
-<p class="step">반면 AgCl의 Cl⁻는 강산 HCl의 짝염기여서 H⁺와 결합하지 않으므로(HCl은 수용액에서 완전 해리) 산을 넣어도 Cl⁻ 농도가 줄지 않고 용해도는 그대로다.</p>
-<p class="step">오개념 음이온이 강산의 짝염기(Cl⁻, NO₃⁻, ClO₄⁻ 등)이면 산을 넣어도 제거되지 않으므로 용해도가 변하지 않는다.</p>
-<p class="step">그때 왜 틀렸나 음이온이 강산의 짝염기(Cl⁻·NO3⁻)면 산을 넣어도 안 빠지니 용해도가 그대로다.</p></div>
+<div class="q" id="q3"><div class="qh"><span class="qno">문제 3</span><span class="area">염의가수분해</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">즉시 재도전 염의가수분해 · 염기성염 ← JMChC 모의고사 12회 42번 염기성염 · 난이도 재도전 산을 넣어 용해도가 커지려면 용해 평형에서 나온 음이온이 H<sup>+</sup>와 결합해 약전해질을 만들어 제거되어야 한다(르샤틀리에 원리).</p>
+<p class="step">CaF<sub>2</sub>의 F<sup>-</sup>는 약산 HF로, BaCO<sub>3</sub>의 CO<sub>3</sub><sup>2-</sup>는 HCO<sub>3</sub><sup>-</sup>/H<sub>2</sub>CO<sub>3</sub>(→CO<sub>2</sub>)로, ZnS의 S<sup>2-</sup>는 HS<sup>-</sup>/H<sub>2</sub>S로바뀌어 모두 용해도가 커진다.</p>
+<p class="step">반면 AgCl의 Cl<sup>-</sup>는 강산 HCl의 짝염기여서 H<sup>+</sup>와 결합하지 않으므로(HCl은 수용액에서 완전 해리) 산을 넣어도 Cl<sup>-</sup> 농도가 줄지 않고 용해도는 그대로다.</p>
+<p class="step">오개념 음이온이 강산의 짝염기(Cl<sup>-</sup>, NO<sub>3</sub><sup>-</sup>, ClO<sub>4</sub><sup>-</sup> 등)이면 산을 넣어도 제거되지 않으므로 용해도가 변하지 않는다.</p>
+<p class="step">그때 왜 틀렸나 음이온이 강산의 짝염기(Cl<sup>-</sup>·NO3<sup>-</sup>)면 산을 넣어도 안 빠지니 용해도가 그대로다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 4</span><span class="area">완충용액</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">즉시 재도전 염의가수분해 · 완충용액 ← JMChC 모의고사 12회 46번 완충용액 · 난이도 재도전 산과 그 짝염기를 같은 몰수로 섞었으므로 헨더슨-하셀바흐 식에서 log([A⁻]/[HA]) = log 1 = 0, 즉 pH = pKa이다.pKa를 구하면 HF 3.17, HClO 7.52, HBrO 8.55, HIO 10.64이다.</p>
+<div class="q" id="q4"><div class="qh"><span class="qno">문제 4</span><span class="area">완충용액</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">즉시 재도전 염의가수분해 · 완충용액 ← JMChC 모의고사 12회 46번 완충용액 · 난이도 재도전 산과 그 짝염기를 같은 몰수로 섞었으므로 헨더슨-하셀바흐 식에서 log([A<sup>-</sup>]/[HA]) = log 1 = 0, 즉 pH = pKa이다.pKa를 구하면 HF 3.17, HClO 7.52, HBrO 8.55, HIO 10.64이다.</p>
 <p class="step">가장 약한 산의 pKa가 가장 크므로 HIO/NaIO완충 용액의 pH(≈10.64)가 가장 높다.</p>
 <p class="step">차아할로젠산의 산 세기는 중심 할로젠의 전기음성도 순서(Cl &gt; Br &gt; I)에따라 HClO &gt; HBrO &gt; HIO로 약해진다 ― 전기음성도가 큰 원자가 O-H 결합의 전자를 끌어당겨 양성자를 잃기 쉽게 만든다.</p>
 <p class="step">오개념 1:1 완충 용액의 pH는 pKa와 같으므로, 가장 약한 산(pKa가 가장 큰 산)이 가장 높은 pH의 완충 용액을 만든다.</p>
@@ -99,55 +112,55 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">HIO가 가장 약해 완충 pH가 가장높다.</p>
 <p class="step">50</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 5</span><span class="area">염의가수분해</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">즉시 재도전 염의가수분해 · 중화적정 ← JMChC 모의고사 12회 57번 중화적정 · 난이도 재도전 NaOH 30.0 mL는 첫 번째 당량점(20.0 mL)과 두 번째 당량점(40.0 mL)의 정확히 중간, 즉 두 번째 단계의 반당량점이다.</p>
-<p class="step">이 지점에서는 HA⁻의 절반이 A²⁻로 바뀌어 [HA⁻] = [A²⁻]이므로 헨더슨-하셀바흐 식 pH = pKa₂ +log([A²⁻]/[HA⁻]) = pKa₂ + log 1 = pKa₂가 된다.</p>
-<p class="step">따라서 pKa₂ = 6.30이고 Ka₂ = 10⁻⁶·³⁰ = 5.0×10⁻⁷이다.</p>
+<div class="q" id="q5"><div class="qh"><span class="qno">문제 5</span><span class="area">염의가수분해</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">즉시 재도전 염의가수분해 · 중화적정 ← JMChC 모의고사 12회 57번 중화적정 · 난이도 재도전 NaOH 30.0 mL는 첫 번째 당량점(20.0 mL)과 두 번째 당량점(40.0 mL)의 정확히 중간, 즉 두 번째 단계의 반당량점이다.</p>
+<p class="step">이 지점에서는 HA<sup>-</sup>의 절반이 A<sup>2-</sup>로 바뀌어 [HA<sup>-</sup>] = [A<sup>2-</sup>]이므로 헨더슨-하셀바흐 식 pH = pKa<sub>2</sub> +log([A<sup>2-</sup>]/[HA<sup>-</sup>]) = pKa<sub>2</sub> + log 1 = pKa<sub>2</sub>가 된다.</p>
+<p class="step">따라서 pKa<sub>2</sub> = 6.30이고 Ka<sub>2</sub> = 10<sup>-6</sup>·<sup>30</sup> = 5.0×10<sup>-7</sup>이다.</p>
 <p class="step">오개념 반당량점에서 짝산과 짝염기의 농도가 같아져 pH = pKa가 된다.</p>
-<p class="step">두 번째 평탄 구간의 중앙 pH가 pKa₂이다.</p>
+<p class="step">두 번째 평탄 구간의 중앙 pH가 pKa<sub>2</sub>이다.</p>
 <p class="step">그때 왜 틀렸나 반당량점에서 [짝산]=[짝염기]라 pH=pKa.</p>
 <p class="step">두 번째 평탄 구간의 가운데 pH가 pKa2.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 6</span><span class="area">산의세기</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">즉시 재도전 이온화상수 · 산의세기 ← JMChC 모의고사 12회 26번 산의세기 · 난이도 재도전 짝산의 Ka는 Ka = Kw/Kb로 환산한다.</p>
-<p class="step">NH₄⁺: Ka = 1.0×10⁻¹⁴ / 1.8×10⁻⁵ = 5.6×10⁻¹⁰.</p>
-<p class="step">C₅H₅NH⁺(피리디늄):Ka = 1.0×10⁻¹⁴ / 1.7×10⁻⁹ = 5.9×10⁻⁶.</p>
-<p class="step">따라서 Ka는 CH₃COOH 1.8×10⁻⁵ &gt; C₅H₅NH⁺ 5.9×10⁻⁶ &gt; HCN6.2×10⁻¹⁰ &gt; NH₄⁺ 5.6×10⁻¹⁰ 이다.</p>
-<p class="step">HCN과 NH₄⁺는 자릿수가 같아 근소한 차이지만 6.2 &gt; 5.6 이므로 HCN이약간 더 센 산이다.</p>
-<p class="step">또한 염기가 셀수록(Kb가 클수록) 그 짝산은 약하다는 반비례 관계에 주의한다 ― NH₃(Kb1.8×10⁻⁵)가 피리딘(Kb 1.7×10⁻⁹)보다 훨씬 센 염기이므로 NH₄⁺가 피리디늄보다 훨씬 약한 산이다.</p>
+<div class="q" id="q6"><div class="qh"><span class="qno">문제 6</span><span class="area">산의세기</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">즉시 재도전 이온화상수 · 산의세기 ← JMChC 모의고사 12회 26번 산의세기 · 난이도 재도전 짝산의 Ka는 Ka = Kw/Kb로 환산한다.</p>
+<p class="step">NH<sub>4</sub><sup>+</sup>: Ka = 1.0×10<sup>-14</sup> / 1.8×10<sup>-5</sup> = 5.6×10<sup>-10</sup>.</p>
+<p class="step">C<sub>5</sub>H<sub>5</sub>NH<sup>+</sup>(피리디늄):Ka = 1.0×10<sup>-14</sup> / 1.7×10<sup>-9</sup> = 5.9×10<sup>-6</sup>.</p>
+<p class="step">따라서 Ka는 CH<sub>3</sub>COOH 1.8×10<sup>-5</sup> &gt; C<sub>5</sub>H<sub>5</sub>NH<sup>+</sup> 5.9×10<sup>-6</sup> &gt; HCN6.2×10<sup>-10</sup> &gt; NH<sub>4</sub><sup>+</sup> 5.6×10<sup>-10</sup> 이다.</p>
+<p class="step">HCN과 NH<sub>4</sub><sup>+</sup>는 자릿수가 같아 근소한 차이지만 6.2 &gt; 5.6 이므로 HCN이약간 더 센 산이다.</p>
+<p class="step">또한 염기가 셀수록(Kb가 클수록) 그 짝산은 약하다는 반비례 관계에 주의한다 ― NH<sub>3</sub>(Kb1.8×10<sup>-5</sup>)가 피리딘(Kb 1.7×10<sup>-9</sup>)보다 훨씬 센 염기이므로 NH<sub>4</sub><sup>+</sup>가 피리디늄보다 훨씬 약한 산이다.</p>
 <p class="step">오개념 Kb가 큰 염기의 짝산도 세다고 보아 비례 관계로 착각하고, 자릿수가 같은 두 Ka의 계수 비교를 건너뛰는것.</p>
-<p class="step">그때 왜 틀렸나 짝산 Ka=Kw/Kb로 환산(NH4⁺ 5×10⁻¹⁰, 피리디늄 5×10⁻⁶).</p>
-<p class="step">HCN(6×10⁻¹⁰)이 NH4⁺(5×10⁻¹⁰)보다 근소하게 강하다.</p></div>
+<p class="step">그때 왜 틀렸나 짝산 Ka=Kw/Kb로 환산(NH4<sup>+</sup> 5×10<sup>-10</sup>, 피리디늄 5×10<sup>-6</sup>).</p>
+<p class="step">HCN(6×10<sup>-10</sup>)이 NH4<sup>+</sup>(5×10<sup>-10</sup>)보다 근소하게 강하다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 7</span><span class="area">이온화상수</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">즉시 재도전 이온화상수 · 이온화상수 ← JMChC 모의고사 12회 28번 이온화상수 · 난이도 재도전 pH = 3.00이므로 [H⁺] = 1.0×10⁻³ M이다.</p>
-<p class="step">HA ⇌ H⁺ + A⁻ 에서 물의 기여를 무시하면 [A⁻] = [H⁺] = 1.0×10⁻³M이고, 이온화한 양이 초기 농도의 0.5%뿐이므로 [HA] ≈ 0.20 - 0.001 ≈ 0.20 M이다.</p>
-<p class="step">따라서 Ka = [H⁺][A⁻]/[HA] = (1.0×10⁻³)² / 0.20 = 1.0×10⁻⁶/0.20 = 5.0×10⁻⁶.</p>
-<p class="step">참고로 이온화도는 α = 1.0×10⁻³/0.20 = 0.0050(0.50%)이다.</p>
-<p class="step">오개념 Ka 식에서 분모의 초기 농도로 나누는 단계를 빠뜨리거나, [H⁺]를 제곱하지 않고 대입하는 것.</p>
-<p class="step">그때 왜 틀렸나 [CN⁻]≈[H⁺], [HCN]≈초기 농도.</p>
-<p class="step">Ka=[H⁺]²/C로 빠르게 계산.</p></div>
+<div class="q" id="q7"><div class="qh"><span class="qno">문제 7</span><span class="area">이온화상수</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">즉시 재도전 이온화상수 · 이온화상수 ← JMChC 모의고사 12회 28번 이온화상수 · 난이도 재도전 pH = 3.00이므로 [H<sup>+</sup>] = 1.0×10<sup>-3</sup> M이다.</p>
+<p class="step">HA ⇌ H<sup>+</sup> + A<sup>-</sup> 에서 물의 기여를 무시하면 [A<sup>-</sup>] = [H<sup>+</sup>] = 1.0×10<sup>-3</sup>M이고, 이온화한 양이 초기 농도의 0.5%뿐이므로 [HA] ≈ 0.20 - 0.001 ≈ 0.20 M이다.</p>
+<p class="step">따라서 Ka = [H<sup>+</sup>][A<sup>-</sup>]/[HA] = (1.0×10<sup>-3</sup>)<sup>2</sup> / 0.20 = 1.0×10<sup>-6</sup>/0.20 = 5.0×10<sup>-6</sup>.</p>
+<p class="step">참고로 이온화도는 α = 1.0×10<sup>-3</sup>/0.20 = 0.0050(0.50%)이다.</p>
+<p class="step">오개념 Ka 식에서 분모의 초기 농도로 나누는 단계를 빠뜨리거나, [H<sup>+</sup>]를 제곱하지 않고 대입하는 것.</p>
+<p class="step">그때 왜 틀렸나 [CN<sup>-</sup>]≈[H<sup>+</sup>], [HCN]≈초기 농도.</p>
+<p class="step">Ka=[H<sup>+</sup>]<sup>2</sup>/C로 빠르게 계산.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 8</span><span class="area">pH</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">즉시 재도전 이온화도 · pH ← JMChC 모의고사 12회 27번 pH · 난이도 재도전 농도가 몰 농도 그대로 [H⁺]가 되는 것은 완전히 이온화하는 일양성자 강산일 때뿐이다.</p>
-<p class="step">0.010 M HCl은 [H⁺] =1.0×10⁻² M이므로 pH = 2.00.</p>
-<p class="step">0.010 M H₂SO₄는 첫 이온화만으로도 [H⁺] = 0.010 M이고 HSO₄⁻의 추가 이온화까지 더해지면 [H⁺] &gt; 0.010 M이 되어 pH는 2보다 작다(약 1.8).</p>
-<p class="step">0.010 M 아세트산은 약산이어서 [H⁺] =√(Ka·C) ≈ √(1.8×10⁻⁷) = 4.2×10⁻⁴ M, pH ≈ 3.4로 훨씬 덜 산성이다.</p>
+<div class="q" id="q8"><div class="qh"><span class="qno">문제 8</span><span class="area">pH</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">즉시 재도전 이온화도 · pH ← JMChC 모의고사 12회 27번 pH · 난이도 재도전 농도가 몰 농도 그대로 [H<sup>+</sup>]가 되는 것은 완전히 이온화하는 일양성자 강산일 때뿐이다.</p>
+<p class="step">0.010 M HCl은 [H<sup>+</sup>] =1.0×10<sup>-2</sup> M이므로 pH = 2.00.</p>
+<p class="step">0.010 M H<sub>2</sub>SO<sub>4</sub>는 첫 이온화만으로도 [H<sup>+</sup>] = 0.010 M이고 HSO<sub>4</sub><sup>-</sup>의 추가 이온화까지 더해지면 [H<sup>+</sup>] &gt; 0.010 M이 되어 pH는 2보다 작다(약 1.8).</p>
+<p class="step">0.010 M 아세트산은 약산이어서 [H<sup>+</sup>] =√(Ka·C) ≈ √(1.8×10<sup>-7</sup>) = 4.2×10<sup>-4</sup> M, pH ≈ 3.4로 훨씬 덜 산성이다.</p>
 <p class="step">0.010 M NaOH는 염기성으로 pH =12.00이다.</p>
 <p class="step">오개념 '농도의 -log가 곧 pH'라고 외워 양성자 수(이양성자산)나 약산의 부분 이온화를 무시하는 것.</p>
-<p class="step">그때 왜 틀렸나 강산 단일양성자만 [H⁺]=농도가 된다.</p>
+<p class="step">그때 왜 틀렸나 강산 단일양성자만 [H<sup>+</sup>]=농도가 된다.</p>
 <p class="step">이양성자(H2SO4)는 더 산성, 약산은 덜 산성.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 9</span><span class="area">이온화도</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">즉시 재도전 이온화도 · pKw ← JMChC 모의고사 12회 30번 pKw · 난이도 재도전 51 희석하면 전체 [H⁺]가 줄어 pH는 커진다: 0.10 M에서 [H⁺] = 1.33×10⁻³ M(pH 2.88), 0.010 M에서 [H⁺] =4.15×10⁻⁴ M(pH 3.38).</p>
-<p class="step">그러나 이온화도는 오히려 커진다: α = 1.33×10⁻³/0.10 = 1.3%에서 4.15×10⁻⁴/0.010= 4.2%로 증가한다(르샤틀리에 원리 ― 묽히면 입자 수가 늘어나는 이온화 쪽으로 평형이 이동, 또는 α ≈√(Ka/C)에서 C가 작아지면 α가 커짐).</p>
+<div class="q" id="q9"><div class="qh"><span class="qno">문제 9</span><span class="area">이온화도</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">즉시 재도전 이온화도 · pKw ← JMChC 모의고사 12회 30번 pKw · 난이도 재도전 51 희석하면 전체 [H<sup>+</sup>]가 줄어 pH는 커진다: 0.10 M에서 [H<sup>+</sup>] = 1.33×10<sup>-3</sup> M(pH 2.88), 0.010 M에서 [H<sup>+</sup>] =4.15×10<sup>-4</sup> M(pH 3.38).</p>
+<p class="step">그러나 이온화도는 오히려 커진다: α = 1.33×10<sup>-3</sup>/0.10 = 1.3%에서 4.15×10<sup>-4</sup>/0.010= 4.2%로 증가한다(르샤틀리에 원리 ― 묽히면 입자 수가 늘어나는 이온화 쪽으로 평형이 이동, 또는 α ≈√(Ka/C)에서 C가 작아지면 α가 커짐).</p>
 <p class="step">한편 Ka는 온도만의 함수인 평형 상수이므로 농도를 바꿔도 변하지 않고,물의 이온곱 Kw(따라서 pKw = 14.00)도 온도만으로 정해지므로 희석과 무관하다.</p>
 <p class="step">오개념 pH가 커지는(산성이 약해지는) 것과 이온화도가 커지는 것을 같은 방향으로 묶어 생각하고, 평형 상수(Ka,Kw)가 농도에 따라 변한다고 오해하는 것.</p>
 <p class="step">그때 왜 틀렸나 묽힘은 pH를 올리고 해리도를 키운다.</p>
 <p class="step">농도와 무관하게 Kw(따라서 pKw)는 온도로만 변한다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 10</span><span class="area">앙금생성</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">즉시 재도전 앙금생성 · 수산화구리 ← JMChC 모의고사 12회 21번 수산화구리 · 난이도 재도전 암모니아는 물에서 NH₃ + H₂O ⇌ NH₄⁺ + OH⁻ 로 약하게 이온화하는 약염기다.</p>
-<p class="step">소량을 넣으면 공급된 OH⁻가Cu²⁺와 만나 용해도곱을 넘어서 Cu(OH)₂ 침전(연한 파란색)이 생긴다.</p>
-<p class="step">암모니아를 과량으로 넣으면 NH₃ 자체가리간드로 작용해 Cu(OH)₂(s) + 4NH₃ → [Cu(NH₃)₄]²⁺ + 2OH⁻ 처럼 매우 안정한 테트라암민구리(II) 착이온을 만들고, 이 착이온이 진한 청람색 용액을 만들면서 침전이 사라진다.</p>
+<div class="q" id="q10"><div class="qh"><span class="qno">문제 10</span><span class="area">앙금생성</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">즉시 재도전 앙금생성 · 수산화구리 ← JMChC 모의고사 12회 21번 수산화구리 · 난이도 재도전 암모니아는 물에서 NH<sub>3</sub> + H<sub>2</sub>O ⇌ NH<sub>4</sub><sup>+</sup> + OH<sup>-</sup> 로 약하게 이온화하는 약염기다.</p>
+<p class="step">소량을 넣으면 공급된 OH<sup>-</sup>가Cu<sup>2+</sup>와 만나 용해도곱을 넘어서 Cu(OH)<sub>2</sub> 침전(연한 파란색)이 생긴다.</p>
+<p class="step">암모니아를 과량으로 넣으면 NH<sub>3</sub> 자체가리간드로 작용해 Cu(OH)<sub>2</sub>(s) + 4NH<sub>3</sub> → [Cu(NH<sub>3</sub>)<sub>4</sub>]<sup>2+</sup> + 2OH<sup>-</sup> 처럼 매우 안정한 테트라암민구리(II) 착이온을 만들고, 이 착이온이 진한 청람색 용액을 만들면서 침전이 사라진다.</p>
 <p class="step">즉 처음 침전의 정체는 어디까지나 수산화물이다.</p>
-<p class="step">오개념 암모니아가 처음부터 리간드로만 작용한다고 보아 침전을 암민 착물이나 다른 염으로 착각하고, 약염기로서OH⁻를 공급한다는 점을 놓치는 것.</p>
-<p class="step">그때 왜 틀렸나 암모니아는 약염기로 OH⁻를 공급해 수산화물을 침전시킨다.</p>
-<p class="step">과량이면 [Cu(NH3)4]²⁺로 다시 녹지만, 생기는 침전은 Cu(OH)2.</p>
+<p class="step">오개념 암모니아가 처음부터 리간드로만 작용한다고 보아 침전을 암민 착물이나 다른 염으로 착각하고, 약염기로서OH<sup>-</sup>를 공급한다는 점을 놓치는 것.</p>
+<p class="step">그때 왜 틀렸나 암모니아는 약염기로 OH<sup>-</sup>를 공급해 수산화물을 침전시킨다.</p>
+<p class="step">과량이면 [Cu(NH3)4]<sup>2+</sup>로 다시 녹지만, 생기는 침전은 Cu(OH)2.</p>
 <p class="step">52</p></div>
 </div>
 <script data-lec-back>

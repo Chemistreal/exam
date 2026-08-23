@@ -114,7 +114,10 @@ def fig_liebig():
     b.append('<rect x="14" y="52" width="128" height="40" rx="6" fill="none" stroke="%s" stroke-width="2"/>' % INK)
     b.append(_txt(78, 76, '시료 연소관', 13))
     b.append(_txt(78, 40, 'O₂ →', 13, MUT))
-    for i, (x, lab, sub) in enumerate([(170, '(가)', '염화칼슘 관'), (300, '(나)', 'KOH 관')]):
+    # ⚠ 흡수제 이름을 적지 않는다 — 「(가)(나)에 들어갈 흡수제 고르기」 가 이
+    #    문항의 과제다. 게다가 처음 적었던 이름(염화칼슘·KOH)은 답지의 정답
+    #    (실리카겔·수산화나트륨)과 어긋나기까지 했다. 중립으로 둔다.
+    for i, (x, lab, sub) in enumerate([(170, '(가)', '흡수관 1'), (300, '(나)', '흡수관 2')]):
         b.append('<rect x="%d" y="40" width="104" height="64" rx="10" fill="none" stroke="%s" stroke-width="2"/>' % (x, INK))
         b.append(_txt(x + 52, 66, lab, 15, INK, 'middle', True))
         b.append(_txt(x + 52, 86, sub, 12, MUT))
@@ -433,7 +436,7 @@ def fig_vapor_curves():
     return _redrawn(_svg(460, 224, ''.join(b)), '세 액체의 증기 압력 곡선')
 
 
-def _closed_box(inner, w=420, h=190):
+def _closed_box(inner, w=420, h=206):
     return ('<rect x="14" y="14" width="%d" height="%d" fill="none" stroke="%s" stroke-width="2.6"/>' % (w - 28, h - 28, INK)) + inner
 
 
@@ -452,22 +455,22 @@ def fig_two_beakers_sea():
     inner = (_beaker(70, 50, 110, 96, 60, '증류수', '50 mL') +
              _beaker(240, 50, 110, 96, 60, '바닷물', '50 mL', '#bcd8cf') +
              _txt(210, 40, '밀폐 용기', 11.5, MUT))
-    return _redrawn(_svg(420, 210, _closed_box(inner)), '')
+    return _redrawn(_svg(420, 226, _closed_box(inner)), '')
 
 
 def fig_two_beakers_glc():
     inner = (_beaker(70, 50, 110, 96, 60, '1 M NaCl', '수용액', '#bcd8cf') +
              _beaker(240, 50, 110, 96, 60, '1 M 포도당', '수용액') +
              _txt(210, 40, '밀폐 용기 · 온도 일정', 11.5, MUT))
-    return _redrawn(_svg(420, 210, _closed_box(inner)), '')
+    return _redrawn(_svg(420, 226, _closed_box(inner)), '')
 
 
 def fig_capillary():
     b = []
-    for x0, lab, up, convex, col in [(40, '물', True, False, '#cfe3ff'), (250, '수은', False, True, '#d9d9de')]:
+    for x0, lab, up, convex, col in [(40, '물', True, False, '#cfe3ff'), (250, '수은', False, True, '#aeb0ba')]:
         b.append('<path d="M%d 150 h150 v46 h-150 z" fill="%s" stroke="%s" stroke-width="1.6"/>' % (x0, col, INK))
         cx = x0 + 75
-        lv = 108 if up else 168
+        lv = 108 if up else 176
         b.append(_line(cx - 9, 60, cx - 9, 196, INK, 1.8))
         b.append(_line(cx + 9, 60, cx + 9, 196, INK, 1.8))
         b.append('<rect x="%g" y="%g" width="16" height="%g" fill="%s"/>' % (cx - 8, lv, 195 - lv, col))
@@ -523,59 +526,66 @@ def _cube_pts(ox, oy, s, depth=0.42):
     return P
 
 
+FACES = [[(0,0,0),(1,0,0),(1,1,0),(0,1,0)], [(0,0,1),(1,0,1),(1,1,1),(0,1,1)],
+         [(0,0,0),(0,1,0),(0,1,1),(0,0,1)], [(1,0,0),(1,1,0),(1,1,1),(1,0,1)],
+         [(0,0,0),(1,0,0),(1,0,1),(0,0,1)], [(0,1,0),(1,1,0),(1,1,1),(0,1,1)]]
+EDGES = [(a, c) for a in [(0,0,0),(1,0,0),(0,1,0),(0,0,1),(1,1,0),(1,0,1),(0,1,1),(1,1,1)]
+         for c in [(0,0,0),(1,0,0),(0,1,0),(0,0,1),(1,1,0),(1,0,1),(0,1,1),(1,1,1)]
+         if sum(abs(a[i] - c[i]) for i in range(3)) == 1 and a < c]
+
+
 def fig_nacl_cscl():
     b = []
-    # NaCl: 꼭짓점·면심 Cl(큰 원), 모서리·중심 Na(작은 원) — 표준 암염 그림
-    box, f, bk = _cube(40, 60, 130)
+    # NaCl: 꼭짓점 8 + 면심 6 = Cl, 모서리 12 + 중심 1 = Na.
+    # ⚠ 이 문항의 평가 목표가 «격자점 세기» 다 — 절반만 그리면 그림대로 센
+    #    학생이 정확히 틀린다. 여섯 면·열두 모서리를 **전부** 그린다.
+    box, f, bk = _cube(40, 74, 130)
     b += box
-    P = _cube_pts(40, 60, 130)
+    P = _cube_pts(40, 74, 130)
     for k, (x, y) in P.items():
         b.append(_circ(x, y, 7, '#cfe3ff'))
-    for (a, c) in [((0, 0, 0), (1, 0, 0)), ((0, 0, 0), (0, 1, 0)), ((0, 0, 0), (0, 0, 1)),
-                   ((1, 1, 1), (0, 1, 1)), ((1, 1, 1), (1, 0, 1)), ((1, 1, 1), (1, 1, 0))]:
+    for (a, c) in EDGES:
         x = (P[a][0] + P[c][0]) / 2; y = (P[a][1] + P[c][1]) / 2
         b.append(_circ(x, y, 4.5, '#e5b8be'))
-    for face in [[(0,0,0),(1,0,0),(1,1,0),(0,1,0)], [(0,0,0),(0,1,0),(0,1,1),(0,0,1)], [(0,0,0),(1,0,0),(1,0,1),(0,0,1)]]:
+    for face in FACES:
         xs = sum(P[p][0] for p in face) / 4; ys = sum(P[p][1] for p in face) / 4
         b.append(_circ(xs, ys, 7, '#cfe3ff'))
     cx = sum(P[p][0] for p in P) / 8; cy = sum(P[p][1] for p in P) / 8
     b.append(_circ(cx, cy, 4.5, '#e5b8be'))
-    b.append(_txt(105, 232, 'NaCl', 13.5, INK, 'middle', True))
-    b.append(_txt(105, 250, '○ Cl⁻ · ● Na⁺', 11, MUT))
+    b.append(_txt(140, 256, 'NaCl', 13.5, INK, 'middle', True))
+    b.append(_txt(140, 274, '○ Cl⁻ (꼭짓점 8 · 면심 6) · ● Na⁺ (모서리 12 · 중심 1)', 10, MUT))
     # CsCl
-    box2, _, _ = _cube(300, 60, 130)
+    box2, _, _ = _cube(330, 74, 130)
     b += box2
-    P2 = _cube_pts(300, 60, 130)
+    P2 = _cube_pts(330, 74, 130)
     for k, (x, y) in P2.items():
         b.append(_circ(x, y, 7, '#cfe3ff'))
     cx = sum(P2[p][0] for p in P2) / 8; cy = sum(P2[p][1] for p in P2) / 8
     b.append(_circ(cx, cy, 8.5, '#e5b8be'))
-    b.append(_txt(365, 232, 'CsCl', 13.5, INK, 'middle', True))
-    b.append(_txt(365, 250, '○ Cl⁻ · ● Cs⁺', 11, MUT))
-    return _redrawn(_svg(520, 262, ''.join(b)), '두 이온 결정의 단위세포')
+    b.append(_txt(395, 256, 'CsCl', 13.5, INK, 'middle', True))
+    b.append(_txt(395, 274, '○ Cl⁻ (꼭짓점 8) · ● Cs⁺ (중심 1)', 10, MUT))
+    return _redrawn(_svg(560, 288, ''.join(b)), '두 이온 결정의 단위세포')
 
 
 def fig_cu3au():
     b = []
-    box, _, _ = _cube(120, 50, 150)
+    box, _, _ = _cube(120, 74, 150)
     b += box
-    P = _cube_pts(120, 50, 150)
+    P = _cube_pts(120, 74, 150)
     for k, (x, y) in P.items():
         b.append(_circ(x, y, 8, '#f2d98c'))
-    for face in [[(0,0,0),(1,0,0),(1,1,0),(0,1,0)], [(0,0,1),(1,0,1),(1,1,1),(0,1,1)],
-                 [(0,0,0),(0,1,0),(0,1,1),(0,0,1)], [(1,0,0),(1,1,0),(1,1,1),(1,0,1)],
-                 [(0,0,0),(1,0,0),(1,0,1),(0,0,1)], [(0,1,0),(1,1,0),(1,1,1),(0,1,1)]]:
+    for face in FACES:
         xs = sum(P[p][0] for p in face) / 4; ys = sum(P[p][1] for p in face) / 4
         b.append(_circ(xs, ys, 6, '#d99a63'))
-    b.append(_txt(195, 242, '꼭짓점 ○ Au · 면심 ● Cu', 12, MUT))
-    return _redrawn(_svg(400, 256, ''.join(b)), 'Cu–Au 합금의 단위세포')
+    b.append(_txt(195, 266, '꼭짓점 ○ Au · 면심 ● Cu', 12, MUT))
+    return _redrawn(_svg(400, 280, ''.join(b)), 'Cu–Au 합금의 단위세포')
 
 
 def fig_nias():
     b = []
-    box, _, _ = _cube(120, 50, 150)
+    box, _, _ = _cube(120, 74, 150)
     b += box
-    P = _cube_pts(120, 50, 150)
+    P = _cube_pts(120, 74, 150)
     for k, (x, y) in P.items():
         b.append(_circ(x, y, 7.5, '#cfd8e8'))
     for e in [((0,0,0),(0,1,0)), ((1,0,0),(1,1,0)), ((0,0,1),(0,1,1)), ((1,0,1),(1,1,1))]:
@@ -584,47 +594,45 @@ def fig_nias():
     cx = sum(P[p][0] for p in P) / 8; cy = sum(P[p][1] for p in P) / 8
     b.append(_circ(cx - 22, cy + 16, 6.5, '#e0a8a8'))
     b.append(_circ(cx + 24, cy - 14, 6.5, '#e0a8a8'))
-    b.append(_txt(195, 242, '○ Ni (꼭짓점 8 · 수직 모서리 중앙 4) · ● As (내부 2)', 11.5, MUT))
-    return _redrawn(_svg(430, 256, ''.join(b)), 'NiAs 의 단위세포')
+    b.append(_txt(195, 266, '○ Ni (꼭짓점 8 · 수직 모서리 중앙 4) · ● As (내부 2)', 11.5, MUT))
+    return _redrawn(_svg(430, 280, ''.join(b)), 'NiAs 의 단위세포')
 
 
 def fig_fcc_352():
     b = []
-    box, _, _ = _cube(120, 50, 150)
+    box, _, _ = _cube(120, 74, 150)
     b += box
-    P = _cube_pts(120, 50, 150)
+    P = _cube_pts(120, 74, 150)
     for k, (x, y) in P.items():
         b.append(_circ(x, y, 8, '#cfe3ff'))
-    for face in [[(0,0,0),(1,0,0),(1,1,0),(0,1,0)], [(0,0,1),(1,0,1),(1,1,1),(0,1,1)],
-                 [(0,0,0),(0,1,0),(0,1,1),(0,0,1)], [(1,0,0),(1,1,0),(1,1,1),(1,0,1)],
-                 [(0,0,0),(1,0,0),(1,0,1),(0,0,1)], [(0,1,0),(1,1,0),(1,1,1),(0,1,1)]]:
+    for face in FACES:
         xs = sum(P[p][0] for p in face) / 4; ys = sum(P[p][1] for p in face) / 4
         b.append(_circ(xs, ys, 6.5, '#9fc3ef'))
-    b.append(_line(120, 216, 270, 216, INK, 1.4))
-    b.append(_txt(195, 234, 'a = 352 pm', 12.5, INK))
-    return _redrawn(_svg(400, 250, ''.join(b)), '면심입방(fcc) 단위세포')
+    b.append(_line(120, 240, 270, 240, INK, 1.4))
+    b.append(_txt(195, 258, 'a = 352 pm', 12.5, INK))
+    return _redrawn(_svg(400, 274, ''.join(b)), '면심입방(fcc) 단위세포')
 
 
 def fig_bcc_fe():
     b = []
-    box, _, _ = _cube(120, 50, 150)
+    box, _, _ = _cube(120, 74, 150)
     b += box
-    P = _cube_pts(120, 50, 150)
+    P = _cube_pts(120, 74, 150)
     for k, (x, y) in P.items():
         b.append(_circ(x, y, 8, '#d8d8dc'))
     cx = sum(P[p][0] for p in P) / 8; cy = sum(P[p][1] for p in P) / 8
     b.append(_circ(cx, cy, 9, '#b8b8c2'))
-    b.append(_line(120, 216, 270, 216, INK, 1.4))
-    b.append(_txt(195, 234, '한 변 a', 12.5, INK))
-    b.append(_txt(195, 252, '꼭짓점 8 + 중심 1 (Fe)', 11.5, MUT))
-    return _redrawn(_svg(400, 264, ''.join(b)), '체심입방(bcc) 단위세포')
+    b.append(_line(120, 240, 270, 240, INK, 1.4))
+    b.append(_txt(195, 258, '한 변 a', 12.5, INK))
+    b.append(_txt(195, 276, '꼭짓점 8 + 중심 1 (Fe)', 11.5, MUT))
+    return _redrawn(_svg(400, 288, ''.join(b)), '체심입방(bcc) 단위세포')
 
 
 def fig_tio2():
     b = []
-    box, _, _ = _cube(120, 50, 150)
+    box, _, _ = _cube(120, 74, 150)
     b += box
-    P = _cube_pts(120, 50, 150)
+    P = _cube_pts(120, 74, 150)
     for k, (x, y) in P.items():
         b.append(_circ(x, y, 7.5, '#cfd8e8'))
     cx = sum(P[p][0] for p in P) / 8; cy = sum(P[p][1] for p in P) / 8
@@ -637,14 +645,16 @@ def fig_tio2():
             b.append(_circ(xs + dx, ys + dy, 5.5, '#e0a8a8'))
     b.append(_circ(cx - 30, cy + 22, 5.5, '#e0a8a8'))
     b.append(_circ(cx + 30, cy - 20, 5.5, '#e0a8a8'))
-    b.append(_txt(195, 242, '○ Ti (꼭짓점 8 · 중심 1) · ● O (윗면 2 · 밑면 2 · 내부 2)', 11.5, MUT))
-    return _redrawn(_svg(470, 256, ''.join(b)), '단위세포 (루틸형)')
+    b.append(_txt(195, 266, '○ Ti (꼭짓점 8 · 중심 1) · ● O (윗면 2 · 밑면 2 · 내부 2)', 11.5, MUT))
+    return _redrawn(_svg(470, 280, ''.join(b)), '단위세포 (루틸형)')
 
 
 def fig_osmosis_u():
     b = []
     b.append('<path d="M60 40 v150 h90 v-150" fill="none" stroke="%s" stroke-width="2"/>' % INK)
     b.append('<path d="M180 40 v150 h90 v-150" fill="none" stroke="%s" stroke-width="2"/>' % INK)
+    b.append('<rect x="150" y="150" width="15" height="40" fill="#cfe3ff" opacity="0.8"/>')
+    b.append('<rect x="165" y="150" width="15" height="40" fill="#bcd8cf" opacity="0.8"/>')
     b.append('<rect x="150" y="150" width="30" height="40" fill="none" stroke="%s" stroke-width="2"/>' % INK)
     b.append(_line(165, 148, 165, 192, RED, 2.4, '5,3'))
     b.append(_txt(165, 210, '반투막', 11.5, RED))
@@ -671,13 +681,8 @@ def fig_first_order():
             pts.append((ox + t / 5.0 * 370, oy - c0 * math.exp(-0.9 * t) * 140))
         b.append(_poly(pts, col, 2.2))
         b.append(_txt(pts[2][0] + 8, pts[0][1] - 6, lab + ' ([A]₀=%.1f)' % c0, 11.5, col, 'start'))
-    th = 0.77
-    for c0 in (1.0, 0.5):
-        y = oy - (c0 / 2) * 140
-        x = ox + th / 5.0 * 370
-        b.append(_line(ox, y, x, y, MUT, 1, '3,3'))
-        b.append(_line(x, y, x, oy, MUT, 1, '3,3'))
-    b.append(_txt(ox + th / 5.0 * 370, oy + 15, 't½', 11.5, MUT))
+    # ⚠ t½ 보조선을 긋지 않는다 — 「초기 농도가 달라도 반감기가 같다」 는
+    #    관찰이 곧 이 문항의 정답 근거다. 그림이 그 관찰을 대신해 주면 안 된다.
     return _redrawn(_svg(460, 212, ''.join(b)), '두 실험의 시간에 따른 [A]')
 
 

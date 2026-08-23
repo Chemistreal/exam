@@ -53,26 +53,50 @@ SEAL = os.path.join(ROOT, 'tools', 'verify_seal.json')
 
 # 위에서 아래로 갈수록 덜 본 것이다.
 TIERS = ['verified_long_form', 'key_verified',
-         'explained_from_problem_pdf', 'answer_key_and_concept_only']
-# 이 둘이 "아직 사람이 풀이를 안 읽은" 자리다.
-THIN = {'explained_from_problem_pdf', 'answer_key_and_concept_only'}
+         'explained_from_problem_pdf', 'answer_key_and_concept_only',
+         'no_status']
+# 이들이 "아직 사람이 풀이를 안 읽은" 자리다.
+THIN = {'explained_from_problem_pdf', 'answer_key_and_concept_only', 'no_status'}
 
 LABEL = {
     'verified_long_form': '풀이까지 확인',
     'key_verified': '정답만 대조',
     'explained_from_problem_pdf': '문제지 해설을 옮김',
     'answer_key_and_concept_only': '정답·개념 한 줄',
+    'no_status': '상태 표시가 아예 없다',
 }
 
 RX = re.compile(r'"verificationStatus"\s*:\s*"(\w+)"')
 
 
 def scan():
-    """회차 → 단계별 문항 수."""
+    """회차 → 단계별 문항 수.
+
+    ⚠ 상태 표시가 **하나도 없는** 답지는 예전에 통째로 안 세었다(`if c:`).
+      단원별 여덟 회차 480문항이 그렇게 자 밖에 있었다 — 자의 존재 이유가
+      「새 회차가 해설 없이 들어오면 걸린다」 인데, 라벨 없이 들어오면
+      아예 안 보였다. exams.json 에 실린 회차는 라벨 없는 문항을
+      `no_status` 로 센다. (학생별 파이널 사본은 안 센다 — 원문 문항의
+      복사본이라 여기 넣으면 같은 문항을 두 번 세는 것이 된다.
+      tools/gen_student_final.py 가 일부러 상태를 벗겨 복사한다.)"""
+    members = set()
+    try:
+        members = {e['id'] for e in json.load(
+            open(os.path.join(ROOT, 'exams.json'), encoding='utf-8'))}
+    except (OSError, ValueError):
+        pass
     out = {}
     for path in sorted(glob.glob(os.path.join(ROOT, 'answers', '*.json'))):
         name = os.path.basename(path)[:-5]
         c = collections.Counter(RX.findall(open(path, encoding='utf-8').read()))
+        if name in members:
+            try:
+                nq = len(json.load(open(path, encoding='utf-8')).get('questions') or {})
+            except ValueError:
+                nq = 0
+            bare = nq - sum(c.values())
+            if bare > 0:
+                c['no_status'] = bare
         if c:
             out[name] = dict(c)
     return out

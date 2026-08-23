@@ -29,11 +29,21 @@
 """
 from __future__ import annotations
 
-import json, sys
+import hashlib, json, re, sys, unicodedata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'retry-pool.json'
+
+# 단원별 회차가 화올에서 빌려 온 문항 — 풀에는 **같은 문제가 두 번** 실린다
+# (kch1u1 55번 == hwol-2012 44번). 재도전 10제가 둘 다 뽑으면 같은 문제를
+# 두 번 주고, 방금 kch1u1 을 낸 학생에게 hwol 쪽 쌍둥이를 '새 문항' 으로
+# 준다. 출처 문구로 짝을 묶는다.
+SRC = re.compile(r'화학올림피아드\s*(\d{4})년\s*(\d+)번')
+
+
+def _norm(s):
+    return re.sub(r'\s+', '', unicodedata.normalize('NFKC', str(s or '')))
 
 
 def all_correct(e):
@@ -50,7 +60,16 @@ def all_correct(e):
 
 def build():
     exams = json.loads((ROOT / 'exams.json').read_text(encoding='utf-8'))
+    ids = {e['id'] for e in exams}
+    # 또래 실측 정답률 — 공식 정답률이 없는 회차의 난이도 구멍을 메운다.
+    # 표본이 스물은 넘어야 잣대로 쓴다(성적표 MINP 와 같은 바닥).
+    try:
+        base = json.loads((ROOT / 'cohort' / 'baseline.json')
+                          .read_text(encoding='utf-8')).get('exams', {})
+    except (OSError, ValueError):
+        base = {}
     out = []
+    stems = {}          # 지문+보기 지문 해시 → 먼저 실린 문항의 (e, q)
     for e in exams:
         eid = e['id']
         ans = ROOT / 'answers' / ('%s.json' % eid)
@@ -90,6 +109,28 @@ def build():
             r = rate[i - 1] if i <= len(rate) else None
             if isinstance(r, (int, float)) and r:
                 row['r'] = int(r)
+            else:
+                # 공식 정답률이 없으면 또래 실측(맞힌 수/응시 수)으로 메운다.
+                b = base.get(eid) or {}
+                qc, n = b.get('qc') or [], b.get('n') or 0
+                if n >= 20 and i <= len(qc) and isinstance(qc[i - 1], (int, float)):
+                    row['r'] = max(1, min(99, round(qc[i - 1] / n * 100)))
+            # ── 쌍둥이 묶기 ──────────────────────────────────────────
+            # ① 출처 문구가 저장소에 있는 화올 회차를 가리키면 그 짝으로.
+            q = qs.get(str(i)) or {}
+            m = SRC.search(str(q.get('sourceSolution') or '')) if isinstance(q, dict) else None
+            if m:
+                sid = 'hwol-%s' % m.group(1)
+                if sid in ids and sid != eid:
+                    row['g'] = '%s:%d' % (sid, int(m.group(2)))
+            # ② 출처 표기가 없어도 지문·보기가 글자까지 같으면 같은 문제다.
+            if 'g' not in row and isinstance(q, dict):
+                sig = _norm(q.get('stem')) + '|' + _norm(q.get('choices'))
+                if len(sig) > 40:
+                    h = hashlib.md5(sig.encode()).hexdigest()
+                    first = stems.setdefault(h, (eid, i))
+                    if first != (eid, i) and first[0] != eid:
+                        row['g'] = '%s:%d' % first
             out.append(row)
     return {
         'schemaVersion': 1,
@@ -112,8 +153,9 @@ def main():
             return 1
         n = len(made['q'])
         r = sum(1 for x in made['q'] if 'r' in x)
-        print('PASS 재도전 풀 %d문항 (공식 정답률 있는 것 %d) · %.0fKB'
-              % (n, r, len(txt) / 1024))
+        g = sum(1 for x in made['q'] if 'g' in x)
+        print('PASS 재도전 풀 %d문항 (정답률 있는 것 %d · 쌍둥이 표시 %d) · %.0fKB'
+              % (n, r, g, len(txt) / 1024))
         return 0
     if '--write' in argv:
         OUT.write_text(txt, encoding='utf-8')

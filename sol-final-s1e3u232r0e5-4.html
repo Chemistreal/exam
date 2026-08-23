@@ -25,11 +25,24 @@ th{background:#f1eee7;font-weight:700}
 .area{font-size:12.5px;color:var(--ink2);background:#f1eee7;border-radius:99px;padding:2px 9px}
 .ans{margin-left:auto;font-weight:700;color:var(--ms)}
 .sol{font-size:14.5px}
+/* 해설 본문이 실제로 입는 옷 — answers/*.json 의 explanationHtml 이
+   <h4>·.step·.k(정답 근거)·.x(오답 표시) 를 쓰는데 여기 옷이 없으면
+   해설지에서만 맨몸으로 나간다(final.html 은 제 옷이 따로 있다). */
+.sol h4{margin:12px 0 5px;color:var(--teal);font-size:13.5px;letter-spacing:.02em}
+.sol p.step{margin:6px 0;white-space:pre-wrap}
+.sol .k{color:var(--teal);font-weight:700}
+.sol .x{color:var(--ms);font-weight:700}
 .tip{margin-top:9px;padding:9px 11px;border-left:3px solid var(--gold);background:#faf7f1;
  font-size:13.5px;color:var(--ink2)}
 .rev{margin-top:9px;padding:9px 11px;border-left:3px solid var(--ms);background:#fdf3ef;
  font-size:13px;color:#8a3a1d}
-@media print{body{background:#fff}.q{break-inside:avoid}}
+/* 정답표 → 그 문항 해설로 건너뛰는 길. 표가 세로 2,000px 를 넘는 회차가
+   많아 표에서 해설까지 손가락으로 미는 거리가 너무 멀었다. */
+td a.jump{color:var(--teal);text-decoration:none;font-weight:700}
+td a.jump:hover{text-decoration:underline}
+.q{scroll-margin-top:14px}
+.q:target{border-color:var(--teal);box-shadow:0 0 0 2px rgba(14,90,76,.18)}
+@media print{body{background:#fff}.q{break-inside:avoid}.warn{display:none}}
 
 .sol-part{margin:13px 0}.sol-part h4{margin:0 0 5px;color:var(--teal);font-size:13.5px;letter-spacing:.02em}
 .sol-part p{margin:5px 0;white-space:pre-wrap}
@@ -53,72 +66,72 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="sub">문항별 정답 · 영역 · 개념 · 사고과정 해설 · 10문항</div>
 <div class="sub" style="margin-top:6px">문제 지문은 문제지(PDF)에 있습니다 — 성적표 화면에서 함께 내려받을 수 있습니다.</div><a class="back" href="final.html">‹ 파이널로</a></header>
 <main><h3>정답 · 영역 · 개념</h3><table><thead><tr><th scope="col">문항</th><th scope="col">정답</th><th scope="col">영역</th><th scope="col">개념(유형)</th></tr></thead><tbody>
-<tr><td>1</td><td>①</td><td>용해도</td><td>용해도</td></tr>
-<tr><td>2</td><td>②</td><td>평형상수</td><td>평형상수</td></tr>
-<tr><td>3</td><td>③</td><td>화학평형</td><td>화학평형</td></tr>
-<tr><td>4</td><td>④</td><td>화학평형</td><td>화학평형</td></tr>
-<tr><td>5</td><td>①</td><td>깁스자유에너지</td><td>깁스자유에너지</td></tr>
-<tr><td>6</td><td>③</td><td>열화학</td><td>열화학</td></tr>
-<tr><td>7</td><td>①</td><td>열화학</td><td>열화학</td></tr>
-<tr><td>8</td><td>④</td><td>엔탈피</td><td>엔탈피</td></tr>
-<tr><td>9</td><td>④</td><td>산화환원</td><td>산화환원</td></tr>
-<tr><td>10</td><td>③</td><td>계수맞추기</td><td>계수맞추기</td></tr>
+<tr><td><a class="jump" href="#q1">1</a></td><td>①</td><td>용해도</td><td>용해도</td></tr>
+<tr><td><a class="jump" href="#q2">2</a></td><td>②</td><td>평형상수</td><td>평형상수</td></tr>
+<tr><td><a class="jump" href="#q3">3</a></td><td>③</td><td>화학평형</td><td>화학평형</td></tr>
+<tr><td><a class="jump" href="#q4">4</a></td><td>④</td><td>화학평형</td><td>화학평형</td></tr>
+<tr><td><a class="jump" href="#q5">5</a></td><td>①</td><td>깁스자유에너지</td><td>깁스자유에너지</td></tr>
+<tr><td><a class="jump" href="#q6">6</a></td><td>③</td><td>열화학</td><td>열화학</td></tr>
+<tr><td><a class="jump" href="#q7">7</a></td><td>①</td><td>열화학</td><td>열화학</td></tr>
+<tr><td><a class="jump" href="#q8">8</a></td><td>④</td><td>엔탈피</td><td>엔탈피</td></tr>
+<tr><td><a class="jump" href="#q9">9</a></td><td>④</td><td>산화환원</td><td>산화환원</td></tr>
+<tr><td><a class="jump" href="#q10">10</a></td><td>③</td><td>계수맞추기</td><td>계수맞추기</td></tr>
 </tbody></table>
 <h3>문항별 사고과정</h3>
-<div class="q"><div class="qh"><span class="qno">문제 1</span><span class="area">용해도</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">즉시 재도전 용해도 · 용해도 ← KMChC 2025 제2차 · 일반 22번 용해도 · 난이도 재도전 퍼센트 농도(질량 기준)를 몰 농도(부피 기준)로 바꾸려면 밀도를 다리로 삼아 '용액 1 L' 를 기준으로 세워 계산하면헷갈리지 않는다.</p>
-<p class="step">① 용액 1 L 의 질량 1000 mL × 0.900 g/mL = 900 g ② 그 안에 든 NH₃ 의 질량 900 g × 0.280= 252 g ③ NH₃ 의 몰수 252 g ÷ 17.0 g/mol = 14.82 mol ④ 용액 1 L 에 들어 있으므로 몰 농도는 14.82 mol/L≈ 14.8 M 한 줄로 쓰면 M = (1000 × 밀도 × 퍼센트/100) ÷ 분자량 = (1000 × 0.900 × 0.280) ÷ 17.0 = 252÷ 17.0 = 14.8 M 이다.</p>
+<div class="q" id="q1"><div class="qh"><span class="qno">문제 1</span><span class="area">용해도</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">즉시 재도전 용해도 · 용해도 ← KMChC 2025 제2차 · 일반 22번 용해도 · 난이도 재도전 퍼센트 농도(질량 기준)를 몰 농도(부피 기준)로 바꾸려면 밀도를 다리로 삼아 '용액 1 L' 를 기준으로 세워 계산하면헷갈리지 않는다.</p>
+<p class="step">① 용액 1 L 의 질량 1000 mL × 0.900 g/mL = 900 g ② 그 안에 든 NH<sub>3</sub> 의 질량 900 g × 0.280= 252 g ③ NH<sub>3</sub> 의 몰수 252 g ÷ 17.0 g/mol = 14.82 mol ④ 용액 1 L 에 들어 있으므로 몰 농도는 14.82 mol/L≈ 14.8 M 한 줄로 쓰면 M = (1000 × 밀도 × 퍼센트/100) ÷ 분자량 = (1000 × 0.900 × 0.280) ÷ 17.0 = 252÷ 17.0 = 14.8 M 이다.</p>
 <p class="step">(실제 28 % 암모니아수의 몰 농도도 약 14.8 M 로 알려져 있어 계산값과 맞는다.) 오개념 퍼센트 농도는 용액의 '질량' 기준이고 몰 농도는 용액의 '부피' 기준이므로, 두 농도를 잇는 다리는 반드시 밀도이다.</p>
 <p class="step">밀도가 1 g/mL 가 아닌 용액에서 밀도를 빠뜨리면 값이 크게 틀어진다.</p>
 <p class="step">그때 왜 틀렸나 몰수를 그대로 농도로 씀.</p>
 <p class="step">부피가 0.5 L 라 두 배로 진해진다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 2</span><span class="area">평형상수</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">즉시 재도전 화학평형 · 평형상수 ← 기출동형 1회 46번 평형상수 · 난이도 재도전 B가 1.00 mol 생겼으므로 반응한 A는 1.00 × (1/2) = 0.50 mol.</p>
+<div class="q" id="q2"><div class="qh"><span class="qno">문제 2</span><span class="area">평형상수</span><span class="ans">정답 ②</span></div><div class="sol"><p class="step">즉시 재도전 화학평형 · 평형상수 ← 기출동형 1회 46번 평형상수 · 난이도 재도전 B가 1.00 mol 생겼으므로 반응한 A는 1.00 × (1/2) = 0.50 mol.</p>
 <p class="step">평형에서 A = 2.00 - 0.50 = 1.50 mol.</p>
 <p class="step">부피 5.00L로 나누면 [A] = 0.300 mol/L, [B] = 0.200 mol/L.</p>
-<p class="step">Kc = [B]²/[A] = (0.200)² ÷ 0.300 = 0.0400 ÷ 0.300 =0.133.</p>
+<p class="step">Kc = [B]<sup>2</sup>/[A] = (0.200)<sup>2</sup> ÷ 0.300 = 0.0400 ÷ 0.300 =0.133.</p>
 <p class="step">오개념 몰수를 그대로 평형 상수에 대입하는 것, 반응한 A를 B의 몰수와 같다고 보는 것, 그리고 계수 2를 지수로 반영하지 않는 것.</p>
 <p class="step">그때 왜 틀렸나 몰수만으로 Q 를 셈함.</p>
 <p class="step">전체 몰수로 나눠 부분압으로 고친 뒤 계수를 지수로 올려야 한다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 3</span><span class="area">화학평형</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">즉시 재도전 화학평형 · 용해도곱상수 ← 기출동형 1회 54번 용해도곱상수 · 난이도 재도전 Ksp = [M²⁺][X⁻]².</p>
-<p class="step">0.10 mol/L NaX가 있으므로 [X⁻] ≈ 0.10 mol/L이고 [M²⁺] = s이다.</p>
-<p class="step">s × (0.10)² = 4.0 ×10⁻¹² → s = 4.0 × 10⁻¹² ÷ 1.0 × 10⁻² = 4.0 × 10⁻¹⁰ mol/L.</p>
-<p class="step">참고로 순수한 물에서는 Ksp = s(2s)² = 4s³ = 4.0× 10⁻¹² → s = 1.0 × 10⁻⁴ mol/L이므로, 공통 이온이 있으면 용해도가 약 2.5 × 10⁵배 줄어든다.</p>
-<p class="step">오개념 공통 이온 효과를 무시하고 순수한 물에서의 용해도를 그대로 답하거나, 공통 이온이 있을 때도 4s³ 형태의인자 4를 그대로 남겨 두는 것.</p>
+<div class="q" id="q3"><div class="qh"><span class="qno">문제 3</span><span class="area">화학평형</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">즉시 재도전 화학평형 · 용해도곱상수 ← 기출동형 1회 54번 용해도곱상수 · 난이도 재도전 Ksp = [M<sup>2+</sup>][X<sup>-</sup>]<sup>2</sup>.</p>
+<p class="step">0.10 mol/L NaX가 있으므로 [X<sup>-</sup>] ≈ 0.10 mol/L이고 [M<sup>2+</sup>] = s이다.</p>
+<p class="step">s × (0.10)<sup>2</sup> = 4.0 ×10<sup>-12</sup> → s = 4.0 × 10<sup>-12</sup> ÷ 1.0 × 10<sup>-2</sup> = 4.0 × 10<sup>-10</sup> mol/L.</p>
+<p class="step">참고로 순수한 물에서는 Ksp = s(2s)<sup>2</sup> = 4s<sup>3</sup> = 4.0× 10<sup>-12</sup> → s = 1.0 × 10<sup>-4</sup> mol/L이므로, 공통 이온이 있으면 용해도가 약 2.5 × 10<sup>5</sup>배 줄어든다.</p>
+<p class="step">오개념 공통 이온 효과를 무시하고 순수한 물에서의 용해도를 그대로 답하거나, 공통 이온이 있을 때도 4s<sup>3</sup> 형태의인자 4를 그대로 남겨 두는 것.</p>
 <p class="step">그때 왜 틀렸나 Ksp 식에 이온의 계수를 지수로 올리지 않고, 앞의 계수 2 도 곱하지 않음.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 4</span><span class="area">화학평형</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">즉시 재도전 화학평형 · 평형이동 ← 기출동형 4회 44번 평형이동 · 난이도 재도전 (가) 부피가 일정한 채 Ar만 넣으면 전체 압력은 올라가지만 SO₂·O₂·SO₃의 몰수와 부피가 그대로여서 각각의 분압(농도)이 전혀 변하지 않는다.</p>
+<div class="q" id="q4"><div class="qh"><span class="qno">문제 4</span><span class="area">화학평형</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">즉시 재도전 화학평형 · 평형이동 ← 기출동형 4회 44번 평형이동 · 난이도 재도전 (가) 부피가 일정한 채 Ar만 넣으면 전체 압력은 올라가지만 SO<sub>2</sub>·O<sub>2</sub>·SO<sub>3</sub>의 몰수와 부피가 그대로여서 각각의 분압(농도)이 전혀 변하지 않는다.</p>
 <p class="step">Q = K가 유지되므로 평형은 이동하지 않는다.</p>
 <p class="step">→ 증가하지 않음 (나) 전체 압력을 일정하게 유지하며 Ar을 넣으려면 용기가 팽창해야 한다.</p>
 <p class="step">부피가 커지면 반응에 참여하는 기체들의 분압이 모두 낮아지고, 평형은 기체 몰수가 많은 쪽(왼쪽, 2 + 1 = 3몰 쪽)으로 이동한다.</p>
-<p class="step">→ SO₃ 감소 (다) 정반응이 발열(ΔH &lt; 0)이므로 온도를 낮추면 열을 내놓는 정반응 쪽으로 이동한다.</p>
-<p class="step">→ SO₃ 증가 (라) 부피를 절반으로 줄이면 모든 분압이 2배가 되고, 평형은 기체 몰수가 적은 쪽(오른쪽, 2몰 쪽)으로 이동한다.</p>
-<p class="step">→ SO₃ 증가 따라서 (다)와 (라)이다.</p>
-<p class="step">(검산:Kp = P(SO₃)² / [P(SO₂)²·P(O₂)]에서 압축으로 모든 분압이 2배가 되면 분자는 2² = 4배, 분모는 2² × 2 = 8배가 되므로 Q는 처음의 4/8 = 1/2배, 즉 Q = K/2 &lt; K가 되어 정반응이 진행한다.) 오개념 '압력을 올리면 몰수가 적은 쪽으로 이동한다'를 통째로 외워, 비활성 기체를 넣어 전체 압력만 올라간 경우와 부피를 줄여 분압이 올라간 경우를 구별하지 못한다.</p>
-<p class="step">그때 왜 틀렸나 OH⁻ 가 반응식에 안 보이니 속도식에도 없다고 여김.</p>
+<p class="step">→ SO<sub>3</sub> 감소 (다) 정반응이 발열(ΔH &lt; 0)이므로 온도를 낮추면 열을 내놓는 정반응 쪽으로 이동한다.</p>
+<p class="step">→ SO<sub>3</sub> 증가 (라) 부피를 절반으로 줄이면 모든 분압이 2배가 되고, 평형은 기체 몰수가 적은 쪽(오른쪽, 2몰 쪽)으로 이동한다.</p>
+<p class="step">→ SO<sub>3</sub> 증가 따라서 (다)와 (라)이다.</p>
+<p class="step">(검산:Kp = P(SO<sub>3</sub>)<sup>2</sup> / [P(SO<sub>2</sub>)<sup>2</sup>·P(O<sub>2</sub>)]에서 압축으로 모든 분압이 2배가 되면 분자는 2<sup>2</sup> = 4배, 분모는 2<sup>2</sup> × 2 = 8배가 되므로 Q는 처음의 4/8 = 1/2배, 즉 Q = K/2 &lt; K가 되어 정반응이 진행한다.) 오개념 '압력을 올리면 몰수가 적은 쪽으로 이동한다'를 통째로 외워, 비활성 기체를 넣어 전체 압력만 올라간 경우와 부피를 줄여 분압이 올라간 경우를 구별하지 못한다.</p>
+<p class="step">그때 왜 틀렸나 OH<sup>-</sup> 가 반응식에 안 보이니 속도식에도 없다고 여김.</p>
 <p class="step">평형으로 끼어드는 화학종은 음의 차수로 나타난다.</p>
 <p class="step">56</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 5</span><span class="area">깁스자유에너지</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">즉시 재도전 깁스자유에너지 · 엔탈피엔트로피부호 ← KMChC 2025 제2차 · 일반 37번 엔탈피엔트로피부호 · 난이도 재도전 구하려는 반응의 2배인 N₂(g) + 2O₂(g) → 2NO₂(g) 를 먼저 만든다.</p>
-<p class="step">(가) 그대로: N₂ + O₂ → 2NO ΔH = +180 kJ(나)를 뒤집어서: 2NO + O₂ → 2NO₂ ΔH = -114 kJ 두 식을 더하면 양변의 2NO 가 지워져 N₂ + 2O₂ → 2NO₂ ΔH= +180 + (-114) = +66 kJ 구하려는 식은 이것의 ½ 이므로 ΔH = (+66 kJ) ÷ 2 = +33 kJ.</p>
-<p class="step">이 값은 NO₂ 의 표준 생성엔탈피 +33.2 kJ/mol 과 잘 맞는다.</p>
+<div class="q" id="q5"><div class="qh"><span class="qno">문제 5</span><span class="area">깁스자유에너지</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">즉시 재도전 깁스자유에너지 · 엔탈피엔트로피부호 ← KMChC 2025 제2차 · 일반 37번 엔탈피엔트로피부호 · 난이도 재도전 구하려는 반응의 2배인 N<sub>2</sub>(g) + 2O<sub>2</sub>(g) → 2NO<sub>2</sub>(g) 를 먼저 만든다.</p>
+<p class="step">(가) 그대로: N<sub>2</sub> + O<sub>2</sub> → 2NO ΔH = +180 kJ(나)를 뒤집어서: 2NO + O<sub>2</sub> → 2NO<sub>2</sub> ΔH = -114 kJ 두 식을 더하면 양변의 2NO 가 지워져 N<sub>2</sub> + 2O<sub>2</sub> → 2NO<sub>2</sub> ΔH= +180 + (-114) = +66 kJ 구하려는 식은 이것의 ½ 이므로 ΔH = (+66 kJ) ÷ 2 = +33 kJ.</p>
+<p class="step">이 값은 NO<sub>2</sub> 의 표준 생성엔탈피 +33.2 kJ/mol 과 잘 맞는다.</p>
 <p class="step">오개념 헤스 법칙을 쓸 때 반응식을 뒤집으면 ΔH 의 부호가 바뀌고, 계수에 배수를 곱하면 ΔH 에도 같은 배수를 곱해야 한다.</p>
 <p class="step">그때 왜 틀렸나 연소는 무질서도가 준다고 여김.</p>
 <p class="step">액체 연료가 기체 생성물로 바뀌면 오히려 는다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 6</span><span class="area">열화학</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">즉시 재도전 열화학 · 발열반응 ← 기출동형 1회 15번 발열반응 · 난이도 재도전 ΔH ≈ (끊어지는 결합 에너지의 합) - (만들어지는 결합 에너지의 합) = (436 + 243) - (2 × 431) = 679 - 862 =-183 kJ.</p>
+<div class="q" id="q6"><div class="qh"><span class="qno">문제 6</span><span class="area">열화학</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">즉시 재도전 열화학 · 발열반응 ← 기출동형 1회 15번 발열반응 · 난이도 재도전 ΔH ≈ (끊어지는 결합 에너지의 합) - (만들어지는 결합 에너지의 합) = (436 + 243) - (2 × 431) = 679 - 862 =-183 kJ.</p>
 <p class="step">값이 음수이므로 생성물의 결합이 더 안정하고 열이 방출되는 발열 반응이다(실험값 -184.6 kJ와 잘 맞는다).</p>
 <p class="step">오개념 결합 에너지로 ΔH를 구할 때 (생성물 - 반응물)로 뺄셈 방향을 뒤집거나, HCl의 계수 2를 곱하지 않는 것.그때 왜 틀렸나 분자가 크면 연소열이 크다고 여김.</p>
 <p class="step">이미 산화된(산소를 품은) 분자일수록 더 탈 여지가 적어 연소열이 작다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 7</span><span class="area">열화학</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">즉시 재도전 열화학 · 반응의자발성 ← 기출동형 1회 32번 반응의자발성 · 난이도 재도전 ΔG° = ΔH° - TΔS° &lt; 0 조건에서 T &gt; ΔH°/ΔS°.</p>
-<p class="step">T &gt; (176.0 × 10³ J/mol) ÷ (320.0 J/(mol·K)) = 550.0 K.</p>
-<p class="step">섭씨로바꾸면 550.0 - 273 = 277 °C.</p>
+<div class="q" id="q7"><div class="qh"><span class="qno">문제 7</span><span class="area">열화학</span><span class="ans">정답 ①</span></div><div class="sol"><p class="step">즉시 재도전 열화학 · 반응의자발성 ← 기출동형 1회 32번 반응의자발성 · 난이도 재도전 ΔG° = ΔH° - TΔS° &lt; 0 조건에서 T &gt; ΔH°/ΔS°.</p>
+<p class="step">T &gt; (176.0 × 10<sup>3</sup> J/mol) ÷ (320.0 J/(mol·K)) = 550.0</p>
+<p class="step">K. 섭씨로바꾸면 550.0 - 273 = 277 °C.</p>
 <p class="step">오개념 ΔH°와 ΔS°가 모두 양수인 반응을 '항상 자발적'으로 보거나, 계산해서 얻은 절대 온도를 그대로 섭씨 온도로읽는 것.</p>
 <p class="step">그때 왜 틀렸나 자발성을 무질서도만으로 판단.</p>
 <p class="step">ΔH 와 ΔS 가 같은 부호면 온도가 어느 쪽이 이길지 정한다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 8</span><span class="area">엔탈피</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">즉시 재도전 열화학 · 엔탈피 ← 기출동형 4회 40번 엔탈피 · 난이도 재도전 공명 안정화 에너지는 '예상보다 얼마나 더 안정한가'이다.</p>
+<div class="q" id="q8"><div class="qh"><span class="qno">문제 8</span><span class="area">엔탈피</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">즉시 재도전 열화학 · 엔탈피 ← 기출동형 4회 40번 엔탈피 · 난이도 재도전 공명 안정화 에너지는 '예상보다 얼마나 더 안정한가'이다.</p>
 <p class="step">예상 수소화 엔탈피: -120 × 3 = -360 kJ.</p>
 <p class="step">실제 수소화 엔탈피: -208 kJ.</p>
 <p class="step">실제로 내놓는 열이 152 kJ 적다는 것은, 출발 물질인 벤젠이 예상보다 그만큼 낮은 에너지 상태에있었다는 뜻이다.</p>
@@ -126,7 +139,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">→ <b>④</b></p>
 <div class="tip">문헌에서 말하는 벤젠의 공명 에너지약 150 kJ/mol과 잘 맞는다. 벤젠이 이중 결합 3개짜리 분자처럼 반응하지 않는 까닭이 여기에 있다. 오개념 공명 안정화 에너지는 두 엔탈피의 차이다. 어느 하나를 그대로 답으로 쓰거나 두 값을 더하면 안 된다. 그때 왜 틀렸나 질량수만 보고 붕괴 종류를 정함. 원자번호가 맞지 않으면 다른 붕괴가 함께 일어난 것이다.</div></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 9</span><span class="area">산화환원</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">즉시 재도전 산화환원 · 네른스트식 ← KMChC 2025 제2차 · 일반 50번 네른스트식 · 난이도 재도전 두 장치의 공통점과 차이점을 나누어 보면 정리된다.</p>
+<div class="q" id="q9"><div class="qh"><span class="qno">문제 9</span><span class="area">산화환원</span><span class="ans">정답 ④</span></div><div class="sol"><p class="step">즉시 재도전 산화환원 · 네른스트식 ← KMChC 2025 제2차 · 일반 50번 네른스트식 · 난이도 재도전 두 장치의 공통점과 차이점을 나누어 보면 정리된다.</p>
 <p class="step">[공통점] 산화가 일어나는 전극을 산화 전극, 환원이 일어나는전극을 환원 전극이라 한다.</p>
 <p class="step">전자는 산화 전극에서 만들어져 외부 회로를 지나 환원 전극에서 소비되므로, 두 장치모두 전자의 흐름은 '산화 전극 → 환원 전극' 이다.</p>
 <p class="step">전자가 환원 전극 쪽으로 몰리면 그 부근에서 음전하가 남으므로용액 속 양이온은 환원 전극 쪽으로, 음이온은 산화 전극 쪽으로 끌려간다.</p>
@@ -149,15 +162,15 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p class="step">그때 왜 틀렸나 표준 전위만 답으로 씀.</p>
 <p class="step">농도가 표준이 아니면 네른스트 보정을 해야 한다.</p></div>
 </div>
-<div class="q"><div class="qh"><span class="qno">문제 10</span><span class="area">계수맞추기</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">즉시 재도전 산화환원 · 계수맞추기 ← 기출동형 1회 4번 계수맞추기 · 난이도 재도전 환원 반쪽: Cr₂O₇²⁻ + 14H⁺ + 6e⁻ → 2Cr³⁺ + 7H₂O (Cr이 +6 → +3, Cr 2개이므로 6e⁻).</p>
-<p class="step">산화 반쪽: H₂S → S +2H⁺ + 2e⁻ (S가 -2 → 0).</p>
-<p class="step">전자를 6개로 맞추려면 산화 반쪽에 3을 곱한다: 3H₂S → 3S + 6H⁺ + 6e⁻.</p>
-<p class="step">두 식을 더하면 Cr₂O₇²⁻ + 14H⁺ + 3H₂S → 2Cr³⁺ + 7H₂O + 3S + 6H⁺ 이고, 양쪽의 H⁺ 6개를 상쇄하면 Cr₂O₇²⁻ + 3H₂S +8H⁺ → 2Cr³⁺ + 3S + 7H₂O.</p>
+<div class="q" id="q10"><div class="qh"><span class="qno">문제 10</span><span class="area">계수맞추기</span><span class="ans">정답 ③</span></div><div class="sol"><p class="step">즉시 재도전 산화환원 · 계수맞추기 ← 기출동형 1회 4번 계수맞추기 · 난이도 재도전 환원 반쪽: Cr<sub>2</sub>O<sub>7</sub><sup>2-</sup> + 14H<sup>+</sup> + 6e<sup>-</sup> → 2Cr<sup>3+</sup> + 7H<sub>2</sub>O (Cr이 +6 → +3, Cr 2개이므로 6e<sup>-</sup>).</p>
+<p class="step">산화 반쪽: H<sub>2</sub>S → S +2H<sup>+</sup> + 2e<sup>-</sup> (S가 -2 → 0).</p>
+<p class="step">전자를 6개로 맞추려면 산화 반쪽에 3을 곱한다: 3H<sub>2</sub>S → 3S + 6H<sup>+</sup> + 6e<sup>-</sup>.</p>
+<p class="step">두 식을 더하면 Cr<sub>2</sub>O<sub>7</sub><sup>2-</sup> + 14H<sup>+</sup> + 3H<sub>2</sub>S → 2Cr<sup>3+</sup> + 7H<sub>2</sub>O + 3S + 6H<sup>+</sup> 이고, 양쪽의 H<sup>+</sup> 6개를 상쇄하면 Cr<sub>2</sub>O<sub>7</sub><sup>2-</sup> + 3H<sub>2</sub>S +8H<sup>+</sup> → 2Cr<sup>3+</sup> + 3S + 7H<sub>2</sub>O.</p>
 <p class="step">검산: 전하 -2 + 8 = +6 = 2(+3), H 6 + 8 = 14 = 7×2, O 7 = 7.</p>
-<p class="step">따라서 H⁺의 계수는 8이다.</p>
-<p class="step">오개념 환원 반쪽에 쓴 H⁺ 14개를 그대로 최종 계수로 쓰거나, 산화 반쪽에서 생기는 H⁺와 상쇄하는 과정을 빠뜨리는 것.</p>
-<p class="step">그때 왜 틀렸나 염기성 조건에서도 H⁺ 를 그대로 남겨 둠.</p>
-<p class="step">산성에서 맞춘 뒤 양쪽에 OH⁻ 를 더해 H⁺ 를 물로 바꿔야한다.</p>
+<p class="step">따라서 H<sup>+</sup>의 계수는 8이다.</p>
+<p class="step">오개념 환원 반쪽에 쓴 H<sup>+</sup> 14개를 그대로 최종 계수로 쓰거나, 산화 반쪽에서 생기는 H<sup>+</sup>와 상쇄하는 과정을 빠뜨리는 것.</p>
+<p class="step">그때 왜 틀렸나 염기성 조건에서도 H<sup>+</sup> 를 그대로 남겨 둠.</p>
+<p class="step">산성에서 맞춘 뒤 양쪽에 OH<sup>-</sup> 를 더해 H<sup>+</sup> 를 물로 바꿔야한다.</p>
 <p class="step">58</p></div>
 </div>
 <script data-lec-back>
