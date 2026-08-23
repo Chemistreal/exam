@@ -353,6 +353,7 @@ def _esc(s):
 
 
 def page_html(d, need, borrowed_as_img=False):
+    import legacy_figs
     body = []
     for q in d['q']:
         if q['n'] not in need:
@@ -376,10 +377,16 @@ def page_html(d, need, borrowed_as_img=False):
                 mark = '' if c[:1] in CIRCLED else (CIRCLED[i] + ' ' if i < 10 else '')
                 items.append('<li>%s%s</li>' % (mark, _esc(c)))
             ch = '<ul class="ch">%s</ul>' % ''.join(items)
+        # 그림이 소실된 문항 — 재작도가 있으면 그림을 심고, 없으면 남았다고 말한다.
+        fig = legacy_figs.FIGS.get((d['id'], q['n']))
         note = ''
-        if q['fig']:
-            note = ('<div class="note">이 문항은 원문에 그림·표가 있습니다. '
-                    '문제지에서 %d번을 함께 보세요.</div>' % q['n'])
+        if fig:
+            note = fig
+        elif q['fig'] and (d['id'], q['n']) not in legacy_figs.NOFIG:
+            why = legacy_figs.LEFT.get((d['id'], q['n']))
+            note = ('<div class="note">이 문항은 원문에 그림·표가 있습니다%s.</div>'
+                    % ((' — ' + why) if why else
+                       '. 문제지에서 %d번을 함께 보세요' % q['n']))
         body.append(
             '<section class="q" data-n="%d">'
             '<div class="qh"><span class="qn">문제 %02d</span>'
@@ -522,9 +529,12 @@ def write_one(eid, var, body, group, do_crops=True):
                 doc['questions'][k] = merged
     ap.write_text(json.dumps(doc, ensure_ascii=False, indent=1) + '\n',
                   encoding='utf-8')
+    import legacy_figs
     made = render(d) if do_crops else 0
     borrowed = sum(1 for q in d['q'] if q['borrow'])
-    figless = sum(1 for q in d['q'] if q['fig'] and not q['borrow'])
+    figless = sum(1 for q in d['q'] if q['fig'] and not q['borrow']
+                  and (d['id'], q['n']) not in legacy_figs.FIGS
+                  and (d['id'], q['n']) not in legacy_figs.NOFIG)
     print('  %-11s 빌림 %2d · 그림 %2d장 그림   그림이 빠진 문항 %d' %
           (eid, borrowed, made, figless))
     return d
@@ -554,10 +564,13 @@ def check():
             keys = [a.get(str(i), {}).get('answer') for i in range(1, 61)]
             if keys != want['key']:
                 bad.append('%s: 답지와 회차 정답이 어긋난다' % eid)
+        import legacy_figs
         for q in d['q']:
             if not (ROOT / 'crops' / eid / ('%d.png' % q['n'])).exists():
                 bad.append('%s %d번: 크롭이 없다' % (eid, q['n']))
-            if q['fig'] and not q['borrow']:
+            if (q['fig'] and not q['borrow']
+                    and (eid, q['n']) not in legacy_figs.FIGS
+                    and (eid, q['n']) not in legacy_figs.NOFIG):
                 figless += 1
     if _UNKNOWN:
         warn.append('영역 이름을 못 옮긴 것 %d가지: %s'
@@ -569,7 +582,7 @@ def check():
         return 1
     print('PASS 단원별 %d회차 · 480문항 — 정답이 두 곳에서 같고, 크롭이 다 있다' % len(EXAMS))
     if figless:
-        print('  ⓘ 원문에 그림·표가 있었는데 글로만 그린 문항 %d개 — 크롭에 그렇다고 적어 두었다'
+        print('  ⓘ 그림을 재작도하지 못하고 남긴 문항 %d개 — tools/legacy_figs.py 의 LEFT 에 까닭이 있다'
               % figless)
     for w in warn:
         print('  ⚠ ' + w)
