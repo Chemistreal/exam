@@ -19,7 +19,7 @@ T.COUNT = 4
 T.EXPECT_LEN = 2458
 T.THEME = '이온화에너지'
 T.TT = 15
-T.UNIT = 'kJ/mol'
+T.UNIT = 'I'
 T.BATCH_NOTE = 'T15 마감 — 미룬 각도 넷을 닫아 164 를 채운다.'
 
 SEQ = ('이웃한 두 값의 비(뒤 ÷ 앞)를 차례로 재어 다른 비들에 견주어 유독 크게 뛰는 '

@@ -29,7 +29,7 @@ T.COUNT = 10
 T.EXPECT_LEN = 2428
 T.THEME = '이온화에너지'
 T.TT = 15
-T.UNIT = 'kJ/mol'
+T.UNIT = 'I'
 T.BATCH_NOTE = 'T15 P14 — 부호와 순차값, 그리고 요인의 몫을 나눠 적을 수 있는지.'
 
 SEQ = ('이웃한 두 값의 비(뒤 ÷ 앞)를 차례로 재어 다른 비들에 견주어 유독 크게 뛰는 '

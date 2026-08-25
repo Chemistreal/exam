@@ -27,7 +27,7 @@ T.COUNT = 10
 T.EXPECT_LEN = 2418
 T.THEME = '이온화에너지'
 T.TT = 15
-T.UNIT = 'kJ/mol'
+T.UNIT = 'I'
 T.BATCH_NOTE = 'T15 P13 — 그림과 표가 말해 주는 것과 말하지 않는 것.'
 
 

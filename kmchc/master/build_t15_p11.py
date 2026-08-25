@@ -37,7 +37,7 @@ T.COUNT = 10
 T.EXPECT_LEN = 2398
 T.THEME = '이온화에너지'
 T.TT = 15
-T.UNIT = 'kJ/mol'
+T.UNIT = 'I'
 T.BATCH_NOTE = 'T15 P11 — 경향이 뒤집히는 두 자리와 그것을 떠받치는 안정한 배치.'
 
 

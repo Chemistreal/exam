@@ -27,7 +27,7 @@ T.COUNT = 10
 T.EXPECT_LEN = 2438
 T.THEME = '이온화에너지'
 T.TT = 15
-T.UNIT = 'kJ/mol'
+T.UNIT = 'I'
 T.BATCH_NOTE = 'T15 P15 — 판정의 세기와 범위: 어디까지 말할 수 있는지.'
 
 

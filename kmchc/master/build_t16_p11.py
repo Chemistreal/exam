@@ -29,8 +29,8 @@ T.START_ID = 'M02563'
 T.COUNT = 10
 T.EXPECT_LEN = 2562
 T.THEME = '화학결합'
-T.TT = 16
-T.UNIT = 'kJ/mol'
+T.TT = 17
+T.UNIT = 'I'
 T.BATCH_NOTE = 'T16 P11 — 섞이기 쉬운 두 층을 갈라 적기.'
 
 

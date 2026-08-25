@@ -23,8 +23,8 @@ T.START_ID = 'M02503'
 T.COUNT = 10
 T.EXPECT_LEN = 2502
 T.THEME = '화학결합'
-T.TT = 16
-T.UNIT = 'kJ/mol'
+T.TT = 17
+T.UNIT = 'I'
 T.BATCH_NOTE = 'T16 P5 — 규칙이 서는 자리와 셈이 서는 자리.'
 
 

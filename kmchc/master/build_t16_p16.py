@@ -25,8 +25,8 @@ T.START_ID = 'M02613'
 T.COUNT = 10
 T.EXPECT_LEN = 2612
 T.THEME = '화학결합'
-T.TT = 16
-T.UNIT = 'kJ/mol'
+T.TT = 17
+T.UNIT = 'I'
 T.BATCH_NOTE = 'T16 P16 — 골짜기와 그물과 축.'
 
 

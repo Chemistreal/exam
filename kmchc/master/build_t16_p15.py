@@ -24,8 +24,8 @@ T.START_ID = 'M02603'
 T.COUNT = 10
 T.EXPECT_LEN = 2602
 T.THEME = '화학결합'
-T.TT = 16
-T.UNIT = 'kJ/mol'
+T.TT = 17
+T.UNIT = 'I'
 T.BATCH_NOTE = 'T16 P15 — 이온과 금속, 세고 부르고 견주기.'
 
 

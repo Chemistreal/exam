@@ -24,8 +24,8 @@ T.START_ID = 'M02483'
 T.COUNT = 10
 T.EXPECT_LEN = 2482
 T.THEME = '화학결합'
-T.TT = 16
-T.UNIT = 'kJ/mol'
+T.TT = 17
+T.UNIT = 'I'
 T.BATCH_NOTE = 'T16 P3 — 붙드는 힘과 그 힘이 드러나는 자리.'
 
 

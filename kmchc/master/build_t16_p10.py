@@ -29,8 +29,8 @@ T.START_ID = 'M02553'
 T.COUNT = 10
 T.EXPECT_LEN = 2552
 T.THEME = '화학결합'
-T.TT = 16
-T.UNIT = 'kJ/mol'
+T.TT = 17
+T.UNIT = 'I'
 T.BATCH_NOTE = 'T16 P10 — 성질에서 결합을 되돌리기, 그 잣대와 한계.'
 
 
