@@ -39,6 +39,31 @@ def apply_choice(x, before, after):
     return hit
 
 
+MK = '①②③④'
+
+
+def apply_map(x, before, after):
+    """★'② 오답 문면: 되받이' 꼴★ — 은행의 solution 은 wmap 을 이렇게 이어 붙여 만든다.
+      초안에는 그런 줄이 없고 wmap 의 text·retort 로 흩어져 있으므로 갈라서 붙인다."""
+    if not (before[:1] in MK and ': ' in before and after[:1] in MK and ': ' in after):
+        return 0
+    bt, br = before[1:].split(': ', 1)
+    at, ar = after[1:].split(': ', 1)
+    for w in x['wmap']:
+        if w['text'] == bt.strip():
+            w['text'] = at.strip()
+            w['retort'] = ar.strip()
+            return 1
+    return 0
+
+
+def apply_head(x, before, after):
+    """★'[정답] ③ 정답 문면' 꼴★ — 정답 줄은 선지에서 자동으로 지어지므로 손댈 자리가 없다."""
+    if before.startswith('[정답]') and after.startswith('[정답]'):
+        return 2                                   # 2 = 선지 고침이 이미 덮는다
+    return 0
+
+
 def apply_sol(x, before, after):
     for fld in ('prose', 'diag', 'lead'):
         if before in x[fld]:
@@ -76,19 +101,36 @@ def main():
             continue
         x = by[mid]
         print('  %s 고친다 — %s' % (mid, r['reason'][:70]))
+        #  ★선지 고침은 해설의 인용까지 함께 바꾼다★ — 그래서 뒤따르는 해설 고침의 before 가
+        #  옛 선지 문면을 담고 있으면 이미 그 자리가 갈려 있어 빗나간다. 갈아 둔 짝을 기억해
+        #  before 에 먼저 대입한 뒤 다시 찾는다(그러면 남은 손질만 붙는다).
+        subs = []
         for e in r['edits']:
             f, b, a = e['field'], e['before'], e['after']
             if f == 'choices':
                 n = apply_choice(x, b, a)
+                if n:
+                    subs.append((b, a))
             elif f == 'solution':
-                n = apply_sol(x, b, a)
+                n = apply_map(x, b, a) or apply_head(x, b, a) or apply_sol(x, b, a)
+                if not n and subs:
+                    b2 = b
+                    for ob, nb in subs:
+                        b2 = b2.replace(ob, nb)
+                    if b2 != b:
+                        n = apply_map(x, b2, a) or apply_sol(x, b2, a)
+                        if n:
+                            print('     ↺ %-12s 선지 고침 뒤의 문면으로 다시 찾았다' % f)
             else:
                 fld = MAP.get(f, f)
                 n = 0
                 if b in x[fld]:
                     x[fld] = x[fld].replace(b, a)
                     n = 1
-            if n:
+            if n == 2:
+                ok += 1
+                print('     · %-12s 선지 고침이 덮는다 — %s' % (f, a[:44]))
+            elif n:
                 ok += 1
                 print('     ✓ %-12s %s' % (f, a[:56]))
             else:
