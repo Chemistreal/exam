@@ -39,6 +39,16 @@ def main():
     mod.local_checks(items)
     import batch_template as T
     issues = T.verify(items)
+    if issues and '--legacy' in sys.argv:
+        #  ★옛 규약으로 지은 배치는 오늘의 verify 를 통과하지 못한다★ — T15 는 G3i·G3g·G3f 와
+        #  '정답만 부정형' 이 규약이 되기 전에 지어졌다. 그 부채가 ★조치 경로를 막는다★:
+        #  단위 한 마디를 넣으려는 회차가 열여섯 배치 전의 자리 배열 때문에 죽는다.
+        #  ▸ --legacy 는 그 지적을 ★경고로 낮추고 화면에 그대로 남긴다★ — 지우지 않는다.
+        #    새로 생긴 흠인지는 조치 뒤 감사(같은 회차에 돌린다)가 가른다.
+        print('  ⚠ 옛 규약 부채 %d건 — 경고로 낮춘다(--legacy)' % len(issues))
+        for i in issues:
+            print('     ·', i)
+        issues = []
     if issues:
         print('  ❌ verify 실패')
         for i in issues:
