@@ -50,6 +50,12 @@ def smart_replace(seg, before, after):
     m = fold_re(before).search(seg)                    # 접힌 문자열
     if m:
         return seg[:m.start()] + after + seg[m.end():], True
+    #  ★해설의 '— ' 는 T.sol 이 붙이는 이음표다★ — 빌더의 prose 는 그 뒤부터 시작한다.
+    for lead in ('— ', '-- ', '– '):
+        if before.startswith(lead) and after.startswith(lead):
+            seg2, ok2 = smart_replace(seg, before[len(lead):], after[len(lead):])
+            if ok2 is not False:
+                return seg2, ok2
     a, b = NOTE.match(before), NOTE.match(after)        # 오답 단평 → 되받이만
     if a and b:
         ra, rb = a.group('ret'), b.group('ret')
