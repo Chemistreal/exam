@@ -16,6 +16,7 @@
     ⑪ wmap 의 문면이 선지와 같은가 · ⑫ 조사 앞 빈칸 · ⑬ ★ 기호
     ⑭ 트랙 하한(일반 ≥ 7) · ⑮ 쉬움 ≤ 3 · ⑯ 수치 선지 오름차순(G6)
     ⑰ 선지 글자 수 16~24 · ⑱ 선지가 온점으로 끝나지 않는가
+    ⑲ ★G3g 칸별 최빈값 조합이 정답만 남기지 않는가★ (M02968 이 이 자리에서 울었다)
 """
 import json
 import re
@@ -111,6 +112,22 @@ def main():
         for k, c in enumerate(cs):
             if c.rstrip().endswith('.'):
                 bad.append('%s 선지 %s 가 온점으로 끝난다 — 「%s」' % (i, MK[k], c))
+        #   ⑲ ★G3g★ — 선지를 빈칸으로 갈라 칸마다 최빈값을 고르고, 그 조합에 남는 것이
+        #   정답 하나뿐이면 뜻을 몰라도 정답이 짚힌다. T18P2 M02968 이 이 자리에서 울었다
+        #   (칸1 '결합각은' × 칸4 '107도이다' → ④만 남았다). 한 칸을 동률로 만들면 풀린다.
+        tk = [c.split() for c in cs]
+        if len(tk[0]) >= 2 and all(len(t) == len(tk[0]) for t in tk):
+            picks = []
+            for col in zip(*tk):
+                cc = Counter(col).most_common()
+                win = [v for v, n in cc if n == cc[0][1]]
+                picks.append(win[0] if len(win) == 1 else None)
+            if any(q is not None for q in picks):
+                surv = [k for k, t in enumerate(tk)
+                        if all(q is None or t[j] == q for j, q in enumerate(picks))]
+                if surv == [a]:
+                    bad.append('%s G3g 칸별 최빈값 조합이 정답만 남긴다 — %s'
+                               % (i, ' '.join(q or '·' for q in picks)))
         if all(NUM.match(c) for c in cs):
             head = [int(re.match(r'\s*[-−]?(\d+)', c).group(1)) for c in cs]
             if head != sorted(head):
