@@ -2,6 +2,7 @@
 """render_batch.py — 에이전트가 지은 초안(JSON)을 배치 빌더(.py)로 옮겨 적는다
 
   쓰임:  python3 render_batch.py <초안.json> <출력.py> <START_ID> <EXPECT_LEN> <TAIL_FROM>
+                [제목] [BATCH_NOTE] [테마이름] [테마번호]
 
   왜 도구로 두는가
     에이전트를 여럿 띄워 문항을 ★동시에★ 짓게 하면 초안은 병렬로 얻지만, 은행에 넣는 일은
@@ -38,8 +39,8 @@ import batch_template as T
 T.START_ID = {start!r}
 T.COUNT = {count}
 T.EXPECT_LEN = {expect}
-T.THEME = '전자친화도·전기음성도'
-T.TT = 16
+T.THEME = {theme!r}
+T.TT = {tt}
 T.UNIT = 'I'
 T.BATCH_NOTE = {note}
 
@@ -95,10 +96,12 @@ def main():
     src, out, start, expect, tail_from = sys.argv[1:6]
     title = sys.argv[6] if len(sys.argv) > 6 else 'T16 배치'
     note = sys.argv[7] if len(sys.argv) > 7 else title
+    theme = sys.argv[8] if len(sys.argv) > 8 else '전자친화도·전기음성도'
+    tt = int(sys.argv[9]) if len(sys.argv) > 9 else 16
     d = json.load(open(src, encoding='utf-8'))
     items = d['items'] if isinstance(d, dict) else d
     body = HEAD.format(title=title, start=start, count=len(items), expect=int(expect),
-                       note=lit(note))
+                       note=lit(note), theme=theme, tt=tt)
     for x in items:
         body += render(x)
     body += "    return it\n\n\n"
