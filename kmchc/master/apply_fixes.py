@@ -18,14 +18,33 @@
     바뀐 문면을 반박하지 못하면 사람이 다시 적어야 한다. 그 자리를 화면에 남긴다.
 """
 import json
+import re
 import sys
 
 TEXT_FIELDS = ('stem', 'proof', 'dev', 'calc', 'scenario', 'objective', 'lead', 'prose', 'diag',
                'skill', 'difficulty', 'track')
 
 
+IDX = None
+
+
 def apply_one(item, fx, log):
     f, before, after = fx['field'], fx['before'], fx['after']
+    #  ★검토자는 'wrongs[2].note' 처럼 자리를 짚어 오기도 한다★ — 그 꼴도 받는다.
+    #  선지를 갈면 딸린 자리가 함께 끌려가므로 대개 이미 고쳐져 있고, 그때는 조용히 넘긴다.
+    m = re.match(r'(wrongs|wmap)\[(\d+)\]\.(text|note|retort)$', f)
+    if m:
+        arr, k, key = item[m.group(1)], int(m.group(2)), m.group(3)
+        if k >= len(arr):
+            log.append('  ❌ %s %s — 자리가 없다' % (item['id'], f))
+            return 0
+        if arr[k].get(key) == after:
+            return 1                                   # 선지 치환이 이미 끌어갔다
+        if before and arr[k].get(key) != before:
+            log.append('  ❌ %s %s — before 가 다르다' % (item['id'], f))
+            return 0
+        arr[k][key] = after
+        return 1
     if f.startswith('choices'):
         try:
             k = item['choices'].index(before)
