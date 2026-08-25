@@ -76,11 +76,15 @@ def smart_replace(seg, before, after):
 
 
 def block(src, mid):
+    #  ★배치마다 문항을 부르는 꼴이 다르다★ — 뒤 테마는 `q('M…'`, T15 는 `T.mk('M…'` 다.
+    #  둘을 다 보지 않으면 T15 의 조치가 '빌더를 찾지 못했다' 로 조용히 빠진다(세 건이 그랬다).
     for qt in ("'%s'" % mid, '"%s"' % mid):
-        k = src.find('q(' + qt)
-        if k >= 0:
-            nxt = [x for x in (src.find('it.append(', k + 4), src.find('return it', k)) if x > 0]
-            return k, min(nxt) if nxt else len(src)
+        for pre in ('q(', 'mk('):
+            k = src.find(pre + qt)
+            if k >= 0:
+                nxt = [x for x in (src.find('it.append(', k + 4), src.find('T.mk(', k + 4),
+                                   src.find('return it', k)) if x > 0]
+                return k, min(nxt) if nxt else len(src)
     return None
 
 
@@ -88,13 +92,16 @@ def find_owner(mid, cache={}):
     if not cache:
         for f in glob.glob(os.path.join(HERE, 'build_*.py')):
             s = io.open(f, encoding='utf-8').read()
-            for tok in ("q('M", 'q("M'):
+            for tok in ("q('M", 'q("M', "mk('M", 'mk("M'):
                 i = 0
                 while True:
                     i = s.find(tok, i)
                     if i < 0:
                         break
-                    cache.setdefault(s[i + 3:i + 9], f)
+                    #  ★토큰 길이만큼 밀어야 id 가 잡힌다★ — "q('M" 는 3, "mk('M" 는 4 다.
+                    #  자리를 고정해 두면 mk 꼴에서 한 글자 밀려 캐시가 비고, 조치가 조용히 빠진다.
+                    j = i + len(tok) - 1
+                    cache.setdefault(s[j:j + 6], f)
                     i += 1
     return cache.get(mid)
 
