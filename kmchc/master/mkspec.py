@@ -23,11 +23,17 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 CJ = os.path.join(HERE, 'concepts.json')
 
 
-def pick(theme, count):
-    """★by 가 빈 각도만★ 을, ★개념을 돌아가며★ 하나씩 집는다."""
+def pick(theme, count, taken=()):
+    """★by 가 빈 각도만★ 을, ★개념을 돌아가며★ 하나씩 집는다.
+
+      taken — ★아직 병합하지 않은 지시서가 이미 집어 둔 (개념, 각도)★. 배치 셋을 동시에
+      지으려면 이것이 있어야 한다: by 는 ★병합 때★ 박히므로, 그때까지 세 지시서가 같은
+      각도를 집는다(P11~P13 을 한꺼번에 뽑다가 셋이 똑같이 C18-001[5] 부터 집었다).
+    """
     cj = json.load(io.open(CJ, encoding='utf-8'))
     cs = cj[theme]
-    free = {c['id']: [(k, a) for k, a in enumerate(c['angles']) if not a.get('by')] for c in cs}
+    free = {c['id']: [(k, a) for k, a in enumerate(c['angles'])
+                      if not a.get('by') and (c['id'], k) not in set(taken)] for c in cs}
     by_id = {c['id']: c for c in cs}
     out, guard = [], 0
     while len(out) < count and guard < count * 40:
@@ -49,11 +55,15 @@ def main():
         print(__doc__)
         return
     theme, prefix, batch, start, col, ranks, out = sys.argv[1:8]
+    taken = []
+    for f in sys.argv[8:]:                        # ★앞서 뽑아 둔 지시서들★
+        for r in json.load(io.open(f, encoding='utf-8'))['items']:
+            taken.append((r['cid'], r['idx']))
     count = len(col)
     assert len(ranks) == count, '자리열과 길이순위열의 길이가 다르다'
     base = int(start[1:])
     rows = []
-    for i, (c, k, a) in enumerate(pick(theme, count)):
+    for i, (c, k, a) in enumerate(pick(theme, count, taken)):
         rows.append({'id': 'M%05d' % (base + i), 'cid': c['id'], 'idx': k, 'angle': a['a'],
                      't': a.get('t', '지식'), 'stmt': c['stmt'], 'values': c.get('values', ''),
                      'note': c.get('note', ''),

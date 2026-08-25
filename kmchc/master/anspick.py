@@ -74,6 +74,14 @@ def main():
     n = int(sys.argv[1]) if len(sys.argv) > 1 else 10
     bank = json.load(open(BANK, encoding='utf-8'))
     tail = [x['answer'] for x in bank][-8:]
+    #  ★아직 병합하지 않은 배치를 꼬리에 이어 붙인다★ — 배치 셋을 ★동시에★ 지으려면 P12 의 열을
+    #  고를 때 P11 의 열이 이미 꼬리에 있어야 한다(G3f 는 꼬리 여덟을 넘어 잇는 등차를 본다).
+    #    쓰임:  python3 anspick.py 10 2432341413        (앞 배치 열을 자리표 숫자로 이어 준다)
+    if len(sys.argv) > 2:
+        for ch in sys.argv[2]:
+            if ch in '1234':
+                tail.append(int(ch) - 1)
+        tail = tail[-8:]
     dist = Counter(x['answer'] for x in bank)
     print('  은행 %d제 · 분포 %s' % (len(bank), ' '.join(
         '%s%d' % (CIR[v], dist[v]) for v in range(4))))
