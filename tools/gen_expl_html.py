@@ -173,7 +173,16 @@ def run(path, write):
             # 글이 아예 없으면 오답 카드가 **빈칸**으로 나간다. 학생은 왜 틀렸는지
             # 한 줄도 못 본다. 출제 취소된 문항도 '왜 취소됐는지' 는 적어야 한다 —
             # kmchc-2025-1-simhwa 38·41번이 그렇게 비어 있었다.
-            blank.append(k)
+            #
+            # ⚠ 다만 재어 보는 것은 「빈칸으로 나가는가」 이지 「explanation 이
+            #   있는가」 가 아니다. 성적표의 오답 카드는 explanation 이 없으면
+            #   `misconception` 을 대신 싣는다(final.html 6344·6398·6506·6935).
+            #   그것마저 없을 때만 학생이 빈칸을 본다.
+            #   조준모의고사 0회(j0)가 그 자리다 — 상세 풀이는 haeseol-j0.pdf 에
+            #   있고 아직 안 옮겼지만, 오개념 한 줄은 60문항 모두 들어 있다.
+            #   풀이를 옮기면 그때 이 회차의 solFull 이 켜진다.
+            if not str(q.get('misconception') or '').strip():
+                blank.append(k)
             continue
         if not cur:
             missing += 1

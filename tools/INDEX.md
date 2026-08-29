@@ -95,11 +95,12 @@
 | ✓ | `verify_status.py` | ○ | 밀 때마다 · 하루 한 번 | 해설을 **어디까지 사람이 봤는지** 세고, 뒤로 가지 않게 막는다. |
 | ✓ | `void_check.py` | ○ | 밀 때마다 · 하루 한 번 | 출제 뒤 **폐기된 문항**이 제대로 처리돼 있는지 본다 — `exams.json` 의 `voided`. |
 
-## 만드는 자 (17)
+## 만드는 자 (18)
 
 | | 자 | `--check` | 언제 돌리나 | 무엇을 |
 |---|---|---|---|---|
 |  | `gen_cohort_baseline.py` |  | 만들 때 사람이 | 성적표 엑셀(.xlsm)에서 **익명 통계**만 뽑아 `cohort/baseline.json` 을 만든다. |
+| ✓ | `gen_cohort_from_seeds.py` | ○ | 밀 때마다 · 하루 한 번 | 단원평가 아홉 회차의 **석차 모집단**을 index.html 안에서 되찾는다. |
 | ✓ | `gen_cut_adj.py` | ○ | 밀 때마다 · 하루 한 번 | 어려웠던 회차의 시상 기준을 조금 늦춰 준다 → `exams.json` 의 `cutAdj` |
 | ✓ | `gen_exam_fallback.py` |  | 밀 때마다 · 하루 한 번 · usnco-2026-report-upgrade.yml | `exams.json` 을 `final.html`·`final-submit.html` 안에 예비본으로 심는다. |
 | ✓ | `gen_exam_solflag.py` |  | 밀 때마다 · 하루 한 번 · usnco-2026-report-upgrade.yml | `exams.json` 의 `solFull` 을 `answers/<id>.json` 에서 만든다. |
@@ -119,4 +120,4 @@
 
 ---
 
-자 101개 · 판에 걸린 것 83개 · `--check` 를 받는 것 69개 · 아무도 안 돌리는 것 0개 · 표에는 있는데 없는 자물쇠 0개
+자 102개 · 판에 걸린 것 84개 · `--check` 를 받는 것 70개 · 아무도 안 돌리는 것 0개 · 표에는 있는데 없는 자물쇠 0개

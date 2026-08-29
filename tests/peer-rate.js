@@ -116,12 +116,22 @@ const LATER_ALLC = {
        또래 정답률(qc)은 제대로 서지만 선택 분포(q)와 점수 분포(hist)는
        엑셀에만 있다. 없는 것을 지어내지 않았으니 «잃은 것» 이 아니다.
        대신 있는 것(qc)은 여기서도 그대로 잰다 (2026-08-23). */
-    if (b.from === 'rate') {
-      if (!b.qc) { bad.push(id + ': from:rate 인데 qc 가 없다'); return; }
+    /* from:'rate+seeds' — 정답률에서 세운 qc 에 점수 분포(hist)가 뒤늦게
+       붙은 회차다. hist 는 index.html 의 SEEDS(성적표 엑셀에서 뽑아 둔 학생별
+       점수)에서 왔다. 선택 분포(q)는 여전히 엑셀에만 있어 없다 — 없는 것을
+       지어내지 않았으니 «잃은 것» 이 아니다 (2026-08-29). */
+    if (b.from === 'rate' || b.from === 'rate+seeds') {
+      const seeded = b.from === 'rate+seeds';
+      if (!b.qc) { bad.push(id + ': ' + b.from + ' 인데 qc 가 없다'); return; }
       if (b.qc.length !== exam.nQ) bad.push(id + ': qc 길이 ' + b.qc.length);
       if (b.qc.some(c => c < 0 || c > b.n))
         bad.push(id + ': 정답자 수가 응시 인원을 벗어난다');
-      if (b.q || b.hist) bad.push(id + ': from:rate 인데 q·hist 가 있다 — 출처를 다시 적어라');
+      if (b.q) bad.push(id + ': ' + b.from + ' 인데 q 가 있다 — 출처를 다시 적어라');
+      if (!seeded && b.hist) bad.push(id + ': from:rate 인데 hist 가 있다 — 출처를 다시 적어라');
+      if (seeded && !b.hist) bad.push(id + ': from:rate+seeds 인데 hist 가 없다');
+      if (seeded && b.hist &&
+          Object.values(b.hist).reduce((a, c) => a + c, 0) !== b.n)
+        bad.push(id + ': hist 사람 수가 응시 인원과 다르다');
       return;
     }
     if (!b.qc || !b.q) {

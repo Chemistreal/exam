@@ -553,6 +553,11 @@ jobs:
         timeout-minutes: 5
         run: python3 tools/mis_sync.py --check
       # 한 회차 안에서 문제지와 해설이 다른 상수를 쓰면 학생이 계산을 못 맞춘다.
+      # 석차 모집단(hist)이 index.html 의 SEEDS 에서 되찾아진 채로 남아 있는지.
+      - name: 단원평가 석차 모집단이 사라지지 않았다
+        timeout-minutes: 5
+        run: python3 tools/gen_cohort_from_seeds.py --check
+
       # 시험지에 인쇄된 배점과 채점기가 쓰는 배점이 새로 어긋나지 않게 한다.
       - name: 배점 규칙이 시험지와 어긋나지 않는다
         timeout-minutes: 8

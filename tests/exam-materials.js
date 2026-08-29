@@ -132,8 +132,14 @@ const byId = id => EXAMS.filter(e => e.id === id)[0];
     });
   });
   chk('죽은 주소가 없다', dead.length === 0, dead.slice(0, 3).join(' ') || '없음');
-  chk('모든 회차에 문제지가 있다',
-    EXAMS.every(e => e.pdf), EXAMS.filter(e => !e.pdf).map(e => e.id).join(' ') || '39/39');
+  /* 문제지가 **정말로 없는** 회차가 있다 — j0(조준모의고사 0회)은 문항 본문도
+     문제지 PDF 도 저장소에 없다. 그런 회차를 막으면 회차를 아예 안 들이거나
+     없는 파일을 가리키게 된다(tests/exam-assets.js 에 같은 판단이 적혀 있다).
+     그래서 **말하게 한다** — `noPdf` 에 까닭을 적은 회차만 통과시킨다.
+     화면 쪽(examMaterialsHTML)은 `if(exam.pdf)` 로 감싸 두어 링크를 안 만든다. */
+  const noPdfWhy = EXAMS.filter(e => !e.pdf && !(typeof e.noPdf === 'string' && e.noPdf.trim()));
+  chk('문제지가 없으면 까닭이 적혀 있다',
+    noPdfWhy.length === 0, noPdfWhy.map(e => e.id).join(' ') || '전 회차 통과');
 
   /* ── ③ 선생님 성적표 · 공유 성적표(#r=) ────────────────────────── */
   console.log('\n── 성적표 (' + FULL + ' · PDF 가 다 있는 회차) ──');

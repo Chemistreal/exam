@@ -101,6 +101,18 @@ const RANKS = `(function(){ var out=[];
       return !e.hist && Array.isArray(e.qc) &&
         e.qc.every(v => Number.isInteger(v) && v >= 0 && v <= e.n);
     }
+    /* from:'rate+seeds' — 반쪽이던 기록에 점수 분포가 뒤늦게 붙었다. 정답자
+       수(qc)는 공식 정답률에서, 점수 분포(hist)는 index.html 의 SEEDS 에서
+       왔다(tools/gen_cohort_from_seeds.py). 출처가 둘이라 이름도 둘이다 —
+       'rate' 그대로 두면 「hist 가 없다」는 뜻의 이름이 거짓말이 된다.
+       그래서 **둘 다** 성한지 본다 (2026-08-29, 단원별 여덟 회차 1,523명). */
+    if (e.from === 'rate+seeds') {
+      return Array.isArray(e.qc)
+        && e.qc.every(v => Number.isInteger(v) && v >= 0 && v <= e.n)
+        && e.hist
+        && Object.entries(e.hist).every(([k, v]) =>
+             /^\d+$/.test(k) && Number.isInteger(v) && v > 0);
+    }
     return e.hist &&
       Object.entries(e.hist).every(([k, v]) => /^\d+$/.test(k) && Number.isInteger(v) && v > 0);
   });

@@ -37,8 +37,23 @@ const EXAMS = JSON.parse(fs.readFileSync(path.join(ROOT, 'exams.json'), 'utf8'))
 
 console.log('── 링크가 가리키는 파일이 실제로 있다 ──');
 {
-  const noPdf = EXAMS.filter(e => !e.pdf || !fs.existsSync(path.join(ROOT, e.pdf))).map(e => e.id);
-  chk('문제지 PDF 가 전 회차에 있다', noPdf, []);
+  /* 문제지가 **정말로 없는** 회차가 있다. j0(조준모의고사 0회)이 그렇다 —
+     문항 본문도 문제지 PDF 도 저장소에 없고, 남은 것은 정답·영역·개념과
+     오개념 한 줄뿐이다.
+
+     그런 회차를 이 검사가 막으면 두 가지 중 하나가 된다: 회차를 아예 안
+     들이거나(학부모가 옛 양식 성적표를 받는다), 없는 파일을 가리키는 링크를
+     걸거나(눌러서 404 를 만난다). 둘 다 나쁘다.
+
+     그래서 **말하게 한다.** `noPdf` 에 까닭을 적은 회차만 통과시킨다. 빈
+     문자열이나 생략은 안 된다 — 조용히 빠지는 길을 남기면 다음 회차가 그리로
+     샌다. 화면 쪽(examMaterialsHTML)은 이미 `if(exam.pdf)` 로 감싸 두어서
+     pdf 가 없으면 링크를 아예 안 만든다. */
+  const noPdf = EXAMS.filter(e => !e.pdf && !(typeof e.noPdf === 'string' && e.noPdf.trim()))
+                     .map(e => e.id);
+  chk('문제지 PDF 가 없으면 까닭이 적혀 있다', noPdf, []);
+  const brokenPdf = EXAMS.filter(e => e.pdf && !fs.existsSync(path.join(ROOT, e.pdf))).map(e => e.id);
+  chk('등록한 문제지 PDF 가 실제로 있다', brokenPdf, []);
   const missingExtra = EXAMS.flatMap(e => ['answerPdf', 'bookPdf']
     .filter(k => e[k] && !fs.existsSync(path.join(ROOT, e[k])))
     .map(k => `${e.id}:${k}`));

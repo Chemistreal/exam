@@ -1,0 +1,147 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>조준모의고사 0회 · 해설지</title><style>:root{--ink:#1a1a1a;--ink2:#4a463f;--teal:#0E5A4C;--ms:#C0603A;--line:#e6e2da;--bg:#faf8f4;--gold:#B08D57}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);line-height:1.75;
+ font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif}
+header{padding:26px 20px 16px;border-bottom:1px solid var(--line);background:#fff}
+/* 놋쇠 원색(--gold #B08D57)은 흰 종이 위에서 3.09:1 이라 글자로는 못 쓴다.
+   해설지의 갈래 표식은 옥색이다(tools/theme.py 의 '갈래별 표식'). */
+.logo{font-size:11.5px;letter-spacing:.14em;color:var(--teal);font-weight:700}
+h1{margin:6px 0 4px;font-size:23px;font-family:'Iropke Batang',serif}
+.sub{color:var(--ink2);font-size:13.5px}
+/* 돌아가는 길. 강의 페이지와 같은 모양으로 둔다 — 학부모가 두 화면을
+   오가므로 같은 자리에 같은 것이 있어야 헷갈리지 않는다. */
+.back{display:inline-block;margin-top:12px;color:var(--teal);text-decoration:none;font-size:14px;font-weight:600;padding:6px 0}
+.warn{margin:12px 20px 0;padding:10px 13px;border:1px solid #E0C9A6;background:#FFF8EC;
+ border-radius:8px;font-size:13px;color:#7a5a22}
+main{max-width:860px;margin:0 auto;padding:16px 20px 60px}
+table{border-collapse:collapse;width:100%;margin:14px 0 26px;font-size:13.5px;background:#fff}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:center}
+th{background:#f1eee7;font-weight:700}
+.q{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:12px 0}
+.qh{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:8px}
+.qno{font-weight:700;color:var(--teal)}
+.area{font-size:12.5px;color:var(--ink2);background:#f1eee7;border-radius:99px;padding:2px 9px}
+.ans{margin-left:auto;font-weight:700;color:var(--ms)}
+.sol{font-size:14.5px}
+/* 해설 본문이 실제로 입는 옷 — 답지(answers)의 explanationHtml 이
+   <h4>·.step·.k(정답 근거)·.x(오답 표시) 를 쓰는데 여기 옷이 없으면
+   해설지에서만 맨몸으로 나간다(final.html 은 제 옷이 따로 있다). */
+.sol h4{margin:12px 0 5px;color:var(--teal);font-size:13.5px;letter-spacing:.02em}
+/* 착화합물 사슬([Co(NH₃)₆]³⁺·…)처럼 끊을 자리가 없는 긴 수식이 360px
+   화면을 옆으로 밀었다 — 필요할 때만 토막 내게 허락한다. */
+.sol{overflow-wrap:anywhere}
+.sol p.step{margin:6px 0;white-space:pre-wrap}
+.sol .k{color:var(--teal);font-weight:700}
+.sol .x{color:var(--ms);font-weight:700}
+.tip{margin-top:9px;padding:9px 11px;border-left:3px solid var(--gold);background:#faf7f1;
+ font-size:13.5px;color:var(--ink2)}
+.rev{margin-top:9px;padding:9px 11px;border-left:3px solid var(--ms);background:#fdf3ef;
+ font-size:13px;color:#8a3a1d}
+/* 정답표 → 그 문항 해설로 건너뛰는 길. 표가 세로 2,000px 를 넘는 회차가
+   많아 표에서 해설까지 손가락으로 미는 거리가 너무 멀었다. */
+td a.jump{color:var(--teal);text-decoration:none;font-weight:700}
+td a.jump:hover{text-decoration:underline}
+.q{scroll-margin-top:14px}
+.q:target{border-color:var(--teal);box-shadow:0 0 0 2px rgba(14,90,76,.18)}
+@media print{body{background:#fff}.q{break-inside:avoid}.warn{display:none}}
+
+.source-assets{max-width:860px;margin:14px auto 0;padding:0 20px;display:flex;gap:8px;flex-wrap:wrap}
+.source-assets a{display:inline-flex;align-items:center;padding:8px 11px;border:1px solid var(--line);
+ border-radius:8px;background:#fff;color:var(--teal);font-size:13px;font-weight:700;text-decoration:none}
+.source-assets a:hover{border-color:var(--teal)}
+
+.sol-part{margin:13px 0}.sol-part h4{margin:0 0 5px;color:var(--teal);font-size:13.5px;letter-spacing:.02em}
+.sol-part p{margin:5px 0;white-space:pre-wrap}
+.answer-confirm{margin:14px 0 0;padding-top:9px;border-top:1px dashed var(--line);color:var(--teal)}
+</style><style id="ct-theme" data-v="4" data-fam="sol" data-seal="1">/* 이 조각은 tools/theme.py 가 넣습니다. 손으로 고치지 마세요 —
+   다음 실행에서 덮어써집니다. 색을 바꾸려면 그 파일을 고치세요. */
+:root{--ink:#23201b;--ink-2:#5a564d;--muted:#6f6a5e;--line:#E8E4DA;--line-2:#D8D2C4;--paper:#fff;--cream:#FBFAF6;--bg:#FBFAF6;--sunk:#F4F1E9;--teal:#0E5A4C;--teal-d:#3A7A6B;--wash:#EDF4F1;--brass:#B08D57;--gold:#B08D57;/* 놋쇠는 두 가지 일을 한다. 밑선·테두리(그림, 3:1)는 밝은 쪽이 예쁘고,      흰 글씨를 얹는 바탕이나 글자색으로 쓰면 3.09:1 로 못 읽는다.      그래서 **글자용 놋쇠**를 따로 둔다. 흰 종이만 보고 4.95:1 로 맞춰      두었더니 가라앉은 바탕(--sunk #F4F1E9) 위에서 4.38:1 이라 모자랐다.      가장 어두운 바탕에서도 넘도록 조금 더 어둡게 잡는다 —      흰 5.26 · 크림 5.03 · 가라앉은 4.66. */   --brass-ink:#856738;--ms:#B8562F;--ok:#2F7A4F;--ok-bg:#eef5f2;--serif:"Hahmlet","Nanum Myeongjo",serif;--mono:ui-monospace,Menlo,monospace}
+html{color-scheme:light;-webkit-text-size-adjust:100%}
+@media screen{
+  body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  ::selection{background:#0E5A4C26}
+  :focus-visible{outline:2px solid #3A7A6B;outline-offset:2px;border-radius:3px}
+  table{font-variant-numeric:tabular-nums}
+  hr{border:0;border-top:1px solid var(--line)}
+  @media (min-width:1080px){body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='520' height='560' viewBox='0 0 520 560'%3E%3Cg fill='none' stroke='%230E5A4C' stroke-width='9' stroke-linejoin='round' opacity='0.055'%3E%3Cpath d='M260 60 L433 160 L433 360 L260 460 L87 360 L87 160 Z'/%3E%3Cpath d='M260 120 L381 190 L381 330 L260 400 L139 330 L139 190 Z'/%3E%3Cpath d='M260 60 L260 0 M433 160 L485 130 M433 360 L485 390 M260 460 L260 520 M87 360 L35 390 M87 160 L35 130'/%3E%3C/g%3E%3Cg fill='%230E5A4C' opacity='0.05'%3E%3Ccircle cx='260' cy='60' r='17'/%3E%3Ccircle cx='433' cy='160' r='17'/%3E%3Ccircle cx='433' cy='360' r='17'/%3E%3Ccircle cx='260' cy='460' r='17'/%3E%3Ccircle cx='87' cy='360' r='17'/%3E%3Ccircle cx='87' cy='160' r='17'/%3E%3C/g%3E%3C/svg%3E");background-repeat:no-repeat;background-attachment:fixed;background-position:right -110px top 90px;background-size:520px 560px}}
+  header .logo{letter-spacing:.16em;font-weight:700}
+}</style>
+</head><body>
+<header><div class="logo">CHEMISTREAL · FINAL 해설지</div>
+<h1>조준모의고사 0회</h1>
+<div class="sub">문항별 정답 · 영역 · 개념 · 60문항</div>
+<div class="sub" style="margin-top:6px">문제 지문은 문제지(PDF)에 있습니다 — 성적표 화면에서 함께 내려받을 수 있습니다.</div><a class="back" href="final.html">‹ 파이널로</a></header>
+<nav class="source-assets" aria-label="시험 자료 직접 다운로드"><a href="haeseol-j0.pdf" download>공식 정답 PDF ↓</a></nav>
+<main><h3>정답 · 영역 · 개념</h3><table><thead><tr><th scope="col">문항</th><th scope="col">정답</th><th scope="col">영역</th><th scope="col">개념(유형)</th></tr></thead><tbody>
+<tr><td>1</td><td>②</td><td>원자·기본입자</td><td>중성자수</td></tr>
+<tr><td>2</td><td>②</td><td>원자·기본입자</td><td>원자·핵 크기</td></tr>
+<tr><td>3</td><td>③</td><td>열화학</td><td>열량·비열</td></tr>
+<tr><td>4</td><td>②</td><td>양적관계·실험식</td><td>순물질·혼합물</td></tr>
+<tr><td>5</td><td>③</td><td>원자량·동위원소</td><td>동위원소</td></tr>
+<tr><td>6</td><td>④</td><td>원자량·동위원소</td><td>평균 원자량</td></tr>
+<tr><td>7</td><td>②</td><td>몰·아보가드로수</td><td>밀도·몰·개수</td></tr>
+<tr><td>8</td><td>④</td><td>기체</td><td>기체 압력·팽창</td></tr>
+<tr><td>9</td><td>③</td><td>양적관계·실험식</td><td>연소·실험식</td></tr>
+<tr><td>10</td><td>②</td><td>양적관계·실험식</td><td>화학반응식 계수</td></tr>
+<tr><td>11</td><td>③</td><td>양적관계·실험식</td><td>양적관계·질량</td></tr>
+<tr><td>12</td><td>④</td><td>기타</td><td>우주 원소 분포</td></tr>
+<tr><td>13</td><td>②</td><td>원자·기본입자</td><td>빛의 진동수</td></tr>
+<tr><td>14</td><td>②</td><td>원자·기본입자</td><td>수소 스펙트럼</td></tr>
+<tr><td>15</td><td>④</td><td>주기율·전자배치</td><td>오비탈 표기</td></tr>
+<tr><td>16</td><td>③</td><td>주기율·전자배치</td><td>전자배치</td></tr>
+<tr><td>17</td><td>②</td><td>주기율·전자배치</td><td>원자 반지름</td></tr>
+<tr><td>18</td><td>②</td><td>주기율·전자배치</td><td>순차 이온화 에너지</td></tr>
+<tr><td>19</td><td>③</td><td>주기율·전자배치</td><td>전기음성도</td></tr>
+<tr><td>20</td><td>③</td><td>열화학</td><td>보른-하버 순환</td></tr>
+<tr><td>21</td><td>①</td><td>화학결합·구조</td><td>옥텟 규칙</td></tr>
+<tr><td>22</td><td>②</td><td>분자극성</td><td>분자의 극성</td></tr>
+<tr><td>23</td><td>④</td><td>기타</td><td>동소체</td></tr>
+<tr><td>24</td><td>②</td><td>양적관계·실험식</td><td>연소 반응식 계수</td></tr>
+<tr><td>25</td><td>①</td><td>화학결합·구조</td><td>결합 길이</td></tr>
+<tr><td>26</td><td>③</td><td>기체</td><td>기체 밀도</td></tr>
+<tr><td>27</td><td>③</td><td>산화환원</td><td>산화 경향</td></tr>
+<tr><td>28</td><td>④</td><td>산화환원</td><td>산화수</td></tr>
+<tr><td>29</td><td>①</td><td>산화환원</td><td>금속 반응성</td></tr>
+<tr><td>30</td><td>①</td><td>산화환원</td><td>탄소 산화수 변화</td></tr>
+<tr><td>31</td><td>①</td><td>화학결합·구조</td><td>결합 세기</td></tr>
+<tr><td>32</td><td>④</td><td>화학결합·구조</td><td>분자간 힘</td></tr>
+<tr><td>33</td><td>②</td><td>기체</td><td>평균 속도·운동에너지</td></tr>
+<tr><td>34</td><td>④</td><td>기체</td><td>이상기체 조건</td></tr>
+<tr><td>35</td><td>③</td><td>기체</td><td>수은 압력계</td></tr>
+<tr><td>36</td><td>②</td><td>용액·농도</td><td>증기압·삼투</td></tr>
+<tr><td>37</td><td>③</td><td>화학결합·구조</td><td>분자간 힘·증기압</td></tr>
+<tr><td>38</td><td>②</td><td>화학결합·구조</td><td>단위세포·화학식</td></tr>
+<tr><td>39</td><td>③</td><td>용액·농도</td><td>몰농도·밀도</td></tr>
+<tr><td>40</td><td>④</td><td>용액·농도</td><td>삼투 현상</td></tr>
+<tr><td>41</td><td>①</td><td>기타</td><td>온실기체</td></tr>
+<tr><td>42</td><td>③</td><td>열화학</td><td>헤스 법칙</td></tr>
+<tr><td>43</td><td>④</td><td>열화학</td><td>엔트로피</td></tr>
+<tr><td>44</td><td>③</td><td>열화학</td><td>기화·엔트로피</td></tr>
+<tr><td>45</td><td>②</td><td>반응속도·평형</td><td>반응지수 Q와 K</td></tr>
+<tr><td>46</td><td>④</td><td>반응속도·평형</td><td>르샤틀리에</td></tr>
+<tr><td>47</td><td>①</td><td>기타</td><td>상전이·압력</td></tr>
+<tr><td>48</td><td>④</td><td>기타</td><td>상평형도</td></tr>
+<tr><td>49</td><td>②</td><td>용액·농도</td><td>용해도·결정수</td></tr>
+<tr><td>50</td><td>④</td><td>용액·농도</td><td>헨더슨-하셀바흐</td></tr>
+<tr><td>51</td><td>④</td><td>용액·농도</td><td>약산·완충</td></tr>
+<tr><td>52</td><td>③</td><td>용액·농도</td><td>염의 액성</td></tr>
+<tr><td>53</td><td>②</td><td>용액·농도</td><td>pH 크기 비교</td></tr>
+<tr><td>54</td><td>①</td><td>용액·농도</td><td>약염기 적정</td></tr>
+<tr><td>55</td><td>③</td><td>산화환원</td><td>갈바니 전지</td></tr>
+<tr><td>56</td><td>④</td><td>산화환원</td><td>기전력·산화제</td></tr>
+<tr><td>57</td><td>②</td><td>산화환원</td><td>물의 전기분해</td></tr>
+<tr><td>58</td><td>③</td><td>반응속도·평형</td><td>반응 속도식</td></tr>
+<tr><td>59</td><td>②</td><td>열화학</td><td>활성화 에너지·촉매</td></tr>
+<tr><td>60</td><td>③</td><td>반응속도·평형</td><td>아레니우스 식</td></tr>
+</tbody></table>
+<script data-lec-back>
+(function(){function ok(raw){if(!raw)return null;try{var u=new URL(raw,location.href);
+if(u.origin!==location.origin)return null;if(!/(^|\/)final\.html$/.test(u.pathname))return null;
+if(!/[#&]r=/.test(u.hash))return null;return u.href;}catch(e){return null;}}
+try{var a=document.querySelector('a.back');if(!a)return;
+var to=ok(new URL(location.href).searchParams.get('from'));if(!to)return;
+a.href=to;a.textContent='\u2039 \uc131\uc801\ud45c\ub85c';}catch(e){}})();
+</script>
+</main></body></html>
