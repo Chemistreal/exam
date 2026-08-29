@@ -216,10 +216,18 @@ const EX50 = (() => {
 
 {
   const gas = load(fakeSheet([]));
-  const missing = exams.filter(e => !gas.EXAM_COHORT[e.title]).map(e => e.id);
+  /* ⚠ `EXAM_COHORT` 를 직접 들여다보면 **결정하는 자리를 안 보는 것**이다.
+     실제로 설정을 정하는 것은 `_recomputeConfigFor(title)` 이고, 그 안에는
+     표를 거치지 않는 갈래가 있다 — 「조준모의고사 0회」는 J0_BASE_TOTALS 로
+     따로 간다. 표만 보면 그 회차가 «설정이 없다» 고 나온다(2026-08-29 에
+     j0 을 exams.json 에 들이자마자 그렇게 걸렸다. 회차는 멀쩡했다).
+     그래서 표가 아니라 **함수에게 묻는다.** 갈래가 또 생겨도 안 깨진다. */
+  const missing = exams.filter(e => !gas._recomputeConfigFor(e.title)).map(e => e.id);
   chk('모든 시험 제목에 설정이 있다', missing, []);
 
-  const badQ = exams.filter(e => gas.EXAM_COHORT[e.title].q !== e.nQ).map(e => e.id);
+  /* 여기도 표가 아니라 함수에게 묻는다 — 위와 같은 까닭이다. */
+  const badQ = exams.filter(e => (gas._recomputeConfigFor(e.title) || {}).qCount !== e.nQ)
+                    .map(e => e.id);
   chk('문항 수가 맞다', badQ, []);
   chk('50문항 회차도 잡힌다',
       gas._recomputeConfigFor(EX50.title).qCount, 50);
@@ -232,19 +240,42 @@ const EX50 = (() => {
      시트 8열 이름은 '원점수' 지만 final.html 은 `total: correct`, 즉 맞은 문항
      수를 보낸다. 여기에 3을 곱해 넣었던 적이 있는데, 학생이 전원 꼴찌가 되어
      화면은 3/15, 문자는 12/15 라고 말했다. 곱셈이 조용히 섞이면 안 된다. */
-  const drift = [];
+  /* ⚠ **양쪽에 사람이 있을 때만** 견준다. 한쪽이 비어 있으면 그건 «단위가
+     다르다» 가 아니라 «아직 안 채웠다» 이고, 둘은 다른 일이다.
+
+     2026-08-29 에 실제로 그랬다. 단원평가 여덟 회차는 앱스크립트의
+     EXAM_COHORT 에 제목만 있고 base 가 **빈 배열**이었다 — 시트 쪽 석차
+     모집단이 애초에 없었다. 같은 날 화면 쪽 기준 기록(cohort/baseline.json)에
+     index.html 의 SEEDS 에서 1,523명을 되찾아 넣었더니, 빈 것과 찬 것을
+     견주다 여기가 깨졌다. 채운 것이 나쁜 일이 아니다.
+
+     그래서 견주기는 «둘 다 있는 회차» 로 좁히고, **한쪽만 빈 회차는 아래에서
+     따로 센다.** 숨기지 않는다 — 그 회차는 화면과 시트가 서로 다른 인원을
+     말하고 있고, 선생님이 앱스크립트를 다시 배포해야 맞춰진다. */
+  const drift = [], onlyScreen = [], onlySheet = [];
   exams.forEach(e => {
+    const cfg = gas.EXAM_COHORT[e.title];
     const want = [];
     const hist = (baseline[e.id] || {}).hist || {};
     Object.keys(hist).sort((a, b) => a - b).forEach(k => {
       for (let i = 0; i < hist[k]; i++) want.push(Number(k));
     });
-    const got = gas.EXAM_COHORT[e.title].base.slice().sort((a, b) => a - b);
+    const got = ((cfg && cfg.base) || []).slice().sort((a, b) => a - b);
+    if (!got.length && want.length) { onlyScreen.push(e.id); return; }
+    if (got.length && !want.length) { onlySheet.push(e.id); return; }
+    if (!got.length && !want.length) return;
     if (JSON.stringify(got) !== JSON.stringify(want.sort((a, b) => a - b))) drift.push(e.id);
   });
   chk('기준 기록이 화면과 같은 단위다(맞은 문항 수)', drift, []);
+  if (onlyScreen.length)
+    console.log('  ⚠ 화면에만 기준 기록이 있는 회차 ' + onlyScreen.length + '개 — ' +
+      onlyScreen.join(' ') + '\n     앱스크립트 EXAM_COHORT 의 base 가 비어 있다. ' +
+      '선생님이 다시 배포해야 시트 쪽 석차가 같은 인원을 본다.');
+  if (onlySheet.length)
+    console.log('  ⚠ 시트에만 기준 기록이 있는 회차 ' + onlySheet.length + '개 — ' + onlySheet.join(' '));
   // 맞은 문항 수는 문항 수를 넘을 수 없다. 곱셈이 섞이면 여기서 걸린다.
-  const over = exams.filter(e => gas.EXAM_COHORT[e.title].base.some(v => v > e.nQ)).map(e => e.id);
+  const over = exams.filter(e => ((gas.EXAM_COHORT[e.title] || {}).base || [])
+                                   .some(v => v > e.nQ)).map(e => e.id);
   chk('기준 점수가 문항 수를 넘지 않는다', over, []);
 
   /* ⚠ 기준 기록에는 **exams.json 에 없는 회차**가 섞일 수 있다(자동 갱신이
@@ -260,8 +291,17 @@ const EX50 = (() => {
   const known = Object.keys(baseline)
     .filter(id => rank(id) && exams.some(e => e.id === id));
   const orphan = Object.keys(baseline).filter(id => !exams.some(e => e.id === id));
-  const withBase = exams.filter(e => gas.EXAM_COHORT[e.title].base.length).length;
-  chk('앱이 아는 회차는 기준 기록이 다 실렸다', withBase, known.length);
+  /* ⚠ 예전에는 «.gs 에 base 가 실린 회차 수 == 화면 기준 기록이 있는 회차 수»
+     로 견줬다. 2026-08-29 에 화면 쪽만 여덟 회차 늘어(SEEDS 에서 되찾음) 이
+     등식이 깨졌다. 등식이 말하려던 것은 «화면에 있는 것이 .gs 에도 있다» 이므로,
+     **어느 쪽이 빠졌는지 이름으로** 말하게 바꾼다. 수를 맞추는 것보다 어느
+     회차인지가 고칠 때 쓸모 있다. */
+  const gsBase = id => {
+    const e = exams.find(x => x.id === id);
+    return ((e && gas.EXAM_COHORT[e.title] || {}).base || []).length > 0;
+  };
+  const notInGs = known.filter(id => !gsBase(id));
+  chk('화면이 아는 기준 기록은 .gs 에도 있다', notInGs, []);
   if (orphan.length) console.log('  ※ 시험 목록에 없는 기준 기록 ' + orphan.length + '개: ' + orphan.join(', '));
 }
 

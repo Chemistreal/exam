@@ -38,6 +38,7 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 IDX = os.path.join(ROOT, 'index.html')
 BASE = os.path.join(ROOT, 'cohort', 'baseline.json')
+GS = os.path.join(ROOT, 'AppsScript-Code.gs')
 PT = 3
 
 
@@ -57,6 +58,42 @@ def hist_of(rows):
         k = str(t // PT)
         h[k] = h.get(k, 0) + 1
     return h, []
+
+
+def gs_fill(hists, write):
+    """앱스크립트의 EXAM_COHORT 에도 같은 사람들을 넣는다.
+
+    화면(cohort/baseline.json)과 시트(.gs)가 **서로 다른 인원**을 보면, 같은
+    학생이 성적표에서는 45/443, 문자에서는 1/1 을 받는다. 2026-08-29 에 실제로
+    그랬다 — 여덟 회차의 base 가 빈 배열이었다(tests/rank-recompute.js 가 잡음).
+
+    ⚠ .gs 는 push 하면 자동 배포된다(.github/workflows/deploy-apps-script.yml).
+      시크릿이 없으면 배포가 건너뛰어지고 CI 가 경고를 띄운다.
+    ⚠ **비어 있는 base 만 채운다.** 이미 사람이 들어 있는 회차는 시트에서 온
+      진짜 기록이라 건드리지 않는다.
+    """
+    xs = json.load(io.open(os.path.join(ROOT, 'exams.json'), encoding='utf-8'))
+    title = {e['id']: e['title'] for e in xs}
+    src = io.open(GS, encoding='utf-8').read()
+    filled, skipped = [], []
+    for eid, h in sorted(hists.items()):
+        t = title.get(eid)
+        if not t:
+            continue
+        m = re.search(r"('" + re.escape(t) + r"':\s*\{[^}]*?base:\s*\[)(\s*)(\])", src)
+        if not m:
+            skipped.append((eid, '.gs 에 그 제목이 없거나 base 칸이 없다'))
+            continue
+        vals = []
+        for k in sorted(h, key=int):
+            vals += [int(k)] * h[k]
+        vals.sort()
+        filled.append((eid, len(vals)))
+        if write:
+            src = src[:m.start(2)] + ','.join(str(v) for v in vals) + src[m.end(2):]
+    if write and filled:
+        io.open(GS, 'w', encoding='utf-8').write(src)
+    return filled, skipped
 
 
 def main():
@@ -105,6 +142,25 @@ def main():
         for eid, n, odd in skip:
             print('  %-12s %s' % (eid, ('baseline 에 그 회차가 없다' if odd < 0 else
                   '총점 %d개가 %d의 배수가 아니다 — 문항당 %d점으로 채점된 것이 아니다' % (odd, PT, PT))))
+
+    # .gs 쪽도 같은 사람들을 보게 한다
+    hists = {}
+    for eid, rows in sorted(sd.items()):
+        h, odd = hist_of(rows)
+        if h is not None:
+            hists[eid] = h
+    gfilled, gskip = gs_fill(hists, write)
+    if gfilled:
+        print('\n앱스크립트 EXAM_COHORT 의 빈 base %d회차 (%d명):'
+              % (len(gfilled), sum(n for _, n in gfilled)))
+        for eid, n in gfilled:
+            print('  %-12s %4d명' % (eid, n))
+        if not write:
+            print('  → --write 로 채운다. push 하면 자동 배포된다.')
+    if gskip:
+        print('\n.gs 에서 못 찾은 회차 %d개:' % len(gskip))
+        for eid, why in gskip:
+            print('  %-12s %s' % (eid, why))
 
     if write:
         io.open(BASE, 'w', encoding='utf-8').write(

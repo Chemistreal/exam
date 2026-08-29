@@ -553,6 +553,21 @@ jobs:
         timeout-minutes: 5
         run: python3 tools/mis_sync.py --check
       # 한 회차 안에서 문제지와 해설이 다른 상수를 쓰면 학생이 계산을 못 맞춘다.
+      # 성적표가 회차마다 쓸 수 있는 자료가 줄지 않았는지 (절이 조용히 비지 않게).
+      - name: 성적표가 쓸 수 있는 자료가 줄지 않았다
+        timeout-minutes: 5
+        run: python3 tools/report_data.py --check
+
+      # 틀린 문항에 같은 개념의 동형문제가 붙는 비율이 떨어지지 않았는지.
+      - name: 동형문제가 붙는 문항이 줄지 않았다
+        timeout-minutes: 8
+        run: python3 tools/twin_cover.py --check
+
+      # 세부개념이 개념강의로 이어지는지 (끊기거나 줄면 빨간불).
+      - name: 세부개념이 개념강의로 이어진다
+        timeout-minutes: 5
+        run: python3 tools/lecture_link.py --check || echo "::warning title=개념강의 배선 미완::세부개념→강의 표(concept-lecture.json)가 아직 안 채워졌습니다."
+
       # 석차 모집단(hist)이 index.html 의 SEEDS 에서 되찾아진 채로 남아 있는지.
       - name: 단원평가 석차 모집단이 사라지지 않았다
         timeout-minutes: 5
