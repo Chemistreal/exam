@@ -36,6 +36,35 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "donghyung" / "index.json"
 SCHEMA = 1
 
+# ── 시험이 부르는 이름 → 은행이 부르는 이름 ────────────────────────────
+# 같은 개념인데 두 곳이 다르게 적어서, 그 문항이 세부개념 동형을 못 찾고
+# 대영역으로 떨어졌다(2026-08-29 실측 288문항 · 215종).
+#
+# ⚠ **공백·기호만 다른 것만** 여기 넣는다. 이름이 닮았다고 넣으면 남의 개념이
+#   붙는다 — 「열역학3법칙」과 「열역학2법칙」, 「분자결정」과 「원자결정」이
+#   그렇게 닮아 있었다. 뜻이 다른 짝은 사람이 보고 따로 정한다.
+# ⚠ 은행(donghyung/*.json)의 concept 은 안 고친다. 거기 이름이 정본이고,
+#   여기는 «시험 쪽에서 이렇게도 부른다» 는 곁이름만 적는다.
+CONCEPT_ALIAS = {
+    '%농도': '농도',
+    '평균 원자량': '평균원자량',
+    '수소 스펙트럼': '수소스펙트럼',
+    '원자 반지름': '원자반지름',
+    '순차 이온화 에너지': '순차이온화에너지',
+    '옥텟 규칙': '옥텟규칙',
+    '분자의 극성': '분자의극성',
+    '결합 길이': '결합길이',
+    '결합 세기': '결합세기',
+    '헤스 법칙': '헤스법칙',
+    '염의 액성': '염의액성',
+    '갈바니 전지': '갈바니전지',
+    '물의 전기분해': '물의전기분해',
+    '반응 속도식': '반응속도식',
+    '아레니우스 식': '아레니우스식',
+}
+
+
+
 
 def read_map(name: str) -> dict[str, str]:
     """final.html 의 RXMAP 을 그대로 읽는다(분류 기준이 갈라지지 않게)."""
@@ -85,8 +114,18 @@ def build() -> dict:
                     unmapped[area] += 1
             total += 1
 
+    # 곁이름을 같은 문항 목록으로 이어 준다. 은행은 안 건드린다.
+    aliased = 0
+    for other, canon in CONCEPT_ALIAS.items():
+        if canon in by_concept and other not in by_concept:
+            by_concept[other] = list(by_concept[canon])
+            aliased += 1
+
     return {
         "schemaVersion": SCHEMA,
+        "_alias": {"쓴 곁이름": aliased, "적어 둔 곁이름": len(CONCEPT_ALIAS),
+                   "설명": "시험이 부르는 이름을 은행 이름으로 이어 준 것. "
+                           "tools/gen_pool_index.py 의 CONCEPT_ALIAS."},
         "note": "동형문제를 개념으로 찾기 위한 색인. 지문·해설은 담지 않는다. "
                 "'<시험id>:<문항번호>' 로 가리키고, 실제 문항은 donghyung/<시험id>.json 에서 읽는다. "
                 "tools/gen_pool_index.py 로 다시 만든다.",
