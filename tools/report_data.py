@@ -46,7 +46,10 @@ SEAL = os.path.join(ROOT, 'tools', 'report_data.json')
 # 성적표의 절 → 그 절이 서려면 있어야 하는 것
 NEEDS = [
     ('원문 문제(오답노트)', 'crops', '크롭 이미지'),
-    ('동형문제 공급', 'stems', '줄기 + 보기 넷'),
+    # 성적표가 이걸로 그리는 절은 없다. 그래도 잰다 — 동형문제를 **집필할 때**
+    # 원문을 읽을 수 있는지, 선지별 오답 해설을 달 수 있는지가 여기서 갈린다.
+    # (한때 이 칸을 «동형문제 공급» 이라 부르며 동형 커버리지의 뿌리로 읽었다. 틀렸다.)
+    ('답지에 남은 원문', 'stems', '줄기 + 보기 넷'),
     ('또래 선택 분포', 'q', '보기별 응답 수'),
     ('연도누적 총석차·백분위', 'hist', '점수 분포'),
     ('또래 정답률·신호등·깊이', 'rateOrQc', '문항별 정답자 수'),
@@ -71,7 +74,14 @@ def scan():
         tw = os.path.join(ROOT, 'donghyung', '%s.json' % eid)
         out.append({
             'id': eid, 'nQ': nQ,
-            'crops': nQ if e.get('crops') else 0,
+            # 오답노트의 「원문 문제」는 exams.json 의 crops 깃발을 **안 본다** —
+            # cropURL() 은 언제나 주소를 만들고, 그림이 없으면 <img onerror> 가
+            # 「준비되지 않았습니다」로 바꿔 준다. 그러니 재야 하는 것은 깃발이
+            # 아니라 **디스크에 실제로 있는 그림 수**다. 깃발로 세면 8회차라고
+            # 나오는데 실제로는 51회차에서 원문이 뜬다.
+            # (깃발은 다른 일을 한다 — final-submit.html 이 시험지를 펼칠지 정한다.)
+            'crops': sum(1 for q in range(1, nQ + 1)
+                         if os.path.exists(os.path.join(ROOT, 'crops', eid, '%d.png' % q))),
             'stems': sum(1 for k in a if str(a[k].get('stem') or '').strip()
                          and len(a[k].get('choices') or []) >= 4),
             'q': nQ if b.get('q') else 0,
