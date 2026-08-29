@@ -867,6 +867,11 @@ jobs:
       - name: 기출동형 문항의 구조가 성한가
         timeout-minutes: 5
         run: python3 tools/dh_validate.py --all
+      # 은행 파일을 집필해 놓고 DH_SETS 를 안 고치면 화면에 한 장도 안 나온다.
+      # 파일은 있고 검사는 지나가고 아무도 모른다 — 그 자리를 센다.
+      - name: 동형문제 은행과 DH_SETS 가 서로를 안다
+        timeout-minutes: 5
+        run: python3 tools/dh_absorb.py --check
       # 선지별 오답 해설이 성적표에서 «고른 ③이 왜 틀렸나» 로 뜬다. 표에 정답 번호가
       # 섞여 있으면 맞힌 학생에게 그 줄을 보여 준다 — 화면에서야 드러날 결함이라
       # 자료 쪽에서 막는다.

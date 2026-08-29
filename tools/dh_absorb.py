@@ -30,11 +30,13 @@
     python3 tools/dh_absorb.py <시험id> [...]          # 무엇이 어떻게 될지만
     python3 tools/dh_absorb.py <시험id> [...] --write  # 은행을 쓰고 답지를 고친다
     python3 tools/dh_absorb.py --all [--write]
+    python3 tools/dh_absorb.py --check                 # DH_SETS 와 은행 파일이 맞는가 (CI)
 """
 import glob
 import io
 import json
 import os
+import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -60,8 +62,67 @@ def resolves(name, con, al):
     return bool(name) and (name in con or name in al)
 
 
+def dh_sets():
+    """final.html 의 DH_SETS 를 글자 그대로 잘라 읽는다.
+
+    ⚠ tests/wrongbook-assets.py 도 같은 자리를 같은 방식으로 읽는다. 그래서 그
+      표 안에는 주석을 넣지 않는다(설명은 표 위에 적혀 있다).
+    """
+    s = io.open(os.path.join(ROOT, 'final.html'), encoding='utf-8').read()
+    m = re.search(r'const DH_SETS=(\{.*?\});', s, re.S)
+    if not m:
+        return None, s, None
+    body = re.sub(r"'", '"', m.group(1))
+    return json.loads(body), s, m
+
+
+def check_sets():
+    """은행 파일이 생겼는데 DH_SETS 가 아직 «없다» 고 말하고 있으면 빨간불.
+
+    DH_SETS 에 빈 배열로 적힌 회차는 dhSetIds 가 [] 를 돌려주고, 오답노트의
+    동형문제 자리는 개념 풀로 대신 채운다. 은행을 집필해 놓고 이 표를 안 고치면
+    **집필한 문항이 화면에 한 장도 안 나온다** — 파일은 있고 검사는 지나가고
+    아무도 모른다. 반대로 표에서 지웠는데 파일이 없으면 없는 파일을 부른다.
+    """
+    sets, _, m = dh_sets()
+    if sets is None:
+        print('final.html 에서 DH_SETS 를 못 찾았다')
+        return 1
+    bad = 0
+    for eid, ids in sorted(sets.items()):
+        have = os.path.exists(os.path.join(ROOT, 'donghyung', '%s.json' % eid))
+        if have and not ids:
+            print('[%s] 은행 파일이 있는데 DH_SETS 가 빈 배열이다 — 화면에 한 장도 안 나온다' % eid)
+            bad += 1
+        for x in ids:
+            if not os.path.exists(os.path.join(ROOT, 'donghyung', '%s.json' % x)):
+                print('[%s] DH_SETS 가 없는 파일을 부른다: %s' % (eid, x))
+                bad += 1
+    print('\nDH_SETS %d회차 · 어긋난 곳 %d' % (len(sets), bad))
+    return 1 if bad else 0
+
+
+def drop_from_sets(eid):
+    """은행이 생긴 회차를 DH_SETS 의 «없음» 목록에서 뺀다.
+
+    빼면 dhSetIds 의 기본값([id])이 살아나 제 은행을 읽는다.
+    """
+    sets, s, m = dh_sets()
+    if sets is None or sets.get(eid) != []:
+        return False
+    body = m.group(1)
+    new = re.sub(r"\s*'%s'\s*:\s*\[\s*\],?" % re.escape(eid), '', body)
+    new = re.sub(r',(\s*\})', r'\1', new)
+    new = re.sub(r'\{\s*,', '{', new)
+    s = s[:m.start(1)] + new + s[m.end(1):]
+    io.open(os.path.join(ROOT, 'final.html'), 'w', encoding='utf-8').write(s)
+    return True
+
+
 def main():
     write = '--write' in sys.argv
+    if '--check' in sys.argv:
+        return check_sets()
     ids = [a for a in sys.argv[1:] if not a.startswith('--')]
     if '--all' in sys.argv:
         ids = sorted({os.path.basename(p).split('__')[0]
@@ -147,6 +208,8 @@ def main():
                 io.open(apath, 'w', encoding='utf-8').write(
                     json.dumps(adoc, ensure_ascii=False, indent=1) + '\n')
             print('    → donghyung/%s.json (%d문항)' % (eid, nQ))
+            if drop_from_sets(eid):
+                print('    → final.html 의 DH_SETS 에서 «없음» 표시를 뺐다')
 
     if not write:
         print('\n(--write 를 붙이면 실제로 쓴다)')
