@@ -1,0 +1,157 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""집필한 동형문제 조각을 은행으로 옮기면서 **개념 이름을 답지와 맞춘다.**
+
+왜 맞춰야 하나
+--------------
+동형문제는 두 갈래로 학생에게 간다.
+
+    ① 그 문항의 짝            donghyung/<시험id>.json 의 같은 번호
+    ② 같은 개념의 다른 문제    donghyung/index.json 의 concept 로 찾는다
+
+②는 **이름이 맞아야만** 찾아진다. 답지가 「계수맞추기」라고 부르는 것을 은행이
+「화학 반응식의 계수 맞추기」라고 부르면, 같은 개념인데 서로를 못 본다.
+
+집필 에이전트에게 「원문의 concept 를 그대로 쓰되, 개념이 아닌 딱지(「납」·「비율」·
+「표기법」)면 진짜 개념 이름으로 바꿔라」 라고 일렀다. 실제로 kch1u1 열넷 중 넷은
+그렇게 고쳐 왔는데, 나머지 열은 **이미 멀쩡하던 이름까지** 띄어쓰기를 넣어 바꿨다
+(「한계반응물」→「한계 반응물」, 「양적관계」→「양적 관계」). 그대로 두면 은행에
+같은 개념이 두 이름으로 갈라져 앉는다.
+
+말로 이른 것은 지켜지지 않을 수 있다. 여기서 자료를 보고 맞춘다.
+
+맞추는 규칙 — 은행 색인(donghyung/index.json)에 **이미 있는 이름을 이긴다**
+
+    ① 답지 이름이 은행에 있다        → 답지 이름을 쓴다 (쪼개지 않는다)
+    ② 답지 이름은 없고 새 이름이 있다  → 새 이름으로, 답지도 함께 고친다
+    ③ 둘 다 없다                   → 새 이름으로, 답지도 함께 고친다
+                                    (「납」보다 「중성자수」가 낫다)
+
+    python3 tools/dh_absorb.py <시험id> [...]          # 무엇이 어떻게 될지만
+    python3 tools/dh_absorb.py <시험id> [...] --write  # 은행을 쓰고 답지를 고친다
+    python3 tools/dh_absorb.py --all [--write]
+"""
+import glob
+import io
+import json
+import os
+import sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+WIP = os.path.join(ROOT, 'donghyung', '_wip')
+# 은행에서 넘어오면 안 되는 기출 참조 필드 (tools/dh_merge.py 와 같은 목록)
+BANNED = ('sourceExamId', 'sourceQuestion', 'sourceExamTitle',
+          'matchLevel', 'matchScore', 'image')
+
+
+def load(p):
+    return json.load(io.open(p, encoding='utf-8'))
+
+
+def bank_names():
+    """은행 색인이 아는 개념 이름. 곁이름(_alias)으로 닿는 것도 아는 것으로 센다."""
+    idx = load(os.path.join(ROOT, 'donghyung', 'index.json'))
+    con = set(idx.get('concept') or {})
+    al = idx.get('_alias') or {}
+    return con, {k: v for k, v in al.items() if v in con}
+
+
+def resolves(name, con, al):
+    return bool(name) and (name in con or name in al)
+
+
+def main():
+    write = '--write' in sys.argv
+    ids = [a for a in sys.argv[1:] if not a.startswith('--')]
+    if '--all' in sys.argv:
+        ids = sorted({os.path.basename(p).split('__')[0]
+                      for p in glob.glob(os.path.join(WIP, '*__*.json'))})
+    if not ids:
+        print(__doc__)
+        return 1
+
+    exams = {e['id']: e for e in load(os.path.join(ROOT, 'exams.json'))}
+    con, al = bank_names()
+    rc = 0
+
+    for eid in ids:
+        exam = exams.get(eid)
+        if not exam:
+            print('[%s] exams.json 에 없는 시험' % eid)
+            rc = 1
+            continue
+        parts = sorted(glob.glob(os.path.join(WIP, '%s__*.json' % eid)))
+        if not parts:
+            print('[%s] 조각이 없다' % eid)
+            rc = 1
+            continue
+
+        apath = os.path.join(ROOT, 'answers', '%s.json' % eid)
+        adoc = load(apath) if os.path.exists(apath) else {'questions': {}}
+        src = adoc.get('questions') or {}
+
+        merged, kept, moved, fresh, notes = {}, 0, 0, 0, []
+        for p in parts:
+            for k, v in load(p).items():
+                if k in merged:
+                    print('[%s] 문항 번호 중복: %s (%s)' % (eid, k, os.path.basename(p)))
+                    rc = 1
+                    continue
+                for b in BANNED:
+                    v.pop(b, None)
+                v['origin'] = 'authored'
+                v['verified'] = True
+                old = str((src.get(k) or {}).get('concept') or '').strip()
+                new = str(v.get('concept') or '').strip()
+                if old and new and old != new:
+                    if resolves(old, con, al):
+                        v['concept'] = old
+                        kept += 1
+                        notes.append('%s번 %s ← %s (은행이 아는 이름을 지킨다)' % (k, old, new))
+                    else:
+                        if resolves(new, con, al):
+                            moved += 1
+                        else:
+                            fresh += 1
+                        if src.get(k) is not None:
+                            src[k]['concept'] = new
+                        notes.append('%s번 %s → %s (답지도 함께 고친다)' % (k, old, new))
+                merged[k] = v
+
+        nQ = exam['nQ']
+        missing = [str(n) for n in range(1, nQ + 1) if str(n) not in merged]
+        if missing:
+            print('[%s] 누락된 문항 %d개: %s'
+                  % (eid, len(missing), ', '.join(missing[:12])))
+            rc = 1
+            continue
+
+        print('[%s] %d문항 · 답지 이름을 지킨 자리 %d · 답지를 고칠 자리 %d(은행에 있는 이름 %d, 새 이름 %d)'
+              % (eid, len(merged), kept, moved + fresh, moved, fresh))
+        for n in notes:
+            print('    ' + n)
+
+        if write:
+            out = {
+                'schemaVersion': 2,
+                'examId': eid,
+                'examTitle': exam.get('title', ''),
+                'strategy': 'original-authored',
+                'note': '각 문항의 개념·사고과정에 맞춰 새로 집필한 독자 문항. 기출 복제 아님.',
+                'questions': {str(n): merged[str(n)] for n in range(1, nQ + 1)},
+            }
+            dest = os.path.join(ROOT, 'donghyung', '%s.json' % eid)
+            io.open(dest, 'w', encoding='utf-8').write(
+                json.dumps(out, ensure_ascii=False, indent=1) + '\n')
+            if os.path.exists(apath) and (moved or fresh):
+                io.open(apath, 'w', encoding='utf-8').write(
+                    json.dumps(adoc, ensure_ascii=False, indent=1) + '\n')
+            print('    → donghyung/%s.json (%d문항)' % (eid, nQ))
+
+    if not write:
+        print('\n(--write 를 붙이면 실제로 쓴다)')
+    return rc
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())
