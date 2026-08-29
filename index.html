@@ -124,6 +124,25 @@ a{color:var(--teal)}
    같게 맞춘다 — 안 맞추면 옆 단추보다 한 픽셀 아래로 내려앉는다. */
 #subLinkBar{display:contents}
 #subLinkBar a.btn{text-decoration:none;display:inline-flex;align-items:center}
+/* 보낼 문구 고르기 — 무엇이 나갈지 읽고 고친 뒤에 복사한다. */
+.shsheet{position:fixed;inset:0;z-index:9000;background:rgba(20,26,24,.42);
+  display:flex;align-items:center;justify-content:center;padding:18px}
+.shbox{width:min(560px,100%);max-height:86vh;display:flex;flex-direction:column;gap:11px;
+  background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;
+  box-shadow:0 18px 48px rgba(20,26,24,.24)}
+.shhead{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:15.5px}
+.shx{border:0;background:transparent;font-size:16px;color:var(--ink-3);cursor:pointer;padding:2px 6px;line-height:1}
+.shtabs{display:flex;gap:7px;flex-wrap:wrap}
+.shtab{border:1px solid var(--line);background:var(--surface);color:var(--ink-2);
+  border-radius:20px;padding:6px 14px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit}
+.shtab.on{background:var(--teal-d);color:#fff;border-color:transparent}
+.shta{width:100%;box-sizing:border-box;flex:1;min-height:250px;resize:vertical;
+  border:1px solid var(--line);border-radius:11px;padding:13px;font-size:13.5px;line-height:1.75;
+  font-family:inherit;color:var(--ink);background:var(--paper,#fff)}
+.shta:focus{outline:none;border-color:var(--teal)}
+.shfoot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.shhint{font-size:12px;color:var(--ink-3);flex:1 1 190px}
+.shfoot .btn{width:auto;padding:10px 20px}
 .tag{display:inline-block;font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;padding:3px 8px;border-radius:5px;background:var(--surface-2);color:var(--ink-3);text-transform:uppercase}
 
 /* ===== OMR 입력 ===== */
@@ -3669,7 +3688,7 @@ const App={
      <div class="ec__t">${ex.title}</div>
      <div class="ec__r">${ex.range}</div>
      <div class="ec__m"><span>문항 <b>${ex.questions.length}</b></span><span>배점 <b>${ex.questions.length*PT}</b></span><span>응시 <b id="ecn-${ex.id}">${this.examBaseN(ex)}</b></span></div>
-     ${SUBMIT_EXAMS.has(ex.id)?`<button class="ec__sub" title="학생이 스스로 풀고 내는 주소를 복사합니다" onclick="event.stopPropagation();App.copySubmitLinkOf('${ex.id}')">학생 제출 링크 ⧉</button>`:''}
+     ${SUBMIT_EXAMS.has(ex.id)?`<button class="ec__sub" title="학부모·학생에게 보낼 카톡 문구를 고르고 복사합니다" onclick="event.stopPropagation();App.copySubmitLinkOf('${ex.id}')">보낼 문구 · 링크 ⧉</button>`:''}
    </div>`;
   }).join("");
  },
@@ -3700,6 +3719,71 @@ const App={
  /* 학생 제출 주소를 만드는 자리는 **한 곳뿐이다.** 두 곳에서 만들면 한쪽만
     고쳤을 때 같은 회차가 두 주소를 갖는다 — final.html 이 그 일을 겪었다. */
  submitURL(id){ return new URL('final-submit.html?exam='+encodeURIComponent(id), location.href).href; },
+ /* ── 카톡에 그대로 붙일 문구 ────────────────────────────────────────
+    주소만 복사해 두면 선생님이 카톡 창에서 앞뒤 말을 매번 새로 지어야 한다.
+    한 회차를 반 스물몇 명에게 보내는 일이라 그 부담이 실제로 크고, 매번
+    말이 달라져서 같은 반 학부모끼리 다른 안내를 받는다.
+
+    ⚠ DT 의 문구(pending.html)와 **같은 뼈대**로 적는다 — 머리말 대괄호,
+      「안녕하세요, 화학 조준모입니다」, ▶ 링크 한 줄, 「감사합니다 / 조준모 드림」.
+      같은 학부모가 두 곳에서 안내를 받는데 목소리가 다르면 두 사람에게
+      받는 것처럼 읽힌다.
+    ⚠ 해설 주소는 **안 싣는다.** 풀기 전에 정답이 새면 시험이 시험이 아니다.
+    ⚠ 숫자를 지어내지 않는다 — 응시 인원은 그 회차에 실제로 쌓인 수(ex.N)를
+      쓰고, 없으면 그 문장을 통째로 뺀다. */
+ examMsg(id, who){
+  const ex=EXAMS.find(e=>e.id===id); if(!ex) return '';
+  const url=this.submitURL(id), nQ=ex.questions.length;
+  const N=this.examBaseN(ex);
+  if(who==='link') return url;
+  if(who==='student'){
+   return '[화학 조준모T] '+ex.title+' 온라인 시험\n\n'
+    +'아래 링크를 열면 시험지가 화면에 같이 뜹니다. '+nQ+'문항 4지선다예요.\n\n'
+    +'\u25b6 '+url+'\n\n'
+    +'· 문제를 읽고 답을 1~4로 입력하면 됩니다\n'
+    +'· 치던 답은 저장되니, 끊겨도 이어서 하면 됩니다\n'
+    +'· 다 넣고 제출하면 그 자리에서 채점되고, 틀린 문항은 개념 설명까지 나옵니다\n\n'
+    +'모르는 문항을 찍으면 진단이 그만큼 흐려집니다. 아는 만큼만 정확히 넣어 주세요.';
+  }
+  return '[다원교육 영재관 · 화학] '+ex.title+' 온라인 응시 안내\n\n'
+   +'안녕하세요, 화학 조준모입니다.\n\n'
+   +ex.title+'('+ex.range+')를 온라인으로 응시할 수 있도록 안내드립니다. '
+   +nQ+'문항 4지선다이고, 아래 링크를 열면 시험지가 화면에 함께 뜹니다 — 따로 인쇄하지 않으셔도 됩니다.\n\n'
+   +'\u25b6 '+url+'\n\n'
+   +'답안을 제출하면 그 자리에서 채점되어, 영역별 성취와 틀린 문항의 오개념까지 담긴 진단 리포트가 바로 나옵니다.'
+   +(N?(' 지금까지 '+N+'명의 응시 기록이 쌓여 있어 또래 대비 위치도 함께 보실 수 있습니다.'):'')+'\n\n'
+   +'시간은 두 시간 정도 잡으시면 넉넉합니다. 중간에 끊겨도 치던 답안은 남으니 이어서 풀 수 있습니다. '
+   +'집에서 편할 때 한 번 응시하도록 도와주시면 감사하겠습니다. 감사합니다.\n\n조준모 드림';
+ },
+ /* 문구를 **보여 주고** 복사한다. 무엇이 나갈지 모르는 채로 붙여넣게 두지
+    않는다 — 선생님이 학부모에게 보내는 말이라 그 자리에서 읽고 고칠 수 있어야 한다. */
+ shareSheet(id){
+  const ex=EXAMS.find(e=>e.id===id); if(!ex||!SUBMIT_EXAMS.has(id)) return;
+  const wrap=document.createElement('div'); wrap.className='shsheet'; wrap.id='shsheet';
+  const tabs=[['parent','학부모께'],['student','학생에게'],['link','주소만']];
+  wrap.innerHTML='<div class="shbox" role="dialog" aria-modal="true" aria-label="보낼 문구 고르기">'
+   +'<div class="shhead"><b>'+ex.title+'</b><button class="shx" aria-label="닫기" onclick="App.closeSheet()">✕</button></div>'
+   +'<div class="shtabs">'+tabs.map((t,i)=>'<button class="shtab'+(i?'':' on')+'" data-who="'+t[0]+'" onclick="App.shareTab(\''+t[0]+'\')">'+t[1]+'</button>').join('')+'</div>'
+   +'<textarea class="shta" id="shta" spellcheck="false" aria-label="보낼 문구"></textarea>'
+   +'<div class="shfoot"><span class="shhint">그대로 고쳐 쓰셔도 됩니다 — 복사되는 것은 이 칸의 글입니다.</span>'
+   +'<button class="btn btn--p" onclick="App.copySheet()">복사하기 ⧉</button></div></div>';
+  wrap.addEventListener('click', e=>{ if(e.target===wrap) this.closeSheet(); });
+  document.body.appendChild(wrap);
+  this._shId=id; this.shareTab('parent');
+ },
+ shareTab(who){
+  const ta=document.getElementById('shta'); if(!ta) return;
+  ta.value=this.examMsg(this._shId, who);
+  document.querySelectorAll('.shtab').forEach(b=>b.classList.toggle('on', b.dataset.who===who));
+ },
+ copySheet(){
+  const ta=document.getElementById('shta'); if(!ta) return;
+  const txt=ta.value;
+  const ok=()=>{ this.closeSheet(); this.toast('복사했습니다 — 카톡에 그대로 붙여넣으세요'); };
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok).catch(()=>{ ta.select(); try{document.execCommand('copy');ok();}catch(e){ this.toast('복사가 막혀 있습니다 — 칸의 글을 직접 선택해 복사해 주세요'); } });
+  else { ta.select(); try{document.execCommand('copy');ok();}catch(e){ this.toast('복사가 막혀 있습니다 — 칸의 글을 직접 선택해 복사해 주세요'); } }
+ },
+ closeSheet(){ const w=document.getElementById('shsheet'); if(w) w.remove(); },
  renderSubmitLink(){
   const bar=document.getElementById('subLinkBar'); if(!bar) return;
   const ex=this.exam;
@@ -3709,23 +3793,11 @@ const App={
    bar.innerHTML=ex?'<span class="submit-none">이 회차는 학생 제출 화면이 아직 없습니다</span>':'';
    return;
   }
-  bar.innerHTML='<button class="btn" onclick="App.copySubmitLink()" title="학생에게 보낼 주소를 복사합니다">학생 제출 링크 복사 ⧉</button>'
+  bar.innerHTML='<button class="btn" onclick="App.copySubmitLink()" title="학부모·학생에게 보낼 카톡 문구를 고르고 복사합니다">보낼 문구 · 링크 ⧉</button>'
    +'<a class="btn btn--p" href="'+this.submitURL(ex.id)+'" target="_blank" rel="noopener">학생 화면 열기 →</a>';
  },
- copySubmitLinkOf(id){
-  if(!SUBMIT_EXAMS.has(id)) return;
-  const url=this.submitURL(id);
-  const ok=()=>this.toast('학생 제출 링크 복사됨 · '+url);
-  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(ok).catch(()=>this.toast(url));
-  else this.toast(url);
- },
- copySubmitLink(){
-  const ex=this.exam; if(!ex||!SUBMIT_EXAMS.has(ex.id)) return;
-  const url=this.submitURL(ex.id);
-  const ok=()=>this.toast('학생 제출 링크 복사됨 · '+url);
-  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(ok).catch(()=>this.toast(url));
-  else this.toast(url);
- },
+ copySubmitLinkOf(id){ this.shareSheet(id); },
+ copySubmitLink(){ if(this.exam) this.shareSheet(this.exam.id); },
  openExam(id){
   this.exam=EXAMS.find(e=>e.id===id);this.answers={};this.idData={date:new Date().toISOString().slice(0,10)};this.demo=false;this.shared=false;
   this.cohort=[];this.curStats=null;this.curTrend=null;
