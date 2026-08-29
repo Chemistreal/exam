@@ -235,6 +235,26 @@ def main():
     ghost = sorted({v for v in mp.values() if v not in lec})
     dead = sorted(n for n, d in lec.items()
                   if not os.path.exists(os.path.join(ROOT, d.get('file', ''))))
+    # ①-2 한 이름이 두 표에 걸치면 안 된다
+    #
+    # lecFor 는 PAIRLEC 을 먼저 보고, 없으면 TYPELEC 을 본다. 그러니 「밀도」가
+    # 두 표에 다 있으면 pairMap 이 적어 둔 단원만 제대로 가고 **나머지 단원은
+    # 조용히 엉뚱한 강의로 간다.** 「밀도」가 단원마다 갈리는 이름이라고 판단한
+    # 순간, 그 이름은 pairMap 에만 있어야 한다.
+    pm = doc.get('pairMap', {})
+    pair_types = {k.split(PAIRSEP, 1)[1] for k in pm if PAIRSEP in k}
+    straddle = sorted(pair_types & set(mp))
+    # pairMap 이 그 이름의 **모든 단원**을 적었는지도 본다. 안 적힌 단원은
+    # TYPELEC 도 못 잡으니 흐릿한 글자 맞춤(lecForType)으로 흘러간다.
+    pairs = pairs_of()
+    thin_pairs = []
+    for t in sorted(pair_types):
+        want = {k.split(PAIRSEP, 1)[0] for k in pairs if k.split(PAIRSEP, 1)[1] == t}
+        have = {k.split(PAIRSEP, 1)[0] for k in pm if k.split(PAIRSEP, 1)[1] == t}
+        gap = sorted(want - have)
+        if gap:
+            thin_pairs.append((t, gap))
+
     # ② 빠진 세부개념
     missing = sorted(t for t in types if t not in mp and t not in un)
     stale = sorted(t for t in list(mp) + list(un) if t not in types)
@@ -267,6 +287,16 @@ def main():
     if stale:
         print('\n시험에 없는 세부개념이 표에 남아 있다 %d종: %s'
               % (len(stale), ', '.join(stale[:10])))
+    if straddle:
+        bad = True
+        print('\n한 이름이 map 과 pairMap 에 둘 다 있다 %d종: %s' % (len(straddle), ', '.join(straddle[:10])))
+        print('  → 단원마다 갈리는 이름이면 pairMap 에만 둔다. 안 그러면 pairMap 에')
+        print('     안 적힌 단원이 조용히 엉뚱한 강의로 간다.')
+    if thin_pairs:
+        bad = True
+        print('\npairMap 이 단원을 다 안 적은 이름 %d종:' % len(thin_pairs))
+        for t, gap in thin_pairs[:10]:
+            print('  %-16s 빠진 단원: %s' % (t, ', '.join(gap[:6])))
 
     if seal:
         json.dump({'설명': '이어진 문항 수. 이 수는 **늘기만 한다** — 줄면 빨간불이다.',
