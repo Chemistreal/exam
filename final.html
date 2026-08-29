@@ -699,6 +699,8 @@ summary::-webkit-details-marker{display:none}
 .wb-tag{font-size:11.5px;padding:3px 9px;border-radius:999px;background:var(--cream);color:var(--ink-2);font-weight:600}
 .wb-first{margin-left:auto;font-size:12.5px;color:var(--ms)}
 .wb-first b.x{color:#b0512f}.wb-first b.o{color:var(--teal)}
+.wb-pick{font-size:13.5px;line-height:1.7;color:#7a2f14;background:#ffeee6;border-left:3px solid #d0603a;border-radius:0 8px 8px 0;padding:10px 12px;margin:0 0 8px}
+.wb-pick b{color:#b0512f;margin-right:5px;white-space:nowrap}
 .wb-why{font-size:13px;line-height:1.7;color:var(--ink-2);background:#fff7f2;border-left:3px solid var(--ms);border-radius:0 8px 8px 0;padding:9px 12px;margin:0 0 10px}
 .wb-why b{color:#b0512f;margin-right:4px}
 .wb-fix{font-size:13px;line-height:1.75;color:var(--ink-2);background:#eef4f1;border-left:3px solid var(--teal);border-radius:0 8px 8px 0;padding:9px 12px;margin:0 0 12px}
@@ -6392,10 +6394,21 @@ function wbCardHTML(exam,w,qd,dqs,co,qpOnly){
   var bd=bkBroad(area), rxo=RX[area]||RX[bd];
   var why=(qd&&qd.misconception)||(type?omFor(type):'')||(rxo&&rxo.t)||'';
   var fix=(rxo&&rxo.k)||'';
+  /* ── 고른 번호의 해설 ────────────────────────────────────────────────
+     「왜 틀렸나」는 **이 문항에서 흔한 실수** 한 줄이다. 누가 풀었든 같은 줄이 나온다.
+     오답정리에서 정작 알고 싶은 것은 그게 아니라 «내가 고른 그 번호가 왜 틀렸나» 다.
+     답지의 `misconceptions` 는 선지마다 그 선지를 고르게 만드는 오류를 담고 있으니,
+     학생이 실제로 고른 번호가 거기 있으면 그 줄을 카드 맨 위에 세운다.
+     · 무응답이면 고른 번호가 없다 — 이 줄은 나오지 않는다.
+     · 답지에 그 번호가 없으면(선지별 해설이 아직 안 채워진 회차) 조용히 넘어간다.
+     · 두 줄이 같은 말이면 「왜 틀렸나」를 접는다 — 같은 문장을 연달아 두 번 읽히지 않는다. */
+  var pickWhy=(w.a&&qd&&qd.misconceptions&&qd.misconceptions[String(w.a)])||'';
+  if(pickWhy&&why&&String(pickWhy).replace(/\s+/g,'')===String(why).replace(/\s+/g,'')) why='';
   var cropSrc=cropURL(exam,q);
   var head='<div class="wb-head" data-wbq="'+q+'"><span class="wb-qno">'+q+'번</span>'+(area?'<span class="wb-tag">'+esc(area)+'</span>':'')+(type?'<span class="wb-tag">'+esc(type)+'</span>':'')
     +'<span class="wb-first">처음 <b class="x">'+(w.a?CIRC[w.a]:'무응답')+'</b> · 정답 <b class="o">'+correctLbl+'</b></span></div>';
-  var whyHTML=why?'<div class="wb-why"><b>왜 틀렸나</b> '+esc(why)+'</div>':'';
+  var pickHTML=pickWhy?'<div class="wb-pick"><b>고른 '+CIRC[w.a]+'가 왜 틀렸나</b> '+esc(pickWhy)+'</div>':'';
+  var whyHTML=pickHTML+(why?'<div class="wb-why"><b>이 문항에서 흔한 실수</b> '+esc(why)+'</div>':'');
   var fixHTML=fix?'<div class="wb-fix"><b>개념 보충</b> '+esc(fix)+'</div>':'';
   /* 해설지의 그 문항 풀이로 바로 가는 문(#qN 앞줄) — 문항별 풀이가 있는
      회차만. 표 꼭대기부터 손가락으로 밀어 내려가게 하지 않는다. */
@@ -7968,10 +7981,14 @@ async function downloadReportDOCX(){
       var ty=(cur.type&&cur.type[w.q-1])||'', ar=(cur.area&&cur.area[w.q-1])||'', bd=bkBroad(ar);
       var ck=cur.key?cur.key[w.q-1]:0; var aq=answers&&answers[w.q]||{}, dqs=(dh&&dh[w.q]||[]).filter(dhUsable);
       var why=aq.misconception||(ty?omFor(ty):'')||(RX[bd]&&RX[bd].t)||'';
+      /* 화면 카드와 같은 줄 — 학생이 고른 그 번호가 왜 틀렸는지. 종이로 남는 쪽에도 싣는다. */
+      var pickWhy=(w.a&&aq.misconceptions&&aq.misconceptions[String(w.a)])||'';
+      if(pickWhy&&why&&String(pickWhy).replace(/\s+/g,'')===String(why).replace(/\s+/g,'')) why='';
       body.push(P([run(w.q+'번  ',{bold:true,color:EM,size:30,serif:true}),run((ar?ar+'   ':''),{color:GOLD,size:18,bold:true}),run((ty?ty+'    ':''),{color:MUT,size:16}),run('처음 ',{color:MUT,size:20}),run(w.a?CI[w.a]:'무응답',{bold:true,color:RED,size:22}),run('  ·  정답 ',{color:MUT,size:20}),run(ck?CI[ck]:'·',{bold:true,color:EM,size:22})],{before:wi===0?200:360,after:90,border:{top:bdr(GOLDL,4)}}));
       if(cropMap[w.q]){ body.push(txt('원문 문제',{bold:true,color:EM,size:20,after:60})); body.push(imgPara(cropMap[w.q],470)); }
       else body.push(txt('원문: 문제지 '+w.q+'번을 확인하세요.',{color:MUT,size:19,after:60}));
-      if(why) body.push(P([run('왜 틀렸나  ',{bold:true,color:RED,size:21}),run(esc2(why),{size:21,color:'4a4437'})],{after:70,border:{left:bdr(RED,18)}}));
+      if(pickWhy) body.push(P([run('고른 '+CI[w.a]+'가 왜 틀렸나  ',{bold:true,color:RED,size:21}),run(esc2(pickWhy),{size:21,color:'4a4437'})],{after:(why?40:70),border:{left:bdr(RED,18)}}));
+      if(why) body.push(P([run('이 문항에서 흔한 실수  ',{bold:true,color:RED,size:21}),run(esc2(why),{size:21,color:'4a4437'})],{after:70,border:{left:bdr(RED,18)}}));
       var fixK=(RX[ar]&&RX[ar].k)||(RX[bd]&&RX[bd].k)||'';
       if(fixK) body.push(P([run('개념 보충  ',{bold:true,color:EM,size:21}),run(esc2(fixK),{size:21,color:'384a44'})],{after:(optOK?70:140),border:{left:bdr(EM,18)}}));
       // 또래 선택 분포 · 함정 분석
