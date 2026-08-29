@@ -563,6 +563,11 @@ jobs:
         timeout-minutes: 8
         run: python3 tools/twin_cover.py --check
 
+      # 틀린 문항이 실제로 있는 강의로 가는지 (죽은 링크·줄어든 커버리지).
+      - name: 개념강의 배선이 끊기지 않았다
+        timeout-minutes: 8
+        run: python3 tools/lecture_sync.py --check
+
       # 세부개념이 개념강의로 이어지는지 (끊기거나 줄면 빨간불).
       - name: 세부개념이 개념강의로 이어진다
         timeout-minutes: 5

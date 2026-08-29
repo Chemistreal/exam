@@ -3073,9 +3073,58 @@ const AREALEC={
   '아미노산':'lec-118-carbonyl-carboxyl-ester.html','DNA':'lec-121-carbon-compounds-synthesis.html',
   '탄화수소유도체':'lec-116-functional-groups.html'
 };
-/* 강의 링크 통합 리졸버: 영역 권위 매핑 → 유형 정밀 매칭 → 대분류 대표 강의(최후) */
+/* ── 세부개념(type) → 강의 권위 매핑 ────────────────────────────────
+   AREALEC 은 **영역**으로 잇는다. 그런데 영역 하나에 결이 다른 개념이 섞인
+   자리가 있다 — j0 의 `용액·농도` 아홉 문항 중 다섯은 실제로 산·염기다
+   (헨더슨-하셀바흐·약산 완충·염의 액성·pH 비교·약염기 적정). 거기에 영역
+   링크를 걸면 그 다섯이 **엉뚱한 강의로 끌려간다** — 지금보다 나빠진다.
+
+   그래서 영역이 아니라 **세부개념으로** 집는다. 아래 lecFor 가 AREALEC 다음,
+   흐릿한 이름 맞추기(lecForType) **앞에서** 이 표를 본다.
+
+   ⚠ 강의 번호는 **실제 파일**(lec-NNN-*.html)을 보고 정했다.
+     `lecture_curriculum_125.md` 는 **지어지기 전의 계획**이라 지금 파일과
+     125강 중 42강만 제목이 맞는다 — 그 문서로 번호를 고르면 학생이 딴 강의를
+     본다. 진짜 목록은 lecture-index.html 과 lec-*.html 파일이다.
+   ⚠ 강의가 **없는** 개념은 여기 안 넣는다. 크로마토그래피·세라믹·콜로이드·
+     산성비·온실기체·유효숫자·정밀도·순물질혼합물은 125강 어디에도 없다.
+     없는 것을 가까운 강의로 보내면 학생이 헛걸음한다 — 비워 두는 것이 맞다. */
+const TYPELEC={
+  // 원자·빛
+  '중성자수':'lec-001-atomic-structure-isotopes.html',
+  '원자·핵 크기':'lec-001-atomic-structure-isotopes.html',
+  '평균 원자량':'lec-036-formula-mass.html',
+  '빛의 진동수':'lec-002-light-duality.html',
+  '우주 원소 분포':'lec-009-nucleosynthesis.html',
+  // 몰·양적관계
+  '밀도·몰·개수':'lec-034-mole-avogadro.html',
+  '연소·실험식':'lec-038-stoichiometry.html',
+  // 결합
+  '결합 길이':'lec-020-bond-order-length-energy.html',
+  '결합 세기':'lec-020-bond-order-length-energy.html',
+  // 액체·용액
+  //   ⚠ '밀도' 는 여덟 영역에서 쓰이는 흔한 이름이다(고체의밀도·실제기체·액체·
+  //     몰과양적관계·용액의농도·양적관계·용액). 그런데 AREALEC 이 **먼저** 걸리므로
+  //     그 일곱은 제 영역 강의로 가고, AREALEC 에 없는 `용액` 만 여기로 온다.
+  //     실제 문항도 「98% 황산의 몰농도 18.0 M → 밀도」 로 농도 환산이다.
+  '밀도':'lec-054-concentration-units.html',
+  '라울법칙':'lec-055-colligative-overview.html',
+  '삼투현상':'lec-057-osmotic-pressure.html',
+  '삼투 현상':'lec-057-osmotic-pressure.html',
+  '상전이·압력':'lec-051-boiling-phase-diagram.html',
+  // 고체
+  '동소체':'lec-062-covalent-molecular-crystal.html',
+  // 산·염기
+  '헨더슨-하셀바흐':'lec-090-buffer-solution.html',
+  '약산·완충':'lec-090-buffer-solution.html',
+  'pH 크기 비교':'lec-084-ph-poh.html',
+  // 반응속도
+  '아레니우스 식':'lec-111-temperature-rate.html'
+};
+/* 강의 링크 통합 리졸버: 영역 권위 → **세부개념 권위** → 유형 흐릿 맞춤 → 대분류(최후) */
 function lecFor(area,type){
   if(AREALEC[area]) return AREALEC[area];
+  if(TYPELEC[type]) return TYPELEC[type];
   var byType=lecForType(type||''); if(byType) return byType;
   var bd=RX[area]?area:(RXMAP[area]||area);
   return (LEC[bd]&&LEC[bd].u)||null;
