@@ -553,6 +553,11 @@ jobs:
         timeout-minutes: 5
         run: python3 tools/mis_sync.py --check
       # 한 회차 안에서 문제지와 해설이 다른 상수를 쓰면 학생이 계산을 못 맞춘다.
+      # 학생이 스스로 풀고 내는 문이 빈 방으로 열리지 않게 한다.
+      - name: 학생 제출 링크가 실제로 서는 회차만 가리킨다
+        timeout-minutes: 5
+        run: python3 tools/submit_link.py --check
+
       # 저장소 전체 통일은 강요하지 않는다 — 회차마다 시험지 표지 값이 다르다.
       - name: 한 회차 안에서 상수가 갈리지 않는다
         timeout-minutes: 5

@@ -113,6 +113,17 @@ a{color:var(--teal)}
 .ec__r{font-size:13px;color:var(--ink-2);margin-bottom:14px}
 .ec__m{display:flex;gap:16px;font-family:var(--mono);font-size:11.5px;color:var(--ink-3);border-top:1px solid var(--line-2);padding-top:12px}
 .ec__m b{color:var(--teal);font-weight:700}
+/* 학생 제출 링크 — 카드를 누르면 채점 화면으로 가므로, 이 단추는 눌림을
+   가로챈다(event.stopPropagation). 카드 안에서 눈에 띄되 제목을 밀지 않게 둔다. */
+.ec__sub{margin-top:11px;width:100%;background:var(--teal-t);color:var(--teal-d);
+  border:1px solid var(--line-2);border-radius:9px;padding:7px 10px;font-size:12.5px;font-weight:700;
+  cursor:pointer;font-family:inherit}
+.ec__sub:hover{background:var(--teal-d);color:#fff;border-color:transparent}
+.submit-none{font-size:12.5px;color:var(--ink-3);align-self:center}
+/* 「학생 화면 열기」는 새 창으로 여는 자리라 <a> 다. 밑줄과 줄맞춤만 단추와
+   같게 맞춘다 — 안 맞추면 옆 단추보다 한 픽셀 아래로 내려앉는다. */
+#subLinkBar{display:contents}
+#subLinkBar a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .tag{display:inline-block;font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;padding:3px 8px;border-radius:5px;background:var(--surface-2);color:var(--ink-3);text-transform:uppercase}
 
 /* ===== OMR 입력 ===== */
@@ -1030,6 +1041,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
         <button class="btn btn--g" onclick="App.toSelect()">← 시험 목록</button>
         <button class="btn btn--g" onclick="App.clearAnswers()">답안 지우기</button>
         <button class="btn" onclick="App.loadSample()">시연 답안 불러오기</button>
+        <span id="subLinkBar"></span>
       </div>
     </div>
     <div class="rosterBar" id="rosterBar"></div>
@@ -2694,6 +2706,21 @@ const MISC_J0={
  59:{"*":{m:"촉매는 ΔH 불변, Ea만 감소 — 역반응 Ea = 정반응 Ea − ΔH_정",x:"역반응 반응엔탈피는 부호 반대라 +450 kJ/mol."}},
  60:{"*":{m:"k ∝ e^(−Ea/RT) — 고온·낮은 Ea에서 반응속도상수 최대",x:"k = A·e^(−Ea/RT)에서 온도 T가 높고 활성화에너지 Ea가 작을수록 지수부가 커져 k가 크다."}}
 };
+/* ── 학생이 스스로 풀고 내는 자리 ─────────────────────────────────────
+   여기(index.html)는 **선생님이 답안을 옮겨 치는** 화면이다. 학생이 집에서
+   혼자 풀고 낼 곳은 `final-submit.html?exam=<회차>` 다 — 그 화면은 문제지
+   PDF 를 위에 띄우고, 답을 다 넣으면 그 자리에서 채점해 성적표를 준다.
+
+   그런데 그 주소로 가는 문이 이 화면 어디에도 없었다. 선생님은 final.html
+   까지 가서 링크를 복사해 와야 했고, 그래서 학생에게 나가지 않았다.
+
+   ⚠ 아홉 회차가 다 서는 것은 아니다. `exams.json` 에 들어간 회차만 선다.
+     여기 목록은 **손으로 적지 않는다** — tools/submit_link.py 가 exams.json
+     과 맞춰 적고, 어긋나면 CI 가 빨간불을 켠다. 없는 회차에 링크를 주면
+     학생이 빈 화면을 만난다. */
+/* SUBMIT_EXAMS:START */
+const SUBMIT_EXAMS=new Set(["chem2-1","kch1to2","kch1to2-b","kch1to3","kch1to3-b","kch1u1","kch2final","kch2to3"]);
+/* SUBMIT_EXAMS:END */
 const EXAMS=[
  {id:"kch1to3",title:"화학1 1-3단원 모의고사",range:"화학의 기초 ~ 분자의 극성 · 중등 화올",source:"한국중학생화학대회 기출 재구성",N:443,haeseol:"sol-kch1to3.html",
   areaOrder:["화학의 기초","화학식량","몰","기체","양적관계","원소의 기원","원자모형","전자배치","주기율","분자의 구조","분자의 모양","분자의 극성","기타"],
@@ -3642,6 +3669,7 @@ const App={
      <div class="ec__t">${ex.title}</div>
      <div class="ec__r">${ex.range}</div>
      <div class="ec__m"><span>문항 <b>${ex.questions.length}</b></span><span>배점 <b>${ex.questions.length*PT}</b></span><span>응시 <b id="ecn-${ex.id}">${this.examBaseN(ex)}</b></span></div>
+     ${SUBMIT_EXAMS.has(ex.id)?`<button class="ec__sub" title="학생이 스스로 풀고 내는 주소를 복사합니다" onclick="event.stopPropagation();App.copySubmitLinkOf('${ex.id}')">학생 제출 링크 ⧉</button>`:''}
    </div>`;
   }).join("");
  },
@@ -3669,12 +3697,42 @@ const App={
    setTimeout(()=>{ if(!done)cleanup(); },8000);
   });
  },
+ /* 학생 제출 주소를 만드는 자리는 **한 곳뿐이다.** 두 곳에서 만들면 한쪽만
+    고쳤을 때 같은 회차가 두 주소를 갖는다 — final.html 이 그 일을 겪었다. */
+ submitURL(id){ return new URL('final-submit.html?exam='+encodeURIComponent(id), location.href).href; },
+ renderSubmitLink(){
+  const bar=document.getElementById('subLinkBar'); if(!bar) return;
+  const ex=this.exam;
+  if(!ex||!SUBMIT_EXAMS.has(ex.id)){
+   /* 없는 회차에 단추를 주지 않는다. 왜 없는지는 적어 둔다 — 안 적으면
+      선생님이 «내 화면만 안 보이나» 를 의심하게 된다. */
+   bar.innerHTML=ex?'<span class="submit-none">이 회차는 학생 제출 화면이 아직 없습니다</span>':'';
+   return;
+  }
+  bar.innerHTML='<button class="btn" onclick="App.copySubmitLink()" title="학생에게 보낼 주소를 복사합니다">학생 제출 링크 복사 ⧉</button>'
+   +'<a class="btn btn--p" href="'+this.submitURL(ex.id)+'" target="_blank" rel="noopener">학생 화면 열기 →</a>';
+ },
+ copySubmitLinkOf(id){
+  if(!SUBMIT_EXAMS.has(id)) return;
+  const url=this.submitURL(id);
+  const ok=()=>this.toast('학생 제출 링크 복사됨 · '+url);
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(ok).catch(()=>this.toast(url));
+  else this.toast(url);
+ },
+ copySubmitLink(){
+  const ex=this.exam; if(!ex||!SUBMIT_EXAMS.has(ex.id)) return;
+  const url=this.submitURL(ex.id);
+  const ok=()=>this.toast('학생 제출 링크 복사됨 · '+url);
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(ok).catch(()=>this.toast(url));
+  else this.toast(url);
+ },
  openExam(id){
   this.exam=EXAMS.find(e=>e.id===id);this.answers={};this.idData={date:new Date().toISOString().slice(0,10)};this.demo=false;this.shared=false;
   this.cohort=[];this.curStats=null;this.curTrend=null;
   this.restoreDraft(id);
   document.getElementById('inExam').textContent=this.exam.title;
   document.getElementById('inRange').textContent=this.exam.range;
+  this.renderSubmitLink();
   this.renderIdForm();this.renderOMR();this.updateProg();this.updateRosterUI();this.show('input');
  },
  /* ===== 시드(기존 엑셀 전체) + 추가 입력 누적 ===== */
