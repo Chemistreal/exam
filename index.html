@@ -2740,6 +2740,33 @@ const MISC_J0={
 /* SUBMIT_EXAMS:START */
 const SUBMIT_EXAMS=new Set(["chem2-1","kch1to2","kch1to2-b","kch1to3","kch1to3-b","kch1u1","kch2final","kch2to3"]);
 /* SUBMIT_EXAMS:END */
+
+/* ── 학부모가 받은 성적표 링크는 final.html 로 넘긴다 ──────────────────
+   이 화면(index.html)에도 성적표가 있지만 **옛 양식**이다. 파이널 양식은
+   final.html 에 있고 거기에만 절이 다 있고 Word 저장이 있다.
+
+   `#r=…` 링크는 답안만 담고 받는 쪽에서 처음부터 다시 채점한다. 그리고 두
+   화면이 **같은 형식**으로 담는다 — 회차 아이디 · 답안 5진수를 36진수로 ·
+   응시번호 · 이름. 그래서 해시를 **한 글자도 안 바꾸고** 그대로 넘기면 된다.
+   (2026-08-29 브라우저로 확인: 같은 해시로 두 화면이 같은 원점수를 냈다.)
+
+   ⚠ 이미 학부모 손에 나가 있는 링크가 그대로 올라가는 것이 핵심이다.
+     링크를 다시 보내 달라고 할 수가 없다.
+   ⚠ final.html 이 모르는 회차는 안 넘긴다 — 넘기면 빈 화면을 만난다.
+     아는 회차 목록은 위 SUBMIT_EXAMS 하나뿐이고 tools/submit_link.py 가
+     exams.json 과 맞춰 지킨다.
+   ⚠ replace() 로 넘긴다. assign() 이면 뒤로가기가 이 자리로 돌아와 다시
+     넘어가는 고리가 된다.
+   ⚠ 스크립트 맨 앞에 둔다. boot() 까지 기다리면 옛 성적표가 한 번 그려졌다
+     사라진다 — 학부모 눈에 화면이 번쩍인다. */
+(function(){
+  try{
+    var h=String(location.hash||'');
+    var m=h.match(/[#&]r=([^.&]+)\./);
+    if(!m || !SUBMIT_EXAMS.has(m[1])) return;
+    location.replace('final.html' + h);
+  }catch(e){}
+})();
 const EXAMS=[
  {id:"kch1to3",title:"화학1 1-3단원 모의고사",range:"화학의 기초 ~ 분자의 극성 · 중등 화올",source:"한국중학생화학대회 기출 재구성",N:443,haeseol:"sol-kch1to3.html",
   areaOrder:["화학의 기초","화학식량","몰","기체","양적관계","원소의 기원","원자모형","전자배치","주기율","분자의 구조","분자의 모양","분자의 극성","기타"],
