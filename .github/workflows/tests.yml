@@ -719,6 +719,11 @@ jobs:
       - name: 오답노트 상호작용
         timeout-minutes: 5
         run: node tests/wrongbook-interactive.js
+      # 카드 한 장이 학생에게 말해 주는 네 가지 — 고른 번호의 해설, 흔한 실수,
+      # 개념 보충, 그 개념 강의로 가는 문. 앞의 둘은 오래 한 줄로 뭉쳐 있었다.
+      - name: 오답 카드가 고른 번호를 짚고 강의로 잇는다
+        timeout-minutes: 5
+        run: node tests/wrongbook-card.js
       - name: 링크 열람에 암호를 묻지 않는다
         timeout-minutes: 5
         run: node tests/gate.js

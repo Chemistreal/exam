@@ -699,6 +699,7 @@ summary::-webkit-details-marker{display:none}
 .wb-tag{font-size:11.5px;padding:3px 9px;border-radius:999px;background:var(--cream);color:var(--ink-2);font-weight:600}
 .wb-first{margin-left:auto;font-size:12.5px;color:var(--ms)}
 .wb-first b.x{color:#b0512f}.wb-first b.o{color:var(--teal)}
+.wb-lec{display:inline-block;margin:8px 8px 0 0;font-size:12.5px;font-weight:700;color:var(--cobalt);text-decoration:none;border:1px solid currentColor;border-radius:999px;padding:4px 11px}
 .wb-pick{font-size:13.5px;line-height:1.7;color:#7a2f14;background:#ffeee6;border-left:3px solid #d0603a;border-radius:0 8px 8px 0;padding:10px 12px;margin:0 0 8px}
 .wb-pick b{color:#b0512f;margin-right:5px;white-space:nowrap}
 .wb-why{font-size:13px;line-height:1.7;color:var(--ink-2);background:#fff7f2;border-left:3px solid var(--ms);border-radius:0 8px 8px 0;padding:9px 12px;margin:0 0 10px}
@@ -3124,6 +3125,14 @@ const TYPELEC={
   '아레니우스 식':'lec-111-temperature-rate.html'
 };
 /* 강의 링크 통합 리졸버: 영역 권위 → **세부개념 권위** → 유형 흐릿 맞춤 → 대분류(최후) */
+/* 강의 파일 이름 → 사람이 읽는 제목. LECLIST 는 [파일, 제목] 쌍이라 한 번만 뒤집어 둔다.
+   제목은 「이온화에너지」처럼 붙여 쓴 낱말이라, 화면에 걸 때는 그대로 쓴다. */
+const LECNAME=(function(){var m={};for(var i=0;i<LECLIST.length;i++)m[LECLIST[i][0]]=LECLIST[i][1];return m;})();
+function lecLinkHTML(area,type,label){
+  var f=lecFor(area,type); if(!f) return '';
+  return '<a class="wb-lec" href="'+f+'" target="_blank" rel="noopener">▶ '
+    +esc(LECNAME[f]||label||'개념')+' 강의 보기 ↗</a>';
+}
 function lecFor(area,type){
   if(AREALEC[area]) return AREALEC[area];
   if(TYPELEC[type]) return TYPELEC[type];
@@ -6416,6 +6425,10 @@ function wbCardHTML(exam,w,qd,dqs,co,qpOnly){
     fixHTML+='<a class="wb-sol-link" href="sol-final-'+esc(exam.id)+'.html#q'+q
       +'" target="_blank" rel="noopener">해설지에서 이 문항 풀이 보기 ↗</a>';
   }
+  /* 개념 강의로 가는 문. 개념 클리닉 절에는 예전부터 걸려 있었는데, 정작 **틀린
+     문항을 들여다보는 자리**인 오답노트 카드에는 없었다. 여기서 「왜 틀렸나」를
+     읽은 학생이 바로 강의로 건너갈 수 있어야 한다. */
+  fixHTML+=lecLinkHTML(area,type,area);
   // 또래 선택지 분포 · 함정 분석(누적 응시 충분할 때만)
   var peerHTML='', tp=wbTrap(co,accepted,w.a);
   if(tp){
