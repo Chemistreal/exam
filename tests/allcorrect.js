@@ -158,6 +158,14 @@ console.log('\n── 오답 감점을 먹지 않는다 ──');
   chk('전원정답은 오답 목록에 없다', wrong.map(w => w.q), [2]);
   chk('맞은 문항 수', correct, 2);
   // finalRawScore 로 실제 점수까지
+  /* ⚠ finalPenalty 는 **한 줄로 적혀 있어야 한다** — 아래가 첫 줄만 오려 내기
+     때문이다. 2026-08-29 에 두 줄로 나눴다가 여기서 `SyntaxError: Unexpected
+     token ')'` 만 떨어졌고, 그 메시지로는 까닭을 알 수가 없었다. 그래서 먼저
+     재고 사람 말로 말한다. */
+  {
+    const _fp = SRC.slice(SRC.indexOf('function finalPenalty')).split('\n')[0];
+    chk('finalPenalty 가 한 줄에 다 들어 있다', /\}\s*$/.test(_fp.trim()), true);
+  }
   const mk = new Function(
     SRC.slice(SRC.indexOf('function finalPenalty')).slice(0, 400).split('\n').slice(0, 1).join('\n') + '\n' +
     (() => { const at = SRC.indexOf('function finalRawScore'); let i = SRC.indexOf('{', at), d = 0;

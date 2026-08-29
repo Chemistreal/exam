@@ -234,7 +234,10 @@ const allcSet=e=>{ const s=new Set((e&&e.miss)||[]);
   return s; };
 const okq=(e,q,a)=>allc(e,q)||accSet(e,q).indexOf(a)>=0;
 const SHEET_ENDPOINT='https://script.google.com/macros/s/AKfycbxGmSCkip0cQCyOH_JA2SiAMSxri00XObLmHyXlyXwxhG7u7w-x0FH02VN4DQySiUsv9Q/exec';
-function finalPenalty(exam){ var g=(exam&&exam.group)||''; return (g==='JMChC'||g==='산과염기'||g==='파이널')?0:1; }
+/* 무감점: JMChC · 산과염기 · 파이널 · 화학1/화학2 단원평가 여덟 회차.
+   그 밖에는 오답 −1. final.html 의 같은 함수에 까닭이 길게 적혀 있다 —
+   **두 파일이 글자까지 같아야 한다**(tests/final-submit-sync.js 가 맞대어 본다). */
+function finalPenalty(exam){ var g=(exam&&exam.group)||''; return (g==='JMChC'||g==='산과염기'||g==='파이널'||g==='화학1'||g==='화학2')?0:1; }
 function finalRawScore(exam, correct, wrongList){
   var pen=finalPenalty(exam);
   var wrongAns=(wrongList||[]).filter(function(w){ return w&&w.a>=1&&w.a<=4; }).length;
