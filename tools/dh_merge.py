@@ -24,11 +24,11 @@ def main() -> None:
     exam_id = sys.argv[1]
     parts = sys.argv[2:]
 
-    exams = json.loads(
-        (ROOT / "final.html").read_text(encoding="utf-8")
-        .split("const FINAL_EXAMS=", 1)[1]
-        .split(";\n", 1)[0]
-    )
+    # 시험 목록은 exams.json 한 곳에만 있다. 예전에는 final.html 안의
+    # `const FINAL_EXAMS=` 를 잘라 읽었는데, 그 상수가 exams.json 으로 옮겨 가면서
+    # 이 도구는 조용히 죽어 있었다 — 부르면 IndexError 로 끝난다. 아무도 안 불렀기에
+    # 아무도 몰랐다. 이제 같은 파일을 본다.
+    exams = json.loads((ROOT / "exams.json").read_text(encoding="utf-8"))
     exam = next((e for e in exams if e["id"] == exam_id), None)
     if exam is None:
         raise SystemExit(f"알 수 없는 시험: {exam_id}")
