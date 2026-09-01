@@ -22,6 +22,12 @@
     python3 tools/answer_fill.py            # 무엇이 채워질지만 보여 준다
     python3 tools/answer_fill.py --write    # 채운다 (조각 파일은 지우지 않는다)
     python3 tools/answer_fill.py --check    # 답지 안의 선지별 오답 해설이 성한지만 본다
+
+들어오는 자리는 셋이다.
+
+    answers/_wip/<id>-<범위>.json    지문·선지·해설·오개념 통째로 (해설 PDF 를 옮긴 것)
+    answers/_crop/<id>__c<n>.json    지문·선지·선지별 오답 (원문 크롭을 읽은 것)
+    answers/_mis/<id>__m<n>.json     선지별 오답 해설만 (이미 지문이 있는 회차)
 """
 import glob
 import io
@@ -109,6 +115,11 @@ def main():
     for p in sorted(glob.glob(os.path.join(ROOT, 'answers', '_wip', '*.json'))):
         eid = os.path.basename(p).rsplit('-', 2)[0]
         parts.setdefault(eid, {'full': [], 'mis': []})['full'].append(p)
+    # 크롭에서 옮겨 적은 것(지문·선지·선지별 오답 해설)도 같은 문으로 들어온다.
+    # 통째로 채우는 갈래에 넣는다 — stem·choices 가 함께 오기 때문이다.
+    for p in sorted(glob.glob(os.path.join(ROOT, 'answers', '_crop', '*.json'))):
+        eid = os.path.basename(p).split('__')[0]
+        parts.setdefault(eid, {'full': [], 'mis': []})['full'].append(p)
     for p in sorted(glob.glob(os.path.join(ROOT, 'answers', '_mis', '*.json'))):
         eid = os.path.basename(p).split('__')[0]
         parts.setdefault(eid, {'full': [], 'mis': []})['mis'].append(p)
@@ -136,6 +147,20 @@ def main():
                     notes.append('%s번이 답지에 없다 (%s)' % (k, os.path.basename(p)))
                     rc = 1
                     continue
+                # 선지별 오답 해설은 통째 갈래로 들어와도 같은 문을 지나야 한다.
+                # 정답 번호가 섞인 표가 답지에 앉으면 성적표가 맞힌 학생에게
+                # 「네가 고른 게 왜 틀렸나」를 보여 준다.
+                if v.get('misconceptions'):
+                    probe = dict(q)
+                    probe['misconceptions'] = v['misconceptions']
+                    broken, part = mis_errors(probe)
+                    if broken or part:
+                        refused += 1
+                        notes.append('%s번 선지별 오답 거절 — %s'
+                                     % (k, ' / '.join(broken + part)))
+                        rc = 1
+                        v = dict(v)
+                        v.pop('misconceptions')
                 for f in FIELDS:
                     if f not in v or not v[f]:
                         continue
