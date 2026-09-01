@@ -33,12 +33,34 @@ import glob
 import io
 import json
 import os
+import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # 통째로 채우는 갈래에서 옮길 자리. explanationHtml 은 여기서 만들지 않는다 —
 # tools/gen_expl_html.py 가 글에서 꼴을 만든다(그 자가 유일한 생성자여야 한다).
 FIELDS = ('stem', 'choices', 'explanation', 'misconception', 'misconceptions')
+
+# 성적표는 학부모와 학생이 함께 읽는다. 답지의 문장은 전부 「~다.」로 끝나는
+# 평서체다(실측 186문항 전부). 집필 에이전트에게 「학생에게 말하듯」이라고
+# 일렀더니 반말(「~어긋나.」 「~보여.」)로 써 온 회차가 있었다 — 한 회차만
+# 어투가 다르면 그 회차만 다른 사람이 쓴 것처럼 읽힌다. 자료 쪽에서 막는다.
+_TONE_BAD = re.compile(
+    r'(?:[가-힣])(?:야|여|어|지|네|나|구나|까|래|자|요|잖아|거든|에요|예요)\s*[.!?]?\s*$')
+_TONE_OK_TAIL = re.compile(r'(?:다|음|함|됨|임)\s*[.!?]?\s*$|[가-힣]\s*$')
+
+
+def tone_bad(text):
+    """마지막 문장이 평서체가 아니면 그 문장을 돌려준다."""
+    t = str(text or '').strip()
+    if not t:
+        return None
+    last = re.split(r'(?<=[.!?])\s+', t)[-1].strip()
+    if not last:
+        return None
+    if _TONE_BAD.search(last) and not re.search(r'(?:하다|이다|한다|된다|없다|있다)\s*[.!?]?$', last):
+        return last
+    return None
 
 
 def load(p):
@@ -78,6 +100,10 @@ def mis_errors(q, n_choices=4):
             broken.append('%s번 설명이 비어 있다' % k)
         if not (1 <= int(k) <= n_choices):
             broken.append('선지 범위 밖: %s' % k)
+    for k, v in sorted(mis.items()):
+        bad_line = tone_bad(v)
+        if bad_line:
+            broken.append('%s번 설명이 평서체가 아니다: 「…%s」' % (k, bad_line[-24:]))
     thin = []
     if acc:
         missing = [str(n) for n in range(1, n_choices + 1)
