@@ -235,18 +235,18 @@ def main():
     ghost = sorted({v for v in mp.values() if v not in lec})
     dead = sorted(n for n, d in lec.items()
                   if not os.path.exists(os.path.join(ROOT, d.get('file', ''))))
+    pm = doc.get('pairMap', {})
+    pair_types = {k.split(PAIRSEP, 1)[1] for k in pm if PAIRSEP in k}
+    pairs = pairs_of()
     # ①-2 한 이름이 두 표에 걸치면 안 된다
     #
     # lecFor 는 PAIRLEC 을 먼저 보고, 없으면 TYPELEC 을 본다. 그러니 「밀도」가
     # 두 표에 다 있으면 pairMap 이 적어 둔 단원만 제대로 가고 **나머지 단원은
     # 조용히 엉뚱한 강의로 간다.** 「밀도」가 단원마다 갈리는 이름이라고 판단한
     # 순간, 그 이름은 pairMap 에만 있어야 한다.
-    pm = doc.get('pairMap', {})
-    pair_types = {k.split(PAIRSEP, 1)[1] for k in pm if PAIRSEP in k}
     straddle = sorted(pair_types & set(mp))
     # pairMap 이 그 이름의 **모든 단원**을 적었는지도 본다. 안 적힌 단원은
     # TYPELEC 도 못 잡으니 흐릿한 글자 맞춤(lecForType)으로 흘러간다.
-    pairs = pairs_of()
     thin_pairs = []
     for t in sorted(pair_types):
         want = {k.split(PAIRSEP, 1)[0] for k in pairs if k.split(PAIRSEP, 1)[1] == t}
@@ -256,11 +256,21 @@ def main():
             thin_pairs.append((t, gap))
 
     # ② 빠진 세부개념
-    missing = sorted(t for t in types if t not in mp and t not in un)
+    #
+    # pairMap 에만 있는 이름을 «빠졌다» 고 세면 안 된다. 단원마다 갈리는 이름은
+    # 일부러 map 에 안 넣는 것이 규칙이라, 그렇게 세면 규칙을 지킨 자리가
+    # 빨간불로 뜬다(실제로 32종이 그렇게 잡혔다).
+    missing = sorted(t for t in types
+                     if t not in mp and t not in un and t not in pair_types)
     stale = sorted(t for t in list(mp) + list(un) if t not in types)
-    # ③ 덮는 문항
-    covQ = sum(types[t] for t in types if t in mp)
-    covT = sum(1 for t in types if t in mp)
+    # ③ 덮는 문항 — pairMap 이 짝으로 덮는 문항도 함께 센다.
+    covered = set()
+    for k, n in pairs.items():
+        ar, ty = k.split(PAIRSEP, 1)
+        if ty in mp or k in pm:
+            covered.add(k)
+    covQ = sum(pairs[k] for k in covered)
+    covT = len({k.split(PAIRSEP, 1)[1] for k in covered})
 
     print('세부개념 %d종 · 문항 %d개 · 개념강의 %d강' % (len(types), nQ, len(lec)))
     print('이어진 세부개념 %d종(%d%%) · 이어진 문항 %d개(%d%%)'
