@@ -128,6 +128,27 @@ console.log('\n── 지금 저장소에 든 기준 기록 ──');
   /* 줄어들면 걸린다. 늘리는 것은 사람이 이 줄을 같이 고치면 된다 — 그때는
      '왜 늘었나' 가 커밋에 남는다. */
   chk('기준 인원이 387명 아래로 내려가지 않았다', total >= 387, true);
+
+  /* ── 점수 분포의 **단위** ────────────────────────────────────────────
+     hist 는 「맞은 문항 수 → 인원」이다. final.html 은 학생의 **맞은 문항 수**를
+     이 분포와 견줘 석차·백분위를 낸다(percentile(_rp.pool, correct)).
+
+     j0 가 원점수(111~174)로 들어와 있었다. 60 이하인 맞은 문항 수가 111~174
+     분포와 비교되니 **누구를 채점해도 꼴찌**로 나왔다 — 화면은 멀쩡히 숫자를
+     내놓고, 그 숫자만 조용히 틀렸다. 옛 채점기(grade-j0.html)가 원점수를
+     시트에 적어 온 자리였다(2026-09-02).
+
+     깃발로는 못 막는다. 값을 본다 — 키가 그 회차의 문항 수를 넘으면 단위가
+     다른 것이다. */
+  const EX = JSON.parse(fs.readFileSync(path.join(ROOT, 'exams.json'), 'utf8'));
+  const nQof = {};
+  EX.forEach(e => { nQof[e.id] = e.nQ; });
+  const wrongUnit = Object.keys(BASE).filter(id => {
+    const h = BASE[id].hist, n = nQof[id];
+    if (!h || !n) return false;
+    return Object.keys(h).some(k => Number(k) > n);
+  });
+  chk('점수 분포가 맞은 문항 수 단위다(원점수가 아니다)', wrongUnit, []);
 }
 
 console.log(fail ? `\nFAIL ${fail}건` : '\nPASS');
