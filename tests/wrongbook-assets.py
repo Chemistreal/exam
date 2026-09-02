@@ -145,7 +145,10 @@ assert seen == expected, f"자산이 빠진 문항이 있다: {seen} != {expecte
 #    2700 → 2880 : 단원평가 세 회차(kch1u1·kch1to2·kch1to2-b)에 제 동형문제 은행을
 #    집필해 앉혔다. DH_SETS 에 빈 배열로 «없음» 이라 적혀 있던 여덟 가운데 셋이다.
 #    남은 다섯(kch1to3·kch1to3-b·chem2-1·kch2to3·kch2final)과 j0 는 아직이다 (2026-09-02).
-assert seen == 2880, f"문항 총합이 달라졌다: {seen} (기대 2880)"
+#    2880 → 3000 : 진도평가 두 회차(kch1to3·kch1to3-b)에도 은행을 앉혔다. 이로써
+#    DH_SETS 의 빈 배열 여덟 가운데 다섯이 채워졌고, 남은 셋(chem2-1·kch2to3·
+#    kch2final)과 j0 가 아직이다 (2026-09-02).
+assert seen == 3000, f"문항 총합이 달라졌다: {seen} (기대 3000)"
 print(
     f"PASS wrongbook assets: exams={len(exams)} questions={seen} "
     f"손상(가드로 숨김)={broken}/{BROKEN_BUDGET}"
