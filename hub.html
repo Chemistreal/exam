@@ -989,7 +989,9 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
       <h2>반</h2>
       <p class="hint">DT 반 명단을 그대로 씁니다. 반을 고르면 그 반 아이들이
         <b>미응시 · 재시 대기 · 통과</b>와 <b>파이널 성적</b>과 함께 한 표에 섭니다.
-        문자도 여기서 바로 복사하고, 이름을 누르면 그 학생 카드가 열립니다.</p>
+        문자도 여기서 바로 복사하고, 이름을 누르면 그 학생 카드가 열립니다.
+        <br>여기 서는 것은 <b>이번 회차</b>입니다 — 「어느 회차를 안 봤나」는
+        <b>회차별 격자 →</b> 를 누르면 그 반 자리로 바로 갑니다.</p>
       <!-- 반이 여덟이면 칩을 여덟 번 눌러야 전체가 보인다. 한 화면에서 견준다. -->
       <div id="clsMult"></div>
       <div class="chips" id="clsTabs"></div>
@@ -4407,6 +4409,7 @@ function renderClassTab(){
     '</div>'+
     '<span class="acts">'+
     (absIdx!=null ? '<button class="mini msg" data-abs="'+absIdx+'" data-stage="bc" data-orig="반 전체 공지">반 전체 공지</button>' : '')+
+    '<button class="mini" data-clsact="grid">회차별 격자 →</button>'+
     '<button class="mini" data-clsact="lesson">수업 문자</button>'+
     '<button class="mini" data-clsact="names">명단 복사</button>'+
     '<button class="mini" data-clsact="table">표 복사</button>'+
@@ -4845,6 +4848,32 @@ document.addEventListener('click', function(e){
   }
   /* 수업 안내는 반 전체에게 간다 — 걸러 놓은 것(CLS_ROWS)이 아니라 반 자체를
      넘긴다. 미응시만 보는 중에 눌러도 열두 명 모두에게 나가야 한다. */
+  /* ── 회차별 격자로 ────────────────────────────────────────────────
+     이 화면은 **이번 회차** 의 상태만 세운다(미응시·재시 대기·통과). 그래서
+     지난 다섯 회차를 통째로 빠뜨린 학생과 이번 주만 안 본 학생이 같은 줄로
+     보인다. 회차 축을 편 격자는 DT 의 재시·문자 화면에 이미 있다 —
+     여기서 다시 만들지 않고 **그리로 데려간다.**
+
+     ⚠ 격자를 여기 옮겨 짓지 않은 이유가 하나 더 있다. 저쪽 격자는
+       「중도에 들어온 학생의 첫 응시보다 앞선 회차는 미응시로 세지 않는다」
+       는 선생님 결정을 담고 있다. 같은 것을 두 곳에 지으면 언젠가 한쪽만
+       그 규칙을 잊고, 학부모에게 「네 회차가 밀렸다」는 사실 아닌 문자가
+       나간다. 한 곳에서만 센다. */
+  if(b.dataset.clsact === 'grid'){
+    const want = CLS_PICK;
+    show('dtp');
+    const f = mountFrame('dtp');
+    let n = 0;
+    const t = setInterval(function(){
+      let w = null; try{ w = f.contentWindow; }catch(e){ w = null; }
+      if(w && typeof w.gotoCls === 'function' && w.gotoCls(want)){ clearInterval(t); return; }
+      /* 저쪽이 창구를 기다리는 동안은 반 카드가 아직 없다. 열두 번(6초)까지
+         기다려 보고 그만둔다 — 화면은 이미 넘어가 있으므로 선생님은 손으로
+         찾으실 수 있다. 여기서 더 붙잡을 이유가 없다. */
+      if(++n > 12) clearInterval(t);
+    }, 500);
+    return;
+  }
   if(b.dataset.clsact === 'lesson'){
     const c = dtClassList().filter(function(x){ return x.label === CLS_PICK; })[0];
     if(c) openLessons(c);
