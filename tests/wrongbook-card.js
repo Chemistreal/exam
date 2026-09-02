@@ -114,6 +114,11 @@ function pickTarget() {
       blankPick: B ? !!B.querySelector('.wb-pick') : null,
       blankHead: B ? (B.querySelector('.wb-head .wb-first') || {}).textContent || '' : '',
       why: A ? [].slice.call(A.querySelectorAll('.wb-why b')).map(b => b.textContent) : [],
+      otext: A ? !!A.querySelector('details.wb-otext') : false,
+      stem: A ? ((A.querySelector('.wb-ostem') || {}).textContent || '') : '',
+      nCh: A ? A.querySelectorAll('.wb-ochoices li').length : 0,
+      mine: A ? ((A.querySelector('.wb-ochoices li.is-mine') || {}).textContent || '') : '',
+      key: A ? ((A.querySelector('.wb-ochoices li.is-key') || {}).textContent || '') : '',
     };
   }, [T.q, blankQ]);
 
@@ -129,6 +134,15 @@ function pickTarget() {
   chk('강의 문이 강의 이름을 부른다', /강의 보기/.test(got.lecText), true);
   chk('아랫줄은 「흔한 실수」로 이름이 갈린다',
     got.why.every(t => !/^왜 틀렸나/.test(t)), true);
+  /* 크롭 그림 한 장만으로는 세 가지가 안 된다 — 그림이 못 뜨면 문항을 아예 못 보고,
+     크롭이 원본의 그래프·표를 잃은 회차에서는 풀 자료가 없고, 숫자를 옮겨 적을 수 없다.
+     답지에 원문이 남은 회차는 글로도 싣는다. */
+  chk('원문을 글로도 싣는다', got.otext, true);
+  chk('그 글이 비어 있지 않다', got.stem.length > 10, true);
+  chk('보기 넷을 함께 싣는다', got.nCh, 4);
+  chk('고른 보기에 이름표가 붙는다', /고른 것/.test(got.mine), true);
+  chk('정답 보기에 이름표가 붙는다', /정답/.test(got.key), true);
+  chk('고른 것과 정답이 서로 다른 보기다', got.mine !== got.key, true);
   chk('JS 오류 없음', errs, []);
 
   await browser.close();

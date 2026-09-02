@@ -700,6 +700,21 @@ summary::-webkit-details-marker{display:none}
 .wb-first{margin-left:auto;font-size:12.5px;color:var(--ms)}
 .wb-first b.x{color:#b0512f}.wb-first b.o{color:var(--teal)}
 .wb-lec{display:inline-block;margin:8px 8px 0 0;font-size:12.5px;font-weight:700;color:var(--cobalt);text-decoration:none;border:1px solid currentColor;border-radius:999px;padding:4px 11px}
+.wb-otext{margin-top:8px;border-top:1px dashed var(--line);padding-top:7px}
+.wb-otext>summary{cursor:pointer;font-size:12.5px;font-weight:700;color:var(--muted);list-style:none}
+.wb-otext>summary::-webkit-details-marker{display:none}
+.wb-otext>summary::before{content:'▸ ';color:var(--brass)}
+.wb-otext[open]>summary::before{content:'▾ '}
+.wb-ostem{font-size:13px;line-height:1.75;color:var(--ink);margin:7px 0 0;white-space:normal}
+.wb-ochoices{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:4px}
+.wb-ochoices li{display:flex;align-items:flex-start;gap:6px;font-size:12.5px;line-height:1.6;
+  padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--paper)}
+.wb-ochoices li.is-key{border-color:var(--teal);background:var(--ok-bg)}
+.wb-ochoices li.is-mine{border-color:var(--ms);background:var(--no-bg)}
+.wb-ochoices .ci{flex:0 0 auto;font-weight:700;color:var(--muted)}
+.wb-ochoices .tag{flex:0 0 auto;margin-left:auto;font-style:normal;font-size:11px;font-weight:700;
+  color:var(--ms);white-space:nowrap}
+.wb-ochoices .tag.ok{color:var(--teal)}
 .wb-pick{font-size:13.5px;line-height:1.7;color:#7a2f14;background:#ffeee6;border-left:3px solid #d0603a;border-radius:0 8px 8px 0;padding:10px 12px;margin:0 0 8px}
 .wb-pick b{color:#b0512f;margin-right:5px;white-space:nowrap}
 .wb-why{font-size:13px;line-height:1.7;color:var(--ink-2);background:#fff7f2;border-left:3px solid var(--ms);border-radius:0 8px 8px 0;padding:9px 12px;margin:0 0 10px}
@@ -6460,9 +6475,36 @@ function wbCardHTML(exam,w,qd,dqs,co,qpOnly){
     peerHTML='<div class="wb-peer"><div class="wb-peer-h">이 문항의 난이도<span>'+lv.t+'</span></div>'
       +'<div class="wb-peer-msg">'+lv.m+'</div></div>';
   }
+  /* ── 원문을 글로도 싣는다 ────────────────────────────────────────────
+     지금까지 「원문 문제」는 크롭 그림 한 장뿐이었다. 그림이라 세 가지가 안 됐다.
+
+       · 그림이 못 뜨면 문항을 아예 못 본다(「문제지 N번을 확인해 주세요」로 끝났다)
+       · 크롭이 원본의 그래프·표를 잃은 회차가 있다 — USNCO 33·34·42·46번이 그렇다.
+         그림은 뜨는데 정작 풀 자료가 없어, 학생은 빈 자리를 들여다보게 된다.
+       · 숫자를 옮겨 적을 수가 없다
+
+     답지에 지문과 보기가 남아 있는 회차는 그것을 접어서 함께 싣는다. 그림이 못 뜨면
+     펼쳐 준다. 보기에는 **학생이 고른 번호와 정답**을 함께 표시한다 — 「고른 ③」이
+     무엇이었는지 그 자리에서 보인다. */
+  var otext='';
+  if(qd&&(qd.stem||(qd.choices&&qd.choices.length))){
+    var ochs='';
+    if(qd.choices&&qd.choices.length){
+      ochs='<ol class="wb-ochoices">'+qd.choices.map(function(c,i){
+        var n=i+1, isA=accepted.indexOf(n)>=0, isMine=(w.a===n);
+        return '<li'+(isA?' class="is-key"':(isMine?' class="is-mine"':''))+'>'
+          +'<span class="ci">'+CIRC[n]+'</span><span>'+esc(String(c))+'</span>'
+          +(isMine?'<i class="tag">고른 것</i>':'')+(isA?'<i class="tag ok">정답</i>':'')+'</li>';
+      }).join('')+'</ol>';
+    }
+    otext='<details class="wb-otext"><summary>문제를 글로 보기</summary>'
+      +(qd.stem?'<div class="wb-ostem">'+esc(qd.stem).replace(/\n/g,'<br>')+'</div>':'')
+      +ochs+'</details>';
+  }
   var origHTML='<div class="wb-orig"><div class="wb-orig-h">원문 문제</div>'
-    +'<img class="wb-qimage" src="'+cropSrc+'" alt="'+esc(exam.title)+' '+q+'번 원문" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'">'
-    +'<div class="wb-img-fail">원문 이미지가 준비되지 않았습니다. 문제지 '+q+'번을 확인해 주세요.</div></div>';
+    +'<img class="wb-qimage" src="'+cropSrc+'" alt="'+esc(exam.title)+' '+q+'번 원문" loading="lazy" onerror="this.style.display=\'none\';var d=this.parentNode.querySelector(\'details.wb-otext\');if(d){d.open=true;}else{this.nextElementSibling.style.display=\'block\';}">'
+    +'<div class="wb-img-fail">원문 이미지가 준비되지 않았습니다. 문제지 '+q+'번을 확인해 주세요.</div>'
+    +otext+'</div>';
   // 동형문제는 세트가 여러 벌일 수 있다(DH_SETS). 쓸 수 있는 것만 차례로 붙인다.
   var usable=(dqs||[]).filter(dhUsable);
   var dhHTML;
