@@ -67,9 +67,16 @@ for exam in exams:
         sets.append((set_id, qs))
     for number in range(1, exam["nQ"] + 1):
         key = str(number)
-        crop = ROOT / "crops" / exam["id"] / f"{number}.png"
-        with Image.open(crop) as image:
-            image.verify()
+        # 크롭은 문제지에서 잘라 만든다. 문제지 자체가 저장소에 없는 회차
+        # (exams.json 의 noPdf 가 그 까닭을 적고 있다)는 자를 원본이 없다.
+        # 없는 것을 있어야 한다고 우기면 이 검사가 그 회차가 들어온 날부터
+        # 계속 빨간불이고, 빨간불이 오래가면 아무도 안 본다.
+        # 화면은 이미 이 경우를 알고 있다 — <img onerror> 가 「원문 이미지가
+        # 준비되지 않았습니다」로 바꾸고, 답지에 지문이 있으면 글로 펴 준다.
+        if not exam.get("noPdf"):
+            crop = ROOT / "crops" / exam["id"] / f"{number}.png"
+            with Image.open(crop) as image:
+                image.verify()
         assert answers[key]["answer"] == exam["key"][number - 1], (exam["id"], number)
         for set_id, analogues in sets:
             analogue = analogues[key]
@@ -135,7 +142,10 @@ assert seen == expected, f"자산이 빠진 문항이 있다: {seen} != {expecte
 #    함께 보기로 하셨다 (2026-08-18).
 #    2640 → 2700 : USNCO 2026 National Part I 60문항을 추가했다. 원문 크롭·상세 해설·
 #    독자 동형문제 60문항까지 모두 연결했다 (2026-08-20).
-assert seen == 2700, f"문항 총합이 달라졌다: {seen} (기대 2700)"
+#    2700 → 2880 : 단원평가 세 회차(kch1u1·kch1to2·kch1to2-b)에 제 동형문제 은행을
+#    집필해 앉혔다. DH_SETS 에 빈 배열로 «없음» 이라 적혀 있던 여덟 가운데 셋이다.
+#    남은 다섯(kch1to3·kch1to3-b·chem2-1·kch2to3·kch2final)과 j0 는 아직이다 (2026-09-02).
+assert seen == 2880, f"문항 총합이 달라졌다: {seen} (기대 2880)"
 print(
     f"PASS wrongbook assets: exams={len(exams)} questions={seen} "
     f"손상(가드로 숨김)={broken}/{BROKEN_BUDGET}"

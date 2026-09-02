@@ -135,6 +135,38 @@ def main():
     con, al = bank_names()
     rc = 0
 
+    # ── 같은 옛 이름에 새 이름이 여럿 붙는 것을 먼저 하나로 모은다 ──
+    #
+    # 회차마다 다른 에이전트가 집필하므로, 답지가 둘 다 「돌턴」이라 부르던 것을
+    # 한쪽은 「돌턴 원자설」, 다른 쪽은 「돌턴 원자론」으로 바꿔 온다. 그대로 두면
+    # 같은 개념이 은행에 두 이름으로 앉아 서로를 못 본다 — 이름을 고쳐 놓고
+    # 고치기 전과 똑같은 상태가 되는 셈이다.
+    #
+    # 여럿이면 **많이 쓰인 이름**을, 같으면 짧은 이름을 고른다(짧은 쪽이 대개
+    # 군더더기가 없다). 무엇으로 모았는지는 화면에 적는다.
+    votes = {}
+    for eid in ids:
+        apath = os.path.join(ROOT, 'answers', '%s.json' % eid)
+        if not os.path.exists(apath):
+            continue
+        src0 = load(apath).get('questions') or {}
+        for q in sorted(glob.glob(os.path.join(WIP, '%s__*.json' % eid))):
+            for k, v in load(q).items():
+                old_c = str((src0.get(k) or {}).get('concept') or '').strip()
+                new_c = str((v or {}).get('concept') or '').strip()
+                if old_c and new_c and old_c != new_c and not resolves(old_c, con, al):
+                    votes.setdefault(old_c, {}).setdefault(new_c, 0)
+                    votes[old_c][new_c] += 1
+    canon = {}
+    for old_c, cand in votes.items():
+        if len(cand) < 2:
+            continue
+        best = sorted(cand.items(), key=lambda kv: (-kv[1], len(kv[0]), kv[0]))[0][0]
+        canon[old_c] = best
+        print('여러 이름으로 갈린 개념 「%s」 → 「%s」 로 모은다 (%s)'
+              % (old_c, best,
+                 ' · '.join('%s %d' % (n, c) for n, c in sorted(cand.items()))))
+
     for eid in ids:
         exam = exams.get(eid)
         if not exam:
@@ -164,6 +196,9 @@ def main():
                 v['verified'] = True
                 old = str((src.get(k) or {}).get('concept') or '').strip()
                 new = str(v.get('concept') or '').strip()
+                if old in canon and new != canon[old]:
+                    new = canon[old]
+                    v['concept'] = new
                 if old and new and old != new:
                     if resolves(old, con, al):
                         v['concept'] = old
