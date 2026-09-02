@@ -12,7 +12,7 @@
 같은 코드를 다시 쳤고, 칠 때마다 조금씩 달라져서 「같은 재료로 다시 돌린다」는
 말이 사실이 아니게 됐다. 만드는 법을 코드로 남겨 둔다.
 
-    python3 tools/gen_chunks.py [--out <폴더>] [--only twin|mis|lec|crop]
+    python3 tools/gen_chunks.py [--out <폴더>] [--only twin|mis|lec|crop|thin]
 
 만드는 것
     twinsrc/<시험>__<범위>.json   동형문제 집필용 — 원문 지문·선지·정답·개념·해설
@@ -21,6 +21,7 @@
     lecsrc/L<nn>.json             유형→강의 배선용 — 유형마다 단원·개념·문항 조각
     lecsrc/lectures.txt           강의 125편의 «파일이름<탭>제목»
     cropsrc/<시험>__c<n>.json     크롭에서 지문·선지를 옮길 때 — 정답·개념·해설만
+    thinsrc/<시험>__<범위>.json   많이 틀렸는데 해설이 얇은 문항 — 증보용
 """
 import collections
 import glob
@@ -201,6 +202,67 @@ def build_crop(out):
     return keys
 
 
+# ── 증보 대상: 많이 틀렸는데 해설이 얇은 문항 ──────────────────────────
+# 왜 이 두 조건인가. 「해설이 짧다」만 보면 564문항이 걸리는데, 그 대부분은
+# 한 줄로 끝나는 것이 맞는 쉬운 문항이다. 「많이 틀렸다」만 보면 이미 두꺼운
+# 해설이 딸린 어려운 문항까지 들어온다. 고쳐야 하는 것은 **겹치는 자리** 다 —
+# 절반 넘게 틀렸는데 해설은 메모 한 줄인 문항.
+#
+# ⚠ 응시 8명 미만인 회차는 뺀다. MINP 는 선생님 결정으로 1이지만(적은 인원도
+#   보여 달라), **여기서 쓰는 것은 화면에 보여 줄 값이 아니라 「어느 문항을
+#   고칠까」 를 정하는 값**이다. 한 사람이 틀린 것을 정답률 0% 라고 읽으면
+#   엉뚱한 문항 열한 개가 목록 맨 위에 올라온다(kmchc-2024-2 가 그랬다).
+THIN_MIN_N = 8       # 이만큼은 응시해야 정답률로 친다
+THIN_MAX_RATE = 0.5  # 절반 넘게 틀린 문항
+THIN_MAX_LEN = 150   # 해설이 이보다 짧으면 «메모» 로 본다
+
+
+def build_thin(out):
+    d = os.path.join(out, 'thinsrc')
+    base = load(os.path.join(ROOT, 'cohort', 'baseline.json')).get('exams') or {}
+    rows = []
+    for f in sorted(glob.glob(os.path.join(ROOT, 'answers', '*.json'))):
+        eid = os.path.basename(f)[:-5]
+        if eid.startswith('_'):
+            continue
+        b = base.get(eid) or {}
+        qc, n = b.get('qc') or [], b.get('n') or 0
+        if not qc or n < THIN_MIN_N:
+            continue
+        qs = load(f).get('questions') or {}
+        for k, q in qs.items():
+            no = int(k)
+            if not (1 <= no <= len(qc)):
+                continue
+            rate = qc[no - 1] / n
+            if rate >= THIN_MAX_RATE:
+                continue
+            if len((q.get('explanation') or '').strip()) >= THIN_MAX_LEN:
+                continue
+            rows.append((eid, no, rate, q))
+    by = collections.defaultdict(list)
+    for eid, no, rate, q in rows:
+        by[eid].append((no, rate, q))
+    keys = []
+    for eid, part in by.items():
+        part.sort()
+        for i in range(0, len(part), 10):
+            grp = part[i:i + 10]
+            key = '%s__%02d-%02d' % (eid, grp[0][0], grp[-1][0])
+            body = {}
+            for no, rate, q in grp:
+                one = {k: q[k] for k in KEEP_MIS + ('misconceptions', 'learningPoint',
+                                                    'reviewNote') if q.get(k) is not None}
+                one['_정답률'] = '%d%%' % round(rate * 100)
+                one['_크롭'] = 'crops/%s/%d.png' % (eid, no)
+                body[str(no)] = one
+            dump({'exam': eid, 'questions': body}, os.path.join(d, key + '.json'))
+            keys.append(key)
+    keys.sort()
+    print('thinsrc %d덩어리 · %d문항' % (len(keys), len(rows)))
+    return keys
+
+
 def main():
     out = DEFAULT_OUT
     if '--out' in sys.argv:
@@ -210,7 +272,8 @@ def main():
         only = sys.argv[sys.argv.index('--only') + 1]
     made = {}
     for name, fn in (('twin', build_twin), ('mis', build_mis),
-                     ('lec', build_lec), ('crop', build_crop)):
+                     ('lec', build_lec), ('crop', build_crop),
+                     ('thin', build_thin)):
         if only and only != name:
             continue
         made[name] = fn(out)
