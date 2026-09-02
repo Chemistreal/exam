@@ -28,6 +28,20 @@
     answers/_wip/<id>-<범위>.json    지문·선지·해설·오개념 통째로 (해설 PDF 를 옮긴 것)
     answers/_crop/<id>__c<n>.json    지문·선지·선지별 오답 (원문 크롭을 읽은 것)
     answers/_mis/<id>__m<n>.json     선지별 오답 해설만 (이미 지문이 있는 회차)
+    answers/_thick/<id>__<범위>.json  얇은 해설을 증보한 것 — **덮어쓰는 유일한 갈래**
+
+■ `_thick` 은 왜 규칙 하나의 예외인가
+
+다른 갈래는 빈 자리를 채운다. `_thick` 은 **이미 있는 해설을 갈아 끼우는 것이
+목적**이다 — 대상이 「정답률 50% 미만인데 해설이 150자도 안 되는」 문항이라,
+채울 빈 자리가 아니라 「사고과정 … → ④」 한 줄이 앉아 있다.
+
+그래서 이 갈래만 --overwrite 없이도 덮는다. 대신 두 가지를 막는다.
+
+  · **짧아지면 거절한다.** 새 해설이 지금 것보다 짧으면 증보가 아니라 후퇴다.
+  · **정답 키는 아예 못 들어온다.** answer·acceptableAnswers 는 FIELDS 에
+    없으므로 지나갈 길이 없고, 여기서 한 번 더 막는다 — 이 회차들은 채점이
+    끝나 성적이 이미 나갔다.
 """
 import glob
 import io
@@ -40,6 +54,11 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # 통째로 채우는 갈래에서 옮길 자리. explanationHtml 은 여기서 만들지 않는다 —
 # tools/gen_expl_html.py 가 글에서 꼴을 만든다(그 자가 유일한 생성자여야 한다).
 FIELDS = ('stem', 'choices', 'explanation', 'misconception', 'misconceptions')
+# 증보 갈래가 옮겨도 되는 자리. 지문·선지는 여기 없다 — 증보는 **해설을 두껍게
+# 하는 일**이지 문제를 고치는 일이 아니다.
+THICK_FIELDS = ('explanation', 'misconception', 'misconceptions', 'reviewNote')
+# 어떤 갈래로도 답지의 정답 키를 건드리지 않는다.
+NEVER = ('answer', 'acceptableAnswers')
 
 # 성적표는 학부모와 학생이 함께 읽는다. 답지의 문장은 전부 「~다.」로 끝나는
 # 평서체다(실측 186문항 전부). 집필 에이전트에게 「학생에게 말하듯」이라고
@@ -154,9 +173,12 @@ def main():
     for p in sorted(glob.glob(os.path.join(ROOT, 'answers', '_mis', '*.json'))):
         eid = os.path.basename(p).split('__')[0]
         parts.setdefault(eid, {'full': [], 'mis': []})['mis'].append(p)
+    for p in sorted(glob.glob(os.path.join(ROOT, 'answers', '_thick', '*.json'))):
+        eid = os.path.basename(p).split('__')[0]
+        parts.setdefault(eid, {'full': [], 'mis': [], 'thick': []}).setdefault('thick', []).append(p)
 
     if not parts:
-        print('채울 조각이 없다 (answers/_wip · answers/_mis 가 비어 있다)')
+        print('채울 조각이 없다 (answers/_wip · _crop · _mis · _thick 가 비어 있다)')
         return 0
 
     rc = 0
@@ -168,8 +190,56 @@ def main():
             continue
         doc = load(dest)
         qs = doc.get('questions') or {}
-        filled = skipped = refused = 0
+        filled = skipped = refused = thickened = 0
         notes = []
+
+        # ── 증보 갈래: 있는 해설을 갈아 끼운다 ──────────────────────────
+        for p in parts[eid].get('thick') or []:
+            for k, v in load(p).items():
+                q = qs.get(k)
+                if q is None:
+                    notes.append('%s번이 답지에 없다 (%s)' % (k, os.path.basename(p)))
+                    rc = 1
+                    continue
+                for f in NEVER:
+                    if f in v:
+                        notes.append('%s번 증보가 정답 키(%s)를 담고 있다 — 통째로 거절' % (k, f))
+                        rc = 1
+                        v = None
+                        break
+                if v is None:
+                    refused += 1
+                    continue
+                new = str(v.get('explanation') or '').strip()
+                old = str(q.get('explanation') or '').strip()
+                if new and len(new) < len(old):
+                    notes.append('%s번 증보가 오히려 짧다(%d→%d자) — 거절'
+                                 % (k, len(old), len(new)))
+                    refused += 1
+                    rc = 1
+                    continue
+                if v.get('misconceptions'):
+                    probe = dict(q)
+                    probe['misconceptions'] = v['misconceptions']
+                    broken, _part = mis_errors(probe)
+                    if broken:
+                        notes.append('%s번 선지별 오답 거절 — %s' % (k, ' / '.join(broken)))
+                        refused += 1
+                        rc = 1
+                        v = dict(v)
+                        v.pop('misconceptions')
+                for f in THICK_FIELDS:
+                    if f not in v or not v[f]:
+                        continue
+                    bad_line = tone_bad(v[f]) if isinstance(v[f], str) else None
+                    if bad_line:
+                        notes.append('%s번 %s 가 평서체가 아니다: 「…%s」'
+                                     % (k, f, bad_line[-24:]))
+                        rc = 1
+                        continue
+                    if write:
+                        q[f] = v[f]
+                    thickened += 1
 
         for p in parts[eid]['full']:
             for k, v in load(p).items():
@@ -226,11 +296,11 @@ def main():
                 q['misconceptions'] = v
                 filled += 1
 
-        print('[%s] 채울 자리 %d · 이미 있어 건너뛴 자리 %d · 거절 %d'
-              % (eid, filled, skipped, refused))
+        print('[%s] 채울 자리 %d · 갈아 끼운 자리 %d · 이미 있어 건너뛴 자리 %d · 거절 %d'
+              % (eid, filled, thickened, skipped, refused))
         for n in notes[:20]:
             print('    ' + n)
-        if write and filled:
+        if write and (filled or thickened):
             io.open(dest, 'w', encoding='utf-8').write(
                 json.dumps(doc, ensure_ascii=False, indent=1) + '\n')
             print('    → 썼다: answers/%s.json' % eid)
