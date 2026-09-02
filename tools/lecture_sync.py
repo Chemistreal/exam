@@ -48,12 +48,50 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SEAL = os.path.join(ROOT, 'tools', 'lecture_sync.json')
 
 
+def _block(s, name):
+    """`const <name>={...};` 의 중괄호 안을 괄호 짝을 세어 정확히 잘라 낸다.
+
+    ⚠ 예전에는 `s.index('\\n};', i)` 로 끝을 찾았다. 그러면 **한 줄로 적힌 상수**를
+      만났을 때 그 줄에서 안 끝나고 다음 `\n};` 까지 집어삼킨다 — 화면 HTML 이
+      통째로 딸려 들어와 '<p>' 나 'var(--line)' 이 강의 파일 이름으로 잡혔다.
+      LECLIST 에서 한 번 겪은 것과 같은 덫이다(아래 주석). 이제 괄호로 센다.
+    """
+    i = s.index('const %s=' % name)
+    j = s.index('{', i)
+    d, k, q = 0, j, None
+    while k < len(s):
+        c = s[k]
+        if q:
+            if c == '\\':
+                k += 2
+                continue
+            if c == q:
+                q = None
+        elif c in '"\'':
+            q = c
+        elif c == '{':
+            d += 1
+        elif c == '}':
+            d -= 1
+            if d == 0:
+                return s[j:k + 1]
+        k += 1
+    raise ValueError(name)
+
+
 def maps():
     s = io.open(os.path.join(ROOT, 'final.html'), encoding='utf-8').read()
     out = {}
-    for name in ('AREALEC', 'TYPELEC', 'RXMAP'):
-        i = s.index('const %s=' % name)
-        out[name] = dict(re.findall(r"'([^']+)':'([^']+)'", s[i:s.index('\n};', i)]))
+    # PAIRLEC 은 lecFor 가 **가장 먼저** 보는 표다. 여기서 안 세면 「닿는 문항」이
+    # 실제보다 적게 나오고, 순서를 바로잡은 날 오히려 줄었다고 뜬다.
+    for name in ('AREALEC', 'TYPELEC', 'RXMAP', 'PAIRLEC'):
+        try:
+            body = _block(s, name)
+        except ValueError:
+            out[name] = {}
+            continue
+        # 홑따옴표(손으로 적은 표)와 겹따옴표(도구가 내보낸 표)를 둘 다 읽는다.
+        out[name] = dict(re.findall(r"""['"]([^'"]+)['"]\s*:\s*['"]([^'"]+)['"]""", body))
     # ⚠ LECLIST 는 **한 줄**로 적혀 있다. '\n];' 를 찾으면 못 만나 파일 끝까지
     #   집어삼키고, 엉뚱한 배열까지 강의 목록으로 센다(처음에 125가 755가 됐다).
     i = s.index('const LECLIST=')
@@ -77,11 +115,12 @@ def main():
     F = files()
     bad = False
 
-    print('강의 파일 %d개 · AREALEC %d · TYPELEC %d · LECLIST %d'
-          % (len(F), len(M['AREALEC']), len(M['TYPELEC']), len(M['LECLIST'])))
+    print('강의 파일 %d개 · PAIRLEC %d · TYPELEC %d · AREALEC %d · LECLIST %d'
+          % (len(F), len(M['PAIRLEC']), len(M['TYPELEC']),
+             len(M['AREALEC']), len(M['LECLIST'])))
 
     # ① 가리키는 파일이 실제로 있는가
-    for name in ('AREALEC', 'TYPELEC'):
+    for name in ('AREALEC', 'TYPELEC', 'PAIRLEC'):
         ghost = sorted({v for v in M[name].values() if v not in F})
         if ghost:
             bad = True
@@ -141,7 +180,8 @@ def main():
             tot += 1
             a = A[i] if i < len(A) else ''
             t = T[i] if i < len(T) else ''
-            if M['AREALEC'].get(a) or M['TYPELEC'].get(t) or fuzzy(t):
+            if (M['PAIRLEC'].get('%s|%s' % (a, t)) or M['TYPELEC'].get(t)
+                    or M['AREALEC'].get(a) or fuzzy(t)):
                 hit += 1
             else:
                 miss['%s / %s' % (a, t)] += 1
