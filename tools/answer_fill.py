@@ -75,7 +75,7 @@ def accepted(q):
     return set(int(n) for n in acc)
 
 
-def mis_errors(q, n_choices=4):
+def mis_errors(q, n_choices=None):
     """선지별 오답 해설이 성한지 본다.
 
     두 가지를 갈라 돌려준다 — (망가진 것, 아직 안 채운 것).
@@ -90,6 +90,11 @@ def mis_errors(q, n_choices=4):
     mis = q.get('misconceptions')
     if not mis:
         return [], []
+    # 보기가 넷이라고 단정하지 않는다. 두 개짜리 문항이 실제로 있다
+    # (kch1to2·kch1to2-b 45번 — 시험지 자체가 ①②만 인쇄돼 있다).
+    # 넷으로 세면 없는 ③④에 설명이 없다고 되돌려 보내, 있는 설명까지 못 들어온다.
+    if n_choices is None:
+        n_choices = len(q.get('choices') or []) or 4
     acc = accepted(q)
     broken = []
     bad = sorted(k for k in mis if int(k) in acc)

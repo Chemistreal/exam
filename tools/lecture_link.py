@@ -145,6 +145,16 @@ def absorb():
             if not pick and not ba:
                 un[ty] = why or '맞는 강의가 목록에 없다'
                 noted += 1
+    # 한 이름이 두 표에 다 있으면 pairMap 에 안 적힌 단원이 조용히 map 의 한 강의로
+    # 뭉개진다(lecFor 는 PAIRLEC → TYPELEC 순서로 본다). 그래서 pairMap 이 그 이름을
+    # 맡기로 한 순간 map 에서는 빠져야 한다. 이 규칙을 --check 만 알고 --absorb 는
+    # 몰라서, 조각을 다시 옮길 때마다 손으로 지운 이름이 되살아났다.
+    moved = sorted({k.split(PAIRSEP, 1)[1] for k in pm if PAIRSEP in k} & set(mp))
+    for t in moved:
+        mp.pop(t, None)
+    if moved:
+        print('pairMap 이 맡은 이름 %d개를 map 에서 뺐다: %s'
+              % (len(moved), ', '.join(moved[:10])))
     doc['map'] = dict(sorted(mp.items()))
     doc['pairMap'] = dict(sorted(pm.items()))
     doc['unmapped'] = dict(sorted(un.items()))
@@ -228,16 +238,21 @@ def main():
         return 1 if check else 0
     doc = json.load(io.open(MAP, encoding='utf-8'))
     lec, mp, un = doc.get('lectures', {}), doc.get('map', {}), doc.get('unmapped', {})
+    pm = doc.get('pairMap', {})
+    pair_types = {k.split(PAIRSEP, 1)[1] for k in pm if PAIRSEP in k}
+    pairs = pairs_of()
     types = types_of()
     nQ = sum(types.values())
 
     # ① 강의 번호가 실제 파일을 가리키는가
-    ghost = sorted({v for v in mp.values() if v not in lec})
+    # pairMap 값이 빈 문자열인 칸은 «이 단원·이 유형에는 맞는 강의가 없다» 는 판정이다.
+    # 없는 것을 가까운 강의로 보내면 학생이 헛걸음한다. 없다고 적어 두는 편이 낫고,
+    # 적어 두면 「단원을 안 적었다」 는 경고에서도 빠진다 — 안 적은 것과 없다고
+    # 정한 것은 다르다.
+    ghost = sorted({v for v in mp.values() if v not in lec}
+                    | {v for v in pm.values() if v and v not in lec})
     dead = sorted(n for n, d in lec.items()
                   if not os.path.exists(os.path.join(ROOT, d.get('file', ''))))
-    pm = doc.get('pairMap', {})
-    pair_types = {k.split(PAIRSEP, 1)[1] for k in pm if PAIRSEP in k}
-    pairs = pairs_of()
     # ①-2 한 이름이 두 표에 걸치면 안 된다
     #
     # lecFor 는 PAIRLEC 을 먼저 보고, 없으면 TYPELEC 을 본다. 그러니 「밀도」가
