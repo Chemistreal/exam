@@ -96,7 +96,11 @@ const LONGI={f:'longitudinal.html',t:'종단 비교',d:'전/후 두 시험으로
 const DRILL={f:'item-drilldown.html',t:'문항 드릴다운',d:'raw 응답 분석. 학생별 틀린 문항·문항별 오답 분포·매력적 오답 식별.',tag:'드릴다운'};
 const CLUST={f:'profile-clustering.html',t:'프로파일 군집화',d:'전체 숙달 프로파일 유사도로 학생 유형 발견(k-means). 평균 같아도 모양 다른 학생 구분.',tag:'군집'};
 const BATCH={f:'batch-report.html',t:'리포트 일괄 인쇄',d:'반 전체 개인 성적표를 한 번에. 학생당 한 페이지로 인쇄/PDF.',tag:'인쇄'};
-function renderDatain(){document.getElementById('datain').innerHTML=card(DATAIN,'#B08D57','★')+card(IREPORT,'#0E5A4C','▣')+card(TBRIEF,'#B5564E','▤')+card(LONGI,'#4A7C9E','▥')+card(DRILL,'#8A6FA0','▦')+card(CLUST,'#7A8450','▧')+card(BATCH,'#C77B4A','▨');}
+/* 답지를 손보다 「사람이 한 번 봐야 한다」고 적어 둔 자리. 해설지에는 그 문항을
+   펼친 사람만 보이므로, 몇 건인지 한자리에서 볼 곳이 없었다. 정답이 함께 적히니
+   학생에게 보내는 링크가 아니다 — 이 화면(선생님 자리)에서만 문을 낸다. */
+const REVNOTE={f:'review-notes.html',t:'확인 필요 모음',d:'답지에 적어 둔 「사람이 한 번 봐야 한다」를 한 장에. 회차·문항·까닭.',tag:'검수'};
+function renderDatain(){document.getElementById('datain').innerHTML=card(DATAIN,'#B08D57','★')+card(IREPORT,'#0E5A4C','▣')+card(TBRIEF,'#B5564E','▤')+card(LONGI,'#4A7C9E','▥')+card(DRILL,'#8A6FA0','▦')+card(CLUST,'#7A8450','▧')+card(BATCH,'#C77B4A','▨')+card(REVNOTE,'#8A6FA0','▩');}
 function renderStats(){document.getElementById('stats').innerHTML='<div class="stat"><div class="v">'+(PROD.length)+'</div><div class="k">운영 앱</div></div><div class="stat"><div class="v">22</div><div class="k">R&D 도구</div></div><div class="stat"><div class="v">145</div><div class="k">품질 단계</div></div><div class="stat"><div class="v">125</div><div class="k">개념 노드</div></div><div class="stat"><div class="v">3</div><div class="k">국면</div></div>';}
 function renderPhases(){const ks=['A','B','C'];let h='';
  ks.forEach(k=>{const p=PH[k];const ts=TOOLS.filter(t=>t.ph===k);
