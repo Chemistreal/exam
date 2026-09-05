@@ -173,7 +173,8 @@ def main() -> int:
         #   그래서 문 안쪽만 지킨다. (2026-09-05)
         dirnames[:] = [d for d in dirnames
                        if d not in (".git", "node_modules", "__pycache__",
-                                    "_wip", "_crop", "_mis", "_thick")]
+                                    "_wip", "_crop", "_mis", "_thick",
+                                    "_crop_unverified")]
         for fn in filenames:
             if not fn.endswith((".json", ".html")):
                 continue
