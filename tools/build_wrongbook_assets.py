@@ -528,6 +528,49 @@ def stack_shared_stem(
     return out
 
 
+def stack_page_break(
+    document: fitz.Document, header: Header, image: Image.Image,
+    matrix: fitz.Matrix, scale: float,
+) -> Image.Image:
+    """쪽을 넘어가는 문항의 **뒷쪽 조각**을 이어 붙인다.
+
+    ⚠ 예전에는 이 조각을 통째로 버렸다. 문항이 쪽 아래에서 시작해 선지가
+      다음 쪽 머리에 있으면, 크롭에 **발문만 남고 ①②③④ 가 사라졌다.**
+      화올 2019 58번이 그랬다 — 「d-전자 배치로 가장 적절하게 짝지어진
+      것은?」까지만 있고 보기가 없었다. 그 상태로는 아무리 사람을 붙여도
+      선지별 오답 해설을 쓸 수 없다. (2026-09-05)
+    """
+    out = image
+    for page_no in range(header.page_index + 1, (header.stop_page or header.page_index) + 1):
+        page = document[page_no]
+        x0 = max(0.0, min(header.rect.x0 - 10.0, 60.0))
+        x1 = min(page.rect.width, page.rect.width - 58.0)
+        # 쪽 머리(「【KMChC 2019】」 같은 머리글) 아래부터 담는다. 머리글은
+        # 쪽 맨 위 70pt 안에 앉는다.
+        #
+        # ⚠ 여기서 「첫 본문 덩이를 찾아 그 위부터」로 잡으려다 헛짚었다.
+        #   선지가 **그림**(오비탈 화살표 같은 벡터)이면 get_text('blocks')
+        #   에 안 잡혀서, 맨 아래 쪽번호가 첫 덩이로 걸리고 조각이 통째로
+        #   날아갔다. 글자에 기대지 말고 고정 띠로 자른다.
+        y0 = 72.0
+        if page_no == header.stop_page and header.stop_y is not None:
+            y1 = max(y0 + 20.0, header.stop_y - 8.0)
+        else:
+            y1 = min(page.rect.height - 65.0, 775.0)
+        if y1 - y0 < 12.0:
+            continue                    # 넘어온 것이 거의 없다
+        clip = fitz.Rect(x0, y0, x1, y1)
+        pixmap = page.get_pixmap(matrix=matrix, clip=clip, alpha=False)
+        tail = Image.frombytes("RGB", [pixmap.width, pixmap.height], pixmap.samples)
+        width = max(out.width, tail.width)
+        gap = 10
+        merged = Image.new("RGB", (width, out.height + gap + tail.height), "white")
+        merged.paste(out, (0, 0))
+        merged.paste(tail, (0, out.height + gap))
+        out = merged
+    return out
+
+
 def crop_exam(exam: dict[str, Any], force: bool = False) -> list[dict[str, Any]]:
     pdf_path = ROOT / exam["pdf"]
     if not pdf_path.exists():
@@ -546,6 +589,16 @@ def crop_exam(exam: dict[str, Any], force: bool = False) -> list[dict[str, Any]]
         y0 = max(0.0, header.rect.y0 - 8.0)
         if header.stop_y is not None and header.stop_page == header.page_index:
             y1 = max(y0 + 45.0, header.stop_y - 8.0)
+        elif header.stop_page is not None and header.stop_page != header.page_index:
+            # 쪽을 넘어가는 문항. 이 쪽에 남은 **본문 끝까지**만 담는다 —
+            # 쪽 바닥까지 끌면 빈 여백과 쪽번호가 따라온다.
+            last = y0 + 45.0
+            for b in page.get_text('blocks'):
+                if b[3] > 780.0:
+                    continue            # 쪽번호 줄
+                if b[1] >= y0:
+                    last = max(last, b[3])
+            y1 = min(page.rect.height - 65.0, last + 10.0)
         else:
             y1 = min(page.rect.height - 65.0, 775.0)
         clip = fitz.Rect(x0, y0, x1, y1)
@@ -557,6 +610,10 @@ def crop_exam(exam: dict[str, Any], force: bool = False) -> list[dict[str, Any]]
             image, marker_removed = remove_red_answer_marker(
                 image, clip, header.rect, scale
             )
+            if (header.stop_page is not None
+                    and header.stop_page != header.page_index):
+                # 문항이 쪽을 넘어간다 — 넘어간 조각까지 이어 붙인다.
+                image = stack_page_break(document, header, image, matrix, scale)
             if header.pre_rect is not None:
                 # 묶음 문두(둘이 나눠 쓰는 자료)를 문항 위에 얹는다. 안 얹으면
                 # 뒷 문항은 "위 자료를 보고" 만 남고 자료가 없다.
