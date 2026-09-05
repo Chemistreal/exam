@@ -73,6 +73,11 @@ GROUPED = {
     'hwol-2012': [(22, 23)],
     'hwol-2011': [(55, 56)],
     'hwol-2010': [(55, 56), (57, 58)],
+    # 아래 넷은 폭 문턱(85→130)을 넓히고서야 보인 딱지다 — 2026-09-05
+    'jmchc-9': [(39, 40), (56, 57)],
+    'jmchc-10': [(38, 39), (55, 56)],
+    'jmchc-13': [(40, 41)],
+    'jmchc-14': [(40, 41)],
 }
 
 # 문제지에 **잘못 박힌 딱지**. 회색 상자인데 문항 딱지가 아니다.
@@ -92,6 +97,21 @@ GROUPED = {
 # 개이고 스물여섯째가 '문제 26', 예순째가 '문제 60' 이다(그림으로 뽑아
 # 눈으로 읽었다). 그래서 이 줄은 지운다 — 옛 파일에만 있던 결함이다.
 STRAY: dict[str, list[int]] = {}
+
+# 딱지처럼 생겼지만 **딱지가 아닌** 회색 상자. 위 STRAY 와 달리 차례가 아니라
+# **자리**(쪽 번호 0부터 · 윗변 y)로 적는다 — 차례로 적으면 문턱을 손볼 때마다
+# 번호가 밀려 엉뚱한 상자를 지운다. 폭 문턱을 넓히면서 표 머리글 하나가
+# 딸려 들어왔다: hwol-2017 12쪽의 「원자 또는 이온」 은 표의 칸 이름이다.
+NOT_LABEL: dict[str, list[tuple[int, int]]] = {
+    'hwol-2017': [(11, 562)],
+}
+
+
+def is_not_label(exam_id: str, page_index: int, rect) -> bool:
+    for pi, y0 in NOT_LABEL.get(exam_id, []):
+        if pi == page_index and abs(rect.y0 - y0) < 3:
+            return True
+    return False
 
 
 def utc_now() -> str:
@@ -358,11 +378,19 @@ def question_headers(
             if not fill:
                 continue
             if not (
-                60 < rect.width < 85
+                # ⚠ 폭 문턱을 85 로 두었더니 **묶음 딱지가 통째로 안 보였다.**
+                #   '문제 56-57' 은 글자가 길어 상자도 넓다(92~108pt). 안 보이는
+                #   딱지는 자를 자리도 못 정하므로, 그 자료가 **앞 문항** 크롭에
+                #   딸려 들어가고 정작 묶인 두 문항은 자료 없이 나갔다
+                #   (jmchc-9 55번 크롭에 56-57번 자료가 붙어 있었다. 다섯 회차
+                #    일곱 자리가 그랬다 — 2026-09-05).
+                60 < rect.width < 130
                 and 15 < rect.height < 25
                 and 60 < rect.x0 < 110
                 and all(0.74 < channel < 0.85 for channel in fill)
             ):
+                continue
+            if is_not_label(exam_id, page_index, rect):
                 continue
             boxes.append((page_index, fitz.Rect(rect)))
     boxes.sort(key=lambda item: (item[0], item[1].y0))
@@ -380,7 +408,13 @@ def question_headers(
         seen.append((page_index, rect))
         if len(seen) in stray:      # 잘못 박힌 딱지. 문항으로도 자료로도 안 센다
             continue
-        if label_ink_ratio(document, page_index, rect) > 0.70:
+        # 묶음 딱지를 알아보는 두 가지 표.
+        #   · 글자가 상자를 꽉 채운다(먹 비율) — 상자 폭이 문항 딱지와 같을 때
+        #   · 상자가 넓다 — 글자가 길어 상자까지 늘어난 문제지가 있다
+        # 둘 중 하나면 묶음이다. 먹 비율만 보면 넓은 딱지를 놓친다: 상자가
+        # 같이 넓어져 비율이 0.61 로 보통 딱지(0.58)와 구별이 안 된다.
+        if (label_ink_ratio(document, page_index, rect) > 0.70
+                or rect.width >= 85):
             if not groups:
                 raise RuntimeError(
                     f"{exam_id}: 표에 없는 묶음 문두를 만났다 (문항 {len(headers)+1} 앞). "
