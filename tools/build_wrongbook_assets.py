@@ -1297,8 +1297,15 @@ def main() -> int:
             )
 
     solved, solution_files, candidates = solution_catalog(all_exams)
-    answer_stats = build_answer_files(all_exams, solved, solution_files)
-    analogue_stats = build_donghyung_files(all_exams, candidates)
+    # ⚠ **--exams 로 회차를 골라도 이 둘은 all_exams 를 받는다.** 크롭만 한
+    #   회차 뜨는 줄 알고 돌렸다가 쉰두 회차의 답지와 동형문제 은행이 통째로
+    #   다시 쓰였다(2026-09-05). 지금은 둘 다 있던 것을 지키도록 고쳤지만,
+    #   고른 회차만 건드리는 것이 애초에 놀랍지 않은 쪽이다.
+    picked = {e["id"] for e in exams}
+    answer_stats = build_answer_files(
+        [e for e in all_exams if e["id"] in picked], solved, solution_files)
+    analogue_stats = build_donghyung_files(
+        [e for e in all_exams if e["id"] in picked], candidates)
     validation = validate_assets(all_exams)
     audit = {
         "schemaVersion": 1,
