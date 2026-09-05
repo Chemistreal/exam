@@ -310,7 +310,10 @@ def solution_catalog(
     # Some menu entries intentionally point to the same PDF under two IDs.
     ids_by_pdf: dict[str, list[str]] = defaultdict(list)
     for exam in exams:
-        ids_by_pdf[exam["pdf"]].append(exam["id"])
+        # 문제지 PDF 가 없는 회차(j0)도 있다. 예전엔 여기서 KeyError 로 죽어
+        # 전체 돌리기가 크롭 다음 단계에서 끊겼다 (2026-09-05).
+        if exam.get("pdf"):
+            ids_by_pdf[exam["pdf"]].append(exam["id"])
     for ids in ids_by_pdf.values():
         solved = next((item for item in ids if item in by_exam), None)
         if solved:
@@ -336,7 +339,7 @@ def solution_catalog(
                 {
                     "examId": exam_id,
                     "examTitle": exam["title"],
-                    "pdf": exam["pdf"],
+                    "pdf": exam.get("pdf", ""),   # j0 는 문제지 PDF 가 없다
                     "question": number,
                     "area": area,
                     "type": qtype,
@@ -605,6 +608,45 @@ def stack_page_break(
     return out
 
 
+def ink_bottom(page, x0: float, x1: float, y0: float, y_limit: float) -> float:
+    """x0~x1 · y0~y_limit 안에서 **먹이 마지막으로 찍힌 높이**를 돌려준다.
+
+    ⚠ get_text('blocks') 로 잡으려다 두 번 헛짚었다. 이 문제지들은 글자가
+      벡터로 그려져 있어 텍스트 덩이로 안 잡힌다 — 그러면 「본문 끝」이
+      엉뚱한 데로 잡혀 **글줄 한가운데를 자른다**(화올 2019 46번이 그랬다:
+      발문 둘째 줄이 반쯤 잘려 나갔다, 2026-09-05).
+
+    그래서 글자를 세지 말고 **그림을 본다.** 낮은 해상도로 한 번 떠서
+    흰색이 아닌 줄이 마지막으로 나오는 높이를 잰다.
+    """
+    if y_limit - y0 < 4.0:
+        return y0
+    zoom = 0.5                      # 자리만 알면 되니 성기게 뜬다
+    clip = fitz.Rect(x0, y0, x1, y_limit)
+    pixmap = page.get_pixmap(matrix=fitz.Matrix(zoom, zoom), clip=clip, alpha=False)
+    rows = np.asarray(Image.frombytes(
+        "RGB", [pixmap.width, pixmap.height], pixmap.samples).convert("L"))
+    inked = np.where((rows < 245).any(axis=1))[0]
+    if not len(inked):
+        return y0
+    return y0 + float(inked[-1] + 1) / zoom
+
+
+def no_grey_labels(exam: dict[str, Any]) -> str:
+    """회색 '문제 N' 딱지가 없는 문제지인가. 그렇다면 그 까닭을 돌려준다.
+
+    이 목록은 **여기 한 곳에만** 둔다 — crop_align.py 도 이것을 빌려 쓴다.
+    두 곳에 두면 하나만 고쳐 놓고 다른 자가 빨간불이 된다.
+    """
+    if exam.get("crops"):
+        return "교재에서 옮겨 온 회차 — 크롭을 먼저 그리고 그 크롭으로 문제지를 엮었다"
+    if exam.get("noPdf") or not exam.get("pdf"):
+        return "문제지 PDF 가 저장소에 없다"
+    if exam.get("id") == "usnco-2026-natl-1":
+        return "미국 원판 PDF 라 회색 문항 딱지가 없다 (2026-08-21)"
+    return ""
+
+
 def crop_exam(exam: dict[str, Any], force: bool = False) -> list[dict[str, Any]]:
     pdf_path = ROOT / exam["pdf"]
     if not pdf_path.exists():
@@ -626,13 +668,9 @@ def crop_exam(exam: dict[str, Any], force: bool = False) -> list[dict[str, Any]]
         elif header.stop_page is not None and header.stop_page != header.page_index:
             # 쪽을 넘어가는 문항. 이 쪽에 남은 **본문 끝까지**만 담는다 —
             # 쪽 바닥까지 끌면 빈 여백과 쪽번호가 따라온다.
-            last = y0 + 45.0
-            for b in page.get_text('blocks'):
-                if b[3] > 780.0:
-                    continue            # 쪽번호 줄
-                if b[1] >= y0:
-                    last = max(last, b[3])
-            y1 = min(page.rect.height - 65.0, last + 10.0)
+            foot = min(page.rect.height - 65.0, 775.0)
+            last = ink_bottom(page, x0, x1, y0, foot)
+            y1 = min(foot, max(y0 + 45.0, last + 10.0))
         else:
             y1 = min(page.rect.height - 65.0, 775.0)
         clip = fitz.Rect(x0, y0, x1, y1)
@@ -848,8 +886,19 @@ def build_answer_files(
                 explanation = {}
                 status = "answer_key_and_concept_only"
             # 이미 적혀 있던 것 — 해설지에서 안 나오는 **손으로 쓴 말**은 지우지 않는다.
-            had = kept.get(str(number), {})
-            questions[str(number)] = {
+            #
+            # ⚠ **두 번째로 지워 버릴 뻔했다 (2026-09-05).** 위 사연 뒤에도
+            #   이 표는 explanation·explanationHtml·misconception 셋만 지켰다.
+            #   그 사이 답지에는 손으로 쓴 것이 훨씬 많아졌다 — 선지별 오답
+            #   해설(misconceptions), 지문·선지, 확인 필요(reviewNote)…
+            #   이 자를 한 번 돌렸더니 쉰두 회차에서 44,966줄이 사라졌다.
+            #   (커밋 전에 알아채고 되돌렸다. 두 번 다 «커밋 전에» 였다.)
+            #
+            #   그래서 「지킬 것을 세는」 방식을 버린다. **있던 것을 바닥에 깔고
+            #   이 자가 만드는 것만 그 위에 얹는다.** 앞으로 무엇이 더 생겨도
+            #   이 코드를 고치지 않아도 살아남는다.
+            had = dict(kept.get(str(number), {}))
+            had.update({
                 "answer": key,
                 "acceptableAnswers": multi or ([key] if key else []),
                 "excluded": number in miss,
@@ -865,7 +914,8 @@ def build_answer_files(
                                   or had.get("misconception", "")),
                 "sourceSolution": solution_files.get(exam["id"], ""),
                 "verificationStatus": status,
-            }
+            })
+            questions[str(number)] = had
         payload = {
             "schemaVersion": 2,
             "examId": exam["id"],
@@ -873,8 +923,11 @@ def build_answer_files(
             "generatedAt": utc_now(),
             "questions": questions,
         }
+        # 들여쓰기 한 칸. 저장소의 답지는 answer_fill.py 가 그렇게 쓴다 —
+        # 두 칸으로 쓰면 내용이 하나도 안 바뀌어도 파일이 통째로 바뀐 것처럼
+        # 보여(4만 줄) 진짜 바뀐 자리를 못 찾는다 (2026-09-05).
         (ANSWER_DIR / f"{exam['id']}.json").write_text(
-            json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+            json.dumps(payload, ensure_ascii=False, indent=1) + "\n",
             encoding="utf-8",
         )
     return {
@@ -1158,6 +1211,16 @@ def main() -> int:
     crop_records: dict[str, list[dict[str, Any]]] = {}
     if not args.skip_crops:
         for index, exam in enumerate(exams, 1):
+            # 이 자가 뜰 수 없는 회차. 회색 '문제 N' 딱지가 없는 문제지라
+            # (교재에서 옮겨 온 여덟 회차·미국 원판·문제지가 없는 j0)
+            # 크롭은 다른 길로 만들어져 저장소에 이미 들어 있다. 건너뛰지
+            # 않으면 **전체 다시 뜨기가 여기서 죽어**, 그 뒤 회차가 통째로
+            # 안 떠진다 — 그래서 지금껏 --exams 로만 돌려 왔다 (2026-09-05).
+            if no_grey_labels(exam):
+                print(f"[crops {index:02d}/{len(exams):02d}] "
+                      f"{exam['id']} 건너뜀 — {no_grey_labels(exam)}",
+                      flush=True)
+                continue
             crop_records[exam["id"]] = crop_exam(exam, force=args.force_crops)
             print(
                 f"[crops {index:02d}/{len(exams):02d}] "
