@@ -213,9 +213,16 @@ def main():
     print(ROW % ('🔒', '선생님이 정할 칸',
                  '%d/%d 칸이 답을 기다린다' % (left, allc)))
 
+    # ⚠ 여기 적어 둔 명령이 **둘 다 없는 명령이었다**(2026-09-05에 돌려 봤다).
+    #   tools/lec_link.py 는 DT 에 없고(그 일은 이 저장소의 lecture_link.py 다),
+    #   node tests/run.js 는 playwright 가 안 깔려 있어 MODULE_NOT_FOUND 로 죽는다.
+    #   판이 안 되는 명령을 일러 주면, 그것을 쳐 본 사람은 판 전체를 못 믿는다.
     print('\nDT 저장소 (여기서는 못 잰다 — 그 저장소에서 재세요)')
-    print('  ?  개념↔강의 잇기               cd ../dt && python3 tools/lec_link.py --check')
-    print('  ?  검사 스무 개                 cd ../dt && node tests/run.js')
+    print('  ?  검사 열일곱                  cd ../dt && for f in tools/*.py; '
+          'do python3 $f --check; done')
+    print('  ?  브라우저 검사                cd ../dt/tests && npm install && '
+          'cd .. && node tests/run.js')
+    print('       (브라우저 검사는 playwright 를 먼저 깔아야 돈다. 크로뮴은 이미 있다.)')
 
     print('\n검사 전부                        '
           'ls tools/*.py | xargs -I{} python3 {} --check')

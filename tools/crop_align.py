@@ -54,9 +54,9 @@ def main():
     exams = json.load(open(os.path.join(ROOT, 'exams.json'), encoding='utf-8'))
     # 이 자의 전제(회색 문항 딱지 배치)가 성립하지 않는 문제지.
     # 크롭 수·문항 대응은 wrongbook-assets 가 따로 세므로 여기서만 건너뛴다.
-    skip = {
-        'usnco-2026-natl-1': '미국 원판 PDF 라 회색 문항 딱지가 없다 (2026-08-21)',
-    }
+    # 목록은 build_wrongbook_assets 가 가진다 — 두 곳에 두면 하나만 고쳐 놓고
+    # 다른 자가 빨간불이 된다(2026-09-05).
+    skip = {e['id']: B.no_grey_labels(e) for e in exams if B.no_grey_labels(e)}
     bad, ok = [], 0
     for e in exams:
         # 크롭을 **우리가 그린** 회차는 이 자의 전제 밖이다. 이 자는 원본
