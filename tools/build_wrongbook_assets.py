@@ -472,6 +472,44 @@ def question_headers(
     return headers
 
 
+# 문항 딱지 **오른쪽에 정답이 인쇄된** 문제지. 빨간 표식은 아래 자가
+# 지우는데, 이 회차들은 정답이 까만 동그라미 숫자(④)로 찍혀 있어 안 지워졌다.
+# 크롭 예순 장이 전부 답을 보여 주고 있었다 (2026-09-05에 드러났다 — 1~6번과
+# 30번을 눈으로 읽어 정답표와 하나씩 대조했고 전부 일치했다).
+#
+# 목록으로 못박는 까닭: 같은 자리에 「정답률 : 15%」·「(전원정답)」을 찍는
+# 회차가 여럿이다(화올 2010~2013·기출동형 4회). 그것까지 지우면 멀쩡한 것을
+# 지운다. 새 회차가 조용히 새어 나가지 않게 crop_answer_leak.py 가 따로 센다.
+ANSWER_MARK = {'hwol-2024'}
+
+
+def remove_black_answer_mark(
+    image: Image.Image,
+    clip: fitz.Rect,
+    header: fitz.Rect,
+    scale: float,
+) -> bool:
+    """딱지 바로 오른쪽의 좁은 띠에서 **까만 먹**을 지운다. 제자리에서 고친다.
+
+    띠를 좁게(딱지 오른쪽 +3~+22pt) 잡는다 — 「정답률 : 15%」는 그보다
+    오른쪽에서 시작하므로 이 띠에 안 걸린다.
+    """
+    rgb = np.asarray(image.convert("RGB")).copy()
+    x0 = max(0, round((header.x1 - clip.x0 + 3) * scale))
+    x1 = min(rgb.shape[1], round((header.x1 - clip.x0 + 22) * scale))
+    y0 = max(0, round((header.y0 - clip.y0 - 4) * scale))
+    y1 = min(rgb.shape[0], round((header.y1 - clip.y0 + 5) * scale))
+    if x1 <= x0 or y1 <= y0:
+        return image, False
+    region = rgb[y0:y1, x0:x1]
+    dark = region.max(axis=2) < 250      # 흐린 가장자리까지 지운다 — 반쯤 남으면 여전히 읽힌다
+    if not dark.any():
+        return image, False
+    region[dark] = 255
+    rgb[y0:y1, x0:x1] = region
+    return Image.fromarray(rgb, mode="RGB"), True
+
+
 def remove_red_answer_marker(
     image: Image.Image,
     clip: fitz.Rect,
@@ -682,6 +720,11 @@ def crop_exam(exam: dict[str, Any], force: bool = False) -> list[dict[str, Any]]
             image, marker_removed = remove_red_answer_marker(
                 image, clip, header.rect, scale
             )
+            if exam["id"] in ANSWER_MARK:
+                image, black_removed = remove_black_answer_mark(
+                    image, clip, header.rect, scale
+                )
+                marker_removed = marker_removed or black_removed
             if (header.stop_page is not None
                     and header.stop_page != header.page_index):
                 # 문항이 쪽을 넘어간다 — 넘어간 조각까지 이어 붙인다.
@@ -907,11 +950,18 @@ def build_answer_files(
                 "learningPoint": (
                     verified.get("areaLabel") if verified else (qtype or area)
                 ),
-                "explanation": explanation.get("explanation", "") or had.get("explanation", ""),
-                "explanationHtml": (explanation.get("explanationHtml", "")
-                                    or had.get("explanationHtml", "")),
-                "misconception": (explanation.get("misconception", "")
-                                  or had.get("misconception", "")),
+                # ⚠ **있던 것이 먼저다.** 이 자는 해설지(sol-final-*.html)를 읽어
+                #   답지를 만드는데, 그 해설지는 gen_sol_page.py 가 **답지에서**
+                #   만든 것이다. 고리를 한 바퀴 도는 사이 아래첨자가 깎인다
+                #   (NH₄⁺ → NH4+). 해설지 쪽을 먼저 쓰면 돌릴 때마다 답지가
+                #   조금씩 나빠진다 — 쉰두 회차가 한 번에 그렇게 됐다
+                #   (2026-09-05, 커밋 전에 알아채고 되돌렸다).
+                #   그러니 **비어 있을 때만** 해설지에서 가져온다.
+                "explanation": had.get("explanation", "") or explanation.get("explanation", ""),
+                "explanationHtml": (had.get("explanationHtml", "")
+                                    or explanation.get("explanationHtml", "")),
+                "misconception": (had.get("misconception", "")
+                                  or explanation.get("misconception", "")),
                 "sourceSolution": solution_files.get(exam["id"], ""),
                 "verificationStatus": status,
             })
@@ -994,7 +1044,25 @@ def build_donghyung_files(
             ),
             "questions": questions,
         }
-        (DONGHYUNG_DIR / f"{exam['id']}.json").write_text(
+        # ⚠ **손으로 쓴 동형문제 은행은 건드리지 않는다.**
+        #   이 자가 만드는 것은 「같은 개념 유형의 **다른 기출**」을 이어 붙인
+        #   것이고, donghyung/*.json 에 이미 들어 있는 것은 그 문항의 개념에
+        #   맞춰 **새로 집필한** 문항이다(strategy: original-authored,
+        #   origin: authored). 뒤엣것이 훨씬 좋은데, 한 번 돌리면 쉰두 회차가
+        #   통째로 앞엣것으로 덮인다 — 강의별 확인 문제도 124강에서 88강으로
+        #   주저앉았다(2026-09-05, 커밋 전에 알아채고 되돌렸다).
+        out = DONGHYUNG_DIR / f"{exam['id']}.json"
+        if out.exists():
+            try:
+                prev = json.loads(out.read_text(encoding="utf-8"))
+            except Exception:
+                prev = {}
+            if prev.get("strategy") == "original-authored" or any(
+                (q or {}).get("origin") == "authored"
+                for q in (prev.get("questions") or {}).values()
+            ):
+                continue
+        out.write_text(
             json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",
         )
