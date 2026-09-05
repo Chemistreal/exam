@@ -60,6 +60,27 @@ THICK_FIELDS = ('explanation', 'misconception', 'misconceptions', 'reviewNote')
 # 어떤 갈래로도 답지의 정답 키를 건드리지 않는다.
 NEVER = ('answer', 'acceptableAnswers')
 
+# ── 들어올 때 한 번 다듬는다 ────────────────────────────────────────
+# 시험지는 온도를 ℃(U+2103)로 인쇄한다. 크롭을 읽어 옮기면 그 글자가 그대로
+# 따라 들어오는데, 저장소는 °C 로 모으기로 되어 있다(tools/dh_lint.py 가 잰다).
+# 나갈 때 한꺼번에 훑는 것보다 **들어오는 문에서** 바꾸는 편이 낫다 —
+# 한 번 들어오면 답지·해설 글·해설지 화면 셋으로 퍼지고, 그 뒤에는 어느 것이
+# 원본인지 헷갈린다. (2026-09-05: 크롭에서 아홉 회차로 한꺼번에 새어 들어왔다.)
+TIDY = {'\u2103': '°C', '\u2109': '°F'}
+
+
+def tidy(v):
+    """문자열이면 다듬고, 목록·표면 속까지 따라 들어간다."""
+    if isinstance(v, str):
+        for a, b in TIDY.items():
+            v = v.replace(a, b)
+        return v
+    if isinstance(v, list):
+        return [tidy(x) for x in v]
+    if isinstance(v, dict):
+        return {k: tidy(x) for k, x in v.items()}
+    return v
+
 # 성적표는 학부모와 학생이 함께 읽는다. 답지의 문장은 전부 「~다.」로 끝나는
 # 평서체다(실측 186문항 전부). 집필 에이전트에게 「학생에게 말하듯」이라고
 # 일렀더니 반말(「~어긋나.」 「~보여.」)로 써 온 회차가 있었다 — 한 회차만
@@ -257,7 +278,7 @@ def main():
                         rc = 1
                         continue
                     if write:
-                        q[f] = v[f]
+                        q[f] = tidy(v[f])
                     thickened += 1
 
         for p in parts[eid]['full']:
@@ -287,7 +308,7 @@ def main():
                     if q.get(f) and not over:
                         skipped += 1
                         continue
-                    q[f] = v[f]
+                    q[f] = tidy(v[f])
                     filled += 1
 
         for p in parts[eid]['mis']:
