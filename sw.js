@@ -21,7 +21,7 @@
  * 화면에 뜬 뒤 곧바로 미리 받아 두면 학생이 나중에 오프라인이 되어도 열린다.
  * (`loading="lazy"` 라 스크롤하지 않은 이미지는 저절로는 캐시되지 않는다)
  */
-const VERSION = 'bea75d799557';
+const VERSION = '83f0ea47ab2a';
 const SHELL = 'chemistreal-shell-' + VERSION;
 const DATA = 'chemistreal-data';          // 버전 없음 — 배포해도 남긴다
 const ASSETS = ['./', './index.html', './note.html', './hub.html', './final.html', './final-submit.html',
