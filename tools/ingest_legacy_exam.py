@@ -285,6 +285,26 @@ def cut_of(n):
     return [0] + [max(i, round(v * n / 60)) for i, v in enumerate(base[1:], 1)]
 
 
+# ── 문항 하나만 일부러 덮어쓴 자리 ────────────────────────────────────
+# 원본(index.html·HWP)이 틀렸다고 판단해 **그 문항만** 다르게 적은 곳이다.
+# 이름 바꾸기 표(AREA_FIX 따위)로는 못 한다 — 그것은 회차 전체에 걸린다.
+#
+# ⚠ 여기 적는 것은 **원본을 고치는 일**이라 까닭을 반드시 함께 적는다.
+#   까닭 없이 덮어쓰면 다음 사람이 원본이 맞는 줄 알고 되돌린다.
+TYPE_OVERRIDE = {
+    # kch1to3 49번은 원본에 「분자의모양」으로 적혀 있다. 그런데 지문은
+    # 「루이스 구조식에서 중심 원자가 옥텟 규칙을 만족하지 않는 것은?」 이다 —
+    # 묻는 것은 옥텟 규칙이다. 그대로 두면 오답노트의 「개념 강의 보기」가
+    # lec-023(분자의 모양)으로 열려, 옥텟을 못 세어 틀린 학생이 분자 모양
+    # 강의를 보게 된다.
+    #
+    # 결정적인 근거는 **짝 회차**다. 같은 시험의 두 벌인 kch1to3-b 는 49번을
+    # 원본에서부터 「옥텟규칙」으로 적고 있다. 두 벌이 같은 문항을 다른 이름으로
+    # 부르고 있었던 것이고, 여기서 kch1to3 을 그쪽에 맞춘다. (2026-09-04)
+    ('kch1to3', 49): '옥텟규칙',
+}
+
+
 def entry_of(d):
     qs = d['q']
     multi = {str(q['n']): q['accept'] for q in qs if q['accept']}
@@ -292,7 +312,8 @@ def entry_of(d):
         'id': d['id'], 'title': d['meta']['title'], 'group': d['group'],
         'nQ': 60, 'mode': 'auto', 'cut': cut_of(60),
         'key': [q['ans'] for q in qs], 'miss': [],
-        'area': [q['area'] for q in qs], 'type': [q['type'] for q in qs],
+        'area': [q['area'] for q in qs],
+        'type': [TYPE_OVERRIDE.get((d['id'], q['n']), q['type']) for q in qs],
         'rate': [q['rate'] for q in qs],
         'crops': True, 'sol': 'sol-final-%s.html' % d['id'],
         'pdf': '%s-problem.pdf' % d['id'],

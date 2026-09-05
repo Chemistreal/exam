@@ -43,11 +43,26 @@ WORD = {'하나': 1, '둘': 2, '셋': 3, '넷': 4, '다섯': 5, '여섯': 6,
         '일곱': 7, '여덟': 8, '아홉': 9, '열': 10}
 TOL = 0.03          # 반올림·유효숫자 때문에 딱 떨어지지 않는다
 
+# ── 빼기표는 두 글자다 ────────────────────────────────────────────────
+# 보기에는 아스키 하이픈(U+002D `-`)을, 해설에는 유니코드 빼기표(U+2212 `−`)를
+# 쓰는 일이 흔하다. 눈으로는 같아 보이지만 기계에는 다른 글자라, 이 검사가
+# 「해설에 그 값이 없다」고 빨간불을 켠다 — 실제로 kch1u1 42번이 그랬다.
+# 보기 「-17°C」와 해설 「256 − 273 = −17°C이다」가 같은 값인데도 못 알아봤다.
+# 곱셈표(×)와 나눗셈표(÷) 옆의 −도 같은 문제다. 재기 전에 한 글자로 모은다.
+DASHES = {'\u2212': '-', '\u2013': '-', '\u2014': '-', '\uff0d': '-', '\u2010': '-'}
+
+
+def one_dash(t):
+    t = str(t)
+    for a, b in DASHES.items():
+        t = t.replace(a, b)
+    return t
+
 
 def choice_values(choices):
     out = []
     for c in choices:
-        m = ONLY_NUM.match(str(c).replace(',', ''))
+        m = ONLY_NUM.match(one_dash(c).replace(',', ''))
         if not m:
             return None
         out.append(float(m.group(1)))
@@ -55,7 +70,7 @@ def choice_values(choices):
 
 
 def explained(text):
-    got = [float(x) for x in IN_TEXT.findall(text.replace(',', ''))]
+    got = [float(x) for x in IN_TEXT.findall(one_dash(text).replace(',', ''))]
     for w, n in WORD.items():
         if w in text:
             got.append(float(n))
