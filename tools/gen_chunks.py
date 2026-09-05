@@ -166,8 +166,30 @@ def build_lec(out):
     return keys
 
 
+# 채울 수 없다고 확인된 문항(시험지에 선지가 인쇄돼 있지 않다). 목록은
+# crop_cut.py 가 가진다 — 여기서 다시 적으면 두 곳이 갈라진다.
+try:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from crop_cut import KNOWN as CANNOT
+except Exception:                                    # 자가 없으면 아무것도 안 뺀다
+    CANNOT = frozenset()
+
+
 def build_crop(out):
-    """크롭은 있는데 답지에 지문·선지가 없는 회차."""
+    """크롭은 있는데 **선지별 오답 해설이 없는** 회차.
+
+    ⚠ 예전에는 「지문·선지가 없는 회차」로 골랐다. 두 군데가 어긋났다.
+
+      · 집필 일꾼은 이제 지문·선지를 옮겨 적지 않는다(2026-09-05). 옮겨
+        적어서 얻는 것은 없고 새 오류만 났다 — 문항은 크롭 원문이 보여 준다.
+        그러니 「선지가 채워졌는가」로는 일이 끝난 줄을 영영 모른다.
+      · 시험지에 **선지가 인쇄돼 있지 않은** 문항이 있다(kch1to2·kch1to2-b
+        각 넷). 그 회차는 선지 수가 절대 nQ 에 못 미쳐, 다 끝난 뒤에도
+        같은 조각을 계속 다시 내보냈다.
+
+    그래서 「오답 해설이 있는가」로 세고, 채울 수 없다고 확인된 문항은
+    crop_cut.py 의 목록을 빌려 뺀다 — 두 곳에 같은 목록을 두지 않는다.
+    """
     xs = {e['id']: e for e in load(os.path.join(ROOT, 'exams.json'))}
     keys = []
     for eid, e in sorted(xs.items()):
@@ -179,7 +201,12 @@ def build_crop(out):
                    for q in range(1, n + 1)):
             continue
         qs = answers(eid)
-        if not qs or sum(1 for v in qs.values() if v.get('choices')) >= n:
+        if not qs:
+            continue
+        done = sum(1 for k, v in qs.items()
+                   if v.get('misconceptions') or v.get('excluded')
+                   or (eid, int(k)) in CANNOT)
+        if done >= n:
             continue
         for i in range(1, n + 1, 10):
             rng = [str(q) for q in range(i, min(i + 10, n + 1))]
@@ -198,7 +225,7 @@ def build_crop(out):
                                 for q in rng if q in qs}},
                  os.path.join(out, 'cropsrc', name + '.json'))
             keys.append(name)
-    print('cropsrc %d덩어리 (크롭은 있는데 답지에 원문이 없는 회차)' % len(keys))
+    print('cropsrc %d덩어리 (크롭은 있는데 선지별 오답 해설이 없는 회차)' % len(keys))
     return keys
 
 

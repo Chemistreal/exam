@@ -43,6 +43,11 @@ KNOWN = {
     # choices 가 빈 배열이다. 저장소 안 어디에도 옮겨 적을 원문이 없다.
     ('kch1to2', 6), ('kch1to2', 34), ('kch1to2', 44),
     ('kch1to2', 46), ('kch1to2', 50),
+    # 동형본 kch1to2-b 도 같은 자리 넷이 그렇다. 2026-09-05 에 크롭을 눈으로
+    # 열고, kch1to2-b-problem.pdf 를 pdftotext -layout 으로 뽑아 확인했다 —
+    # 05·07·33·35·43·45·49·51번은 ①~④ 가 다 찍혀 있는데 이 넷만 발문에서
+    # 끝난다. exam_kch1to2동형_HWP.json 도 choices 가 빈 배열이다.
+    ('kch1to2-b', 6), ('kch1to2-b', 34), ('kch1to2-b', 44), ('kch1to2-b', 50),
 }
 
 # 크롭을 실제로 한 문항씩 읽어 본 회차. **이 목록 안에서만** 「잘렸다」고
@@ -57,7 +62,8 @@ PASSED = {
     'donghyung-1', 'donghyung-2', 'donghyung-3', 'donghyung-4',
     'hwol-2017', 'hwol-2018', 'hwol-2019', 'hwol-2021', 'hwol-2022',
     'jmchc-1', 'jmchc-3', 'jmchc-5', 'jmchc-7', 'jmchc-9', 'jmchc-13',
-    'kch1to3', 'kch1to2',
+    'kch1to3', 'kch1to2', 'kch1to2-b', 'sanyeom-60', 'jmchc-8', 'jmchc-11',
+    'hwol-2023',
 }
 
 
