@@ -72,6 +72,14 @@ def main():
             print('  %-22s 건너뜀 — %s' % (e['id'], skip[e['id']]))
             ok += 1
             continue
+        # 문제지가 «아직 안 들어온 것» 과 «저장소에 없다고 적어 둔 것» 은
+        # 다른 일이다. exams.json 에 noPdf 로 까닭을 적어 둔 회차는 사람이
+        # 이미 보고 정한 자리이므로 여기서 빨간불을 켜지 않는다. 까닭을 안
+        # 적은 채 pdf 만 비면 아래에서 그대로 걸린다. (2026-09-05)
+        if e.get('noPdf'):
+            print('  %-22s 건너뜀 — %s' % (e['id'], e['noPdf'].split('.')[0] + '.'))
+            ok += 1
+            continue
         pdf = os.path.join(ROOT, e.get('pdf') or '')
         if not e.get('pdf') or not os.path.exists(pdf):
             bad.append('%s: 문제지 PDF 가 없다 (%s)' % (e['id'], e.get('pdf')))

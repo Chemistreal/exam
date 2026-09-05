@@ -53,6 +53,18 @@ def rates(hist, nQ, cuts):
     return n, out
 
 
+# 재어서 **선생님께 이미 알린** 회차. 컷을 옮길지는 가르치는 판단이라
+# 자가 정하지 않는다(docs/선생님이-정할-칸.md 의 A9). 답을 주시기 전까지
+# 이 회차는 빨간불이 아니라 «알고 있는 것» 으로 적힌다.
+# ⚠ 여기 없는 회차가 새로 전원 미수상이 되면 그때는 그대로 빨간불이다 —
+#   그것이 이 자를 두는 까닭이다.
+KNOWN = {
+    'jmchc-11': '16명 중 최고가 39/60(오답 21)이라 동상 컷(오답 18)에 못 닿았다. '
+                '이웃 회차 최고는 오답 11~16 — 회차가 실제로 어려웠던 것이지 '
+                '기록이 빠진 것이 아니다 (2026-09-05)',
+}
+
+
 def main():
     check = '--check' in sys.argv
     base, exams = load()
@@ -86,13 +98,21 @@ def main():
         print('\n인원 %d명 이상인 회차가 없다.' % MIN_N)
         return 0
 
+    fresh = [x for x in none_at_all if x[0] not in KNOWN]
+
     if none_at_all:
         print('\n기록이 있는데 **한 명도 상을 못 받은** 회차 %d개:' % len(none_at_all))
         for eid, n in none_at_all:
-            print('    %-16s %d명 전원 미수상' % (eid, n))
+            mark = '' if eid in KNOWN else '   ← 새로 생겼다'
+            print('    %-16s %d명 전원 미수상%s' % (eid, n, mark))
         print('\n그 회차를 본 학생에게는 수상 확률이 늘 바닥으로 나온다.')
         print('컷을 옮길지는 가르치는 판단이라 여기서 정하지 않는다 — 재어서 알릴 뿐이다.')
-        return 1 if check else 0
+        for eid, _ in none_at_all:
+            if eid in KNOWN:
+                print('\n  %s — 이미 알린 것: %s' % (eid, KNOWN[eid]))
+        if fresh:
+            return 1 if check else 0
+        return 0
 
     print('\n기록이 있는 회차는 모두 한 명 이상 상을 받았다.')
     return 0

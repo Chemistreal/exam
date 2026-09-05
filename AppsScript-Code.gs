@@ -1727,7 +1727,8 @@ function rebuildBaseline() {
     if (gx.getResponseCode() === 200) {
       var list = JSON.parse(gx.getContentText()) || [];
       known = {};
-      for (var q = 0; q < list.length; q++) if (list[q] && list[q].id) known[list[q].id] = 1;
+      for (var q = 0; q < list.length; q++) if (list[q] && list[q].id)
+        known[list[q].id] = Number(list[q].nQ) || 0;   // 문항 수까지 기억한다(단위 검사용)
     }
   } catch (eX) {}
 
@@ -1747,8 +1748,24 @@ function rebuildBaseline() {
     if (!exams[id]) {
       /* 새로 만드는 회차. 시험 목록에 없으면 만들지 않는다. */
       if (known === null) { kept.push(id + '(목록을 못 읽음)'); continue; }
-      if (!known[id]) { kept.push(id + '(시험 목록에 없다)'); continue; }
+      if (known[id] === undefined) { kept.push(id + '(시험 목록에 없다)'); continue; }
     }
+    /* ⚠ **단위 검사.** I열은 «맞은 문항 수» 라고 보고 읽는다. 그런데 시트에
+       따라 그 자리에 **원점수**(배점을 곱한 값)가 들어 있는 회차가 있다.
+       그대로 실으면 석차·백분위가 다른 단위끼리 견주게 되고, 컷은 오답 수로
+       세므로 **모든 학생이 모든 상을 받은 것처럼 나온다** — 2026-09-05 에
+       j0 가 그랬다(18명, 최댓값 174, 문항 60). 사람이 지운 것이 시험 목록에
+       다시 오르면서 밤사이 돌아온 자리다.
+       배점을 여기서 되나누지 않는다. 나눌 수를 모르는 채 나누면 «없는 것을
+       있다고» 말하게 되므로, 싣지 않고 남긴다. */
+    var nQ = known ? known[id] : 0, top = 0;
+    for (var sc in hist) if (Number(sc) > top) top = Number(sc);
+    if (nQ && top > nQ) {
+      kept.push(id + '(점수가 문항 수를 넘는다 — 최댓값 ' + top + ' > 문항 ' + nQ +
+                '. 원점수가 섞였는지 사람이 봐야 한다)');
+      continue;
+    }
+
     var why = _baselineKeepWhy_(exams[id], n, handmade[id]);
     if (why) { kept.push(id + '(' + why + ')'); continue; }
     exams[id] = { n: n, hist: hist, from: 'sheet',
