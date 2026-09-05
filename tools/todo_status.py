@@ -59,12 +59,33 @@ def item_misc4():
 
 
 def item_twins():
-    """동형문제 은행 — 회차 이름의 은행이 있는가."""
+    """동형문제 은행 — 회차 이름의 은행이 있는가, 그리고 **어느 갈래인가**.
+
+    은행에는 두 갈래가 있다.
+
+      · 손으로 쓴 것 — 그 문항의 개념에 맞춰 새로 집필했다. 학생 화면에는
+        「동형문제 · 같은 개념으로 새로 만든 문제」로 뜬다.
+      · 자동으로 이은 것 — 같은 개념 유형의 **다른 기출**을 골라 붙였다.
+        「같은 개념 유형 문제」로 뜨고 출처를 밝힌다.
+
+    ✅ 를 「파일이 있는가」로만 매기면 뒤엣것도 다 된 것으로 세어진다.
+    학생이 받는 것이 다르므로 갈라 적는다.
+    """
     xs = _j('exams.json')
-    miss = [e['id'] for e in xs
-            if not os.path.exists(os.path.join(ROOT, 'donghyung', '%s.json' % e['id']))]
+    miss, auto = [], []
+    for e in xs:
+        p = os.path.join(ROOT, 'donghyung', '%s.json' % e['id'])
+        if not os.path.exists(p):
+            miss.append(e['id'])
+            continue
+        d = _j('donghyung', '%s.json' % e['id'])
+        authored = (d.get('strategy') == 'original-authored'
+                    or any((q or {}).get('origin') == 'authored'
+                           for q in (d.get('questions') or {}).values()))
+        if not authored:
+            auto.append(e['id'])
     q = sum(e['nQ'] for e in xs if e['id'] in miss)
-    return len(xs) - len(miss), len(xs), miss, q
+    return len(xs) - len(miss), len(xs), miss, q, auto
 
 
 def item_lecquiz():
@@ -168,10 +189,14 @@ def main():
         top = ', '.join('%s %d' % t for t in sorted(short, key=lambda x: -x[1])[:6])
         print('       모자란 회차 %d개 — %s …' % (len(short), top))
 
-    hv, tt, miss, q = item_twins()
+    hv, tt, miss, q, auto = item_twins()
     print(ROW % ('✅' if not miss else '◻ ', '동형문제 은행',
                  '%d/%d회차%s' % (hv, tt, '' if not miss
                                   else ' · %s (%d문항)' % (', '.join(miss), q))))
+    if auto:
+        print('       그 가운데 %d회차는 **손으로 쓴 것이 아니라** 같은 개념의 다른'
+              % len(auto))
+        print('       기출을 이어 붙인 것이다: %s' % ', '.join(auto))
 
     lq = item_lecquiz()
     if lq:
