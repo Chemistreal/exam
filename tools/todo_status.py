@@ -93,6 +93,19 @@ def item_lecquiz():
     return have, tot, empty
 
 
+def item_cropcut():
+    """크롭이 잘려 선지가 없는 문항 — tools/crop_cut.py 에게 묻는다."""
+    import subprocess
+    try:
+        r = subprocess.run([sys.executable,
+                            os.path.join(ROOT, 'tools', 'crop_cut.py')],
+                           capture_output=True, text=True, timeout=120, cwd=ROOT)
+    except Exception:
+        return None
+    m = re.search(r'선지가 잘린 문항 (\d+)개 \(크롭을 읽어 본 (\d+)회차', r.stdout)
+    return (int(m.group(1)), int(m.group(2))) if m else None
+
+
 def item_reviewnote():
     """확인 필요(reviewNote) 를 한자리에서 볼 곳이 있는가."""
     _, ans = answers()
@@ -159,6 +172,15 @@ def main():
     n, r, page = item_reviewnote()
     print(ROW % ('✅' if page else '◻ ', '확인 필요를 한자리에서',
                  '%d건 · %d회차%s' % (n, r, '' if page else ' · 모아 보는 곳이 없다')))
+
+    # 「안 한 것」과 「못 하는 것」을 갈라 적는다. 크롭이 잘려 선지가 없는
+    # 문항은 사람을 더 붙인다고 줄지 않는다 — 크롭을 다시 떠야 하는 일이다.
+    cut = item_cropcut()
+    if cut is not None:
+        n, rounds = cut
+        print(ROW % ('🔒' if n else '✅', '크롭이 잘려 못 채우는 문항',
+                     ('%d개 — 크롭을 다시 떠야 한다 (읽어 본 %d회차 기준)'
+                      % (n, rounds)) if n else '없다'))
 
     left, allc = item_teacher()
     print(ROW % ('🔒', '선생님이 정할 칸',
