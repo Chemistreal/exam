@@ -164,7 +164,16 @@ def main() -> int:
     root = ROOT if "ROOT" in dir() else os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     stray = []
     for dirpath, dirnames, filenames in os.walk(root):
-        dirnames[:] = [d for d in dirnames if d not in (".git", "node_modules", "__pycache__")]
+        # ⚠ **들어오기 전 자리(_wip · _crop · _mis · _thick)는 안 센다.**
+        #   그 폴더들은 저장소의 내용이 아니라 **들어오는 문 앞**이다. 시험지가
+        #   ℃ 로 인쇄되어 있어 크롭을 옮겨 적으면 그 글자가 그대로 따라오는데,
+        #   문(tools/answer_fill.py 의 tidy · tools/dh_merge.py)이 옮겨 담을 때
+        #   °C 로 바꾼다. 문 앞까지 재면, 원고가 오가는 동안 빨간불이 켜졌다
+        #   꺼졌다 해서 **자를 못 믿게 된다** — 정작 저장소 안은 깨끗한데도.
+        #   그래서 문 안쪽만 지킨다. (2026-09-05)
+        dirnames[:] = [d for d in dirnames
+                       if d not in (".git", "node_modules", "__pycache__",
+                                    "_wip", "_crop", "_mis", "_thick")]
         for fn in filenames:
             if not fn.endswith((".json", ".html")):
                 continue

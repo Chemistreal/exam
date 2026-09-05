@@ -63,8 +63,12 @@ def main() -> None:
         "questions": {str(n): merged[str(n)] for n in range(1, n_q + 1)},
     }
     dest = ROOT / "donghyung" / f"{exam_id}.json"
+    # 들어오는 문에서 온도 글자를 다듬는다. 시험지는 ℃(U+2103)로 인쇄하고
+    # _wip 원고는 그것을 그대로 따라 적는데, 저장소는 °C 로 모은다
+    # (tools/dh_lint.py 가 잰다). answer_fill 의 tidy 와 같은 자리다.
     dest.write_text(
-        json.dumps(out, ensure_ascii=False, indent=1) + "\n", encoding="utf-8"
+        (json.dumps(out, ensure_ascii=False, indent=1) + "\n")
+        .replace("\u2103", "°C").replace("\u2109", "°F"), encoding="utf-8"
     )
     print(f"작성 완료: {dest.relative_to(ROOT)} ({len(out['questions'])}문항)")
 
