@@ -181,8 +181,27 @@ def main():
         print('채울 조각이 없다 (answers/_wip · _crop · _mis · _thick 가 비어 있다)')
         return 0
 
+    # ── --only 로 회차를 골라 넣는다 ────────────────────────────────
+    # 왜 필요한가. 조각은 여러 회차가 **동시에** 쌓인다(집필이 병렬로 돈다).
+    # 그런데 어떤 회차는 반박·수리가 끝났고 어떤 회차는 아직 초고다.
+    # 이 문이 늘 «있는 것 전부» 를 넣으면, 검수를 안 지난 글이 검수를 지난
+    # 글에 묻어 들어간다.
+    # 한때 그것을 피하려고 **파일을 잠깐 딴 데로 옮겼다가** 돌려놓았는데,
+    # 그 사이 수리하던 에이전트가 자기 파일을 못 찾았다(2026-09-05).
+    # 파일을 움직이지 말고 **넣을 것을 고르는** 것이 맞다.
+    only = None
+    if '--only' in sys.argv:
+        only = {x.strip() for x in sys.argv[sys.argv.index('--only') + 1].split(',')
+                if x.strip()}
+        skipped_eids = sorted(set(parts) - only)
+        if skipped_eids:
+            print('--only 로 %d회차만 넣는다. 미룬 회차: %s\n'
+                  % (len(only & set(parts)), ', '.join(skipped_eids)))
+
     rc = 0
     for eid in sorted(parts):
+        if only is not None and eid not in only:
+            continue
         dest = os.path.join(ROOT, 'answers', '%s.json' % eid)
         if not os.path.exists(dest):
             print('[%s] 답지가 없다 — 건너뛴다' % eid)
