@@ -131,6 +131,25 @@ def item_teacher():
     return len(heads) - done, len(heads)
 
 
+def item_papercrop():
+    """시험지 페이지의 문항이 **원문 크롭**인가 — paper_crop.py 에게 묻는다.
+
+    글자만 뽑아 만든 문항은 그림·표가 빠져 아예 못 푸는 것이 섞인다
+    (kch1to2 1번 — 「다음에 있는 원소들」의 그 «다음» 이 없었다).
+    여기서 다시 세지 않는 까닭은 item_lecquiz 와 같다.
+    """
+    import subprocess
+    try:
+        r = subprocess.run([sys.executable,
+                            os.path.join(ROOT, 'tools', 'paper_crop.py')],
+                           capture_output=True, text=True, timeout=120, cwd=ROOT)
+    except Exception:
+        return None
+    m = re.search(r'합계 — 바꿈 (\d+) · 이미 됨 (\d+) · 크롭없음 (\d+) · 어긋남 (\d+)',
+                  r.stdout)
+    return tuple(int(x) for x in m.groups()) if m else None
+
+
 ROW = '  %s %-28s %s'
 
 
@@ -181,6 +200,14 @@ def main():
         print(ROW % ('🔒' if n else '✅', '크롭이 잘려 못 채우는 문항',
                      ('%d개 — 크롭을 다시 떠야 한다 (읽어 본 %d회차 기준)'
                       % (n, rounds)) if n else '없다'))
+
+    pc = item_papercrop()
+    if pc is not None:
+        todo, done, nocrop, bad = pc
+        left = todo + nocrop + bad
+        print(ROW % ('✅' if not left else '◻ ', '시험지 쪽이 원문 크롭인가',
+                     '%d/%d문항%s' % (done, done + left, '' if not left
+                                     else ' · 아직 글로만 %d' % left)))
 
     left, allc = item_teacher()
     print(ROW % ('🔒', '선생님이 정할 칸',
