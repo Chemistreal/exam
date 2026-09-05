@@ -37,6 +37,12 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 KNOWN = {
     ('donghyung-2', 48), ('hwol-2019', 46), ('hwol-2019', 52),
     ('hwol-2019', 58), ('hwol-2022', 46),
+    # kch1to2 의 다섯은 **크롭만이 아니라 문제지 PDF 에도** 선지가 없다.
+    # pdftotext -layout 으로 뽑아 확인했다 — 이 발문들 아래가 비어 있고
+    # 바로 뒤 문항(7·35·45·47·51)의 선지는 멀쩡히 나온다. HWP 원본도
+    # choices 가 빈 배열이다. 저장소 안 어디에도 옮겨 적을 원문이 없다.
+    ('kch1to2', 6), ('kch1to2', 34), ('kch1to2', 44),
+    ('kch1to2', 46), ('kch1to2', 50),
 }
 
 # 크롭을 실제로 한 문항씩 읽어 본 회차. **이 목록 안에서만** 「잘렸다」고
@@ -51,7 +57,7 @@ PASSED = {
     'donghyung-1', 'donghyung-2', 'donghyung-3', 'donghyung-4',
     'hwol-2017', 'hwol-2018', 'hwol-2019', 'hwol-2021', 'hwol-2022',
     'jmchc-1', 'jmchc-3', 'jmchc-5', 'jmchc-7', 'jmchc-9', 'jmchc-13',
-    'kch1to3',
+    'kch1to3', 'kch1to2',
 }
 
 
