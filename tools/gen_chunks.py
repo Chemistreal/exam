@@ -170,7 +170,7 @@ def build_lec(out):
 # crop_cut.py 가 가진다 — 여기서 다시 적으면 두 곳이 갈라진다.
 try:
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    from crop_cut import KNOWN as CANNOT
+    from crop_cut import BLOCKED as CANNOT
 except Exception:                                    # 자가 없으면 아무것도 안 뺀다
     CANNOT = frozenset()
 

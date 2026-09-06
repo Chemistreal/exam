@@ -676,8 +676,12 @@ def no_grey_labels(exam: dict[str, Any]) -> str:
     이 목록은 **여기 한 곳에만** 둔다 — crop_align.py 도 이것을 빌려 쓴다.
     두 곳에 두면 하나만 고쳐 놓고 다른 자가 빨간불이 된다.
     """
-    if exam.get("crops"):
-        return "교재에서 옮겨 온 회차 — 크롭을 먼저 그리고 그 크롭으로 문제지를 엮었다"
+    # [2026-09-06 지웠다] 교재에서 옮겨 온 여덟 회차는 크롭이 **PDF 를 자른 것이
+    #   아니라 HWPX 에서 캔 글을 그린 것**이었고, 문제지 PDF 도 그 그림들을 이어
+    #   엮은 것이라 회색 딱지가 없었다. 선생님이 원본 시험지를 주셔서
+    #   (tools/ingest_source_paper.py) 이제 여덟 다 딱지가 60개씩 있다.
+    #   exams.json 의 `crops` 는 여기서 보지 않는다 — 그것은 「학생 화면에 PDF
+    #   대신 크롭을 늘어놓는다」는 뜻이지 「이 자가 못 뜬다」는 뜻이 아니다.
     if exam.get("noPdf") or not exam.get("pdf"):
         return "문제지 PDF 가 저장소에 없다"
     if exam.get("id") == "usnco-2026-natl-1":

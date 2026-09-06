@@ -171,6 +171,23 @@ def item_papercrop():
     return tuple(int(x) for x in m.groups()) if m else None
 
 
+def item_drawn():
+    """크롭이 PDF 를 자른 것인가 글을 그린 것인가 — crop_drawn.py 에게 묻는다."""
+    import subprocess
+    try:
+        r = subprocess.run([sys.executable,
+                            os.path.join(ROOT, 'tools', 'crop_drawn.py')],
+                           capture_output=True, text=True, timeout=600, cwd=ROOT)
+    except Exception:
+        return None
+    m = re.search(r'크롭 (\d+)장 · 그 가운데 글로 그린 것 (\d+)장', r.stdout)
+    if not m:
+        return None
+    waiting = len(re.findall(r'🔒', r.stdout))
+    stuck = len(re.findall(r'◻', r.stdout))
+    return int(m.group(1)), int(m.group(2)), waiting, stuck
+
+
 ROW = '  %s %-28s %s'
 
 
@@ -225,6 +242,18 @@ def main():
         print(ROW % ('🔒' if n else '✅', '크롭이 잘려 못 채우는 문항',
                      ('%d개 — 크롭을 다시 떠야 한다 (읽어 본 %d회차 기준)'
                       % (n, rounds)) if n else '없다'))
+
+    dr = item_drawn()
+    if dr is not None:
+        tot, drawn, waiting, stuck = dr
+        mark = '✅' if not drawn else ('🔒' if not stuck else '◻ ')
+        print(ROW % (mark, '문항이 원문 크롭인가',
+                     ('%d/%d장' % (tot - drawn, tot))
+                     + ('' if not drawn else ' · 글로 그린 것 %d장' % drawn)))
+        if drawn and not stuck:
+            print('       남은 것은 학생마다 다른 변형본 %d회차다. 원본이 HWPX 뿐이라'
+                  % waiting)
+            print('       선생님이 PDF 로 내보내 주셔야 다른 회차처럼 자를 수 있다.')
 
     pc = item_papercrop()
     if pc is not None:
