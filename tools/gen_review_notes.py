@@ -177,6 +177,18 @@ def build(rows):
     return '\n'.join(p) + '\n'
 
 
+def themed(page):
+    """만든 글에도 **같은 옷**을 입힌다.
+
+    안 입히면 이 생성기와 tools/theme.py 가 영영 어긋난다 — 저 자는 파일에
+    옷을 입히고, 여기는 그걸 모른 채 옛 모양을 다시 만들어 낸다. 그러면
+    둘 중 하나는 늘 빨간불이다(gen_sol_page.py 도 같은 까닭으로 그렇게 한다).
+    """
+    sys.path.insert(0, os.path.join(ROOT, 'tools'))
+    import theme
+    return theme.apply(page, theme.plan(os.path.basename(OUT), page)) or page
+
+
 def main():
     check = '--check' in sys.argv
     write = '--write' in sys.argv
@@ -189,7 +201,7 @@ def main():
         print('  %-22s %2d건  %s'
               % (eid, len(by[eid]), ', '.join('%d번' % r['n'] for r in by[eid])))
 
-    want = build(rows)
+    want = themed(build(rows))
     have = io.open(OUT, encoding='utf-8').read() if os.path.exists(OUT) else None
 
     if write:
