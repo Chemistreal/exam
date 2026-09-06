@@ -173,6 +173,13 @@ async function measure(p) {
         try { localStorage.setItem('chemistreal:gate', String(Date.now())); } catch (e) {}
       });
       await p.goto(`http://localhost:${PORT}/${file}`, { waitUntil: 'load' });
+      /* 접혀 있는 자리(<details>)를 펴 두고 잰다.
+         대비는 **화면을 찍어서** 재는데, 접힌 것은 자리는 있고 안 그려진다.
+         그러면 글자 뒤에 제 바탕이 아니라 **종이색**이 잡혀, 멀쩡한 자리가
+         1.06:1 로 나온다(문제지 쪽의 '정답' 딱지가 그랬다 — 실제로는 옥색
+         바탕에 흰 글씨라 9.5:1 이다). 펴 두면 못 재는 자리가 없어지므로
+         건너뛰는 것보다 **더 많이** 재게 된다. */
+      await p.evaluate(() => document.querySelectorAll('details').forEach(d => { d.open = true; }));
       await p.waitForTimeout(900);
 
       /* 옷을 실제로 입고 있는가 — 규칙만 있고 안 그려지면 뜻이 없다. */

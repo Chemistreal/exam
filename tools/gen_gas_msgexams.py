@@ -72,6 +72,16 @@ def topic_of(exam: dict) -> str:
     return "·".join(picked)
 
 
+FILLER = "화학 개념과 문제 해결"
+
+
+def handwritten(source: str, title: str) -> str:
+    """표에 이미 있는 문구. 빈 문구가 아니면 사람이 손댄 것으로 보고 지킨다."""
+    m = re.search(r"'" + re.escape(title) + r"':\s*\{\s*topic:\s*'([^']*)'", source)
+    got = m.group(1) if m else ""
+    return "" if (not got or FILLER in got) else got
+
+
 def build(source: str) -> dict[str, dict]:
     exams = json.loads((ROOT / "exams.json").read_text(encoding="utf-8"))
     modes = existing_modes(source)
@@ -85,7 +95,15 @@ def build(source: str) -> dict[str, dict]:
             continue
         # 옛 제목으로 쌓인 행도 같은 문구를 받아야 한다.
         for title in titles.get(exam["id"], [exam["title"]]):
-            out[title] = {"topic": topic, "mode": modes.get(title, "perc")}
+            # ⚠ **손으로 적어 둔 문구는 덮지 않는다.** 이 자가 있는 까닭은
+            #   「화학 개념과 문제 해결」 이라는 **빈 문구**를 채우는 것이지,
+            #   선생님이 써 둔 문장을 영역 나열로 갈아 끼우는 것이 아니다.
+            #   아래 회차는 exams.json 에 없어서 지켜지고 있었는데, 그 회차가
+            #   목록에 들어오자 이 갈래로 흘러 문장이 통째로 지워졌다
+            #   (조준모의고사 0회 —「…를 아우르는 중등 화올 종합 진단」,
+            #    2026-09-06. 검사가 잡았다).
+            out[title] = {"topic": handwritten(source, title) or topic,
+                          "mode": modes.get(title, "perc")}
     # exams.json 에 없지만 표에 있던 회차(옛 kch* · 조준모의고사 0회)는 지키지 않으면
     # 문구가 통째로 사라진다. 원문 그대로 남긴다.
     for title, mode in modes.items():

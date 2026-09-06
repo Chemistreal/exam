@@ -115,8 +115,13 @@ const rec = (n, ts) => ({ name: 's' + n, ts, correct: 30, total: 60, wrong: 30, 
   const exams = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'exams.json'), 'utf8'));
   const byId = {}; exams.forEach(e => { byId[e.id] = e; });
   const { api } = boot();
+  /* DH_SETS 는 자바스크립트라 **끝 쉼표**가 허용된다. 그것을 그대로 JSON 에
+     넘기면 «Expected double-quoted property name» 로 죽는데, 그 말은 마치
+     화면이 깨진 것처럼 들린다 — 실제로는 이 검사의 읽는 법이 좁았을 뿐이다.
+     따옴표를 바꾼 뒤 끝 쉼표를 걷어 낸다. */
   const DH_SETS = JSON.parse(
-    src.split('const DH_SETS=')[1].split('};')[0].replace(/'/g, '"') + '}');
+    (src.split('const DH_SETS=')[1].split('};')[0].replace(/'/g, '"') + '}')
+      .replace(/,(\s*[}\]])/g, '$1'));
 
   Object.keys(api.COHORT_ALIAS).forEach(from => {
     const to = api.COHORT_ALIAS[from];
