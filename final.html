@@ -5219,15 +5219,50 @@ const SHEET_ENDPOINT='https://script.google.com/macros/s/AKfycbxGmSCkip0cQCyOH_J
    no-cors 로 쏘고 끝이지만, 고치기는 몇 건 바뀌었는지 알아야 한다. */
 /* ⚠ 기다리는 시간을 받는다. 재계산은 시트를 통째로 읽고 쓰고 성적표 문자까지
    다시 만들어서 12초로는 모자란다 — 다 됐는데도 '응답 없음' 이라고 뜬다. */
+/* ── 관리 열쇠 ────────────────────────────────────────────────────────
+   시트 쪽에 `ADMIN_TOKEN` 을 넣으면 이름이 실려 나오는 읽기(전체 기록·
+   응시 이력)와 시트를 바꾸는 동작이 열쇠를 요구한다. 안 넣으면 예전
+   그대로 돌아간다 — 그러니 여기서도 **있으면 붙이고 없으면 안 붙인다.**
+
+   ⚠ 열쇠를 화면 파일에 적지 않는다. 이 파일은 공개 저장소에 있어서 적는
+     순간 열쇠가 아니게 된다. 이 기기의 localStorage 에만 둔다.
+   ⚠ 성적표 링크로 열린 화면(fShared)에는 열쇠가 없다. 그 화면이 부르는
+     것은 `list`·`cohort` 뿐이라 열쇠가 필요 없다. */
+const ADMIN_TOKEN_KEY='chemistreal_admin_token';
+function adminToken(){
+  try{ return localStorage.getItem(ADMIN_TOKEN_KEY)||''; }catch(e){ return ''; }
+}
+function setAdminToken(v){
+  try{
+    if(v) localStorage.setItem(ADMIN_TOKEN_KEY, v);
+    else localStorage.removeItem(ADMIN_TOKEN_KEY);
+    return true;
+  }catch(e){ return false; }
+}
 function sheetCall(params,onDone,waitMs){
   if(!SHEET_ENDPOINT){ onDone({error:'시트 주소가 설정되지 않았습니다'}); return; }
   var cb='__fsheet'+Math.floor(performance.now()*1000)+'_'+Math.floor(Math.random()*1e6);
   var sc=document.createElement('script'), done=false;
   function cleanup(){ try{ delete window[cb]; }catch(e){ window[cb]=undefined; }
     if(sc.parentNode) sc.parentNode.removeChild(sc); }
-  window[cb]=function(res){ done=true; cleanup(); onDone(res||{}); };
+  window[cb]=function(res){
+    done=true; cleanup();
+    res=res||{};
+    /* 시트가 「열쇠가 필요하다」고 답하면 한 번만 물어보고 그대로 다시 부른다.
+       선생님이 매번 어디 가서 켜고 오시게 하지 않으려는 것이다. 취소하시면
+       평소의 실패 처리로 흘러간다 — 화면이 멈추지 않는다. */
+    if(res.needToken && !params.token && !sheetCall._asking){
+      sheetCall._asking=true;
+      var v=null;
+      try{ v=window.prompt('시트 관리 열쇠를 넣어 주세요 (이 기기에만 저장됩니다)', ''); }catch(e){ v=null; }
+      sheetCall._asking=false;
+      if(v){ setAdminToken(v.trim()); sheetCall(params,onDone,waitMs); return; }
+    }
+    onDone(res);
+  };
   sc.onerror=function(){ if(!done){ cleanup(); onDone({error:'시트 연결 실패 — 배포·권한을 확인하세요'}); } };
   var qs=[]; for(var k in params) if(params[k]!=null) qs.push(k+'='+encodeURIComponent(params[k]));
+  var tk=adminToken(); if(tk && !params.token) qs.push('token='+encodeURIComponent(tk));
   qs.push('callback='+cb);
   sc.src=SHEET_ENDPOINT+(SHEET_ENDPOINT.indexOf('?')>=0?'&':'?')+qs.join('&');
   document.body.appendChild(sc);

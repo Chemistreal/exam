@@ -324,6 +324,37 @@ function _jsonOut_(body, cb) {
     ? ContentService.createTextOutput(f + '(' + body + ')').setMimeType(ContentService.MimeType.JAVASCRIPT)
     : ContentService.createTextOutput(body).setMimeType(ContentService.MimeType.JSON);
 }
+/* ── 관리 열쇠 ────────────────────────────────────────────────────────
+   이 창구는 열쇠 없이 열려 있다(선생님 요청). 주소만 알면 누구나 부를 수
+   있고, 그 주소는 공개 저장소의 화면 파일에 그대로 박혀 있다. 그래서
+   `?action=all` 하나로 **전교생 이름·학교·학년·전 회차 답안**이 나온다.
+
+   다만 열쇠를 그냥 켜 버리면 이미 나간 것들이 그 자리에서 죽는다 —
+   학부모에게 보낸 성적표 링크, 학생이 열어 둔 화면, 선생님 PC 의 명단
+   관리가 한꺼번에. 그러니 **열쇠는 두되, 안 두면 오늘 그대로**로 만든다.
+
+   스크립트 속성(파일 → 프로젝트 설정 → 스크립트 속성)에 `ADMIN_TOKEN` 을
+   넣는 순간부터 아래 동작들이 그 열쇠를 요구한다. 안 넣으면 예전과
+   똑같이 돈다 — 켜는 시점을 선생님이 고르신다.
+
+   ⚠ 열쇠를 요구하지 **않는** 것: `list`(성적표 링크가 부른다) ·
+     `cohort`(익명 분포다) · 학생이 답안을 내는 길(doPost). 이 셋을 막으면
+     이미 보낸 링크가 죽는다. 여기서 지키는 것은 **이름이 실려 나오는
+     읽기**와 **시트를 바꾸는 동작**뿐이다. */
+var ADMIN_ACTIONS = ['history', 'all', 'rename', 'editRow', 'deleteRow',
+                     'deleteName', 'dedupe', 'recompute', 'purgeTest'];
+function _adminToken_() {
+  try { return String(PropertiesService.getScriptProperties().getProperty('ADMIN_TOKEN') || ''); }
+  catch (e) { return ''; }          /* 못 읽으면 안 둔 것으로 본다 — 안 죽는다 */
+}
+function _adminOk_(p) {
+  var want = _adminToken_();
+  if (!want) return true;                                   /* 안 두면 오늘 그대로 */
+  return String((p && p.token) || '') === want;
+}
+function _adminDenied_(cb) {
+  return _jsonOut_(JSON.stringify({ ok: false, error: '관리 열쇠가 필요합니다', needToken: true }), cb);
+}
 function historyFor_(name, cb) {
   var key = _histKey_(name);
   return _jsonOut_(JSON.stringify({ ok: true, rows: key ? _recordRows_(key) : [] }), cb);
@@ -396,6 +427,9 @@ function cohortOf_(examId, cb) {
 function doGet(e) {
   var p = (e && e.parameter) || {};
   var cb = p.callback;
+  /* 열쇠가 필요한 동작은 여기 한 자리에서 가른다 — 아래에 흩어 두면
+     새 동작을 하나 더 만들면서 빠뜨린다. */
+  if (ADMIN_ACTIONS.indexOf(String(p.action || '')) >= 0 && !_adminOk_(p)) return _adminDenied_(cb);
   if (p.action === 'history') return historyFor_(p.name, cb);
   if (p.action === 'all') return allRows_(cb);
   if (p.action === 'cohort') return cohortOf_(String(p.exam || ''), cb);
