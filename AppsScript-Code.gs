@@ -305,9 +305,23 @@ function _recordRows_(key) {
   } catch (err) {}
   return out;
 }
+/* ── 되부를 함수 이름을 검사한다 ────────────────────────────────────────
+   JSONP 는 받은 글자를 **그대로 자바스크립트로** 내보낸다. 그래서
+   callback 에 함수 이름이 아닌 것이 오면 그것이 곧 남의 코드가 된다 —
+   `?callback=alert(1);//` 이면 응답 자체가 alert(1) 이 되고, 이 주소는
+   구글 도메인에서 열리므로 브라우저는 그것을 구글의 코드로 믿는다.
+
+   앱이 실제로 보내는 것은 언제나 `cb_1234` 꼴의 임시 이름 하나다. 그러니
+   함수 이름 모양이 아닌 것은 **되부르지 않고** 그냥 JSON 으로 돌려준다.
+   앱은 아무 영향이 없고(모양이 늘 맞다), 남의 코드만 못 실린다. */
+function _cbName_(cb) {
+  var s = String(cb == null ? '' : cb);
+  return /^[A-Za-z_$][A-Za-z0-9_$]{0,63}$/.test(s) ? s : '';
+}
 function _jsonOut_(body, cb) {
-  return cb
-    ? ContentService.createTextOutput(cb + '(' + body + ')').setMimeType(ContentService.MimeType.JAVASCRIPT)
+  var f = _cbName_(cb);
+  return f
+    ? ContentService.createTextOutput(f + '(' + body + ')').setMimeType(ContentService.MimeType.JAVASCRIPT)
     : ContentService.createTextOutput(body).setMimeType(ContentService.MimeType.JSON);
 }
 function historyFor_(name, cb) {
@@ -423,9 +437,7 @@ function doGet(e) {
       }
     } catch (err) {}
     var out = JSON.stringify({ ok: true, students: students });
-    return cb
-      ? ContentService.createTextOutput(cb + '(' + out + ')').setMimeType(ContentService.MimeType.JAVASCRIPT)
-      : ContentService.createTextOutput(out).setMimeType(ContentService.MimeType.JSON);
+    return _jsonOut_(out, cb);
   }
   /* ── 시트 고치기 (앱의 '명단 관리'가 부른다) ──────────────────────────
      이름을 잘못 입력했을 때 앱에서 고쳐도 시트에는 옛 이름 행이 그대로
@@ -476,15 +488,11 @@ function doGet(e) {
     catch (eRc) { rOut = { ok: false, error: String(eRc) }; }
     finally { if (rLock) { try { rLock.releaseLock(); } catch (eRU) {} } }
     var rBody = JSON.stringify(rOut);
-    return cb
-      ? ContentService.createTextOutput(cb + '(' + rBody + ')').setMimeType(ContentService.MimeType.JAVASCRIPT)
-      : ContentService.createTextOutput(rBody).setMimeType(ContentService.MimeType.JSON);
+    return _jsonOut_(rBody, cb);
   }
   if (p.action === 'rename' || p.action === 'editRow' || p.action === 'deleteRow' || p.action === 'deleteName' || p.action === 'dedupe') {
     var body = JSON.stringify(_sheetEdit(p));
-    return cb
-      ? ContentService.createTextOutput(cb + '(' + body + ')').setMimeType(ContentService.MimeType.JAVASCRIPT)
-      : ContentService.createTextOutput(body).setMimeType(ContentService.MimeType.JSON);
+    return _jsonOut_(body, cb);
   }
   /* ── 검사가 남긴 줄만 지운다 ────────────────────────────────────────
      CI 의 브라우저 검사가 진짜 앱스크립트로 제출해서, 학생이 아닌 줄이
@@ -503,14 +511,10 @@ function doGet(e) {
        ?action=purgeTest&go=1       지운다 */
   if (p.action === 'purgeTest') {
     var body2 = JSON.stringify(_purgeTestRows(String(p.go || '') === '1'));
-    return cb
-      ? ContentService.createTextOutput(cb + '(' + body2 + ')').setMimeType(ContentService.MimeType.JAVASCRIPT)
-      : ContentService.createTextOutput(body2).setMimeType(ContentService.MimeType.JSON);
+    return _jsonOut_(body2, cb);
   }
   var status = JSON.stringify({ ok: true, msg: 'Chemistreal endpoint live' });
-  return cb
-    ? ContentService.createTextOutput(cb + '(' + status + ')').setMimeType(ContentService.MimeType.JAVASCRIPT)
-    : ContentService.createTextOutput(status).setMimeType(ContentService.MimeType.JSON);
+  return _jsonOut_(status, cb);
 }
 
 /* 검사가 남긴 줄(링크가 localhost)만 지운다.

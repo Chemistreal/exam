@@ -46,16 +46,41 @@ def answers():
     return xs, out
 
 
+def no_wrong_choice(exam, q, n):
+    """오답 선지가 **없는** 문항인가 — 전원정답이거나 출제가 취소된 자리.
+
+    ⚠ 이런 문항까지 「아직 안 쓴 것」으로 세고 있었다(스무 문항). 셋 다 아니다 —
+      고를 오답이 없으니 쓸 것이 없고, 억지로 써 보내면 답지 문이 되돌려 보낸다
+      (answer_fill 의 「정답 번호가 섞여 있다」). 남은 일을 부풀려 세면 끝이
+      안 보이는 것처럼 읽히므로 갈라 센다 (2026-09-07).
+    """
+    acc = [x for x in (q.get('acceptableAnswers') or []) if x]
+    return (n in set(exam.get('voided') or [])
+            or len(acc) >= 4
+            or bool(q.get('excluded'))
+            or len((exam.get('multi') or {}).get(str(n)) or []) >= 4)
+
+
 def item_misc4():
     """선지별 오답 해설 — 왜 그 선지를 골랐는지."""
     xs, ans = answers()
-    tot = sum(e['nQ'] for e in xs)
-    have = sum(1 for eid in ans for k in ans[eid] if ans[eid][k].get('misconceptions'))
-    rounds = sorted((e['id'], e['nQ'] - sum(1 for k in ans[e['id']]
-                                            if ans[e['id']][k].get('misconceptions')))
-                    for e in xs)
-    short = [(i, n) for i, n in rounds if n > 0]
-    return have, tot, short
+    tot = have = 0
+    short = []
+    for e in xs:
+        qs = ans[e['id']]
+        left = 0
+        for n in range(1, e['nQ'] + 1):
+            q = qs.get(str(n)) or {}
+            if no_wrong_choice(e, q, n):
+                continue                      # 쓸 것이 없는 자리 — 분모에서도 뺀다
+            tot += 1
+            if q.get('misconceptions'):
+                have += 1
+            else:
+                left += 1
+        if left:
+            short.append((e['id'], left))
+    return have, tot, sorted(short)
 
 
 def item_twins():
