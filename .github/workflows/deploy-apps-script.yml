@@ -1,5 +1,19 @@
 # AppsScript-Code.gs가 main에 머지되면 Google Apps Script에 자동 반영 + 같은 URL로 재배포.
 # 최초 1회 설정 방법은 저장소 루트의 AUTODEPLOY.md 참고.
+#
+# ── 2026-09-07: 배포 앞에 문을 둘 두었다 ─────────────────────────────────
+# 여태 이 워크플로는 main 에 .gs 가 올라가기만 하면 **검사도 안 보고 곧바로**
+# 운영 백엔드를 갈아치웠다. 그 백엔드는 학생 성적 시트를 읽고 쓴다. 사람이든
+# 자동화든 main 에 직접 미는 지금 방식에서는, 잘못 민 한 줄이 그대로 학생
+# 데이터를 만진다.
+#
+#   문 하나 — 창구 검사(node tests/*.js)가 통과해야 배포로 넘어간다.
+#             안 그러면 깨진 창구가 초록불을 달고 배포된다.
+#   문 둘 — `environment: production`. 저장소 설정에서 그 환경에 검토자를
+#            한 명 넣으면, 배포 직전에 사람이 눌러야 나간다.
+#            **안 넣으면 지금 그대로 자동으로 나간다** — 켜는 시점을
+#            선생님이 고르시게 두려는 것이다(설정 → Environments →
+#            production → Required reviewers).
 name: Apps Script 자동 배포
 
 on:
@@ -9,8 +23,29 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  # 창구가 성한지부터 본다. 여기서 걸리면 배포는 아예 안 돈다.
+  검사:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 창구 검사
+        run: |
+          python3 tools/gen_gas_keys.py
+          for t in jsonp-callback admin-token server-regrade history sheet-edit backup-gs \
+                   rank-recompute sheet-recall concurrent-save resend-idempotent \
+                   rank-year appsscript-sync; do
+            echo "── $t"
+            node "tests/$t.js"
+          done
+
+  deploy:
+    needs: 검사
+    runs-on: ubuntu-latest
+    # 이 환경에 검토자를 넣기 전까지는 예전처럼 바로 나간다.
+    environment: production
     steps:
       - uses: actions/checkout@v4
 

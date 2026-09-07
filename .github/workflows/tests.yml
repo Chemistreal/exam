@@ -285,6 +285,12 @@ jobs:
       - name: 관리 열쇠 (켜도 이미 보낸 링크가 안 죽는다)
         timeout-minutes: 5
         run: node tests/admin-token.js
+      - name: 창구가 점수를 다시 센다 (화면 채점 규칙과 같은가)
+        timeout-minutes: 5
+        run: node tests/server-regrade.js
+      - name: 창구의 정답표가 exams.json 과 맞는다
+        timeout-minutes: 5
+        run: python3 tools/gen_gas_keys.py
       - name: 시트 석차 재계산 (나중 학생이 앞사람 인원을 늘린다)
         timeout-minutes: 5
         run: node tests/rank-recompute.js

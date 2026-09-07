@@ -76,10 +76,19 @@ function fakeSheet(rows) {
 }
 
 function load(sheet) {
+  const other = {};
   const gas = {
     Logger: { log() {} },
     SpreadsheetApp: {
-      getActiveSpreadsheet: () => ({ getSheetByName: () => sheet, insertSheet: () => sheet }),
+      /* ⚠ 이름을 보고 준다. 2026-09-07 이전에는 **무슨 이름이든 성적기록을**
+      돌려줬는데, 창구가 `검증기록` 이라는 다른 시트에 줄을 남기기
+      시작하자 그 줄이 성적기록에 섞여 들어와 이 검사가 어긋났다.
+      흉내가 진짜와 다르면 검사가 거짓말을 한다 — 다른 이름은 다른
+      시트다. */
+      getActiveSpreadsheet: () => ({
+        getSheetByName: n => (n === '성적기록' ? sheet : (other[n] || null)),
+        insertSheet: n => (other[n] = makeSheet([])),
+      }),
       flush() {},
     },
     LockService: { getScriptLock: () => ({ waitLock() {}, releaseLock() {} }) },
