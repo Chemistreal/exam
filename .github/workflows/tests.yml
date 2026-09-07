@@ -291,6 +291,9 @@ jobs:
       - name: 창구의 정답표가 exams.json 과 맞는다
         timeout-minutes: 5
         run: python3 tools/gen_gas_keys.py
+      - name: 공개 백업으로 남의 성적표 링크를 못 짓는다
+        timeout-minutes: 5
+        run: node tests/backup-shape.js
       - name: 시트 석차 재계산 (나중 학생이 앞사람 인원을 늘린다)
         timeout-minutes: 5
         run: node tests/rank-recompute.js

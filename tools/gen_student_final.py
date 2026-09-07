@@ -189,8 +189,7 @@ def weak_scan(rows, by_title, groups=None):
         e = by_title.get(r.get('exam'))
         if not e:
             continue
-        a = r.get('answers') or ''
-        if len(a) != e['nQ']:
+        if not _has_marks(r, e):
             continue
         who = canon.get(r['code']) if groups else r['code']
         if groups and who is None:
@@ -201,18 +200,55 @@ def weak_scan(rows, by_title, groups=None):
     pools = {}
     for (code, eid), r in sorted(latest.items()):
         e = by_title[r['exam']]
-        astr = r.get('answers') or ''
         ts = r.get('saved') or ''
-        for q in range(1, e['nQ'] + 1):
-            a = int(astr[q - 1]) if astr[q - 1].isdigit() else 0
-            if _okq(e, q, a):
-                continue
+        for q, a, is_blank in _wrong_marks(r, e):
             area = (e.get('area') or [None] * e['nQ'])[q - 1] or '기타'
             typ = (e.get('type') or [None] * e['nQ'])[q - 1] or area
             pools.setdefault(code, []).append(
-                {'id': e['id'], 'q': q, 'chosen': a, 'blank': a == 0,
+                {'id': e['id'], 'q': q, 'chosen': a, 'blank': is_blank,
                  'ts': ts, 'area': area, 'type': typ})
     return pools
+
+def _has_marks(row, exam) -> bool:
+    """이 줄에서 «어느 문항을 틀렸나» 를 읽어 낼 수 있는가.
+
+    백업은 두 모양으로 온다.
+
+      옛 모양   answers: '241332…'          — 답안 문자열 그대로
+      새 모양   wrong: [3, 7, 12], nQ: 60   — **틀린 번호만**
+
+    새 모양은 성적표 링크를 되지을 수 없게 하려고 만든 것이다(공개 백업 +
+    공개된 정답이면 링크가 복원된다). 무엇을 골랐는지는 안 실리므로
+    「예전에 ③」 한 줄을 잃지만, 약점을 고르는 데는 지장이 없다.
+
+    둘 다 받는다 — 그래야 창구 설정을 바꾸는 날에 이 도구가 안 멈추고,
+    옛 백업도 계속 읽힌다."""
+    a = row.get('answers') or ''
+    if a:
+        return len(a) == exam['nQ']
+    return isinstance(row.get('wrong'), list) and int(row.get('nQ') or 0) == exam['nQ']
+
+
+def _wrong_marks(row, exam):
+    """틀린 것만 (문항번호, 고른 답, 안 썼나) 로 내놓는다.
+
+    새 모양에서는 **무엇을 골랐는지가 안 실린다**(그것까지 실으면 정답과
+    이어 붙여 답안 문자열이 통째로 복원된다). 그래서 고른 답은 0 으로 두고,
+    「안 썼다」는 `blank` 목록으로 따로 받는다 — 이 둘을 뭉뚱그리면 틀린
+    문항이 전부 「안 썼다」로 나온다."""
+    a = row.get('answers') or ''
+    if a:
+        for q in range(1, exam['nQ'] + 1):
+            got = int(a[q - 1]) if a[q - 1].isdigit() else 0
+            if not _okq(exam, q, got):
+                yield q, got, got == 0
+        return
+    blank = {int(q) for q in (row.get('blank') or [])}
+    for q in row.get('wrong') or []:
+        q = int(q)
+        if 1 <= q <= exam['nQ']:
+            yield q, 0, q in blank
+
 
 # ── 배정 · weak60.html w60Rep/weakAreas/w60Quota/weak60Plan 이식 ────────────
 def weak_areas(rows):

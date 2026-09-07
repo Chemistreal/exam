@@ -1733,10 +1733,41 @@ function _ghToken_() {
 
 /* 깃허브에 파일 하나를 쓴다(있으면 덮어쓴다). 실패는 예외로 올린다 —
    조용히 넘어가면 백업이 안 되고 있는 줄도 모른다. */
-function _ghPut_(path, text, message) {
+/* ── 백업을 어디로 보낼까 ────────────────────────────────────────────
+   `backup/<날짜>.json` 은 지금 **공개** 저장소로 간다. 이름은 소금 친 해시로
+   가려 두었지만 답안 문자열이 그대로 실려 있고, 정답은 `answers/*.json` 에
+   공개돼 있다. 성적표 링크의 비밀은 그 답안 문자열 하나뿐이라(뒤의
+   수험번호·이름은 없어도 열린다), **공개된 백업만으로 남의 성적표 링크를
+   다시 지을 수 있다.**
+
+   스크립트 속성 `BACKUP_REPO` 에 `주인/저장소` 를 넣으면 백업만 그리로
+   간다(비공개 저장소를 권한다). **안 두면 지금 그대로 exam 으로 간다.**
+   기준 기록을 raw 로 읽어 오는 자리는 안 옮긴다 — 그쪽은 공개라야 읽힌다. */
+function _backupRepo_() {
+  var v = '';
+  try { v = String(PropertiesService.getScriptProperties().getProperty('BACKUP_REPO') || '').trim(); }
+  catch (e) { v = ''; }
+  var part = v.split('/');
+  if (part.length === 2 && part[0].trim() && part[1].trim()) {
+    return { owner: part[0].trim(), repo: part[1].trim() };
+  }
+  return { owner: GH_OWNER, repo: GH_REPO };
+}
+/* 백업에 답안 문자열을 실을까. 속성 `BACKUP_ANSWERS` 를 '0'·'off'·'no' 로
+   두면 안 싣고, 대신 **틀린 문항 번호만** 싣는다. 그러면 링크를 되지을 수
+   없다 — 스무 개를 틀렸으면 3의 20제곱 가지다. 잃는 것은 「예전에 ③」
+   한 줄이고, 학생별 파이널을 짓는 데는 지장이 없다. **안 두면 지금 그대로.** */
+function _backupWithAnswers_() {
+  var v = '';
+  try { v = String(PropertiesService.getScriptProperties().getProperty('BACKUP_ANSWERS') || '').trim().toLowerCase(); }
+  catch (e) { v = ''; }
+  return !(v === '0' || v === 'off' || v === 'no' || v === 'false');
+}
+function _ghPut_(path, text, message, where) {
   var token = _ghToken_();
   if (!token) throw new Error('GITHUB_TOKEN 스크립트 속성이 없습니다');
-  var api = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + path;
+  var at = where || { owner: GH_OWNER, repo: GH_REPO };
+  var api = 'https://api.github.com/repos/' + at.owner + '/' + at.repo + '/contents/' + path;
   var sha = '';
   try {
     var got = UrlFetchApp.fetch(api + '?ref=' + GH_BRANCH, {
@@ -1805,7 +1836,7 @@ function dailyBackup() {
   /* HEADER 는 17열까지지만 시트는 19열이다(성적표문자·감점 반영 원점수가 뒤에
      붙었다). HEADER.length 로 읽으면 그 둘이 백업에서 조용히 빠진다. */
   var rows = sh.getRange(2, 1, sh.getLastRow() - 1, WIDE).getValues();
-  var map = {}, out = [];
+  var map = {}, out = [], keepAns = _backupWithAnswers_();
   rows.forEach(function (r) {
     var code = _codeOf_(r[1], r[6]);
     if (!code) return;                                   // 이름 없는 줄은 싣지 않는다
@@ -1817,10 +1848,31 @@ function dailyBackup() {
       grade: String(r[7] || ''), correct: r[8], max: r[9], pct100: r[10],
       percentile: r[11], rank: String(r[12] || ''), n: r[13],
       areas: String(r[15] || ''),
-      answers: String(r[16] || '').replace(/^'/, ''),
       raw: r[18]
-      /* 이름·학교·공유링크는 싣지 않는다. 링크에는 이름이 들어 있다. */
+      /* 이름·학교·공유링크는 싣지 않는다. 링크에는 이름이 들어 있다.
+         답안은 아래에서 붙인다 — 실을지 말지가 속성으로 갈린다. */
     });
+    var ans = String(r[16] || '').replace(/^'/, '');
+    var last = out[out.length - 1];
+    if (keepAns) { last.answers = ans; }
+    else {
+      /* 틀린 문항 번호만. 무엇을 골랐는지는 안 싣는다 — 그것까지 실으면
+         정답과 이어 붙여 답안 문자열이 통째로 복원된다. */
+      var kk = EXAM_KEYS[String(r[0] || '')];
+      if (kk && ans.length === kk.n) {
+        var wrong = [], blank = [];
+        for (var qi = 0; qi < kk.n; qi++) {
+          var want = (kk.many && kk.many[qi + 1]) || kk.acc.charAt(qi);
+          var got = ans.charAt(qi);
+          if (want === '*' || want === '?' || want.indexOf(got) >= 0) continue;
+          wrong.push(qi + 1);
+          if (got === '0') blank.push(qi + 1);
+        }
+        last.wrong = wrong;
+        last.blank = blank;
+        last.nQ = kk.n;
+      }
+    }
   });
   _rememberCode_(ss, map);
 
@@ -1828,7 +1880,8 @@ function dailyBackup() {
   var text = JSON.stringify({ savedAt: new Date().toISOString(), n: out.length,
                               note: '이름은 코드로 바꿔 저장. 이름↔코드 표는 시트의 ' + CODE_TAB + ' 탭에만 있다.',
                               rows: out }, null, 1);
-  _ghPut_('backup/' + day + '.json', text, '자동 백업 ' + day + ' · ' + out.length + '건');
+  _ghPut_('backup/' + day + '.json', text, '자동 백업 ' + day + ' · ' + out.length + '건',
+           _backupRepo_());
   Logger.log('[백업] ' + day + ' · ' + out.length + '건');
 }
 
