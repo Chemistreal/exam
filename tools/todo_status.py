@@ -213,6 +213,20 @@ def item_drawn():
     return int(m.group(1)), int(m.group(2)), waiting, stuck
 
 
+def item_boki():
+    """보기가 빠져 못 푸는 크롭 — crop_boki.py 에게 묻는다."""
+    import subprocess
+    try:
+        r = subprocess.run([sys.executable,
+                            os.path.join(ROOT, 'tools', 'crop_boki.py')],
+                           capture_output=True, text=True, timeout=600, cwd=ROOT)
+    except Exception:
+        return None
+    w = len(re.findall(r'^  🔒 s', r.stdout, re.M))
+    f = len(re.findall(r'^  ◻  s', r.stdout, re.M))
+    return w, f
+
+
 ROW = '  %s %-28s %s'
 
 
@@ -279,6 +293,20 @@ def main():
             print('       남은 것은 학생마다 다른 변형본 %d회차다. 원본이 HWPX 뿐이라'
                   % waiting)
             print('       선생님이 PDF 로 내보내 주셔야 다른 회차처럼 자를 수 있다.')
+        # ⚠ 여기서 「글로 그렸어도 잃은 것은 없다」고 적어 둔 적이 있다.
+        #   그것은 지문(stem)에 그림·표를 가리키는 말이 있나만 보고 내린
+        #   판정이었는데, 이 회차들은 **지문 자체가 답지에 없다**. 빈 것을
+        #   훑고 「0건」이라 답한 것이다. 눈으로 보니 보기가 통째로 빠진
+        #   문항이 실제로 있었다. 그래서 이제 세는 자에게 묻는다.
+        bk = item_boki()
+        if bk:
+            waiting_n, fresh_n = bk
+            print(ROW % ('🔒' if not fresh_n else '◻ ', '보기가 빠진 크롭',
+                         ('없다' if not (waiting_n + fresh_n)
+                          else '%d문항 — 학생이 못 푼다' % (waiting_n + fresh_n))))
+            if waiting_n:
+                print('       원본 시험지를 다시 받아야 자를 수 있다. '
+                      '답지에는 확인 필요로 적어 두었다.')
 
     pc = item_papercrop()
     if pc is not None:
