@@ -230,6 +230,21 @@ console.log('\n── 해설지가 데이터를 그대로 담는다 ──');
   const INNER = /docs\/|\.md\b|선생님이-정할-칸|TODO|FIXME/;
   chk('확인 필요에 안쪽 문서 이름이 새지 않는다',
       Object.keys(q).filter(k => INNER.test(String(q[k].reviewNote || ''))), []);
+  /* ⚠ 이 회차만 보면 못 잡는다. 2026-09-07 에 화학1 1~2강 B 50번의 확인 필요에
+     `docs/선생님이-정할-칸.md` 를 적어 넣었는데 이 검사는 그대로 통과했다 —
+     보고 있는 회차가 하나뿐이었기 때문이다. 확인 필요는 스물일곱 회차에 실려
+     있고 전부 학생·학부모 화면에 찍힌다. 그러니 **답지 전부**를 훑는다. */
+  const leaks = [];
+  for (const f of fs.readdirSync(path.join(ROOT, 'answers'))) {
+    if (!f.endsWith('.json')) continue;
+    let qs = {};
+    try { qs = (JSON.parse(fs.readFileSync(path.join(ROOT, 'answers', f), 'utf8')).questions) || {}; }
+    catch (e) { continue; }
+    for (const k of Object.keys(qs)) {
+      if (INNER.test(String(qs[k].reviewNote || ''))) leaks.push(f.replace(/\.json$/, '') + ' ' + k + '번');
+    }
+  }
+  chk('어느 회차의 확인 필요에도 안쪽 문서 이름이 없다', leaks, []);
   /* 데이터에 확인 필요가 있으면 해설지에도 있어야 하고, 없으면 없어야 한다 —
      한쪽만 알고 있으면 읽는 사람이 못 믿는다. */
   chk('확인 필요가 데이터와 해설지에서 같다',
