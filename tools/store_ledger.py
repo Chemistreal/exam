@@ -39,6 +39,10 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 KNOWN = {
     # 화면·시트 설정
     'chemistreal:synckey':      '시트 동기화 열쇠. 지우면 다시 넣으면 된다',
+    'chemistreal_admin_token':  '시트 관리 열쇠. 시트 쪽 스크립트 속성 ADMIN_TOKEN 을 켰을 때만 '
+                                '쓴다 — 명단 통째 조회·수정에 붙여 보낸다. **이 기기에만** 두고 '
+                                '저장소 파일에는 안 적는다(공개 저장소라 적는 순간 열쇠가 아니다). '
+                                '지우면 다음에 한 번 다시 물어본다',
     'chemistreal:gate':         '문고리를 지난 표. 지우면 다시 지나면 된다',
     'chemistreal:views':        '어느 화면을 몇 번 열었나. 취향이다',
     'chemistreal:pal:recent':   '최근 고른 옷(팔레트). 취향이다',

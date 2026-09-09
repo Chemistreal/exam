@@ -32,14 +32,41 @@ SOURCE = (ROOT / "final.html").read_text(encoding="utf-8")
 
 
 def live_exam_ids() -> set[str]:
-    exams = json.loads((ROOT / "exams.json").read_text(encoding="utf-8"))
-    return {e["id"] for e in exams}
+    """살아 있는 시험 id 전부.
+
+    ⚠ `exams.json` 만 보면 안 된다. 화면은 목록 **셋**을 읽는다
+      (final.html:1019~1023) — exams.json · student-finals.json ·
+      teacher-exams.json. 앞의 하나만 보던 시절 이 도구는 학생별 파이널
+      서른한 회차를 통째로 「아무도 안 읽는 파일」로 몰아 `git rm` 명령을
+      찍어 주고 있었다. 그 명령을 그대로 쳤으면 학생들이 보는 시험이
+      다 사라진다.
+
+      그런데 아무도 못 봤다. **이 도구가 그때 죽어 있었기 때문이다**
+      (DH_SETS 의 끝 쉼표). 죽은 검사는 통과한 검사처럼 조용하다.
+      새 목록이 생기면 여기에 반드시 더해야 한다."""
+    out: set[str] = set()
+    for name in ("exams.json", "student-finals.json", "teacher-exams.json"):
+        path = ROOT / name
+        if not path.exists():
+            continue
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        rows = raw.get("exams", []) if isinstance(raw, dict) else raw
+        out.update(e["id"] for e in rows if isinstance(e, dict) and e.get("id"))
+    return out
 
 
 def dh_set_ids() -> set[str]:
-    """DH_SETS 가 문제풀로 끌어다 쓰는 파일 이름까지 포함한다."""
+    """DH_SETS 가 문제풀로 끌어다 쓰는 파일 이름까지 포함한다.
+
+    ⚠ 자바스크립트 객체를 JSON 으로 읽는 자리다. 따옴표만 바꿔서는 안 된다 —
+      JS 는 마지막 항목 뒤의 쉼표를 허용하고 JSON 은 안 한다. 실제로 그
+      쉼표 하나 때문에 이 도구가 통째로 죽어 있었다(2026-09-09 에 잡았다).
+      죽으면 「고아 파일 없음」이 아니라 **아무것도 못 잰 것**인데, 검사를
+      한 바퀴 돌리기 전에는 그것이 안 보인다.
+      같은 버그를 tests/final-cohort-alias.js 에서도 한 번 고쳤다."""
     block = SOURCE.split("const DH_SETS=", 1)[1].split("};", 1)[0] + "}"
-    sets = json.loads(re.sub(r"'", '"', block))
+    block = re.sub(r",(\s*[}\]])", r"\1", re.sub(r"'", '"', block))
+    sets = json.loads(block)
     out: set[str] = set()
     for target, files in sets.items():
         out.add(target)
@@ -86,6 +113,22 @@ def main() -> int:
         if path.stem not in live and path.stem not in pooled:
             orphans.append(("donghyung", path, size_of(path)))
 
+    # ── 자를 먼저 잰다 ──────────────────────────────────────────────
+    # 목록 하나를 놓치면 이 도구는 「지워라」를 **더 많이** 찍는다. 조용히
+    # 틀리는 쪽이 위험하므로, 세어 보기 전에 자가 성한지부터 본다.
+    for name in ("student-finals.json", "teacher-exams.json"):
+        path = ROOT / name
+        if not path.exists():
+            continue
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        rows = raw.get("exams", []) if isinstance(raw, dict) else raw
+        ids = {e["id"] for e in rows if isinstance(e, dict) and e.get("id")}
+        if ids and not (ids & live):
+            print(f"FAIL {name} 의 시험 {len(ids)}개가 살아 있는 목록에 하나도 "
+                  f"안 들어 있다 — live_exam_ids() 가 그 목록을 안 읽고 있다.")
+            print("     이대로 두면 멀쩡한 시험을 지우라고 찍는다.")
+            return 1
+
     print(f"시험 {len(live)}개 · 문제풀에 묶인 파일 {len(pooled)}개")
     if not orphans:
         print("PASS 떠 있는 자산 없음")
@@ -101,7 +144,7 @@ def main() -> int:
     print("      diff -rq crops/<없앤id> crops/<남긴id>")
     print("  확인했으면:")
     print("      git rm -r " + " ".join(str(p.relative_to(ROOT)) for _, p, _ in orphans))
-    return 1 if "--strict" in sys.argv[1:] else 0
+    return 1 if ("--strict" in sys.argv[1:] or "--check" in sys.argv[1:]) else 0
 
 
 if __name__ == "__main__":
