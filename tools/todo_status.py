@@ -325,7 +325,11 @@ def main():
     #   node tests/run.js 는 playwright 가 안 깔려 있어 MODULE_NOT_FOUND 로 죽는다.
     #   판이 안 되는 명령을 일러 주면, 그것을 쳐 본 사람은 판 전체를 못 믿는다.
     print('\nDT 저장소 (여기서는 못 잰다 — 그 저장소에서 재세요)')
-    print('  ?  검사 열일곱                  cd ../dt && for f in tools/*.py; '
+    # ⚠ 여기 「열일곱」이라고 세어 적어 두었었다. DT 의 자는 그 뒤 스물하나로
+    #   늘었고, 이 판은 그 저장소를 못 보므로 **세어 볼 방법이 없다.**
+    #   못 재는 수를 적으면 그 순간부터 조용히 틀린다(2026-09-09에 잡았다).
+    #   그래서 수를 빼고 「전부」라고만 적는다 — 명령이 실제로 다 돈다.
+    print('  ?  자 검사 전부                 cd ../dt && for f in tools/*.py; '
           'do python3 $f --check; done')
     print('  ?  브라우저 검사                cd ../dt/tests && npm install && '
           'cd .. && node tests/run.js')
