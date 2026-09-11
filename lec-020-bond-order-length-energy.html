@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -69,13 +70,13 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 018에서 단일·이중·삼중결합을 그렸지. 오늘은 그 다중결합이 단순히 선 개수가 다른 게 아니라, 길이와 세기에서 실제로 어떻게 다른지를 정량적으로 잡을 거야. 핵심 관계는 딱 하나야. 결합 차수가 높을수록 짧고 강하다. 이 한 줄과 그 이유, 그리고 공명일 때 결합 차수가 정수가 아닌 평균이 된다는 것까지. 비교 문제의 단골 포인트를 끝내자.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">결합 차수 · 공유한 전자쌍 수</span></div>
 <p>결합 차수는 두 원자 사이에 공유한 전자쌍의 개수야. 단일결합은 전자쌍 1개라 차수 1, 이중결합은 2개라 차수 2, 삼중결합은 3개라 차수 3. 018에서 그린 선의 개수가 그대로 차수야.</p>
 <p>차수가 핵심인 이유는, 이 숫자 하나가 결합의 길이와 세기를 모두 결정하기 때문이야. 전자쌍을 더 많이 공유한다는 건 두 원자 사이에 접착제가 더 많다는 뜻이거든. 그럼 어떻게 될까?</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">차수가 높을수록 짧고 강하다 · 핵심 관계</span></div>
 <p>전자쌍을 많이 공유할수록 두 원자핵이 그 전자들을 더 세게 끌어당겨 가까이 붙어. 그래서 <b>차수가 높을수록 결합 길이가 짧아져.</b> 동시에 더 많은 전자쌍이 두 핵을 묶고 있으니 떼어내기 더 힘들어. 그래서 <b>차수가 높을수록 결합 에너지(세기)가 커져.</b></p>
 <table><tr><th scope="col">결합</th><th scope="col">차수</th><th scope="col">길이</th><th scope="col">에너지(세기)</th></tr>
@@ -87,14 +88,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="eg"><span class="lab">예제 · 질소가 안정한 이유</span> <span class="fm">N₂</span>의 삼중결합(차수 3)은 아주 짧고 아주 강해. 그래서 질소 분자는 결합을 끊기가 무척 어려워 반응을 잘 안 하고, 공기 중에 안정하게 떠다녀. 018에서 본 <span class="fm">N≡N</span>의 강함이 여기서 숫자(높은 결합 에너지)로 설명되는 거야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">공명과 결합 차수 · 정수가 아닐 때</span></div>
 <p>한 가지 더. 어떤 분자는 결합 차수가 1, 2, 3 같은 정수가 아니라 그 중간값이야. 이건 다음 강(021)에서 배울 공명 때문인데, 여기서 결과만 미리 잡아두자.</p>
 <p>예를 들어 오존 <span class="fm">O₃</span>은 한쪽은 단일, 한쪽은 이중결합처럼 그릴 수 있는데(공명), 실제로는 두 결합이 똑같고 그 중간이야. 결합 차수가 <span class="fm">(1+2)/2 = 1.5</span>인 거지. 탄산 이온 <span class="fm">CO₃²⁻</span>은 세 가지로 그릴 수 있어 결합 차수가 <span class="fm">4/3 ≈ 1.33</span>이고, 세 개의 C−O 결합 길이가 전부 똑같아.</p>
 <div class="key">공명하면 결합 차수가 평균값(정수가 아님)이 되고, 길이도 단일과 이중의 중간이 돼. <span class="fm">O₃</span>의 결합 길이는 순수한 단일결합보다는 짧고 이중결합보다는 길어. 그리고 같은 분자 안에서 공명에 참여한 결합들은 길이가 모두 같아져. "결합 차수 1.5 → 중간 길이, 균일한 결합"으로 기억해.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"결합 차수가 높을수록 짧고 강하다 · 공명이면 차수는 평균, 결합은 균일."</div>
@@ -138,7 +139,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

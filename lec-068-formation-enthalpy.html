@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -71,14 +72,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 앞 강의 헤스 법칙은 강력하지만, 매번 반응식을 조합하는 게 번거롭지. 그래서 더 깔끔한 방법이 있어. 모든 물질에 대해 "원소에서 그 물질을 만들 때의 에너지"를 미리 정리해 두는 거야. 이게 표준 생성 엔탈피지. 이 값을 표로 가지고 있으면, 어떤 반응이든 ΔH = 생성물 − 반응물 한 줄로 계산할 수 있어. 헤스 법칙을 가장 실용적으로 쓰는 방법이야. 오늘은 생성 엔탈피의 정의(특히 원소는 0)와 계산법을 잡을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">표준 생성 엔탈피 · 원소에서 1몰 만들기</span></div>
 <p>표준 생성 엔탈피(<span class="fm">ΔH<sub>f</sub>°</span>)는 표준 상태(보통 25°C, 1기압)에서, <b>가장 안정한 원소(홑원소 물질)로부터 그 물질 1몰을 만들 때의 엔탈피 변화</b>야. 말하자면 "이 물질을 원소에서 빚어낼 때 드나든 에너지"지.</p>
 <p>예를 들어 물의 생성 엔탈피는 <span class="fm">H₂ + ½O₂ → H₂O</span>의 ΔH야(수소와 산소라는 원소에서 물 1몰을 만드는 것). 이 값이 음수면 그 물질은 원소보다 에너지가 낮은(안정한) 상태로 만들어진 거지.</p>
 <div class="key">표준 생성 엔탈피 ΔH<sub>f</sub>° = 가장 안정한 원소들로부터 그 물질 1몰을 만들 때의 ΔH. 각 물질의 "원소 기준 에너지 위치"를 나타내는 값이야. 이걸 표로 정리해 두면 모든 반응의 ΔH를 계산할 수 있어.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">원소의 생성 엔탈피 = 0 · 기준점</span></div>
 <p>핵심 약속이 하나 있어. <b>가장 안정한 홑원소 물질의 표준 생성 엔탈피는 0</b>이야. 원소를 원소로부터 만든다는 건 아무것도 안 하는 거니까, 변화가 0인 거지. 이게 모든 생성 엔탈피의 기준점이야.</p>
 <table><tr><th scope="col">물질</th><th scope="col">ΔH<sub>f</sub>°</th><th scope="col">이유</th></tr>
@@ -88,14 +89,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="trap"><span class="lab">함정 · 어떤 형태의 원소가 0인가</span><br>"가장 안정한" 형태의 원소만 0이야. 산소는 <span class="fm">O₂</span>가 0이지 오존(<span class="fm">O₃</span>)은 0이 아니고, 탄소는 흑연이 0이지 다이아몬드는 0이 아니야(흑연이 더 안정). 같은 원소라도 가장 안정한 형태만 기준(0)이라는 걸 주의해. 화합물은 당연히 0이 아니고. "가장 안정한 홑원소 물질 = 0"을 정확히 기억해.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">생성 엔탈피로 ΔH 계산 · 생성물 − 반응물</span></div>
 <p>생성 엔탈피 표가 있으면 어떤 반응의 ΔH든 한 줄로 계산돼. 각 물질의 생성 엔탈피에 계수를 곱해, 생성물 합에서 반응물 합을 빼면 끝이야.</p>
 <div class="eqn"><b>ΔH = Σ(생성물 ΔH<sub>f</sub>°) − Σ(반응물 ΔH<sub>f</sub>°)</b> &nbsp;(각 계수 곱해서)</div>
 <p>이게 성립하는 건 헤스 법칙 덕분이야(067). 반응물을 원소로 분해했다가(역방향, 반응물 생성 엔탈피의 −) 다시 생성물로 조립하는(생성물 생성 엔탈피의 +) 경로로 본 거지. 그래서 "생성물 − 반응물"이 돼. 결합 에너지의 "반응물 − 생성물"과 방향이 반대니 주의(066).</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">계산 예제 · 메테인 연소</span></div>
 <p>메테인 연소의 ΔH를 생성 엔탈피로 구해보자.</p>
 <div class="eqn">CH₄(g) + 2O₂(g) → CO₂(g) + 2H₂O(l)<br>ΔH<sub>f</sub>°: CH₄ = −75, CO₂ = −394, H₂O(l) = −286, O₂ = 0 (kJ/mol)</div>
@@ -105,7 +106,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="eg"><span class="lab">예제 · 생성 엔탈피 표로 한 번에</span> <span class="fm">CH₄ + 2O₂ → CO₂ + 2H₂O(l)</span> 의 ΔH 를 구해 봐. (ΔH<sub>f</sub>°: CH₄ −75, CO₂ −394, H₂O(l) −286 kJ/mol) <b>ΔH = Σ(생성물) − Σ(반응물)</b>, 그리고 <b>홑원소 물질은 0</b> 이야(O₂ 가 0인 게 그 이유). ① 생성물: (−394) + 2(−286) = <b>−966</b> ② 반응물: (−75) + 2(0) = <b>−75</b> ③ <span class="fm">ΔH = −966 − (−75) = −891 kJ</span>. 066에서 결합 에너지로 어림한 값(−890 쯤)과 거의 같지 — <b>길이 달라도 답이 같다</b>는 게 헤스 법칙(067)이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"생성 엔탈피 = 원소에서 1몰 만들 때 ΔH(원소는 0) · ΔH = 생성물 − 반응물."</div>
@@ -149,7 +150,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

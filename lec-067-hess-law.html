@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -71,7 +72,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 어떤 반응은 ΔH를 직접 측정하기 어려워. 예를 들어 탄소가 일산화탄소로만 타는 반응은, 실제로는 이산화탄소까지 가버려서 따로 재기 힘들거든. 이럴 때 구원투수가 헤스 법칙이야. 반응 엔탈피가 "어떤 경로로 갔느냐"와 무관하게, 오직 처음(반응물)과 끝(생성물) 상태로만 정해진다는 거지. 그래서 측정하기 쉬운 반응들을 레고처럼 조합해서, 원하는 반응의 ΔH를 계산할 수 있어. 오늘은 이 법칙과 반응식 조합 규칙을 잡을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">헤스 법칙 · 경로와 무관하다</span></div>
 <p>헤스 법칙은 이거야. <b>반응 엔탈피는 반응 경로와 무관하게, 처음과 끝 상태로만 정해진다.</b> 한 단계로 곧장 가든, 여러 단계를 거쳐 빙 둘러 가든, 시작과 끝이 같으면 총 ΔH가 같아.</p>
 <p>이게 가능한 건 엔탈피가 상태 함수이기 때문이야. 산을 오를 때 어느 길로 가든 정상의 높이가 같듯, 처음과 끝의 엔탈피 차이는 경로와 상관없이 일정해. 중간에 어떤 길을 거쳤는지는 ΔH에 영향을 주지 않아.</p>
@@ -79,14 +80,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big" style="font-size:15px">직접 경로의 ΔH = 거쳐 가는 경로의 ΔH 합</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">반응식 조합 규칙 · 두 가지</span></div>
 <p>헤스 법칙을 쓰려면 아는 반응식들을 조합해 목표 반응식을 만들어. 이때 두 가지 규칙을 기억해.</p>
 <p><b>규칙 ① 뒤집으면 부호 반대.</b> 반응식을 역방향으로 뒤집으면 ΔH의 부호가 반대가 돼(065). 발열이 흡열이 되는 거지. <b>규칙 ② 배수를 곱하면 ΔH도 같은 배수.</b> 반응식 전체에 2를 곱하면 ΔH도 2배가 돼(ΔH는 양에 비례).</p>
 <div class="key">조합 규칙: ① 반응식 뒤집기 → ΔH 부호 반대 ② 반응식 × n → ΔH × n. 아는 반응식들을 이 규칙으로 조작해 목표 반응식이 되도록 더하면, ΔH들도 똑같이 조작해 더한 게 답이야. 반응식을 다루는 대로 ΔH도 똑같이 다루는 거지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">계산 예제 · CO의 생성 엔탈피</span></div>
 <p>직접 재기 어려운 <span class="fm">C + ½O₂ → CO</span>의 ΔH를, 측정하기 쉬운 두 반응으로 구해보자.</p>
 <div class="eqn">(가) C(s) + O₂(g) → CO₂(g) &nbsp; ΔH₁ = −394 kJ<br>(나) CO(g) + ½O₂(g) → CO₂(g) &nbsp; ΔH₂ = −283 kJ<br>구할 것: C(s) + ½O₂(g) → CO(g) &nbsp; ΔH = ?</div>
@@ -95,13 +96,13 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p>그래서 <span class="fm">C + ½O₂ → CO</span>의 ΔH는 <span class="fm">−111 kJ</span>(발열)이야. 직접 못 재는 반응을, 아는 두 반응을 조합(하나는 뒤집어서)해 구한 거지. 반응식을 조작한 그대로 ΔH도 조작(빼기)한 게 핵심이야.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">함정 정리</span></div>
 <div class="trap"><span class="lab">함정 · 반응식만 조작하고 ΔH는 그대로?</span><br>반응식을 뒤집거나 배수를 곱하면, ΔH도 <b>똑같이</b> 조작해야 해. 뒤집었으면 ΔH 부호도 바꾸고, 2배 했으면 ΔH도 2배 해. 반응식만 맞추고 ΔH 값을 그대로 쓰면 틀려. "반응식에 한 일을 ΔH에도 똑같이"가 철칙이야. 그리고 중간 물질(예제의 <span class="fm">CO₂</span>)이 양변에서 깔끔히 소거되는지 확인하면, 조합이 맞았는지 검산할 수 있어.</div>
 <div class="eg"><span class="lab">예제 · 두 식을 더해 세 번째를 만들기</span> 구하고 싶은 것: <span class="fm">C(s) + ½O₂ → CO</span> 의 ΔH. 직접 재기 어려운 반응이야(CO 에서 멈추질 않으니까). 아는 것 둘: (가) <span class="fm">C + O₂ → CO₂</span> ΔH = −394 kJ, (나) <span class="fm">CO + ½O₂ → CO₂</span> ΔH = −283 kJ. ① (나)를 <b>뒤집는다</b> → <span class="fm">CO₂ → CO + ½O₂</span>, ΔH = <b>+283</b>(뒤집으면 부호도 뒤집힌다). ② (가) + 뒤집은 (나) 를 더하면 CO₂ 가 양쪽에서 지워지고 <span class="fm">C + ½O₂ → CO</span> 가 남아. ③ <span class="fm">ΔH = −394 + 283 = −111 kJ</span>. <b>엔탈피는 길이 아니라 처음과 끝만 본다</b> — 그래서 못 재는 반응도 아는 반응 둘로 만들 수 있어.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"ΔH는 경로와 무관(처음·끝으로만) · 반응식을 조작한 그대로 ΔH도 조작해 더한다."</div>
@@ -145,7 +146,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

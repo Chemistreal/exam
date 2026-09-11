@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -72,7 +73,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 081부터 091까지 산·염기의 모든 걸 배웠어. 가장 큰 영역이었지. 오늘은 이걸 한눈에 종합하고, pH를 구하는 흐름을 정리할 거야. 산·염기 영역은 하나의 큰 줄기로 이어져 있어. 무엇이 산·염기인지(정의)에서 출발해, 얼마나 센지(세기), 그걸 숫자로 어떻게 다루는지(pH·Ka·Kb), 그리고 실제 상황에 어떻게 적용하는지(염·완충)로 발전하지. 이 흐름을 잡으면 산·염기가 한 덩어리로 보여.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">핵심 개념 한눈에</span></div>
 <p>영역 전체의 핵심을 표로 모았어.</p>
 <table><tr><th scope="col">주제</th><th scope="col">핵심</th></tr>
@@ -87,24 +88,24 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">산·염기의 큰 줄기: 정의(주개·받개) → 세기(강/약, Ka·Kb) → 정량(Kw·pH) → 응용(염의 액성·완충). 모든 게 "H⁺를 주고받는다"와 "평형 상수"라는 두 축 위에 서 있어. 074의 평형, 083의 Kw가 이 영역 전체를 떠받치지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">pH 계산 흐름 · 무엇이 녹았나</span></div>
 <p>pH를 구하는 흐름을 정리하자. 무엇이 녹아 있느냐에 따라 방법이 달라.</p>
 <ol class="steps"><li><b>강산·강염기</b>: 거의 완전히 이온화하니, 농도에서 <span class="fm">[H⁺]</span>(또는 <span class="fm">[OH⁻]</span>)를 바로 구해 pH 계산.</li><li><b>약산·약염기</b>: 일부만 이온화하니, <span class="fm">Ka</span>(또는 <span class="fm">Kb</span>)와 농도로 평형의 <span class="fm">[H⁺]</span>를 구해 pH 계산.</li><li><b>염</b>: 부모 산·염기로 액성을 판단하고, 가수분해하는 이온의 <span class="fm">Ka</span>/<span class="fm">Kb</span>로 pH 계산.</li></ol>
 <p>핵심은 먼저 "녹아 있는 게 강산/약산/염 중 무엇인지"를 파악하는 거야. 그에 따라 직접 계산(강산), 평형 계산(약산, Ka), 가수분해(염)로 길이 갈리지.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">종합 예제 · 판단의 흐름</span></div>
 <div class="eg"><span class="lab">예제 · 액성 판단</span> 세 용액을 비교해보자. ① <span class="fm">0.1 M HCl</span>: 강산, <span class="fm">[H⁺]≈0.1</span>, pH≈1(강한 산성). ② <span class="fm">0.1 M CH₃COOH</span>: 약산, Ka로 계산하면 <span class="fm">[H⁺]</span>가 훨씬 작아 pH가 1보다 큼(약한 산성). ③ <span class="fm">0.1 M CH₃COONa</span>: 약산+강염기 염, 가수분해로 염기성(pH&gt;7). 같은 0.1 M이라도 무엇이 녹았는지에 따라 pH가 완전히 다르지. "정체 파악 → 맞는 방법 적용"이 핵심이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">자주 틀리는 포인트 모음</span></div>
 <div class="trap"><span class="lab">함정 · 영역 전체의 핵심 구분들</span><br>이 영역에서 꼭 구분할 것들이야. ① 세기 ≠ 농도(묽은 강산도 강산, 085). ② pH 작을수록 산성, pH 1 차이 = 농도 10배(084). ③ <span class="fm">[H⁺]</span>와 <span class="fm">[OH⁻]</span>는 곱이 일정(둘 다 0은 아님, 083). ④ <span class="fm">Ka×Kb=Kw</span>는 짝산-짝염기끼리만(087). ⑤ 염이라고 다 중성 아님(가수분해, 089). ⑥ 완충은 약산+짝염기가 둘 다 있어야(090). 이 여섯을 헷갈리지 않으면 산·염기는 거의 다 잡은 거야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 영역 마무리</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"정의(주개·받개) → 세기(Ka·Kb) → 정량(Kw·pH) → 응용(염·완충) · 정체 파악이 먼저."</div>
@@ -148,7 +149,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

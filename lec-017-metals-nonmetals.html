@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -68,7 +69,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 주기율표를 성질로 크게 가르면 금속·비금속·준금속 세 부류가 돼. 앞 강 종합표의 마지막 줄(금속성)을 기억하지? 금속성은 왼쪽 아래로 커진다고 했어. 오늘은 그게 왜 그런지를 이온화에너지와 연결하고, 금속과 비금속이 물리적으로 어떻게 다른지, 그리고 그 경계에 걸쳐 반도체로 쓰이는 준금속까지 정리할 거야. 이걸로 주기율 단원을 깔끔하게 닫자.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">금속성이란 · 전자를 내놓으려는 성향</span></div>
 <p>금속성의 핵심은 하나야. <b>전자를 잃고 양이온이 되려는 성향.</b> 전자를 쉽게 내놓을수록 금속성이 크지. 그런데 전자를 떼는 난이도가 바로 이온화에너지(013)였잖아? 그러니 <b>이온화에너지가 작을수록 금속성이 크다</b>로 바로 연결돼.</p>
 <p>그럼 경향도 따라 나와. 이온화에너지가 작은 쪽이 금속성이 큰 쪽이니까, 이온화에너지 경향을 뒤집으면 돼. 이온화에너지는 오른쪽·위로 컸으니, 금속성은 그 반대인 <b>왼쪽·아래로 커져.</b></p>
@@ -76,7 +77,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">한 줄: 금속성 = 이온화에너지의 거울상. 전자를 잘 내놓는(IE 작은) 왼쪽 아래가 금속, 전자를 꽉 붙드는(IE 큰) 오른쪽 위가 비금속. 그래서 1족 금속이 가장 금속적이고, 17족 비금속이 가장 비금속적이야. 따로 외울 게 아니라 IE에서 유도하면 돼.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">금속과 비금속의 물성 차이</span></div>
 <p>이 성향 차이가 물리적 성질로 드러나. 두 부류를 나란히 비교하자.</p>
 <table><tr><th scope="col"></th><th scope="col">금속 (왼쪽·아래)</th><th scope="col">비금속 (오른쪽·위)</th></tr>
@@ -88,7 +89,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p>비금속은 반대야. 전자를 꽉 붙들어 자유전자가 없으니 전기를 잘 안 통하고, 결합이 방향성을 가져 충격을 주면 부서져. 결합도 전자를 주고받기보다 공유하거나, 전자를 받아 음이온이 되는 쪽이고.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">준금속 · 경계의 반도체</span></div>
 <p>금속과 비금속이 칼로 자르듯 딱 나뉘는 건 아니야. 그 경계의 계단을 따라 양쪽 성질을 어중간하게 가진 원소들이 있어. 이걸 준금속이라고 해. 대표적으로 붕소(B), 규소(Si), 저마늄(Ge), 비소(As) 같은 원소들이 경계에 걸쳐 있어.</p>
 <p>준금속이 중요한 이유는 반도체야. 규소나 저마늄은 금속만큼 전기를 잘 통하지도, 비금속처럼 완전히 막지도 않는 중간 성질을 가져. 이 "조절 가능한 전도성" 덕에 전자 소자(반도체 칩)의 핵심 재료로 쓰여. 주기율표의 경계에 있다는 위치가 곧 그 쓰임새를 설명하는 거지.</p>
@@ -97,7 +98,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="eg"><span class="lab">예제 · 두 산화물을 물에 녹여 보기</span> <span class="fm">Na₂O</span> 와 <span class="fm">SO₃</span> 를 각각 물에 녹이면 액성이 어떻게 될까? <b>금속 산화물은 염기성, 비금속 산화물은 산성</b>이 규칙이야. <span class="fm">Na₂O + H₂O → 2NaOH</span> 라 <b>염기성</b>, <span class="fm">SO₃ + H₂O → H₂SO₄</span> 라 <b>산성</b>이지. 까닭은 전기음성도 차이야 — 금속은 전자를 잘 내주니 O 를 <span class="fm">O²⁻</span> 로 밀어내 물에서 <span class="fm">OH⁻</span> 를 만들고, 비금속은 O 를 붙들고 있어 <span class="fm">H⁺</span> 를 내놓는 쪽이 돼. <span class="fm">Al₂O₃</span> 처럼 <b>양쪽성</b>인 것은 준금속 자리라 그렇다.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">한 장 정리와 주기율 영역 마무리</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"금속성은 이온화에너지의 거울상(왼쪽 아래로 큼) · 금속 성질은 자유전자 · 경계는 준금속(반도체)."</div>
@@ -141,7 +142,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

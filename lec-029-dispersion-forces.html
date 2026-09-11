@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -68,14 +69,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 한 가지 이상한 걸 짚자. 헬륨, 질소, 메테인 같은 무극성 분자도 온도를 충분히 낮추면 액체가 돼. 그런데 무극성이면 부분 전하도 없는데, 도대체 무슨 힘으로 서로 끌어당겨 액체가 될까? 답이 분산력이야. 모든 분자에 항상 깔려 있는 가장 기본적인 분자 간 힘이지. 오늘은 분산력이 어떻게 생기고, 그 세기를 무엇이 정하는지(핵심은 크기야)를 잡을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">분산력은 어떻게 생기나 · 순간의 쏠림</span></div>
 <p>무극성 분자라도 전자는 가만히 있지 않아. 끊임없이 움직이지. 그러다 보면 어느 순간 전자가 우연히 한쪽으로 살짝 쏠릴 때가 있어. 그 찰나에는 한쪽이 약간 (−), 반대쪽이 약간 (+)인 순간 쌍극자가 생겨. 평균적으로는 무극성이지만, 순간순간은 살짝 치우치는 거야.</p>
 <p>그런데 이 순간 쌍극자가 옆 분자에 영향을 줘. 한 분자의 순간 (−)쪽이 옆 분자의 전자를 밀어내서, 옆 분자에도 덩달아 쏠림(유도 쌍극자)을 만들어. 그러면 두 분자가 순간적으로 서로 끌어당겨. 이런 순간적인 끌림이 수없이 일어나 평균적으로 인력이 되는 게 분산력이야.</p>
 <div class="key">분산력 = 전자의 순간적 쏠림이 만드는 순간 쌍극자들 사이의 인력. 영구적인 부분 전하가 없어도 생겨서, 무극성이든 극성이든 <b>모든 분자(원자)에 항상 존재</b>해. 가장 기본적이고 보편적인 분자 간 힘이야. 무극성 분자가 액체가 되는 건 순전히 이 분산력 덕분이지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">분산력의 세기 · 크기(전자 수)가 정한다</span></div>
 <p>분산력의 세기를 정하는 가장 중요한 요인은 <b>전자 수, 즉 분자의 크기(몰질량)</b>야. 전자가 많을수록 순간적인 쏠림이 커지고, 전자구름이 더 잘 일그러져(편극이 잘 돼). 그래서 큰 분자일수록 분산력이 세.</p>
 <p>가장 깔끔한 예가 할로젠이야. <span class="fm">F₂</span>, <span class="fm">Cl₂</span>, <span class="fm">Br₂</span>, <span class="fm">I₂</span>는 다 같은 무극성 이원자 분자인데, 아래로 갈수록 전자가 많아져 분산력이 세져. 그 결과 끓는점이 쭉 올라가.</p>
@@ -84,13 +85,13 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="trap"><span class="lab">함정 · 분산력은 약하니까 무시?</span><br>"분산력은 가장 약한 힘이니 무시해도 되겠지"는 위험해. 낱개로는 약하지만, 분자가 크면(전자가 아주 많으면) 분산력이 누적돼 상당히 세져. 그래서 큰 무극성 분자(예: 왁스, 기름)는 분산력만으로도 끓는점이 높아. 분자가 충분히 크면 분산력이 극성 분자의 쌍극자 힘을 능가하기도 해. 크기를 절대 무시하지 마.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">모양도 영향을 준다 · 접촉 면적</span></div>
 <p>크기(전자 수)가 같아도 모양에 따라 분산력이 달라져. 분자가 길쭉하면 서로 닿는 접촉 면적이 넓어 분산력이 세고, 공처럼 동글동글하면 접촉 면적이 좁아 분산력이 약해.</p>
 <div class="eg"><span class="lab">예제 · 같은 분자식, 다른 모양</span> 분자식이 같아 전자 수가 같아도, 길게 뻗은 분자가 가지가 많아 뭉친 분자보다 끓는점이 높아. 길쭉한 쪽이 옆 분자와 더 넓게 닿아 분산력이 크거든. "같은 크기면 길쭉한 게 더 끈적하다"고 기억하면 돼. 단, 크기(전자 수) 차이가 크면 그게 모양보다 우선이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"분산력은 순간 쌍극자의 인력 · 모든 분자에 있고, 전자 수(크기)가 클수록 세다."</div>
@@ -134,7 +135,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

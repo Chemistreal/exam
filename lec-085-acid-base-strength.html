@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -71,7 +72,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 앞에서 산·염기의 기본을 배웠으니(081~084), 이제 세기를 다뤄. 산이라고 다 똑같이 센 게 아니거든. 염산은 물에서 거의 완전히 이온화하는 강산이지만, 식초의 아세트산은 일부만 이온화하는 약산이야. 핵심은 세기가 "얼마나 잘 이온화하는가"이지 "얼마나 진한가(농도)"가 아니라는 거야. 이 둘을 헷갈리면 안 돼. 오늘은 강산·약산(강염기·약염기)의 구분과, 세기와 농도가 어떻게 다른지를 잡을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">산의 세기 · 얼마나 이온화하는가</span></div>
 <p>산의 세기는 물에서 얼마나 잘 이온화하는가, 즉 <span class="fm">H⁺</span>를 얼마나 잘 내놓는가로 정해져.</p>
 <table><tr><th scope="col">구분</th><th scope="col">이온화</th><th scope="col">예</th></tr>
@@ -81,20 +82,20 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">산·염기의 세기 = 이온화 정도. 강산/강염기는 거의 완전히 이온화(한 방향 →), 약산/약염기는 일부만 이온화(평형 ⇌). 이온화한 비율을 이온화도(α)라 하는데, 강산은 α≈1, 약산은 α가 매우 작아. 세기는 "얼마나 이온화하느냐"의 문제야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">세기 ≠ 농도 · 가장 중요한 구분</span></div>
 <p>여기가 핵심이야. 세기(이온화 정도)와 농도(얼마나 진한가)는 완전히 다른 개념이야. 묽은 강산도 여전히 강산이고, 진한 약산도 여전히 약산이지. 세기는 그 산의 고유한 성질이고, 농도는 얼마나 넣었느냐의 문제거든.</p>
 <div class="big" style="font-size:15.5px">세기(이온화 정도) ≠ 농도(진하기) · 묽은 강산도 강산</div>
 <div class="trap"><span class="lab">함정 · 진하면 강산, 묽으면 약산?</span><br>절대 아니야. 세기와 농도는 별개야. 아주 묽은 염산도 강산이고(거의 완전히 이온화하니까), 아주 진한 아세트산도 약산이야(일부만 이온화하니까). "강산/약산"은 그 물질의 이온화 정도로 정해진 고유한 분류이고, "진하다/묽다"는 농도의 문제야. 둘을 절대 섞지 마. 진한 약산이 묽은 강산보다 <span class="fm">[H⁺]</span>가 많을 수도 있어(농도가 충분히 높으면).</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">같은 농도면 강산이 더 산성</span></div>
 <p>단, <b>같은 농도</b>로 비교하면 강산이 약산보다 <span class="fm">[H⁺]</span>가 많아(더 많이 이온화하니까). 그래서 같은 농도면 강산의 pH가 더 낮지(더 산성).</p>
 <div class="eg"><span class="lab">예제 · 같은 농도 비교</span> 0.1 M 염산(강산)과 0.1 M 아세트산(약산)을 비교하면? 염산은 거의 완전히 이온화해 <span class="fm">[H⁺]</span>가 약 0.1 M에 가깝지만, 아세트산은 일부만 이온화해 <span class="fm">[H⁺]</span>가 그보다 훨씬 작아. 그래서 같은 0.1 M이라도 염산의 pH가 더 낮아(더 산성). "같은 농도면 강산이 더 센 산성"이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"세기 = 이온화 정도(농도 아님) · 강산 완전 이온화·약산 일부 · 같은 농도면 강산이 더 산성."</div>
@@ -138,7 +139,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

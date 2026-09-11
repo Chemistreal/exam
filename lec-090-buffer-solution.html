@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -71,14 +72,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 우리 혈액은 산성 음식을 먹어도 pH가 거의 안 변해. 어떻게 그럴까? 바로 완충 작용 덕분이야. 완충 용액은 산이나 염기를 조금 넣어도 pH가 거의 변하지 않는 용액이지. 비결은 약산과 그 짝염기를 함께 섞어 두는 거야. 둘이 동시에 있으면, 외부에서 <span class="fm">H⁺</span>가 들어오면 짝염기가 흡수하고, <span class="fm">OH⁻</span>가 들어오면 약산이 흡수하거든. 양쪽 공격을 다 막는 거지. 오늘은 완충 용액의 조성과 그 작동 원리를 잡을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">완충 용액 · 약산 + 짝염기</span></div>
 <p>완충 용액은 산이나 염기를 소량 넣어도 pH가 거의 변하지 않는 용액이야. 만드는 법은 <b>약산과 그 짝염기를 함께 섞는</b> 거지(또는 약염기 + 그 짝산). 둘이 충분한 양으로 공존하는 게 핵심이야.</p>
 <div class="eg"><span class="lab">대표 예</span> 아세트산(<span class="fm">CH₃COOH</span>, 약산)과 아세트산 나트륨(<span class="fm">CH₃COONa</span>, 그 짝염기 <span class="fm">CH₃COO⁻</span>를 공급)을 섞은 용액이 전형적인 완충 용액이야. 약산 <span class="fm">CH₃COOH</span>와 짝염기 <span class="fm">CH₃COO⁻</span>가 둘 다 충분히 있어서 완충 작용을 하지.</div>
 <div class="key">완충 용액 = 약산 + 그 짝염기(또는 약염기 + 그 짝산)를 함께 섞은 용액. 산·염기를 소량 넣어도 pH가 거의 안 변해. 약산과 짝염기가 둘 다 있어야 완충이 돼(강산만으로는 안 됨). 둘이 H⁺와 OH⁻를 각각 막아주는 거야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">완충 원리 · 양쪽을 흡수한다 (그림)</span></div>
 <p>왜 pH가 안 변할까? 약산(<span class="fm">HA</span>)과 짝염기(<span class="fm">A⁻</span>)가 둘 다 있어서, 외부에서 들어오는 <span class="fm">H⁺</span>나 <span class="fm">OH⁻</span>를 각각 흡수하기 때문이야.</p>
 <div class="fig"><svg viewBox="0 0 300 150"><rect x="105" y="52" width="90" height="44" rx="9" fill="#eef5f2" stroke="#0E5A4C" stroke-width="1.8"/><text x="150" y="71" text-anchor="middle" fill="#13463b" font-size="12" font-weight="700">HA · A⁻</text><text x="150" y="86" text-anchor="middle" fill="#5a564d" font-size="8.5">완충 용액</text><circle cx="32" cy="74" r="13" fill="#C0603A"/><text x="32" y="78" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">H⁺</text><line x1="48" y1="74" x2="100" y2="74" stroke="#C0603A" stroke-width="2"/><polygon points="100,74 92,69 92,79" fill="#C0603A"/><text x="74" y="66" text-anchor="middle" fill="#C0603A" font-size="8">A⁻가 흡수</text><circle cx="268" cy="74" r="13" fill="#2f5ea0"/><text x="268" y="78" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700">OH⁻</text><line x1="252" y1="74" x2="200" y2="74" stroke="#2f5ea0" stroke-width="2"/><polygon points="200,74 208,69 208,79" fill="#2f5ea0"/><text x="226" y="66" text-anchor="middle" fill="#2f5ea0" font-size="8">HA가 흡수</text><text x="150" y="120" text-anchor="middle" fill="#8a8578" font-size="8.5">H⁺는 A⁻가, OH⁻는 HA가 받아내 → pH 유지</text></svg><figcaption>약산(HA)과 짝염기(A⁻)가 외부의 H⁺·OH⁻를 각각 흡수해 pH를 유지</figcaption></div>
@@ -86,12 +87,12 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p>산(<span class="fm">H⁺</span>)을 넣으면 짝염기 <span class="fm">A⁻</span>가 받아 <span class="fm">HA</span>로 바꾸고, 염기(<span class="fm">OH⁻</span>)를 넣으면 약산 <span class="fm">HA</span>가 받아 중화해. 어느 쪽이 들어와도 흡수되니 <span class="fm">[H⁺]</span>가 크게 안 변해서 pH가 유지되는 거야.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">생체 속 완충 · 혈액의 pH</span></div>
 <p>완충 작용은 생명 유지에 필수야. 우리 혈액은 pH가 약 7.4로 아주 좁은 범위에 유지돼야 하는데, 탄산(<span class="fm">H₂CO₃</span>)과 중탄산 이온(<span class="fm">HCO₃⁻</span>)으로 이뤄진 완충계가 이를 지켜. 음식이나 대사로 산·염기가 생겨도, 이 완충계가 흡수해 혈액 pH를 안정시키지. 완충이 무너지면 생명이 위태로울 만큼 중요한 작용이야.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">완충 용액의 pH · 헨더슨-하셀바흐 식</span></div>
 <p>완충 용액의 pH를 <b>계산</b>하는 도구가 하나 있어. 약산의 이온화 상수 식에서 바로 나와.</p>
 <p>약산 HA의 이온화 상수는 <span class="fm">K<sub>a</sub> = [H⁺][A⁻] / [HA]</span> 야. 여기서 [H⁺]만 남기면 <span class="fm">[H⁺] = K<sub>a</sub> · [HA]/[A⁻]</span> 가 되지. 양변에 −log를 씌우면(로그를 씌우면 곱은 덧셈, 나눗셈은 뺄셈이 돼) 이렇게 정리돼.</p>
@@ -105,12 +106,12 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="trap"><span class="lab">함정 · pK<sub>a</sub>와 pH를 헷갈린다</span>pK<sub>a</sub>는 <b>그 산의 성질</b>이라 농도를 바꿔도 안 변해. pH는 <b>그 용액의 상태</b>라 비율에 따라 움직여. 둘이 같아지는 건 [A⁻] = [HA]인 특별한 순간(적정에서 <b>반당량점</b>)뿐이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">함정 정리</span></div>
 <div class="trap"><span class="lab">함정 · 완충 용액은 pH가 절대 안 변한다?</span><br>"거의" 안 변하는 거지 "절대" 안 변하는 건 아니야. 완충 용량에는 한계가 있어서, 산이나 염기를 너무 많이 넣으면(약산이나 짝염기가 다 소모되면) 완충이 깨지고 pH가 크게 변해. 그리고 완충은 <b>약산 + 그 짝염기</b>가 함께 있어야 돼. 강산만 잔뜩 있는 건 완충이 아니야(짝염기가 없어 한쪽을 못 막음). "약산과 짝염기가 둘 다, 적당량 있어야 완충"이라는 걸 기억해.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s06">
 <div class="sec__h"><span class="sec__no">06</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"완충 = 약산 + 짝염기 · H⁺는 A⁻가, OH⁻는 HA가 흡수 → pH 유지."</div>
@@ -154,7 +155,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

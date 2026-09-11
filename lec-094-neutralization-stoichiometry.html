@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -70,14 +71,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 앞 강에서 중화의 본질이 <span class="fm">H⁺ + OH⁻ → H₂O</span>라고 했지(093). 그럼 산과 염기가 딱 맞게(완전히) 중화되려면 양이 어떻게 맞아야 할까? 산이 내놓은 <span class="fm">H⁺</span>의 몰과 염기가 내놓은 <span class="fm">OH⁻</span>의 몰이 같아야 해. 둘이 일대일로 결합해 물이 되니까. 이걸 농도·부피로 나타낸 게 <span class="fm">nMV = n'M'V'</span> 공식이야. 여기서 가수(n)를 꼭 곱해야 하는데, 황산처럼 <span class="fm">H⁺</span>를 둘 내놓는 산은 그만큼 더 세거든. 오늘은 이 양적 관계를 잡을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">중화의 조건 · H⁺ 몰 = OH⁻ 몰</span></div>
 <p>산과 염기가 완전히 중화되는 조건은 단순해. 산이 내놓은 <span class="fm">H⁺</span>의 몰수와 염기가 내놓은 <span class="fm">OH⁻</span>의 몰수가 같아야 해. <span class="fm">H⁺</span>와 <span class="fm">OH⁻</span>가 일대일로 만나 물이 되니, 딱 맞으려면 둘의 몰수가 같아야 하지.</p>
 <div class="big" style="font-size:16px">중화점: (H⁺의 몰) = (OH⁻의 몰)</div>
 <div class="key">완전 중화의 조건 = H⁺의 몰수 = OH⁻의 몰수. H⁺와 OH⁻가 1:1로 결합해 물이 되니까, 딱 맞으려면 둘의 몰이 같아야 해. 이게 모든 중화 계산의 출발점이야. 부피나 농도가 아니라 "H⁺ 몰 = OH⁻ 몰"이 핵심이지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">공식 · nMV = n'M'V' (가수를 곱한다)</span></div>
 <p>이 조건을 농도·부피로 나타내자. 산이 내놓는 <span class="fm">H⁺</span>의 몰은 <span class="fm">(가수) × (몰농도) × (부피)</span>야. 염기의 <span class="fm">OH⁻</span> 몰도 마찬가지지. 둘이 같다고 놓으면 공식이 나와.</p>
 <div class="eqn">n M V = n' M' V'</div>
@@ -88,18 +89,18 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p>여기서 <b>가수(n)</b>가 핵심이야. 한 분자가 <span class="fm">H⁺</span>나 <span class="fm">OH⁻</span>를 몇 개 내놓는지지. <span class="fm">HCl</span>·<span class="fm">NaOH</span>는 1가, <span class="fm">H₂SO₄</span>·<span class="fm">Ca(OH)₂</span>는 2가야. <span class="fm">nMV</span>가 바로 그 산(또는 염기)이 내놓는 <span class="fm">H⁺</span>(또는 <span class="fm">OH⁻</span>)의 몰수인 거지.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">계산 예제</span></div>
 <div class="eg"><span class="lab">예제 1 · 1가 산·염기</span> <span class="fm">0.1 M HCl 100 mL</span>를 <span class="fm">0.1 M NaOH</span>로 완전히 중화하려면 NaOH 몇 mL? 둘 다 1가야. <span class="fm">1 × 0.1 × 0.1 = 1 × 0.1 × V'</span> → <span class="fm">0.01 = 0.1 V'</span> → <span class="fm">V' = 0.1 L = 100 mL</span>. 1가끼리 같은 농도면 같은 부피로 중화되지.</div>
 <div class="eg"><span class="lab">예제 2 · 2가 산</span> <span class="fm">0.1 M H₂SO₄ 100 mL</span>를 <span class="fm">0.1 M NaOH</span>로 중화하려면? 황산은 2가, NaOH는 1가야. <span class="fm">2 × 0.1 × 0.1 = 1 × 0.1 × V'</span> → <span class="fm">0.02 = 0.1 V'</span> → <span class="fm">V' = 0.2 L = 200 mL</span>. 황산이 <span class="fm">H⁺</span>를 2개 내놓으니, 같은 농도·부피의 1가 산보다 두 배의 NaOH가 필요해.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">함정 정리</span></div>
 <div class="trap"><span class="lab">함정 · 가수를 빼먹기</span><br>가장 흔한 실수야. <span class="fm">nMV = n'M'V'</span>에서 가수(n)를 빼먹고 <span class="fm">MV = M'V'</span>로만 계산하면, 다가산·다가염기에서 틀려. 황산(2가)은 <span class="fm">H⁺</span>를 2개 내놓으니 가수 2를 꼭 곱해야 해. 예제 2에서 가수를 빼먹으면 NaOH가 100 mL로 잘못 나오지(실제는 200 mL). "<span class="fm">nMV</span>가 곧 <span class="fm">H⁺</span>(또는 <span class="fm">OH⁻</span>)의 몰수"라는 걸 기억하고, 다가 물질의 가수를 꼭 챙겨. 1가끼리면 가수가 1이라 안 보이지만, 다가가 끼면 결정적이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"중화점: H⁺ 몰 = OH⁻ 몰 → nMV = n'M'V' · 가수(n)를 꼭 곱한다."</div>
@@ -143,7 +144,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

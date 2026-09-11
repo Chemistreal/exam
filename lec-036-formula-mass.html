@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -69,21 +70,21 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 앞 강에서 물의 몰질량이 18 g/mol이라고 했는데, 그 18은 어디서 왔을까? 분자량이야. 그리고 분자량은 원자량을 더해서 나오고. 오늘은 이 숫자들의 출처를 정리할 거야. 원자량(원자 하나의 상대 질량), 분자량(원자량의 합), 그리고 이온 결합 물질에 쓰는 화학식량까지. 이걸 계산할 줄 알면 어떤 물질이든 몰질량을 스스로 구할 수 있어. 035와 한 세트야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">원자량 · 원자의 상대적 무게</span></div>
 <p>원자 하나의 실제 질량은 너무 작아서 g으로 쓰면 불편해. 그래서 화학자들은 기준을 정하고 상대적으로 비교했어. <b>탄소-12를 기준 12로 잡고</b>, 다른 원자가 그에 비해 몇 배 무거운지를 나타낸 게 원자량이야.</p>
 <p>그래서 원자량은 상대값이라 단위가 없어. 수소는 약 1, 탄소 12, 질소 14, 산소 16, 나트륨 23 같은 식이지. 001에서 본 "평균 원자량"이 바로 이 원자량이야(동위원소를 존재비로 가중평균한 값이라 염소는 35.5처럼 분수가 나오기도 했지).</p>
 <div class="key">원자량 = 탄소-12를 12로 한 상대적 질량(단위 없음). 자주 쓰는 값: H 1, C 12, N 14, O 16, Na 23, S 32, Cl 35.5. 이 몇 개만 알아도 웬만한 분자량은 계산돼.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">분자량 · 원자량을 더한다</span></div>
 <p>분자량은 그 분자를 이루는 모든 원자의 원자량을 더한 값이야. 분자식을 보고, 각 원자의 원자량에 개수를 곱해서 다 합치면 돼.</p>
 <div class="eg"><span class="lab">예제 · 분자량 계산</span> 물 <span class="fm">H₂O</span> = (1×2) + (16×1) = <b>18</b>. 이산화탄소 <span class="fm">CO₂</span> = 12 + (16×2) = <b>44</b>. 암모니아 <span class="fm">NH₃</span> = 14 + (1×3) = <b>17</b>. 메테인 <span class="fm">CH₄</span> = 12 + (1×4) = <b>16</b>.</div>
 <div class="eg"><span class="lab">예제 · 조금 큰 분자</span> 포도당 <span class="fm">C₆H₁₂O₆</span> = (12×6) + (1×12) + (16×6) = 72 + 12 + 96 = <b>180</b>. 황산 <span class="fm">H₂SO₄</span> = (1×2) + 32 + (16×4) = 2 + 32 + 64 = <b>98</b>. 원자량에 개수를 곱해 차근차근 더하면 돼.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">화학식량 · 이온 결합 물질은 "분자"가 없다</span></div>
 <p>한 가지 주의할 게 있어. 소금 <span class="fm">NaCl</span> 같은 이온 결합 물질은 사실 "분자"라는 게 없어. 셀 수 없이 많은 <span class="fm">Na⁺</span>와 <span class="fm">Cl⁻</span>이 격자로 쭉 이어져 있을 뿐이지(019). 그래서 "분자량"이라는 말을 쓸 수가 없어.</p>
 <p>대신 화학식 단위(<span class="fm">NaCl</span>)의 원자량을 더한 값을 화학식량이라고 불러. 계산하는 방법은 분자량과 똑같아. <span class="fm">NaCl</span> = 23 + 35.5 = 58.5. 다만 이름이 분자량이 아니라 화학식량인 거야(분자가 아니라 화학식 단위니까).</p>
@@ -93,7 +94,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">분자량이든 화학식량이든 계산은 똑같아(원자량의 합). 이름만 물질 종류에 따라 달라지는 거야. 둘을 통틀어 식량이라고 부르기도 해. 그리고 이 값에 g/mol을 붙이면 몰질량(035)이 돼. <span class="fm">NaCl</span> 화학식량 58.5 → 몰질량 58.5 g/mol → <span class="fm">NaCl</span> 1몰 = 58.5 g.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">사슬 완성 · 원자량 → 분자량 → 몰질량</span></div>
 <p>이제 035와 036이 한 사슬로 이어져. 원자량을 더해 분자량(화학식량)을 구하고, 거기에 g/mol을 붙이면 몰질량, 그 몰질량으로 질량과 몰을 변환해(035). 이 사슬을 따라가면 어떤 물질이든 무게와 몰을 오갈 수 있어.</p>
 <div class="big" style="font-size:15.5px">원자량 (더하기) → 분자량·화학식량 (g/mol 붙이기) → 몰질량 → 질량 ↔ 몰</div>
@@ -101,7 +102,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="trap"><span class="lab">함정 · 분자식과 실험식이 같다?</span><br>아니야. <b>실험식은 원자 수의 <u>가장 간단한 정수비</u></b>고, 분자식은 실제 개수야. 포도당은 분자식 <span class="fm">C₆H₁₂O₆</span>인데 실험식은 <span class="fm">CH₂O</span>지. 벤젠은 <span class="fm">C₆H₆</span>인데 실험식은 <span class="fm">CH</span>야. 둘이 같은 경우도 있어(물 <span class="fm">H₂O</span>, 메테인 <span class="fm">CH₄</span>) — 그건 이미 가장 간단한 비라서지 원래 같은 게 아니야. 그래서 <b>실험식량과 분자량은 정수배 관계</b>고, 그 정수배가 곧 "실험식 몇 개가 모여 분자 하나가 되나" 야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"원자량을 더하면 분자량(이온성은 화학식량) · 거기에 g/mol 붙이면 몰질량."</div>
@@ -145,11 +146,26 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">
-<div class="lq__stem"><b>1.</b> 탄소·수소·산소로만 된 화합물 46 g 을 완전 연소시켰더니 CO₂ 88 g 과 H₂O 54 g 이 생겼다. 이 화합물의 실험식은?</div>
+<div class="lq__stem"><b>1.</b> 어떤 금속 M의 산화물 결정은 정육면체 단위세포를 가지며, M 원자는 여덟 꼭짓점과 단위세포의 중심에 놓여 있고, 산소(O) 원자는 여섯 면의 중심에 놓여 있다.<br>꼭짓점의 원자는 여덟 단위세포가, 면심의 원자는 두 단위세포가 나누어 가지며, 중심의 원자는 그 단위세포에만 속한다.<br>이 화합물의 실험식은?</div>
+<ol class="lq__opts" data-ans="1">
+<li><button type="button" class="lq__opt">M₂O₃</button></li>
+<li><button type="button" class="lq__opt">MO₃</button></li>
+<li><button type="button" class="lq__opt">MO</button></li>
+<li><button type="button" class="lq__opt">M₃O₂</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>①</b></div>
+<p>M은 꼭짓점에 8개, 중심에 1개 있다. 단위세포 안의 M 수는 8 × 1/8 + 1 × 1 = 1 + 1 = 2개다.
+O는 면심에 6개 있고 면심 원자는 두 단위세포가 나누어 가지므로 단위세포 안의 O 수는 6 × 1/2 = 3개다.
+따라서 M : O = 2 : 3이고 실험식은 M₂O₃이다. 정답은 ①이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 체심 원자를 빠뜨리거나 꼭짓점을 모서리와 혼동해 1/4로 세는 바람에 원자 수 비가 어긋난다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 탄소·수소·산소로만 된 화합물 46 g 을 완전 연소시켰더니 CO₂ 88 g 과 H₂O 54 g 이 생겼다. 이 화합물의 실험식은?</div>
 <ol class="lq__opts" data-ans="3">
 <li><button type="button" class="lq__opt">CH₃O</button></li>
 <li><button type="button" class="lq__opt">C₂H₅O</button></li>
@@ -161,8 +177,8 @@ document.addEventListener('click', function (e) {
 <p>CO₂ 88 g 은 2 mol 이라 C 가 2 mol(24 g), H₂O 54 g 은 3 mol 이라 H 가 6 mol(6 g) 이다. 산소는 46 − 24 − 6 = 16 g 이라 1 mol 이다. C : H : O = 2 : 6 : 1 이므로 C₂H₆O 다. → ③</p>
 <div class="lq__miss"><b>자주 걸리는 자리</b> 연소 생성물의 질량을 그대로 원소 질량으로 쓴다. CO₂·H₂O 에서 C·H 몫만 골라내야 한다.</div>
 </div></div>
-<div class="lq__q" data-lq="2">
-<div class="lq__stem"><b>2.</b> 스타이렌은 분자식이 C₈H₈이고 분자량이 104인 방향족 탄화수소이다. (원자량: C = 12, H = 1, O = 16) 스타이렌에 대한 설명으로 옳지 않은 것은?</div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 스타이렌은 분자식이 C₈H₈이고 분자량이 104인 방향족 탄화수소이다. (원자량: C = 12, H = 1, O = 16) 스타이렌에 대한 설명으로 옳지 않은 것은?</div>
 <ol class="lq__opts" data-ans="4">
 <li><button type="button" class="lq__opt">스타이렌의 실험식은 CH이다.</button></li>
 <li><button type="button" class="lq__opt">실험식량은 13이고 분자량은 실험식량의 8배이다.</button></li>
@@ -173,19 +189,6 @@ document.addEventListener('click', function (e) {
 <div class="lq__ans">정답 <b>④</b></div>
 <p>실험식은 원자수의 가장 간단한 정수비이므로 C₈H₈에서 8과 8을 최대공약수 8로 나눈 CH이다. 실험식량은 12 + 1 = 13이고 분자량 104는 그 8배이다. 연소 반응식에서 C는 8CO₂, H는 4H₂O로 가고 오른쪽 O는 16 + 4 = 20개이므로 O₂는 10개, 즉 C₈H₈ + 10O₂ → 8CO₂ + 4H₂O이다. 스타이렌 10.4 g은 10.4 ÷ 104 = 0.100 mol이므로 필요한 O₂는 0.100 × 10 = 1.00 mol이고 질량은 1.00 × 32 = 32.0 g이다. 따라서 16.0 g은 옳지 않다.</p>
 <div class="lq__miss"><b>자주 걸리는 자리</b> 실험식을 분자식과 혼동하거나, 연소에 필요한 산소량을 계산할 때 반응식의 계수를 빠뜨리고 몰수를 그대로 질량으로 환산한다.</div>
-</div></div>
-<div class="lq__q" data-lq="3">
-<div class="lq__stem"><b>3.</b> 원소 X와 Y로만 이루어진 두 화합물 (가), (나)가 있다. (가)는 분자 1개가 X 원자 1개와 Y 원자 2개로 이루어져 있고, (가)에서 X와 Y의 질량비는 3 : 8이다. (나)에서 X와 Y의 질량비는 9 : 8이다. (나)의 실험식은?</div>
-<ol class="lq__opts" data-ans="3">
-<li><button type="button" class="lq__opt">XY</button></li>
-<li><button type="button" class="lq__opt">X₂Y</button></li>
-<li><button type="button" class="lq__opt">X₃Y₂</button></li>
-<li><button type="button" class="lq__opt">X₂Y₃</button></li>
-</ol>
-<div class="lq__why" hidden>
-<div class="lq__ans">정답 <b>③</b></div>
-<p>먼저 (가)로 원자량 비를 구한다. X 1개와 Y 2개의 질량비가 3 : 8이므로 (X의 원자량) : 2 × (Y의 원자량) = 3 : 8, 즉 X의 원자량 : Y의 원자량 = 3 : 4다. 원자량을 3k, 4k로 두고 (나)의 몰비를 구하면 X : Y = 9/(3k) : 8/(4k) = 3 : 2. 따라서 (나)의 실험식은 X₃Y₂다.</p>
-<div class="lq__miss"><b>자주 걸리는 자리</b> 질량비를 그대로 원자 수 비로 쓰거나, (가)에서 원자량 비를 뽑을 때 Y 원자가 2개라는 계수를 반영하지 않는다.</div>
 </div></div>
 <p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
 </div>

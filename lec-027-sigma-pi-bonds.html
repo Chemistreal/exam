@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -74,7 +75,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 020에서 단일·이중·삼중결합을 봤고, 026에서 혼성 오비탈과 "남은 p"를 봤지. 오늘 이 둘을 합쳐서 결합을 오비탈 수준으로 분해할 거야. 결합에는 두 종류가 있어. 정면으로 겹친 시그마(σ)와 옆으로 겹친 파이(π). 이 둘로 다중결합이 어떻게 구성되는지, 왜 이중결합은 회전이 안 되는지까지 잡으면, 결합의 정체가 완전히 보여.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">두 가지 겹침 · 시그마와 파이 (그림)</span></div>
 <p>두 원자가 결합한다는 건 오비탈이 겹쳐 전자를 공유한다는 거야. 그 겹치는 방식이 두 가지인데, 그게 시그마와 파이를 가른다.</p>
 <div class="shape">
@@ -85,7 +86,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p><b>파이(π) 결합</b>은 두 p 오비탈이 나란히, 옆으로 겹쳐 생겨. 전자 밀도가 결합 축 위와 아래에 나뉘어 분포하고, 축 자체에는 전자가 없어. 옆으로 슬쩍 겹치는 거라 겹침이 작고, 그래서 시그마보다 약해.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">다중결합의 구성 · 첫째는 시그마, 나머지는 파이</span></div>
 <p>이제 다중결합을 분해하자. 규칙은 아주 깔끔해. <b>두 원자 사이 첫 번째 결합은 무조건 시그마, 그 위에 추가되는 결합은 전부 파이</b>야.</p>
 <table><tr><th scope="col">결합</th><th scope="col">차수</th><th scope="col">구성</th></tr>
@@ -96,7 +97,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="eg"><span class="lab">예제 · 혼성과 맞물림</span> 에틸렌 <span class="fm">C₂H₄</span>의 C=C: 탄소가 sp² 혼성(026)이라 혼성 오비탈로 시그마를 만들고, 남은 p 1개끼리 옆으로 겹쳐 파이 1개. 합쳐서 이중결합(σ+π). 아세틸렌 <span class="fm">C₂H₂</span>의 C≡C: 탄소가 sp 혼성이라 남은 p가 2개, 그 둘로 파이 2개 + 시그마 1개 = 삼중결합. 026의 "남은 p"가 정확히 파이 개수와 맞아떨어지지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">파이 결합은 회전을 막는다</span></div>
 <p>시그마와 파이의 또 다른 결정적 차이는 회전이야. 시그마 결합만 있으면(단일결합), 결합 축을 중심으로 두 원자가 자유롭게 빙글빙글 돌 수 있어. 정면 겹침이라 돌려도 겹침이 유지되거든.</p>
 <p>그런데 파이 결합이 있으면(이중·삼중) 사정이 달라져. 파이는 p 오비탈이 위아래로 나란히 겹친 거라, 한쪽을 비틀면 그 옆 겹침이 끊어져버려. 결합이 깨지지 않으려면 비틀 수가 없어. 그래서 <b>이중결합은 회전이 막혀</b> 굳어 있어.</p>
@@ -104,7 +105,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="trap"><span class="lab">함정 · 파이가 시그마보다 강하다?</span><br>"이중결합이 더 세니까 파이가 시그마보다 강하겠지"는 틀려. 결합 전체로는 이중결합이 단일결합보다 강하지만, 그건 시그마에 파이가 <b>더해져서</b>야. 낱개로 보면 옆 겹침인 파이가 정면 겹침인 시그마보다 약해. 그래서 이중결합의 반응(파이 부분이 먼저 깨지는 첨가 반응 등)이 일어나는 거고. "시그마가 더 강하고, 파이는 약하지만 추가된다"로 정리해.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">한 장 정리와 영역 마무리</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"정면 겹침=σ(강함), 옆 겹침=π(약함) · 첫째는 σ, 나머지는 π · π는 회전을 막는다."</div>
@@ -148,7 +149,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

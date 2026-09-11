@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -71,13 +72,13 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 이번 영역은 기체야. 기체는 고체·액체와 사뭇 달라. 분자가 자유롭게 날아다니고, 사이가 텅 비어 있어서 압축도 잘 되고, 무엇보다 용기 벽을 누르는 압력을 만들지. 오늘은 이 압력이 정확히 뭔지(분자가 벽에 부딪히는 거야), 그리고 기체의 상태를 결정하는 네 변수를 잡을 거야. 다음 강들에서 배울 기체 법칙은 전부 이 네 변수 사이의 관계거든. 그 토대를 놓는 강의야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">기체의 성질 · 자유롭게 날고, 압축되고, 채운다</span></div>
 <p>기체 분자는 분자 간 힘이 약해서(028) 서로 거의 붙들지 않고 자유롭게 날아다녀. 그래서 몇 가지 특징이 생겨. 분자 사이가 거의 빈 공간이라 <b>압축이 잘 되고</b>, 용기가 아무리 커도 <b>전체를 가득 채우고</b>, 벽에 부딪혀 <b>압력을 가해</b>. 고체·액체는 분자가 빽빽해 압축이 안 되고 모양·부피가 일정하지만, 기체는 그 반대지.</p>
 <div class="key">기체의 핵심 성질: 분자가 자유 운동 → 압축 잘 됨, 용기 전체를 채움, 벽에 압력을 가함. 이 모든 게 "분자가 멀리 떨어져 빠르게 날아다닌다"는 한 그림에서 나와. 분자 간 힘이 약한 게 출발점이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">압력 · 분자가 벽을 두드린다</span></div>
 <p>압력은 단위 면적당 작용하는 힘이야. 기체의 압력은 어디서 올까? 바로 수많은 기체 분자가 끊임없이 용기 벽에 부딪히면서 가하는 힘이야. 분자 하나하나의 충돌은 작지만, 워낙 많은 분자가 쉴 새 없이 두드려서 평균적으로 일정한 압력이 돼.</p>
 <p>압력의 단위는 여러 가지가 있어. atm(기압), mmHg(또는 Torr), Pa·kPa. 환산 관계를 알아두면 돼.</p>
@@ -85,7 +86,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p>대기압은 우리 위의 공기가 누르는 압력인데, 해수면에서 약 1 atm(≈760 mmHg)이야. 이 환산은 시험에 자주 나오니 기억해 둬.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">압력을 키우는 요인 · 더 자주, 더 세게</span></div>
 <p>압력은 분자가 벽을 두드리는 정도니까, 두드림이 잦아지거나 세지면 압력이 올라가. 세 가지로 정리돼.</p>
 <table><tr><th scope="col">요인</th><th scope="col">압력에 미치는 영향</th><th scope="col">왜</th></tr>
@@ -95,7 +96,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p>이 셋이 다음 강의 기체 법칙으로 이어져. 부피와 압력의 관계가 보일 법칙, 온도와 부피의 관계가 샤를 법칙이지. 지금은 "분자 수·온도가 오르거나 부피가 줄면 압력이 오른다"는 감각만 잡으면 돼.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">기체의 네 변수 · P · V · T · n</span></div>
 <p>기체의 상태는 네 가지 양으로 완전히 정해져. 압력(P), 부피(V), 온도(T), 몰수(n)야. 이 넷이 서로 얽혀 있어서, 하나를 바꾸면 다른 게 따라 변해.</p>
 <div class="big" style="font-size:16px">P (압력) · V (부피) · T (온도) · n (몰수)</div>
@@ -103,7 +104,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="eg"><span class="lab">예제 · 열린 마노미터 읽기</span> 수은 마노미터의 <b>열린 쪽 수은이 닫힌 쪽보다 25 mm 높고</b>, 대기압이 760 mmHg 일 때 기체 압력은? 열린 쪽이 더 높다는 건 <b>대기가 기체를 이기고 밀어 올렸다</b>는 뜻이라 기체 압력이 대기압보다 <u>작다</u>. <span class="fm">P(기체) = 760 − 25 = 735 mmHg</span>. 반대로 <b>기체 쪽이 25 mm 높으면</b> 기체가 더 세다는 뜻이니 <span class="fm">760 + 25 = 785 mmHg</span>. <b>"어느 쪽이 눌려 내려갔나" 만 보면 부호가 정해진다</b> — 공식을 외우지 말고 그림을 봐.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"기체 압력 = 분자가 벽을 두드리는 힘 · 상태는 P·V·T·n 네 변수, 온도는 절대온도로."</div>
@@ -147,7 +148,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

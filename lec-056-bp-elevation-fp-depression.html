@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -69,7 +70,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 앞 강에서 용질을 녹이면 증기압이 내려간다고 했지(증기압 내림). 그 결과로 가장 친숙한 두 현상이 나타나. 끓는점이 오르고 어는점이 내려가는 거야. 바닷물이 100도보다 높은 온도에서 끓고, 겨울에 도로에 소금을 뿌리면 안 어는 게 이 때문이지. 오늘은 이 둘이 왜 일어나는지(증기압 내림에서), 어떻게 계산하는지(몰랄 농도와 입자 수)를 잡을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">끓는점 오름 · 증기압이 내려가서 (그림)</span></div>
 <p>용질을 녹이면 증기압이 내려가(055). 그런데 끓음은 증기압이 외부 압력과 같아질 때 일어나잖아(051). 증기압이 내려갔으니, 외부 압력에 도달하려면 온도를 더 올려야 해. 그래서 <b>끓는점이 올라가</b>. 아래 그래프에서 용액(아래 곡선)이 1 atm에 도달하는 온도가 순수 용매보다 오른쪽(높은 온도)에 있지.</p>
 <div class="fig"><svg viewBox="0 0 300 185"><line x1="40" y1="18" x2="40" y2="150" stroke="#bdb8ac" stroke-width="1.5"/><line x1="40" y1="150" x2="285" y2="150" stroke="#bdb8ac" stroke-width="1.5"/><line x1="40" y1="58" x2="285" y2="58" stroke="#cfc9bd" stroke-width="1.3" stroke-dasharray="4 3"/><text x="44" y="54" fill="#8a8578" font-size="9">외부 압력 1 atm</text><path d="M 50 142 C 120 130 175 100 205 58 C 213 47 222 36 232 28" fill="none" stroke="#0E5A4C" stroke-width="2.6"/><path d="M 56 146 C 130 138 195 116 240 58 C 248 48 256 40 264 33" fill="none" stroke="#B08D57" stroke-width="2.6"/><circle cx="205" cy="58" r="3.5" fill="#0E5A4C"/><circle cx="240" cy="58" r="3.5" fill="#B08D57"/><line x1="205" y1="58" x2="205" y2="150" stroke="#0E5A4C" stroke-width="1" stroke-dasharray="2 2"/><line x1="240" y1="58" x2="240" y2="150" stroke="#B08D57" stroke-width="1" stroke-dasharray="2 2"/><text x="150" y="40" fill="#0E5A4C" font-size="9.5" font-weight="700">순수 용매</text><text x="60" y="120" fill="#B08D57" font-size="9.5" font-weight="700">용액(증기압↓)</text><text x="222" y="166" fill="#5a564d" font-size="9">ΔT_b</text><text x="22" y="26" fill="#5a564d" font-size="10" font-weight="700">증기압</text><text x="270" y="166" fill="#5a564d" font-size="10" font-weight="700">T</text></svg><figcaption>용액은 증기압이 낮아, 1 atm에 도달하는 끓는점이 오른쪽으로 이동(끓는점 오름 ΔT_b)</figcaption></div>
@@ -77,7 +78,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p>오르는 정도(<span class="fm">ΔT_b</span>)는 몰랄 농도(<span class="fm">m</span>)와 용매 고유의 상수(<span class="fm">K_b</span>), 그리고 입자 수 인자(<span class="fm">i</span>, 전해질이면 이온 개수)의 곱이야. 입자가 많을수록 더 많이 올라가지.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">어는점 내림 · 어는 걸 방해해서</span></div>
 <p>어는점은 반대 방향이야. 용질이 녹아 있으면, 용매 분자가 규칙적으로 모여 고체(얼음)가 되는 걸 용질 입자가 방해해. 그래서 더 낮은 온도로 내려가야 비로소 얼어. 즉 <b>어는점이 내려가</b>.</p>
 <div class="big" style="font-size:15px">ΔT_f = K_f × m × i</div>
@@ -85,14 +86,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="eg"><span class="lab">예제 · 도로 제설</span> 겨울에 도로에 소금을 뿌리는 건 어는점 내림을 이용한 거야. 소금이 물에 녹으면 어는점이 0도보다 한참 내려가서, 영하에서도 얼지 않고 물로 남거든. 게다가 소금(<span class="fm">NaCl</span>)은 이온화로 입자가 2배라(<span class="fm">i</span>=2) 효과가 더 크지. 바닷물이 0도에서 안 어는 것도 같은 이유야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">방향과 입자 수 · 핵심 정리</span></div>
 <p>두 현상의 방향을 헷갈리지 마. <b>끓는점은 올라가고(↑), 어는점은 내려가(↓).</b> 둘 다 결과적으로 액체로 존재하는 온도 범위를 넓혀(위로도 아래로도). 용질을 녹이면 액체가 더 끈질기게 액체로 버티는 셈이지.</p>
 <div class="key">끓는점 오름 ΔT_b = K_b·m·i (끓는점 ↑), 어는점 내림 ΔT_f = K_f·m·i (어는점 ↓). 둘 다 몰랄 농도와 입자 수(i)에 비례해. 전해질이면 i를 꼭 곱해(NaCl ×2). 그리고 농도는 온도에 무관한 몰랄 농도(054)를 써야 해. 부피 기준 몰농도를 쓰면 온도 변화 때문에 부정확해.</div>
 <div class="trap"><span class="lab">함정 · 끓는점도 내려간다?</span><br>증기압이 내려가니까 끓는점도 내려갈 거라고 착각하기 쉬운데, 반대야. 증기압이 낮아지면 외부 압력에 도달하기 더 어려워서 끓는점은 오히려 <b>올라가</b>. 끓는점 오름·어는점 내림, 방향이 서로 반대라는 걸 확실히 기억해. 그리고 둘 다 입자 수에 비례하니 전해질의 i를 빠뜨리지 마.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"용질을 녹이면 끓는점은 오르고 어는점은 내린다 · ΔT = K·m·i."</div>
@@ -136,7 +137,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

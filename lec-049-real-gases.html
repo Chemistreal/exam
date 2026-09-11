@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -68,14 +69,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 지금까지 다룬 이상기체는 사실 완벽한 모형이야. 운동론에서 분자 부피를 0, 분자 간 인력을 0으로 가정했지(048). 그런데 실제 기체 분자는 부피도 있고 인력도 있어. 평소엔 그 영향이 작아서 이상기체처럼 행동하지만, 특정 조건에서는 무시할 수 없게 돼서 PV=nRT에서 벗어나. 오늘은 실제 기체가 언제, 왜 이상기체에서 벗어나는지를 잡으면서 이 영역을 닫을 거야. 분자 간 힘(028)이 다시 등장하는 자리야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">이상기체는 모형 · 두 가지 가정</span></div>
 <p>이상기체 방정식 PV=nRT는 두 가지 가정 위에 서 있어(048). 하나는 <b>분자 자체의 부피가 0</b>(분자를 점으로 봄), 또 하나는 <b>분자 사이 인력이 0</b>이라는 거야. 실제 기체 분자는 둘 다 가지고 있지. 크기가 있고, 분자 간 힘도 있어(028).</p>
 <p>평소 보통 조건(상온·상압)에서는 분자 사이가 워낙 멀고 빨라서 이 두 효과가 거의 안 느껴져. 그래서 실제 기체도 이상기체처럼 행동해. 그런데 분자들이 가까워지거나 느려지면, 이 가정이 깨지면서 실제 기체가 이상기체에서 벗어나기 시작해.</p>
 <div class="key">이상기체 = 분자 부피 0 + 분자 간 인력 0이라는 모형. 실제 기체는 둘 다 있어. 평소엔 영향이 작아 이상기체처럼 보이지만, 분자가 빽빽해지거나(고압) 느려지면(저온) 이 두 효과가 드러나 PV=nRT에서 벗어나.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">벗어나는 조건 · 고압과 저온</span></div>
 <p>실제 기체가 이상기체에서 크게 벗어나는 건 두 조건이야. 고압과 저온.</p>
 <table><tr><th scope="col">조건</th><th scope="col">드러나는 효과</th><th scope="col">결과</th></tr>
@@ -85,20 +86,20 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big" style="font-size:16px">고압 · 저온 → 이상기체에서 많이 벗어남</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">이상기체에 가까운 조건 · 저압과 고온</span></div>
 <p>반대로 실제 기체가 이상기체에 가장 가까워지는 건 <b>저압과 고온</b>이야. 저압에서는 분자 사이가 멀어 분자 자체 부피가 전체에 비해 무시할 만하고, 고온에서는 분자가 빨라 분자 간 인력을 느낄 새 없이 지나가거든. 두 가정이 잘 들어맞는 거지.</p>
 <div class="key">정리하면 이래. 고압·저온에서 벗어나고, 저압·고온에서 이상기체에 가까워. 분자를 멀리(저압) 떼고 빠르게(고온) 만들면, 부피와 인력의 효과가 둘 다 작아져서 PV=nRT가 잘 맞아. 거꾸로 가까이(고압) 모으고 느리게(저온) 하면 벗어나고.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">어떤 기체가 더 이상적인가</span></div>
 <p>같은 조건이라도 기체 종류에 따라 이상기체에 가까운 정도가 달라. <b>분자가 작고 분자 간 힘이 약한 기체일수록 더 이상적</b>이야. 헬륨(He)이나 수소(H₂)처럼 작고 무극성이라 인력이 약한 기체가 이상기체에 가장 가까워. 반대로 분자가 크거나 극성이 강해 분자 간 힘이 센 기체(예: 수증기, 암모니아)는 인력 효과가 커서 덜 이상적이지.</p>
 <div class="eg"><span class="lab">예제 · 비교</span> 헬륨(작고 인력 거의 없음)과 수증기(크고 수소 결합)를 같은 조건에 두면, 헬륨이 이상기체에 훨씬 가깝게 행동해. 수증기는 분자 간 수소 결합(031)이 강해서 이상기체에서 더 많이 벗어나. 분자 간 힘이 약할수록 이상적이라는 거지. 028에서 배운 분자 간 힘이 여기서 다시 핵심이 돼.</div>
 <div class="trap"><span class="lab">함정 · "이상기체는 실제로 존재한다"?</span><br>이상기체는 가정으로 만든 모형이지, 실제로 완벽한 이상기체는 없어. 모든 실제 기체는 분자 부피와 인력을 조금씩 가지고 있어서 정도의 차이일 뿐이야. 다만 저압·고온에서, 그리고 작고 인력 약한 기체일수록 이상기체에 "가까운" 거지 "이상기체인" 게 아니야. "이상적이다 = 가깝다"로 이해해.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 기체 영역 마무리</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"실제 기체는 분자 부피·인력 때문에 고압·저온에서 이상기체를 벗어난다(저압·고온이 이상적)."</div>
@@ -142,7 +143,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">
@@ -161,7 +162,24 @@ Z = PV/(nRT) = V실제/V이상 = 0.900/1.026 = 0.877
 <div class="lq__miss"><b>자주 걸리는 자리</b> Z의 정의를 뒤집어 계산하거나, Z &lt; 1을 &#x27;분자 자체 부피 때문&#x27;이라고 보아 인력 효과와 반발 효과를 뒤바꿔 해석한다.</div>
 </div></div>
 <div class="lq__q" data-lq="2">
-<div class="lq__stem"><b>2.</b> 어떤 실제 기체 1.00 mol이 300 K에서 부피 0.500 L 인 용기에 들어 있다. 이 기체의 판데르발스 상수는 a = 3.60 L²·atm/mol², b = 0.0430 L/mol 이고, 판데르발스 식은 다음과 같다.<br><br>(P + a n²/V²)(V − nb) = nRT<br><br>(단, R = 0.08206 L·atm/(mol·K))<br><br>판데르발스 식으로 계산한 이 기체의 압력에 가장 가까운 값은?</div>
+<div class="lq__stem"><b>2.</b> 실제 기체 n몰에 대한 반데르발스 상태 방정식으로 옳은 것은? (단, a는 분자 사이 인력에 대한 보정 상수, b는 분자 자체 부피에 대한 보정 상수이고, P는 측정한 압력, V는 용기의 부피, T는 절대 온도, R는 기체 상수이다.)</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">(P + a/V²)(V − nb) = nRT</button></li>
+<li><button type="button" class="lq__opt">(P + an²/V²)(V − nb) = nRT</button></li>
+<li><button type="button" class="lq__opt">(P + an²/V²)(V + nb) = nRT</button></li>
+<li><button type="button" class="lq__opt">(P − an²/V²)(V − nb) = nRT</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>반데르발스 식은 이상 기체 방정식 PV = nRT에 두 가지 보정을 넣은 것이다.
+(1) 압력 보정: 분자 사이의 인력 때문에 벽에 부딪치는 분자가 뒤로 끌려 측정 압력 P는 이상 기체보다 작게 나온다. 따라서 이상 기체에 해당하는 압력을 얻으려면 P에 보정항을 더해야 한다. 이 인력은 부딪치는 분자의 농도와 끌어당기는 분자의 농도에 모두 비례하므로 (n/V)² 에 비례하고, 보정항은 an²/V² 이다. n²이 붙는다.
+(2) 부피 보정: 분자 자체가 차지하는 부피 때문에 분자가 실제로 돌아다닐 수 있는 부피는 용기 부피 V보다 작다. 1몰당 배제되는 부피가 b이므로 n몰에서는 nb를 빼서 V − nb가 된다.
+두 보정을 합치면 (P + an²/V²)(V − nb) = nRT 이고, n = 1이면 (P + a/V²)(V − b) = RT 가 된다.
+따라서 정답은 ②이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 인력 보정항은 압력에 더하고 몰수의 제곱에 비례하며(+an²/V²), 부피 보정항은 부피에서 뺀다(V − nb).</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 어떤 실제 기체 1.00 mol이 300 K에서 부피 0.500 L 인 용기에 들어 있다. 이 기체의 판데르발스 상수는 a = 3.60 L²·atm/mol², b = 0.0430 L/mol 이고, 판데르발스 식은 다음과 같다.<br><br>(P + a n²/V²)(V − nb) = nRT<br><br>(단, R = 0.08206 L·atm/(mol·K))<br><br>판데르발스 식으로 계산한 이 기체의 압력에 가장 가까운 값은?</div>
 <ol class="lq__opts" data-ans="2">
 <li><button type="button" class="lq__opt">34.8 atm</button></li>
 <li><button type="button" class="lq__opt">39.5 atm</button></li>
@@ -177,25 +195,6 @@ P = nRT/(V − nb) − a n²/V²
 P = 53.87 − 14.40 = 39.47 ≈ 39.5 atm
 같은 조건에서 이상 기체 압력은 nRT/V = 49.2 atm 이므로, 이 조건에서는 분자 사이 인력의 효과(−a n²/V²)가 분자 자체 부피의 효과보다 커서 실제 압력이 이상 기체보다 작다.</p>
 <div class="lq__miss"><b>자주 걸리는 자리</b> 두 보정 항 중 하나만 적용하거나, 인력 항의 부호를 반대로 잡아 압력이 항상 이상 기체보다 크다고 결론짓는다.</div>
-</div></div>
-<div class="lq__q" data-lq="3">
-<div class="lq__stem"><b>3.</b> 실제 기체 CO₂ 1.00 mol을 부피가 1.00 L인 강철 용기에 넣고 온도를 300 K로 유지하였다. CO₂의 반데르발스 상수는 a = 3.592 L²·atm/mol², b = 0.04267 L/mol이다.<br><br>반데르발스 식은 다음과 같다.<br>(P + an²/V²)(V − nb) = nRT<br><br>이 식으로 구한 용기 안의 압력에 가장 가까운 값은? (R = 0.0821 L·atm/(mol·K))</div>
-<ol class="lq__opts" data-ans="1">
-<li><button type="button" class="lq__opt">22.1 atm</button></li>
-<li><button type="button" class="lq__opt">24.6 atm</button></li>
-<li><button type="button" class="lq__opt">25.7 atm</button></li>
-<li><button type="button" class="lq__opt">27.2 atm</button></li>
-</ol>
-<div class="lq__why" hidden>
-<div class="lq__ans">정답 <b>①</b></div>
-<p>P = nRT/(V − nb) − an²/V² 로 정리한 뒤 대입한다.
-nRT = 1.00 × 0.0821 × 300 = 24.63 L·atm
-V − nb = 1.00 − 1.00 × 0.04267 = 0.95733 L
-첫째 항 = 24.63 ÷ 0.95733 = 25.728 atm
-둘째 항 = an²/V² = 3.592 × 1.00² ÷ 1.00² = 3.592 atm
-P = 25.728 − 3.592 = 22.14 ≈ 22.1 atm
-실제 기체 부피 보정(b)은 분자가 차지하는 공간을 빼 주므로 압력을 높이는 쪽으로, 인력 보정(a)은 분자끼리 서로 당겨 벽을 덜 때리게 하므로 압력을 낮추는 쪽으로 작용한다. 이 조건에서는 인력 보정이 더 커서 이상 기체 값(24.63 atm)보다 작은 압력이 된다.</p>
-<div class="lq__miss"><b>자주 걸리는 자리</b> 반데르발스 식에서 a는 분자간 인력 보정(압력을 낮춤), b는 분자 자체 부피 보정(유효 부피를 줄여 압력을 높임)이다. 두 보정의 방향과 대상을 혼동하면 안 된다.</div>
 </div></div>
 <p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
 </div>

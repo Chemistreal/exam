@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -68,14 +69,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 앞의 두 강(이온화에너지·전자친화도)은 고립된 원자 하나가 전자를 떼거나 받는 이야기였어. 그런데 실제 화학은 원자들이 결합한 상태에서 일어나잖아. 결합한 두 원자 사이에서 공유 전자를 누가 더 세게 끌어당기느냐, 그걸 나타내는 게 전기음성도야. 오늘은 이 개념을 잡고, 경향(F가 왜 최강인지)을 이해하고, 그게 결합의 극성으로 어떻게 이어지는지까지 다리를 놓을 거야. 다음 단원으로 넘어가는 핵심 길목이야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">전기음성도란 · 결합 속 줄다리기</span></div>
 <p>두 원자가 전자쌍을 공유해서 결합할 때, 그 전자쌍이 정확히 가운데 있는 건 아니야. 한쪽이 더 세게 끌어당기면 전자쌍이 그쪽으로 치우쳐. 이 "공유 전자쌍을 자기 쪽으로 끌어당기는 능력"이 전기음성도야.</p>
 <p>이걸 숫자로 만든 게 폴링의 척도야. 가장 강하게 당기는 플루오린(F)을 약 4.0으로 잡고, 다른 원소들을 상대적으로 매긴 거지. 전기음성도가 큰 원소는 결합에서 전자를 자기 쪽으로 끌어와 부분적으로 음전하를 띠고, 작은 원소는 전자를 빼앗겨 부분적으로 양전하를 띠어.</p>
 <div class="key">이온화에너지·전자친화도와의 관계: 셋 다 "전자를 좋아하는 정도"를 재는 거야. 이온화에너지(안 내놓으려 함)와 전자친화도(받고 싶어 함)가 둘 다 큰 원소가 전기음성도도 커. 차이는 무대야. 이온화에너지·전자친화도는 고립된 원자, 전기음성도는 결합 안에서의 능력이라는 점.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">경향 · F가 가장 강하다</span></div>
 <p>경향은 지금까지 봐온 것과 같은 방향이라 익숙할 거야. <b>주기 오른쪽으로 갈수록 커지고</b>(Z_eff↑), <b>족 아래로 갈수록 작아져</b>(반지름↑, 핵에서 멀어짐). 그래서 오른쪽 위 구석의 비금속이 전기음성도가 크고, 왼쪽 아래의 금속이 작아.</p>
 <p>그 꼭짓점이 플루오린(F)이야. 오른쪽 끝(18족 제외)이면서 위쪽이라, 작고 Z_eff가 커서 전자를 가장 세게 끌어당겨. 그래서 전기음성도 최강이 F고, 산소·질소·염소가 그 뒤를 이어. 반대로 1족 금속(세슘 등)은 전기음성도가 가장 작아.</p>
@@ -83,7 +84,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="trap"><span class="lab">함정 · 18족</span><br>"오른쪽 끝이면 18족이 제일 크겠네?"는 틀려. 18족(비활성 기체)은 대개 결합을 하지 않아서 전기음성도를 정의하지 않거나 척도에서 빼. 결합 속 능력인데 결합을 안 하니까. 그래서 전기음성도의 챔피언은 18족이 아니라 그 앞의 17족, 그중 F야. "오른쪽 위, 단 18족 빼고"로 기억해.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">결합의 극성으로 · 차이가 만드는 치우침</span></div>
 <p>전기음성도가 진짜 위력을 발휘하는 건 결합의 성격을 판단할 때야. 결합한 두 원자의 전기음성도 <b>차이</b>를 보면 결합이 어떤 성격인지 알 수 있어.</p>
 <p>두 원자의 전기음성도가 <b>같으면</b>(같은 원소끼리, 예: <span class="fm">H₂</span>, <span class="fm">Cl₂</span>) 전자쌍을 똑같이 당겨서 가운데 머물러. 치우침이 없는 무극성 공유결합이야. 전기음성도 <b>차이가 있으면</b> 전자쌍이 더 센 쪽으로 치우쳐서, 그쪽은 부분 음전하·반대쪽은 부분 양전하를 띠는 극성 공유결합이 돼. 차이가 아주 크면 전자를 아예 넘겨줘서 이온결합에 가까워지고.</p>
@@ -91,7 +92,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="eg"><span class="lab">예제</span> <span class="fm">HF</span>는 H(약 2.2)와 F(약 4.0)의 차이가 커서, 전자쌍이 F 쪽으로 강하게 치우친 극성 결합이야. F가 부분 음전하(δ−), H가 부분 양전하(δ+). 반면 <span class="fm">F₂</span>는 같은 F끼리라 차이가 0이라 무극성이지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"전기음성도 = 결합 속 전자를 당기는 힘 · F가 최강 · 차이가 결합의 극성을 정한다."</div>
@@ -135,7 +136,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">
@@ -152,7 +153,20 @@ document.addEventListener('click', function (e) {
 <div class="lq__miss"><b>자주 걸리는 자리</b> 서로 다른 원자 사이의 결합을 단순 평균으로 본다. 전기음성도 차가 있으면 평균보다 세진다.</div>
 </div></div>
 <div class="lq__q" data-lq="2">
-<div class="lq__stem"><b>2.</b> 질소(N), 산소(O), 황(S), 염소(Cl) 네 원소를 전기음성도가 큰 것부터 순서대로 옳게 나열한 것은?</div>
+<div class="lq__stem"><b>2.</b> 다음 원소 중 전기음성도가 가장 큰 것은?</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">수소</button></li>
+<li><button type="button" class="lq__opt">황</button></li>
+<li><button type="button" class="lq__opt">산소</button></li>
+<li><button type="button" class="lq__opt">질소</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>전기음성도는 공유 결합에서 전자쌍을 끌어당기는 능력을 나타내며, 같은 주기에서는 오른쪽으로 갈수록 커지고 같은 족에서는 위로 갈수록 커진다. 즉 주기율표의 오른쪽 위에 있을수록 크다. 네 원소 중 수소는 1주기 1족, 질소는 2주기 15족, 산소는 2주기 16족, 황은 3주기 16족이다. 같은 2주기에서 산소는 질소보다 오른쪽에 있으므로 산소가 더 크고, 같은 16족에서 산소는 황보다 위에 있으므로 역시 산소가 더 크다. 실제 전기음성도도 수소 약 2.2, 황 약 2.6, 질소 약 3.0, 산소 약 3.4로 산소가 가장 크다. → ③</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 전기음성도는 주기와 족을 함께 보아야 하며, 주기율표의 오른쪽 위로 갈수록 커진다. 위쪽이라는 조건만으로는 판정할 수 없고, 이온화 에너지의 예외적 경향과도 구별해야 한다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 질소(N), 산소(O), 황(S), 염소(Cl) 네 원소를 전기음성도가 큰 것부터 순서대로 옳게 나열한 것은?</div>
 <ol class="lq__opts" data-ans="2">
 <li><button type="button" class="lq__opt">O &gt; N &gt; Cl &gt; S</button></li>
 <li><button type="button" class="lq__opt">O &gt; Cl &gt; N &gt; S</button></li>
@@ -163,19 +177,6 @@ document.addEventListener('click', function (e) {
 <div class="lq__ans">정답 <b>②</b></div>
 <p>전기음성도는 주기율표에서 오른쪽 위로 갈수록 커지며(F가 최대), 폴링 척도로 O 3.44, Cl 3.16, N 3.04, S 2.58이다. 따라서 O &gt; Cl &gt; N &gt; S이다. 핵심은 N과 Cl의 비교로, N이 2주기라 위쪽에 있지만 Cl은 17족으로 훨씬 오른쪽에 있어 Cl이 근소하게 더 크다(N ≈ Cl이지만 Cl이 위). 흔히 외우는 순서 F &gt; O &gt; N ≈ Cl &gt; Br &gt; C ≈ S &gt; H에서도 Cl이 N과 거의 같거나 약간 크다는 점을 확인할 수 있다.</p>
 <div class="lq__miss"><b>자주 걸리는 자리</b> &#x27;같은 주기면 오른쪽이 크다, 같은 족이면 위가 크다&#x27;만 적용하면 대각선 관계에 있는 N과 Cl의 비교를 틀린다.</div>
-</div></div>
-<div class="lq__q" data-lq="3">
-<div class="lq__stem"><b>3.</b> 멀리컨(Mulliken) 전기음성도는 원자의 이온화 에너지(IE)와 전자친화도(EA)를 eV 단위로 나타낸 뒤 χ = (IE + EA)/2 로 정의한다. 어떤 원소 X의 기체 상태 이온화 에너지는 1200 kJ/mol, 전자친화도는 350 kJ/mol(방출, 양의 값)이다. 1 eV/원자 = 96.5 kJ/mol일 때 X의 멀리컨 전기음성도는?</div>
-<ol class="lq__opts" data-ans="4">
-<li><button type="button" class="lq__opt">약 4.40 eV</button></li>
-<li><button type="button" class="lq__opt">약 16.1 eV</button></li>
-<li><button type="button" class="lq__opt">약 12.4 eV</button></li>
-<li><button type="button" class="lq__opt">약 8.03 eV</button></li>
-</ol>
-<div class="lq__why" hidden>
-<div class="lq__ans">정답 <b>④</b></div>
-<p>먼저 평균을 구하면 (1200 + 350)/2 = 775 kJ/mol. 이를 eV로 환산하면 775 ÷ 96.5 = 8.03 eV. 순서를 바꿔 각각 환산해도 (12.44 + 3.63)/2 = 8.03 eV로 같다.</p>
-<div class="lq__miss"><b>자주 걸리는 자리</b> 멀리컨 식은 IE와 EA의 &#x27;합의 절반&#x27;이며, 두 값을 반드시 같은 에너지 단위(eV)로 환산해야 한다.</div>
 </div></div>
 <p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
 </div>

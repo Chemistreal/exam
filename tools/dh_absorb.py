@@ -73,6 +73,9 @@ def dh_sets():
     if not m:
         return None, s, None
     body = re.sub(r"'", '"', m.group(1))
+    # 표 끝의 「,}」 는 자바스크립트에서는 되지만 JSON 에서는 안 된다 — 한 번 이것 때문에
+    # 이 검사가 조용히 죽어 있었다(2026-09-11). 꼬리 쉼표만 걷어내고 읽는다.
+    body = re.sub(r",(\s*[}\]])", r"\1", body)
     return json.loads(body), s, m
 
 

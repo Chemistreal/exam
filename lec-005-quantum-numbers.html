@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -69,13 +70,13 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 앞 강에서 보어가 전자를 깔끔한 원궤도에 올려놨지. 그런데 사실 전자는 정해진 선을 도는 게 아니야. "어디쯤 있을 확률이 높다"는 흐릿한 구름으로 존재해. 그 구름이 오비탈이고, 전자 하나를 완전히 지정하려면 숫자 네 개, 즉 양자수 네 개가 필요해. 오늘은 이 네 양자수가 각각 뭘 정하고, 무엇보다 <b>어떤 값까지 허용되는지</b>를 잡을 거야. 허용 범위만 정확하면 "이 양자수 조합 가능?" 문제는 다 맞아.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">궤도에서 오비탈로 · 확률 구름</span></div>
 <p>보어 모형의 한계가 여기서 드러나. 전자처럼 작은 입자는 "지금 정확히 여기 있고 이쪽으로 간다"를 동시에 못 정해(이건 008강 불확정성에서 자세히). 그래서 전자의 위치를 점이나 선이 아니라 확률로만 말할 수 있어. "이 영역 안에서 발견될 확률이 90%"처럼.</p>
 <p>그 확률이 높은 영역을 그림으로 그린 게 오비탈이야. 오비탈은 전자가 도는 트랙이 아니라, 전자가 머물 확률의 분포라는 것. 이 한 끗을 바꿔야 해. 보어의 "궤도"는 직관적이지만 틀렸고, 진짜는 "오비탈(확률 구름)"이야.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">전자의 주소 네 글자 · 양자수 4개</span></div>
 <p>전자 하나를 완전히 특정하려면 양자수 네 개가 필요해. 집 주소처럼 생각해. 시·구·동·호수 네 단계로 한 집을 콕 집듯이.</p>
 <table><tr><th scope="col">양자수</th><th scope="col">정하는 것</th><th scope="col">허용 값</th></tr>
@@ -89,7 +90,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p><b>mₛ</b>은 전자 자체의 스핀(자전 비슷한 성질) 방향이고, +½ 아니면 −½ 둘뿐이야. 그래서 오비탈 하나에는 스핀이 반대인 전자가 최대 두 개 들어가.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">가장 많이 틀리는 지점 · 허용 범위</span></div>
 <p>시험에서 "다음 양자수 조합 중 불가능한 것은?" 같은 문제가 단골이야. 정답 열쇠는 딱 세 개의 범위 규칙이야.</p>
 <div class="key">① l은 0부터 n−1까지 (n 자신은 안 됨)<br>② mₗ은 −l부터 +l까지 (l을 넘으면 안 됨)<br>③ mₛ은 +½ 또는 −½ 뿐<br>이 셋 중 하나라도 어기면 그 조합은 불가능한 거야.</div>
@@ -97,7 +98,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="eg"><span class="lab">예제 · n=3 껍질 뜯어보기</span> n=3이면 l은 0,1,2 가능. l=0(3s): mₗ=0 → 오비탈 1개. l=1(3p): mₗ=−1,0,1 → 3개. l=2(3d): mₗ=−2,−1,0,1,2 → 5개. 합쳐서 1+3+5 = <b>9개</b>의 오비탈. 오비탈 하나당 전자 2개니까 최대 18개 전자.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">껍질당 오비탈·전자 수 · 깔끔한 공식</span></div>
 <p>방금 n=3에서 오비탈이 9개(=3²) 나왔지? 이건 우연이 아니야. n번째 껍질의 오비탈 수는 항상 <span class="fm">n²</span>개고, 들어갈 수 있는 전자 수는 그 두 배인 <span class="fm">2n²</span>개야.</p>
 <table><tr><th scope="col">껍질 n</th><th scope="col">오비탈 종류</th><th scope="col">오비탈 수 (n²)</th><th scope="col">최대 전자 (2n²)</th></tr>
@@ -108,13 +109,13 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p>이 표가 다음 강(전자 배치)의 바닥 깔개야. 전자를 어디부터 채우는지 따지려면, 일단 각 껍질에 방(오비탈)이 몇 개고 정원이 몇 명인지 알아야 하니까. s는 방 1개(정원 2), p는 방 3개(정원 6), d는 방 5개(정원 10), f는 방 7개(정원 14). 이 정원 숫자 2·6·10·14는 외워두면 두고두고 써.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">오비탈의 모양과 같은 n 안의 갈라짐(예고)</span></div>
 <p>모양도 간단히 짚자. s오비탈(l=0)은 공처럼 둥근 구형이야. 방향이라는 게 없어서 mₗ도 0 하나뿐이지. p오비탈(l=1)은 아령(덤벨) 모양이고, x·y·z 세 방향으로 하나씩 있어서 세 개. d오비탈(l=2)은 더 복잡한 네잎클로버 비슷한 모양으로 다섯 개. n이 커지면 같은 s라도 더 크고 더 멀리 퍼진 구가 돼.</p>
 <div class="trap"><span class="lab">예고 · 같은 n인데 s < p < d 에너지</span><br>수소(전자 1개)에서는 같은 n이면 s든 p든 d든 에너지가 똑같아. 그런데 전자가 여럿인 원자에서는 같은 n이라도 <span class="fm">s &lt; p &lt; d</span>로 에너지가 갈라져. 왜 갈라지는지는 다음다음 강(007 가림과 유효핵전하)에서 다뤄. 지금은 "다전자 원자에서는 같은 껍질도 s·p·d로 에너지가 나뉜다"는 사실만 들고 가면 돼. 이게 전자 배치 순서를 정하는 핵심 이유거든.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s06">
 <div class="sec__h"><span class="sec__no">06</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"전자 주소는 네 글자 · n(껍질), l(모양 0~n−1), mₗ(방향 −l~+l), mₛ(스핀 ±½)."</div>
@@ -158,7 +159,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

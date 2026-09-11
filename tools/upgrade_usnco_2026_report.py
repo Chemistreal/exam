@@ -11,6 +11,8 @@
 """
 from __future__ import annotations
 
+import sys
+
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -186,6 +188,12 @@ def sync_answer_metadata(exam: dict) -> None:
 
 
 def main() -> int:
+    # --check 로 불리면 아무것도 쓰지 않는다. 이 자는 한 번 적용하는 패치라 검사할 것이 없는데,
+    # tools/*.py --check 를 한꺼번에 돌리는 절차가 이 자를 지나며 exams.json 을 공백만 다시
+    # 써서(들여쓰기 재렌더) 작업 트리를 더럽혔다.
+    if "--check" in sys.argv[1:]:
+        print("PASS upgrade_usnco_2026_report: 검사할 것 없음(한 번 적용하는 패치) · --check 는 쓰지 않는다")
+        return 0
     exam = patch_exams()
     patch_pages()
     sync_answer_metadata(exam)

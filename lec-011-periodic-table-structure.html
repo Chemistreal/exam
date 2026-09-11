@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -69,20 +70,20 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 주기율표를 그냥 외울 표라고 생각하면 손해야. 사실 이건 006강에서 배운 전자 배치를 한 장에 그린 지도거든. 왜 가로줄(주기)이 생기고 세로줄(족)이 생기는지, 왜 모양이 이렇게 들쭉날쭉한지가 전부 전자가 오비탈을 채우는 방식에서 나와. 오늘은 주기율표의 뼈대(주기·족·블록)를 전자 배치와 연결해서, 표를 "읽을 수 있게" 만들 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">배열 기준 · 원자번호 순</span></div>
 <p>먼저 큰 원칙. 현대 주기율표는 <b>원자번호(양성자 수) 순서</b>로 원소를 늘어놓은 거야. 멘델레예프는 처음에 성질이 비슷한 것끼리 묶어 배열했는데, 지금은 양성자 수가 하나씩 늘어나는 순서로 줄을 세워. 그렇게 세웠더니 성질이 비슷한 원소가 세로로 착착 정렬되는 거지.</p>
 <p>왜 양성자 수 순서로 세웠는데 성질이 주기적으로 반복될까? 양성자 수가 늘면 전자 수도 늘고, 전자가 오비탈을 채우는 패턴이 주기적으로 반복되거든. 최외각 전자 배치가 비슷한 원소들이 일정 간격으로 다시 나타나는 거야. 그래서 주기율표의 규칙성은 곧 전자 배치의 규칙성이야.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">주기(가로줄) · 껍질 번호</span></div>
 <p>가로줄을 주기라고 해. <b>주기 번호 = 전자가 채워지는 가장 바깥 껍질의 번호(n)</b>야. 1주기 원소는 전자가 n=1 껍질까지만, 2주기는 n=2까지, 3주기는 n=3까지 채워져.</p>
 <p>그래서 같은 주기에 있다는 건 최외각 껍질이 같다는 뜻이야. 한 주기를 왼쪽에서 오른쪽으로 가면, 같은 껍질 안에 전자가 하나씩 더해지는 거지. 이게 다음 강들에서 "주기를 따라가는 경향"의 핵심이 돼. 껍질은 그대로인데 양성자(따라서 유효핵전하)만 늘어나니까.</p>
 <div class="key">주기 = 껍질 수(n). 한 주기 안에서는 최외각 껍질이 같고, 오른쪽으로 갈수록 그 껍질에 전자가 차오르며 양성자도 함께 늘어. "같은 껍질, 늘어나는 핵전하"가 주기 경향의 엔진이야(007의 Z_eff로 다음 강에서 본격 설명).</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">족(세로줄) · 최외각 전자 수</span></div>
 <p>세로줄을 족이라고 해. <b>같은 족은 최외각 전자(원자가 전자) 수가 같아.</b> 화학 반응은 최외각 전자가 하는 일이라(006~007), 최외각 전자 수가 같으면 화학적 성질이 비슷해. 그래서 같은 족 원소끼리 닮은 거야.</p>
 <table><tr><th scope="col">족</th><th scope="col">최외각 전자 수</th><th scope="col">이름/특징</th></tr>
@@ -94,7 +95,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="trap"><span class="lab">함정 · 18족과 헬륨</span><br>18족은 최외각 전자 8개라고 외우는데, 헬륨(He)만 예외로 2개(1s²)야. He는 1주기라 껍질에 오비탈이 1s 하나뿐이고, 그게 꽉 차면 2개거든. 그래도 "꽉 차서 안정"이라는 18족의 본질은 같아서 18족에 둬. 18족=8개, 단 He=2개. 이 예외를 기억해.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">블록과 표의 모양 · 오비탈 정원이 만든 풍경</span></div>
 <p>주기율표를 색으로 칠해 나누면 s·p·d·f 네 구역(블록)이 돼. 그 원소의 최외각 전자가 어떤 오비탈을 채우는 중이냐로 나눈 거야.</p>
 <table><tr><th scope="col">블록</th><th scope="col">채우는 오비탈</th><th scope="col">위치</th></tr>
@@ -106,7 +107,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="eg"><span class="lab">예제 · 배치만 보고 자리 찾기</span> 전자 배치가 <span class="fm">1s²2s²2p⁶3s²3p⁴</span> 인 원소의 자리를 짚어 봐. ① <b>주기</b>는 가장 바깥 껍질 번호 → 3s·3p 니까 <b>3주기</b>. ② <b>족</b>은 최외각 전자 수 → 3s² + 3p⁴ = <b>6개 → 16족</b>. ③ <b>블록</b>은 마지막에 채운 오비탈 → p 이므로 <b>p 블록</b>. 3주기 16족은 <b>황(S)</b> 이야. 원자 번호를 세어 봐도 2+2+6+2+4 = 16 으로 맞지. <b>배치만 있으면 주기율표에서 자리를 찍을 수 있다</b> — 그게 이 강의의 도구야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"주기는 껍질 수, 족은 최외각 전자 수 · 주기율표는 전자 배치의 지도다."</div>
@@ -150,7 +151,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

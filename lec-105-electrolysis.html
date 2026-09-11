@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -71,14 +72,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 앞 강의 전지는 산화 환원으로 전기를 만들었지(104). 오늘은 그 정반대야. 외부 전원으로 전기를 흘려, 저절로는 일어나지 않을 산화 환원 반응을 강제로 일으키는 거지. 이게 전기 분해야. 전지가 "산화 환원 → 전기"라면, 전기 분해는 "전기 → 산화 환원"이야. 그래서 전극에서의 산화·환원 배치가 전지와 반대가 돼. 이 대조가 헷갈리기 쉬우니 정확히 잡아야 해. 오늘은 전기 분해의 원리와 전극 반응, 그리고 전지와의 차이를 잡을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">전기 분해 · 전기로 반응을 강제한다</span></div>
 <p>전기 분해는 외부 전원(전기 에너지)을 이용해, 자발적으로 일어나지 않는 산화 환원 반응을 강제로 일으키는 거야. 전지가 자발적 반응에서 전기를 뽑아낸다면, 전기 분해는 거꾸로 전기를 넣어 비자발적 반응을 일으키지.</p>
 <div class="big" style="font-size:15px">전지: 산화 환원 → 전기 &nbsp;|&nbsp; 전기 분해: 전기 → 산화 환원</div>
 <div class="key">전기 분해 = 외부 전기로 자발적이지 않은 산화 환원 반응을 강제로 일으키는 것. 전지의 역과정이야(전지는 산화 환원으로 전기를 만들고, 전기 분해는 전기로 산화 환원을 일으킴). 전기 에너지를 화학 변화로 바꾸는 거지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">전극 반응 · (+)극 산화, (-)극 환원</span></div>
 <p>전기 분해의 전극은 외부 전원에 연결돼. 전원의 <span class="fm">(+)</span>에 연결된 전극이 <span class="fm">(+)</span>극, <span class="fm">(−)</span>에 연결된 게 <span class="fm">(−)</span>극이야. 그리고 반응은 이래.</p>
 <table><tr><th scope="col">전극</th><th scope="col">연결</th><th scope="col">반응</th></tr>
@@ -87,7 +88,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p>전원이 <span class="fm">(+)</span>극에서 전자를 빨아들이니 그 전극에서 산화가 일어나고, <span class="fm">(−)</span>극으로 전자를 밀어 넣으니 거기서 환원이 일어나. 전지와 비교하면 산화·환원의 극이 반대지(전지는 <span class="fm">(−)</span>극 산화였잖아).</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">전지와의 대조 · 본질은 같다</span></div>
 <p>전지와 전기 분해를 나란히 보자. 산화·환원이 일어나는 극의 부호가 반대야.</p>
 <table><tr><th scope="col"></th><th scope="col">산화</th><th scope="col">환원</th></tr>
@@ -96,7 +97,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">전지는 (-)극 산화·(+)극 환원, 전기 분해는 (+)극 산화·(-)극 환원으로 부호가 반대야. 헷갈리면 본질로 돌아가: 어느 장치든 <b>전자가 빠져나가는 전극에서 산화, 전자가 들어오는 전극에서 환원</b>이야. 이 본질은 둘 다 같아. 부호는 "그 전극이 전원의 어디에 연결됐나/전지의 어느 극인가"로 정해질 뿐이지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">활용 · 물 분해·정련·도금</span></div>
 <p>전기 분해는 산업에 널리 쓰여. 물을 전기 분해하면 수소와 산소를 얻고, 금속을 정련하거나(불순물 제거), 도금(다른 금속 표면에 금속을 입힘)하는 데도 써.</p>
 <div class="rxn">물의 전기 분해<br>(−)극(환원): 2H₂O + 2e⁻ → H₂ + 2OH⁻<br>(+)극(산화): 2H₂O → O₂ + 4H⁺ + 4e⁻</div>
@@ -104,7 +105,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="trap"><span class="lab">함정 · 전기 분해에서도 (−)극이 산화?</span><br>아니야. <b>산화는 언제나 (+)극(양극), 환원은 (−)극(음극)에서 일어나.</b> 헷갈리는 까닭은 <u>갈바니 전지(104)</u>와 이름이 엇갈리기 때문이야 — 갈바니에서는 산화가 일어나는 쪽이 (−)극이고, 전기 분해에서는 산화가 일어나는 쪽이 (+)극이야. 전원이 전자를 억지로 밀어 넣는 쪽이 (−)극이니 거기서 전자를 받아 <b>환원</b>이 일어나고, 전자를 뽑아 가는 쪽이 (+)극이라 거기서 <b>산화</b>가 일어나지. 외울 것은 하나: <b>전극 이름이 아니라 "산화는 anode, 환원은 cathode"라는 짝</b>이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"전기 분해 = 전기로 산화 환원 강제(전지의 반대) · (+)극 산화·(-)극 환원."</div>
@@ -148,7 +149,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

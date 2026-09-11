@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -71,7 +72,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 이온화에너지는 기체 원자에서 전자 하나를 떼어내는 데 드는 에너지야. 앞 강에서 반지름을 잡았으니 기본 경향은 거저 얻어. 반지름이 작고 핵이 세게 잡을수록 떼기 어렵잖아? 그러니 반지름 경향을 뒤집으면 그게 이온화에너지 경향이야. 오늘 진짜 배울 건 그 기본을 깨는 두 예외와, 순차 이온화에너지의 도약으로 원자가 전자 수(족)를 알아내는 기술이야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">1차 이온화에너지의 기본 경향</span></div>
 <p>1차 이온화에너지(IE₁)는 중성 기체 원자에서 가장 바깥 전자 하나를 떼는 최소 에너지야. 전자가 핵에 세게 붙들려 있을수록 떼기 힘들어 IE가 커.</p>
 <p><b>같은 주기, 오른쪽으로 갈수록 커진다.</b> 오른쪽으로 가면 Z_eff가 커지고 반지름이 작아져(012). 전자가 더 세게 잡히니 떼기 어려워 IE가 증가해.</p>
@@ -80,21 +81,21 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">한 줄 요약: 이온화에너지 경향 = 반지름 경향의 정반대. 그래서 오른쪽 위(반지름 작은 쪽)가 IE가 크고, 왼쪽 아래(반지름 큰 쪽)가 IE가 작아. 18족이 특히 큰 건 꽉 찬 안정한 배치라 전자를 내놓기 싫어해서야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">예외 ① Be &gt; B · 2s와 2p의 차이</span></div>
 <p>이제 기본을 깨는 예외야. 경향대로면 2주기에서 베릴륨(Be, 2족) 다음 붕소(B, 13족)는 오른쪽이니 IE가 더 커야 해. 그런데 실제로는 <b>B의 IE가 Be보다 작아.</b> 왜?</p>
 <p>전자 배치를 보자. Be는 <span class="fm">2s²</span>, B는 <span class="fm">2s²2p¹</span>이야. B에서 떼는 건 가장 바깥의 2p 전자인데, 2p는 2s보다 에너지가 높고(007의 침투: s가 p보다 핵을 더 세게 느낌), 게다가 2s 전자에 의해 어느 정도 가려져. 그래서 B의 2p 전자는 Be의 2s 전자보다 떼기가 쉬워. 결과적으로 B의 IE가 Be보다 작아지는 거야.</p>
 <div class="key">핵심: 2s에서 떼는 Be보다, 더 높고 가려진 2p에서 떼는 B가 전자를 더 쉽게 내놓아. 그래서 IE는 Be &gt; B. "오른쪽이면 무조건 크다"가 깨지는 첫 지점이야. 2족 → 13족 경계에서 이 역전이 일어나(같은 논리로 Mg &gt; Al).</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">예외 ② N &gt; O · 반채움의 안정성</span></div>
 <p>두 번째 예외. 경향대로면 질소(N, 15족) 다음 산소(O, 16족)는 오른쪽이라 IE가 더 커야 하는데, 실제로는 <b>O의 IE가 N보다 작아.</b> 다시 전자 배치를 보자.</p>
 <p>N은 <span class="fm">2p³</span>, O는 <span class="fm">2p⁴</span>야. N의 2p³은 세 오비탈에 하나씩(훈트) 들어간 반채움 상태로 유난히 안정해(006). 반면 O의 2p⁴은 한 오비탈에 전자 둘이 짝지어 들어가 있어서, 그 둘 사이의 반발이 커. 그 반발 덕에 O는 전자 하나를 비교적 쉽게 떼어낼 수 있어(떼면 안정한 2p³ 반채움이 되기도 하고). 그래서 O의 IE가 N보다 작아지는 거야.</p>
 <div class="trap"><span class="lab">두 예외를 한 문장으로</span><br>2주기에서 IE는 단조롭게 증가하지 않고 <span class="fm">Be(2s²)</span>와 <span class="fm">N(2p³)</span>에서 봉우리를 만들어, 바로 다음 <span class="fm">B</span>·<span class="fm">O</span>에서 살짝 꺾여. 원인은 둘 다 전자 배치의 안정성이야. <b>Be&gt;B</b>(2s 꽉참 vs 높은 2p), <b>N&gt;O</b>(2p³ 반채움 vs 2p⁴ 짝 반발). 이 둘은 거의 반드시 출제되니 통째로 외워.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">순차 이온화에너지 · 도약으로 족을 읽는다</span></div>
 <p>전자를 하나만 떼는 게 아니라 둘째, 셋째 계속 떼어낼 수도 있어. 각 단계의 에너지를 IE₁, IE₂, IE₃… 라고 해. 전자를 뗄수록 남은 전자가 핵에 더 세게 잡히니, <span class="fm">IE₁ &lt; IE₂ &lt; IE₃ …</span>로 항상 증가해.</p>
 <p>그런데 중간에 갑자기 값이 확 뛰는 지점이 있어. 이게 핵심이야. <b>최외각 전자를 다 떼고 나서 안쪽 껍질을 건드리기 시작하는 순간</b>, 에너지가 폭증해. 안쪽 껍질 전자는 핵에 훨씬 가깝고 세게 잡혀 있거든. 그 도약이 일어나는 위치를 보면 그 원소의 원자가 전자 수(족)를 알 수 있어.</p>
@@ -106,7 +107,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">읽는 법: 순차 이온화에너지 표에서 값이 갑자기 몇 배로 뛰는 곳을 찾아. 그 도약 직전까지 뗀 전자 수가 곧 원자가 전자 수(족 번호의 일의 자리)야. 미지 원소의 족을 알아내는 강력한 단서라 출제 빈도가 아주 높아.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"IE는 반지름의 반대(오른쪽·위로 큼) · 단 Be&gt;B, N&gt;O · 순차 IE 도약이 원자가 전자 수를 알려준다."</div>
@@ -150,7 +151,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

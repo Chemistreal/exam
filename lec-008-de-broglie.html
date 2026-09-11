@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -66,7 +67,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 002에서 빛이 파동이면서 입자(광자)이기도 하다고 했지. 오늘은 그 거울상이야. 드브로이가 이렇게 뒤집었어. "빛이 입자성을 가진다면, 입자(전자)도 파동성을 가지지 않을까?" 이 한 줄의 발상이 원자모형의 마지막 퍼즐을 맞춰. 전자가 파동이라는 것, 그리고 위치와 속도를 동시에 정할 수 없다는 불확정성, 이 둘이 합쳐져서 "전자는 확률 구름(오비탈)"이라는 결론에 도달해. 오늘 그 길을 따라가자.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">드브로이의 뒤집기 · 입자도 파동이다</span></div>
 <p>002에서 빛은 <span class="fm">E=hν</span>로 입자(광자)처럼 굴었어. 원래 파동인 줄 알았던 빛이 입자성을 보인 거지. 드브로이는 여기서 대칭을 봤어. "그럼 원래 입자인 전자도 파동성을 가질 수 있겠다"고. 그리고 그 물질파의 파장을 이렇게 줬어.</p>
 <div class="big" style="font-size:19px">λ = h / (mv) = h / p</div>
@@ -74,7 +75,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">빛과 물질이 대칭을 이뤄. 빛: 파동인데 입자성(E=hν). 물질: 입자인데 파동성(λ=h/mv). 둘 다 파동·입자 두 얼굴을 가진 거야. 이걸 물질파(드브로이파)라고 불러.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">왜 야구공은 파동으로 안 보일까</span></div>
 <p>당연한 의문이 들지. "전자가 파동이면 야구공도 파동이어야 하는데, 왜 공이 출렁이는 건 안 보여?" 답은 플랑크 상수 h가 어마어마하게 작다는 데 있어(약 <span class="fm">6.6×10⁻³⁴</span>). 이 작은 h를 <span class="fm">mv</span>로 나누니까, 보통 물체는 파장이 상상도 안 되게 작아져.</p>
 <div class="eg"><span class="lab">감 잡기</span> 야구공처럼 무겁고 빠른 물체는 <span class="fm">mv</span>가 크니까 <span class="fm">λ=h/mv</span>가 원자보다 훨씬 작은, 사실상 0에 가까운 값이 돼. 파장이 그렇게 작으면 파동 효과(회절·간섭)를 관측할 길이 없어. 그래서 일상에서는 파동성이 안 보이는 거야.</div>
@@ -82,7 +83,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">핵심: 파동성이 보이느냐 마느냐는 질량에 달렸어. 가벼운 전자는 파장이 커서 파동성이 두드러지고, 무거운 일상 물체는 파장이 너무 작아 입자처럼만 보여. 그래서 원자 속 전자를 다룰 땐 파동으로 봐야 해.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">불확정성 원리 · 위치와 속도를 동시에 못 정한다</span></div>
 <p>전자가 파동이라는 사실은 충격적인 결론으로 이어져. 하이젠베르크의 불확정성 원리야. <b>전자의 위치와 운동량(속도)을 동시에 정확히 알 수는 없다.</b> 위치를 정밀하게 알수록 운동량이 흐릿해지고, 운동량을 정밀하게 알수록 위치가 흐릿해져.</p>
 <div class="big" style="font-size:16px">Δx · Δp ≥ ℏ/2 &nbsp;(위치 불확실성 × 운동량 불확실성)</div>
@@ -90,14 +91,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="trap"><span class="lab">함정 · "기계가 나빠서 못 잰다"</span><br>불확정성을 "더 좋은 현미경이 없어서"로 이해하면 틀려. 아무리 완벽한 장비가 있어도 위치와 운동량을 동시에 정확히 정할 수 없어. 파동인 전자에게는 그런 "동시에 확정된 값"이라는 게 처음부터 없는 거야. 자연의 근본 성질이라는 점이 핵심이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">그래서 궤도가 아니라 오비탈이다</span></div>
 <p>이제 004의 보어 모형으로 돌아가 보자. 보어는 전자가 정해진 궤도를 정해진 속도로 돈다고 했어. 그런데 불확정성 원리는 "위치와 속도를 동시에 확정할 수 없다"고 말해. 정해진 궤도란 곧 "매 순간 위치도 속도도 정해져 있다"는 뜻이니까, 불확정성과 정면으로 충돌해. 즉 보어식 궤도는 원리적으로 불가능한 거야.</p>
 <p>그럼 전자를 어떻게 묘사할까? 위치를 콕 집을 수 없으니, "어느 영역에서 발견될 확률"로만 말할 수 있어. 그 확률 분포가 바로 005에서 배운 오비탈이야. 오비탈은 전자의 트랙이 아니라, 전자가 거기 있을 확률이 진하고 옅은 구름인 거지.</p>
 <div class="key">정리: 전자는 파동이다(드브로이) → 위치와 속도를 동시에 확정할 수 없다(불확정성) → 정해진 궤도란 불가능하다 → 확률 분포(오비탈)로만 묘사한다. 005에서 "오비탈은 확률 구름"이라고 했던 말이, 오늘 이 논리로 완전히 정당화돼. 보어 모형이 왜 한계였는지도 여기서 분명해지고.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"전자도 파동이다(λ=h/mv) · 그래서 위치·속도가 동시에 확정 안 되고, 오비탈은 확률 구름이다."</div>
@@ -141,7 +142,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

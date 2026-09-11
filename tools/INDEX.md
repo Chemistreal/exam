@@ -6,7 +6,7 @@
 - ✓ CI 에 걸려 있다 (`.github/workflows/tests.yml`)
 - `--check` 를 받는 자는 어긋나면 종료 코드 1 을 낸다
 
-## 재는 자 (91)
+## 재는 자 (99)
 
 | | 자 | `--check` | 언제 돌리나 | 무엇을 |
 |---|---|---|---|---|
@@ -21,6 +21,10 @@
 | ✓ | `concept_table.py` | ○ | 밀 때마다 · 하루 한 번 | 125 개념표가 **화면 스물넷에 따로** 적혀 있다 — 다 같은 말을 하는지 본다. |
 | ✓ | `const_sync.py` | ○ | 밀 때마다 · 하루 한 번 | 한 회차 안에서 **문제지와 해설이 같은 상수**를 쓰는지 본다. |
 | ✓ | `crop_align.py` | ○ | 밀 때마다 · 하루 한 번 | 문항 크롭이 **그 문항 자리에서** 잘렸는지 본다. |
+| ✓ | `crop_answer_leak.py` | ○ | 밀 때마다 · 하루 한 번 | 크롭에 **정답이 인쇄돼 있는지** 센다. |
+| ✓ | `crop_boki.py` | ○ | 밀 때마다 · 하루 한 번 | 보기(가·나·다·라)가 크롭에서 통째로 빠진 문항을 찾는다. |
+| ✓ | `crop_cut.py` | ○ | 밀 때마다 · 하루 한 번 | 크롭에 **선지가 잘려 나간** 문항을 찾는다. |
+| ✓ | `crop_drawn.py` | ○ | 밀 때마다 · 하루 한 번 | 크롭이 **PDF 를 자른 것인가, 글을 그린 것인가**를 잰다. |
 |  | `crops_measure.py` |  | 사람이 손으로 | 문항 크롭 이미지를 다른 형식으로 바꾸면 얼마나 줄어드는지 실제로 재 본다. |
 | ✓ | `css_syntax.py` | ○ | 밀 때마다 · 하루 한 번 | 화면 안 CSS 가 **닫혀 있는가**. |
 | ✓ | `cut_fit.py` | ○ | 밀 때마다 · 하루 한 번 | 시상 컷이 회차의 실제 난이도와 얼마나 맞는지 잰다. |
@@ -48,11 +52,13 @@
 | ✓ | `ingest_hwpx_exam.py` | ○ | 밀 때마다 · 하루 한 번 | 선생님이 한글(HWPX)로 만든 시험지를 회차로 들인다. |
 | ✓ | `ingest_legacy_exam.py` | ○ | 밀 때마다 · 하루 한 번 | 단원별 모의고사 여덟 회차를 성적표 시스템에 들인다. |
 | ✓ | `ingest_pdf_exam.py` | ○ | 밀 때마다 · 하루 한 번 | 선생님이 PDF 로 낸 학생별 시험지를 회차로 들인다. |
+|  | `ingest_source_paper.py` |  | 사람이 손으로 | 선생님이 주신 **원본 시험지 PDF** 를 저장소에 들인다. |
 | ✓ | `ingest_teacher_exam.py` | ○ | 밀 때마다 · 하루 한 번 | 선생님이 만든 시험지(Word·PDF)를 받아들인다 — 크롭·정답·회차 항목까지. |
 | ✓ | `input_labels.py` | ○ | 밀 때마다 · 하루 한 번 | 입력칸에 **이름**이 있는지 보고, placeholder 로 지을 수 있으면 지어 넣는다. |
 | ✓ | `install_usnco_2026_practice.py` |  | usnco-2026-report-upgrade.yml | USNCO 2026 National Part I의 60문항 동형 연습문제를 설치한다. |
 | ✓ | `js_syntax.py` | ○ | 밀 때마다 · 하루 한 번 | 화면 안에 박아 넣은 자바스크립트가 **문법이 맞는지** 본다. |
 | ✓ | `label_typo.py` |  | 밀 때마다 · 하루 한 번 | 개념·영역·유형 이름의 오타 후보를 뽑는다 (사람이 판단한다). |
+| ✓ | `lec_anchor.py` | ○ | 밀 때마다 · 하루 한 번 | 강의 125장의 **절마다 닻(id)** 을 단다 — 성적표가 «03절» 로 바로 열 수 있게. |
 | ✓ | `lec_audit.py` | ○ | 밀 때마다 · 하루 한 번 | 강의 125장을 전수로 훑는다 — **처음 보는 학생이 알아들을 수 있는가.** |
 | ✓ | `lec_back.py` | ○ | 밀 때마다 · 하루 한 번 | 강의를 보고 나면 **왔던 자리로** 돌아가야 한다. |
 | ✓ | `lec_content.py` | ○ | 밀 때마다 · 하루 한 번 | 강의 125장의 **내용**을 기계가 잴 수 있는 데까지 잰다. |
@@ -71,11 +77,12 @@
 | ✓ | `name_key.py` | ○ | 밀 때마다 · 하루 한 번 | 네 앱이 **학생 이름을 같은 방식으로 다듬는지** 본다. |
 | ✓ | `noindex.py` | ○ | 밀 때마다 · 하루 한 번 | **한 학생의 성적이 뜨는 화면**은 검색에 잡히지 않게 한다. |
 | ✓ | `om_cover.py` | ○ | 밀 때마다 · 하루 한 번 | 오답 카드의 **한 줄**이 비어 나가지 않는지 센다. |
-| ✓ | `orphan_scan.py` |  | 밀 때마다 · 하루 한 번 | 아무도 읽지 않는 자산을 찾는다. |
+| ✓ | `orphan_scan.py` | ○ | 밀 때마다 · 하루 한 번 | 아무도 읽지 않는 자산을 찾는다. |
 | ✓ | `page_doors.py` | ○ | 밀 때마다 · 하루 한 번 | **문이 없는 화면**을 찾는다 — 아무 데서도 이름이 불리지 않는 장. |
 | ✓ | `page_exams.py` | ○ | 밀 때마다 · 하루 한 번 | 분석 화면들이 저마다 품고 있는 회차 목록이 `exams.json` 과 맞는지 본다. |
 | ✓ | `page_honesty.py` | ○ | 밀 때마다 · 하루 한 번 | R&D 화면이 **자기 상태를 말하는지** 본다. |
 | ✓ | `pages_budget.py` | ○ | 밀 때마다 · 하루 한 번 | GitHub Pages 한도에 얼마나 가까운지 잰다. |
+| ✓ | `paper_crop.py` |  | 밀 때마다 · 하루 한 번 | 시험지 페이지(paper-*.html)의 문항 본문을 **PDF 원문 크롭 그림**으로 바꾼다. |
 | ✓ | `pdf_answer_leak.py` | ○ | 밀 때마다 · 하루 한 번 | 문제지 PDF 에 **답이 실려 있는지** 본다. |
 | ✓ | `print_styles.py` | ○ | 밀 때마다 · 하루 한 번 | 인쇄해서 쓰는 화면에 **인쇄 규칙**이 있는지 보고, 없으면 넣는다. |
 | ✓ | `rate_check.py` | ○ | 밀 때마다 · 하루 한 번 | 문제지에 적혀 있던 **공식 정답률**이 성한지 본다 — `exams.json` 의 `rate`. |
@@ -95,14 +102,15 @@
 | ✓ | `term_drift.py` | ○ | 밀 때마다 · 하루 한 번 | **본문**이 같은 말을 두 가지로 적고 있지 않은지 잰다. |
 | ✓ | `test_nosheet.py` | ○ | 밀 때마다 · 하루 한 번 | 브라우저를 띄우는 검사는 **모두 시트를 막고 시작한다.** |
 | ✓ | `theme.py` | ○ | 밀 때마다 · 하루 한 번 | 화면 261장에 **같은 옷**을 입힌다. |
+| ✓ | `todo_status.py` | ○ | 밀 때마다 · 하루 한 번 | 남은 일 — 한 자리에서 **재어서** 답한다. |
 | ✓ | `twin_cover.py` | ○ | 밀 때마다 · 하루 한 번 | 틀린 문항에 **같은 개념의 동형문제**가 붙는지 회차마다 잰다. |
 | ✓ | `type_norm.py` | ○ | 밀 때마다 · 하루 한 번 | 같은 말을 두 가지로 적고 있지 않은지 본다. |
 |  | `unit_unify.py` |  | 사람이 손으로 | DT 단원 표기 통일 패치 (같은 과목 내 드리프트 7건) |
-| ✓ | `upgrade_usnco_2026_report.py` |  | usnco-2026-report-upgrade.yml | USNCO 2026 National Part I를 기존 final 리포트 품질로 통합한다. |
+| ✓ | `upgrade_usnco_2026_report.py` | ○ | usnco-2026-report-upgrade.yml | USNCO 2026 National Part I를 기존 final 리포트 품질로 통합한다. |
 | ✓ | `verify_status.py` | ○ | 밀 때마다 · 하루 한 번 | 해설을 **어디까지 사람이 봤는지** 세고, 뒤로 가지 않게 막는다. |
 | ✓ | `void_check.py` | ○ | 밀 때마다 · 하루 한 번 | 출제 뒤 **폐기된 문항**이 제대로 처리돼 있는지 본다 — `exams.json` 의 `voided`. |
 
-## 만드는 자 (19)
+## 만드는 자 (21)
 
 | | 자 | `--check` | 언제 돌리나 | 무엇을 |
 |---|---|---|---|---|
@@ -115,11 +123,13 @@
 | ✓ | `gen_exam_titles.py` |  | 밀 때마다 · 하루 한 번 | `AppsScript-Code.gs` 의 EXAM_TITLES 를 `exams.json` + 옛 시험 목록에서 만든다. |
 | ✓ | `gen_expl_html.py` | ○ | 밀 때마다 · 하루 한 번 | `explanation`(글) 에서 `explanationHtml`(해설지에 실릴 꼴) 을 만든다. |
 | ✓ | `gen_gas_cohort.py` |  | 밀 때마다 · 하루 한 번 | `AppsScript-Code.gs` 의 EXAM_COHORT 를 `exams.json` + `cohort/baseline.json` 에서 만든다. |
+| ✓ | `gen_gas_keys.py` |  | deploy-apps-script.yml · 밀 때마다 · 하루 한 번 | 정답표를 창구(AppsScript-Code.gs)에 실어, 보내온 점수를 서버가 **다시 세게** 한다. |
 | ✓ | `gen_gas_msgexams.py` |  | 밀 때마다 · 하루 한 번 | `AppsScript-Code.gs` 의 MSG_EXAMS 를 `exams.json` 의 영역 데이터로 만든다. |
 | ✓ | `gen_omlib.py` | ○ | 밀 때마다 · 하루 한 번 | 오개념 라이브러리(OMLIB)를 **한 벌로** 맞춘다 — final.html 이 원본이다. |
 | ✓ | `gen_pool_index.py` | ○ | 밀 때마다 · 하루 한 번 · usnco-2026-report-upgrade.yml | 2400문항을 개념으로 찾을 수 있게 색인을 만든다 → `donghyung/index.json` |
 | ✓ | `gen_qmatrix_tags.py` | ○ | 밀 때마다 · 하루 한 번 | `qmatrix-editor.html` 이 품고 있는 **유형 태그 표**를 exams.json 에서 다시 뽑는다. |
 | ✓ | `gen_retry_pool.py` | ○ | 밀 때마다 · 하루 한 번 | 「즉시 재도전 10제」가 고를 문항 풀(`retry-pool.json`)을 만든다. |
+| ✓ | `gen_review_notes.py` | ○ | 밀 때마다 · 하루 한 번 | 확인 필요(reviewNote) 를 한 장에 모은다. |
 | ✓ | `gen_sol_page.py` | ○ | 밀 때마다 · 하루 한 번 · usnco-2026-report-upgrade.yml | `sol-final-<id>.html` 해설지를 `answers/<id>.json` 에서 만든다. |
 | ✓ | `gen_student_final.py` | ○ | 밀 때마다 · 하루 한 번 | 학생별 파이널 시험을 짓는다 — 한 사람이 곧 한 회차다. |
 | ✓ | `gen_student_packets.py` | ○ | 밀 때마다 · 하루 한 번 | 수업 한 벌에 필요한 것을 학생마다 미리 셈해 둔다 — student-packets.json. |
@@ -128,4 +138,4 @@
 
 ---
 
-자 110개 · 판에 걸린 것 90개 · `--check` 를 받는 것 76개 · 아무도 안 돌리는 것 0개 · 표에는 있는데 없는 자물쇠 0개
+자 120개 · 판에 걸린 것 99개 · `--check` 를 받는 것 85개 · 아무도 안 돌리는 것 0개 · 표에는 있는데 없는 자물쇠 0개

@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -69,13 +70,13 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, K는 평형에서의 값이었지(074~075). 그런데 아직 평형이 아닌 상태에서 "이 반응이 앞으로 어느 쪽으로 갈까?"를 알고 싶을 때가 있어. 그때 쓰는 게 반응 지수 Q야. K와 똑같은 식인데, 평형이 아닌 임의의 순간 농도로 계산한 값이지. 이 Q를 K와 비교하면, 반응이 정반응으로 갈지 역반응으로 갈지 예측할 수 있어. 오늘은 Q의 정의와, Q·K 비교로 방향을 판단하는 법을 잡을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">반응 지수 Q · K와 같은 식, 임의의 순간</span></div>
 <p>반응 지수(<span class="fm">Q</span>)는 K와 완전히 같은 식이야(생성물/반응물, 계수가 지수). 차이는 딱 하나, <b>평형이 아닌 임의의 순간 농도</b>로 계산한다는 거지. K가 "평형에서의 값"이라면, Q는 "지금 이 순간의 값"이야.</p>
 <div class="key">Q = K와 똑같은 식(생성물/반응물, 계수가 지수)을 임의의 순간 농도로 계산한 값. K는 평형에서의 값, Q는 현재 상태의 값이야. 그래서 Q와 K를 비교하면 현재 상태가 평형에서 얼마나 벗어나 있는지, 어느 쪽으로 가야 평형이 되는지를 알 수 있어.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">Q와 K 비교 · 방향 예측</span></div>
 <p>Q를 K와 비교해서 반응 방향을 판단해. 직관은 단순해. Q가 K가 되려고 반응이 움직이는 거야.</p>
 <table><tr><th scope="col">비교</th><th scope="col">현재 상태</th><th scope="col">반응 방향</th></tr>
@@ -86,13 +87,13 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="big" style="font-size:15px">Q &lt; K → 정반응 &nbsp;|&nbsp; Q = K → 평형 &nbsp;|&nbsp; Q &gt; K → 역반응</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">예제 · 방향 판단</span></div>
 <div class="eg"><span class="lab">예제</span> 어떤 반응의 <span class="fm">K = 16</span>인데, 지금 농도로 Q를 계산했더니 <span class="fm">Q = 4</span>였어. <span class="fm">Q(4) &lt; K(16)</span>이니 생성물이 부족한 상태야. 그래서 <b>정반응이 진행</b>되어 생성물이 늘고 Q가 커지다가, <span class="fm">Q = K = 16</span>이 되면 평형에 도달해. 반대로 <span class="fm">Q = 30</span>이었다면 <span class="fm">Q &gt; K</span>라 역반응이 일어나 Q가 줄어 16에 맞춰지지.</div>
 <div class="trap"><span class="lab">함정 · Q와 K 비교 방향을 거꾸로</span><br>방향을 헷갈리기 쉬워. <span class="fm">Q &lt; K</span>면 생성물이 부족하니 더 만들어야 해서 <b>정반응</b>(오른쪽), <span class="fm">Q &gt; K</span>면 생성물이 많으니 되돌려야 해서 <b>역반응</b>(왼쪽)이야. "작으면(Q&lt;K) 오른쪽으로 키우고, 크면(Q&gt;K) 왼쪽으로 줄인다"로 기억해. Q가 K를 향해 움직인다는 직관을 잡으면 안 헷갈려. 그리고 Q와 K는 같은 식이라는 점도 기억해(농도만 평형이냐 아니냐 차이).</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"Q는 임의 순간의 K식 값 · Q&lt;K 정반응, Q&gt;K 역반응 · Q는 K를 향해 움직인다."</div>
@@ -136,7 +137,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">
@@ -153,30 +154,34 @@ document.addEventListener('click', function (e) {
 <div class="lq__miss"><b>자주 걸리는 자리</b> Q 가 크면 정반응이 잘 간다고 여긴다. Q 가 크다는 것은 생성물이 이미 많다는 뜻이다.</div>
 </div></div>
 <div class="lq__q" data-lq="2">
-<div class="lq__stem"><b>2.</b> 298 K의 수용액에서 일어나는 반응 A(aq) ⇌ B(aq)의 표준 자유 에너지 변화는 ΔG° = +5.40 kJ/mol이다. 어느 순간 이 용액에서 [A] = 1.0 M, [B] = 1.0×10⁻² M이어서 반응 지수는 Q = [B]/[A] = 1.0×10⁻²이었다. 이 순간의 ΔG 값과 반응이 저절로 진행되는 방향을 옳게 짝지은 것은? (R = 8.314 J/(mol·K), ln 10 = 2.303)</div>
+<div class="lq__stem"><b>2.</b> 반응지수 Q와 평형상수 K에 대한 설명으로 옳지 않은 것은?</div>
 <ol class="lq__opts" data-ans="3">
-<li><button type="button" class="lq__opt">ΔG ≈ −11.4 kJ/mol이며, 정반응이 자발적이다</button></li>
-<li><button type="button" class="lq__opt">ΔG ≈ +5.4 kJ/mol이며, 역반응이 자발적이다</button></li>
-<li><button type="button" class="lq__opt">ΔG ≈ −6.0 kJ/mol이며, 정반응이 자발적이다</button></li>
-<li><button type="button" class="lq__opt">ΔG ≈ +16.8 kJ/mol이며, 역반응이 자발적이다</button></li>
+<li><button type="button" class="lq__opt">온도가 일정하면 반응물의 초기 농도를 바꾸어도 K는 변하지 않는다.</button></li>
+<li><button type="button" class="lq__opt">Q&lt;K이면 생성물이 만들어지는 방향으로 반응이 진행된다.</button></li>
+<li><button type="button" class="lq__opt">Q&gt;K인 상태에서 평형에 도달할 때까지 Q는 계속 커진다.</button></li>
+<li><button type="button" class="lq__opt">반응 초기에 생성물만 넣어 두면 Q가 매우 커서 역반응이 일어난다.</button></li>
 </ol>
 <div class="lq__why" hidden>
 <div class="lq__ans">정답 <b>③</b></div>
-<p>ΔG = ΔG° + RT ln Q이다. RT = 8.314 × 298 = 2.478×10³ J/mol = 2.478 kJ/mol, ln Q = ln(1.0×10⁻²) = −2 × 2.303 = −4.606이므로 RT ln Q = 2.478 × (−4.606) = −11.41 kJ/mol. 따라서 ΔG = +5.40 + (−11.41) = −6.01 ≈ −6.0 kJ/mol. ΔG &lt; 0이므로 이 순간에는 정반응이 자발적이다. ΔG°가 양수여도 Q가 K보다 작으면(여기서 K = exp(−ΔG°/RT) = 0.113 &gt; Q = 0.010) 정반응이 진행된다.</p>
-<div class="lq__miss"><b>자주 걸리는 자리</b> ΔG°의 부호만 보고 진행 방향을 판단하거나, RT ln Q 항의 부호를 잘못 붙인다.</div>
+<p>반응은 언제나 Q가 K와 같아지는 방향으로 진행된다. Q&gt;K이면 생성물이 상대적으로 많은 상태이므로 생성물이 반응물로 되돌아가는 역반응이 일어나고, 그동안 Q의 분자는 작아지고 분모는 커지므로 Q는 K까지 계속 작아진다. 따라서 Q가 계속 커진다고 한 ③이 옳지 않다. ①은 K가 온도에 의해서만 정해지므로 옳고, ②는 Q&lt;K일 때 Q를 키우는 정반응이 우세하므로 옳다. ④는 반응물 농도가 0이면 Q의 분모가 0이 되어 Q가 무한히 커지는 셈이므로 역반응이 일어난다는 뜻에서 옳다. → ③</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> Q는 언제나 K를 향해 움직이므로 Q&gt;K이면 Q가 작아지고 Q&lt;K이면 Q가 커진다.</div>
 </div></div>
 <div class="lq__q" data-lq="3">
-<div class="lq__stem"><b>3.</b> 일정한 온도 T에서 X(g) ⇌ Y(g) + Z(g) 반응이 평형에 도달했을 때 농도를 측정하니 [X] = 0.20 M, [Y] = 0.30 M, [Z] = 0.40 M이었다. 같은 온도 T에서 이번에는 [X] = 0.10 M, [Y] = 0.50 M, [Z] = 0.60 M이 되도록 세 기체를 넣었다. 이 새로운 계에서 일어나는 변화로 옳은 것은?</div>
-<ol class="lq__opts" data-ans="1">
-<li><button type="button" class="lq__opt">Q = 3.0 으로 K = 0.60 보다 크므로 역반응이 진행되어 X가 증가한다</button></li>
-<li><button type="button" class="lq__opt">Q = 3.0 으로 K = 0.60 보다 크므로 정반응이 진행되어 X가 감소한다</button></li>
-<li><button type="button" class="lq__opt">Q = 0.60 으로 K와 같으므로 이미 평형 상태이며 아무 변화가 없다</button></li>
-<li><button type="button" class="lq__opt">Q = 0.33 으로 K = 0.60 보다 작으므로 정반응이 진행되어 Y와 Z가 증가한다</button></li>
+<div class="lq__stem"><b>3.</b> 반응지수(reaction quotient, Q)와 평형 상수(K)에 대한 설명으로 옳지 않은 것은?</div>
+<ol class="lq__opts" data-ans="4">
+<li><button type="button" class="lq__opt">Q는 평형 상수식과 같은 꼴에 임의의 시점의 농도를 대입하여 얻은 값이다.</button></li>
+<li><button type="button" class="lq__opt">Q &lt; K이면 반응은 생성물이 늘어나는 방향으로 진행한다.</button></li>
+<li><button type="button" class="lq__opt">정촉매를 넣으면 평형에 도달하는 시간은 짧아지지만 K는 변하지 않는다.</button></li>
+<li><button type="button" class="lq__opt">반응 초기에 생성물만 넣어 준 경우 Q는 0이다.</button></li>
 </ol>
 <div class="lq__why" hidden>
-<div class="lq__ans">정답 <b>①</b></div>
-<p>먼저 첫 번째 평형 자료에서 평형상수를 구한다. K = [Y][Z]/[X] = (0.30 × 0.40)/0.20 = 0.120/0.20 = 0.60. 다음으로 새 조건의 반응지수를 구한다. Q = (0.50 × 0.60)/0.10 = 0.300/0.10 = 3.0. Q(3.0) &gt; K(0.60)이므로 생성물이 과잉이며, 계는 Q를 K까지 낮추는 방향, 즉 역반응 쪽으로 진행하여 Y와 Z가 줄고 X가 늘어난다.</p>
-<div class="lq__miss"><b>자주 걸리는 자리</b> Q와 K의 대소는 맞게 비교하고도 &#x27;큰 쪽으로 더 간다&#x27;며 진행 방향을 반대로 잡는 것.</div>
+<div class="lq__ans">정답 <b>④</b></div>
+<p>① 옳은 설명이다. Q는 평형 상수식과 똑같은 형태의 식에 평형이든 아니든 그 시점의 농도(또는 분압)를 대입한 값이다.
+② 옳은 설명이다. Q &lt; K이면 생성물이 부족한 상태이므로 Q가 커지는 방향, 곧 정반응 쪽으로 진행하여 생성물이 늘어난다.
+③ 옳은 설명이다. 촉매는 정반응과 역반응의 활성화 에너지를 똑같이 낮추어 평형 도달을 빠르게 할 뿐이며, K는 온도에 의해서만 달라진다.
+④ 틀린 설명이다. Q는 (생성물 항)/(반응물 항)이므로 생성물만 있고 반응물이 없으면 분모가 0이 되어 Q는 무한대로 발산한다. Q가 0이 되는 것은 반대로 반응물만 있고 생성물이 없을 때이다.
+정답 ④.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> Q &lt; K이면 정반응, Q &gt; K이면 역반응으로 진행하며 Q = 0은 생성물이 없을 때, Q = ∞는 반응물이 없을 때이다.</div>
 </div></div>
 <p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
 </div>

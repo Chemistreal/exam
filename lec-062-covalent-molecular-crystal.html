@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -71,28 +72,28 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 금속·이온 결정을 봤으니 남은 둘, 공유 결정과 분자 결정이야. 이 둘은 극과 극이야. 다이아몬드(공유 결정)는 지구상에서 가장 단단한 물질 중 하나인데, 드라이아이스(분자 결정)는 손에서도 슬슬 승화해 사라지지. 둘 다 결정인데 왜 이렇게 다를까? 묶는 방식이 완전히 다르거든. 공유 결정은 원자들이 강한 공유 결합으로 그물처럼 묶이고, 분자 결정은 분자들이 약한 분자 간 힘으로 느슨하게 모일 뿐이야. 오늘은 이 차이를 잡고, 같은 탄소가 어떻게 다이아몬드도 되고 드라이아이스 속 성분도 되는지를 정리할 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">공유(원자) 결정 · 그물처럼 묶인다</span></div>
 <p>공유 결정은 원자들이 공유 결합으로 끝없이 그물처럼 연결된 거야. 결정 전체가 사실상 하나의 거대한 분자인 셈이지. 녹이거나 부수려면 이 강한 공유 결합을 끊어야 하니까, <b>녹는점이 극히 높고 매우 단단해</b>.</p>
 <p>대표가 다이아몬드야. 탄소가 <span class="fm">sp³</span> 혼성(027)으로 정사면체 방향으로 사방에 결합해, 빈틈없이 단단한 3차원 그물을 만들어. 그래서 지구상에서 손꼽히게 단단하지. 석영(<span class="fm">SiO₂</span>)도 규소와 산소가 그물처럼 연결된 공유 결정이야.</p>
 <div class="key">공유(원자) 결정 = 원자들이 공유 결합으로 그물처럼 연결. 결정 전체가 하나의 거대 분자라, 강한 공유 결합을 끊어야 녹아서 녹는점이 극히 높고 매우 단단해. 다이아몬드(sp³ 그물)·석영이 대표야. 보통 전기는 안 통해(다이아몬드는 절연체).</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">흑연 · 같은 탄소, 다른 구조 (그림)</span></div>
 <p>같은 탄소인데 흑연은 다이아몬드와 또 달라. 탄소가 <span class="fm">sp²</span> 혼성으로 평면 육각형 층을 이루고, 그 층들이 쌓인 구조야. <b>층 안</b>은 강한 공유 결합이지만, <b>층 사이</b>는 약한 분자 간 힘으로만 붙어 있어. 그래서 층끼리 쉽게 미끄러져 부드럽지(연필심이 종이에 묻는 이유). 또 <span class="fm">sp²</span> 평면에 남은 전자가 층 방향으로 자유롭게 움직여 전기가 통해.</p>
 <div class="fig"><svg viewBox="0 0 250 150"><line x1="30" y1="35" x2="220" y2="35" stroke="#0E5A4C" stroke-width="2.4"/><line x1="30" y1="78" x2="220" y2="78" stroke="#0E5A4C" stroke-width="2.4"/><line x1="30" y1="121" x2="220" y2="121" stroke="#0E5A4C" stroke-width="2.4"/><g fill="#0E5A4C"><circle cx="45" cy="35" r="4.5"/><circle cx="80" cy="35" r="4.5"/><circle cx="115" cy="35" r="4.5"/><circle cx="150" cy="35" r="4.5"/><circle cx="185" cy="35" r="4.5"/><circle cx="45" cy="78" r="4.5"/><circle cx="80" cy="78" r="4.5"/><circle cx="115" cy="78" r="4.5"/><circle cx="150" cy="78" r="4.5"/><circle cx="185" cy="78" r="4.5"/><circle cx="45" cy="121" r="4.5"/><circle cx="80" cy="121" r="4.5"/><circle cx="115" cy="121" r="4.5"/><circle cx="150" cy="121" r="4.5"/><circle cx="185" cy="121" r="4.5"/></g><line x1="115" y1="40" x2="115" y2="73" stroke="#C0603A" stroke-width="1.6" stroke-dasharray="4 3"/><line x1="115" y1="83" x2="115" y2="116" stroke="#C0603A" stroke-width="1.6" stroke-dasharray="4 3"/><text x="228" y="38" fill="#0E5A4C" font-size="9" font-weight="700">층</text><text x="130" y="62" fill="#C0603A" font-size="8.5">약한 힘</text></svg><figcaption>흑연 · 층 안은 강한 공유결합(초록), 층 사이는 약한 분자 간 힘(주황 점선)</figcaption></div>
 <p>그래서 다이아몬드와 흑연은 같은 탄소로 된 공유 결정이지만 성질이 정반대야. 다이아몬드는 단단하고 절연, 흑연은 부드럽고 전기가 통해. 구조(3차원 그물 vs 평면 층)의 차이가 성질을 완전히 갈라놓은 거지.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">분자 결정 · 약한 힘으로 모인다</span></div>
 <p>분자 결정은 완성된 분자들이 약한 분자 간 힘(028)으로 모여 만든 결정이야. 묶는 힘이 약하니까 <b>녹는점·승화점이 낮고 무르고 잘 부서져</b>. 전기도 안 통하지(이온이나 자유전자가 없으니까).</p>
 <p>대표가 드라이아이스(<span class="fm">CO₂</span>)야. <span class="fm">CO₂</span> 분자들이 약한 분산력으로 모여 있어서, 상온에서 슬슬 승화해(고체에서 곧장 기체로). 얼음(<span class="fm">H₂O</span>), 설탕, 아이오딘(<span class="fm">I₂</span>)도 분자 결정이야. 분자 안의 결합은 강하지만, 분자끼리 묶는 힘이 약해서 쉽게 흩어지는 거지.</p>
 <div class="trap"><span class="lab">함정 · 다이아몬드와 드라이아이스, 같은 탄소인데?</span><br>다이아몬드(C)와 드라이아이스(<span class="fm">CO₂</span>)는 둘 다 탄소를 포함하지만 결정 종류가 완전히 달라. 다이아몬드는 탄소 원자가 공유 결합 그물로 묶인 <b>공유 결정</b>(극도로 단단), 드라이아이스는 <span class="fm">CO₂</span> 분자가 약한 힘으로 모인 <b>분자 결정</b>(쉽게 승화)이야. 구성 원소가 비슷해도 "원자가 그물로 묶였나, 분자가 약하게 모였나"를 봐야 해. 이걸 구분하는 게 이 단원의 핵심이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">두 결정 대비 정리</span></div>
 <table><tr><th scope="col"></th><th scope="col">공유(원자) 결정</th><th scope="col">분자 결정</th></tr>
 <tr><td>구성</td><td>원자(공유 그물)</td><td>분자(분자 간 힘)</td></tr>
@@ -104,7 +105,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="eg"><span class="lab">예제 · 같은 탄소인데 왜 이렇게 다른가</span> 다이아몬드와 드라이아이스는 둘 다 <b>비금속만으로 된 고체</b>인데 녹는점이 3,550°C 와 −78°C 야. 왜 이렇게 벌어질까? 다이아몬드는 <b>모든 원자가 공유 결합으로 하나의 그물</b>이라 녹이려면 <b>공유 결합 자체를 끊어야</b> 해(약 350 kJ/mol). 드라이아이스는 <span class="fm">CO₂</span> 분자들이 <b>분산력</b>으로만 모여 있어, 녹일 때 끊는 건 그 <b>약한 분자 사이 힘</b>(수 kJ/mol)뿐이지 — C=O 결합은 멀쩡히 남아 있어. <b>"결합을 끊는가, 분자 사이 힘만 끊는가" 가 100배 차이를 만든다.</b> 이게 공유 결정과 분자 결정을 가르는 유일한 질문이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"공유 결정은 그물(단단·고융점), 분자 결정은 약한 힘(무름·저융점) · 다이아몬드 ≠ 드라이아이스."</div>
@@ -148,7 +149,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -69,20 +70,20 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 앞 강의 금속은 한 종류 원자가 쌓였지(060). 이온 결정은 양이온과 음이온, 두 종류가 함께 쌓여. 소금 NaCl이 대표야. 그런데 흥미로운 게 있어. 이온 결정에는 "분자"가 따로 없고, 양이온과 음이온이 일정 비율로 끝없이 이어질 뿐이야. 그래서 화학식 NaCl은 분자식이 아니라 "Na와 Cl이 1:1로 있다"는 비율을 나타내는 거지. 오늘은 NaCl 구조를 통해 이온 결정의 배열과, 화학식의 진짜 의미를 잡을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">이온 결정 · 양이온과 음이온이 교대로</span></div>
 <p>이온 결정은 양이온과 음이온이 정전기적 인력(이온 결합, 019)으로 규칙적으로 배열된 거야. 핵심 원리는 두 가지. 반대 부호 이온끼리 가까이, 같은 부호 이온끼리 멀리 배치돼 안정해지고, 전체적으로 <b>전기적 중성</b>을 이뤄. 그래서 양이온과 음이온의 개수 비율이 정해지지.</p>
 <div class="key">이온 결정 = 양이온 + 음이온이 정전기적으로 교대 배열. 반대 부호는 가까이, 같은 부호는 멀리. 전체가 전기적으로 중성이라 양이온/음이온 비율이 고정돼. 이 비율이 곧 화학식이야(곧 자세히).</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">NaCl 구조와 배위수 6:6 (그림)</span></div>
 <p>소금 NaCl을 보자. <span class="fm">Na⁺</span>과 <span class="fm">Cl⁻</span>이 가로·세로·높이 모든 방향으로 번갈아 놓여 있어. 그 결과 <b>각 이온은 반대 부호 이온 6개에 둘러싸여</b> 있지. <span class="fm">Na⁺</span> 하나를 <span class="fm">Cl⁻</span> 6개가, <span class="fm">Cl⁻</span> 하나를 <span class="fm">Na⁺</span> 6개가 둘러싸. 이걸 배위수 6:6이라고 해.</p>
 <div class="fig"><svg viewBox="0 0 200 175"><line x1="98" y1="88" x2="98" y2="44" stroke="#9a958a" stroke-width="2"/><line x1="98" y1="88" x2="98" y2="132" stroke="#9a958a" stroke-width="2"/><line x1="98" y1="88" x2="50" y2="88" stroke="#9a958a" stroke-width="2"/><line x1="98" y1="88" x2="146" y2="88" stroke="#9a958a" stroke-width="2"/><line x1="98" y1="88" x2="72" y2="112" stroke="#9a958a" stroke-width="2"/><line x1="98" y1="88" x2="124" y2="64" stroke="#9a958a" stroke-width="2"/><circle cx="98" cy="44" r="12" fill="#0E5A4C"/><circle cx="98" cy="132" r="12" fill="#0E5A4C"/><circle cx="50" cy="88" r="12" fill="#0E5A4C"/><circle cx="146" cy="88" r="12" fill="#0E5A4C"/><circle cx="72" cy="112" r="12" fill="#0E5A4C"/><circle cx="124" cy="64" r="12" fill="#0E5A4C"/><circle cx="98" cy="88" r="10" fill="#C0603A"/><text x="98" y="91" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">Na⁺</text><text x="163" y="91" fill="#0E5A4C" font-size="10" font-weight="700">Cl⁻</text></svg><figcaption>Na⁺(주황) 하나를 Cl⁻(초록) 6개가 둘러쌈 · 배위수 6:6</figcaption></div>
 <p>구조를 더 정밀하게 보면, <span class="fm">Cl⁻</span>이 면심입방(FCC)으로 배열하고 그 사이 빈 자리에 <span class="fm">Na⁺</span>이 들어간 형태야(반대로 봐도 됨). 두 이온이 각각 면심입방 격자를 이루며 끼워 맞춰진 셈이지.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">화학식 = 단위 세포 속 이온 비율</span></div>
 <p>이온 결정에서 화학식의 의미가 금속·분자와 달라. NaCl 단위 세포 속 이온 수를 059 방식으로 세어 보면, <span class="fm">Na⁺</span>과 <span class="fm">Cl⁻</span>이 각각 4개씩 들어 있어(꼭짓점·면·모서리·중심의 몫을 합산한 결과). 비율이 <span class="fm">4 : 4 = 1 : 1</span>이지.</p>
 <div class="big" style="font-size:15px">단위 세포 속 이온 비율 = 화학식</div>
@@ -90,14 +91,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="eg"><span class="lab">예제 · 다른 비율</span> 만약 양이온이 +2가, 음이온이 −1가라면, 전기적 중성을 맞추려고 양이온 1개에 음이온 2개가 필요해. 그러면 화학식은 <span class="fm">CaCl₂</span>처럼 1:2가 되지. 화학식의 아래 첨자가 바로 이온의 개수 비율이고, 그건 전기적 중성에서 정해져.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">이온 결정의 성질 · 부서짐</span></div>
 <p>이온 결정의 성질도 구조에서 나와. 강한 이온 결합이 사방으로 단단히 묶고 있어 <b>녹는점이 높고 단단해</b>. 하지만 망치로 치면 <b>잘 부서져</b>. 왜냐면 외력으로 층이 살짝 밀리면, 같은 부호의 이온끼리 마주 보게 되어 강하게 반발해 쪼개지거든. 단단하지만 깨지기 쉬운 거지(금속은 안 깨지고 늘어나는 것과 대비).</p>
 <div class="key">이온 결정은 녹는점이 높고 단단하지만, 외력에 층이 밀리면 같은 부호 이온이 반발해 부서져. 그리고 고체 상태에서는 이온이 묶여 있어 전기가 안 통하지만(절연), 녹이거나 물에 녹이면 이온이 자유로워져 전기가 통해(019). 이 성질들은 063에서 다른 결정과 함께 종합할 거야.</div>
 <div class="trap"><span class="lab">함정 · 화학식이 단위세포 안 입자 수?</span><br>아니야. 화학식은 <b>비율</b>이지 개수가 아니야. NaCl의 면심입방 단위세포에는 Na⁺ 4개, Cl⁻ 4개가 들어 있는데 화학식은 <span class="fm">Na₄Cl₄</span>가 아니라 <span class="fm">NaCl</span>이지 — 4:4를 가장 간단한 정수비로 줄인 거야(036). CaF₂도 단위세포에 Ca²⁺ 4개, F⁻ 8개라 4:8 = <b>1:2</b>. 단위세포에서 센 개수는 <b>반드시 비로 줄여서</b> 화학식으로 옮겨.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"이온 결정은 양·음이온 교대 배열 · 화학식 = 단위 세포 속 이온 비율 · NaCl 배위수 6:6."</div>
@@ -141,7 +142,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

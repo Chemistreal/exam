@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -72,7 +73,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">탄소와 수소로만 이루어진 화합물을 <b>탄화수소</b>라고 해. 도시가스(메테인), 라이터 연료(뷰테인), 휘발유, 양초의 파라핀·전부 탄화수소야. 단순해 보이지만 여기서 유기 화학의 기본 문법이 다 나와. 일반식으로 가족을 나누는 법, 포화와 불포화의 구분, 결합 개수가 성질을 바꾸는 방식까지. 오늘 이 문법을 잡으면 뒤의 작용기(116~)가 전부 "탄화수소 골격 + 장식"으로 읽히게 돼.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">알케인 · 단일 결합만, 포화 탄화수소</span></div>
 <p>탄소끼리 전부 <b>단일 결합</b>인 사슬 탄화수소가 <b>알케인(alkane)</b>이야. 일반식은 <span class="fm">CnH₂n₊₂</span>. 탄소 n개가 한 줄로 서면 남는 결합 손이 정확히 2n+2개라서 그래. 수소를 최대로 채웠다는 뜻에서 <b>포화(saturated)</b> 탄화수소라고 불러. 더 이상 수소가 못 들어가.</p>
 <table><tr><th scope="col">n</th><th scope="col">이름</th><th scope="col">분자식</th><th scope="col">비고</th></tr>
@@ -85,7 +86,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">알케인 = C–C 전부 단일 결합, 일반식 CnH₂n₊₂, 포화 탄화수소. 메테인·에테인·프로페인·뷰테인… 어간(메트·에트·프로프·뷰트·펜트…)은 유기 명명의 알파벳이다.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">알켄과 알카인 · 이중·삼중 결합, 불포화</span></div>
 <p>탄소 사이에 <b>이중 결합이 1개</b> 있으면 <b>알켄(alkene)</b>, 일반식 <span class="fm">CnH₂n</span>(n≥2). <b>삼중 결합이 1개</b> 있으면 <b>알카인(alkyne)</b>, 일반식 <span class="fm">CnH₂n₋₂</span>(n≥2). 다중 결합에 결합 손이 묶이는 만큼 수소가 2개씩 줄어드는 거야. 수소를 최대로 못 채웠으니 <b>불포화(unsaturated)</b> 탄화수소라고 해.</p>
 <p>대표 선수는 <b>에텐(에틸렌, C₂H₄)</b>과 <b>에타인(아세틸렌, C₂H₂)</b>. 에텐은 평면 삼각형 중심(023, sp² 혼성·026)으로 분자 전체가 평면이고, 에타인은 직선형(sp 혼성)이야. 이중 결합 = σ+π 1개, 삼중 결합 = σ+π 2개였지(027). π 결합은 σ보다 약해서 끊고 다른 원자를 붙이기 쉬워. 그래서 불포화 탄화수소는 <b>첨가 반응</b>을 잘해. 에텐에 H₂를 첨가하면 에테인이 되고, 에텐끼리 수천 개 이어 붙이면 폴리에틸렌(비닐봉지)이 되지.</p>
@@ -93,7 +94,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">알켄 = 이중 결합 1개, CnH₂n. 알카인 = 삼중 결합 1개, CnH₂n₋₂. 둘 다 불포화라서 π 결합을 끊는 첨가 반응을 잘한다. 에텐은 평면(sp²), 에타인은 직선(sp).</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">일반식으로 판정하기 · H 개수 세는 법</span></div>
 <p>시험에서 제일 많이 묻는 게 "분자식 주고 어느 가족이냐"야. 판정법은 간단해. 탄소 n개일 때 수소가 <b>2n+2면 알케인, 2n이면 알켄(또는 고리 알케인), 2n−2면 알카인(또는 이중 결합 2개 등)</b>. 수소 2개가 모자랄 때마다 "다중 결합 1개 또는 고리 1개"가 숨어 있다고 읽으면 돼. 이 부족분을 불포화도라고 불러.</p>
 <div class="flow"><span class="fm">C₄H₁₀</span><b>→</b><span>2n+2 · 알케인</span></div>
@@ -103,14 +104,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">H 부족분 2개마다 "다중 결합 1개 또는 고리 1개". CnH₂n₊₂ 포화 사슬, CnH₂n 이중 결합 1개 또는 고리 1개, CnH₂n₋₂ 부족분 2개. 분자식만 보고 구조 후보를 읽는 눈이 실전력이다.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">성질의 경향 · 끓는점과 반응성</span></div>
 <p>탄화수소는 전부 무극성에 가까워(C와 H의 전기음성도 차가 작아, 025). 그래서 물에 안 녹고 기름에 녹아. 분자 사이 인력은 분산력뿐이라 <b>탄소 수가 늘수록(분자가 클수록) 끓는점이 올라가</b>. 메테인~뷰테인은 상온에서 기체, 펜테인~열일곱쯤까지는 액체(휘발유·등유), 그 이상은 고체(파라핀)야. 분자 간 힘(029·032)에서 봤던 그 논리 그대로지.</p>
 <p>반응성은 반대 방향이야. <b>알케인은 안정해서 반응을 잘 안 해</b>. 사실상 연소와 (빛 아래) 치환 정도. 반면 <b>알켄·알카인은 π 결합 덕분에 첨가 반응을 잘해</b>. "포화 = 둔감, 불포화 = 민감"으로 기억해. 브로민수(적갈색)를 알켄에 떨어뜨리면 첨가되며 색이 사라지는데, 이게 불포화 판별의 고전 실험이야.</p>
 <div class="key">무극성 → 물에 안 녹음, 분산력 → 클수록 끓는점↑(기체→액체→고체). 반응성은 알케인(둔감, 연소·치환) vs 알켄·알카인(민감, 첨가·브로민수 탈색)으로 갈린다.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 예고</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"CnH₂n₊₂·CnH₂n·CnH₂n₋₂. H가 2개 모자랄 때마다 다중 결합 또는 고리가 하나."</div>
@@ -154,7 +155,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

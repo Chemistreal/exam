@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -68,13 +69,13 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 주기율표에서 원자 크기는 아무렇게나 변하는 게 아니라 규칙적으로 변해. 그런데 그 규칙이 직관과 살짝 어긋나서, "오른쪽으로 가면 전자가 늘어나니까 커지겠지?" 하고 거꾸로 찍는 학생이 많아. 오늘은 크기를 결정하는 두 힘, 껍질 수와 유효핵전하의 줄다리기로 이걸 깔끔하게 정리할 거야. 원자뿐 아니라 이온, 그리고 등전자종 비교까지 한 번에 잡자.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">크기를 정하는 두 힘 · 껍질 수 vs 유효핵전하</span></div>
 <p>원자 반지름은 두 가지가 줄다리기로 정해. 하나는 <b>껍질 수</b>. 껍질이 많을수록 전자 구름이 바깥까지 퍼져서 커져. 또 하나는 <b>유효핵전하(Z_eff)</b>. 핵이 전자를 세게 당길수록(Z_eff가 클수록) 전자 구름을 안으로 끌어들여 작아져.</p>
 <div class="key">반지름이 커지는 쪽: 껍질 수 증가. 반지름이 작아지는 쪽: Z_eff 증가. 어느 비교든 "껍질 수가 다른가? Z_eff가 다른가?"만 따지면 답이 나와. 이 두 힘의 줄다리기가 전부야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">원자 반지름의 두 경향</span></div>
 <p><b>같은 족, 아래로 갈수록 커진다.</b> 아래로 가면 껍질 수가 하나씩 늘어나(011). 껍질이 늘면 전자 구름이 바깥까지 퍼지니까 반지름이 커져. 이건 직관과 잘 맞아.</p>
 <p><b>같은 주기, 오른쪽으로 갈수록 작아진다.</b> 여기가 함정이야. 오른쪽으로 가도 껍질 수는 그대로(같은 주기니까). 대신 양성자가 하나씩 늘어 Z_eff가 커져(007). 핵이 같은 껍질의 전자를 점점 더 세게 끌어당기니, 전자 구름이 안으로 수축해서 반지름이 작아져.</p>
@@ -82,7 +83,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="trap"><span class="lab">함정 · "오른쪽이면 전자 많아 크겠지"</span><br>오른쪽으로 가면 전자가 느는 건 맞지만, 그 전자들이 전부 <b>같은 껍질</b>에 들어가. 새 껍질이 생기는 게 아니라 핵전하만 세져서, 오히려 더 세게 당겨져 작아져. "전자 수"가 아니라 "껍질 수와 Z_eff"로 봐야 해. 주기 오른쪽 = 작아짐, 이건 꼭 거꾸로 외우지 마.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">이온 반지름 · 전자를 잃거나 얻으면</span></div>
 <p>원자가 이온이 되면 크기가 확 바뀌어. 방향은 둘 다 상식적으로 설명돼.</p>
 <p><b>양이온은 원래 원자보다 작다.</b> 전자를 잃었으니까. 특히 최외각 껍질의 전자를 통째로 잃으면 껍질 하나가 통째로 사라져서 확 작아져. 게다가 남은 전자 입장에서는 양성자 수는 그대로인데 전자가 줄었으니, 전자 하나하나가 느끼는 Z_eff가 커져서 더 안으로 당겨져. 두 효과 모두 작아지는 방향이야.</p>
@@ -91,7 +92,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="eg"><span class="lab">예제</span> <span class="fm">Na</span>는 3주기지만 <span class="fm">Na⁺</span>가 되면 3s 전자를 잃어 최외각이 n=2 껍질로 줄어. 그래서 <span class="fm">Na⁺</span>는 Na보다 훨씬 작아. 반대로 <span class="fm">Cl</span>이 <span class="fm">Cl⁻</span>이 되면 전자가 늘어 반발이 커져서 Cl보다 커져.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">등전자종 비교 · 전자 수가 같을 때는 양성자로</span></div>
 <p>전자 수가 똑같은 입자들(등전자종)의 크기를 비교하라는 문제가 단골이야. 001에서 봤듯 <span class="fm">O²⁻</span>, <span class="fm">F⁻</span>, <span class="fm">Na⁺</span>, <span class="fm">Mg²⁺</span>는 전부 전자 10개로 같아. 껍질 구조가 같은 거지. 그럼 뭐가 크기를 가를까? <b>양성자 수</b>야.</p>
 <p>전자 수(껍질)가 같으면, 양성자가 많을수록 그 전자들을 더 세게 끌어당겨 작아져. 즉 등전자종에서는 핵전하(Z)가 클수록 반지름이 작아.</p>
@@ -99,7 +100,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="trap"><span class="lab">함정 · 전하 부호로 판단</span><br>"음이온이니까 크고 양이온이니까 작다"를 등전자종에 그대로 쓰면 틀려. 등전자종은 전자 수가 같으니 그 논리가 안 통해. 오직 양성자 수(Z)로만 비교해. Z가 클수록 작다. <span class="fm">Mg²⁺</span>가 가장 작은 건 양성자가 12개로 제일 많아서야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"껍질 수는 키우고 Z_eff는 줄인다 · 족 아래 커지고, 주기 오른쪽 작아진다."</div>
@@ -143,7 +144,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

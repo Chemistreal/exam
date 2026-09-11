@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -68,7 +69,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 원자. 다들 "양성자·중성자·전자 세 개"라고 외우고는 있어. 근데 시험에서 <span class="fm">A</span>, <span class="fm">Z</span>, 동위원소, 평균 원자량이 한꺼번에 나오면 누가 누군지 헷갈려서 식이 꼬이지. 오늘 목표는 딱 하나야. 원자에서 <b>전하를 결정하는 게 누구고, 질량을 결정하는 게 누구고, 원소의 정체를 정하는 게 누구인지</b>를 한 장에 정리하는 것. 이 세 갈래만 갈라놓으면 동위원소든 이온이든 다시는 안 헷갈려.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">원자는 거의 빈 공간이다 · 질량과 전하의 분리</span></div>
 <p>먼저 그림부터. 원자 한가운데에 아주 작고 무거운 핵이 있고, 그 바깥 넓은 공간을 전자가 차지해. 핵은 원자 전체 크기의 약 만 분의 일밖에 안 돼. 비유하면 운동장 한가운데 놓인 구슬 하나가 핵이고, 운동장 전체가 원자야. 그러니까 원자는 사실상 텅 빈 공간이지. 그런데 질량은 거의 전부 그 작은 핵에 몰려 있어. 왜 그런지가 핵심이야.</p>
 <table><tr><th scope="col">입자</th><th scope="col">전하</th><th scope="col">질량(대략)</th><th scope="col">위치</th></tr>
@@ -78,7 +79,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p>표를 보면 답이 보여. 양성자와 중성자는 질량이 1쯤인데, 전자는 그 1836분의 1밖에 안 돼. 거의 없는 거지. 그래서 <b>질량은 핵(양성자+중성자)이 다 정한다.</b> 전자는 질량 계산에서 무시해도 될 정도야. 반대로 전하는 양성자(+)와 전자(−)가 정하고, 중성자는 전하가 0이라 전하에는 관여를 안 해. 벌써 갈래가 갈라지지? 질량은 핵, 전하는 양성자와 전자. 중성자는 질량에만 끼고 전하엔 안 껴.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">원자번호 Z와 질량수 A · 이름표 두 개</span></div>
 <p><b>원자번호 Z = 양성자 수.</b> 이게 원소의 정체야. 양성자가 6개면 무조건 탄소, 7개면 무조건 질소. 양성자 수가 바뀌면 아예 다른 원소가 돼버려. 그러니 Z는 그 원자가 "누구인지"를 정하는 주민등록번호 같은 거야. 그리고 중성 원자라면, 전체 전하가 0이어야 하니 전자 수도 Z와 같아. 양성자 +Z개, 전자 −Z개, 합쳐서 0.</p>
 <p><b>질량수 A = 양성자 수 + 중성자 수.</b> 핵에 든 알맹이(핵자)의 총 개수야. 전자는 질량이 거의 없어서 여기 안 들어가. 그래서 질량수에는 전자가 빠진다는 것, 이거 한 번 짚고 가. 표기는 이렇게 해. 원소 기호 왼쪽 위에 A, 왼쪽 아래에 Z. <span class="fm">ᴬ<sub>Z</sub>X</span> 꼴이지. 예를 들어 <span class="fm">¹²₆C</span>는 양성자 6, 질량수 12.</p>
@@ -86,7 +87,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="eg"><span class="lab">예제</span> <span class="fm">³⁵₁₇Cl</span> · 양성자 17개(Z=17이니 염소), 질량수 35, 중성자 = 35 − 17 = 18개, 중성 원자니 전자 17개. <span class="fm">³⁷₁₇Cl</span>은? 양성자 17(여전히 염소), 중성자 = 37 − 17 = 20개. 양성자는 같고 중성자만 둘 더 많지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">동위원소 · 양성자는 같고, 중성자만 다르다</span></div>
 <p>방금 <span class="fm">³⁵Cl</span>과 <span class="fm">³⁷Cl</span>을 봤지. 둘 다 양성자 17개라 똑같은 염소인데, 중성자 수가 달라서 질량수가 달라. 이렇게 <b>원자번호(양성자 수)는 같은데 질량수(중성자 수)가 다른 원자들</b>을 서로 동위원소라고 불러.</p>
 <p>여기서 가장 자주 틀리는 포인트 하나. 동위원소는 "양성자 수가 같다"가 핵심이야. 학생들이 종종 "중성자 수가 같은 게 동위원소"라고 거꾸로 외우는데, 반대야. 같은 건 양성자, 다른 건 중성자. 같은 원소의 다른 버전인 거지.</p>
@@ -94,7 +95,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p>대표적인 게 수소야. 수소는 동위원소 세 개가 다 이름이 있을 정도로 유명해. <span class="fm">¹H</span>(양성자 1, 중성자 0), <span class="fm">²H</span>(중성자 1, 중수소라고 부름), <span class="fm">³H</span>(중성자 2, 삼중수소). 셋 다 양성자 1개라 똑같은 수소지만 질량이 1, 2, 3으로 달라. 탄소도 <span class="fm">¹²C</span>, <span class="fm">¹³C</span>, <span class="fm">¹⁴C</span> 동위원소가 있고, 그중 <span class="fm">¹⁴C</span>는 방사성이라 연대 측정에 쓰여(이건 010강 방사성 붕괴에서 다룰게).</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">평균 원자량 · 왜 정수가 아닐까</span></div>
 <p>주기율표에서 염소 원자량을 보면 35도 37도 아니고 <span class="fm">35.45</span> 같은 어중간한 값이지. "원자 하나에 0.45개의 무언가가 있다는 거야?" 아니야. 이건 한 원자의 질량이 아니라, 자연에 섞여 있는 동위원소들의 <b>존재비로 가중평균한 값</b>이야.</p>
 <p>자연계의 염소는 <span class="fm">³⁵Cl</span>이 약 75.8%, <span class="fm">³⁷Cl</span>이 약 24.2% 섞여 있어. 그러니 평균을 내면 35쪽에 더 가까운 값이 나오겠지. 계산해보자.</p>
@@ -102,7 +103,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p>그러니까 평균 원자량이 정수가 아닌 건 전혀 이상한 게 아니야. 오히려 "이 원소는 동위원소가 섞여 있고, 그 비율이 이렇다"는 정보를 담은 숫자인 거지. 평균 원자량이 35.45면 "35짜리가 좀 더 많구나" 하고 읽으면 돼.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">이온 · 전자만 들고 나는 것</span></div>
 <p>마지막으로 이온까지 갈래를 정리하자. 이온은 원자가 전자를 잃거나 얻어서 전하를 띤 거야. 여기서 절대 안 변하는 게 있어. <b>핵은 그대로야.</b> 양성자 수도, 중성자 수도, 질량수도 변하지 않아. 변하는 건 오직 전자 수뿐이야.</p>
 <p>전자를 잃으면 (−)가 줄어드니 (+)가 남아서 양이온이 돼. 전자 수 < 양성자 수. 예를 들어 <span class="fm">Na⁺</span>는 나트륨(양성자 11)이 전자 하나를 잃어서 전자가 10개. 전자를 얻으면 음이온이고 전자 수 > 양성자 수. <span class="fm">Cl⁻</span>은 염소(양성자 17)가 전자 하나 얻어서 전자 18개.</p>
@@ -110,7 +111,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">정리하면 세 갈래야. <b>원소의 정체</b>는 양성자 수(Z), <b>질량</b>은 핵자 수(A=p+n), <b>전하</b>는 양성자와 전자의 균형. 동위원소는 중성자만 바뀐 것, 이온은 전자만 바뀐 것. 양성자가 바뀌면 그건 더 이상 같은 원소가 아니야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s06">
 <div class="sec__h"><span class="sec__no">06</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"양성자는 정체, 중성자는 질량, 전자는 화학과 전하를 맡는다."</div>
@@ -154,7 +155,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

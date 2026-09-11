@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -69,14 +70,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 총괄성의 마지막은 삼투압이야. 소금물에 채소를 담그면 쪼그라들고, 민물에 둔 세포는 부풀잖아. 이게 다 삼투 현상이야. 용매만 통과시키는 반투막을 사이에 두면, 용매가 묽은 쪽에서 진한 쪽으로 이동하거든. 그 이동을 막으려면 압력이 필요한데, 그게 삼투압이지. 오늘은 삼투가 어느 방향으로 일어나는지, 삼투압을 어떻게 계산하는지(PV=nRT를 닮은 식)를 잡으면서 이 영역을 닫을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">삼투 · 용매가 진한 쪽으로 이동 (그림)</span></div>
 <p>반투막은 작은 용매 분자는 통과시키고 큰 용질 입자는 막는 막이야. 이 막을 사이에 두고 한쪽엔 묽은 용액(또는 순수 용매), 한쪽엔 진한 용액을 두면, <b>용매가 묽은 쪽(저농도)에서 진한 쪽(고농도)으로 이동</b>해. 양쪽 농도를 같게 만들려는 방향이지. 이게 삼투야.</p>
 <div class="fig"><svg viewBox="0 0 290 180"><rect x="45" y="38" width="200" height="120" fill="none" stroke="#bdb8ac" stroke-width="2"/><line x1="145" y1="38" x2="145" y2="158" stroke="#C0603A" stroke-width="2.5" stroke-dasharray="3 3"/><rect x="47" y="104" width="97" height="52" fill="#cfe3dc"/><rect x="146" y="74" width="97" height="82" fill="#7fb3a6"/><text x="95" y="30" text-anchor="middle" fill="#13463b" font-size="10" font-weight="700">용매(저농도)</text><text x="195" y="30" text-anchor="middle" fill="#13463b" font-size="10" font-weight="700">용액(고농도)</text><line x1="118" y1="130" x2="172" y2="130" stroke="#0E5A4C" stroke-width="2.5"/><polygon points="172,130 164,125 164,135" fill="#0E5A4C"/><text x="145" y="172" text-anchor="middle" fill="#C0603A" font-size="9">반투막</text><line x1="258" y1="74" x2="258" y2="104" stroke="#9a7a3a" stroke-width="1.5"/><text x="263" y="92" fill="#9a7a3a" font-size="9">삼투압</text></svg><figcaption>용매가 저농도 → 고농도로 이동(화살표) · 높이 차를 막는 압력이 삼투압</figcaption></div>
 <p>그림에서 보듯, 용매가 진한 쪽으로 넘어가서 진한 쪽 액면이 높아져. 이 높이 차가 만드는 압력이 삼투를 멈추게 하는데, 바로 그 압력이 삼투압이야.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">삼투압 · 삼투를 막는 압력</span></div>
 <p>삼투압은 삼투에 의한 용매 이동을 막기 위해, 진한 용액 쪽에 가해야 하는 압력이야. 농도가 진할수록(입자가 많을수록) 용매를 더 강하게 끌어들이니, 막는 데 필요한 압력도 커. 삼투압을 구하는 식은 신기하게도 이상기체 방정식과 똑 닮았어.</p>
 <div class="big" style="font-size:17px">π = i M R T</div>
@@ -84,19 +85,19 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">π = iMRT. 삼투압은 몰농도와 절대온도에 비례하고, 전해질이면 i를 곱해. 형태가 이상기체 방정식과 같아 외우기 쉬워. 농도가 진할수록 삼투압이 크고, 그만큼 용매를 끌어당기는 힘이 세다는 뜻이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">생활 속 삼투 · 채소·세포·링거</span></div>
 <p>삼투는 우리 주변과 몸속에서 늘 일어나.</p>
 <div class="eg"><span class="lab">예제 · 쪼그라듦과 부풂</span> 채소를 소금물(고농도)에 담그면, 채소 속 물이 더 진한 바깥으로 빠져나가 채소가 쪼그라들어(절임의 원리). 반대로 세포를 순수한 물(저농도)에 두면, 물이 세포 안으로 밀려들어 세포가 부풀지. 농도 차가 큰 쪽으로 물이 이동하는 거야.</div>
 <p>병원에서 쓰는 링거액은 세포 안과 농도를 맞춘 등장액이야. 농도가 같으면 물이 한쪽으로 쏠리지 않아 세포가 안전하거든. 만약 농도가 안 맞으면 세포가 쪼그라들거나 터질 수 있어. 또 삼투압은 작은 농도 차에도 크게 나타나서, 고분자(단백질 등)의 분자량을 측정하는 데도 쓰여.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">함정 정리</span></div>
 <div class="trap"><span class="lab">함정 · 삼투에서 움직이는 건 용매다</span><br>삼투에서 반투막을 통과해 이동하는 건 <b>용매</b>(작은 분자)야. 용질이 아니야(용질은 막에 막혀 못 지나가). 그리고 방향은 용매가 "저농도 → 고농도"로 가서 농도를 같게 만들려 해. "용질이 이동한다", "고농도에서 저농도로 간다"고 거꾸로 외우면 틀려. 막히는 건 용질, 이동하는 건 용매, 방향은 저농도→고농도(용매 기준). 그리고 삼투압도 총괄성이라 전해질 i를 곱하는 걸 잊지 마.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 영역 마무리</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"용매가 저농도 → 고농도로 이동(삼투) · 막는 압력이 삼투압 π = iMRT."</div>
@@ -140,7 +141,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

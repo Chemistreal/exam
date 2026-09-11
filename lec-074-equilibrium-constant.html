@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -68,7 +69,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 앞 강에서 평형 상태를 봤지(073). 그런데 놀라운 게 있어. 평형에서 생성물과 반응물의 농도를 특정 방식으로 조합하면, 같은 온도에서는 항상 똑같은 값이 나와. 처음에 무엇을 얼마나 넣었든 상관없이! 이 일정한 값이 평형 상수 K야. 평형의 위치를 숫자 하나로 나타내는 거지. 오늘은 이 K를 어떻게 세우는지(계수가 지수가 돼), 무엇을 빼야 하는지(고체·순수 액체), 무엇에 의존하는지(오직 온도)를 잡을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">평형 상수 · 생성물 나누기 반응물</span></div>
 <p>평형 상수(<span class="fm">K</span>)는 평형에서 생성물 농도의 곱을 반응물 농도의 곱으로 나눈 값이야. 핵심은 각 농도를 <b>반응식의 계수만큼 거듭제곱</b>한다는 거야.</p>
 <div class="eqn">aA + bB ⇌ cC + dD<br><b>K = [C]<sup>c</sup>[D]<sup>d</sup> / [A]<sup>a</sup>[B]<sup>b</sup></b></div>
@@ -76,27 +77,27 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">K = (생성물 농도 곱) / (반응물 농도 곱), 각 농도를 계수만큼 거듭제곱. 생성물이 분자, 반응물이 분모. 계수가 지수가 돼. 같은 온도에서 평형이면, 처음 농도와 무관하게 이 K 값은 항상 일정해. 평형의 위치를 나타내는 고유한 값이지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">식 세우기 예제</span></div>
 <div class="eg"><span class="lab">예제 · 암모니아 합성</span> <span class="fm">N₂(g) + 3H₂(g) ⇌ 2NH₃(g)</span>의 평형 상수는? 생성물 <span class="fm">NH₃</span>(계수 2)가 분자, 반응물 <span class="fm">N₂</span>(계수 1)·<span class="fm">H₂</span>(계수 3)가 분모야. <span class="fm">K = [NH₃]² / ([N₂][H₂]³)</span>. 계수 2, 1, 3이 그대로 지수가 됐지.</div>
 <div class="eg"><span class="lab">예제 · 또 하나</span> <span class="fm">2SO₂(g) + O₂(g) ⇌ 2SO₃(g)</span>이면, <span class="fm">K = [SO₃]² / ([SO₂]²[O₂])</span>. 생성물 <span class="fm">SO₃</span>²이 분자, 반응물 <span class="fm">SO₂</span>²와 <span class="fm">O₂</span>가 분모야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">고체·순수 액체는 제외</span></div>
 <p>중요한 예외가 있어. K 식에서 <b>고체와 순수 액체는 제외</b>해. 이들은 농도(밀도)가 일정해서 K 값에 영향을 주지 않거든. 그래서 식에 안 써. 기체와 용액 속 물질(수용액)만 K 식에 들어가.</p>
 <div class="eg"><span class="lab">예제 · 고체 제외</span> <span class="fm">CaCO₃(s) ⇌ CaO(s) + CO₂(g)</span>에서, 고체인 <span class="fm">CaCO₃</span>와 <span class="fm">CaO</span>는 빼고 기체만 남겨. 그래서 <span class="fm">K = [CO₂]</span>야(또는 압력으로 <span class="fm">K = P<sub>CO₂</sub></span>). 고체들은 농도가 일정해서 K 식에 안 들어가는 거지.</div>
 <div class="trap"><span class="lab">함정 · 고체·순수 액체를 식에 넣기</span><br>고체(s)와 순수 액체(l)는 K 식에 절대 넣지 마. 농도가 일정해서 K에 반영하지 않는 거야. 예를 들어 반응에 순수한 물(액체)이 용매로 있으면 K 식에서 빼. 다만 기체(g)와 수용액 속 녹아 있는 물질(aq)은 농도가 변하니 넣어. "고체·순수 액체는 빼고, 기체·수용액은 넣는다"를 기억해. 이걸 놓치면 K 식이 틀려.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">K는 온도에만 의존한다</span></div>
 <p>K 값을 바꾸는 건 오직 온도야. 농도를 바꾸거나 압력을 바꿔도, 같은 온도라면 평형이 이동해 다시 같은 K 값으로 돌아와. K 자체는 변하지 않지. 오직 온도가 바뀔 때만 K 값이 바뀌어.</p>
 <div class="big" style="font-size:15px">K는 온도가 일정하면 일정 · 오직 온도로만 변한다</div>
 <div class="key">K는 온도에만 의존해. 농도·압력을 바꿔도 같은 온도면 K는 그대로야(평형이 이동해 K를 맞춤). 온도가 바뀌어야 K가 바뀌지. 그래서 K 값에는 항상 온도가 따라붙어. 이 성질은 다음 강(075)에서 K로 평형 위치를 읽고, 077~079에서 평형 이동을 다룰 때 핵심이 돼.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"K = 생성물/반응물(계수가 지수) · 고체·순수 액체 제외 · 온도에만 의존."</div>
@@ -140,7 +141,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -69,14 +70,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 앞 강에서 고체 용해도를 봤지. 오늘은 기체가 액체에 녹는 경우인데, 놀랍게도 고체와 정반대로 행동해. 탄산음료를 떠올려봐. 따뜻해지면 김이 빠지고(온도↑→덜 녹음), 뚜껑을 열면 거품이 솟지(압력↓→덜 녹음). 고체와는 반대 방향이지. 오늘은 기체 용해도가 온도와 압력에 어떻게 의존하는지(헨리 법칙)를 잡고, 고체와의 차이를 분명히 정리할 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">기체 용해도와 온도 · 고체와 반대</span></div>
 <p>기체 용해도는 <b>온도가 높을수록 작아져</b>. 고체와 정반대야. 온도가 오르면 녹아 있던 기체 분자가 운동에너지를 얻어 액체를 빠져나가기 쉬워지거든. 그래서 따뜻한 물에는 기체가 덜 녹아.</p>
 <div class="eg"><span class="lab">예제 · 데우면 기포</span> 물을 끓이기 전, 데우기만 해도 바닥과 벽에 작은 기포가 맺히지? 그건 물에 녹아 있던 공기가, 온도가 올라 용해도가 줄면서 빠져나오는 거야. 탄산음료가 미지근해지면 김이 빠지는 것도 같은 이유고. "기체는 온도↑면 덜 녹는다"가 핵심이야.</div>
 <div class="key">기체 용해도: 온도↑ → 용해도↓ (고체와 반대!). 데운 물에서 기포가 나오고, 따뜻한 탄산음료의 김이 빠지는 게 그 예야. 분자가 빨라져 액체를 탈출하기 때문이지. 고체(대개 온도↑면 더 녹음)와 정반대 방향이라는 걸 꼭 대비해서 기억해.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">기체 용해도와 압력 · 헨리 법칙</span></div>
 <p>기체 용해도는 압력에 크게 좌우돼. <b>기체의 용해도는 그 기체의 부분압력에 비례한다.</b> 이게 헨리 법칙이야. 기체 압력이 높을수록 더 많은 기체 분자가 액체로 밀려들어가 더 많이 녹아.</p>
 <div class="big" style="font-size:16px">기체 용해도 ∝ 기체의 부분압력 (헨리 법칙)</div>
@@ -84,7 +85,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="trap"><span class="lab">함정 · 고체·액체 용해도도 압력에 좌우?</span><br>헨리 법칙(압력 의존)은 기체 용해도에만 의미가 커. 고체나 액체의 용해도는 압력에 거의 영향받지 않아(압축이 거의 안 되니까). 그러니 "압력↑면 더 녹는다"를 고체에 적용하면 틀려. 압력이 용해도를 크게 바꾸는 건 기체뿐이야. 그리고 헨리 법칙은 물과 잘 반응하지 않는, 잘 안 녹는 기체에 특히 잘 맞아.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">고체 vs 기체 용해도 · 한눈 대비</span></div>
 <p>두 강에 걸친 핵심을 표로 대비하자. 온도와 압력에 대한 반응이 고체와 기체가 어떻게 다른지가 시험의 단골이야.</p>
 <table><tr><th scope="col">요인</th><th scope="col">고체 용해도</th><th scope="col">기체 용해도</th></tr>
@@ -93,7 +94,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">대비 정리: 온도에 대해 고체는 (대개) 더 녹고 기체는 덜 녹아 정반대. 압력에 대해 고체는 무관하고 기체는 비례(헨리)해. 이 두 줄 표만 확실히 외우면, 고체·기체 용해도 비교 문제는 다 풀려. 특히 "기체는 온도↑면 덜, 압력↑면 더"를 통째로 기억해.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"기체는 온도↑면 덜 녹고(고체와 반대), 압력↑면 더 녹는다(헨리 법칙)."</div>
@@ -137,7 +138,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

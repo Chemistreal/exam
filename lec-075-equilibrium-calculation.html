@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -68,27 +69,27 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 앞 강에서 K 식을 세웠지(074). 오늘은 실제로 K 값을 계산하고, 그 크기가 무엇을 뜻하는지를 잡을 거야. K 값 하나만 봐도 그 반응이 평형에서 생성물 쪽으로 많이 가는지(거의 완결), 반응물 쪽에 머무는지(거의 안 일어남)를 알 수 있거든. K는 평형의 "위치"를 알려주는 나침반이야. 오늘은 K 계산과 그 해석을 잡을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">K 값 계산 · 평형 농도를 대입</span></div>
 <p>K 값은 평형에서의 농도들을 K 식(074)에 대입하면 나와. 평형일 때 각 물질의 몰농도를 식에 넣고 계산하는 거지.</p>
 <div class="eg"><span class="lab">예제 · K 구하기</span> <span class="fm">H₂(g) + I₂(g) ⇌ 2HI(g)</span>가 평형일 때 농도가 <span class="fm">[H₂] = 1, [I₂] = 1, [HI] = 4</span>(mol/L)였어. <span class="fm">K = [HI]² / ([H₂][I₂]) = 4² / (1 × 1) = 16</span>. 평형 농도를 식에 그대로 넣어 계산한 거야.</div>
 <p>반대로 K 값과 일부 농도를 알면, 나머지 농도를 거꾸로 구할 수도 있어. K 식이 농도들 사이의 관계식이니까, 미지수 하나를 풀면 되지.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">K의 크기가 말해주는 것 · 평형의 위치</span></div>
 <p>K 값의 크기는 평형에서 생성물과 반응물 중 어느 쪽이 많은지를 알려줘. K는 생성물/반응물이니까, K가 크면 분자(생성물)가 크다는 뜻이고, 작으면 분모(반응물)가 크다는 뜻이지.</p>
 <div class="scale">K ≫ 1 : <b>생성물 많음</b> (정반응 거의 완결, 평형이 오른쪽)<br>K ≈ 1 : 반응물·생성물 비슷<br>K ≪ 1 : <b>반응물 많음</b> (반응 거의 안 일어남, 평형이 왼쪽)</div>
 <div class="key">K가 매우 크면(≫1) 생성물이 많아 반응이 거의 완결된 상태(평형이 오른쪽), 매우 작으면(≪1) 반응물이 많아 반응이 거의 안 일어난 상태(평형이 왼쪽)야. K ≈ 1이면 둘이 비슷하고. 그래서 K 값만 봐도 그 반응이 평형에서 어느 쪽에 치우쳐 있는지 바로 알 수 있어. K는 평형의 위치를 나타내는 나침반이지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">해석 예제</span></div>
 <div class="eg"><span class="lab">예제 · 두 반응 비교</span> 반응 A의 K가 <span class="fm">1×10⁶</span>, 반응 B의 K가 <span class="fm">1×10⁻⁵</span>이라면? 반응 A는 K가 매우 크니 생성물이 압도적으로 많아(거의 완전히 진행돼). 반응 B는 K가 매우 작으니 반응물이 대부분이고 생성물은 거의 안 생겨(반응이 거의 안 일어남). K 값만 보고도 두 반응의 평형 위치를 정반대로 판단할 수 있지.</div>
 <div class="trap"><span class="lab">함정 · K는 반응 속도와 무관</span><br>K가 크다고 반응이 '빠르다'는 뜻은 아니야. K는 평형에서 생성물이 얼마나 많은지(평형의 위치)를 알려줄 뿐, 평형에 얼마나 빨리 도달하는지(속도)와는 별개야. K가 아주 큰데도 반응이 느려서 평형에 도달하는 데 오래 걸릴 수 있어(속도는 반응 속도 영역에서 다룸). "K는 얼마나 많이(위치)지, 얼마나 빨리(속도)가 아니다"를 기억해.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"평형 농도 대입해 K 계산 · K 크면 생성물 많음, K 작으면 반응물 많음(위치, 속도 아님)."</div>
@@ -132,7 +133,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">
@@ -149,35 +150,40 @@ document.addEventListener('click', function (e) {
 <div class="lq__miss"><b>자주 걸리는 자리</b> 액체가 남아 있는 계에서 액체의 양을 늘리면 그 증기의 분압이 커진다고 착각하는 것.</div>
 </div></div>
 <div class="lq__q" data-lq="2">
-<div class="lq__stem"><b>2.</b> 부피가 일정한 용기에 A(g) 0.60 atm 과 B(g) 0.40 atm 을 넣었더니 A(g) + B(g) ⇌ 2C(g) 로 평형에 이르렀고 C 의 부분 압력이 0.40 atm 이 되었다. 평형에서 A 의 부분 압력은?</div>
-<ol class="lq__opts" data-ans="2">
-<li><button type="button" class="lq__opt">0.20 atm</button></li>
-<li><button type="button" class="lq__opt">0.40 atm</button></li>
-<li><button type="button" class="lq__opt">0.60 atm</button></li>
-<li><button type="button" class="lq__opt">0.80 atm</button></li>
-</ol>
-<div class="lq__why" hidden>
-<div class="lq__ans">정답 <b>②</b></div>
-<p>C 가 0.40 생겼으므로 A 와 B 는 각각 0.20 씩 줄었다. A 는 0.60 − 0.20 = 0.40 atm 이다. → ②</p>
-<div class="lq__miss"><b>자주 걸리는 자리</b> 평형에서 부분 압력을 초기값 그대로 쓴다. 계수에 맞춘 변화량을 빼야 한다.</div>
-</div></div>
-<div class="lq__q" data-lq="3">
-<div class="lq__stem"><b>3.</b> 어떤 온도에서 다음 반응의 평형 상수 K는 3.2×10⁻⁶이다.<br>2NOCl(g) ⇌ 2NO(g) + Cl₂(g)<br>이 온도에서 평형에 도달한 혼합물의 농도를 측정하였더니 [NOCl] = 0.80 M, [NO] = 4.0×10⁻³ M이었다. 평형에서 [Cl₂]는? (단, K는 농도로 나타낸 평형 상수이다.)</div>
+<div class="lq__stem"><b>2.</b> 일정 온도의 닫힌 용기에 SO₂(g)를 2.00기압, O₂(g)를 1.00기압 넣고 다음 반응이 평형에 도달하게 하였다.<br><br>2SO₂(g) + O₂(g) ⇌ 2SO₃(g)<br><br>평형에서 O₂의 분압이 0.70기압이었다. 이 온도에서 이 반응의 Kp에 가장 가까운 값은?</div>
 <ol class="lq__opts" data-ans="3">
-<li><button type="button" class="lq__opt">5.1×10⁻⁴ M</button></li>
-<li><button type="button" class="lq__opt">6.4×10⁻⁴ M</button></li>
-<li><button type="button" class="lq__opt">0.13 M</button></li>
-<li><button type="button" class="lq__opt">0.16 M</button></li>
+<li><button type="button" class="lq__opt">0.044</button></li>
+<li><button type="button" class="lq__opt">0.090</button></li>
+<li><button type="button" class="lq__opt">0.26</button></li>
+<li><button type="button" class="lq__opt">0.61</button></li>
 </ol>
 <div class="lq__why" hidden>
 <div class="lq__ans">정답 <b>③</b></div>
-<p>평형 상수식에는 화학 반응식의 계수가 그대로 지수로 들어간다.
-K = [NO]²[Cl₂] / [NOCl]²
-주어진 값을 대입하면
-3.2×10⁻⁶ = (4.0×10⁻³)² × [Cl₂] / (0.80)² = (1.6×10⁻⁵) × [Cl₂] / 0.64
-[Cl₂] = 3.2×10⁻⁶ × 0.64 / 1.6×10⁻⁵ = 2.048×10⁻⁶ / 1.6×10⁻⁵ = 0.128 M ≈ 0.13 M
-검산하면 (4.0×10⁻³)² × 0.128 / (0.80)² = 3.2×10⁻⁶으로 K와 일치한다.</p>
-<div class="lq__miss"><b>자주 걸리는 자리</b> 평형 상수식에서 계수는 반드시 지수로 올려야 하며, 계수 2를 빠뜨리면 값이 수백 배 달라진다.</div>
+<p>O₂는 1.00 − 0.70 = 0.30기압만큼 반응하였다. 이를 x = 0.30기압이라 하면 계수비 2 : 1 : 2에 따라 변화량은 SO₂가 −2x, O₂가 −x, SO₃가 +2x이다.
+SO₂: 2.00 − 2(0.30) = 2.00 − 0.60 = 1.40기압이다.
+O₂: 0.70기압이다.
+SO₃: 0 + 2(0.30) = 0.60기압이다.
+Kp = P(SO₃)²/{P(SO₂)² × P(O₂)} = 0.60²/(1.40² × 0.70) = 0.36/(1.96 × 0.70) = 0.36/1.372 = 0.262이다.
+따라서 가장 가까운 값은 0.26이다.
+정답 ③.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> ICE 표의 변화량은 반드시 계수비대로 두고, Kp는 초기 분압이 아니라 평형 분압을 계수만큼 거듭제곱하여 계산한다.</div>
+</div></div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 닫힌 용기에 삼산화 황(SO₃)만 2.00 기압이 되도록 채운 후, 다음과 같은 평형에 도달하게 하였다.<br><br>2SO₃(g) ⇌ 2SO₂(g) + O₂(g)<br><br>평형 상태에서 SO₃의 분압이 1.20 기압일 때, 이 반응의 Kp는 얼마인가? (단, 온도와 부피는 일정하다.)</div>
+<ol class="lq__opts" data-ans="1">
+<li><button type="button" class="lq__opt">0.18</button></li>
+<li><button type="button" class="lq__opt">0.27</button></li>
+<li><button type="button" class="lq__opt">0.36</button></li>
+<li><button type="button" class="lq__opt">5.6</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>①</b></div>
+<p>분압으로 ICE 표를 세운다. 반응한 정도를 x라 하면 계수비가 2 : 2 : 1이므로 변화량은 SO₃가 −2x, SO₂가 +2x, O₂가 +x이다.
+SO₃의 분압이 2.00에서 1.20으로 줄었으므로 2x = 2.00 − 1.20 = 0.80이고 x = 0.40이다.
+따라서 평형에서 P(SO₂) = 2x = 0.80기압, P(O₂) = x = 0.40기압이다.
+Kp = P(SO₂)² × P(O₂) / P(SO₃)² = (0.80² × 0.40)/1.20² = (0.64 × 0.40)/1.44 = 0.256/1.44 ≈ 0.178이다.
+소수 둘째 자리까지 나타내면 0.18이므로 정답은 ①이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> Kp 식의 지수는 반응식의 계수와 같고, ICE 표의 변화량도 계수비대로 잡아야 한다.</div>
 </div></div>
 <p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
 </div>

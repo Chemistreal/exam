@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -69,32 +70,32 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 앞 강의 농도에 이어 온도야(110). 온도는 반응 속도에 아주 강력한 영향을 미쳐. 대략 온도를 10도 올리면 반응 속도가 약 두 배가 될 정도지. 그런데 온도가 빠르게 하는 메커니즘은 농도와 달라. 농도는 충돌 횟수를 늘렸지만, 온도는 입자 하나하나의 에너지를 키워서 활성화 에너지를 넘는 입자의 비율을 크게 늘려(109). 그래서 유효 충돌이 급격히 많아지지. 오늘은 온도가 속도를 높이는 이유와, 농도와의 차이를 잡을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">온도가 높을수록 빠르다 · 강력한 효과</span></div>
 <p>온도가 높을수록 반응 속도가 빨라져. 그 효과가 아주 강력해서, 일반적으로 온도를 10°C 올리면 반응 속도가 약 두 배 정도 빨라진다고 알려져 있어. 냉장고가 음식을 차게 보관해 부패(반응)를 늦추고, 압력솥이 고온으로 음식을 빨리 익히는 게 온도 효과의 예야.</p>
 <div class="big" style="font-size:16px">온도 ↑ → 반응 속도 크게 ↑</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">이유 · 활성화 에너지 넘는 입자가 급증 (그림)</span></div>
 <p>왜 온도가 이렇게 강력할까? 온도를 올리면 입자들의 평균 운동 에너지가 커져(045). 충돌이 약간 더 잦아지기도 하지만, 더 중요한 건 <b>활성화 에너지(109)를 넘을 만큼 에너지가 큰 입자의 비율이 크게 늘어난다</b>는 거야. 그래서 유효 충돌이 급격히 많아져 반응이 빨라지지.</p>
 <div class="fig"><svg viewBox="0 0 290 172"><line x1="40" y1="18" x2="40" y2="148" stroke="#bdb8ac" stroke-width="1.4"/><line x1="40" y1="148" x2="278" y2="148" stroke="#bdb8ac" stroke-width="1.4"/><path d="M 44 148 C 70 148 80 48 100 44 C 122 40 150 120 195 140 C 220 146 245 148 272 148" fill="none" stroke="#0E5A4C" stroke-width="2.4"/><path d="M 44 148 C 78 148 108 86 140 80 C 170 74 200 118 228 134 C 245 142 258 146 272 148" fill="none" stroke="#C0603A" stroke-width="2.4"/><line x1="205" y1="148" x2="205" y2="44" stroke="#5a564d" stroke-width="1.2" stroke-dasharray="3 3"/><text x="208" y="40" fill="#5a564d" font-size="9" font-weight="700">Ea</text><text x="104" y="38" fill="#0E5A4C" font-size="9" font-weight="700">저온</text><text x="150" y="72" fill="#C0603A" font-size="9" font-weight="700">고온</text><text x="214" y="120" fill="#8a8578" font-size="8">Ea 넘는 입자</text><text x="214" y="131" fill="#8a8578" font-size="8">(고온이 많음)</text><text x="20" y="26" fill="#5a564d" font-size="8.5" font-weight="700">입자 수</text><text x="240" y="163" fill="#5a564d" font-size="8.5" font-weight="700">에너지 →</text></svg><figcaption>온도가 오르면(초록→주황) Ea 오른쪽(넘는 입자)의 비율이 크게 늘어난다</figcaption></div>
 <p>그림은 입자들의 에너지 분포야. 저온(초록)에서는 봉우리가 높고 왼쪽에 모여 있어 <span class="fm">Ea</span>를 넘는 입자(오른쪽)가 적어. 고온(주황)에서는 분포가 오른쪽으로 퍼져 <span class="fm">Ea</span>를 넘는 입자가 훨씬 많아지지. 이 "넘는 입자의 급증"이 온도가 속도를 강력히 높이는 핵심 이유야.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">농도와의 차이 · 횟수 vs 에너지</span></div>
 <p>온도와 농도는 작동 방식이 달라. 농도는 입자를 빽빽하게 해 <b>충돌 횟수</b>를 늘렸지(110). 온도는 입자의 에너지를 키워 <b>유효 충돌의 비율</b>(활성화 에너지를 넘는 충돌의 비율)을 높여. 그래서 온도가 속도에 더 강력한 영향을 미치는 거야.</p>
 <div class="key">온도는 입자의 에너지를 키워 활성화 에너지를 넘는 입자의 비율(유효 충돌 비율)을 크게 늘려. 농도가 충돌 횟수를 늘리는 것과 메커니즘이 달라(농도=횟수, 온도=에너지/비율). 그래서 온도는 속도에 강력한 영향을 미치지. 다만 온도는 활성화 에너지 자체(에너지 장벽의 높이)는 바꾸지 않아. 넘는 입자의 비율을 바꿀 뿐이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">함정 정리</span></div>
 <div class="trap"><span class="lab">함정 · 온도가 활성화 에너지를 낮춘다?</span><br>아니야. 온도는 활성화 에너지(에너지 장벽의 높이) 자체를 바꾸지 않아. 온도가 하는 일은 입자의 에너지를 키워 그 장벽을 <b>넘는 입자의 비율</b>을 늘리는 거지. 활성화 에너지를 낮추는 건 촉매가 하는 일이야(다음 강). "온도 = 넘는 입자 비율↑(장벽은 그대로), 촉매 = 장벽 자체를 낮춤"으로 구분해. 그리고 온도는 농도와 달리 단순히 충돌 횟수만 늘리는 게 아니라, 충돌의 에너지(유효 충돌 비율)를 높인다는 점도 기억해.</div>
 <div class="eg"><span class="lab">예제 · 10도 올렸을 뿐인데 두 배</span> 온도를 10°C 올리면 반응 속도가 대략 2배가 돼. 그런데 분자의 <b>평균 속력</b>은 겨우 2% 쯤 빨라질 뿐이야. 왜 2배씩이나 될까? 속도를 정하는 건 <b>평균</b>이 아니라 <b>활성화 에너지를 넘는 분자의 몫</b>이거든. 맥스웰–볼츠만 분포의 <u>오른쪽 꼬리</u>를 보면, 온도가 조금만 올라도 그 꼬리가 <b>크게 부풀어</b>. 숫자로 보면 Ea = 50 kJ/mol 일 때 300 K → 310 K 에서 넘는 분자 수가 <span class="fm">e^(−Ea/RT)</span> 계산으로 <b>약 1.9배</b>가 돼. <b>"평균이 조금 오른다" 가 아니라 "넘는 놈이 확 는다"</b> 가 정답이다.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"온도 ↑ → Ea 넘는 입자 비율 ↑ → 속도 크게 ↑ · 농도(횟수)와 달리 에너지를 키운다."</div>
@@ -138,7 +139,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

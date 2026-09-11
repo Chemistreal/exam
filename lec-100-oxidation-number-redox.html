@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -70,7 +71,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 앞 강에서 산화·환원이 전자 이동이라고 했지(099). 그런데 공유 결합 물질처럼 전자를 누가 정확히 얼마나 잃고 얻었는지 세기 애매한 경우가 있어. 그럴 때 098에서 배운 산화수가 빛을 발해. 산화수의 변화만 보면 산화·환원을 명확히 판단할 수 있거든. 산화수가 증가하면 산화, 감소하면 환원이야. 전자(음전하)를 잃으면 산화수가 올라가고, 얻으면 내려가니까 당연한 결과지. 오늘은 산화수로 산화·환원을 판단하는 법을 잡을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">산화수 변화로 판단 · 증가는 산화</span></div>
 <p>098에서 산화수는 원자가 가진 전하의 정도라고 했지. 산화·환원은 산화수의 변화로 판단해. <b>산화수가 증가하면 산화, 감소하면 환원</b>이야.</p>
 <div class="scale">산화수 증가 → <b>산화</b> (전자 잃음) &nbsp;|&nbsp; 산화수 감소 → <b>환원</b> (전자 얻음)</div>
@@ -78,24 +79,24 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">산화수 증가 = 산화(전자 잃음), 산화수 감소 = 환원(전자 얻음). 전자(음전하)를 잃으면 산화수가 오르고, 얻으면 내려가니까 099의 "잃산얻환"과 같아. 전자를 직접 세기 어려운 반응도, 산화수 변화만 보면 산화·환원을 명확히 판단할 수 있어. 이게 산화수의 큰 쓸모야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">산화 환원 반응 식별 · 산화수가 변하면</span></div>
 <p>어떤 반응이 산화 환원 반응인지도 산화수로 알 수 있어. <b>반응 전후로 산화수가 변하는 원자가 있으면 산화 환원 반응</b>이야. 산화수 변화가 전혀 없으면 산화 환원 반응이 아니지(예: 단순한 중화나 침전).</p>
 <div class="rxn">Zn + Cu²⁺ → Zn²⁺ + Cu<br>Zn: 0 → +2 (증가, 산화) &nbsp; Cu: +2 → 0 (감소, 환원)</div>
 <p>아연이 구리 이온과 반응하는 걸 보자. <span class="fm">Zn</span>은 산화수가 <span class="fm">0 → +2</span>로 증가했으니 산화, <span class="fm">Cu</span>는 <span class="fm">+2 → 0</span>으로 감소했으니 환원이야. 산화수가 변하는 원자가 있으니 이건 산화 환원 반응이지. 한쪽 증가, 다른 쪽 감소가 짝으로 나타나(099의 동시성).</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">판단 예제</span></div>
 <div class="eg"><span class="lab">예제 · 산화/환원 가리기</span> <span class="fm">2H₂ + O₂ → 2H₂O</span>에서 각 원소의 산화수를 보자. <span class="fm">H</span>는 <span class="fm">0 → +1</span>(증가, 산화), <span class="fm">O</span>는 <span class="fm">0 → −2</span>(감소, 환원)야. 수소가 산화되고 산소가 환원된 산화 환원 반응이지. 산화수 변화를 따라가면 무엇이 산화·환원됐는지 바로 나와. 홑원소 물질(<span class="fm">H₂</span>, <span class="fm">O₂</span>)의 산화수는 0이라는 098의 규칙을 쓴 거야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">함정 정리</span></div>
 <div class="trap"><span class="lab">함정 · 산화수 증가가 환원?</span><br>방향을 헷갈리기 쉬워. 산화수 <b>증가</b>가 <b>산화</b>야(전자를 잃어 양전하가 늘었으니까). 산화수 감소가 환원이고. "증가=산화, 감소=환원"을 정확히 기억해. 이름이 비슷해 헷갈리지만, 전자를 잃으면(산화) 산화수가 오른다는 인과를 떠올리면 안 헷갈려. 그리고 산화수 변화가 전혀 없으면 산화 환원 반응이 아니야(모든 반응이 산화 환원은 아님).</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"산화수 증가 = 산화, 감소 = 환원 · 산화수 변하는 원자가 있으면 산화 환원 반응."</div>
@@ -139,7 +140,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

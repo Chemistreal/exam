@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -71,20 +72,20 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 018에서 그린 루이스 구조는 평면 그림이지만, 실제 분자는 입체야. 물은 일직선이 아니라 굽어 있고, 메테인은 평평하지 않고 사면체지. 그 모양을 정하는 원리가 딱 하나 있어. VSEPR, 즉 "중심 원자 주위의 전자쌍들이 서로 밀어내 최대한 멀어진다"는 거야. 오늘은 이 원리로 전자쌍 영역을 세고, 영역 수에 따른 기본 배치 다섯 가지를 그림으로 직접 보면서 잡을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">VSEPR 원리 · 전자쌍은 최대한 멀어진다</span></div>
 <p>중심 원자 주위에는 전자쌍이 있어. 결합에 쓰인 전자쌍(결합 영역)도 있고, 결합 안 한 고립 전자쌍도 있지. 이 전자쌍들은 전부 음전하라 서로 밀어내. 그래서 가능한 한 서로 멀리 떨어지는 방향으로 배치돼. 이 "최대한 멀어진 배치"가 분자의 기본 골격을 정해.</p>
 <div class="key">한 문장: 중심 원자 주위 전자쌍(결합 영역 + 고립쌍)은 서로 반발해 최대한 멀어진다. 그 배치가 분자 모양의 뼈대야. 풍선 여러 개를 한 점에 묶으면 저절로 사방으로 퍼지는 것과 똑같아.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">전자쌍 영역 수 세기 · 다중결합은 하나로</span></div>
 <p>모양을 정하려면 먼저 중심 원자 주위의 "전자쌍 영역 수"를 세야 해. 이게 입체수(스테릭 수)야. 세는 법은 간단해. <b>중심 원자에 연결된 결합 영역 수 + 고립쌍 수.</b></p>
 <div class="trap"><span class="lab">함정 · 다중결합도 영역 1개</span><br>가장 중요한 규칙. 이중결합이나 삼중결합도 <b>하나의 결합 영역</b>으로 세. 전자쌍이 여럿이어도 같은 방향(같은 두 원자 사이)에 몰려 있으니, 방향으로는 하나거든. 예를 들어 <span class="fm">CO₂</span>(O=C=O)는 이중결합이 둘이지만 영역은 2개(좌·우)라 입체수 2야. 전자쌍 개수가 아니라 "방향(영역)의 개수"를 센다는 게 핵심이야.</div>
 <div class="eg"><span class="lab">예제 · 영역 수 세기</span> <span class="fm">CH₄</span>: 결합 4개 + 고립쌍 0 = 영역 4. <span class="fm">NH₃</span>: 결합 3개 + 고립쌍 1 = 영역 4. <span class="fm">H₂O</span>: 결합 2개 + 고립쌍 2 = 영역 4. <span class="fm">CO₂</span>: 이중결합 둘 = 영역 2. 셋 다 입체수 4인데도 고립쌍 수가 달라서 실제 모양이 달라지는데, 그 차이는 다음 강(023)에서 다뤄.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">영역 수별 기본 배치 · 다섯 가지 (그림)</span></div>
 <p>전자쌍이 전부 결합일 때, 영역 수에 따라 "최대한 멀어진 배치"는 이렇게 정해져 있어. 아래 다섯 그림이 모든 분자 모양의 출발점이야. 가운데 진한 원이 중심 원자, 바깥 원이 붙은 원자야.</p>
 <div class="shape">
@@ -99,7 +100,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">이 다섯이 전부야. 영역 2 선형(180°), 3 평면 삼각형(120°), 4 정사면체(109.5°), 5 삼각쌍뿔, 6 정팔면체. 입체수만 세면 이 표에서 기본 배치가 바로 나와. 영역 4의 정사면체가 109.5°라는 것(평면 90°가 아님)을 특히 기억해.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"전자쌍은 최대한 멀어진다 · 영역 수(다중결합은 1)가 기본 배치를 정한다."</div>
@@ -143,7 +144,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

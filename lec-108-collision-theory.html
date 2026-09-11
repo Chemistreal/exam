@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -69,13 +70,13 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 앞 강에서 반응 속도를 정의했지(107). 그럼 반응은 왜, 어떻게 일어날까? 충돌 이론이 설명해줘. 반응물 입자들이 서로 부딪쳐야(충돌해야) 반응이 일어난다는 거지. 그런데 핵심은 이거야. 모든 충돌이 반응으로 이어지는 게 아니야. 충돌이 일어나도, 에너지가 부족하거나 방향이 안 맞으면 그냥 튕겨 나가거든. 충분한 에너지와 올바른 방향, 두 조건을 갖춘 충돌만 반응해(유효 충돌). 오늘은 충돌 이론과 유효 충돌의 조건을 잡을 거야. 반응 속도에 영향을 주는 모든 요인이 결국 이 유효 충돌로 설명돼.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">충돌 이론 · 부딪쳐야 반응한다</span></div>
 <p>충돌 이론의 기본은 단순해. 반응이 일어나려면 반응물 입자들이 서로 충돌해야 한다는 거야. 입자들이 만나지 않으면 반응할 수 없으니까. 그래서 충돌이 자주 일어날수록 반응이 빠를 가능성이 커져.</p>
 <div class="key">충돌 이론: 반응은 반응물 입자가 서로 충돌해야 일어나. 충돌이 잦을수록 반응할 기회가 많아지지. 하지만 충돌한다고 다 반응하는 건 아니야(다음 핵심). 충돌이 반응의 필요조건이지만 충분조건은 아닌 거야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">유효 충돌 · 두 조건을 갖춘 충돌</span></div>
 <p>핵심이야. 충돌한다고 다 반응하는 게 아니라, <b>두 조건을 모두 갖춘 충돌</b>만 반응으로 이어져. 이런 충돌을 유효 충돌이라고 해.</p>
 <ol class="steps"><li><b>충분한 에너지</b>: 활성화 에너지 이상의 에너지로 충돌해야 해(다음 강). 에너지가 부족하면 결합을 끊지 못하고 그냥 튕겨 나가.</li><li><b>올바른 방향(배향)</b>: 반응에 알맞은 방향으로 충돌해야 해. 방향이 어긋나면 에너지가 충분해도 반응이 안 일어나.</li></ol>
@@ -83,19 +84,19 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p>이 두 조건을 모두 만족하는 충돌만 반응해. 둘 중 하나라도 안 되면(에너지 부족하거나 방향 어긋나면) 충돌해도 반응하지 않고 흩어져. 그래서 전체 충돌 중 일부만 실제 반응으로 이어지지.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">유효 충돌과 반응 속도</span></div>
 <p>반응 속도는 <b>단위 시간당 유효 충돌의 수</b>에 달려 있어. 유효 충돌이 많을수록 반응이 빨라지지. 그래서 반응 속도를 빠르게 하려면, 충돌 횟수 자체를 늘리거나(농도·압력·표면적), 유효 충돌의 비율을 높이면(온도·촉매) 돼. 다음 강들에서 다룰 모든 요인이 결국 "유효 충돌을 늘린다"로 설명돼.</p>
 <div class="key">반응 속도 ∝ 단위 시간당 유효 충돌 수. 유효 충돌이 많을수록 빨라져. 속도를 높이는 방법은 두 갈래야. 충돌 횟수를 늘리거나(농도↑·압력↑·표면적↑), 유효 충돌의 비율을 높이거나(온도↑·촉매). 앞으로의 모든 요인이 이 틀로 설명돼.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">함정 정리</span></div>
 <div class="trap"><span class="lab">함정 · 충돌하면 무조건 반응한다?</span><br>아니야. 충돌은 반응의 필요조건일 뿐이야. 충분한 에너지(활성화 에너지 이상)와 올바른 방향, 두 조건을 다 갖춘 유효 충돌만 반응으로 이어져. 에너지가 부족하거나 방향이 어긋나면 충돌해도 그냥 튕겨 나가지. 그래서 실제로는 전체 충돌 중 극히 일부만 반응해. "충돌 = 반응"이 아니라 "유효 충돌 = 반응"이라는 걸 기억해.</div>
 <div class="eg"><span class="lab">예제 · 부딪히는데 왜 안 일어나나</span> 기체 분자는 1초에 수십억 번 부딪히는데, 그렇다면 모든 반응이 순식간에 끝나야 하잖아? 안 그렇지. 충돌이 <b>유효</b>하려면 둘을 다 만족해야 하거든. ① <b>에너지</b>: 활성화 에너지보다 큰 에너지로 부딪혀야 한다 ② <b>방향</b>: 반응할 자리끼리 맞아야 한다. <span class="fm">NO + O₃ → NO₂ + O₂</span> 에서 NO 의 <b>N 쪽</b>이 O₃ 를 때려야 하지, O 쪽으로 부딪히면 그냥 튕겨. 실제로 유효 충돌은 전체의 <b>아주 작은 몫</b>이고, 그래서 반응이 "천천히" 일어나. <b>속도를 올리는 방법은 결국 이 둘 중 하나를 건드리는 것</b>이야 — 온도(에너지 분포)와 촉매(장벽)지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"반응은 충돌로 · 유효 충돌(충분한 에너지 + 올바른 방향)만 반응 · 속도 ∝ 유효 충돌 수."</div>
@@ -139,7 +140,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

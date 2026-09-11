@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -69,7 +70,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 농도(077)·압력(078)을 봤으니 이제 온도야. 온도는 앞의 둘과 결정적으로 달라. 두 가지 점에서지. 첫째, 발열이냐 흡열이냐에 따라 이동 방향이 정해져. 둘째, 온도만이 평형 상수 K 값 자체를 바꿔(농도·압력은 위치만 바꿨지). 게다가 촉매라는 변수도 짚어야 해. 촉매는 평형에 빨리 도달하게만 할 뿐 평형 위치는 안 바꾸거든. 오늘은 온도 변화의 방향, K 변화, 그리고 촉매의 역할을 잡으면서 르샤틀리에를 완성할 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">온도 변화 · 열을 물질처럼 취급</span></div>
 <p>온도 변화의 방향을 판단하는 요령은, 열을 반응물이나 생성물처럼 취급하는 거야. 발열 반응은 열이 생성물 쪽에서 나오고(<span class="fm">반응물 → 생성물 + 열</span>), 흡열 반응은 열이 반응물 쪽으로 들어가(<span class="fm">반응물 + 열 → 생성물</span>). 온도를 올리는 건 "열을 추가"하는 거니까, 그 열을 소비하는 방향으로 이동하지(077의 농도처럼).</p>
 <table><tr><th scope="col">반응</th><th scope="col">온도 ↑ (열 추가)</th><th scope="col">온도 ↓</th></tr>
@@ -78,7 +79,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">온도↑은 열을 추가하는 것 → 열을 소비하는 방향으로 이동. 발열 반응(열이 생성물 쪽)은 온도↑에 역반응(생성물↓), 흡열 반응(열이 반응물 쪽)은 온도↑에 정반응(생성물↑)이야. "온도를 올리면 흡열 방향으로 간다"로 기억하면 깔끔해(발열의 흡열 방향=역반응, 흡열의 흡열 방향=정반응).</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">온도는 K를 바꾼다 · 유일한 요인</span></div>
 <p>여기가 농도·압력과 결정적으로 다른 점이야. 농도·압력 변화는 평형 위치만 옮길 뿐 K는 그대로였지(077·078). 그런데 <b>온도가 변하면 K 값 자체가 바뀌어</b>. 온도는 K를 바꾸는 유일한 요인이야.</p>
 <table><tr><th scope="col">반응</th><th scope="col">온도 ↑</th></tr>
@@ -88,7 +89,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p>발열 반응은 온도를 올리면 역반응으로 가서 생성물이 줄어드니 K가 감소하고, 흡열 반응은 온도를 올리면 정반응으로 가서 생성물이 늘어 K가 증가해. 이동 방향과 K 변화가 일관되지. 074에서 "K는 온도에만 의존"이라고 한 게 바로 이 얘기야.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">촉매 · 빨리 도달만, 위치는 그대로</span></div>
 <p>촉매는 어떨까? 촉매는 정반응과 역반응의 속도를 <b>똑같이</b> 빠르게 해. 그래서 평형에 더 빨리 도달하게 만들지만, <b>평형의 위치(K)는 전혀 바꾸지 않아</b>. 양쪽을 똑같이 가속하니 균형점은 그대로인 거지.</p>
 <div class="key">촉매는 정·역반응을 똑같이 빠르게 해서 평형에 빨리 도달하게 할 뿐, 평형 위치(K)나 생성물의 양은 바꾸지 않아. "촉매 = 빨리 도달, 위치 불변"이야. 평형을 이동시키는 건 농도·압력·온도지 촉매가 아니야.</div>
@@ -96,7 +97,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="eg"><span class="lab">예제 · 온도만이 K 를 바꾼다</span> <span class="fm">N₂ + 3H₂ ⇌ 2NH₃</span>, ΔH = −92 kJ 인 계의 온도를 올리면? ① 온도를 올린다 = <b>열을 넣는다</b>. 발열 반응이니 열은 <b>오른쪽 생성물 자리</b>에 있는 셈이야. ② 르샤틀리에는 "넣은 것을 덜어내는 쪽" 이라 <b>역반응(왼쪽)</b> 으로 이동 → NH₃ 가 <b>줄어</b>. ③ 그리고 온도만은 <b>K 값 자체를 바꾼다</b> — 여기서는 K 가 <b>작아져</b>. (농도·압력은 위치만 옮기고 K 는 그대로였지, 078.) 그래서 공업에서는 수득률을 위해 낮은 온도가 유리한데 속도는 느려져 — <b>약 450°C 라는 타협</b>이 하버법의 조건이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"온도↑ → 흡열 방향 이동, K 변함(발열↓·흡열↑) · 촉매는 빨리 도달만(위치 불변)."</div>
@@ -140,7 +141,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

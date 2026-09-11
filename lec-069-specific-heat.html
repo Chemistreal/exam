@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -67,14 +68,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 지금까지 ΔH를 계산으로 구했는데, 실제 실험에서는 어떻게 잴까? 직접 에너지를 잴 순 없으니, 온도 변화를 측정해서 알아내. 반응이 내놓은 열을 물이 흡수하면 물의 온도가 오르잖아? 그 온도 변화로 열량을 거꾸로 계산하는 거지. 오늘은 그 핵심 도구인 비열과 열량 공식 <span class="fm">Q=cmΔT</span>를 잡고, 열량계로 반응열을 재는 원리를 볼 거야. 계산 공식 하나만 손에 익히면 돼.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">비열 · 1 g을 1도 올리는 에너지</span></div>
 <p>비열(<span class="fm">c</span>)은 물질 1 g의 온도를 1°C 올리는 데 필요한 열량이야. 단위는 <span class="fm">J/(g·°C)</span>지. 비열이 큰 물질은 온도를 올리는 데 열이 많이 들어서, 같은 열을 줘도 온도가 잘 안 변해.</p>
 <p>물은 비열이 유난히 커(약 <span class="fm">4.18 J/(g·°C)</span>). 그래서 물은 데우기도 식히기도 어렵지. 이 큰 비열 덕분에 물은 온도 변화를 완충하는 역할을 해. 바닷가 기후가 온화한 것, 우리 몸이 체온을 유지하는 것, 자동차 냉각수로 물을 쓰는 것이 다 물의 큰 비열 때문이야.</p>
 <div class="key">비열 = 물질 1 g을 1°C 올리는 데 드는 열량(J/g·°C). 비열이 클수록 같은 열에 온도 변화가 작아. 물은 비열이 커서(4.18) 온도가 잘 안 변하고, 그래서 열을 저장·완충하는 데 쓰여. 비열은 물질마다 고유한 값이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">열량 공식 · Q = cmΔT</span></div>
 <p>주고받은 열량(<span class="fm">Q</span>)은 비열·질량·온도 변화의 곱이야. 이 공식 하나가 열량 계산의 전부야.</p>
 <div class="eqn">Q = c · m · ΔT</div>
@@ -82,19 +83,19 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="eg"><span class="lab">예제 · 물 데우기</span> 물 100 g을 20°C에서 30°C로 올리는 데 필요한 열량은? <span class="fm">Q = 4.18 × 100 × 10 = 4180 J</span>(약 4.18 kJ). 물의 비열 4.18에 질량 100 g, 온도 변화 10°C를 곱한 거야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">열량계 · 반응열을 물로 잰다</span></div>
 <p>반응열을 측정하는 장치가 열량계야. 원리는 단순해. 반응을 물속에서 일으키고, 물의 온도 변화를 재는 거지. <b>반응이 방출한 열을 물이 그대로 흡수한다</b>고 보면(열이 밖으로 새지 않는다는 단열 가정), 물이 흡수한 열량을 <span class="fm">Q=cmΔT</span>로 계산해 반응열을 알 수 있어.</p>
 <div class="big" style="font-size:15px">반응이 방출한 열 = 물이 흡수한 열 = c·m·ΔT(물)</div>
 <div class="eg"><span class="lab">예제 · 반응열 측정</span> 어떤 발열 반응을 물 200 g 속에서 일으켰더니 물 온도가 25°C에서 30°C로 올랐어. 반응이 방출한 열은? 물이 흡수한 열 = <span class="fm">4.18 × 200 × 5 = 4180 J</span>. 따라서 반응은 약 <span class="fm">4180 J</span>(4.18 kJ)을 방출한 거야(발열, ΔH&lt;0). 물의 온도 상승으로 반응열을 역산한 거지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">함정 정리</span></div>
 <div class="trap"><span class="lab">함정 · 비열이 크면 온도가 많이 변한다?</span><br>반대야. 비열이 <b>크면</b> 같은 열에 온도가 <b>적게</b> 변해(올리는 데 열이 많이 드니까). 물이 비열이 커서 온도가 잘 안 변하는 게 그 예지. 또 <span class="fm">Q=cmΔT</span>에서 반응이 방출한 열과 물이 흡수한 열은 크기가 같고 부호만 반대야(반응은 잃고 물은 얻음). 그리고 ΔT는 항상 "나중 − 처음"으로 계산해(올랐으면 양수). 부호와 방향을 정확히 챙겨.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"Q = cmΔT · 비열 크면 온도 변화 작음 · 반응 방출열 = 물 흡수열."</div>
@@ -138,7 +139,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

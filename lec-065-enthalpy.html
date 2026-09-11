@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -71,7 +72,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 앞 강에서 발열·흡열을 봤지(064). 오늘은 그 에너지 변화를 정확한 숫자로 다루는 양을 배워. 엔탈피(H)와 반응 엔탈피(ΔH)야. 핵심은 부호 규약이야. 발열이면 ΔH가 음수, 흡열이면 양수지. 이 부호 하나로 반응이 열을 내놓는지 흡수하는지, 얼마나 그러는지를 깔끔하게 표현할 수 있어. 오늘은 ΔH의 정의와 부호, 그리고 열화학 반응식 쓰는 법을 잡을 거야. 앞으로의 모든 계산이 이 ΔH 위에 쌓여.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">엔탈피와 반응 엔탈피 · 변화량을 본다</span></div>
 <p>엔탈피(<span class="fm">H</span>)는 물질이 일정 압력에서 가진 에너지(열함량)라고 생각하면 돼. 그런데 엔탈피의 절대값은 알기 어려워. 그래서 우리는 반응 전후의 <b>변화량</b>만 다뤄. 그게 반응 엔탈피(<span class="fm">ΔH</span>)야.</p>
 <div class="big" style="font-size:16px">ΔH = (생성물의 엔탈피) − (반응물의 엔탈피)</div>
@@ -79,7 +80,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p>반응 후(생성물)에서 반응 전(반응물)을 뺀 거지. 이 차이가 양수냐 음수냐가 발열·흡열을 가르는데, 그게 다음 핵심이야.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">부호 규약 · 발열 음수, 흡열 양수</span></div>
 <p>064에서 발열이면 생성물 에너지가 낮고, 흡열이면 높다고 했지. 이걸 ΔH 부호로 옮기면 이래.</p>
 <table><tr><th scope="col">반응</th><th scope="col">생성물 vs 반응물</th><th scope="col">ΔH 부호</th><th scope="col">열</th></tr>
@@ -89,14 +90,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="trap"><span class="lab">함정 · 발열인데 ΔH가 양수?</span><br>발열은 에너지를 내보내 생성물이 낮아지니까 ΔH가 <b>음수</b>야. "에너지를 많이 내니까 큰 양수겠지"라고 착각하면 안 돼. 많이 방출할수록 ΔH는 더 큰 음수(예: −500 kJ)야. 부호 자체가 방향을 뜻해. 음수면 방출(발열), 양수면 흡수(흡열). 크기는 |ΔH|로 보고, 부호로 방향을 읽어.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">열화학 반응식 · ΔH를 함께 쓴다</span></div>
 <p>반응식에 ΔH를 함께 적은 걸 열화학 반응식이라고 해. 어떤 반응이 얼마만큼 발열·흡열인지를 식 하나에 담는 거지.</p>
 <div class="rxn">H₂(g) + ½O₂(g) → H₂O(l) &nbsp;&nbsp; <b>ΔH = −286 kJ</b></div>
 <p>이건 "수소 1몰이 산소와 반응해 물 1몰이 될 때 286 kJ을 방출한다(발열)"는 뜻이야. ΔH가 음수니 발열이지. 상태(g·l·s)도 함께 적는데, 물질의 상태에 따라 엔탈피가 다르기 때문이야.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">ΔH는 양에 비례 · 계수가 2배면 ΔH도 2배</span></div>
 <p>중요한 성질 하나. ΔH는 반응하는 양에 비례해. 반응식의 계수를 2배로 하면, 그만큼 물질이 2배 반응하니 ΔH도 2배가 돼.</p>
 <div class="rxn">2H₂(g) + O₂(g) → 2H₂O(l) &nbsp;&nbsp; <b>ΔH = −572 kJ</b></div>
@@ -104,7 +105,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="eg"><span class="lab">예제</span> <span class="fm">H₂O(l) → H₂(g) + ½O₂(g)</span>의 ΔH는? 위 발열 반응(−286 kJ)을 거꾸로 한 거니까, 부호를 바꿔 <span class="fm">ΔH = +286 kJ</span>(흡열). 물을 분해하려면 에너지를 넣어야 하니 흡열이 맞지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"ΔH = 생성물 − 반응물 · 발열 ΔH&lt;0, 흡열 ΔH&gt;0 · 계수에 비례, 역반응이면 부호 반대."</div>
@@ -148,7 +149,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

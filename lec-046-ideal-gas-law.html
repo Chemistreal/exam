@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -70,7 +71,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 앞 강에서 보일·샤를 법칙을 봤지. 이제 그걸 아보가드로 법칙(039)까지 합쳐서, 기체의 네 변수를 단 하나의 방정식으로 묶을 거야. 그게 이상기체 방정식 <span class="fm">PV = nRT</span>야. 이 식 하나면 압력·부피·온도·몰수 중 셋을 알 때 나머지 하나를 바로 계산할 수 있어. 기체 문제의 만능 열쇠지. 오늘은 이 식의 의미와 사용법, 그리고 22.4 L가 어디서 나오는지를 잡을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">PV = nRT · 네 변수를 하나로</span></div>
 <p>이상기체 방정식은 이거야.</p>
 <div class="eqn">PV = nRT</div>
@@ -84,27 +85,27 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">PV=nRT는 기체의 네 변수를 한 식에 묶은 거야. R(기체 상수)는 비례 상수로, 단위를 atm·L·mol·K로 쓸 때 값이 0.0821이야. 네 변수 중 셋을 알면 이 식으로 나머지 하나를 바로 구할 수 있어. 기체 계산의 만능 도구지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">사용법 · 셋을 알면 하나가 나온다</span></div>
 <p>쓰는 법은 간단해. 구하려는 변수에 맞게 식을 변형하면 돼. 부피를 구하려면 <span class="fm">V = nRT/P</span>, 몰수를 구하려면 <span class="fm">n = PV/RT</span> 같은 식으로.</p>
 <div class="eg"><span class="lab">예제 · 부피 구하기</span> 1 atm, 273 K(0°C)에서 기체 2몰의 부피는? <span class="fm">V = nRT/P = (2 × 0.0821 × 273) / 1 ≈ 44.8 L</span>. 2몰이니 22.4의 2배가 나오지.</div>
 <div class="trap"><span class="lab">함정 · 단위와 절대온도</span><br>PV=nRT를 쓸 때 단위를 R에 맞춰야 해. R = 0.0821을 쓰려면 압력은 atm, 부피는 L, 온도는 K여야 해. 압력이 mmHg로 주어졌으면 atm으로 바꾸고(÷760), 온도는 무조건 켈빈(+273). 단위가 안 맞으면 답이 엉뚱하게 나와. 그리고 온도는 늘 절대온도, 이건 기체 문제의 철칙이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">22.4 L의 정체 · 여기서 유도된다</span></div>
 <p>039에서 "표준 상태에서 기체 1몰 = 22.4 L"라고 했는데, 그 값이 바로 이 방정식에서 나와. 표준 상태(0°C = 273 K, 1 atm)에서 1몰의 부피를 계산해보자.</p>
 <div class="big" style="font-size:15.5px">V = nRT/P = (1 × 0.0821 × 273) / 1 ≈ 22.4 L</div>
 <p>몰수 1, 온도 273 K, 압력 1 atm을 넣으니 22.4 L가 딱 나오지. 그리고 기체 종류와 상관없이 n·R·T·P만으로 정해지니까, 어떤 기체든 표준 상태 1몰은 22.4 L인 거야. 039에서 외웠던 숫자가 여기서 비로소 유도되는 거지. 외울 게 아니라 계산되는 값이었어.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">몰질량·밀도와 연결 (심화)</span></div>
 <p>한 걸음 더. 몰수 <span class="fm">n</span>은 질량을 몰질량으로 나눈 거잖아(<span class="fm">n = m/M</span>, 035). 이걸 방정식에 넣으면 질량·몰질량과도 이어져.</p>
 <p><span class="fm">PV = (m/M)RT</span>로 쓰면, 기체의 질량이나 몰질량을 압력·부피·온도로 구할 수 있어. 예를 들어 어떤 기체의 질량·부피·압력·온도를 재면 몰질량 <span class="fm">M = mRT/PV</span>로 그 기체가 무엇인지 알아낼 수도 있지. 미지 기체의 정체를 밝히는 데 쓰이는 강력한 응용이야. 지금은 "PV=nRT의 n 자리에 m/M을 넣으면 질량·몰질량까지 다룰 수 있다"는 것만 알아둬.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"PV = nRT · 네 변수를 묶은 만능 식 · 셋을 알면 하나가 나온다(단위는 atm·L·mol·K)."</div>
@@ -148,11 +149,28 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">
-<div class="lq__stem"><b>1.</b> 어떤 순수한 기체 시료 1.10 g을 27 °C, 1.00 atm에서 부피가 0.615 L가 되도록 담았다. 이 기체를 이상 기체로 볼 때 몰질량은? (R = 0.08206 L·atm/(mol·K))</div>
+<div class="lq__stem"><b>1.</b> 온도, 압력, 부피가 모두 같은 산소(O₂) 기체와 메테인(CH₄) 기체가 각각 다른 용기에 들어 있다. 두 기체가 서로 같은 값을 갖는 것을 &lt;보기&gt;에서 모두 고른 것은?<br>(단, 두 기체는 이상 기체이고 원자량은 H 1, C 12, O 16이다.)<br><br>a. 용기 속 분자 수<br>b. 용기 속 기체의 질량<br>c. 용기 속 전체 원자 수<br>d. 분자 하나의 평균 운동 에너지</div>
+<ol class="lq__opts" data-ans="4">
+<li><button type="button" class="lq__opt">a, b, d</button></li>
+<li><button type="button" class="lq__opt">a, c, d</button></li>
+<li><button type="button" class="lq__opt">a</button></li>
+<li><button type="button" class="lq__opt">a, d</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>④</b></div>
+<p>a. PV = nRT에서 P, V, T가 모두 같으므로 n도 같다. 이것이 아보가드로 법칙이며, 분자 수는 서로 같다. (같다)
+b. 질량 = 몰수 × 분자량이다. O₂의 분자량은 16 × 2 = 32, CH₄의 분자량은 12 + 1 × 4 = 16이므로 몰수가 같아도 질량비는 32 : 16 = 2 : 1로 서로 다르다. (다르다)
+c. 분자 하나에 들어 있는 원자 수는 O₂가 2개, CH₄가 5개다. 분자 수가 같으므로 전체 원자 수의 비는 2 : 5로 서로 다르다. (다르다)
+d. 기체 분자 하나의 평균 운동 에너지는 (3/2)kT로 절대 온도만으로 정해진다. 두 기체의 온도가 같으므로 분자량이 달라도 평균 운동 에너지는 같다. (같다)
+같은 값을 갖는 것은 a와 d이므로 정답은 ④이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 분자 수가 같으면 질량이나 원자 수도 같다고 보고, 반대로 분자량이 다르면 평균 운동 에너지도 다르다고 보는 것이 흔한 실수다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 어떤 순수한 기체 시료 1.10 g을 27 °C, 1.00 atm에서 부피가 0.615 L가 되도록 담았다. 이 기체를 이상 기체로 볼 때 몰질량은? (R = 0.08206 L·atm/(mol·K))</div>
 <ol class="lq__opts" data-ans="4">
 <li><button type="button" class="lq__opt">3.96 g/mol</button></li>
 <li><button type="button" class="lq__opt">22.0 g/mol</button></li>
@@ -164,8 +182,8 @@ document.addEventListener('click', function (e) {
 <p>T = 27 + 273 = 300 K. n = PV/RT = (1.00 atm × 0.615 L) ÷ (0.08206 L·atm/(mol·K) × 300 K) = 0.615 ÷ 24.618 = 0.02498 mol. 몰질량 = m/n = 1.10 g ÷ 0.02498 mol = 44.0 g/mol.</p>
 <div class="lq__miss"><b>자주 걸리는 자리</b> 섭씨 온도를 그대로 대입하거나, 몰질량 = 질량/몰수 대신 몰수/질량 방향으로 나누는 것.</div>
 </div></div>
-<div class="lq__q" data-lq="2">
-<div class="lq__stem"><b>2.</b> 부피가 24.6 L인 단단한 강철 용기에 A₂(g) 0.40 mol과 B₂(g) 0.60 mol을 넣고 온도를 27 °C로 유지하였다. 촉매를 넣어 반응 A₂(g) + 3B₂(g) → 2AB₃(g)가 일어나 처음 넣은 B₂의 60 %가 소모되었다. 반응이 멈춘 뒤 용기의 온도를 다시 27 °C로 맞추었을 때, 용기 안 기체의 전체 압력(atm)은?<br><br>(기체 상수 R = 0.082 L·atm/(mol·K), 모든 물질은 기체 상태이며 이상 기체로 거동한다.)</div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 부피가 24.6 L인 단단한 강철 용기에 A₂(g) 0.40 mol과 B₂(g) 0.60 mol을 넣고 온도를 27 °C로 유지하였다. 촉매를 넣어 반응 A₂(g) + 3B₂(g) → 2AB₃(g)가 일어나 처음 넣은 B₂의 60 %가 소모되었다. 반응이 멈춘 뒤 용기의 온도를 다시 27 °C로 맞추었을 때, 용기 안 기체의 전체 압력(atm)은?<br><br>(기체 상수 R = 0.082 L·atm/(mol·K), 모든 물질은 기체 상태이며 이상 기체로 거동한다.)</div>
 <ol class="lq__opts" data-ans="2">
 <li><button type="button" class="lq__opt">0.60</button></li>
 <li><button type="button" class="lq__opt">0.76</button></li>
@@ -178,22 +196,6 @@ document.addEventListener('click', function (e) {
 남은 양: A₂ = 0.40 − 0.12 = 0.28 mol, B₂ = 0.60 − 0.36 = 0.24 mol, AB₃ = 0.24 mol → 전체 n = 0.76 mol.
 RT/V = 0.082 × 300/24.6 = 1.00 atm/mol이므로 P = nRT/V = 0.76 × 1.00 = 0.76 atm.</p>
 <div class="lq__miss"><b>자주 걸리는 자리</b> 부피가 일정한 강철 용기라도 반응으로 기체의 총 몰수가 변하면 압력이 변한다. 압력은 부피가 아니라 전체 몰수에 비례한다.</div>
-</div></div>
-<div class="lq__q" data-lq="3">
-<div class="lq__stem"><b>3.</b> 어떤 순수한 기체 X 1.34 g을 부피 1.00 L인 용기에 넣고 127 °C로 유지하였더니 압력이 1.00 atm이 되었다. X를 이상 기체로 볼 때, X의 분자량(g/mol)에 가장 가까운 값은? (R = 0.0821 L·atm/(mol·K))</div>
-<ol class="lq__opts" data-ans="3">
-<li><button type="button" class="lq__opt">14.0</button></li>
-<li><button type="button" class="lq__opt">30.0</button></li>
-<li><button type="button" class="lq__opt">44.0</button></li>
-<li><button type="button" class="lq__opt">74.0</button></li>
-</ol>
-<div class="lq__why" hidden>
-<div class="lq__ans">정답 <b>③</b></div>
-<p>절대 온도로 먼저 바꾼다. T = 127 + 273 = 400 K.
-n = PV/RT = (1.00 × 1.00) ÷ (0.0821 × 400) = 1.00 ÷ 32.84 = 0.03045 mol
-M = 질량 ÷ 몰수 = 1.34 g ÷ 0.03045 mol = 44.0 g/mol
-검산: 0.03045 mol × 44.0 g/mol = 1.340 g으로 주어진 질량과 일치한다.</p>
-<div class="lq__miss"><b>자주 걸리는 자리</b> 기체 계산에서 온도는 반드시 켈빈으로 바꾸고, 몰 부피 22.4 L/mol은 0 °C·1 atm에서만 쓸 수 있다.</div>
 </div></div>
 <p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
 </div>

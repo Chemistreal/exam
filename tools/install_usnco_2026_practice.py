@@ -9,6 +9,8 @@ base64(gzip(JSON)) 조각으로 보관한 뒤 이 스크립트가 합쳐 검증�
 """
 from __future__ import annotations
 
+import sys
+
 import base64
 import gzip
 import json
@@ -80,6 +82,11 @@ def patch_wrongbook_total() -> None:
 
 
 def main() -> int:
+    # --check 로 불리면 아무것도 쓰지 않는다 — 한 번 적용하는 패치라 검사할 것이 없다
+    # (tools/*.py --check 를 한꺼번에 돌리는 절차가 이 자를 지나며 앵커 오류로 빨간불을 냈다).
+    if "--check" in sys.argv[1:]:
+        print("PASS install_usnco_2026_practice: 검사할 것 없음(한 번 적용하는 패치)")
+        return 0
     data = load_payload()
     OUT.write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     patch_wrongbook_total()

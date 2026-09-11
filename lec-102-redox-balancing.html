@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -71,28 +72,28 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 산화 환원 반응식의 계수를 맞추는 건 일반 반응식보다 한 가지가 더 필요해. 원자 수를 맞추는 건 기본이고, 추가로 <b>잃은 전자 수와 얻은 전자 수가 같아야</b> 하거든(전자는 없어지지 않으니까). 이걸 체계적으로 하는 방법이 반쪽 반응법이야. 반응을 산화 반쪽(전자 잃음)과 환원 반쪽(전자 얻음)으로 나눠 각각 맞추고, 전자 수가 같아지게 한 뒤 합치는 거지. 오늘은 이 방법을 잡을 거야. 다음 강의 전지를 이해하는 바탕이 돼.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">핵심 조건 · 잃은 전자 = 얻은 전자</span></div>
 <p>산화 환원 반응식 균형의 핵심은 이거야. 원자 수가 맞는 건 당연하고, 추가로 <b>산화로 잃은 전자의 총수 = 환원으로 얻은 전자의 총수</b>여야 해. 한쪽이 잃은 전자를 다른 쪽이 빠짐없이 받아야 하니까(099의 동시성).</p>
 <div class="big" style="font-size:16px">잃은 전자 수 = 얻은 전자 수</div>
 <div class="key">산화 환원 반응식 균형: 원자 수 균형 + 전자 수 균형(잃은 전자 = 얻은 전자). 전자는 생기거나 사라지지 않으니, 산화로 내보낸 전자를 환원이 정확히 받아야 해. 이 전자 수 균형이 일반 반응식과 다른 점이야. 반쪽 반응법으로 이걸 체계적으로 맞춰.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">반쪽 반응법 · 나눠서 맞춘 뒤 합친다</span></div>
 <p>반쪽 반응법의 단계를 보자.</p>
 <ol class="steps"><li>반응을 <b>산화 반쪽 반응</b>(전자 잃음)과 <b>환원 반쪽 반응</b>(전자 얻음)으로 나눠.</li><li>각 반쪽 반응의 원자 수와 전하를 맞춰(전자 <span class="fm">e⁻</span>를 넣어 전하 균형).</li><li>두 반쪽의 <b>전자 수가 같아지도록</b> 각각에 적절한 수를 곱해(최소공배수).</li><li>두 반쪽 반응을 더해 전자(<span class="fm">e⁻</span>)를 소거하면 완성된 반응식이 나와.</li></ol>
 <p>핵심은 3단계야. 두 반쪽의 전자 수가 다르면, 최소공배수로 맞춰 같게 만들어. 그래야 합칠 때 전자가 깔끔히 소거되거든.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">예제 · 전자 수가 같은 경우</span></div>
 <p>먼저 전자 수가 처음부터 같은 간단한 경우야.</p>
 <div class="rxn">산화: Zn → Zn²⁺ + 2e⁻<br>환원: Cu²⁺ + 2e⁻ → Cu<br>───────────────<br><b>Zn + Cu²⁺ → Zn²⁺ + Cu</b></div>
 <p><span class="fm">Zn</span>은 전자 2개를 잃고(산화), <span class="fm">Cu²⁺</span>는 전자 2개를 얻어(환원). 둘 다 전자가 2개로 같으니, 그냥 더하면 <span class="fm">e⁻</span>가 소거되고 반응식이 완성돼. 잃은 전자(2)와 얻은 전자(2)가 같아 깔끔하지.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">예제 · 전자 수를 맞춰야 하는 경우</span></div>
 <p>전자 수가 다르면 최소공배수로 맞춰야 해.</p>
 <div class="rxn">산화: Al → Al³⁺ + 3e⁻ &nbsp;(전자 3)<br>환원: Cu²⁺ + 2e⁻ → Cu &nbsp;(전자 2)<br>↓ 최소공배수 6으로 맞춤<br>2Al → 2Al³⁺ + 6e⁻<br>3Cu²⁺ + 6e⁻ → 3Cu<br>───────────────<br><b>2Al + 3Cu²⁺ → 2Al³⁺ + 3Cu</b></div>
@@ -100,7 +101,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="eg"><span class="lab">예제 · 산성 용액에서 반쪽반응으로</span> <span class="fm">MnO₄⁻ + Fe²⁺ → Mn²⁺ + Fe³⁺</span> (산성)을 맞춰 봐. 순서가 정해져 있어. ① 반쪽으로 가른다: <span class="fm">MnO₄⁻ → Mn²⁺</span>, <span class="fm">Fe²⁺ → Fe³⁺</span> ② O 는 <b>H₂O</b> 로 맞춘다: 왼쪽 O 4개 → 오른쪽에 4H₂O ③ H 는 <b>H⁺</b> 로 맞춘다: 오른쪽 H 8개 → 왼쪽에 8H⁺ ④ 전하는 <b>e⁻</b> 로 맞춘다: 왼쪽 (−1+8) = +7, 오른쪽 +2 → 왼쪽에 <b>5e⁻</b> ⑤ 두 반쪽의 전자 수를 맞춘다: Fe 쪽은 1e⁻ 이니 <b>5배</b> ⑥ 더한다 → <span class="fm">MnO₄⁻ + 5Fe²⁺ + 8H⁺ → Mn²⁺ + 5Fe³⁺ + 4H₂O</span>. <b>O→H₂O, H→H⁺, 전하→e⁻</b> 이 세 걸음 순서를 절대 바꾸지 마.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">함정 정리와 한 장 정리</span></div>
 <div class="trap"><span class="lab">함정 · 원자 수만 맞추면 끝?</span><br>산화 환원 반응식은 원자 수만 맞춰서는 안 돼. <b>전자 수(잃은 전자 = 얻은 전자)도 맞춰야</b> 진짜 균형이야. 위 알루미늄 예제에서 전자 수를 안 맞추고 원자만 맞추려 하면 틀려. 두 반쪽 반응의 전자 수를 최소공배수로 같게 만드는 단계를 빼먹지 마. "원자 수 + 전자 수, 둘 다"가 산화 환원 균형의 핵심이야.</div>
 <p>오늘 들고 갈 한 문장.</p>
@@ -145,7 +146,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

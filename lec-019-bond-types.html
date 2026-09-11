@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -70,28 +71,28 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 결합엔 크게 세 종류가 있어. 공유 결합, 이온 결합, 금속 결합. 이걸 따로 외울 필요 없어. 015에서 배운 전기음성도 차이 하나로 거의 다 갈리거든. 전자를 공유하느냐(공유), 아예 넘기느냐(이온), 자유롭게 풀어놓느냐(금속). 오늘은 세 결합이 각각 어떻게 생기고 어떤 성질을 만드는지, 그리고 이 셋이 사실은 칼로 자르듯 나뉘는 게 아니라 연속체라는 걸 정리할 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">이온 결합 · 전자를 아예 넘긴다</span></div>
 <p>전기음성도 차이가 아주 큰 두 원자가 만나면(보통 금속 + 비금속), 전자를 공유하는 게 아니라 전기음성도가 큰 쪽이 전자를 아예 빼앗아. 그러면 전자를 잃은 쪽은 양이온, 얻은 쪽은 음이온이 되고, 이 둘이 서로 반대 전하라 정전기적으로 강하게 끌어당겨. 이게 이온 결합이야.</p>
 <p>대표는 소금 <span class="fm">NaCl</span>. 나트륨(전기음성도 작음)이 전자를 염소(큼)에게 넘겨 <span class="fm">Na⁺</span>와 <span class="fm">Cl⁻</span>이 되고, 둘이 강하게 결합해. 이온 결합 물질의 성질은 이래. 녹는점이 높고(이온 사이 인력이 강함), 고체 상태에서는 전기가 안 통하지만 녹이거나 물에 녹이면 이온이 움직일 수 있어 전기가 통해. 그리고 충격을 주면 부서져.</p>
 <div class="key">이온 결합 = 금속 + 비금속, 전기음성도 차이 큼, 전자를 넘김. 양이온·음이온의 정전기적 인력. 높은 녹는점, 고체는 절연·액체나 수용액은 전도, 부서짐.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">공유 결합 · 전자를 공유한다</span></div>
 <p>전기음성도 차이가 작은 두 원자(보통 비금속 + 비금속)는 어느 쪽도 전자를 빼앗을 만큼 세지 않아. 그래서 전자쌍을 서로 공유해서 같이 옥텟을 채워. 이게 018에서 그린 공유 결합이야.</p>
 <p>대표는 물 <span class="fm">H₂O</span>, 이산화탄소 <span class="fm">CO₂</span>, 질소 <span class="fm">N₂</span> 같은 분자들. 공유 결합으로 이뤄진 물질은 두 부류가 있어. 하나는 분자 하나하나가 따로 노는 분자성 물질(물, 드라이아이스 등)로, 분자 사이 인력이 약해 녹는점이 낮아. 또 하나는 원자들이 그물처럼 끝없이 공유 결합으로 이어진 공유 결정(다이아몬드 등)으로, 결합을 다 끊어야 녹으니 녹는점이 아주 높아.</p>
 <div class="trap"><span class="lab">함정 · 공유 결합이면 녹는점 낮다?</span><br>"공유 = 녹는점 낮음"으로 단순화하면 틀려. 분자성 물질(물·드라이아이스)은 분자 사이 인력이 약해 낮지만, 다이아몬드 같은 공유 결정은 원자 전체가 공유 결합으로 묶여 있어 녹는점이 극도로 높아. 결합 자체가 약한 게 아니라, 분자성 물질은 분자 사이 인력이 약한 거야(이건 다음 영역 분자간 힘에서 본격적으로). 공유 결합의 세기와 물질의 녹는점을 구분해.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">금속 결합 · 전자를 풀어놓는다</span></div>
 <p>금속 원자끼리 만나면 또 다른 방식이야. 금속은 최외각 전자를 헐겁게 잡고 있어서(017, 낮은 이온화에너지), 그 전자들을 통째로 풀어놓아. 그러면 양이온들이 격자처럼 배열되고, 그 사이를 자유전자가 바다처럼 돌아다니며 양이온들을 묶어줘. 이게 금속 결합이야(전자 바다 모형).</p>
 <p>이 자유전자가 017에서 본 금속의 모든 성질을 만들어. 전기·열을 잘 나르고(전도성), 빛을 반사해 광택을 내고, 원자 위치가 어긋나도 자유전자가 결합을 유지해줘 두드리면 부서지지 않고 펴져(전성·연성). 철, 구리, 알루미늄 같은 금속이 다 이런 결합이야.</p>
 <div class="key">금속 결합 = 금속 + 금속, 자유전자(전자 바다) + 양이온 격자. 전도성·광택·전성·연성이 모두 자유전자에서 나와. 017의 금속 물성이 사실은 이 결합의 결과야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">셋은 연속체다 · 전기음성도 차이의 스펙트럼</span></div>
 <p>여기서 중요한 통찰 하나. 공유와 이온은 칼로 자르듯 딱 나뉘는 게 아니라, 전기음성도 차이에 따라 부드럽게 이어지는 연속체야.</p>
 <div class="scale">전기음성도 차이 0 ───────────────────▶ 매우 큼<br>무극성 공유 · · · <b>극성 공유</b> · · · 이온<br>(같은 비금속) &nbsp;(다른 비금속) &nbsp;(금속+비금속)</div>
@@ -100,7 +101,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="eg"><span class="lab">예제 · 셋을 결합으로 가르기</span> <span class="fm">KCl</span> · <span class="fm">HCl</span> · <span class="fm">Cu</span> 의 결합을 갈라 봐. ① 구성 원소: K(금속)+Cl(비금속) → <b>이온 결합</b>, H(비금속)+Cl(비금속) → <b>공유 결합</b>, Cu(금속)만 → <b>금속 결합</b>. ② 전기음성도 차이로도 확인돼: K 0.8 · Cl 3.0 이라 차이 <b>2.2</b>(대략 1.7 이상이면 이온), H 2.1 · Cl 3.0 이라 <b>0.9</b>(극성 공유). ③ 성질이 따라온다 — KCl 은 녹는점 높고 <b>고체는 절연, 녹이면 전도</b>, HCl 은 기체이고 물에 녹아야 전도, Cu 는 <b>고체 그대로 전도</b>하고 두들기면 펴져. <b>결합을 알면 성질이 예언된다</b>.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"전기음성도 차이로 갈린다 · 넘기면 이온, 공유하면 공유, 풀어놓으면 금속."</div>
@@ -144,7 +145,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

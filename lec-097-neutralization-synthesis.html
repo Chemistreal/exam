@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -72,7 +73,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 093부터 096까지 중화 반응을 다 배웠어. 오늘은 한눈에 종합하고 계산 흐름을 정리할 거야. 중화 반응 영역은 산·염기(081~092)의 자연스러운 응용이지. 산과 염기가 만나 물이 되는 본질에서 출발해, 딱 맞는 양(양적 관계), 그걸 이용한 농도 측정(적정), pH 변화의 모습(적정 곡선)으로 이어져. 이 흐름을 잡으면 중화 계산이 한 덩어리로 보여. 영역을 닫는 종합편이야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">핵심 개념 한눈에</span></div>
 <table><tr><th scope="col">주제</th><th scope="col">핵심</th></tr>
 <tr><td>중화(093)</td><td class="mono">H⁺ + OH⁻ → H₂O, 물+염, 발열</td></tr>
@@ -82,14 +83,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">중화 반응의 줄기: 본질(H⁺+OH⁻→H₂O) → 양적 관계(nMV=n'M'V') → 적정(미지 농도 측정) → 적정 곡선(pH 변화). 모두 "H⁺와 OH⁻가 1:1로 만나 물이 된다"는 본질 위에 서 있어. 산·염기(pH·지시약·염 가수분해)가 여기서 다시 쓰이지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">계산 흐름 · 세 단계로</span></div>
 <p>중화 계산의 흐름을 정리하자. 거의 모든 문제가 이 세 단계야.</p>
 <ol class="steps"><li><b>가수 확인</b>: 산·염기가 몇 가인지(<span class="fm">H⁺</span>·<span class="fm">OH⁻</span> 몇 개). HCl·NaOH 1가, H₂SO₄·Ca(OH)₂ 2가.</li><li><b>nMV = n'M'V' 세우기</b>: 가수·농도·부피를 넣어. <span class="fm">nMV</span>가 곧 <span class="fm">H⁺</span>(또는 <span class="fm">OH⁻</span>) 몰수.</li><li><b>미지수 풀기</b>: 모르는 농도나 부피를 계산.</li></ol>
 <p>핵심은 1단계의 가수를 빼먹지 않는 거야(094). 다가산·다가염기에서 가수를 곱하지 않으면 답이 틀려. 그리고 적정 문제면 표준 용액 정보로 미지 농도를 구하는 거고(095).</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">중화점의 액성 · 잊지 말 것</span></div>
 <p>계산과 별개로, 중화점의 액성도 챙겨야 해. 양적으로 딱 맞게 중화돼도(<span class="fm">nMV=n'M'V'</span>), 생긴 염이 가수분해하면 액성이 달라지거든(089·096).</p>
 <table><tr><th scope="col">적정</th><th scope="col">중화점 pH</th></tr>
@@ -99,14 +100,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p>"양적 중화점"과 "pH 7"을 구분하는 게 핵심이야. 강+강일 때만 둘이 일치하고, 약한 쪽이 끼면 중화점 pH가 7에서 벗어나(가수분해). 지시약도 그 중화점 pH에 맞춰 골라야 하고.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">실생활 속 중화</span></div>
 <p>중화는 일상 곳곳에 있어. 속이 쓰릴 때 먹는 제산제는 염기로 위산(<span class="fm">HCl</span>)을 중화하는 거야. 산성화된 토양에 석회(염기성)를 뿌려 중화하는 것, 벌에 쏘였을 때(산성) 암모니아수(염기성)를 바르는 것, 생선 비린내(염기성)에 레몬(산성)을 뿌리는 것이 다 중화의 응용이지. 산성과 염기성을 상쇄한다는 본질을 생활에 쓰는 거야.</p>
 <div class="eg"><span class="lab">종합 예제</span> <span class="fm">0.2 M H₂SO₄ 50 mL</span>를 완전히 중화하는 데 <span class="fm">0.1 M NaOH</span>는 몇 mL? ① 황산 2가, NaOH 1가. ② <span class="fm">2 × 0.2 × 0.05 = 1 × 0.1 × V'</span> → <span class="fm">0.02 = 0.1 V'</span> → <span class="fm">V' = 0.2 L = 200 mL</span>. 가수를 곱하는 1단계가 핵심이었지. (참고로 황산+수산화나트륨은 강산+강염기라 중화점은 pH 7.)</div>
 <div class="trap"><span class="lab">함정 · 적정 곡선 모양은 산·염기 세기와 상관없다?</span><br>아니야. <b>곡선의 모양과 당량점 pH는 산·염기 세기 조합이 정해.</b> 강산+강염기면 당량점이 <b>pH 7</b>이고 수직 구간이 길지만, 약산+강염기면 짝염기가 가수분해해 당량점이 <b>7보다 크고</b>(염기성), 강산+약염기면 <b>7보다 작아</b>(산성). 그래서 지시약도 달라져(091 · 페놀프탈레인 vs 메틸오렌지). 수직 구간의 길이도 세기에 따라 짧아지지. <b>"당량점 = 항상 7"은 강산+강염기일 때만이야.</b></div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 영역 마무리</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"중화는 H⁺+OH⁻→H₂O · nMV=n'M'V'(가수 곱) · 적정으로 농도 측정 · 중화점 pH는 종류 따라."</div>
@@ -150,7 +151,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -68,7 +69,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 앞 강의 Ka가 약산의 세기였지(086). 오늘은 약염기의 세기 Kb를 배우고, 더 멋진 걸 봐. 어떤 산의 Ka와 그 짝염기의 Kb를 곱하면 항상 Kw(=10⁻¹⁴)가 나오거든. 이게 082에서 본 "강산의 짝염기는 약하다"를 정확한 식으로 설명해줘. Ka가 크면(강산) Kb는 작아야(약한 짝염기) 곱이 일정하니까. 오늘은 Kb의 정의와 이 Ka·Kb 관계를 잡을 거야. 산·염기 세기를 하나로 묶는 강의지.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">약염기의 이온화 평형과 Kb</span></div>
 <p>약염기 <span class="fm">B</span>는 물에서 <span class="fm">H⁺</span>를 받아 <span class="fm">OH⁻</span>를 만들며 일부만 이온화해(<span class="fm">B + H₂O ⇌ BH⁺ + OH⁻</span>). 이 평형의 평형 상수가 <span class="fm">Kb</span>야(물은 순수 액체라 제외, 074).</p>
 <div class="eqn">B + H₂O ⇌ BH⁺ + OH⁻<br><b>Kb = [BH⁺][OH⁻] / [B]</b></div>
@@ -76,26 +77,26 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">약염기의 이온화 상수 Kb = [BH⁺][OH⁻]/[B]. Kb가 클수록 강한 염기(이온화 많이 됨)야. 약염기는 H⁺를 받아 OH⁻를 만드니, 생성물에 OH⁻가 들어가지. Ka(약산)와 대칭적인 개념이고, 역시 온도에만 의존하는 고유 값이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">Ka × Kb = Kw · 짝산-짝염기의 관계</span></div>
 <p>이제 핵심이야. 어떤 산의 <span class="fm">Ka</span>와 그 <b>짝염기</b>의 <span class="fm">Kb</span>를 곱하면, 항상 <span class="fm">Kw</span>(물의 이온곱 상수)가 나와.</p>
 <div class="eqn"><b>Ka × Kb = Kw = 1×10⁻¹⁴</b> (25°C)</div>
 <p>여기서 <span class="fm">Ka</span>는 산의 이온화 상수, <span class="fm">Kb</span>는 그 산의 짝염기의 이온화 상수야. 둘의 곱이 항상 일정한 <span class="fm">Kw</span>라는 거지. 이건 산의 이온화와 짝염기의 이온화를 더하면 물의 자동 이온화가 되기 때문이야(083). 그래서 두 상수의 곱이 <span class="fm">Kw</span>가 돼.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">반비례 설명 · 강산의 짝염기는 약하다</span></div>
 <p>이 관계가 082에서 본 "강산의 짝염기는 약하다"를 정확히 설명해. <span class="fm">Ka × Kb = Kw</span>(일정)이니까, <span class="fm">Ka</span>가 크면(강산) <span class="fm">Kb</span>는 작아야 해(약한 짝염기). 반대로 <span class="fm">Ka</span>가 작으면(약산) <span class="fm">Kb</span>는 커지지(상대적으로 강한 짝염기). 곱이 일정하니 하나가 크면 다른 하나는 작은 거야.</p>
 <div class="eg"><span class="lab">예제 · Kb 계산</span> 어떤 약산의 <span class="fm">Ka = 1×10⁻⁵</span>일 때, 그 짝염기의 <span class="fm">Kb</span>는? <span class="fm">Kb = Kw / Ka = 10⁻¹⁴ / 10⁻⁵ = 1×10⁻⁹</span>. 산의 Ka를 알면 짝염기의 Kb를 바로 구할 수 있지. <span class="fm">Ka</span>(<span class="fm">10⁻⁵</span>)가 짝염기 <span class="fm">Kb</span>(<span class="fm">10⁻⁹</span>)보다 크니, 이 경우 산성이 짝염기의 염기성보다 강한 편이야.</div>
 <div class="big" style="font-size:15px">Ka 크면 Kb 작고, Ka 작으면 Kb 크다 (곱이 Kw로 일정)</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">함정 정리</span></div>
 <div class="trap"><span class="lab">함정 · Ka와 Kb는 같은 물질의 것?</span><br><span class="fm">Ka × Kb = Kw</span>에서 <span class="fm">Ka</span>와 <span class="fm">Kb</span>는 <b>짝산-짝염기 관계</b>의 것이어야 해. 즉 어떤 산의 <span class="fm">Ka</span>와 <b>그 산의 짝염기</b>의 <span class="fm">Kb</span>를 곱해야 <span class="fm">Kw</span>야. 아무 산과 아무 염기를 곱하는 게 아니야. 예를 들어 아세트산의 <span class="fm">Ka</span>와 그 짝염기 아세트산 이온의 <span class="fm">Kb</span>를 곱해야 하지. "짝 관계인 산-염기의 Ka·Kb"라는 걸 정확히 기억해. 짝이 아닌 것끼리 곱하면 의미가 없어.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"Kb = [BH⁺][OH⁻]/[B] · 짝산-짝염기는 Ka × Kb = Kw · Ka 크면 Kb 작다."</div>
@@ -139,11 +140,28 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">
-<div class="lq__stem"><b>1.</b> 25°C에서 일양성자 약염기 B의 0.020 M 수용액의 해리도가 1.0%이다. 이 용액에 대한 설명으로 옳은 것은? (25°C에서 Kw = 1.0×10⁻¹⁴, log 2 = 0.30)</div>
+<div class="lq__stem"><b>1.</b> 같은 농도(0.10 M)인 세 약염기 X, Y, Z의 이온화 상수 K_b는 다음과 같다.<br>X: 1.8×10⁻⁵    Y: 4.0×10⁻⁴    Z: 1.0×10⁻⁹<br>세 약염기를 각각 같은 농도의 강산으로 적정할 때, 당량점에서의 pH가 가장 낮은 것은?</div>
+<ol class="lq__opts" data-ans="2">
+<li><button type="button" class="lq__opt">Y</button></li>
+<li><button type="button" class="lq__opt">Z</button></li>
+<li><button type="button" class="lq__opt">X</button></li>
+<li><button type="button" class="lq__opt">세 경우 모두 당량점 pH는 7이다.</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>②</b></div>
+<p>약염기를 강산으로 적정하면 당량점에서 약염기는 모두 소모되고 그 짝산만 남으므로 용액은 산성이 된다.
+당량점 pH는 남은 짝산의 세기가 결정하고, 짝산의 K_a = K_w/K_b이므로 K_b가 작을수록 짝산이 강해 pH가 더 낮다.
+K_b는 Y(4.0×10⁻⁴) &gt; X(1.8×10⁻⁵) &gt; Z(1.0×10⁻⁹)이므로 가장 약한 염기는 Z이다.
+Z의 짝산은 K_a = 1.0×10⁻¹⁴/1.0×10⁻⁹ = 1.0×10⁻⁵로 세 짝산 중 가장 크므로, Z를 적정한 당량점의 pH가 가장 낮다.
+→ ②</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 약염기가 약할수록 그 짝산이 강해져 강산 적정의 당량점 pH가 더 낮아진다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 25°C에서 일양성자 약염기 B의 0.020 M 수용액의 해리도가 1.0%이다. 이 용액에 대한 설명으로 옳은 것은? (25°C에서 Kw = 1.0×10⁻¹⁴, log 2 = 0.30)</div>
 <ol class="lq__opts" data-ans="4">
 <li><button type="button" class="lq__opt">이 용액의 pH는 3.70이다.</button></li>
 <li><button type="button" class="lq__opt">짝산 BH⁺의 Ka는 약 2.0×10⁻⁶이다.</button></li>
@@ -155,8 +173,8 @@ document.addEventListener('click', function (e) {
 <p>[OH⁻] = 0.020 × 0.010 = 2.0×10⁻⁴ M → pOH = 3.70, pH = 14 − 3.70 = 10.30. Kb = (2.0×10⁻⁴)²/(0.020 − 2.0×10⁻⁴) = 4.0×10⁻⁸/0.0198 ≈ 2.0×10⁻⁶이고, 짝산 Ka = Kw/Kb = 1.0×10⁻¹⁴/2.0×10⁻⁶ ≈ 5.0×10⁻⁹이다. 오스트발트 희석률(Kb ≈ cα²)에 따라 c가 작아지면 α = √(Kb/c)는 커지므로 묽힐수록 해리도가 커진다.</p>
 <div class="lq__miss"><b>자주 걸리는 자리</b> pOH를 pH로 그대로 쓰거나, Kb와 짝산 Ka를 서로 바꿔 쓰는 것.</div>
 </div></div>
-<div class="lq__q" data-lq="2">
-<div class="lq__stem"><b>2.</b> 25°C에서 약염기 B의 이온화 상수는 Kb = 1.0×10⁻⁵이다. 0.10 M B 수용액과 그 짝산 BH⁺에 대한 설명으로 옳지 않은 것은? (Kw = 1.0×10⁻¹⁴, 해리된 양은 초기 농도에 비해 작다고 가정한다.)</div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 25°C에서 약염기 B의 이온화 상수는 Kb = 1.0×10⁻⁵이다. 0.10 M B 수용액과 그 짝산 BH⁺에 대한 설명으로 옳지 않은 것은? (Kw = 1.0×10⁻¹⁴, 해리된 양은 초기 농도에 비해 작다고 가정한다.)</div>
 <ol class="lq__opts" data-ans="4">
 <li><button type="button" class="lq__opt">0.10 M B 수용액의 [OH⁻]는 약 1.0×10⁻³ M이다.</button></li>
 <li><button type="button" class="lq__opt">0.10 M B 수용액의 pH는 약 11.0이다.</button></li>
@@ -167,24 +185,6 @@ document.addEventListener('click', function (e) {
 <div class="lq__ans">정답 <b>④</b></div>
 <p>짝산-짝염기 쌍에서는 Ka×Kb = Kw이므로 Ka(BH⁺) = (1.0×10⁻¹⁴)/(1.0×10⁻⁵) = 1.0×10⁻⁹이다. 따라서 Ka가 1.0×10⁻⁵라는 진술이 틀렸다. 나머지는 모두 옳다. [OH⁻] = √(Kb·C) = √(1.0×10⁻⁵×0.10) = 1.0×10⁻³ M이고 pOH = 3.0, pH = 11.0이다. BH⁺는 약산이므로 그 염 수용액은 산성이다.</p>
 <div class="lq__miss"><b>자주 걸리는 자리</b> 짝산의 Ka는 염기의 Kb와 같은 값이 아니라 Ka = Kw/Kb로 구해야 한다.</div>
-</div></div>
-<div class="lq__q" data-lq="3">
-<div class="lq__stem"><b>3.</b> 25 °C에서 0.20 M 일염기 약염기 B의 수용액의 pH가 11.00으로 측정되었다.<br><br>B의 이온화 상수 Kb와, 같은 온도에서 0.20 M BHCl(짝산 BH⁺의 염화물, 물에 완전히 녹아 BH⁺과 Cl⁻로 나뉜다) 수용액의 pH를 옳게 짝지은 것은?<br><br>(B + H₂O ⇌ BH⁺ + OH⁻, Kw = 1.0×10⁻¹⁴. 이온화한 양이 처음 농도에 비해 작다는 근사를 사용하고 물의 자동 이온화는 무시한다. Cl⁻는 가수분해하지 않는다. log 2 = 0.30)</div>
-<ol class="lq__opts" data-ans="1">
-<li><button type="button" class="lq__opt">Kb = 5.0×10⁻⁶, pH = 4.70</button></li>
-<li><button type="button" class="lq__opt">Kb = 5.0×10⁻⁶, pH = 9.30</button></li>
-<li><button type="button" class="lq__opt">Kb = 5.0×10⁻⁶, pH = 7.00</button></li>
-<li><button type="button" class="lq__opt">Kb = 5.0×10⁻³, pH = 4.70</button></li>
-</ol>
-<div class="lq__why" hidden>
-<div class="lq__ans">정답 <b>①</b></div>
-<p>pH = 11.00 → pOH = 3.00 → [OH⁻] = 1.0×10⁻³ M.
-Kb = [BH⁺][OH⁻]/[B] ≈ (1.0×10⁻³)²/0.20 = 1.0×10⁻⁶/0.20 = 5.0×10⁻⁶.
-
-BH⁺은 B의 짝산이므로 Ka(BH⁺) = Kw/Kb = 1.0×10⁻¹⁴/5.0×10⁻⁶ = 2.0×10⁻⁹.
-0.20 M BH⁺ 용액에서 [H⁺] = √(Ka × 0.20) = √(2.0×10⁻⁹ × 0.20) = √(4.0×10⁻¹⁰) = 2.0×10⁻⁵ M.
-pH = −log(2.0×10⁻⁵) = 5 − 0.30 = 4.70 (약산성).</p>
-<div class="lq__miss"><b>자주 걸리는 자리</b> 약염기의 짝산 염은 중성이 아니라 산성이며, Ka·Kb = Kw 관계로 짝산의 세기를 구해야 한다.</div>
 </div></div>
 <p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
 </div>

@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -68,20 +69,20 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 지금까지 산은 <span class="fm">H⁺</span>를 하나 내놓는다고 봤는데, 황산이나 인산처럼 <span class="fm">H⁺</span>를 둘, 셋 내놓을 수 있는 산도 있어. 이런 다양성자산은 <span class="fm">H⁺</span>를 한 번에 다 내놓는 게 아니라 단계별로 하나씩 내놓아. 그리고 각 단계마다 이온화 상수(Ka)가 있는데, 흥미롭게도 뒤로 갈수록 점점 작아져(<span class="fm">Ka1 &gt; Ka2 &gt; Ka3</span>). 두 번째, 세 번째 <span class="fm">H⁺</span>를 떼기가 점점 어렵거든. 오늘은 단계별 이온화와 그 이유를 잡을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">다양성자산 · H⁺를 여러 개</span></div>
 <p>다양성자산은 한 분자가 <span class="fm">H⁺</span>를 둘 이상 내놓을 수 있는 산이야. 황산(<span class="fm">H₂SO₄</span>, 2개), 탄산(<span class="fm">H₂CO₃</span>, 2개), 인산(<span class="fm">H₃PO₄</span>, 3개)이 대표지. 이들은 <span class="fm">H⁺</span>를 한꺼번에 다 내놓지 않고, 단계를 밟아 하나씩 내놓아.</p>
 <div class="key">다양성자산 = H⁺를 둘 이상 내놓는 산(황산·탄산·인산 등). H⁺를 한 번에 다 내놓는 게 아니라 단계별로 하나씩 이온화해. 각 단계마다 별도의 이온화 상수(Ka1, Ka2, ...)가 있어. 단계별로 본다는 게 핵심이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">단계별 이온화 · 하나씩 떼어낸다</span></div>
 <p>이양성자산 <span class="fm">H₂A</span>를 예로 보자. 두 단계로 이온화해.</p>
 <div class="rxn">1단계: H₂A ⇌ H⁺ + HA⁻ &nbsp;&nbsp;(Ka1)<br>2단계: HA⁻ ⇌ H⁺ + A²⁻ &nbsp;&nbsp;(Ka2)</div>
 <p>먼저 첫 번째 <span class="fm">H⁺</span>를 내놓아 <span class="fm">HA⁻</span>가 되고(1단계, <span class="fm">Ka1</span>), 그다음 <span class="fm">HA⁻</span>가 두 번째 <span class="fm">H⁺</span>를 내놓아 <span class="fm">A²⁻</span>가 돼(2단계, <span class="fm">Ka2</span>). 인산처럼 <span class="fm">H</span>가 셋이면 단계가 셋이고 <span class="fm">Ka1, Ka2, Ka3</span>가 있지. 각 단계는 독립된 평형이야.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">Ka1 > Ka2 > Ka3 · 뒤로 갈수록 어렵다</span></div>
 <p>중요한 규칙이야. 단계별 이온화 상수는 <b>뒤로 갈수록 작아져</b>(<span class="fm">Ka1 &gt; Ka2 &gt; Ka3</span>). 즉 두 번째, 세 번째 <span class="fm">H⁺</span>를 떼어내기가 점점 어려워.</p>
 <div class="big" style="font-size:16px">Ka1 &gt; Ka2 &gt; Ka3</div>
@@ -89,13 +90,13 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">Ka1 &gt; Ka2 &gt; Ka3: 단계가 진행될수록 이온화가 어려워져 Ka가 작아져. 이유는 이미 음전하를 띤 이온에서 양전하인 H⁺를 떼어내기가 더 힘들기 때문이야(음-양 끌림). 보통 Ka1이 Ka2보다 훨씬 커서(Ka1 ≫ Ka2), 용액의 [H⁺]는 사실상 첫 단계가 거의 다 결정해.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">첫 단계가 지배 · 함정</span></div>
 <div class="trap"><span class="lab">함정 · H⁺를 한 번에 다 내놓는다?</span><br>다양성자산이 <span class="fm">H⁺</span>를 한꺼번에 다 내놓는다고 보면 안 돼. 단계별로 하나씩 내놓고, 각 단계의 이온화 정도가 달라(<span class="fm">Ka1 &gt; Ka2</span>). 그리고 보통 <span class="fm">Ka1</span>이 <span class="fm">Ka2</span>보다 압도적으로 커서, 두 번째 이온화는 거의 안 일어나. 그래서 용액의 <span class="fm">[H⁺]</span>를 따질 때는 첫 단계만 고려해도 될 때가 많아(2단계는 미미). "단계별이고, 첫 단계가 지배적"이라는 걸 기억해. 황산은 예외적으로 1단계가 강산이지만, 2단계는 약하지.</div>
 <div class="eg"><span class="lab">예제 · 2차 이온화는 왜 무시하나</span> 0.1 M <span class="fm">H₂CO₃</span> 의 pH 를 구할 때 왜 1차만 볼까? (K<sub>a1</sub> = 4.3×10⁻⁷, K<sub>a2</sub> = 4.7×10⁻¹¹) ① 1차: <span class="fm">[H⁺] = √(K<sub>a1</sub>·C) = √(4.3×10⁻⁷ × 0.1) ≈ 2.1×10⁻⁴</span> → <b>pH ≈ 3.7</b>. ② 2차가 보태는 H⁺ 는 대략 K<sub>a2</sub> 크기, 즉 <b>10⁻¹¹</b> 수준이야. ③ 2.1×10⁻⁴ 에 10⁻¹¹ 을 더해 봐야 <b>천만 분의 일도 안 바뀐다.</b> K<sub>a1</sub> 이 K<sub>a2</sub> 보다 <b>10⁴~10⁵ 배</b> 큰 것이 다양성자산의 공통 성질이라(1가 음이온에서 H⁺ 를 또 떼려면 훨씬 힘드니까), <b>"1차만 보면 된다" 는 게으름이 아니라 계산으로 정당화된다.</b></div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"다양성자산은 H⁺를 단계별로 · Ka1 > Ka2 > Ka3(음전하에서 떼기 어려움) · 첫 단계가 지배."</div>
@@ -139,7 +140,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

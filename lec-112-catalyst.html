@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -72,20 +73,20 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 앞 강의 온도는 활성화 에너지를 넘는 입자의 비율을 늘렸지(111). 오늘의 촉매는 다른 방식으로 반응을 빠르게 해. 활성화 에너지 자체를 낮추는 거야. 더 낮은 에너지 장벽의 새 경로를 제공해서, 더 많은 입자가 그 낮은 언덕을 넘을 수 있게 하지. 게다가 촉매는 자신은 소모되지 않아(반응 후 그대로 남아). 중요한 건, 촉매가 활성화 에너지는 낮추지만 반응 엔탈피(ΔH)나 평형 위치는 전혀 바꾸지 않는다는 거야(079에서 봤지). 오늘은 촉매의 원리와, 무엇을 바꾸고 안 바꾸는지를 잡을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">촉매 · 자신은 안 변하며 빠르게 한다</span></div>
 <p>촉매는 자신은 소모되지 않으면서 반응 속도를 빠르게 하는 물질이야. 반응에 참여해 속도를 높이지만, 반응이 끝나면 원래 모습 그대로 남아 다시 쓰일 수 있어. 그래서 적은 양으로도 계속 작용하지.</p>
 <div class="key">촉매 = 자신은 소모되지 않으면서 반응 속도를 빠르게 하는 물질. 반응 후 그대로 남아 재사용돼. 어떻게 빠르게 하는지가 다음 핵심인데, 활성화 에너지를 낮추는 방식이야. 생명체 속 효소가 대표적인 생체 촉매지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">원리 · 활성화 에너지를 낮춘다 (그림)</span></div>
 <p>촉매는 <b>활성화 에너지가 더 낮은 새로운 반응 경로</b>를 제공해. 높은 언덕 대신 낮은 언덕으로 우회하게 해주는 거지. 활성화 에너지가 낮아지면, 그 낮은 장벽을 넘을 수 있는 입자가 많아져(109) 유효 충돌이 늘고 반응이 빨라져.</p>
 <div class="fig"><svg viewBox="0 0 290 168"><line x1="40" y1="16" x2="40" y2="142" stroke="#bdb8ac" stroke-width="1.4"/><line x1="40" y1="142" x2="278" y2="142" stroke="#bdb8ac" stroke-width="1.4"/><path d="M 50 70 C 88 70 110 36 138 32 C 166 36 188 96 220 104 C 235 104 245 104 255 104" fill="none" stroke="#0E5A4C" stroke-width="2.4"/><path d="M 50 70 C 92 70 118 56 138 54 C 160 56 188 98 220 104 C 235 104 245 104 255 104" fill="none" stroke="#B08D57" stroke-width="2.4" stroke-dasharray="5 3"/><line x1="50" y1="70" x2="80" y2="70" stroke="#5a564d" stroke-width="2.6"/><line x1="220" y1="104" x2="252" y2="104" stroke="#5a564d" stroke-width="2.6"/><text x="100" y="26" fill="#0E5A4C" font-size="8.5" font-weight="700">촉매 없음</text><text x="150" y="48" fill="#B08D57" font-size="8.5" font-weight="700">촉매 있음</text><text x="55" y="64" fill="#5a564d" font-size="8">반응물</text><text x="224" y="118" fill="#5a564d" font-size="8">생성물</text><text x="20" y="24" fill="#5a564d" font-size="8.5" font-weight="700">E</text></svg><figcaption>촉매(주황 점선)는 더 낮은 봉우리의 경로 제공 · 시작·끝(ΔH)은 그대로</figcaption></div>
 <p>그림에서 촉매 없는 경로(초록)는 봉우리가 높고, 촉매 있는 경로(주황 점선)는 봉우리가 낮아. 활성화 에너지가 낮아진 거지. 그런데 <b>반응물과 생성물의 높이(시작·끝)는 그대로</b>야. 즉 촉매는 봉우리(활성화 에너지)만 낮출 뿐, 양 끝 높이 차(ΔH)는 안 바꿔.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">바꾸는 것 / 안 바꾸는 것</span></div>
 <p>촉매가 무엇을 바꾸고 안 바꾸는지 정리하자. 이게 핵심이야.</p>
 <table><tr><th scope="col"></th><th scope="col">촉매가</th></tr>
@@ -96,13 +97,13 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">촉매는 활성화 에너지를 낮춰 반응 속도를 빠르게 해. 하지만 반응 엔탈피(ΔH, 시작·끝 에너지 차)나 평형 위치·최종 생성물의 양은 바꾸지 않아. 정반응과 역반응을 똑같이 빠르게 해 평형에 빨리 도달하게만 할 뿐이거든(079). "촉매 = 활성화 에너지↓·속도↑, ΔH·평형은 그대로"가 핵심이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">함정 정리</span></div>
 <div class="trap"><span class="lab">함정 · 촉매가 ΔH나 생성물 양을 바꾼다?</span><br>아니야. 촉매는 활성화 에너지(봉우리)만 낮출 뿐, 반응 엔탈피(ΔH, 양 끝 높이 차)는 바꾸지 않아. 발열·흡열 정도가 달라지지 않는다는 거지. 또 촉매는 평형 위치도, 최종 생성물의 양도 안 바꿔(079: 정·역반응을 똑같이 가속해 빨리 도달만). "더 많이"가 아니라 "더 빨리"야. 그리고 촉매는 자신이 소모되지 않아(반응식에서 양변에 같이 나타나거나 표기 안 됨). 이 셋(ΔH 불변·평형 불변·소모 안 됨)을 기억해.</div>
 <div class="eg"><span class="lab">예제 · 촉매가 바꾸는 것과 안 바꾸는 것</span> <span class="fm">2H₂O₂ → 2H₂O + O₂</span> 에 MnO₂ 를 넣으면 거품이 확 인다. 무엇이 달라졌을까? <b>바뀐 것</b> — Ea 가 76 → <b>약 58 kJ/mol</b> 로 낮아졌어. 새 경로가 생긴 거지(촉매가 참여했다가 <b>그대로 되돌아온다</b>). 정반응만 빨라진 게 아니라 <b>역반응 Ea 도 똑같이 낮아져</b> 양쪽이 같이 빨라져. <b>안 바뀐 것</b> — ΔH(양 끝의 차이)도, 평형 상수 K 도, 최종 생성물의 양도 <b>그대로</b>야. <b>촉매는 도착지를 바꾸지 않고 가는 시간을 줄인다.</b> 그래서 "촉매를 넣으면 수득률이 오른다" 는 틀린 말이고, "빨리 평형에 닿는다" 가 맞는 말이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"촉매 = 활성화 에너지 낮춤(새 경로) → 속도↑ · ΔH·평형·자신은 안 바뀜."</div>
@@ -146,7 +147,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

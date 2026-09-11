@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -68,7 +69,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 이번 영역은 반응 속도야. 지금까지 "반응이 일어나는가, 어느 방향으로 가는가"를 봤다면, 이제 "얼마나 빨리 일어나는가"를 보는 거지. 같은 반응도 폭발하듯 순식간에 일어나기도 하고, 철이 녹슬듯 몇 년에 걸쳐 천천히 일어나기도 해. 이 빠르기를 숫자로 나타낸 게 반응 속도야. 단위 시간당 반응물이 얼마나 줄어드는지(또는 생성물이 늘어나는지)로 정의하지. 오늘은 반응 속도의 정의와, 시간에 따라 속도가 어떻게 변하는지를 잡을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">반응 속도 · 단위 시간당 농도 변화</span></div>
 <p>반응 속도는 단위 시간당 반응물이 줄어드는 양, 또는 생성물이 늘어나는 양이야. 농도의 변화를 시간으로 나눈 거지.</p>
 <div class="eqn"><b>반응 속도 = |농도 변화| / 시간 변화</b></div>
@@ -76,24 +77,24 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">반응 속도 = |농도 변화| / 시간(단위 M/s). 반응물이 줄어드는 빠르기 또는 생성물이 늘어나는 빠르기야. 반응물은 감소, 생성물은 증가하지만 속도는 양수로 표현해. 농도뿐 아니라 기체 부피·질량·색 등 측정 가능한 변화로 구할 수 있어.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">속도는 시간에 따라 변한다 · 보통 점점 느려짐</span></div>
 <p>중요한 점. 반응 속도는 반응이 진행되는 동안 일정하지 않고 변해. 대부분의 반응은 <b>처음에 빠르고 점점 느려져</b>. 처음엔 반응물 농도가 높아 빠른데, 진행될수록 반응물이 줄어 속도가 느려지거든(다음다음 강의 농도 효과).</p>
 <div class="big" style="font-size:15.5px">대개 처음 빠름 → 진행될수록 느려짐 (반응물 감소)</div>
 <p>그래서 속도를 말할 때 어느 구간·어느 순간인지가 중요해. 일정 구간의 평균을 평균 속도, 특정 순간의 속도를 순간 속도라고 해. 보통 반응 초기의 속도가 가장 빠르지.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">계산 예제</span></div>
 <div class="eg"><span class="lab">예제 · 평균 속도</span> 어떤 반응에서 반응물 농도가 <span class="fm">10초</span> 동안 <span class="fm">0.8 M</span>에서 <span class="fm">0.6 M</span>으로 줄었어. 이 구간의 평균 반응 속도는? <span class="fm">|0.6 − 0.8| / 10 = 0.2 / 10 = 0.02 M/s</span>. 농도 변화의 크기를 시간으로 나눈 거야. 반응물이 줄었어도 속도는 양수(0.02 M/s)로 나타내지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">함정 정리</span></div>
 <div class="trap"><span class="lab">함정 · 반응 속도가 일정하다?</span><br>대부분의 반응에서 속도는 일정하지 않아. 보통 처음이 가장 빠르고 진행될수록 느려져(반응물 농도가 줄어드니까). 그래서 "이 반응의 속도"라고 뭉뚱그리기보다, 어느 구간·순간인지를 따져야 해. 또 반응물은 줄고 생성물은 늘지만 속도는 양수로 표현한다는 것도 챙겨. 농도 변화의 부호와 속도의 부호를 헷갈리지 마.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"반응 속도 = |농도 변화|/시간 · 보통 처음 빠르다 점점 느려짐."</div>
@@ -137,7 +138,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

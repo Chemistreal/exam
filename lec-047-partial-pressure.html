@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -66,7 +67,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 지금까지는 한 종류 기체만 다뤘어. 그런데 공기처럼 여러 기체가 섞여 있는 경우가 흔하잖아. 질소와 산소가 한 용기에 같이 있으면, 압력은 어떻게 될까? 답은 의외로 간단해. 각 기체가 서로 무관하게 자기 압력을 가하고, 그게 다 더해져. 이게 돌턴의 부분압력 법칙이야. 오늘은 부분압력이 뭔지, 그리고 그게 몰분율과 어떻게 연결되는지를 잡을 거야. 공기 같은 혼합 기체를 다루는 도구야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">부분압력과 돌턴 법칙 · 각자 더한다</span></div>
 <p>부분압력은 혼합 기체에서 한 성분 기체가 혼자 그 용기를 차지할 때 가하는 압력이야. 기체 분자들은 서로 거의 무관하게 날아다니니까(028, 분자 간 힘 약함), 각 기체가 다른 기체의 존재와 상관없이 독립적으로 벽을 두드려.</p>
 <p>그래서 돌턴 법칙이 나와. <b>혼합 기체의 전체 압력은 각 성분 기체 부분압력의 합과 같다.</b></p>
@@ -74,7 +75,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">돌턴의 부분압력 법칙: 전체 압력 = 부분압력의 합. 각 기체가 독립적으로 압력을 가하니, 그냥 더하면 돼. 기체 분자들이 서로 거의 상호작용하지 않기 때문에 가능한 거야. 한 용기 안 여러 기체의 압력은 각자의 몫을 합산한다고 보면 돼.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">몰분율과 부분압력 · 비례 관계</span></div>
 <p>부분압력은 그 기체가 얼마나 많이 들어 있는지에 비례해. 같은 용기·같은 온도라면, 각 기체의 부분압력은 그 기체의 몰수에 비례하거든(PV=nRT에서 V·T 같으면 P∝n). 그래서 부분압력은 전체압력에 몰분율을 곱한 값이야.</p>
 <div class="big" style="font-size:15.5px">P₁ = P<sub>전체</sub> × (n₁ / n<sub>전체</sub>)</div>
@@ -82,13 +83,13 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="eg"><span class="lab">예제</span> 용기에 질소 0.8몰, 산소 0.2몰이 들어 있고 전체 압력이 1 atm이야. 산소의 부분압력은? 산소 몰분율 = <span class="fm">0.2 / (0.8+0.2) = 0.2</span> → 부분압력 = <span class="fm">1 × 0.2 = 0.2 atm</span>. 질소는 <span class="fm">1 × 0.8 = 0.8 atm</span>. 둘을 더하면 <span class="fm">0.8 + 0.2 = 1 atm</span>으로 전체와 맞지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">함정 정리</span></div>
 <div class="trap"><span class="lab">함정 · 부분압력은 몰비지, 질량비가 아니다</span><br>부분압력은 몰분율에 비례하지 질량 비율이 아니야. 038에서처럼 몰질량이 다르면 질량비와 몰비가 다르니까. "산소가 질량으로 절반"과 "산소 몰분율이 0.5"는 다른 얘기지. 부분압력을 구할 땐 반드시 몰(몰분율)을 써. 그리고 부분압력의 비 = 몰의 비라는 것도 같은 이유야.</div>
 <div class="trap"><span class="lab">함정 · 부피·온도가 같아야</span><br>"부분압력 = 전체압력 × 몰분율"은 모든 기체가 같은 부피(같은 용기)·같은 온도에 있을 때 성립해. 한 용기에 섞여 있으면 자동으로 부피·온도가 같으니 보통 문제없지만, 원리는 "같은 조건에서 압력 ∝ 몰"이라는 걸 기억해. PV=nRT에서 V·T가 같으니 P가 n에 비례하는 거야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"전체 압력 = 부분압력의 합 · 부분압력 = 전체압력 × 몰분율."</div>
@@ -132,7 +133,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

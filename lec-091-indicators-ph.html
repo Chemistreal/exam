@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -70,7 +71,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 084에서 pH를 배웠는데, 실제로 어떤 용액의 pH를 어떻게 알아낼까? 두 가지 방법이 있어. 색으로 대략 아는 지시약, 그리고 숫자로 정확히 재는 pH 미터지. 지시약은 pH에 따라 색이 변하는 신기한 물질인데, 그 자체가 약산이나 약염기라서 pH에 따라 이온화 정도가 달라지며 색이 바뀌어. 오늘은 지시약의 원리와 종류, 그리고 pH 측정 방법을 잡을 거야. 다음 영역인 중화 반응의 적정에서도 지시약이 핵심으로 쓰이니 잘 잡아두자.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">지시약 · pH에 따라 색이 변한다</span></div>
 <p>지시약은 pH에 따라 색이 변하는 물질이야. 원리가 재밌어. 지시약 자체가 약산(<span class="fm">HIn</span>)인데, 그 분자형(<span class="fm">HIn</span>)과 이온형(<span class="fm">In⁻</span>)이 서로 다른 색을 띠거든. pH에 따라 이 둘의 비율이 달라져서 색이 바뀌는 거지.</p>
 <div class="rxn">HIn ⇌ H⁺ + In⁻<br>(산성형 색) &nbsp;&nbsp; (염기성형 색)</div>
@@ -78,7 +79,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">지시약 = pH에 따라 색이 변하는 약산(또는 약염기). 분자형 HIn과 이온형 In⁻이 다른 색이고, pH에 따라 둘의 비율이 바뀌어 색이 변해. 산성에서는 HIn 색, 염기성에서는 In⁻ 색이 나타나지. 르샤틀리에 원리(077)로 평형이 이동하는 거야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">변색 범위와 대표 지시약</span></div>
 <p>지시약은 특정 pH 구간에서 색이 변하는데, 그 구간을 변색 범위라고 해. 지시약마다 변색 범위와 색이 달라.</p>
 <table><tr><th scope="col">지시약</th><th scope="col">산성</th><th scope="col">염기성</th></tr>
@@ -89,19 +90,19 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p>예를 들어 페놀프탈레인은 산성·중성에서 무색이다가 염기성이 되면 분홍색으로 변해. BTB는 산성 노랑, 중성 초록, 염기성 파랑으로 세 색을 보여줘서 중성 부근을 보기에 좋지. 측정하려는 pH 범위에 맞는 지시약을 골라 써야 해.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">pH 측정 방법 · 대략 vs 정확</span></div>
 <p>pH를 알아내는 방법은 정확도에 따라 나뉘어. 지시약이나 pH 종이(만능 지시약)는 색으로 대략적인 pH를 알려줘(간편하지만 정밀하진 않음). 정확한 값이 필요하면 <b>pH 미터</b>를 써. pH 미터는 용액의 <span class="fm">[H⁺]</span>를 전기적으로 측정해 숫자로 정확한 pH를 보여주지.</p>
 <div class="key">pH 측정: 지시약·pH 종이는 색으로 대략 파악(간편), pH 미터는 전기적으로 정확히 측정(정밀). 대략적이면 지시약, 정확한 값이 필요하면 pH 미터를 써. 상황에 맞게 고르는 거야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">함정 정리</span></div>
 <div class="trap"><span class="lab">함정 · 지시약 하나로 정확한 pH를 안다?</span><br>한 가지 지시약은 자기 변색 범위 안에서만 색이 변해서, 정확한 pH 값을 알려주지 못해(그 범위 안인지 밖인지 정도). 예를 들어 페놀프탈레인은 염기성인지 아닌지는 알려줘도 pH가 정확히 얼마인지는 안 알려줘. 정확한 pH는 pH 미터로 재야 해. 그리고 페놀프탈레인이 염기성에서 분홍이라는 방향을 헷갈리지 마(산성·중성에서 무색). 지시약은 "대략적 판별", pH 미터는 "정확한 측정"이야.</div>
 <div class="eg"><span class="lab">예제 · 지시약을 잘못 고르면</span> 0.1 M <span class="fm">CH₃COOH</span> 를 0.1 M NaOH 로 적정할 때 페놀프탈레인과 메틸오렌지 중 무엇을 쓸까? ① 약산+강염기라 <b>당량점이 염기성</b>이야(짝염기 CH₃COO⁻ 가 가수분해) — 대략 <b>pH 8.7</b>. ② 지시약은 <b>변색 범위가 당량점을 품어야</b> 해. 페놀프탈레인 8.3~10.0 <b>○</b>, 메틸오렌지 3.1~4.4 <b>✕</b>. ③ 메틸오렌지를 쓰면 pH 4 쯤에서 이미 색이 변해 <b>당량점보다 한참 앞에서 멈추게</b> 돼 — NaOH 를 덜 넣고 끝내니 농도가 낮게 나오지. <b>지시약 선택은 취향이 아니라 당량점 pH 가 정한다.</b> 강산+강염기면 당량점 7이라 둘 다 되고, 강산+약염기면 메틸오렌지 쪽이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"지시약은 pH에 따라 색 변화(변색 범위 있음) · 정확한 측정은 pH 미터."</div>
@@ -145,7 +146,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

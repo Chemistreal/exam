@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -72,14 +73,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">배위 화학 세 강을 지나왔어. 결합의 원리(122), 부품 도감(123), 구조와 성질(124). 오늘은 이걸 문제 풀이용 절차로 압축한다. 착이온 문제가 나오면 머릿속에서 돌아갈 순서는 네 단계야. <b>식 읽기(중심·리간드·전하) → 배위수 세기 → 구조 그리기 → 성질(이성질체·색·해리) 연결.</b> 유기(121)에서 했던 3단계 독법의 배위 화학 버전이지.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">1단계 · 식 읽기, 전하 회계</span></div>
 <p>착이온 식이 나오면 기계적으로 분해해. <span class="fm">[Fe(CN)₆]³⁻</span>: 중심 Fe, 리간드 CN⁻ 6개. 전하 회계: 전체 −3 = Fe 전하 + (−1)×6 → <b>Fe는 +3</b>. 이렇게 <b>전체 전하에서 리간드 전하를 빼면 중심의 산화수</b>가 나와(098의 산화수 규칙과 같은 회계법이야).</p>
 <div class="eg"><span class="lab">예제 · 3연속 회계</span> [Cu(NH₃)₄]²⁺: NH₃ 중성 → Cu +2. [Ag(NH₃)₂]⁺: → Ag +1. [Co(NH₃)₄Cl₂]⁺: 전체 +1 = Co + 0×4 + (−1)×2 → Co +3. 리간드 전하(중성: H₂O·NH₃·CO / −1: Cl⁻·OH⁻·CN⁻)만 외우면 10초 안에 끝나는 계산이야.</div>
 <div class="key">중심 산화수 = 전체 전하 − 리간드 전하 합. 중성 리간드(H₂O, NH₃)와 −1 리간드(Cl⁻, OH⁻, CN⁻)의 구분이 회계의 전부다.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">2·3단계 · 배위수에서 구조로</span></div>
 <p>배위수는 <b>자리 수의 총합</b>(123). 단좌만 있으면 리간드 개수, en(2자리)·EDTA(6자리)가 끼면 곱해서 더해. 배위수가 나오면 구조가 따라와(124).</p>
 <div class="flow"><span>2 → 직선형</span><b>·</b><span>4 → 정사면체 or 평면 사각형(Pt²⁺·Pd²⁺)</span><b>·</b><span>6 → 정팔면체</span></div>
@@ -87,7 +88,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">배위수(자리 수 총합) → 구조(2 직선·4 두 갈래·6 팔면체) → 이성질체 가능성(평면 사각·팔면체만 시스·트랜스). 이 사슬을 끊김 없이 돌리는 게 구조 문제의 전부다.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">4단계 · 성질 연결 · 색·해리·재용해</span></div>
 <p>마지막으로 성질 3종 세트를 연결해.</p>
 <table><tr><th scope="col">성질</th><th scope="col">원리</th><th scope="col">대표 현상</th></tr>
@@ -97,13 +98,13 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="trap"><span class="lab">함정 · 영역 전체의 핵심 구분들</span><br>① <b>배위 결합은 특별한 결합?</b> 형성 방식만 특별한 공유 결합, 생기면 동일(122). ② <b>리간드 개수 = 배위수?</b> 다좌(en·EDTA)는 자리 수로 곱해서(123). ③ <b>4배위 = 사면체?</b> Pt²⁺·Pd²⁺는 평면 사각형(124). ④ <b>전이 금속 착물 = 유색?</b> d⁰·d¹⁰은 무색(124). ⑤ <b>대괄호 안 Cl도 앙금?</b> 안은 해리 안 됨, 밖만 AgCl(124). ⑥ <b>양이온도 리간드?</b> 비공유쌍 없으면 탈락(123). 이 여섯이 배위 화학 오답의 대부분이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">배위 화학은 어디에 있나 · 생명과 산업</span></div>
 <p>마지막으로 이 단원이 교과서 밖 어디에 있는지 봐. <b>헤모글로빈</b>은 Fe²⁺ 중심의 킬레이트 착물이고, O₂가 리간드로 배위했다 떨어지며 호흡이 돌아가(일산화탄소 중독은 CO가 O₂보다 강하게 배위해 자리를 뺏는 사건이야). <b>엽록소</b>는 Mg²⁺ 중심 킬레이트, <b>비타민 B₁₂</b>는 Co 중심. 산업에서는 시스플라틴(항암, 124), EDTA(보존제·세제·해독, 123), 금속 도금·추출 공정까지. 배위 결합 하나가 생명의 호흡부터 암 치료까지 관통하고 있어.</p>
 <div class="key">헤모글로빈(Fe)·엽록소(Mg)·비타민 B₁₂(Co)는 자연의 킬레이트 착물이고, CO 중독은 리간드 자리 경쟁이다. 시스플라틴·EDTA까지, 배위 화학은 생명과 산업의 현역이다.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 전체 종강</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"식 읽고(전하 회계), 자리 세고(배위수), 모양 그리고(기하), 성질로 이어라(이성질체·색·해리)."</div>
@@ -147,7 +148,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

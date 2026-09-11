@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -69,33 +70,33 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 얼음을 가열하는 걸 상상해봐. 처음엔 온도가 쭉 오르지. 그런데 0°C가 되면, 계속 열을 줘도 얼음이 다 녹을 때까지 온도가 멈춰 있어. 왜일까? 그 열이 온도를 올리는 게 아니라, 분자들을 묶고 있던 분자 간 힘을 끊는 데(상태 변화) 쓰이기 때문이야. 오늘은 상태 변화에 드는 에너지(융해열·기화열)와, 이걸 한눈에 보여주는 가열 곡선을 잡을 거야. 069의 비열 가열과 상태 변화 가열을 구분하는 게 핵심이야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">상태 변화에도 에너지가 든다</span></div>
 <p>고체를 액체로(융해), 액체를 기체로(기화) 바꾸려면 에너지가 필요해. 분자들을 묶고 있는 분자 간 힘(028)을 끊거나 느슨하게 해야 하거든. 이 상태 변화에 드는 에너지를 융해열(고체→액체), 기화열(액체→기체)이라고 해.</p>
 <div class="key">상태 변화 엔탈피: 융해열(고체→액체), 기화열(액체→기체) 등. 분자 간 힘을 끊는 데 드는 에너지야. 이건 흡열 과정(에너지 흡수)이고, 반대 방향(응고·액화)은 그만큼 에너지를 방출해(발열). 상태를 바꾸는 데도 정해진 에너지가 든다는 게 핵심이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">가열 곡선 · 온도가 멈추는 구간 (그림)</span></div>
 <p>고체를 꾸준히 가열하며 온도를 기록하면 이런 곡선이 나와. 온도가 오르는 비스듬한 구간과, 온도가 멈추는 평평한 구간이 번갈아 나타나지.</p>
 <div class="fig"><svg viewBox="0 0 300 175"><line x1="38" y1="18" x2="38" y2="148" stroke="#bdb8ac" stroke-width="1.4"/><line x1="38" y1="148" x2="288" y2="148" stroke="#bdb8ac" stroke-width="1.4"/><polyline points="44,132 78,108 120,108 160,70 220,70 256,46" fill="none" stroke="#0E5A4C" stroke-width="2.6"/><line x1="78" y1="108" x2="120" y2="108" stroke="#C0603A" stroke-width="3"/><line x1="160" y1="70" x2="220" y2="70" stroke="#C0603A" stroke-width="3"/><text x="50" y="128" fill="#5a564d" font-size="8.5">고체</text><text x="128" y="103" fill="#5a564d" font-size="8.5">액체</text><text x="258" y="44" fill="#5a564d" font-size="8.5">기체</text><text x="99" y="123" text-anchor="middle" fill="#C0603A" font-size="8">융해(녹음)</text><text x="190" y="85" text-anchor="middle" fill="#C0603A" font-size="8">기화(끓음)</text><text x="20" y="26" fill="#5a564d" font-size="9" font-weight="700">온도</text><text x="270" y="163" fill="#5a564d" font-size="9" font-weight="700">가한 열 →</text></svg><figcaption>비스듬한 구간 = 온도 상승(비열) · 평평한 구간 = 상태 변화(온도 일정)</figcaption></div>
 <p>비스듬히 오르는 구간은 한 상태 안에서 온도가 오르는 거야(069의 <span class="fm">Q=cmΔT</span>). 평평한 구간이 핵심인데, 여기서는 열을 계속 줘도 온도가 안 올라가. 가한 에너지가 전부 분자 간 힘을 끊어 상태를 바꾸는 데 쓰이거든. 융해(녹는점)와 기화(끓는점)에서 이 평평한 구간이 나타나지.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">왜 온도가 멈추나 · 에너지의 행방</span></div>
 <p>핵심을 다시 짚자. 상태 변화 중에 온도가 일정한 이유는, 가한 에너지가 분자의 운동을 빠르게 하는 데(온도 상승) 쓰이지 않고, 분자 간 힘을 끊어 분자들을 떼어놓는 데 쓰이기 때문이야. 얼음이 다 녹을 때까지, 넣은 열은 모두 얼음 결정을 허무는 데 들어가서 온도가 안 오르는 거지.</p>
 <div class="big" style="font-size:15px">상태 변화 중: 가한 에너지 → 분자 간 힘 끊기 (온도 일정)</div>
 <p>그래서 평평한 구간의 길이가 그 상태 변화에 드는 에너지를 나타내. 그리고 <b>기화열이 융해열보다 훨씬 커</b>. 융해는 분자들을 약간 풀어주는 정도지만, 기화는 분자들을 완전히 떼어 자유롭게 날아가게 해야 하니 분자 간 힘을 더 많이 끊어야 하거든. 그래서 가열 곡선에서 기화의 평평한 구간이 융해보다 길어.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">함정 정리</span></div>
 <div class="trap"><span class="lab">함정 · 열을 주면 항상 온도가 오른다?</span><br>아니야. 상태 변화 중(녹는점·끓는점)에는 열을 줘도 온도가 안 올라가. 그 에너지가 상태를 바꾸는 데 쓰이니까. "열 = 온도 상승"이 항상 성립하는 게 아니야. 비스듬한 구간에서만 온도가 오르고(비열), 평평한 구간에서는 상태가 변해(온도 일정). 그리고 기화열 &gt; 융해열이라는 것도(액체→기체가 분자를 완전히 떼어내야 해서) 기억해. 두 종류 구간을 구분하는 게 핵심이야.</div>
 <div class="eg"><span class="lab">예제 · 얼음 -10°C 를 물 20°C 로</span> 얼음 100 g(−10°C)을 물 20°C 로 만들려면 열이 얼마나 들까? <b>구간을 나누는 것</b>이 전부야. ① 얼음 데우기 −10 → 0°C: <span class="fm">100 × 2.1 × 10 = 2,100 J</span> ② <b>녹이기</b>(0°C 그대로): <span class="fm">100 × 334 = 33,400 J</span> ③ 물 데우기 0 → 20°C: <span class="fm">100 × 4.2 × 20 = 8,400 J</span> 합 <b>약 43.9 kJ</b>. 눈여겨볼 것은 <b>②가 전체의 76%</b> 라는 점이야 — <b>온도가 안 변하는 구간에서 열이 가장 많이 들어간다.</b> 그 열은 온도가 아니라 <u>결합을 푸는 데</u> 쓰였거든.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"상태 변화 중에는 온도 일정(에너지가 분자 간 힘 끊는 데) · 기화열 > 융해열."</div>
@@ -139,7 +140,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

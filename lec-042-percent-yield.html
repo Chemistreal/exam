@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -66,13 +67,13 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 앞 강에서 한계 반응물로 생성물의 양을 계산했지. 그런데 그건 "이론상 최대"야. 실제 실험에서는 그만큼 다 안 나와. 일부가 부반응으로 새거나, 옮기다 손실되거나, 반응이 완전히 끝나지 않거든. 그래서 실제로 얻은 양은 보통 이론값보다 적어. 이 둘의 비율이 수득률이야. 오늘은 짧지만 시험에 자주 나오는 이 개념을 확실히 잡을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">이론 수득량 vs 실제 수득량</span></div>
 <p>두 가지 양을 구분하자. <b>이론 수득량</b>은 반응식으로 계산한, 한계 반응물이 완벽하게 다 반응했을 때 나오는 최대 생성물 양이야(038, 041로 구한 값). <b>실제 수득량</b>은 실험에서 실제로 손에 얻은 양이고. 실제는 보통 이론보다 적어.</p>
 <div class="key">이론 수득량 = 반응식·한계 반응물로 계산한 최대 가능량. 실제 수득량 = 실험으로 실제 얻은 양. 손실·부반응·미완결 반응 때문에 실제 ≤ 이론인 게 보통이야. 이론값은 "이상적으로 다 됐을 때"의 계산값이라는 걸 기억해.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">수득률 · 실제를 이론으로 나눈다</span></div>
 <p>수득률은 실제 수득량이 이론 수득량의 몇 %인지를 나타내. 식은 간단해.</p>
 <div class="big" style="font-size:16px">수득률(%) = (실제 수득량 ÷ 이론 수득량) × 100</div>
@@ -80,13 +81,13 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p>거꾸로 수득률과 이론값을 알면 실제 양을 예측할 수도 있어. <span class="fm">실제 = 이론 × 수득률</span>. 예를 들어 이론상 50 g인데 수득률이 80%면, 실제로는 <span class="fm">50 × 0.8 = 40 g</span> 얻을 거라고 예상하는 거야.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">함정 정리</span></div>
 <div class="trap"><span class="lab">함정 ① 이론값은 한계 반응물 기준</span><br>수득률의 분모인 이론 수득량은 반드시 <b>한계 반응물</b>로 계산해야 해(041). 과잉 반응물로 계산하면 이론값이 부풀려져서 수득률이 틀려. 반응물이 둘 이상이면 먼저 한계 반응물을 찾고, 그걸로 이론값을 구한 뒤 수득률을 내는 순서야.</div>
 <div class="trap"><span class="lab">함정 ② 수득률은 보통 100% 이하</span><br>실제 수득량이 이론값보다 클 수는 없어(있는 것보다 많이 만들 순 없으니까). 그래서 수득률은 보통 100% 이하야. 만약 계산했는데 100%를 넘으면, 생성물에 불순물(물기, 안 마른 부분 등)이 섞였거나 측정에 오류가 있는 거야. 100% 초과는 "뭔가 잘못됐다"는 신호로 읽어.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"수득률 = (실제 ÷ 이론) × 100 · 이론값은 한계 반응물 기준, 보통 100% 이하."</div>
@@ -130,7 +131,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

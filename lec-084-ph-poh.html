@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -70,7 +71,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 앞 강에서 <span class="fm">[H⁺]</span>가 <span class="fm">10⁻³, 10⁻⁷</span>처럼 아주 작은 수라는 걸 봤지(083). 이런 작은 수를 매번 쓰긴 불편해. 그래서 로그를 씌워 <span class="fm">3, 7</span> 같은 간단한 값으로 바꾼 게 pH야. pH = −log[H⁺]이고, pH가 작을수록 산성이 강하지. 0부터 14까지의 pH 척도로 산성·중성·염기성을 한눈에 나타내. 오늘은 pH의 정의와 척도, pOH와의 관계(pH+pOH=14)를 잡을 거야. 산·염기를 정량적으로 다루는 핵심 도구지.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">pH · 수소 이온 농도를 로그로</span></div>
 <p>pH는 수소 이온 농도 <span class="fm">[H⁺]</span>에 음의 로그를 씌운 값이야.</p>
 <div class="eqn">pH = −log[H⁺]</div>
@@ -78,7 +79,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">pH = −log[H⁺]. [H⁺]가 클수록(산성↑) pH는 작아져(음의 로그라서). pH가 작으면 산성, 크면 염기성이야. 7이 중성(순수한 물, [H⁺]=10⁻⁷). "pH 작을수록 산성"이 핵심이고, 방향을 헷갈리지 마.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">pH 척도 · 0부터 14까지 (그림)</span></div>
 <p>pH는 <b>보통</b> 0부터 14까지의 범위에서 다뤄(그 밖으로도 나갈 수 있어 &mdash; 아래 함정). 7이 중성, 7보다 작으면 산성, 크면 염기성이야.</p>
 <div class="fig"><svg viewBox="0 0 300 112"><defs><linearGradient id="ph" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#b5392c"/><stop offset="0.36" stop-color="#d99a3c"/><stop offset="0.5" stop-color="#5aa86a"/><stop offset="0.64" stop-color="#3f8fa0"/><stop offset="1" stop-color="#2f5ea0"/></linearGradient></defs><rect x="24" y="40" width="252" height="24" rx="5" fill="url(#ph)"/><g fill="#5a564d" font-size="9" font-family="monospace" text-anchor="middle">
@@ -89,7 +90,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p>레몬즙은 pH 2 정도(강한 산성), 순수한 물은 7(중성), 비눗물은 10쯤(염기성)이야. 척도에서 왼쪽으로 갈수록 산성이 강하고 오른쪽으로 갈수록 염기성이 강하지.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">pOH와 관계 · pH + pOH = 14</span></div>
 <p><span class="fm">[OH⁻]</span>에 대해서도 같은 방식으로 pOH를 정의해. <span class="fm">pOH = −log[OH⁻]</span>야. 그리고 pH와 pOH 사이엔 깔끔한 관계가 있어.</p>
 <div class="eqn">pH + pOH = 14 (25°C)</div>
@@ -97,14 +98,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="eg"><span class="lab">예제</span> <span class="fm">[H⁺] = 10⁻⁵ M</span>인 용액의 pH와 pOH는? <span class="fm">pH = −log(10⁻⁵) = 5</span>(산성). <span class="fm">pOH = 14 − 5 = 9</span>. 거꾸로 pH = 9인 염기성 용액이면 <span class="fm">pOH = 14 − 9 = 5</span>야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">pH 1 차이 = 농도 10배</span></div>
 <p>중요한 감각 하나. pH는 로그라서, <b>pH가 1 차이 나면 <span class="fm">[H⁺]</span>는 10배 차이</b>야. pH 2 차이면 100배지. 작아 보이는 pH 차이가 사실은 큰 농도 차이인 거야.</p>
 <div class="trap"><span class="lab">함정 · pH 는 0~14 밖으로 못 나간다?</span><br><b>나갈 수 있어.</b> 0~14 는 물에서 흔히 만나는 범위일 뿐이지 <u>정의된 한계가 아니야.</u> pH = −log[H⁺] 이니 <span class="fm">[H⁺]</span> 가 1 M 보다 크면 pH 는 그냥 <b>음수</b>가 돼 — 1 M HCl 은 pH <b>0</b>, 그보다 진하면 pH <b>−1</b> 도 나오지. 반대로 진한 NaOH 면 pH가 <b>14를 넘어.</b> 학교 문제에서 0~14 안에만 답이 나오는 건 <b>거기 나오는 농도가 그 범위라서</b>지 규칙이라서가 아니야. 올림피아드에서는 진한 강산·강염기가 실제로 나오니, <b>"척도가 0~14 다" 로 외우지 말고 −log 를 그냥 계산해</b>. (아주 진한 용액에서는 활동도까지 봐야 해서 단순 −log 도 어긋나기 시작하는데, 거기까지는 대학 이야기야.)</div>
 <div class="trap"><span class="lab">함정 · pH 2는 pH 4의 두 배 산성?</span><br>아니야. pH는 로그 척도라 차이가 곱셈으로 작동해. pH 2와 pH 4는 <span class="fm">[H⁺]</span>가 <span class="fm">10² = 100배</span> 차이야(pH 2가 100배 더 산성). "두 배"가 아니라 "100배"지. pH가 1 작아질 때마다 <span class="fm">[H⁺]</span>가 10배씩 커진다는 걸 기억해. 그리고 pH = −log[H⁺]라 <span class="fm">[H⁺]</span>가 클수록 pH는 작아진다는 방향도 다시 챙겨.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"pH = −log[H⁺] · pH 작을수록 산성(7이 중성) · pH + pOH = 14 · 1 차이 = 농도 10배."</div>
@@ -148,7 +149,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

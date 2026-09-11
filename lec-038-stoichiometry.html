@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -71,26 +72,26 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 드디어 이 영역의 도구들이 한곳에 모여. 몰(034)·몰질량(035)·분자량(036)·반응식 계수(037), 이걸 다 합치면 "이 물질 몇 g이 반응하면 저 물질 몇 g이 생기는가"를 계산할 수 있어. 그 다리가 오늘의 핵심이야. <b>균형 맞춘 반응식의 계수가 곧 반응하는 몰비</b>라는 것. 이거 하나만 잡으면 양적 관계 문제가 다 풀려. 오늘은 그 다리를 놓고, 질량에서 질량까지 계산하는 흐름을 잡을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">계수 = 몰비 · 핵심 다리</span></div>
 <p>균형 맞춘 반응식의 계수는 그냥 균형용 숫자가 아니야. <b>반응에 참여하는 물질들의 몰비</b>를 알려줘. <span class="fm">2H₂ + O₂ → 2H₂O</span>에서 계수가 2 : 1 : 2지? 이건 "수소 2몰과 산소 1몰이 반응해 물 2몰이 생긴다"는 뜻이야.</p>
 <div class="rxn">2H₂ + O₂ → 2H₂O &nbsp;&nbsp;⇒&nbsp;&nbsp; H₂ : O₂ : H₂O = 2 : 1 : 2 (몰비)</div>
 <div class="key">반응식의 계수비 = 반응하는 몰비. 이 한 줄이 양적 관계의 전부야. 계수가 2:1:2면, 수소 4몰엔 산소 2몰이 필요하고 물 4몰이 생겨(비율 유지). 어떤 물질의 몰을 알면, 계수비로 다른 물질의 몰을 바로 구할 수 있는 거지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">함정 · 계수는 몰비지 질량비가 아니다</span></div>
 <div class="trap"><span class="lab">함정 · 계수를 질량비로 착각</span><br>가장 흔한 실수야. <span class="fm">2H₂ + O₂ → 2H₂O</span>의 계수 2:1:2는 <b>몰비</b>지 질량비가 아니야. "수소 2 g과 산소 1 g이 반응한다"가 절대 아니라는 거지. 몰질량이 다르니까(수소 2 g/mol, 산소 32 g/mol), 질량으로 바꾸면 비율이 완전히 달라져. 계수는 항상 몰의 비율이야. 질량을 다루려면 반드시 몰로 바꿔서 계수비를 적용해야 해.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">계산 흐름 · 질량 → 몰 → 몰비 → 몰 → 질량</span></div>
 <p>그래서 질량에서 질량을 구하는 계산은 항상 같은 흐름을 따라. 주어진 질량을 몰로 바꾸고(÷몰질량), 계수비로 구하려는 물질의 몰을 구하고, 그걸 다시 질량으로 바꿔(×몰질량). 가운데 다리가 계수(몰비)야.</p>
 <div class="flow"><div class="node">주어진<br>질량</div><div class="op">÷ 몰질량<br>→</div><div class="node">주어진<br>몰</div><div class="op">× 계수비<br>→</div><div class="node alt">구할<br>몰</div><div class="op">× 몰질량<br>→</div><div class="node alt">구할<br>질량</div></div>
 <p>왼쪽 두 단계는 035의 질량↔몰 변환이고, 가운데가 오늘의 계수비, 오른쪽 두 단계는 다시 질량 변환이야. 질량에서 질량으로 곧장 못 가고, 반드시 몰을 거쳐 계수비를 적용한다는 게 핵심이지. 몰이 또 중심 정거장이야.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">연소 분석 · 원소 분석 장치로 실험식 찾기</span></div>
 <p>지금까지는 반응식이 주어졌어. 그런데 <b>모르는 물질</b>의 화학식을 알아내야 할 때가 있지. 그때 쓰는 게 <b>연소 분석</b>이야 — 교과서에서는 <b>성분 원소의 확인</b>이라고도 해. 시료를 산소 속에서 완전히 태워서, 나온 CO₂와 H₂O의 질량을 재는 거지.</p>
 <p>원리는 <b>거꾸로 추적</b>이야. 탄소는 전부 CO₂로, 수소는 전부 H₂O로 갔으니까 —</p>
@@ -105,14 +106,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="trap"><span class="lab">함정 · 흡수관 순서</span>원소 분석 장치는 <b>H₂O를 먼저, CO₂를 나중에</b> 흡수시켜. CO₂ 흡수제(염화칼슘·수산화나트륨 계열)가 물도 같이 빨아들이기 때문이야. 순서가 바뀌면 물의 질량을 놓쳐 수소가 통째로 어긋나.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">예제로 끝내기</span></div>
 <div class="eg"><span class="lab">예제 1 · 물을 만드는 데 필요한 수소</span> <span class="fm">2H₂ + O₂ → 2H₂O</span>. 물 36 g을 만들려면 수소 몇 g? ① 물 몰: <span class="fm">36 ÷ 18 = 2몰</span>. ② 계수비 H₂ : H₂O = 2 : 2 = 1 : 1 → 수소 <b>2몰</b> 필요. ③ 수소 질량: <span class="fm">2 × 2 = 4 g</span>. 답 <b>4 g</b>.</div>
 <div class="eg"><span class="lab">예제 2 · 메테인 연소로 생기는 CO₂</span> <span class="fm">CH₄ + 2O₂ → CO₂ + 2H₂O</span>. 메테인 16 g을 태우면 이산화탄소 몇 g? ① 메테인 몰: <span class="fm">16 ÷ 16 = 1몰</span>. ② 계수비 CH₄ : CO₂ = 1 : 1 → CO₂ <b>1몰</b>. ③ CO₂ 질량: <span class="fm">1 × 44 = 44 g</span>. 답 <b>44 g</b>.</div>
 <div class="eg"><span class="lab">예제 3 · 비가 1:2인 경우</span> <span class="fm">2H₂ + O₂ → 2H₂O</span>에서 산소 1몰이 다 반응하면 물 몇 몰? 계수비 O₂ : H₂O = 1 : 2 → 물 <b>2몰</b>(36 g). 계수비를 그대로 곱하면 돼.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s06">
 <div class="sec__h"><span class="sec__no">06</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"반응식의 계수 = 몰비 · 질량 → 몰 → (계수비) → 몰 → 질량, 항상 몰을 거친다."</div>
@@ -156,7 +157,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -72,7 +73,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">일곱 강을 달려왔어. 탄소의 결합 4개에서 시작해(114), 탄화수소 가족(115), 작용기 문법(116), 알코올·에터(117), 카보닐 가족(118), 이성질체(119), 벤젠(120)까지. 오늘은 이걸 시험장에서 꺼내 쓸 수 있는 형태로 압축한다. 문제를 풀 때 머릿속에서 돌아가야 할 순서는 딱 세 단계야. <b>분자식 읽기 → 작용기 찾기 → 성질·반응 연결</b>.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">1단계 · 분자식 읽기(불포화도)</span></div>
 <p>분자식이 주어지면 먼저 수소 개수를 세(115). <span class="fm">CnH₂n₊₂</span>면 포화 사슬. 거기서 <b>H가 2개 부족할 때마다 "다중 결합 1개 또는 고리 1개"</b>. 벤젠 고리는 고리 1 + 이중 결합 3으로 불포화도 4를 잡아먹어(120). O는 불포화도 계산에 영향 없고, N은 하나당 H 여유가 1개 늘어.</p>
 <div class="eg"><span class="lab">예제 · C₄H₈O 읽기</span> C₄ 포화면 H 10. 실제 8이니 부족 2 → 다중 결합 1 또는 고리 1. O가 있으니 후보: C=O 하나(알데하이드 뷰탄알, 케톤 뷰탄온), C=C 하나 + –OH(불포화 알코올), C=C + 에터, 고리 + –OH… 분자식 하나에서 작용기 이성질체(119)가 이렇게 뻗어 나와. 이 나열 훈련이 개수 문제의 기본기야.</div>
@@ -80,7 +81,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">분자식 → 불포화도(H 부족분 ÷ 2) → 다중 결합·고리 배분 → 가능한 작용기 갈래 나열. 벤젠 고리는 불포화도 4. 문제 풀이의 첫 30초는 항상 여기서 시작한다.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">2단계 · 작용기 지도 총정리</span></div>
 <p>116~120의 가족을 한 표로. 이 표가 이 영역의 절반이야.</p>
 <table><tr><th scope="col">가족</th><th scope="col">작용기</th><th scope="col">산성</th><th scope="col">수소 결합</th><th scope="col">고유 반응·검출</th></tr>
@@ -97,7 +98,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">판별 4종 무기: Na(알코올·카복실산), 은거울(알데하이드만), NaHCO₃(카복실산만), 브로민수(불포화만). 끓는점은 카복실산 > 알코올 > 카보닐·에터 > 탄화수소. 이 두 줄이면 판별·비교 문제 대부분이 풀린다.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">3단계 · 반응 지도 한 판</span></div>
 <p>이 영역의 반응은 사실상 네 가지야. 화살표 지도로 정리하자.</p>
 <div class="flow"><span>알켄</span><b>+H₂ 첨가</b><span>알케인</span></div>
@@ -108,12 +109,12 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">반응 지도: 첨가(불포화→포화), 산화 사슬(1차: 알코올→알데하이드→카복실산, 2차: →케톤), 에스터화⇌가수 분해, 벤젠의 치환. 모든 반응 문제는 이 지도 위의 이동이다.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">자주 틀리는 포인트 모음</span></div>
 <div class="trap"><span class="lab">함정 · 영역 전체의 핵심 구분들</span><br>① <b>CnH₂n = 알켄만?</b> 고리 알케인도 같은 식(115). ② <b>O 있으면 수소 결합?</b> O–H·N–H가 있어야 자기들끼리 수소 결합(116·에터 함정). ③ <b>Na 반응 = 산성?</b> 알코올은 Na과 반응하지만 중성(117). ④ <b>케톤도 은거울?</b> 알데하이드만(118). ⑤ <b>이중 결합 있으면 시스·트랜스?</b> 각 탄소에 서로 다른 두 그룹 조건(119). ⑥ <b>고리에 OH면 알코올?</b> 페놀, 약산성(120). ⑦ <b>벤젠은 불포화니까 첨가?</b> 공명 안정화 때문에 치환 선호(120). 이 일곱이 이 영역 오답의 대부분이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 영역 마무리</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"분자식 읽고(불포화도), 작용기 찾고(가족·검출), 지도에서 이동시켜라(첨가·산화·에스터화·치환)."</div>
@@ -157,7 +158,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -70,14 +71,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 원자들이 왜 굳이 뭉쳐서 분자를 만들까? 답은 앞에서 봤어. 18족의 꽉 찬 안정한 배치(011)를 닮고 싶어서야. 그 안정한 상태를 향해 전자를 공유하거나 주고받는 게 화학 결합이고. 오늘은 그 "옥텟을 채운다"는 원리와, 분자 안에서 전자가 어떻게 배치됐는지를 그림으로 그리는 루이스 구조를 배울 거야. 그리는 절차 다섯 단계를 손에 익히면, 웬만한 분자는 다 그릴 수 있어.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">옥텟 규칙 · 8을 향한 본능</span></div>
 <p>원자는 최외각 전자를 8개로 채우려는 경향이 있어. 이걸 옥텟 규칙이라고 해. 왜 하필 8이냐면, 18족 비활성 기체가 최외각 8개(s²p⁶)로 가장 안정하기 때문이야(011). 다른 원자들도 그 안정한 8개 배치를 본뜨려고 결합하는 거지.</p>
 <p>방법은 두 가지야. 전자를 서로 공유해서 같이 8개를 채우거나(공유 결합), 아예 주고받아서 각자 8개가 되거나(이온 결합). 둘 다 다음 강(019)에서 자세히 볼 거고, 오늘은 공유로 옥텟을 채우는 그림에 집중하자.</p>
 <div class="trap"><span class="lab">함정 · 수소는 8이 아니라 2</span><br>수소(H)는 1주기라 최외각 껍질이 1s 하나뿐이고, 그게 꽉 차면 2개야(듀엣). 그래서 H는 8이 아니라 2를 채우면 만족해. 헬륨도 마찬가지. "옥텟 8개, 단 H는 2개"를 꼭 같이 기억해. H를 8로 채우려다 구조가 다 어긋나.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">루이스 구조 그리는 법 · 다섯 단계</span></div>
 <p>루이스 구조는 원자가 전자를 점으로, 공유한 전자쌍(결합)을 선으로 그린 분자 지도야. 절차는 이래.</p>
 <table><tr><th scope="col">단계</th><th scope="col">할 일</th></tr>
@@ -89,7 +90,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">핵심 감각: 전자는 "공유쌍(결합)"과 "고립쌍" 두 가지로만 존재해. 그리고 옥텟을 셀 때 공유쌍은 양쪽 원자가 모두 자기 것으로 세. 그래서 결합 하나는 양쪽 원자에 각각 전자 2개씩 기여하는 셈이야. 이 "공유쌍은 양쪽이 센다"를 놓치면 옥텟 계산이 어긋나.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">예제로 익히기 · 물, 이산화탄소, 질소</span></div>
 <p><b>물 <span class="fm">H₂O</span>.</b> 총 원자가 전자 = O(6) + H(1)×2 = 8개. O를 중심에 두고 H 둘을 단일결합으로 연결(결합 2개에 전자 4개 사용). 남은 4개는 O에 고립쌍 둘로. O는 결합쌍 2 + 고립쌍 2 = 전자 8개로 옥텟 완성, H는 각각 2개로 듀엣 완성.</p>
 <div class="struct">H − O − H &nbsp;&nbsp;(O 위·아래 고립쌍 2)</div>
@@ -99,7 +100,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="struct">:N ≡ N: &nbsp;&nbsp;(양 끝 N에 고립쌍 1개씩)</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">옥텟의 예외 · 항상 8은 아니다</span></div>
 <p>옥텟 규칙은 강력하지만 예외가 있어. 세 가지 유형을 알아두면 돼.</p>
 <table><tr><th scope="col">유형</th><th scope="col">설명</th><th scope="col">예</th></tr>
@@ -111,7 +112,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="eg"><span class="lab">예제 · SO₂ 를 다섯 단계로 그려 보기</span> ① 총 원자가 전자: S 6 + O 6×2 = <b>18개</b>. ② 골격: 중심은 전기음성도가 작은 <b>S</b>, 양옆에 O. ③ 결합 둘에 4개 쓰고 남은 14개를 주변 O 부터 옥텟 채우기 — O 하나에 6개씩 12개, 남은 2개는 S 에. ④ 세어 보면 S 는 6개(결합 4 + 고립쌍 2)라 <b>옥텟이 모자라</b>. ⑤ 그러니 O 의 고립쌍 하나를 끌어와 <b>이중 결합</b>을 만든다 → <span class="fm">O=S–O</span> (공명으로 반대쪽도 가능). 이러면 S 는 8개, O 도 각각 8개. <b>전자 총수 18개가 그대로 보존되는지</b>가 마지막 검산이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"옥텟(H는 2)을 향해 전자를 공유한다 · 다섯 단계로 그리고, 모자라면 다중결합."</div>
@@ -155,7 +156,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

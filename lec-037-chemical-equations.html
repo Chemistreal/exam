@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -68,20 +69,20 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 034~036으로 양을 세는 도구는 다 갖췄어. 이제 그 도구를 "반응"에 쓸 차례인데, 그러려면 먼저 반응을 식으로 정확히 쓸 줄 알아야 해. 화학 반응식이야. 핵심 원리는 단 하나, "반응 전후에 원자는 새로 생기거나 사라지지 않는다"는 질량 보존 법칙이지. 이 원리 때문에 양변의 원자 수를 맞춰야 하고, 그게 계수 맞추기야. 오늘은 반응식을 쓰고 계수를 맞추는 법을, 가장 흔한 실수와 함께 잡을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">화학 반응식 · 반응물에서 생성물로</span></div>
 <p>화학 반응식은 어떤 물질이 어떤 물질로 변하는지를 화살표로 나타낸 거야. 화살표 왼쪽이 반응물(처음 물질), 오른쪽이 생성물(만들어진 물질)이야.</p>
 <div class="rxn">반응물 &nbsp;→&nbsp; 생성물</div>
 <p>예를 들어 수소와 산소가 반응해 물이 생기는 건 <span class="fm">H₂ + O₂ → H₂O</span>로 써. 그런데 이대로는 아직 완성이 아니야. 양변의 원자 수가 안 맞거든. 왜 맞춰야 하는지가 다음이야.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">질량 보존 · 원자는 사라지지 않는다</span></div>
 <p>화학 반응에서 원자는 새로 만들어지지도, 없어지지도 않아. 그저 결합이 바뀌어 재배열될 뿐이야. 이게 질량 보존 법칙이야. 반응 전에 있던 원자는 종류와 개수 그대로 반응 후에도 있어야 해.</p>
 <div class="key">그래서 화학 반응식에서는 <b>양변의 각 원소 원자 수가 같아야</b> 해. 왼쪽에 산소 원자가 2개면 오른쪽에도 2개여야 하고. 이 "양변 원자 수 일치"를 맞추는 작업이 계수 맞추기야. 균형이 맞아야 비로소 완성된 반응식이지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">계수 맞추기 · 첨자 말고 계수만</span></div>
 <p>계수를 맞출 때 절대 어기면 안 되는 규칙이 있어. <b>분자식(첨자)은 못 바꾸고, 분자 앞의 계수만 바꿔</b>. 물은 <span class="fm">H₂O</span>지 <span class="fm">H₂O₂</span>가 아니야(그건 과산화수소, 다른 물질!). 첨자를 바꾸면 물질 자체가 변해버려. 그러니 양을 조절할 땐 분자 앞에 숫자(계수)를 붙이는 거야.</p>
 <p><span class="fm">H₂ + O₂ → H₂O</span>를 맞춰보자. 오른쪽 산소가 1개, 왼쪽이 2개니 안 맞아. 오른쪽에 <span class="fm">H₂O</span> 2개를 두면(<span class="fm">2H₂O</span>) 산소 2개로 맞아. 그런데 이제 오른쪽 수소가 4개가 됐으니, 왼쪽도 <span class="fm">2H₂</span>로 맞춰. 완성.</p>
@@ -90,13 +91,13 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="eg"><span class="lab">예제 · 메테인 연소</span> <span class="fm">CH₄ + O₂ → CO₂ + H₂O</span> 맞추기. ① 탄소: 양쪽 1개로 OK. ② 수소: 왼쪽 4개니 오른쪽 <span class="fm">2H₂O</span>. ③ 산소: 오른쪽이 이제 (CO₂의 2) + (2H₂O의 2) = 4개, 그래서 왼쪽 <span class="fm">2O₂</span>. 완성: <span class="fm"><b>CH₄ + 2O₂ → CO₂ + 2H₂O</b></span>. 검산: C 1=1, H 4=4, O 4=4.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">맞추는 요령과 함정</span></div>
 <p>계수 맞추는 순서에 요령이 있어. <b>여러 분자에 나오는 흔한 원소(보통 산소·수소)는 나중에</b> 맞추고, 한두 곳에만 나오는 원소부터 맞춰. 그리고 마지막엔 모든 계수를 가장 작은 정수비로 정리해.</p>
 <div class="trap"><span class="lab">함정 · 첨자를 바꿔 맞추기</span><br>균형이 안 맞는다고 <span class="fm">H₂O</span>를 <span class="fm">H₂O₂</span>로, <span class="fm">O₂</span>를 <span class="fm">O₃</span>로 바꾸면 안 돼. 그건 다른 물질이 돼버려. 계수(앞의 숫자)만 바꿀 수 있어. 또 계수는 정수가 기본이라, 분수가 나오면 양변에 같은 수를 곱해 정수로 만들어. 첨자 불변, 계수만 조절, 최소 정수비. 이 셋을 어기면 틀려.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"원자는 사라지지 않는다 → 양변 원자 수를 맞춘다 · 첨자 불변, 계수만 조절."</div>
@@ -140,7 +141,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

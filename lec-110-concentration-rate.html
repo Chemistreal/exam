@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -69,32 +70,32 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 이제부터 반응 속도에 영향을 주는 요인들을 하나씩 봐. 첫 번째가 농도야. 결론부터 말하면, 반응물의 농도가 높을수록 반응이 빨라져. 왜일까? 108의 충돌 이론으로 설명돼. 농도가 높다는 건 같은 공간에 입자가 더 빽빽하다는 거잖아. 그러면 입자끼리 부딪칠 기회가 많아져 충돌 횟수가 늘고, 따라서 유효 충돌도 늘어 반응이 빨라지는 거지. 오늘은 농도가 속도에 미치는 영향과 그 이유를 잡을 거야. 모든 요인이 결국 "유효 충돌을 늘린다"로 설명된다는 걸 다시 확인할 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">농도가 높을수록 빠르다</span></div>
 <p>반응물의 농도가 높을수록 반응 속도가 빨라져. 이건 실험으로도 잘 확인돼. 묽은 산보다 진한 산이 금속과 더 빠르게 반응하고, 산소 농도가 높을수록 더 격렬하게 타는 것이 그 예야.</p>
 <div class="big" style="font-size:16px">반응물 농도 ↑ → 반응 속도 ↑</div>
 <div class="key">반응물의 농도가 높을수록 반응 속도가 빨라져. 진한 산이 묽은 산보다 금속과 빨리 반응하는 게 대표적이야. 왜 그런지는 충돌 이론으로 설명돼(다음). 농도는 속도를 높이는 가장 기본적인 요인이지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">이유 · 충돌 횟수가 늘어난다</span></div>
 <p>왜 농도가 높으면 빠를까? 108의 충돌 이론으로 보면 명쾌해. 농도가 높다는 건 같은 부피 안에 입자가 더 많다(빽빽하다)는 뜻이야. 입자가 빽빽하면 서로 부딪칠 기회가 많아져 <b>충돌 횟수가 늘어</b>. 충돌이 많아지면 그중 유효 충돌도 많아지니, 반응 속도가 빨라지는 거지.</p>
 <div class="flow"><span>농도 ↑</span><b>→</b><span>입자 빽빽</span><b>→</b><span>충돌 횟수 ↑</span><b>→</b><span>유효 충돌 ↑</span><b>→</b><span>속도 ↑</span></div>
 <p>핵심은 농도가 <b>충돌 횟수</b>를 늘린다는 거야. 입자 하나하나의 에너지를 바꾸는 게 아니라(그건 온도가 하는 일), 단순히 부딪칠 기회를 늘려 속도를 높이는 거지.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">기체는 압력으로도 · 같은 효과</span></div>
 <p>기체 반응에서는 압력을 높이는 게 농도를 높이는 것과 같은 효과를 내. 기체에 압력을 가하면(또는 부피를 줄이면) 같은 수의 입자가 더 좁은 공간에 모여 농도가 높아지거든(044). 그래서 압력↑ = 농도↑ = 충돌 횟수↑ = 속도↑야.</p>
 <div class="eg"><span class="lab">예제 · 농도와 속도</span> 같은 금속 조각에 묽은 염산과 진한 염산을 각각 떨어뜨리면? 진한 염산(농도 큼)에서 거품(수소 기체)이 더 빠르게, 더 격렬하게 발생해. <span class="fm">H⁺</span> 농도가 높아 금속 표면과의 충돌이 잦으니 반응이 빠른 거야. 기체 반응이라면 압력을 높여도 같은 효과를 얻지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">함정 정리</span></div>
 <div class="trap"><span class="lab">함정 · 농도가 입자의 에너지를 높인다?</span><br>아니야. 농도는 입자의 에너지를 바꾸지 않아. 농도가 하는 일은 입자를 빽빽하게 만들어 <b>충돌 횟수</b>를 늘리는 거야(유효 충돌 비율이 아니라 충돌 횟수 자체를 늘림). 입자의 에너지(유효 충돌 비율)를 높이는 건 온도가 하는 일이지(다음다음 강). "농도 = 충돌 횟수, 온도 = 충돌 에너지"로 역할을 구분해. 그리고 농도가 높아도 활성화 에너지 자체는 변하지 않아(에너지 장벽은 그대로).</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"농도 ↑ → 충돌 횟수 ↑ → 속도 ↑ · 기체는 압력으로도 같은 효과."</div>
@@ -138,7 +139,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

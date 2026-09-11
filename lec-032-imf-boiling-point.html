@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -71,13 +72,13 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 분산력(029)·쌍극자-쌍극자 힘(030)·수소 결합(031)을 다 배웠어. 오늘은 이 셋을 종합해서, "두 물질 중 뭐가 끓는점이 높은가"를 판단하는 순서를 잡을 거야. 원리는 단순해. 분자 간 힘이 강할수록 분자를 떼어내기 어려워 끓는점·녹는점이 높다. 그런데 여러 힘이 섞여 있을 때 무엇부터 따져야 하는지, 그 우선순위를 정리하고, 마지막에 유명한 끓는점 그래프로 전체를 한눈에 볼 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">원리 · 분자 간 힘이 강하면 끓는점이 높다</span></div>
 <p>액체가 끓어 기체가 되려면 분자들을 서로 떼어내야 해. 분자 간 힘이 강하면 떼어내는 데 에너지가 많이 들어 끓는점이 높고, 약하면 쉽게 떨어져 끓는점이 낮아. 녹는점도 같은 논리야(고체에서 분자를 흩트리는 데 드는 힘).</p>
 <div class="key">끓는점·녹는점 ∝ 분자 간 힘의 세기. 그러니 끓는점 비교 문제는 "어느 쪽 분자 간 힘이 더 강한가"를 따지는 문제야. 결합의 세기가 아니라(결합은 안 끊김), 분자 사이 힘을 비교하는 거지(028).</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">판단 순서 · 수소결합 → 극성 → 크기</span></div>
 <p>여러 힘이 섞여 있으니 따지는 순서가 중요해. 이 순서로 보면 돼.</p>
 <div class="lv">① <b>수소 결합</b> 있나? (H가 N·O·F에 결합) → 있으면 보통 가장 높음<br>② <b>극성</b>인가? (쌍극자-쌍극자) → 비슷한 크기면 극성이 더 높음<br>③ <b>크기</b>(분산력) → 무극성끼리, 또는 위 조건이 같을 때 큰 쪽이 높음</div>
@@ -85,7 +86,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="trap"><span class="lab">함정 · 크기가 모든 걸 뒤집을 수 있다</span><br>이 순서는 "다른 조건이 비슷할 때"의 우선순위야. 만약 크기(몰질량) 차이가 아주 크면, 분산력이 극성이나 수소 결합을 능가할 수도 있어. 예를 들어 아주 큰 무극성 분자가 작은 극성 분자보다 끓는점이 높을 수 있지(분산력 누적이 커서). 그러니 순서를 기계적으로 적용하지 말고, 크기 차가 큰지 항상 확인해. 종합적으로 판단하는 게 핵심이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">한 장 그래프 · 족 수소화물의 끓는점</span></div>
 <p>이 모든 게 한 그래프에 담겨 있어. 14·15·16·17족 수소화물의 끓는점을 주기 순으로 그린 거야. 핵심은 두 가지 패턴이야.</p>
 <div class="fig"><svg viewBox="0 0 360 268"><line x1="48" y1="25" x2="48" y2="205" stroke="#bdb8ac" stroke-width="1.5"/><line x1="48" y1="205" x2="325" y2="205" stroke="#bdb8ac" stroke-width="1.5"/><line x1="48" y1="36" x2="325" y2="36" stroke="#eee8dc" stroke-width="1"/><line x1="48" y1="97" x2="325" y2="97" stroke="#e3dccd" stroke-width="1" stroke-dasharray="3 3"/><line x1="48" y1="158" x2="325" y2="158" stroke="#eee8dc" stroke-width="1"/><text x="43" y="40" text-anchor="end" fill="#8a8578" font-size="9">100</text><text x="43" y="100" text-anchor="end" fill="#8a8578" font-size="9">0</text><text x="43" y="161" text-anchor="end" fill="#8a8578" font-size="9">−100</text><text x="50" y="98" fill="#8a8578" font-size="8.5">°C</text><polyline points="50,195 137,165 223,150 310,128" fill="none" stroke="#9a958a" stroke-width="2.2"/><polyline points="50,117 137,150 223,134 310,107" fill="none" stroke="#B08D57" stroke-width="2.2"/><polyline points="50,85 137,148 223,137 310,118" fill="none" stroke="#C0603A" stroke-width="2.2"/><polyline points="50,36 137,133 223,122 310,98" fill="none" stroke="#0E5A4C" stroke-width="3"/><circle cx="50" cy="36" r="3.5" fill="#0E5A4C"/><circle cx="50" cy="85" r="3" fill="#C0603A"/><circle cx="50" cy="117" r="3" fill="#B08D57"/><circle cx="50" cy="195" r="3" fill="#9a958a"/><text x="58" y="33" fill="#0E5A4C" font-size="10" font-weight="700">H₂O</text><text x="58" y="84" fill="#C0603A" font-size="9.5" font-weight="700">HF</text><text x="58" y="122" fill="#B08D57" font-size="9.5" font-weight="700">NH₃</text><text x="58" y="206" fill="#5a564d" font-size="9.5" font-weight="700">CH₄</text><text x="50" y="227" text-anchor="middle" fill="#8a8578" font-size="9">2</text><text x="137" y="227" text-anchor="middle" fill="#8a8578" font-size="9">3</text><text x="223" y="227" text-anchor="middle" fill="#8a8578" font-size="9">4</text><text x="310" y="227" text-anchor="middle" fill="#8a8578" font-size="9">5</text><text x="185" y="227" text-anchor="middle" fill="#8a8578" font-size="9.5">주기 →</text><rect x="62" y="240" width="14" height="3" fill="#0E5A4C"/><text x="80" y="244" fill="#5a564d" font-size="9">16족</text><rect x="118" y="240" width="14" height="3" fill="#C0603A"/><text x="136" y="244" fill="#5a564d" font-size="9">17족</text><rect x="174" y="240" width="14" height="3" fill="#B08D57"/><text x="192" y="244" fill="#5a564d" font-size="9">15족</text><rect x="230" y="240" width="14" height="3" fill="#9a958a"/><text x="248" y="244" fill="#5a564d" font-size="9">14족</text></svg><figcaption>세로축 끓는점, 가로축 주기 · H₂O·HF·NH₃(2주기)가 수소 결합으로 튀어오름, CH₄은 추세대로 낮음</figcaption></div>
@@ -94,7 +95,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="eg"><span class="lab">예제 · 끓는점 넷을 세워 보기</span> <span class="fm">H₂O</span>(100°C) · <span class="fm">H₂S</span>(−60°C) · <span class="fm">CH₄</span>(−162°C) · <span class="fm">C₄H₁₀</span>(−0.5°C) 를 설명해 봐. ① H₂O 가 유난히 높은 건 <b>수소 결합</b>(O–H) 때문이야 — 크기로만 보면 H₂S 보다 가벼운데도 훨씬 높지. ② H₂S 는 극성이라 쌍극자–쌍극자, CH₄ 는 무극성이라 <b>분산력뿐</b>. ③ 그런데 <span class="fm">C₄H₁₀</span> 는 무극성인데도 H₂S 보다 높아 — <b>분자가 훨씬 커서 분산력이 세기 때문</b>이야. <b>수소결합 &gt; 극성 &gt; 크기 순으로 따지되, 크기 차이가 아주 크면 뒤집힌다</b> 가 이 문제의 전부다.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"끓는점은 분자 간 힘의 세기 · 수소결합 → 극성 → 크기 순으로 따진다(크기 차 크면 역전)."</div>
@@ -138,11 +139,29 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">
-<div class="lq__stem"><b>1.</b> 순수한 액체 X의 정상 끓는점(외부 압력 1.00 atm)은 353 K이고, 증발 엔탈피는 ΔH(증발) = 30.8 kJ/mol로 온도에 따라 거의 일정하다. 기체 상수 R = 8.314 J/(mol·K), ln 2 = 0.693이다. 외부 압력이 0.500 atm인 높은 산 위에서 X의 끓는점은 약 얼마인가? (ln(P₂/P₁) = −(ΔH(증발)/R)(1/T₂ − 1/T₁))</div>
+<div class="lq__stem"><b>1.</b> 여러 물질의 끓는점에 대한 다음 설명 중 옳은 것은?</div>
+<ol class="lq__opts" data-ans="3">
+<li><button type="button" class="lq__opt">H₂S가 H₂O보다 분자량이 크므로 H₂S의 끓는점이 더 높다.</button></li>
+<li><button type="button" class="lq__opt">Br₂가 Cl₂보다 끓는점이 높은 것은 Br₂의 쌍극자 모멘트가 더 크기 때문이다.</button></li>
+<li><button type="button" class="lq__opt">노말펜테인(사슬형 C₅H₁₂)이 네오펜테인(공 모양 C₅H₁₂)보다 끓는점이 높은 것은 분자 모양이 길쭉해 분자 사이의 접촉 면적이 넓기 때문이다.</button></li>
+<li><button type="button" class="lq__opt">CH₃OH가 CH₃OCH₃보다 끓는점이 높은 것은 CH₃OH의 C–O 결합 에너지가 더 크기 때문이다.</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>③</b></div>
+<p>끓는점은 액체 상태의 분자를 서로 떼어 놓는 데 드는 에너지, 곧 분자간 인력의 세기로 정해진다. 분자간 인력은 수소 결합 &gt; 쌍극자·쌍극자 인력 &gt; 분산력 순으로 세고, 무극성 분자끼리는 분자량이 클수록, 그리고 접촉 면적이 넓을수록 분산력이 크다.
+① 틀린 설명이다. H₂S의 분자량은 34로 H₂O의 18보다 크지만, H₂O 분자 사이에는 수소 결합이 작용하고 H₂S 분자 사이에는 작용하지 않는다. 그래서 끓는점은 H₂O가 100 °C, H₂S가 약 −60 °C로 오히려 H₂O가 훨씬 높다.
+② 틀린 설명이다. Br₂와 Cl₂는 모두 같은 원자 두 개로 이루어진 무극성 분자여서 쌍극자 모멘트가 0이다. Br₂의 끓는점이 높은 것은 분자량이 커서 전자가 많고 분극이 잘 일어나 분산력이 크기 때문이다.
+③ 옳은 설명이다. 두 물질은 분자식이 C₅H₁₂로 같아 분자량이 같지만, 사슬형인 노말펜테인은 분자가 길쭉해 이웃 분자와 닿는 면적이 넓고, 공 모양인 네오펜테인은 접촉 면적이 좁다. 접촉 면적이 넓을수록 분산력이 커지므로 노말펜테인의 끓는점(약 36 °C)이 네오펜테인(약 10 °C)보다 높다.
+④ 틀린 설명이다. CH₃OH의 끓는점이 높은 까닭은 −OH를 가져 분자 사이에 수소 결합이 작용하기 때문이다. C–O 결합은 분자 안의 결합이어서 끓을 때 끊어지지 않으므로 끓는점과 직접 관계가 없다.
+따라서 옳은 것은 ③이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 끓는점을 분자 내 결합의 세기나 분자량 하나만으로 판단하는 것이 흔한 실수다 — 끓는점을 결정하는 것은 분자와 분자 사이에 작용하는 힘이다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 순수한 액체 X의 정상 끓는점(외부 압력 1.00 atm)은 353 K이고, 증발 엔탈피는 ΔH(증발) = 30.8 kJ/mol로 온도에 따라 거의 일정하다. 기체 상수 R = 8.314 J/(mol·K), ln 2 = 0.693이다. 외부 압력이 0.500 atm인 높은 산 위에서 X의 끓는점은 약 얼마인가? (ln(P₂/P₁) = −(ΔH(증발)/R)(1/T₂ − 1/T₁))</div>
 <ol class="lq__opts" data-ans="3">
 <li><button type="button" class="lq__opt">약 378 K</button></li>
 <li><button type="button" class="lq__opt">약 353 K</button></li>
@@ -154,8 +173,8 @@ document.addEventListener('click', function (e) {
 <p>1/T₂ = 1/T₁ − (R/ΔH)ln(P₂/P₁) = 1/353 − (8.314/30800) × ln 0.500 = 2.833 × 10⁻³ + 2.699 × 10⁻⁴ × 0.693 = 2.833 × 10⁻³ + 1.871 × 10⁻⁴ = 3.020 × 10⁻³. T₂ = 331 K. 외부 압력이 낮아지면 끓는점이 낮아진다.</p>
 <div class="lq__miss"><b>자주 걸리는 자리</b> 식의 부호를 반대로 적용해 압력이 낮아질 때 끓는점이 높아진다고 계산하거나, 압력이 절반이면 끓는점(절대 온도)도 절반이 된다고 보는 것.</div>
 </div></div>
-<div class="lq__q" data-lq="2">
-<div class="lq__stem"><b>2.</b> H₂O, H₂S, H₂Se, H₂Te 의 끓는점이 가장 높은 것과 가장 낮은 것은?</div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> H₂O, H₂S, H₂Se, H₂Te 의 끓는점이 가장 높은 것과 가장 낮은 것은?</div>
 <ol class="lq__opts" data-ans="1">
 <li><button type="button" class="lq__opt">H₂O 와 H₂S</button></li>
 <li><button type="button" class="lq__opt">H₂Te 와 H₂O</button></li>
@@ -166,19 +185,6 @@ document.addEventListener('click', function (e) {
 <div class="lq__ans">정답 <b>①</b></div>
 <p>H₂O 만 수소 결합으로 튀어 오르고, 나머지 중 가장 가벼운 H₂S 가 가장 낮다. → ①</p>
 <div class="lq__miss"><b>자주 걸리는 자리</b> 분자량 순서로만 끓는점을 견준다. 수소 결합이 순서를 뒤집는다.</div>
-</div></div>
-<div class="lq__q" data-lq="3">
-<div class="lq__stem"><b>3.</b> 다이메틸에터, 에탄올, 프로페인의 끓는점이 높은 순서로 옳은 것은?</div>
-<ol class="lq__opts" data-ans="4">
-<li><button type="button" class="lq__opt">에탄올 &gt; 프로페인 &gt; 다이메틸에터</button></li>
-<li><button type="button" class="lq__opt">다이메틸에터 &gt; 에탄올 &gt; 프로페인</button></li>
-<li><button type="button" class="lq__opt">프로페인 &gt; 에탄올 &gt; 다이메틸에터</button></li>
-<li><button type="button" class="lq__opt">에탄올 &gt; 다이메틸에터 &gt; 프로페인</button></li>
-</ol>
-<div class="lq__why" hidden>
-<div class="lq__ans">정답 <b>④</b></div>
-<p>분자량이 비슷하니 인력의 종류가 정한다. 에탄올은 수소 결합, 다이메틸에터는 쌍극자, 프로페인은 분산력뿐이다. → ④</p>
-<div class="lq__miss"><b>자주 걸리는 자리</b> 분자량이 비슷하면 끓는점도 비슷하다고 여긴다. 인력의 종류가 갈라놓는다.</div>
 </div></div>
 <p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
 </div>

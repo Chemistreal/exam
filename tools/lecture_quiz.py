@@ -135,8 +135,11 @@ def block_html(n, picks):
       머리는 그 자가 맡은 자리다. 본문 안의 `<style>` 은 HTML5 에서 성한
       것이고, 덩이를 지우면 옷도 같이 지워져 자국이 안 남는다.
     """
+    # id="q" — 성적표가 «확인 문제» 로 바로 열 수 있는 닻. 본문 절의 id="sNN" 과
+    # 같은 약속이고(tools/lec_anchor.py), 이 덩이는 여기서 다시 만들어지므로
+    # 그쪽에서만 달면 다음 생성에서 사라진다. 두 자가 같은 바이트를 낸다.
     parts = [BEGIN, CSS, JS,
-             '<div class="sec lq" data-lecture-quiz>',
+             '<div class="sec lq" id="q" data-lecture-quiz>',
              '<div class="sec__h"><span class="sec__no">✓</span>'
              '<span class="sec__t">확인 문제</span></div>',
              '<p class="lq__lead">방금 배운 것으로 풀 수 있는 '

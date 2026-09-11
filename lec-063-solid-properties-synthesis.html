@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -71,7 +72,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 058부터 062까지 네 종류 결정(금속·이온·공유·분자)을 하나씩 봤지. 오늘은 이걸 한 표로 종합해서, 어떤 고체가 주어져도 종류를 판단하고 성질을 예측하는 틀을 완성할 거야. 핵심은 단순해. 구성 입자와 결합 종류를 보면 성질이 따라 나온다는 거야. 묶는 힘이 강하면 녹는점이 높고, 자유전자나 자유로운 이온이 있으면 전기가 통하고, 하는 식이지. 영역을 닫는 종합편이야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">네 결정 종합 비교표</span></div>
 <p>네 결정의 성질을 한 표에 모았어. 가장 중요한 표니까 꼼꼼히 봐.</p>
 <table><tr><th scope="col">결정</th><th scope="col">구성 입자</th><th scope="col">결합</th><th scope="col">녹는점</th><th scope="col">전기 전도</th><th scope="col">특징</th><th scope="col">예</th></tr>
@@ -82,14 +83,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">표의 논리는 "구성 입자 → 결합 → 성질"이야. 묶는 힘의 종류와 세기가 녹는점·굳기를 정하고, 움직일 수 있는 전하(자유전자·자유로운 이온)의 유무가 전기 전도를 정해. 이 흐름만 잡으면 표를 통째로 외우지 않아도 성질을 추론할 수 있어.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">녹는점 경향 · 묶는 힘의 세기</span></div>
 <p>녹는점은 입자를 떼어내는 데 필요한 에너지니까, 묶는 힘이 강할수록 높아. 대체로 이런 순서야.</p>
 <div class="lv">공유 결정 &gt; 이온 결정 ≈ 금속 결정 &gt; <b>분자 결정</b></div>
 <p>공유 결정은 강한 공유 결합 그물을 끊어야 해서 가장 높고(다이아몬드는 3000도 이상), 분자 결정은 약한 분자 간 힘만 이기면 되니 가장 낮아(드라이아이스는 영하에서 승화). 이온·금속은 그 중간이지. "분자 결정이 가장 낮다"는 건 거의 항상 맞아. 분자 간 힘이 결합보다 훨씬 약하니까(028).</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">전기 전도 경향 · 움직이는 전하가 있나</span></div>
 <p>전기가 통하려면 움직일 수 있는 전하(전자나 이온)가 있어야 해. 결정별로 정리하면 이래.</p>
 <table><tr><th scope="col">결정</th><th scope="col">전기 전도</th><th scope="col">이유</th></tr>
@@ -100,14 +101,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">전기 전도의 핵심: 금속은 자유전자로 항상 통하고, 이온 결정은 녹거나 물에 녹아야 통해(고체는 절연). 공유·분자 결정은 보통 절연이고, 흑연만 예외적으로 통해(층 방향 자유전자, 062). "움직이는 전하가 있나"로 판단하면 돼.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">판단 흐름 · 종류 맞히기</span></div>
 <p>어떤 고체의 종류를 맞히는 흐름을 정리하자. 성질 몇 가지를 보면 종류를 역추적할 수 있어.</p>
 <div class="eg"><span class="lab">예제 · 역추적</span> "녹는점이 매우 낮고 전기가 안 통하며 무른 고체" → 약한 힘으로 묶인 <b>분자 결정</b>. "고체일 땐 전기가 안 통하는데 녹이면 통하고 단단하나 부서지는 고체" → <b>이온 결정</b>. "고체·액체 모두 전기가 통하고 두드리면 펴지는 고체" → <b>금속 결정</b>. "극도로 단단하고 녹는점이 매우 높은 고체" → <b>공유 결정</b>. 성질에서 종류로, 종류에서 성질로 양방향으로 오갈 수 있어야 해.</div>
 <div class="trap"><span class="lab">함정 · 흑연이라는 예외</span><br>"공유 결정은 전기가 안 통한다"가 일반 규칙이지만, 흑연은 공유 결정인데도 전기가 통해(062). 평면 층 구조에 자유롭게 움직이는 전자가 있기 때문이지. 그래서 "전기가 통하는 고체 = 금속"이라고 단정하면 흑연에서 틀려. 공유 결정 중 흑연은 예외라는 걸 꼭 기억해. 시험에서 자주 노리는 지점이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 영역 마무리</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"구성 입자 → 결합 → 성질 · 녹는점은 공유&gt;이온·금속&gt;분자, 전기는 금속 항상·이온은 액체·흑연 예외."</div>
@@ -151,7 +152,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

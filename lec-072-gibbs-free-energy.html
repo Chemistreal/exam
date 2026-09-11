@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -70,14 +71,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 앞에서 반응을 일으키는 두 요인을 봤지. 에너지(발열, ΔH)와 경우의 수(엔트로피, ΔS)야. 이 둘이 같은 방향을 가리키면 쉬운데, 엇갈리면(예: 흡열인데 경우의 수 증가) 어떻게 판단할까? 그래서 둘을 하나로 합친 양이 필요해. 그게 깁스 자유 에너지(ΔG)야. <span class="fm">ΔG = ΔH − TΔS</span> 한 식으로 에너지·엔트로피·온도를 다 묶어서, 반응이 정말 저절로 일어나는지를 판단하지. 오늘은 이 식과 판단법, 그리고 온도가 방향을 바꾸는 경우까지 잡으면서 영역을 닫을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">자발성과 깁스 자유 에너지</span></div>
 <p>자발적이라는 건 외부 도움 없이 저절로 일어난다는 뜻이야. 어떤 반응이 자발적인지를 판단하는 양이 깁스 자유 에너지 변화(<span class="fm">ΔG</span>)지. 식은 이래.</p>
 <div class="eqn">ΔG = ΔH − TΔS</div>
 <p>엔탈피 변화(<span class="fm">ΔH</span>, 에너지 요인)에서, 절대온도(<span class="fm">T</span>)와 엔트로피 변화(<span class="fm">ΔS</span>, 경우의 수 요인)의 곱을 뺀 거야. 에너지와 경우의 수를 온도로 저울질해 하나의 값으로 합친 거지.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">판단 · ΔG가 음수면 자발적</span></div>
 <p>ΔG의 부호로 반응 방향을 판단해.</p>
 <table><tr><th scope="col">ΔG</th><th scope="col">의미</th></tr>
@@ -87,7 +88,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">ΔG = ΔH − TΔS. ΔG &lt; 0이면 자발적, = 0이면 평형, &gt; 0이면 비자발적이야. 발열(ΔH&lt;0)은 ΔG를 음수로 만드는 데 유리하고, 경우의 수 증가(ΔS&gt;0)도 −TΔS 항을 음수로 만들어 유리해. 두 요인이 다 좋으면 확실히 자발적이지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">두 요인의 줄다리기 · 네 가지 경우</span></div>
 <p>ΔH와 ΔS의 부호 조합에 따라 자발성이 달라져. 네 경우로 정리하면 이래.</p>
 <table><tr><th scope="col">ΔH</th><th scope="col">ΔS</th><th scope="col">자발성</th></tr>
@@ -98,7 +99,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p>발열이면서 경우의 수가 늘면(ΔH&lt;0, ΔS&gt;0) 두 요인 다 유리해 항상 자발적이야. 반대로 흡열이면서 경우의 수가 줄면 항상 비자발적이고. 부호가 엇갈리는 두 경우는 온도가 결정해. <span class="fm">−TΔS</span> 항에 온도가 곱해지니까, 온도를 바꾸면 ΔG의 부호가 바뀔 수 있거든.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">온도가 방향을 바꾼다</span></div>
 <p>가장 흥미로운 게 흡열이면서 경우의 수가 느는 경우(ΔH&gt;0, ΔS&gt;0)야. 저온에서는 작은 <span class="fm">TΔS</span>가 ΔH를 못 이겨 비자발적이지만, 온도를 충분히 올리면 <span class="fm">TΔS</span>가 커져 ΔH를 이기고 ΔG가 음수가 돼 자발적이 돼.</p>
 <div class="eg"><span class="lab">예제 · 얼음이 녹는 것</span> 얼음이 녹는 건 흡열(ΔH&gt;0)이고 경우의 수 증가(ΔS&gt;0)야. 0°C 아래(저온)에서는 비자발적이라 안 녹지만(오히려 얼지), 0°C 위(고온)에서는 <span class="fm">TΔS</span>가 커져 자발적이 되어 녹아. 온도가 방향을 뒤집은 거지. 이게 71강에서 본 "흡열인데 저절로 일어나는" 현상의 정확한 설명이야.</div>
@@ -106,7 +107,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="trap"><span class="lab">함정 · 자발적 = 금방 일어난다?</span><br><b>아니야. ΔG는 "일어날 수 있는가"만 말하고, "얼마나 빨리"는 한 마디도 안 해.</b> 다이아몬드가 흑연으로 바뀌는 반응은 상온에서 <span class="fm">ΔG&lt;0</span>, 즉 자발적이야. 그런데 다이아몬드는 그대로 있지. 수소와 산소를 섞어 둔 병도 <span class="fm">ΔG</span>가 크게 음수인데 불꽃을 안 대면 몇 년이고 안 터져. 속도는 <b>활성화 에너지</b>라는 다른 것이 정하거든(107~109에서 다뤄). ΔG는 목적지가 아래쪽인지를 말하고, 활성화 에너지는 그 앞에 얼마나 높은 언덕이 있는지를 말해. 언덕이 높으면 아래로 갈 반응도 안 굴러가. <b>"자발적이지만 느리다"는 모순이 아니라 아주 흔한 일이야.</b></div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 영역 마무리</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"ΔG = ΔH − TΔS · ΔG&lt;0이면 자발적 · 부호 엇갈리면 온도가 방향을 정한다."</div>
@@ -150,7 +151,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -71,7 +72,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 앞 강에서 기체의 네 변수(P·V·T·n)를 봤지. 오늘은 그중 둘씩 짝지어 관계를 보는 두 법칙을 잡아. 보일 법칙은 온도를 고정하고 압력과 부피의 관계(반비례), 샤를 법칙은 압력을 고정하고 온도와 부피의 관계(정비례)야. 그래프 모양이 완전히 다른데, 그걸 직접 그려보면서 이해할 거야. 특히 샤를 법칙에서 온도를 켈빈으로 써야 한다는 게 결정적이야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">보일 법칙 · 압력과 부피는 반비례 (그림)</span></div>
 <p>보일 법칙은 온도와 몰수가 일정할 때, <b>압력과 부피가 반비례</b>한다는 거야. 압력을 두 배로 키우면 부피는 절반이 돼. 곱이 일정하지. <span class="fm">PV = 일정</span>.</p>
 <p>왜 그럴까? 부피를 줄이면 같은 수의 분자가 더 좁은 공간에 갇혀서 벽에 더 자주 부딪혀(044). 그래서 압력이 올라가는 거야. 그래프로 그리면 반비례 곡선(쌍곡선)이 나와.</p>
@@ -80,7 +81,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="eg"><span class="lab">예제</span> 1 atm·2 L 기체를 온도 그대로 4 atm으로 누르면 부피는? <span class="fm">1×2 = 4×V₂</span> → <span class="fm">V₂ = 0.5 L</span>. 압력이 4배 되니 부피가 1/4로 줄었지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">샤를 법칙 · 부피와 절대온도는 정비례 (그림)</span></div>
 <p>샤를 법칙은 압력과 몰수가 일정할 때, <b>부피와 절대온도가 정비례</b>한다는 거야. 절대온도를 두 배로 올리면 부피도 두 배가 돼. <span class="fm">V/T = 일정</span>.</p>
 <p>왜? 온도를 올리면 분자가 빨라져 벽을 더 세게 두드리는데, 압력을 일정하게 유지하려면 부피가 늘어나 충돌 빈도를 낮춰야 하거든. 그래서 부피가 팽창해. 그래프는 원점(절대 0)을 지나는 직선이야.</p>
@@ -89,7 +90,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="trap"><span class="lab">함정 · 샤를 법칙은 반드시 절대온도</span><br>샤를 법칙에서 온도는 무조건 절대온도(켈빈)로 써야 해(044). 섭씨를 그대로 넣으면 완전히 틀려. 예를 들어 0°C에서 273°C로 올리면 섭씨로는 "무한 배"처럼 보이지만, 켈빈으로는 273 K → 546 K라 딱 2배야. 그래서 부피도 2배가 되는 거지. 그래프가 원점을 지나는 것도 절대온도(0 K)에서 부피가 0이 된다는 뜻이고. 섭씨로 계산하면 이 비례가 다 깨져. <span class="fm">T(K) = T(°C) + 273</span>로 바꾸고 시작해.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">두 법칙을 합치면 · 보일-샤를</span></div>
 <p>보일(PV 일정)과 샤를(V/T 일정)을 하나로 합칠 수 있어. 몰수가 일정할 때, <span class="fm">PV/T</span>가 일정하다는 거야. 압력·부피·온도가 동시에 바뀌어도 이 관계가 성립해.</p>
 <div class="big" style="font-size:16px">P₁V₁ / T₁ = P₂V₂ / T₂ &nbsp;(T는 K)</div>
@@ -97,7 +98,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">정리하면 보일은 반비례(PV 일정), 샤를은 정비례(V/T 일정), 둘을 합치면 PV/T 일정. 변하는 변수만 골라 해당 법칙을 쓰면 돼. 온도가 끼면 무조건 켈빈으로. 이 보일-샤를을 한 걸음 더 일반화한 게 다음 강의 이상기체 방정식이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"보일은 P·V 반비례(곡선), 샤를은 V·T 정비례(직선) · 온도는 절대온도."</div>
@@ -141,7 +142,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">
@@ -178,17 +179,21 @@ document.addEventListener('click', function (e) {
 <div class="lq__miss"><b>자주 걸리는 자리</b> 압력은 부피 가중 평균이지 단순 평균도, 단순 합도 아니다.</div>
 </div></div>
 <div class="lq__q" data-lq="3">
-<div class="lq__stem"><b>3.</b> 일정량의 기체에 대해 &#x27;압력이 일정할 때 부피는 절대온도에 비례한다&#x27;는 샤를 법칙을 확인하려고 한다. 실험 설계로 가장 적절한 것은?</div>
+<div class="lq__stem"><b>3.</b> 0.1 M 설탕 수용액 50 mL가 들어 있는 비커 A와 0.5 M 설탕 수용액 50 mL가 들어 있는 비커 B를 하나의 밀폐 용기에 함께 넣고 일정한 온도에서 오랫동안 두었다. 충분한 시간이 지난 후 예상되는 결과로 가장 적절한 것은? (단, 설탕은 증발하지 않고, 용액의 부피는 더해지는 것으로 본다.)</div>
 <ol class="lq__opts" data-ans="3">
-<li><button type="button" class="lq__opt">주사기 입구를 막고 온도를 25 °C로 유지한 채 피스톤을 눌러 가며, 갇힌 공기의 부피와 압력을 함께 측정한다.</button></li>
-<li><button type="button" class="lq__opt">단단한 강철 용기에 기체를 넣고 밀폐한 뒤, 물중탕 온도를 올려 가며 용기 안의 압력을 측정한다.</button></li>
-<li><button type="button" class="lq__opt">위쪽이 대기와 통하는 가느다란 유리관 속에 작은 수은 방울로 공기를 가둔 뒤, 관을 물중탕에 담가 온도를 바꿔 가며 갇힌 공기 기둥의 길이를 측정한다.</button></li>
-<li><button type="button" class="lq__opt">같은 온도와 같은 압력에서 서로 다른 종류의 기체를 각각 같은 부피만큼 모아 질량을 재어 비교한다.</button></li>
+<li><button type="button" class="lq__opt">두 비커의 액체 부피는 모두 변하지 않는다.</button></li>
+<li><button type="button" class="lq__opt">B의 물이 A 쪽으로 옮겨가 두 용액의 몰농도가 같아진다.</button></li>
+<li><button type="button" class="lq__opt">A의 물이 B 쪽으로 옮겨가 두 용액의 몰농도가 같아진다.</button></li>
+<li><button type="button" class="lq__opt">A의 물이 모두 B 쪽으로 옮겨가 비커 A는 비게 된다.</button></li>
 </ol>
 <div class="lq__why" hidden>
 <div class="lq__ans">정답 <b>③</b></div>
-<p>법칙을 확인하려면 &#x27;검증하려는 두 변수(온도와 부피)만 변하게 하고 나머지는 고정&#x27;해야 한다. 샤를 법칙은 압력과 기체의 양을 일정하게 유지한 채 온도에 따른 부피 변화를 보아야 한다. 위쪽이 대기와 통하는 관에 수은 방울로 공기를 가두면 갇힌 공기의 압력은 항상 &#x27;대기압 + 수은 방울의 무게에 해당하는 압력&#x27;으로 일정하게 유지되고, 온도를 바꾸면 수은 방울이 움직이며 공기 기둥의 길이(= 부피)만 변한다. 따라서 이 설계가 샤를 법칙 확인에 적합하다.</p>
-<div class="lq__miss"><b>자주 걸리는 자리</b> 온도·압력·부피 중 무엇을 고정했는지 확인하지 않고 &#x27;기체를 가열했으니 샤를 법칙&#x27;이라고 판단한다. 부피가 고정된 장치로는 샤를 법칙을 확인할 수 없다.</div>
+<p>용액의 증기압은 용매의 몰분율에 비례하므로, 농도가 진할수록 증기압이 낮다. 따라서 증기압은 0.1 M인 A가 0.5 M인 B보다 높다.
+밀폐 용기 안의 수증기는 두 비커에 공통이므로, 증기압이 높은 A에서 증발하는 물의 양이 응축되는 양보다 많고, 증기압이 낮은 B에서는 응축되는 양이 증발하는 양보다 많다. 결과적으로 물은 A에서 B로 옮겨간다.
+물이 옮겨가면 A는 더 진해지고 B는 더 묽어져 두 용액의 증기압 차이가 줄어든다. 두 용액의 증기압이 같아지는 순간, 곧 농도가 같아지는 순간 이동이 멈춘다.
+실제로 A의 설탕은 0.1 mol/L × 0.050 L = 0.005 mol, B의 설탕은 0.5 mol/L × 0.050 L = 0.025 mol이고 물의 총 부피는 100 mL이므로, 나중 부피를 V(A), V(B)라 하면 0.005/V(A) = 0.025/V(B), V(A) + V(B) = 100 mL 에서 V(A) ≈ 16.7 mL, V(B) ≈ 83.3 mL 이다. A가 완전히 비지는 않는다.
+따라서 정답은 ③이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 증기압 내림은 진한 용액일수록 크므로 물은 묽은 용액에서 진한 용액으로 옮겨가며, 두 용액의 농도가 같아지는 지점에서 이동이 멈춘다.</div>
 </div></div>
 <p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
 </div>

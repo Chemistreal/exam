@@ -41,7 +41,8 @@ exams = json.loads((ROOT / "exams.json").read_text(encoding="utf-8"))
 # 한 시험에 동형문제 세트가 여러 벌 있을 수 있다. final.html 의 DH_SETS 를 그대로 읽어
 # 모든 세트를 검사한다(여기서 놓치면 두 번째 세트가 검증 없이 학생에게 나간다).
 DH_SETS = json.loads(
-    re.sub(r"'", '"', source.split("const DH_SETS=", 1)[1].split("};", 1)[0] + "}")
+    # 꼬리 쉼표(「,}」)는 자바스크립트에서는 되지만 JSON 에서는 안 된다 — 걷어내고 읽는다(tools/dh_absorb.py 와 같게).
+    re.sub(r",(\s*[}\]])", r"\1", re.sub(r"'", '"', source.split("const DH_SETS=", 1)[1].split("};", 1)[0] + "}"))
 )
 
 
@@ -148,7 +149,10 @@ assert seen == expected, f"자산이 빠진 문항이 있다: {seen} != {expecte
 #    2880 → 3000 : 진도평가 두 회차(kch1to3·kch1to3-b)에도 은행을 앉혔다. 이로써
 #    DH_SETS 의 빈 배열 여덟 가운데 다섯이 채워졌고, 남은 셋(chem2-1·kch2to3·
 #    kch2final)과 j0 가 아직이다 (2026-09-02).
-assert seen == 3000, f"문항 총합이 달라졌다: {seen} (기대 3000)"
+#    3000 → 3240 : 남은 셋(chem2-1·kch2to3·kch2final)과 j0 에도 은행이 앉았다(각 60). DH_SETS 의
+#    빈 배열 여덟이 다 채워졌다. 이 검사는 final.html DH_SETS 표의 꼬리 쉼표 때문에 읽기에서
+#    죽어 있어 그 사이의 변화를 못 잡았다 — 2026-09-11 에 되살리며 세트별로 다시 세어 적는다.
+assert seen == 3240, f"문항 총합이 달라졌다: {seen} (기대 3240)"
 print(
     f"PASS wrongbook assets: exams={len(exams)} questions={seen} "
     f"손상(가드로 숨김)={broken}/{BROKEN_BUDGET}"

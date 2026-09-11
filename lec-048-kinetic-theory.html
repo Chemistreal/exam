@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -67,26 +68,26 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 지금까지 기체 법칙을 식으로 다뤘는데, 오늘은 그게 "왜" 성립하는지를 분자의 움직임으로 설명할 거야. 압력이 충돌이고 온도가 운동에너지라는 미시적 그림이지. 그리고 여기서 재밌는 결과가 하나 나와. 같은 온도에서도 가벼운 분자가 더 빨리 움직인다는 거야. 그래서 가벼운 기체가 더 빨리 퍼지는데(확산), 그걸 정량화한 게 그레이엄 법칙이야. 오늘은 운동론의 가정과 온도-운동에너지 관계, 그리고 확산 속도를 잡을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">기체 분자 운동론 · 이상기체의 그림</span></div>
 <p>기체 분자 운동론은 이상기체를 설명하는 분자 수준의 모형이야. 몇 가지 가정 위에 서 있어.</p>
 <ul class="cl"><li>기체 분자는 크기가 거의 없는 점으로 본다(분자 자체 부피 무시).</li><li>분자는 끊임없이 무작위로 직선 운동한다.</li><li>분자끼리, 벽과의 충돌은 완전 탄성 충돌이다(에너지 손실 없음).</li><li>분자 사이의 인력은 무시한다.</li></ul>
 <p>이 가정들로 기체 법칙이 다 설명돼. 압력은 분자가 벽에 부딪히는 힘(044)이고, 부피를 줄이면 충돌이 잦아져 압력이 오르고(보일), 온도를 올리면 분자가 빨라져 부피가 늘거나 압력이 오르지(샤를). 이상기체 방정식 PV=nRT도 이 운동론에서 유도돼.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">온도와 운동에너지 · 절대온도에 비례</span></div>
 <p>운동론의 가장 중요한 결론이야. <b>기체 분자의 평균 운동에너지는 절대온도에 비례한다.</b> 온도가 높다는 건 곧 분자들이 평균적으로 빠르게 움직인다는 뜻이지. 절대온도를 2배로 올리면 평균 운동에너지도 2배가 돼.</p>
 <div class="key">평균 운동에너지 ∝ 절대온도(K). 그래서 온도는 분자 운동의 격렬함을 나타내는 양이야. 중요한 따름정리: <b>같은 온도에서는 어떤 기체든 평균 운동에너지가 같다.</b> 수소든 산소든, 온도만 같으면 평균 운동에너지가 똑같아. 이게 다음 확산 법칙의 핵심 열쇠야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">같은 온도면 가벼운 게 빠르다</span></div>
 <p>여기서 흥미로운 결과가 나와. 같은 온도면 평균 운동에너지가 같은데, 운동에너지는 <span class="fm">½mv²</span>(질량 × 속도²)이잖아. 운동에너지가 같다면, <b>질량(m)이 작은 분자일수록 속도(v)가 빨라야</b> 해. 무거운 분자는 같은 에너지로 느리게, 가벼운 분자는 빠르게 움직이는 거지.</p>
 <div class="eg"><span class="lab">예제 · 직관</span> 같은 온도의 수소(<span class="fm">H₂</span>, 가벼움)와 산소(<span class="fm">O₂</span>, 무거움)는 평균 운동에너지가 같아. 그런데 수소가 훨씬 가벼우니, 같은 에너지를 가지려면 수소가 훨씬 빨리 움직여. 그래서 수소 분자가 산소보다 빠르게 날아다니지. "가벼운 게 빠르다"가 결론이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">확산과 그레이엄 법칙 · 1/√M</span></div>
 <p>분자가 빠를수록 기체가 더 빨리 퍼져. 한 기체가 다른 기체 속으로 퍼져 나가는 걸 확산, 작은 구멍으로 새어 나가는 걸 분출이라고 하는데, 둘 다 분자 속도에 좌우돼. 이걸 정량화한 게 그레이엄 법칙이야. <b>확산(분출) 속도는 몰질량의 제곱근에 반비례한다.</b></p>
 <div class="big" style="font-size:16px">속도 ∝ 1 / √M &nbsp;⇒&nbsp; v₁ / v₂ = √(M₂ / M₁)</div>
@@ -95,7 +96,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="trap"><span class="lab">함정 · 제곱근을 빼먹기</span><br>그레이엄 법칙에서 제곱근을 빼먹고 "몰질량에 그냥 반비례"로 쓰면 틀려. 위 예제에서 몰질량이 16배 차이라고 속도가 16배 차이가 아니라, 제곱근을 씌운 4배 차이야. 그리고 비를 세울 때 어느 게 분자·분모인지 주의해. 가벼운 기체가 빨라야 하니, 속도 비 <span class="fm">v₁/v₂</span>는 몰질량 비를 뒤집은 <span class="fm">√(M₂/M₁)</span>이야. 방향을 헷갈리지 마.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"평균 운동에너지 ∝ 절대온도 · 같은 온도면 가벼운 게 빠르다 · 확산 속도 ∝ 1/√M."</div>
@@ -139,7 +140,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

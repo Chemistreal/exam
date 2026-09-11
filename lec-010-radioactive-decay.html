@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -71,13 +72,13 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 001에서 탄소-14 같은 방사성 동위원소를, 009에서 초신성이 만든 무거운 불안정 핵을 잠깐 언급했지. 어떤 핵은 불안정해서 가만히 있지 못하고, 입자나 에너지를 내놓으며 다른 핵으로 변해. 이게 방사성 붕괴야. 오늘은 붕괴의 세 종류(α·β·γ)가 핵을 어떻게 바꾸는지, 그리고 "절반이 사라지는 시간"인 반감기로 남은 양을 어떻게 계산하는지를 잡을 거야. 원자모형 영역을 닫는 마지막 강이야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">방사성 붕괴란 · 불안정한 핵의 변신</span></div>
 <p>핵 안에는 양성자와 중성자가 들어 있는데(001), 그 비율이 안 좋으면 핵이 불안정해져. 불안정한 핵은 입자나 에너지를 내보내서 더 안정한 핵으로 바뀌려고 해. 이 과정을 방사성 붕괴라고 부르고, 이때 나오는 게 방사선이야.</p>
 <p>방사선에는 세 종류가 있어. 알파(α), 베타(β), 감마(γ). 이름이 중요한 게 아니라, <b>각각이 핵의 양성자 수(Z)와 질량수(A)를 어떻게 바꾸느냐</b>가 핵심이야. 이걸 표 하나로 정리하면 붕괴 문제는 거의 다 풀려.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">세 가지 붕괴 · Z와 A가 어떻게 변하나</span></div>
 <table><tr><th scope="col">붕괴</th><th scope="col">내보내는 것</th><th scope="col">Z 변화</th><th scope="col">A 변화</th></tr>
 <tr><td>α 붕괴</td><td>알파입자 (<span class="fm">⁴₂He</span> 핵)</td><td class="mono">−2</td><td class="mono">−4</td></tr>
@@ -89,14 +90,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="eg"><span class="lab">예제 · 우라늄의 α 붕괴</span> <span class="fm">²³⁸₉₂U</span>가 α 붕괴하면, Z는 92−2=90, A는 238−4=234. 결과는 <span class="fm">²³⁴₉₀Th</span>(토륨). 양성자가 2 줄었으니 원소 자체가 우라늄에서 토륨으로 바뀌었지. α 붕괴는 이렇게 원소를 두 칸 앞으로 옮겨.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">함정 정리 · 헷갈리는 지점들</span></div>
 <div class="trap"><span class="lab">함정 ① β 붕괴에서 A가 변한다고 착각</span><br>β 붕괴는 전자가 튀어나오니 "질량수가 줄겠지" 싶지만, 줄지 않아. 중성자 하나가 양성자 하나로 <b>바뀐</b> 거라 핵자 총수는 그대로거든(A 불변). 변하는 건 Z뿐(+1). 전자는 질량이 거의 없어 A에 영향을 안 줘.</div>
 <div class="trap"><span class="lab">함정 ② γ 붕괴가 원소를 바꾼다고 착각</span><br>γ 붕괴는 에너지(광자)만 나가는 거라 Z도 A도 안 변해. 즉 원소가 바뀌지 않아. 같은 핵이 에너지만 낮아질 뿐이야. "γ는 아무것도 안 바꾼다(에너지만)"로 기억해.</div>
 <p>한 줄 요약으로 묶으면 이래. α는 (Z−2, A−4), β는 (Z+1, A 그대로), γ는 (둘 다 그대로). 이 세 줄만 외우면 어떤 붕괴 사슬도 따라갈 수 있어.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">반감기 · 절반이 사라지는 시간</span></div>
 <p>이제 양적인 이야기. 방사성 핵은 한꺼번에 다 붕괴하는 게 아니라, 시간에 따라 조금씩 줄어들어. 그 줄어드는 속도를 나타내는 게 반감기야. <b>반감기는 방사성 핵의 절반이 붕괴하는 데 걸리는 시간</b>이야.</p>
 <p>핵심은 반감기가 항상 일정하다는 거야. 처음 양이 얼마든, 온도나 압력이 어떻든, 화학 결합 상태가 어떻든 반감기는 안 변해. 그래서 시간이 한 반감기 지날 때마다 남은 양이 정확히 절반씩 줄어.</p>
@@ -107,7 +108,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="trap"><span class="lab">함정 · 반감기가 조건에 따라 변한다고 생각</span><br>"양이 많으면 더 빨리 붕괴하지 않나?", "가열하면 반감기가 줄지 않나?" 같은 생각은 틀려. 반감기는 그 핵 고유의 값이라 외부 조건과 무관하게 일정해. 그래서 연대 측정의 믿을 만한 시계로 쓸 수 있는 거야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 원자모형 영역 마무리</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"α는 (Z−2,A−4), β는 (Z+1,A동일), γ는 불변 · 남은 양 = N₀(½)^(t/t½)."</div>
@@ -151,7 +152,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

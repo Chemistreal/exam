@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -69,20 +70,20 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 이번 영역은 액체와 용액이야. 첫 강은 증발과 증기압. 물을 끓이지 않아도 빨래가 마르잖아? 끓는점 아래에서도 액체가 기체로 빠져나가는 게 증발이야. 그리고 닫힌 용기에서는 빠져나간 증기가 압력을 만드는데, 그게 증기압이지. 오늘은 증발이 분자 수준에서 어떻게 일어나는지, 증기압이 무엇으로 정해지는지(온도와 분자 간 힘)를 잡을 거야. 다음 강의 끓는점이 바로 이 증기압으로 정의되거든.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">증발 · 빠른 분자가 표면에서 탈출</span></div>
 <p>액체 분자들은 평균적으로 어떤 속도로 움직이지만, 다 똑같은 속도는 아니야. 빠른 것도 느린 것도 있지. 그중 <b>표면에 있으면서 운동에너지가 충분히 큰 분자</b>가 분자 간 힘을 이기고 기체로 탈출해. 이게 증발이야. 끓는점보다 낮은 온도에서도, 표면에서 계속 일어나.</p>
 <div class="key">증발 = 액체 표면의 운동에너지 큰 분자가 분자 간 힘을 이기고 기체로 탈출. 끓는점 아래에서도, 표면에서만 일어나. 빠른 분자가 빠져나가니 남은 액체의 평균 운동에너지가 낮아져, 그래서 증발하면 시원해져(증발 냉각). 땀이 식혀주는 원리지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">동적 평형과 증기압</span></div>
 <p>닫힌 용기에서 증발을 지켜보자. 처음엔 액체가 기체로 빠져나가기만 해(증발). 그런데 기체 분자가 쌓이면, 그중 일부가 다시 액체로 돌아와(응축). 시간이 지나면 증발 속도와 응축 속도가 같아지는 순간이 와. 겉으로는 변화가 없어 보이지만 속으로는 계속 오가는, 동적 평형 상태야.</p>
 <p>이 평형 상태에서 기체(증기)가 가하는 압력을 그 온도에서의 <b>증기압</b>(포화 증기압)이라고 해. 즉 증기압은 "그 온도에서 액체와 증기가 평형을 이룰 때 증기의 압력"이야.</p>
 <div class="key">증기압 = 액체와 증기가 동적 평형을 이룰 때 증기가 가하는 압력. 증발과 응축이 같은 속도가 된 상태의 압력이야. 이 값이 다음 강에서 끓는점을 정의하는 핵심이 돼.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">증기압을 정하는 것 · 온도와 분자 간 힘 (그림)</span></div>
 <p>증기압은 두 가지로 정해져. 온도와 물질의 분자 간 힘.</p>
 <p><b>온도가 높을수록 증기압이 커.</b> 온도가 오르면 분자가 빨라져 더 많은 분자가 탈출하니까(048). 온도가 증기압을 정하는 가장 큰 요인이야. <b>분자 간 힘이 약할수록 증기압이 커.</b> 분자가 헐겁게 붙들려 있으면 탈출이 쉬우니까. 아래 그래프에서 분자 간 힘이 약한 액체(휘발성 큼)가 같은 온도에서 증기압이 높지.</p>
@@ -90,13 +91,13 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p>증기압이 큰 물질을 "휘발성이 크다"고 해. 잘 증발한다는 뜻이지. 향수나 알코올이 빨리 날아가는 건 분자 간 힘이 약해 증기압이 크기 때문이야.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">함정 · 증기압은 양과 무관</span></div>
 <div class="trap"><span class="lab">함정 · 액체가 많으면 증기압이 크다?</span><br>증기압은 <b>온도와 물질의 종류로만</b> 정해져. 액체의 양, 표면적, 용기의 부피와는 무관해. 물이 한 컵이든 한 양동이든, 같은 온도라면 증기압은 똑같아. 양이 많다고 증기압이 커지지 않아(평형에 도달하는 시간이 다를 뿐). "증기압은 온도와 물질로만 정해지는 그 물질의 고유한 성질"로 기억해. 양을 보고 증기압을 비교하면 틀려.</div>
 <div class="eg"><span class="lab">예제 · 뚜껑을 덮으면 무슨 일이 일어나나</span> 물을 컵에 담아 뚜껑을 덮고 25°C 에서 두면? 처음에는 증발만 일어나 수증기가 늘고, 수증기가 늘수록 <b>다시 물로 돌아오는 응축</b>도 빨라져. 어느 순간 <b>증발 속도 = 응축 속도</b> 가 되면 겉으로는 아무 일도 안 일어나 보이지 — 그때의 수증기 압력이 <b>포화 증기압</b>(25°C 물 = 약 24 mmHg)이야. <b>물이 남아 있는 한 이 값은 물의 양·용기 크기와 무관</b>하고, <b>온도만이 값을 바꾼다</b>. 뚜껑을 열면 수증기가 달아나 평형이 안 서니 물이 계속 준다 — 빨래가 마르는 이유가 그거야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"증기압 = 액체와 증기가 평형일 때 증기의 압력 · 온도↑·분자 간 힘 약할수록 크다(양과 무관)."</div>
@@ -140,11 +141,31 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">
-<div class="lq__stem"><b>1.</b> 같은 몰랄 농도의 다음 수용액 중 증기압이 가장 낮은 것은?</div>
+<div class="lq__stem"><b>1.</b> 다음은 세 액체의 1기압에서의 끓는점이다.<br>펜테인(C₅H₁₂, 분자량 72) : 36 °C<br>에탄올(C₂H₅OH, 분자량 46) : 78 °C<br>물(H₂O, 분자량 18) : 100 °C<br>이에 대한 설명으로 옳은 것은? (단, 세 액체는 모두 25 °C에서 액체 상태이다.)</div>
+<ol class="lq__opts" data-ans="4">
+<li><button type="button" class="lq__opt">같은 온도에서 증기 압력은 물이 가장 크다.</button></li>
+<li><button type="button" class="lq__opt">세 액체 모두에서 수소 결합이 분자 사이 인력으로 작용한다.</button></li>
+<li><button type="button" class="lq__opt">분자량이 가장 큰 펜테인의 분자 사이 인력이 가장 크다.</button></li>
+<li><button type="button" class="lq__opt">25 °C에서 증기 압력은 펜테인 &gt; 에탄올 &gt; 물 순이다.</button></li>
+</ol>
+<div class="lq__why" hidden>
+<div class="lq__ans">정답 <b>④</b></div>
+<p>끓는점은 액체의 증기 압력이 외부 압력과 같아지는 온도다. 같은 외부 압력에서 끓는점이 높다는 것은 그 온도까지 올려야 증기 압력이 1기압이 된다는 뜻이므로, 같은 온도에서 증기 압력이 작다는 뜻이고 곧 분자 사이 인력이 크다는 뜻이다.
+주어진 끓는점은 펜테인 36 °C &lt; 에탄올 78 °C &lt; 물 100 °C 이므로 분자 사이 인력은 물 &gt; 에탄올 &gt; 펜테인이고, 같은 온도에서의 증기 압력은 그 반대인 펜테인 &gt; 에탄올 &gt; 물이다.
+인력의 종류로도 같은 결론이 나온다. 물 분자는 O–H 결합 2개와 비공유 전자쌍 2개를 모두 가져 한 분자가 최대 4개의 수소 결합에 참여할 수 있으므로 분자 사이 인력이 가장 크고, 에탄올은 O–H가 하나뿐이라 수소 결합을 주는 자리가 1개여서 물보다 분자 사이 인력이 작으며, 펜테인은 무극성 탄화수소여서 분산력만 작용한다.
+① 틀린 설명: 같은 온도에서 물의 증기 압력이 가장 작다.
+② 틀린 설명: 펜테인은 O–H나 N–H 결합이 없는 무극성 분자여서 수소 결합을 하지 않는다.
+③ 틀린 설명: 펜테인의 분자량이 가장 크지만 수소 결합을 하지 못해 분자 사이 인력은 오히려 가장 작다. 그래서 끓는점도 가장 낮다.
+④ 옳은 설명: 인력이 작을수록 증발이 쉬워 증기 압력이 크므로 25 °C에서 펜테인 &gt; 에탄올 &gt; 물 순이다.
+따라서 정답은 ④이다.</p>
+<div class="lq__miss"><b>자주 걸리는 자리</b> 같은 온도에서 증기 압력이 클수록 분자 사이 인력이 작고 끓는점이 낮다. 분자량이 크다고 인력이 큰 것은 아니다.</div>
+</div></div>
+<div class="lq__q" data-lq="2">
+<div class="lq__stem"><b>2.</b> 같은 몰랄 농도의 다음 수용액 중 증기압이 가장 낮은 것은?</div>
 <ol class="lq__opts" data-ans="3">
 <li><button type="button" class="lq__opt">포도당</button></li>
 <li><button type="button" class="lq__opt">NaCl</button></li>
@@ -156,8 +177,8 @@ document.addEventListener('click', function (e) {
 <p>K₂SO₄ 는 이온 셋으로 갈라져 입자가 가장 많아 증기압 내림이 가장 크다. → ③</p>
 <div class="lq__miss"><b>자주 걸리는 자리</b> 증기압 내림을 몰농도로만 견준다. 갈라지는 용질은 입자가 여럿이 된다.</div>
 </div></div>
-<div class="lq__q" data-lq="2">
-<div class="lq__stem"><b>2.</b> 휘발성 액체 A와 B는 서로 섞여 이상 용액을 만든다. 40 °C에서 순수한 A의 증기압은 300 torr, 순수한 B의 증기압은 100 torr이다. 40 °C에서 A와 B를 섞어 만든 용액과 평형에 있는 증기에서 A와 B의 몰분율이 각각 0.50으로 같아지려면, 액체 상태에서 A의 몰분율은 얼마여야 하는가? (단, 라울 법칙이 성립하고 증기는 이상 기체로 행동한다.)</div>
+<div class="lq__q" data-lq="3">
+<div class="lq__stem"><b>3.</b> 휘발성 액체 A와 B는 서로 섞여 이상 용액을 만든다. 40 °C에서 순수한 A의 증기압은 300 torr, 순수한 B의 증기압은 100 torr이다. 40 °C에서 A와 B를 섞어 만든 용액과 평형에 있는 증기에서 A와 B의 몰분율이 각각 0.50으로 같아지려면, 액체 상태에서 A의 몰분율은 얼마여야 하는가? (단, 라울 법칙이 성립하고 증기는 이상 기체로 행동한다.)</div>
 <ol class="lq__opts" data-ans="3">
 <li><button type="button" class="lq__opt">0.33</button></li>
 <li><button type="button" class="lq__opt">0.50</button></li>
@@ -168,21 +189,6 @@ document.addEventListener('click', function (e) {
 <div class="lq__ans">정답 <b>③</b></div>
 <p>라울 법칙에서 P_A = P°_A·x_A = 300x_A, P_B = P°_B·(1 − x_A) = 100(1 − x_A)이다. 증기 몰분율이 같으려면 분압이 같아야 하므로 300x_A = 100(1 − x_A) → 400x_A = 100 → x_A = 0.25이다. 확인하면 P_A = 300 × 0.25 = 75 torr, P_B = 100 × 0.75 = 75 torr로 같고, 증기 몰분율은 각각 0.50이다. 즉 덜 휘발성인 B가 액체에 3배나 많아야 두 성분의 증기 기여가 같아진다.</p>
 <div class="lq__miss"><b>자주 걸리는 자리</b> 액체의 조성과 증기의 조성이 같다고 생각하거나, 더 휘발성인 성분이 액체에도 더 많아야 한다고 착각한다.</div>
-</div></div>
-<div class="lq__q" data-lq="3">
-<div class="lq__stem"><b>3.</b> 25°C에서 순수한 물의 증기압은 23.80 mmHg이다. 25°C에서 물 90.0 g에 비휘발성·비전해질 물질 X 18.0 g을 완전히 녹였더니 이 용액의 증기압이 23.33 mmHg가 되었다. X의 분자량에 가장 가까운 값은? (물의 분자량 18.0, 용액은 라울 법칙을 따른다.)</div>
-<ol class="lq__opts" data-ans="2">
-<li><button type="button" class="lq__opt">90</button></li>
-<li><button type="button" class="lq__opt">180</button></li>
-<li><button type="button" class="lq__opt">270</button></li>
-<li><button type="button" class="lq__opt">360</button></li>
-</ol>
-<div class="lq__why" hidden>
-<div class="lq__ans">정답 <b>②</b></div>
-<p>라울 법칙에 따라 용액의 증기압 P = X(물) × P°(물)이므로 물의 몰분율 X(물) = 23.33/23.80 = 0.9803. 따라서 용질의 몰분율 X(X) = 1 − 0.9803 = 0.0197.
-물의 몰수 = 90.0/18.0 = 5.00 mol이다. X(X) = n(X)/(n(X) + 5.00) = 0.0197이므로 n(X) = 0.0197/0.9803 × 5.00 = 0.101 mol.
-분자량 = 18.0 g / 0.101 mol = 179 g/mol ≈ 180.</p>
-<div class="lq__miss"><b>자주 걸리는 자리</b> 라울 법칙의 몰분율을 &#x27;용질의 몰분율&#x27;과 &#x27;용매의 몰분율&#x27; 중 어느 쪽으로 써야 하는지 뒤바꾸거나, 몰분율에서 몰수를 되돌릴 때 분모에 용질 몰수를 더하는 것을 잊는다.</div>
 </div></div>
 <p class="lq__src">검수된 동형문제에서 골랐습니다 (사람이 확인한 2,490문항).</p>
 </div>

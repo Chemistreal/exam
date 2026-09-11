@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -69,21 +70,21 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 용질을 녹이면 용액의 성질이 순수한 용매와 달라져. 끓는점이 오르고, 어는점이 내려가고, 증기압이 내려가지. 그런데 신기한 게 있어. 이 변화가 "무엇을 녹였느냐"가 아니라 "몇 개를 녹였느냐"에만 의존한다는 거야. 설탕이든 소금이든, 같은 수의 입자가 녹으면 같은 효과를 내(소금은 이온화 때문에 입자가 더 많아지긴 하지만). 이렇게 입자 수에만 의존하는 성질을 총괄성이라고 해. 오늘은 총괄성의 개념과, 그 대표인 증기압 내림, 그리고 전해질의 함정을 잡을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">총괄성 · 입자 수에만 의존</span></div>
 <p>총괄성은 용질의 종류와 무관하게, 녹은 용질 <b>입자의 수(농도)에만</b> 의존하는 용액의 성질이야. 핵심은 "무엇이"가 아니라 "몇 개가"야. 같은 수의 입자가 녹으면, 그게 설탕이든 요소든 같은 크기의 효과를 내.</p>
 <p>총괄성에는 네 가지가 있어. 증기압 내림, 끓는점 오름, 어는점 내림, 삼투압. 오늘은 개념과 증기압 내림을 보고, 끓는점·어는점은 다음 강(056), 삼투압은 그다음(057)에서 다뤄.</p>
 <div class="key">총괄성 = 용질 입자 수에만 의존하는 성질(종류 무관). 네 가지: 증기압 내림, 끓는점 오름, 어는점 내림, 삼투압. 그래서 총괄성 계산의 핵심은 "녹은 입자가 몇 개(몇 몰)인지"를 정확히 세는 거야. 종류는 상관없고 개수가 전부지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">증기압 내림 · 표면을 가로막는다</span></div>
 <p>총괄성의 출발점인 증기압 내림부터. 비휘발성 용질(증발하지 않는 용질, 예: 소금·설탕)을 용매에 녹이면, 용매의 증기압이 순수할 때보다 내려가. 왜일까?</p>
 <p>용매가 증발하려면 표면 분자가 탈출해야 하는데(050), 용질 입자가 표면 일부를 차지하고 있으면 용매 분자가 탈출할 자리가 줄어들어. 즉 용질이 증발을 방해해서 증기압이 내려가는 거지. 그리고 그 내려가는 정도는 용질이 표면을 얼마나 차지하느냐, 즉 용질 입자의 비율(몰분율)에 비례해.</p>
 <div class="key">비휘발성 용질을 녹이면 용매의 증기압이 내려가(증기압 내림). 용질 입자가 표면을 차지해 용매의 증발을 방해하기 때문이야. 내려가는 정도는 용질의 몰분율에 비례해(054의 몰분율). 이 증기압 내림이 다음 강의 끓는점 오름·어는점 내림의 근본 원인이 돼.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">전해질의 함정 · 이온화로 입자가 늘어난다</span></div>
 <p>총괄성에서 가장 중요한 함정이야. 총괄성은 입자 수에 의존하는데, 어떤 물질은 물에 녹으면서 이온으로 쪼개져 입자 수가 늘어나거든. 이런 물질을 전해질이라고 해.</p>
 <p>예를 들어 소금 <span class="fm">NaCl</span>은 물에 녹으면 <span class="fm">Na⁺</span>와 <span class="fm">Cl⁻</span>로 나뉘어, 1몰이 입자 2몰이 돼. <span class="fm">CaCl₂</span>는 <span class="fm">Ca²⁺</span>와 <span class="fm">Cl⁻</span> 둘로, 1몰이 입자 3몰이 되고. 반면 설탕 같은 비전해질은 녹아도 안 쪼개져 1몰이 그대로 입자 1몰이야. 이 "쪼개지는 개수"를 반트호프 인자(<span class="fm">i</span>)라고 해.</p>
@@ -95,7 +96,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="eg"><span class="lab">예제 · 입자 수만 세면 되는 문제</span> 같은 물 1 kg 에 ① 포도당 0.1몰 ② NaCl 0.1몰 ③ CaCl₂ 0.1몰 을 각각 녹였어. 끓는점이 가장 높은 것은? 총괄성은 <b>무엇이 녹았는지가 아니라 입자가 몇 개인지</b>만 본다. 이온화까지 세는 게 핵심이야(반트호프 i). ① 포도당은 안 쪼개져 <span class="fm">i = 1</span> → 0.1몰 ② NaCl → Na⁺ + Cl⁻ 라 <span class="fm">i = 2</span> → 0.2몰 ③ CaCl₂ → Ca²⁺ + 2Cl⁻ 라 <span class="fm">i = 3</span> → <b>0.3몰</b>. 그러니 <b>③ CaCl₂ 가 가장 높다.</b> 어는점 내림·삼투압도 같은 순서고, 증기압만 반대(가장 낮다)야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"총괄성 = 입자 수에만 의존(종류 무관) · 전해질은 이온화로 입자 수가 늘어난다(×i)."</div>
@@ -139,7 +140,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -72,7 +73,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 034부터 042까지 도구를 하나씩 쌓았어. 몰, 몰질량, 분자량, 반응식 계수, 기체 부피, 농도, 한계 반응물, 수득률. 오늘은 이걸 다 한 흐름으로 묶어서, 어떤 화학량론 문제가 나와도 당황하지 않고 푸는 마스터 절차를 정리할 거야. 그리고 이 영역 전체를 관통하는 한 가지 깨달음을 확실히 새길 거야. 바로 "모든 길은 몰로 통한다"는 거지. 영역을 닫는 종합편이야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">마스터 절차 · 여섯 단계</span></div>
 <p>화학량론 문제는 겉모습이 달라도 푸는 절차가 똑같아. 이 여섯 단계를 따라가면 돼.</p>
 <ol class="steps">
@@ -86,14 +87,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p>문제마다 일부 단계는 건너뛰어. 반응물이 하나면 3단계(한계 반응물)는 생략하고, 수득률을 안 물으면 6단계는 빼고. 하지만 뼈대는 늘 이 순서야.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">통합 메시지 · 모든 길은 몰로 통한다</span></div>
 <p>위 절차를 자세히 보면 한 가지가 눈에 띄어. <b>모든 변환이 몰을 거쳐 간다</b>는 거야. 질량이든 부피든 농도든 입자 수든, 일단 몰로 바꾼 다음 계수비를 적용하고, 다시 원하는 단위로 바꿔. 몰이 모든 것의 중심 정거장이지.</p>
 <div class="hub">질량 &nbsp;⇄&nbsp; <b>몰</b> &nbsp;⇄&nbsp; 기체 부피<br>입자 수 &nbsp;⇄&nbsp; <b>몰</b> &nbsp;⇄&nbsp; 용액(농도×부피)<br><b>↑ 계수비(몰비)는 오직 몰에서만 적용된다 ↑</b></div>
 <div class="key">이게 이 영역 전체의 한 문장이야. 몰은 화학량론의 공용어야. 질량·부피·농도·개수는 서로 직접 변환할 수 없고, 반드시 몰을 거쳐야 해. 그리고 반응식 계수비(몰비)는 오직 몰 상태에서만 적용돼. 그러니 어떤 문제든 "일단 몰로 바꾸자"가 첫수야. 몰을 중심에 두면 길을 잃지 않아.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">종합 예제 · 한 문제에 다 담기</span></div>
 <p>여러 단계를 한 번에 쓰는 예제로 마무리하자. 암모니아 합성이야.</p>
 <div class="eg"><span class="lab">문제</span> <span class="fm">N₂ + 3H₂ → 2NH₃</span>. 질소 28 g과 수소 6 g을 반응시켰고, 수득률이 80%일 때 실제로 얻는 암모니아는 몇 g인가? (원자량 N 14, H 1)</div>
@@ -111,7 +112,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="trap"><span class="lab">함정 · 질량에서 질량으로 한 번에 건너뛰기</span><br><b>질량 → 질량은 직접 못 간다. 반드시 몰을 거쳐야 해.</b> 반응식의 계수는 <u>몰비</u>지 질량비가 아니거든(037). <span class="fm">2H₂ + O₂ → 2H₂O</span>에서 2:1:2는 몰 개수의 비고, 질량으로는 4 g : 32 g : 36 g이야 — 비가 전혀 달라. 순서를 몸에 붙여: <b>질량 → (÷몰질량) 몰 → (계수비) 몰 → (×몰질량) 질량.</b> 가운데 두 칸을 건너뛰면 그 문제는 반드시 틀려.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">한 장 정리와 영역 마무리</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"균형 → 몰로 → 한계 확인 → 계수비 → 원하는 단위 → 수득률 · 모든 길은 몰로 통한다."</div>
@@ -155,7 +156,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

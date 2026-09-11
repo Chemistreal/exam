@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -74,13 +75,13 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 앞 강의 금속 반응성으로 전기를 만들어보자(103). 반응성이 다른 두 금속을 도선으로 연결하면, 반응성 큰 금속이 전자를 내놓고 그게 도선을 따라 반응성 작은 금속 쪽으로 흘러. 이 전자의 흐름이 곧 전류고, 이걸 이용하는 장치가 화학 전지야. 산화 환원 반응의 전자 이동을 전기 에너지로 바꾸는 거지. 핵심은 어느 금속이 (-)극이고 (+)극인지, 그리고 전자가 어느 방향으로 흐르는지야. 오늘은 전지의 구조와 전극 반응을 잡을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">화학 전지 · 산화 환원으로 전기를</span></div>
 <p>화학 전지는 산화 환원 반응의 전자 이동을 이용해 전기 에너지를 얻는 장치야. 반응성이 다른 두 금속을 전해질 용액에 담그고 도선으로 연결하면, 반응성 큰 금속에서 작은 금속으로 전자가 흘러 전류가 생기지.</p>
 <div class="key">화학 전지 = 산화 환원의 전자 이동을 전기 에너지로 바꾸는 장치. 반응성이 다른 두 금속을 전해질에 담그고 도선으로 연결해. 반응성 큰 금속이 전자를 내놓아(산화), 그 전자가 도선을 따라 흐르며 전기를 만들어. 자발적인 산화 환원 반응이 전기로 변환되는 거야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">전극과 전자 흐름 (그림)</span></div>
 <p>전극을 정리하자. 반응성 큰 금속이 (-)극, 작은 금속이 (+)극이야.</p>
 <table><tr><th scope="col">전극</th><th scope="col">금속</th><th scope="col">반응</th><th scope="col">전자</th></tr>
@@ -90,14 +91,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p>전자는 산화가 일어나는 (-)극에서 나와, 도선을 따라 (+)극으로 흘러가(<span class="fm">(−)극 → (+)극</span>). 거기서 환원에 쓰이지. 전류의 방향은 전자와 반대로 정의하니 <span class="fm">(+)극 → (−)극</span>이고. 핵심은 "전자는 (-)극에서 (+)극으로"야.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">예시 · 아연-구리 전지</span></div>
 <p>아연과 구리로 만든 전지를 보자(다니엘 전지). 아연이 구리보다 반응성이 크니, 아연이 (-)극(산화), 구리가 (+)극(환원)이야.</p>
 <div class="rxn">(−)극(Zn, 산화): Zn → Zn²⁺ + 2e⁻<br>(+)극(Cu, 환원): Cu²⁺ + 2e⁻ → Cu</div>
 <p>(-)극에서 <span class="fm">Zn</span>이 전자를 내놓아 <span class="fm">Zn²⁺</span>로 녹고(질량 감소), 그 전자가 도선을 따라 (+)극으로 가서 <span class="fm">Cu²⁺</span>를 <span class="fm">Cu</span>로 석출시켜(질량 증가). 103의 치환 반응(<span class="fm">Zn + Cu²⁺ → Zn²⁺ + Cu</span>)을 두 전극으로 나눠 전자가 도선을 거치게 한 거야. 그 전자 흐름이 전류지.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">전지의 세기 · 기전력(E°<sub>cell</sub>)</span></div>
 <p>전지가 얼마나 세게 전자를 밀어내는지를 숫자로 말한 게 <b>기전력</b>(起電力, electromotive force)이야. 단위는 볼트(V)고, 전지 양 끝의 <b>전위차</b>를 뜻해. 표준 상태(25 °C, 1 M, 1 atm)에서 잰 값을 <span class="fm">E°<sub>cell</sub></span> 라고 써.</p>
 <p>어디서 오느냐면, 각 반쪽반응이 <b>얼마나 환원되고 싶어 하는지</b>를 잰 <b>표준 환원 전위</b> <span class="fm">E°</span> 에서 온다. E°가 클수록 환원되려는 경향이 크고, 작을수록(음수일수록) 오히려 산화되려 해. 그래서 두 금속을 맞붙이면 <b>E°가 큰 쪽이 환원(+극), 작은 쪽이 산화(−극)</b> 가 되고, 그 차이만큼 전자가 밀려 흐르는 거야.</p>
@@ -108,13 +109,13 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="trap"><span class="lab">함정 · 부호를 거꾸로 뺀다</span><b>환원 쪽에서 산화 쪽을 뺀다.</b> 순서를 바꾸면 부호가 뒤집혀 자발적인 반응을 &#39;안 일어난다&#39;고 읽게 돼. 헷갈리면 &#34;큰 E° − 작은 E°&#34; 로 외워 — 제대로 된 전지면 언제나 양수가 나와.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">함정 정리</span></div>
 <div class="trap"><span class="lab">함정 · (-)극에서 환원이 일어난다?</span><br>화학 전지에서는 <b>(-)극에서 산화, (+)극에서 환원</b>이야. (-)극(반응성 큰 금속)이 전자를 내놓으며 산화되고, 그 전자를 받는 (+)극에서 환원이 일어나지. "(-)극=산화, (+)극=환원"을 기억해(다음 강의 전기 분해는 반대니 헷갈리지 마). 그리고 전자는 (-)극→(+)극으로 흐르고, 반응성 큰 금속이 (-)극이야. 전류 방향((+)→(-))과 전자 방향((-)→(+))이 반대인 것도 챙겨.</div>
 <div class="eg"><span class="lab">예제 · 전지 전위와 방향 한 번에</span> <span class="fm">Zn | Zn²⁺ ‖ Cu²⁺ | Cu</span> 전지를 읽어 봐. (E° : Zn²⁺/Zn −0.76 V, Cu²⁺/Cu +0.34 V) ① <b>표준 환원 전위가 큰 쪽이 환원</b>된다 → Cu²⁺ 가 환원(<b>양극·환원전극</b>), Zn 이 산화(<b>음극·산화전극</b>). ② <span class="fm">E°cell = E°(환원전극) − E°(산화전극) = 0.34 − (−0.76) = <b>+1.10 V</b></span>. ③ 양수니까 <b>이 방향으로 저절로 간다</b>(ΔG° = −nFE° &lt; 0). ④ 전자는 <b>Zn 판에서 Cu 판 쪽으로</b> 흐르고, Zn 판은 <b>깎이고</b> Cu 판은 <b>두꺼워져</b>. ⚠ 전지에서는 산화가 (−)극인데 <b>전기 분해에서는 산화가 (+)극</b>이야(105) — 이름이 엇갈리니 <b>anode = 산화</b> 로 붙잡아.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s06">
 <div class="sec__h"><span class="sec__no">06</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"반응성 큰 금속 = (−)극 산화 · 작은 금속 = (+)극 환원 · 전자는 (−)극 → (+)극."</div>
@@ -158,7 +159,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

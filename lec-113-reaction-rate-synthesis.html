@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -72,14 +73,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 107부터 112까지 반응 속도를 다 배웠어. 오늘은 한눈에 종합하면서, 아직 안 다룬 표면적 요인을 추가할 거야. 반응 속도의 핵심 메시지는 하나야. 속도에 영향을 주는 모든 요인(농도·온도·촉매·표면적)이 결국 "유효 충돌을 늘린다"는 한 가지로 설명된다는 거지. 충돌 횟수를 늘리거나(농도·압력·표면적), 유효 충돌의 비율을 높이거나(온도), 활성화 에너지를 낮추거나(촉매), 방식은 달라도 목표는 같아. 오늘 이 전체 그림을 완성할 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">표면적 요인 · 잘게 쪼개면 빠르다</span></div>
 <p>아직 안 다룬 요인 하나가 표면적이야. 고체가 관여하는 반응에서, <b>고체를 잘게 쪼개 표면적을 늘리면 반응이 빨라져</b>. 반응은 고체의 표면에서 일어나는데, 잘게 쪼개면 노출된 표면(접촉 면적)이 넓어져 충돌할 수 있는 면이 늘어나거든.</p>
 <div class="eg"><span class="lab">예제 · 가루 vs 덩어리</span> 각설탕보다 가루 설탕이 물에 훨씬 빨리 녹고 더 잘 타. 같은 질량이라도 가루는 표면적이 훨씬 넓어 물이나 산소와 닿는 면이 많거든. 철도 덩어리는 잘 안 타지만 고운 철 가루는 불꽃 속에서 격렬히 타지. "잘게 쪼갤수록 표면적↑ → 빠름"이야.</div>
 <div class="key">표면적↑ → 반응 속도↑. 고체를 잘게 쪼개면 노출 표면(접촉 면적)이 넓어져 충돌할 면이 늘어나(충돌 횟수↑). 가루 설탕이 각설탕보다 빨리 녹고 타는 게 예야. 고체가 관여하는 반응에서 중요한 요인이지.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">반응 속도 요인 종합표</span></div>
 <p>이제 모든 요인을 한 표로 모으자. 효과와 메커니즘을 함께 봐.</p>
 <table><tr><th scope="col">요인</th><th scope="col">효과</th><th scope="col">메커니즘</th></tr>
@@ -91,7 +92,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">농도·압력·표면적은 충돌 횟수를 늘려 속도를 높이고, 온도는 유효 충돌의 비율(에너지)을 높이며, 촉매는 활성화 에너지를 낮춰. 메커니즘은 셋(횟수·비율·장벽)으로 갈리지만, 모두 결과적으로 "유효 충돌을 늘린다"로 통일돼. 이게 반응 속도 영역의 핵심 그림이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">하나로 꿰기 · 모두 유효 충돌</span></div>
 <p>표를 한 문장으로 꿰면 이래. 모든 요인은 결국 단위 시간당 유효 충돌의 수를 늘려 반응을 빠르게 해(108).</p>
 <div class="flow"><span>농도·압력·표면적</span><b>→</b><span>충돌 횟수 ↑</span><b>→</b><span>유효 충돌 ↑</span></div>
@@ -100,12 +101,12 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p>세 갈래 길이 모두 "유효 충돌 증가"라는 같은 목적지로 모여. 그러니 어떤 요인을 만나도 "이게 충돌 횟수를 늘리나, 유효 충돌 비율을 높이나, 활성화 에너지를 낮추나"를 따지면 돼. 그게 반응 속도 문제의 사고법이야.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">자주 틀리는 포인트 모음</span></div>
 <div class="trap"><span class="lab">함정 · 영역 전체의 핵심 구분들</span><br>이 영역에서 꼭 구분할 것들이야. ① 농도·표면적은 충돌 횟수, 온도는 유효 충돌 비율(에너지). 메커니즘이 다름(110·111). ② 온도는 활성화 에너지를 안 바꾸고 넘는 입자 비율을 늘림, 촉매는 활성화 에너지 자체를 낮춤(111·112). ③ 촉매는 ΔH·평형·생성물 양을 안 바꿈, 자신은 소모 안 됨(112). ④ 활성화 에너지(Ea, 속도)와 반응 엔탈피(ΔH, 발열/흡열)는 별개(109). 이 넷을 헷갈리지 않으면 반응 속도는 거의 다 잡은 거야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 영역 마무리</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"농도·압력·표면적(횟수)·온도(비율)·촉매(장벽) · 모두 유효 충돌을 늘려 속도↑."</div>
@@ -149,7 +150,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">

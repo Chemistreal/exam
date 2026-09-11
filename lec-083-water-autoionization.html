@@ -15,6 +15,7 @@ main{max-width:760px;margin:0 auto;padding:16px 15px 64px}
 .hw b{color:var(--ink)}
 .lead{font-size:16.5px;line-height:1.78;margin:18px 2px 6px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:14px 0}
+.sec{scroll-margin-top:14px}/* #s03 처럼 절로 열 때 절 머리가 화면 위에 딱 붙지 않게 — tools/lec_anchor.py 가 넣는다 */
 .sec__h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
 .sec__no{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--teal);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
 .sec__t{font-size:16px;font-weight:700}
@@ -70,14 +71,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 <p class="lead">자, 앞 강에서 물이 산도 염기도 된다고 했지(양쪽성). 그럼 순수한 물에서 물 분자끼리 만나면? 한쪽이 다른 쪽에 H⁺를 줘서, 아주 약간이지만 이온화가 일어나. 그래서 순수한 물에도 H₃O⁺와 OH⁻가 미량 존재하지. 이 자동 이온화의 평형 상수가 Kw인데, 25°C에서 1×10⁻¹⁴이라는 일정한 값이야. 그리고 이 값이 산성·중성·염기성을 가르는 기준이 돼. 오늘은 물의 자동 이온화와 Kw, 그리고 [H⁺]·[OH⁻]의 관계를 잡을 거야.</p>
 
-<div class="sec">
+<div class="sec" id="s01">
 <div class="sec__h"><span class="sec__no">01</span><span class="sec__t">물의 자동 이온화 · 물끼리 H⁺를 주고받는다</span></div>
 <p>순수한 물에서도 물 분자끼리 <span class="fm">H⁺</span>를 주고받아 아주 약간 이온화해. 한 물 분자가 산(<span class="fm">H⁺</span> 줌), 다른 물 분자가 염기(<span class="fm">H⁺</span> 받음)로 행동하는 거지(082의 양쪽성).</p>
 <div class="eqn">2H₂O ⇌ H₃O⁺ + OH⁻</div>
 <p>간단히 <span class="fm">H₂O ⇌ H⁺ + OH⁻</span>로 쓰기도 해. 이온화 정도는 아주 작아서, 물은 거의 분자 상태로 있고 <span class="fm">H₃O⁺</span>와 <span class="fm">OH⁻</span>는 미량이야. 하지만 이 미량의 이온이 산성·염기성을 따지는 바탕이 돼.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s02">
 <div class="sec__h"><span class="sec__no">02</span><span class="sec__t">물의 이온곱 상수 Kw</span></div>
 <p>이 자동 이온화의 평형 상수가 물의 이온곱 상수(<span class="fm">Kw</span>)야. <span class="fm">[H⁺]</span>와 <span class="fm">[OH⁻]</span>의 곱이지(물은 순수 액체라 K 식에서 빠지고, 074). 25°C에서 그 값은 <span class="fm">1×10⁻¹⁴</span>이야.</p>
 <div class="eqn">Kw = [H⁺][OH⁻] = 1×10⁻¹⁴ (25°C)</div>
@@ -85,7 +86,7 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <div class="key">Kw = [H⁺][OH⁻] = 1×10⁻¹⁴(25°C). 순수한 물(중성)에서는 [H⁺] = [OH⁻] = 1×10⁻⁷ M이야. Kw는 평형 상수라 온도에만 의존해(농도와 무관). 산을 넣든 염기를 넣든, 25°C라면 [H⁺]와 [OH⁻]의 곱은 항상 10⁻¹⁴로 일정해.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s03">
 <div class="sec__h"><span class="sec__no">03</span><span class="sec__t">산성·중성·염기성 · 두 농도의 비교</span></div>
 <p><span class="fm">[H⁺]</span>와 <span class="fm">[OH⁻]</span> 중 어느 게 많은지로 액성이 정해져.</p>
 <table><tr><th scope="col">액성</th><th scope="col">농도 비교</th><th scope="col">[H⁺] (25°C)</th></tr>
@@ -95,14 +96,14 @@ html{color-scheme:light;-webkit-text-size-adjust:100%}
 <p>산을 넣으면 <span class="fm">[H⁺]</span>가 늘어 <span class="fm">10⁻⁷</span>보다 커지고(산성), 염기를 넣으면 <span class="fm">[OH⁻]</span>가 늘어 <span class="fm">[H⁺]</span>가 <span class="fm">10⁻⁷</span>보다 작아져(염기성). 기준점은 항상 <span class="fm">10⁻⁷</span>(중성)이야.</p>
 </div>
 
-<div class="sec">
+<div class="sec" id="s04">
 <div class="sec__h"><span class="sec__no">04</span><span class="sec__t">곱이 일정 · 하나 알면 다른 거 계산</span></div>
 <p><span class="fm">[H⁺]</span>와 <span class="fm">[OH⁻]</span>의 곱이 항상 <span class="fm">10⁻¹⁴</span>이니, 둘은 반비례야. 하나를 알면 다른 하나를 바로 구할 수 있어(<span class="fm">[OH⁻] = 10⁻¹⁴ / [H⁺]</span>).</p>
 <div class="eg"><span class="lab">예제</span> 어떤 산성 용액의 <span class="fm">[H⁺] = 1×10⁻³ M</span>이면 <span class="fm">[OH⁻]</span>는? <span class="fm">[OH⁻] = 10⁻¹⁴ / 10⁻³ = 1×10⁻¹¹ M</span>. 곱이 <span class="fm">10⁻³ × 10⁻¹¹ = 10⁻¹⁴</span>로 맞지. <span class="fm">[H⁺]</span>가 <span class="fm">10⁻⁷</span>보다 크니 산성이 맞고.</div>
 <div class="trap"><span class="lab">함정 · 산성이면 OH⁻가 0이다?</span><br>산성 용액에도 <span class="fm">OH⁻</span>는 있어(아주 적을 뿐 0이 아님). 곱이 <span class="fm">10⁻¹⁴</span>로 일정하니, <span class="fm">[H⁺]</span>가 커지면 <span class="fm">[OH⁻]</span>는 작아지지만 절대 0은 안 돼. 위 예제처럼 <span class="fm">[H⁺]=10⁻³</span>이어도 <span class="fm">[OH⁻]=10⁻¹¹</span>로 미량 존재해. "한쪽이 많아지면 다른 쪽은 적어질 뿐, 둘 다 0은 아니다"를 기억해. 곱이 일정하다는 게 핵심이야.</div>
 </div>
 
-<div class="sec">
+<div class="sec" id="s05">
 <div class="sec__h"><span class="sec__no">05</span><span class="sec__t">한 장 정리와 다음 연결</span></div>
 <p>오늘 들고 갈 한 문장.</p>
 <div class="big">"Kw = [H⁺][OH⁻] = 10⁻¹⁴ · 중성은 둘 다 10⁻⁷ · 곱이 일정(하나로 다른 거 계산)."</div>
@@ -146,7 +147,7 @@ document.addEventListener('click', function (e) {
   if (why) why.hidden = false;
 });
 </script>
-<div class="sec lq" data-lecture-quiz>
+<div class="sec lq" id="q" data-lecture-quiz>
 <div class="sec__h"><span class="sec__no">✓</span><span class="sec__t">확인 문제</span></div>
 <p class="lq__lead">방금 배운 것으로 풀 수 있는 3문항입니다. 답을 고르면 해설이 열립니다 — <b>먼저 스스로 고르고</b> 나서 보세요.</p>
 <div class="lq__q" data-lq="1">
