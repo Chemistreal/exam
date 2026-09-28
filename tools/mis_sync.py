@@ -3,8 +3,8 @@
 
 이 저장소에는 오개념이 세 군데 적혀 있다.
 
-    ① `misconception-catalog.html`  125개념마다 한 줄씩 · 여덟 유형으로 갈라
-    ② 강의 125편의 `함정` 칸           학생이 읽는 자리
+    ① `misconception-catalog.html`  개념(=강의)마다 한 줄씩 · 여덟 유형으로 갈라
+    ② 강의(lec-*.html)마다의 `함정` 칸  학생이 읽는 자리
     ③ 오답 카드의 오개념 한 줄         `om_cover.py` 가 비었는지만 본다
 
 셋이 따로 자라면, 카탈로그는 아는데 강의는 말 안 해 주는 오개념이 생긴다.
@@ -66,7 +66,7 @@ def main():
     if no_cat:
         print('\n강의는 있는데 카탈로그에 없는 개념 %d개: %s' % (len(no_cat), ' '.join(no_cat)))
     if not (no_lec or no_trap or no_cat):
-        print('\n125개념이 세 자리에서 같은 목록을 든다.')
+        print('\n%d개념이 세 자리에서 같은 목록을 든다.' % len(tr))
 
     bad = bool(no_lec or no_trap or no_cat)
     if check:

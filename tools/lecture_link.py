@@ -7,7 +7,7 @@
 선생님 지적(2026-08-29): «개념강의랑 틀린 문제가 잘 맞지 않는거같아.»
 재어 보니 그랬다.
 
-    문항 3,060개 · 세부개념(exams.json 의 type) 917종 · 개념강의 125강
+    문항 3,060개 · 세부개념(exams.json 의 type) 917종 · 개념강의 125강 (그때 기준)
 
     · final.html 의 lecFor() 는 `AREALEC[area]` 를 **먼저** 본다. area 는
       「주기율」「산화환원」처럼 넓은 이름이라, 「이온화에너지」「전기분해」 같은
@@ -253,6 +253,12 @@ def main():
                     | {v for v in pm.values() if v and v not in lec})
     dead = sorted(n for n, d in lec.items()
                   if not os.path.exists(os.path.join(ROOT, d.get('file', ''))))
+    # ①-1 디스크의 강의가 lectures 칸에 다 있는가. 새 강의(126강~)를 파일로만
+    #     더하고 여기를 빼먹으면, 이 표로 이을 수도 없고 DT 저장소(lec_link.py
+    #     --sync 가 이 칸을 베낀다)도 그 강의를 영영 모른다.
+    listed = {d.get('file') for d in lec.values()}
+    unlisted = sorted(f for f in os.listdir(ROOT)
+                      if re.match(r'^lec-\d{3}-.+\.html$', f) and f not in listed)
     # ①-2 한 이름이 두 표에 걸치면 안 된다
     #
     # lecFor 는 PAIRLEC 을 먼저 보고, 없으면 TYPELEC 을 본다. 그러니 「밀도」가
@@ -302,6 +308,10 @@ def main():
     if dead:
         bad = True
         print('\n파일이 없는 강의 %d개: %s' % (len(dead), ', '.join(dead[:10])))
+    if unlisted:
+        bad = True
+        print('\n파일은 있는데 lectures 칸에 없는 강의 %d개: %s' % (len(unlisted), ', '.join(unlisted[:10])))
+        print('  → concept-lecture.json 의 lectures 에 file·title·areaNo·area 를 적는다.')
     if missing:
         bad = True
         print('\nmap 에도 unmapped 에도 없는 세부개념 %d종 (문항 %d개):'

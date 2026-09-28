@@ -188,8 +188,8 @@ def main():
 
     print('\n정밀한 강의로 닿는 문항 %d/%d (%d%%)' % (hit, tot, round(100 * hit / tot)))
     if miss:
-        print('못 닿는 문항 %d개 · %d종 — 125강에 그 주제가 없는 자리다:'
-              % (sum(miss.values()), len(miss)))
+        print('못 닿는 문항 %d개 · %d종 — 강의 %d편 어디에도 그 주제가 없는 자리다:'
+              % (sum(miss.values()), len(miss), len(F)))
         for k, n in miss.most_common(20):
             print('  %-40s %d' % (k, n))
 

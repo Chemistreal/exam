@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""강의 125강에 **확인 문제**를 붙인다 — 이미 사람이 검수한 문항에서 골라서.
+"""강의(lec-*.html)마다 **확인 문제**를 붙인다 — 이미 사람이 검수한 문항에서 골라서.
 
 무엇을 하나
 -----------
@@ -81,14 +81,30 @@ def load_pool():
     return pool
 
 
-def choose(pool):
+def lecture_pages():
+    """강의번호 → 파일 경로. **디스크에 있는 강의가 곧 목록이다.**
+
+    예전에는 1~125 를 코드에 박아 두었다. 126강을 더하자 파일은 있는데 확인
+    문제를 영영 못 받는 자리가 생겼다 — 번호의 끝은 파일이 정한다.
+    """
+    num = {}
+    for p in sorted(glob.glob(os.path.join(ROOT, 'lec-*.html'))):
+        m = re.match(r'lec-(\d{3})-', os.path.basename(p))
+        if m:
+            num[int(m.group(1))] = p
+    return num
+
+
+def choose(pool, lectures=None):
     """강의번호 → 뽑은 문항들. 붙이는 차례가 뒤에 오지 않게 **작은 강의부터** 준다.
 
     ⚠ 후보가 적은 강의부터 고른다. 큰 강의가 먼저 집어 가면 후보가 셋뿐인
       강의가 빈손이 된다 — 많이 가진 쪽이 나중에 고르는 것이 맞다.
     """
+    if lectures is None:
+        lectures = sorted(lecture_pages())
     cand = {}
-    for n in range(1, 126):
+    for n in lectures:
         hits = []
         for q in pool:
             r = matches(n, q)
@@ -239,19 +255,12 @@ def apply_to_page(path, block):
 def main():
     check = '--check' in sys.argv
     pool = load_pool()
-    picks, cand = choose(pool)
-    pages = sorted(glob.glob(os.path.join(ROOT, 'lec-*.html')))
-    num = {}
-    for p in pages:
-        m = re.search(r'lec-(\d{3})', os.path.basename(p))
-        if m:
-            num[int(m.group(1))] = p
+    num = lecture_pages()
+    picks, cand = choose(pool, sorted(num))
 
     changed, missing = [], []
-    for n in range(1, 126):
-        p = num.get(n)
-        if not p:
-            continue
+    for n in sorted(num):
+        p = num[n]
         got = picks.get(n)
         if not got:
             missing.append(n)
@@ -263,8 +272,8 @@ def main():
                 with io.open(p, 'w', encoding='utf-8') as fh:
                     fh.write(out)
 
-    have = 125 - len(missing)
-    print(f'확인 문제가 붙은 강의 {have}강 / 125강 · 쓴 문항 '
+    have = len(num) - len(missing)
+    print(f'확인 문제가 붙은 강의 {have}강 / {len(num)}강 · 쓴 문항 '
           f'{len({q["_id"] for v in picks.values() for q in v})}개')
     if missing:
         print(f'  비운 강의 {len(missing)}강 — 풀에 맞는 문항이 {MIN_LECTURE}개도 없다: '
