@@ -812,6 +812,11 @@ jobs:
       - name: 강의 125장에 돌아가는 자리가 붙어 있는가
         timeout-minutes: 5
         run: python3 tools/lec_back.py --check
+      # DT 주간 성적표도 강의를 연다(?from=dt&c=…&r=…#sNN). 그때 파이널 말
+      # («‹ 파이널로» · «이번 진단에서») 대신 DT 의 한 줄이 뜨는 조각이 128장에 있는가.
+      - name: 강의에 DT 성적표 한 줄 조각이 붙어 있는가
+        timeout-minutes: 5
+        run: python3 tools/lec_dt_banner.py --check
       # 성적표의 배선은 «03절» 처럼 절을 적어 두는데, 강의 절에 id 가 없으면
       # 링크는 첫 줄로만 연다(9분짜리 통 강의를 처음부터). 절마다 인쇄 번호와
       # 같은 id="sNN"(확인 문제는 id="q")이 달려 있고 겹치지 않는지 본다.
@@ -1023,6 +1028,11 @@ jobs:
       - name: 강의에서 돌아가기 (성적표로 · 목록 아님)
         timeout-minutes: 5
         run: node tests/lec-back.js
+      # DT 성적표에서 연 강의 — «DT 화학Ⅱ 5회에서 틀린 개념입니다 · 성적표로
+      # 돌아가기», 파이널 단추가 걷히고, #절이 맨 위에 오고, 주소의 글자는 화면에 안 옮긴다.
+      - name: DT 성적표에서 연 강의 (한 줄 · 돌아가기)
+        timeout-minutes: 5
+        run: node tests/lec-dt-banner.js
       # 2026-08-10, 선생님 — "한번더 학부모 관점에서 모든 페이지를 검수해줘".
       # 걸어 보니 한 아이의 성적표 링크가 **모든 학생 명단으로 가는 문**이었다.
       # `‹ 시험 목록` 을 누르면 암호 없이 선생님 콘솔이 열렸다(암호 검사가

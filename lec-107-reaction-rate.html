@@ -199,6 +199,95 @@ k = 2.0 × 10⁻³ ÷ (0.10)² = 0.20 M⁻¹·s⁻¹
 
 
 
+<!-- lec-dt-banner:start (tools/lec_dt_banner.py 가 넣습니다. 손으로 고치지 마세요) -->
+<style data-lec-dt>
+/* DT 성적표에서 온 학생에게만 뜨는 한 줄. 문서 흐름 맨 위에 앉는다(떠 있지
+   않다) — #s03 으로 열어도 절 머리를 가리지 않는다. */
+.dtb{display:block;margin:10px 0 4px;padding:10px 14px;
+  background:var(--wash,#EDF4F1);border:1px solid var(--line,#E8E4DA);border-left:3px solid var(--teal,#0E5A4C);
+  border-radius:9px;color:var(--ink,#23201b);font-size:14px;line-height:1.55}
+.dtb__t{font-weight:600}
+.dtb__sep{color:var(--muted,#6f6a5e)}
+.dtb__go{color:var(--teal,#0E5A4C);font-weight:700;text-decoration:underline;text-underline-offset:2px;
+  white-space:nowrap;display:inline-block;padding:4px 0}
+@media print{.dtb{display:none!important}}
+</style>
+<script data-lec-dt>
+/* DT 주간 성적표에서 연 강의(?from=dt&c=…&r=…)에 한 줄을 띄운다 —
+   tools/lec_dt_banner.py 머리말. 주소의 글자는 화면에 옮기지 않는다:
+   정해 둔 값과 맞는지만 보고, 쓰는 글자는 아래 표에 있는 것뿐이다. */
+(function () {
+  var DT = 'https://chemistreal.github.io/DT/report.html';
+  var SUBJ = { ch1: '\ud654\ud559\u2160', ch2: '\ud654\ud559\u2161', gc: '\uc77c\ubc18\ud654\ud559' };
+  try {
+    var q = new URL(location.href).searchParams;
+    if (q.get('from') !== 'dt') return;
+    var c = q.get('c'), r = q.get('r');
+    var subj = (c && Object.prototype.hasOwnProperty.call(SUBJ, c)) ? SUBJ[c] : null;
+    var n = (r && /^[1-9][0-9]?$/.test(r)) ? String(Number(r)) : null;
+    var main = document.querySelector('main');
+    if (!main) return;
+
+    /* 파이널 쪽 돌아가는 단추를 걷는다 — 누르면 시험 목록(잠금 화면)이다.
+       .back 에 display 가 걸려 있어 hidden 속성만으로는 안 숨는다. */
+    var back = main.querySelector('a.back');
+    if (back) back.style.display = 'none';
+
+    /* 첫 칸의 «이번 진단에서 …가 보강으로 잡혔어.» 는 파이널 진단의 말이다.
+       그 한 문장만 걷고 나머지(이 1강을 끝까지 …)는 둔다. 문장 끝을 못 찾으면
+       칸을 통째로 접는다. */
+    var hw = main.querySelector('.hw');
+    if (hw && /^\s*\uc774\ubc88 \uc9c4\ub2e8\uc5d0\uc11c/.test(hw.textContent)) {
+      var cut = false, drop = [];
+      for (var k = hw.firstChild; k && !cut; k = k.nextSibling) {
+        var i = k.nodeType === 3 ? k.nodeValue.indexOf('. ') : -1;
+        if (i >= 0) { k.nodeValue = k.nodeValue.slice(i + 2); cut = true; }
+        else drop.push(k);
+      }
+      if (cut) drop.forEach(function (x) { hw.removeChild(x); });
+      else hw.style.display = 'none';
+    }
+
+    var box = document.createElement('div');
+    box.className = 'dtb';
+    box.setAttribute('role', 'note');
+    box.setAttribute('data-lec-dt-banner', '');
+    var t = document.createElement('span');
+    t.className = 'dtb__t';
+    /* DT {과목} {N}회에서 틀린 개념입니다 / DT 성적표에서 틀린 개념입니다 */
+    t.textContent = (subj && n)
+      ? 'DT ' + subj + ' ' + n + '\ud68c\uc5d0\uc11c \ud2c0\ub9b0 \uac1c\ub150\uc785\ub2c8\ub2e4'
+      : 'DT \uc131\uc801\ud45c\uc5d0\uc11c \ud2c0\ub9b0 \uac1c\ub150\uc785\ub2c8\ub2e4';
+    var sep = document.createElement('span');
+    sep.className = 'dtb__sep';
+    sep.setAttribute('aria-hidden', 'true');
+    sep.textContent = ' \u00b7 ';
+    var go = document.createElement('a');
+    go.className = 'dtb__go';
+    go.href = DT;
+    go.textContent = '\uc131\uc801\ud45c\ub85c \ub3cc\uc544\uac00\uae30';   /* 성적표로 돌아가기 */
+    /* 새 탭에서 열렸으니 닫아서 성적표 탭으로 돌려보낸다. 브라우저가 닫기를
+       막으면 잠시 뒤 뒤로(갈 곳이 있을 때) 또는 DT 성적표 첫 화면으로. */
+    go.addEventListener('click', function (e) {
+      if (e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();
+      try { window.close(); } catch (x) {}
+      setTimeout(function () {
+        if (window.closed) return;
+        if (history.length > 1) history.back();
+        else location.href = DT;
+      }, 300);
+    });
+    box.appendChild(t);
+    box.appendChild(sep);
+    box.appendChild(go);
+    if (back) main.insertBefore(box, back);
+    else main.insertBefore(box, main.firstChild);
+    document.documentElement.setAttribute('data-from', 'dt');
+  } catch (e) {}
+})();
+</script>
+<!-- lec-dt-banner:end -->
 <script data-lec-back>
 /* 성적표에서 왔으면 성적표로 돌려보낸다(tools/lec_back.py 가 넣는다).
 
