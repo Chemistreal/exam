@@ -15,7 +15,9 @@ DT 학생은 «파이널» 을 본 적이 없다. 그래서 DT 가 주소에 표
 
 주소 약속 (DT 가 #절 앞에 붙인다)
     from=dt           이것이 없으면 아무것도 안 바뀐다(예전 그대로)
-    c=ch1|ch2|gc      화학Ⅰ · 화학Ⅱ · 일반화학
+    c=ch1|ch1s|ch2|gc 화학Ⅰ · 화학Ⅰ 심화 · 화학Ⅱ · 일반화학
+                      (ch1s 는 DT 설계 8단계에서 강의 연결을 켜며 더했다 — 2026-10-03.
+                       없으면 심화반 학생이 «DT 성적표에서 틀린 개념입니다» 로만 받는다)
     r=1…99            회차(0 으로 시작하지 않는 정수)
     c·r 가 없거나 어긋나면 «DT 성적표에서 틀린 개념입니다» 로 쓴다.
     주소의 글자는 **화면에 한 글자도 옮기지 않는다** — 정해 둔 값과 맞는지만
@@ -62,7 +64,7 @@ SNIP = START + '''
    정해 둔 값과 맞는지만 보고, 쓰는 글자는 아래 표에 있는 것뿐이다. */
 (function () {
   var DT = 'https://chemistreal.github.io/DT/report.html';
-  var SUBJ = { ch1: '\\ud654\\ud559\\u2160', ch2: '\\ud654\\ud559\\u2161', gc: '\\uc77c\\ubc18\\ud654\\ud559' };
+  var SUBJ = { ch1: '\\ud654\\ud559\\u2160', ch1s: '\\ud654\\ud559\\u2160 \\uc2ec\\ud654', ch2: '\\ud654\\ud559\\u2161', gc: '\\uc77c\\ubc18\\ud654\\ud559' };
   try {
     var q = new URL(location.href).searchParams;
     if (q.get('from') !== 'dt') return;
