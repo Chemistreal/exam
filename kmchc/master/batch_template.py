@@ -1,0 +1,480 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+KMChC 명작 10,000제 — 배치 생산 템플릿
+================================================================
+사용법:
+    1) 이 파일을 복사:  cp master/batch_template.py /tmp/t11_p11.py
+    2) CONFIG 의 START_ID / EXPECT_LEN / THEME 를 맞춘다
+    3) build() 안에 문항 10개를 채운다
+    4) python3 /tmp/t11_p11.py            → 설계 검증만 (파일 안 건드림)
+    5) python3 /tmp/t11_p11.py --merge    → 안전 게이트 통과 시 병합 + housekeeping
+
+핵심 원칙(HANDOFF.md 3~5장 참조):
+    · 위치 사전배치(정답 ①②③④ 균형) · 자수 실측(G3) · 쌍대조 선수행(판례)
+    · 저장 직전 안전 게이트: len 실측 + ID 충돌 확인, 앞서 있으면 설계본 폐기
+
+★실측이 알려 준 두 가지(briefs/실측대조_난이도앵커_리포트.md)★
+  ① 보기 길이를 나란히 (G3b) — G3 를 오답 패딩으로 해소하면 정답이 길이 2위로 몰려
+     '두 번째로 긴 것을 찍는' 요령이 통한다(교정 전 T11 45%). 산포 ≤ 0.25.
+  ② 오답은 '틀린 진술'이 아니라 '학생이 실제로 저지르는 오류'여야 한다 —
+     선택률 5% 미만인 죽은 선지가 늘수록 변별도가 무너진다(실측 479문항:
+     죽은 선지 0개 0.446 → 1개 0.422 → 2개 0.264 → 3개 0.140).
+     오답 3개가 모두 그럴듯한지 = 각 오답을 고를 학생의 사고 경로를 댈 수 있는지 확인할 것.
+     정답률이 지나치게 높을 것 같으면(코호트 참조 90%+) 이미 죽은 선지가 있다는 뜻이다.
+"""
+import json, os, re, sys, shutil, subprocess
+from collections import Counter
+
+# ─────────────────────────── CONFIG ───────────────────────────
+BASE       = os.path.dirname(os.path.abspath(__file__))       # master/ 위치
+BANK       = os.path.join(BASE, 'master_bank.json')
+MIRROR     = os.environ.get('KMCHC_MIRROR', '')               # 사본 경로(선택). 없으면 동기화 생략
+START_ID   = 'M01743'          # ★이번 배치 첫 ID★
+COUNT      = 10
+EXPECT_LEN = 1742              # ★병합 직전에 파일이 가져야 할 문항 수★
+THEME      = '방사성붕괴'
+TT         = 11                # textbook_theme
+UNIT       = 'I'
+BATCH_NOTE = '[T11 P11] …배치 요지·폐기 사유를 여기 적어 rejection_log 에 남긴다'
+
+CIR = '①②③④'
+sys.path.insert(0, BASE)
+try:
+    from expr_assert import assert_no_placeholder
+except ImportError:
+    def assert_no_placeholder(items): pass
+
+
+# ─────────────────────────── 헬퍼 ───────────────────────────
+def mk(id, skill, track, dok, diff, esr, stem, choices, ans, proof, wrongs,
+       device, calc, scen, aexpr=None, obj=None):
+    """문항 1개 생성. wrongs = [(오답텍스트, 오류사유, 'proc|sign|surface'[, expr]), ...]
+
+    obj = objective(출제 의도). ★감사36 에서 mk 가 이 칸을 아예 안 넣는 것이 드러났다★ —
+    스키마 확장 때 기존 1,816제에는 자리를 만들었는데 도구를 고치지 않아
+    그 뒤에 만든 M01817~M01886 70제가 통째로 결손이었다.
+    비워 두면 verify 가 경고한다. skill 의 되풀이가 아니라 '무엇을 재려는가' 를 적을 것."""
+    ds = []
+    for w in wrongs:
+        dd = {"opt": choices.index(w[0]), "error": w[1], "type": w[2]}
+        if len(w) > 3 and w[3]:
+            dd["expr"] = w[3]
+        ds.append(dd)
+    it = {"id": id, "skill": skill, "unit": UNIT, "theme": THEME, "textbook_theme": TT,
+          "track": track, "dok": dok, "difficulty": diff, "expected_solve_rate": esr,
+          "stem": stem, "choices": choices, "answer": ans, "answer_proof": proof,
+          "distractors": sorted(ds, key=lambda x: x['opt']),
+          "device": device, "calc_check": calc, "scenario": scen,
+          "linked_concepts": [THEME], "source": "hand-crafted",
+          "objective": obj or ""}
+    if aexpr:                      # ★G1: 정답 보기가 순수 수치일 때만★
+        it["answer_expr"] = aexpr
+    return it
+
+
+def sol(it, lead, cor, wmap, diag):
+    """해설 생성. lead=도입 1문장, cor=정답 설명, wmap={오답텍스트: 설명}, diag=자가진단"""
+    c, a = it['choices'], it['answer']
+    it['solution'] = (f"{lead}\n\n[정답] {CIR[a]} {c[a]} — {cor}\n\n"
+                      + "\n".join(f"{CIR[i]} {c[i]}: {wmap[c[i]]}" for i in range(4) if i != a)
+                      + f"\n\n자가진단: {diag}")
+
+
+def ext(it, idx, new_txt):
+    """G3 해소용 — 오답 선지를 늘리거나 줄인다(해설 라벨도 함께 갱신)."""
+    old = it['choices'][idx]
+    it['solution'] = it['solution'].replace(f"{CIR[idx]} {old}:", f"{CIR[idx]} {new_txt}:")
+    it['choices'][idx] = new_txt
+
+
+def swap(it, i, j):
+    """정답 위치 조정 — 선지 i↔j 교환 + 오답 매핑·해설 라벨 일괄 재생성.
+       ★수치 보기 문항에는 쓰지 말 것(G6 오름차순이 깨짐)★"""
+    c = it['choices']; c[i], c[j] = c[j], c[i]
+    if it['answer'] == i:   it['answer'] = j
+    elif it['answer'] == j: it['answer'] = i
+    for dd in it['distractors']:
+        if dd['opt'] == i:   dd['opt'] = j
+        elif dd['opt'] == j: dd['opt'] = i
+    it['distractors'] = sorted(it['distractors'], key=lambda x: x['opt'])
+    a = it['answer']; parts = it['solution'].split('\n\n')
+    for k, p in enumerate(parts):
+        if p.startswith('[정답]'):
+            parts[k] = f"[정답] {CIR[a]} {c[a]} — " + p.split('— ', 1)[1]
+        elif p.startswith(tuple(CIR)):
+            lines = {}
+            for ln in p.split('\n'):
+                t = ln.split(': ', 1)
+                lines[t[0][2:].strip()] = t[1] if len(t) > 1 else ''
+            parts[k] = '\n'.join(f"{CIR[x]} {c[x]}: {lines.get(c[x], '')}"
+                                 for x in range(4) if x != a)
+    it['solution'] = '\n\n'.join(parts)
+
+
+# ─────────────────────────── 검증 ───────────────────────────
+G3B_MIN_MEDIAN = 8      # 이보다 짧은 보기(수치형)는 길이가 단서가 될 수 없어 면제
+G3B_MAX_SPREAD = 0.25
+
+
+def spread(choices):
+    """보기 길이 산포 (max−min)/median. G3b 판정용."""
+    L = sorted(len(str(c)) for c in choices)
+    return (L[3] - L[0]) / ((L[1] + L[2]) / 2 or 1)
+
+
+def g3b_applies(choices):
+    """수치형 짧은 보기는 면제. 실측 근거:
+       중앙길이 ~7자 구간은 산포와 무관하게 정답 2위 비중 30%/27%(차이 없음),
+       15~29자 구간은 산포>0.25 에서 65.9% vs 36.8% 로 갈린다."""
+    L = sorted(len(str(c)) for c in choices)
+    return (L[1] + L[2]) / 2 >= G3B_MIN_MEDIAN
+
+
+def len_rank(it):
+    """정답 보기의 길이 순위(1=가장 긺). ★동률이면 None★(T13 P12 발견).
+
+    정답과 길이가 같은 보기가 있으면 '몇 번째로 긴 것' 을 짚을 수 없으므로 순위가 없다.
+    종전에는 목록 차례로 순위를 매겨 길이가 넷 다 같은 문항까지 특정 순위로 집계됐다."""
+    L = [len(str(c)) for c in it['choices']]
+    a = it['answer']
+    if L.count(L[a]) > 1:
+        return None
+    return sum(1 for v in L if v > L[a]) + 1
+
+
+def verify(items):
+    """G1/G3/G3b/G6 + 해설 길이·구조 + expr 검산 + 위치·길이순위 분포. 문제 목록 반환."""
+    issues = []
+    for it in items:
+        # ★감사36 신설★ objective(출제 의도) 결손 검사.
+        #   mk 가 이 칸을 안 넣어 M01817~M01886 70제가 통째로 비어 있었다.
+        #   도구가 안 보면 사람은 잊는다 — 배치 검증에서 막는다.
+        if not it.get('objective'):
+            issues.append((it['id'], 'objective 없음 — mk(..., obj=) 로 출제 의도를 적을 것', [], 0))
+        # ★감사39 신설 — 은행이 읽히는 문면은 평문이다★
+        #   T14 가 P7(M02195)부터 해설에 강조 표기를 쓰기 시작해 ★96제★ 가 그대로 병합됐다.
+        #   저작 점검의 평문 항은 ★발문·선지만★ 보았고 해설은 사정거리 밖이었다 — 열여섯
+        #   배치가 지나서야 감사39 의 검사 B 가 잡았다.
+        #   ▸ ★한 필드에 건 규약은 같은 규약이 걸려야 할 다른 필드를 함께 적는다★ — 그래서
+        #     ★학생이 읽는 네 자리★ 를 한꺼번에 본다(테마 지역 검사가 아니라 은행 공통 자리에
+        #     건다 — 지역에 걸면 다음 테마가 새 local_checks 를 쓰면서 또 샌다).
+        #   ▸ `calc_check` 와 `verified.watch` 는 ★걸지 않는다★ — 출제자·검증자가 읽는 내부
+        #     주석이고 학생에게 나가는 문면이 아니다.
+        for _f in ('stem', 'solution', 'answer_proof'):
+            if '★' in (it.get(_f) or ''):
+                issues.append((it['id'], f'{_f} 에 강조 표기 — 은행이 읽히는 문면은 평문', [], 0))
+        for _i, _c in enumerate(it['choices']):
+            if '★' in _c:
+                issues.append((it['id'], f'{_i + 1}번 선지에 강조 표기 — 은행은 평문', [], 0))
+        # ★감사39 신설 — 감사에서만 보던 형식 단서 둘을 배치 검증으로 올린다★
+        #   감사39 가 T14 2차 84제에서 봉인된 문항 둘을 잡았다(M02233 정답만 부정형 ·
+        #   M02250 정답 꼬리말만 발문에). 둘 다 판정 오류가 아니라 ★형식 단서★ 이고, 되열어
+        #   고치기보다 ★다음 테마가 되풀이하지 못하게 상류로 올리는 것★ 이 값이 크다.
+        #   ▸ ★감사(사후)에서 걸리는 검사는 배치 검증(사전)으로 옮길 수 있는지 매번 센다★ —
+        #     감사가 잡을 때는 이미 봉인되어 있다.
+        _neg = [_i for _i, _c in enumerate(it['choices'])
+                if any(_t in _c for _t in ('않', '없', '아니', '못'))]
+        if _neg == [it['answer']]:
+            issues.append((it['id'], '정답만 부정형 — 극성으로 홀로 선다', [], it['answer']))
+        _tl = [_c.strip()[-3:] for _c in it['choices']]
+        if len(_tl[it['answer']]) == 3 and _tl[it['answer']] in it['stem'] and \
+                not any(_t in it['stem'] for _i, _t in enumerate(_tl) if _i != it['answer']):
+            issues.append((it['id'], f"정답의 꼬리말 「{_tl[it['answer']]}」 만 발문에 있다",
+                           [], it['answer']))
+        ln, a = [len(x) for x in it['choices']], it['answer']
+        if (ln[a] == max(ln) and ln.count(max(ln)) == 1):
+            issues.append((it['id'], 'G3 정답 유일최장', ln, a))
+        if (ln[a] == min(ln) and ln.count(min(ln)) == 1):
+            issues.append((it['id'], 'G3 정답 유일최단', ln, a))
+        # ★G3b — 보기 길이를 나란히. 산포가 크면 '몇 번째로 긴 것'이 단서가 된다.
+        #   G3 를 오답 패딩으로 해소해 온 관행이 정답을 길이 2위로 몰아 왔다(실측 T11 45%).
+        sp = spread(it['choices'])
+        if g3b_applies(it['choices']) and sp > G3B_MAX_SPREAD:
+            issues.append((it['id'], f'G3b 보기 길이 산포 {sp:.2f}>{G3B_MAX_SPREAD} — 보기를 나란히', ln, a))
+        # ★G3g — 칸별 최빈값을 이으면 정답이 재구성되는가★ (T13 마감 4제가 세웠다)
+        #   네 선지가 같은 개수의 마디로 나뉠 때, 마디마다 가장 흔한 값을 집어 이어 붙이면
+        #   ★정답만 남는 일이 잦다★ — 오답 하나가 한 마디를 맞히고 다른 하나가 나머지를
+        #   맞히면 구조적으로 그렇게 된다. 그러면 화학을 몰라도 정답이 짚힌다.
+        #   ▸ 봉인은 ★한 마디라도 최빈값이 없게(동률이 되게) 만드는 것★ 이다.
+        #   ▸ 살아남는 것이 둘 이상이면 결함이 아니다 — 유일할 때만 짚는다.
+        #   ▸ 은행 실측: 적용 가능 412제 중 46제(11.2%)가 걸린다. 소급 부채로 남긴다.
+        toks = [c.split() for c in it['choices']]
+        if len(toks[0]) >= 2 and all(len(t) == len(toks[0]) for t in toks):
+            picks = []
+            for col in zip(*toks):
+                cc = Counter(col).most_common()
+                win = [v for v, k in cc if k == cc[0][1]]
+                picks.append(win[0] if len(win) == 1 else None)
+            if any(p is not None for p in picks):
+                surv = [i for i, t in enumerate(toks)
+                        if all(p is None or t[k] == p for k, p in enumerate(picks))]
+                if surv == [it['answer']]:
+                    issues.append((it['id'], 'G3g 칸별 최빈값 조합이 정답을 유일하게 '
+                                             '짚음 — 한 마디를 동률로 만들 것', '', ''))
+        if len(it.get('solution', '')) < 300:
+            issues.append((it['id'], f"해설 {len(it.get('solution',''))}자(<300)", '', ''))
+        if '[정답]' not in it.get('solution', '') or '자가진단' not in it.get('solution', ''):
+            issues.append((it['id'], '해설 구조 결손', '', ''))
+        if len(it['distractors']) != 3:
+            issues.append((it['id'], f"오답 {len(it['distractors'])}개", '', ''))
+        # ★T13 P16★ — 머리 낱말 한 마디를 허용해 '오비탈 9 개' 꼴도 수치 보기로 본다.
+        nums = [int(m.group(1)) for c in it['choices']
+                if (m := re.match(r'^(?:[가-힣a-zA-Z]{1,4}\s+)?(\d+)', c.strip()))]
+        if len(nums) == 4 and nums != sorted(nums):
+            issues.append((it['id'], f'G6 수치 비오름차순 {nums}', '', ''))
+        if it.get('answer_expr'):
+            ansc = it['choices'][it['answer']]
+            if not re.match(r'^-?[\d.]+', ansc.strip()):
+                issues.append((it['id'], f"G1 정답이 순수 수치 아님({ansc}) → answer_expr 제거", '', ''))
+            else:
+                val = eval(it['answer_expr'].replace('//', '/'))
+                if abs(val - float(re.match(r'^-?[\d.]+', ansc.strip()).group())) > 1e-9:
+                    issues.append((it['id'], f"expr 불일치 {it['answer_expr']}={val} vs {ansc}", '', ''))
+    # ★G3c 배치 수준 — 정답 길이순위가 한쪽에 몰리면 지식 없이 찍어서 맞힐 수 있다.
+    #   ★기대값은 1/4 이 아니라 1/2 이다★ — G3 가 유일 최장·유일 최단을 막으므로
+    #   순위가 정의되는 문항에서 정답은 2위 아니면 3위뿐이다(은행 실측 1위·4위 0%).
+    rl = [r for it in items if (r := len_rank(it)) is not None]
+    rr = Counter(rl)
+    if rr.get(1) or rr.get(4):
+        issues.append(('[배치]', f"G3c 정답이 최장 또는 최단인 문항 "
+                                 f"{rr.get(1, 0) + rr.get(4, 0)}제 — G3 와 어긋남", '', ''))
+    #   ★표본이 4 미만이면 비율을 재지 않는다★ — 두셋뿐일 때의 100% 는 우연이다.
+    if len(rl) >= 4 and max(rr.get(2, 0), rr.get(3, 0)) / len(rl) >= 0.80:
+        issues.append(('[배치]', f"G3c 정답 길이순위 편중 {dict(sorted(rr.items()))} "
+                                 f"— 두 갈래에서 한쪽 쏠림 {max(rr.values())}/{len(rl)}", '', ''))
+
+    # ★G3d 배치 수준 — 정답 ★차례★ 가 되풀이되면 개수가 아무리 고르게 맞아도 새어 나간다.
+    #   T12 P14 가 ③①④② ③①④② ③① 로 나와 네 문항만 풀면 나머지 여섯이 예측됐다.
+    #   개수 균형(위치 분포)과 배열 무작위는 다른 문제다 — 주기 2·3·4·5 를 모두 본다.
+    seq = [it['answer'] for it in items]
+    for p in (2, 3, 4, 5):
+        if len(seq) >= 2 * p and all(seq[k] == seq[k % p] for k in range(len(seq))):
+            issues.append(('[배치]', f"G3d 정답 차례가 주기 {p} 로 되풀이됨 "
+                                     f"{'-'.join(str(a+1) for a in seq)} — 차례를 흩을 것", '', ''))
+            break
+
+    # ★G3h — G3d 는 배치 ★전체★ 가 주기적일 때만 운다. 부분 열은 그대로 샜다.
+    #   T14 P1 이 ②④①③ ②④①③ ①③ 으로 나와 앞 여덟 자리가 주기 4 로 두 번 되풀이됐는데
+    #   전체는 주기적이지 않아 G3d 가 놓쳤다.
+    #   ▸ 되풀이 횟수를 조인 것이 이 검사의 전부다. ★먼저 오탐부터 세었다★ —
+    #     현행 국소 검사(주기 2·3·4 를 두 번씩)는 은행 29.4% 에서 우는데 무작위 자리 열도
+    #     37.4% 에서 운다. ★우연보다 덜 우는 검사는 검사가 아니다.★
+    #     (2×4, 3×3, 4×2) 로 조이면 은행 4.2% · 우연 1.0% 로 갈린다 — 네 배 위다.
+    for per, need in ((2, 4), (3, 3), (4, 2)):
+        L = per * need
+        hit = next((i for i in range(len(seq) - L + 1)
+                    if all(seq[i + k] == seq[i + k % per] for k in range(L))), None)
+        if hit is not None:
+            issues.append(('[배치]', f"G3h {hit+1} 번 자리부터 {L} 자리가 주기 {per} 로 "
+                                     f"{need} 번 되풀이됨 "
+                                     f"{'-'.join(str(a+1) for a in seq[hit:hit+L])} "
+                                     f"— 한 자리를 옮길 것", '', ''))
+            break
+
+    # ★G3i — 낱말 하나가 정답에만 붙어 다니면 뜻을 몰라도 정답이 짚힌다.
+    #   T14 P1 에서 '몫' 이 세 문항의 정답에만 있고 오답에는 한 번도 없었다.
+    #   배치 실측 2.3%(214 배치 중 5) — 드물게 울고, 운 자리는 모두 실제 표지였다.
+    def _tk(s):
+        return {t for t in re.findall(r'[가-힣]{2,}', s)}
+    ans_tok, wrong_tok = [], set()
+    for it in items:
+        ans_tok.append(_tk(it['choices'][it['answer']]))
+        for i, c in enumerate(it['choices']):
+            if i != it['answer']:
+                wrong_tok |= _tk(c)
+    mark = Counter(w for s in ans_tok for w in s)
+    for w, n in sorted(mark.items()):
+        if n >= 3 and w not in wrong_tok:
+            issues.append(('[배치]', f"G3i 낱말 '{w}' 가 정답 {n} 개에만 있고 오답에는 "
+                                     f"한 번도 없음 — 오답에도 심거나 정답에서 뺄 것", '', ''))
+
+    # ★G3j — 앞 문항의 발문이 뒤 문항의 정답 문면을 통째로 주면 뒤 문항이 죽는다.
+    #   은행 소급 0 건 — 새로 세운 검사인데 부채가 없다. 값싸게 지킬 수 있는 자리다.
+    for i in range(len(items) - 1):
+        st = re.sub(r'[^0-9A-Za-z가-힣]', '', items[i]['stem'])
+        for j in range(i + 1, len(items)):
+            core = re.sub(r'[^0-9A-Za-z가-힣]', '',
+                          items[j]['choices'][items[j]['answer']])
+            if len(core) >= 8 and core in st:
+                issues.append(('[배치]', f"G3j {items[i]['id']} 발문이 {items[j]['id']} 의 "
+                                         f"정답 문면을 통째로 담고 있음", '', ''))
+
+    # ★G3k — G3j 는 문면 여덟 자를 문턱으로 삼아 ★수치 정답을 통째로 놓친다.★
+    #   T14 P1 에서 M02140 발문이 '176 pm 에서 99 pm 를 빼어 77 pm 를 얻었다' 로
+    #   앞 문항 M02139 의 정답 '77 pm' 와 계산 전부를 주었는데 G3j 가 울지 않았다.
+    #   ▸ 맨숫자까지 보면 잡음이다 — '2'·'3'·'10' 이 남의 발문에 우연히 드는 것까지
+    #     세면 은행에서 625 건이 운다. ★단위가 붙은 값★ 으로 좁히면 4 건이다.
+    for i, a in enumerate(items):
+        val = a['choices'][a['answer']].strip()
+        if len(re.sub(r'[^0-9A-Za-z가-힣]', '', val)) >= 8:
+            continue                            # 그 길이는 G3j 가 본다
+        if not re.match(r'^\d[\d.,]*\s*[a-zA-Z가-힣°%]+$', val):
+            continue                            # 단위 없는 맨숫자는 보지 않는다
+        for j, b in enumerate(items):
+            if i != j and val in b['stem']:
+                issues.append((a['id'], f"G3k 수치 정답 '{val}' 이 {b['id']} 발문에 "
+                                        f"그대로 있음 — 발문에서 값을 걷어낼 것", '', ''))
+
+    # ★G3e — 한 번호가 세 번 넘게 나오면서 ★간격이 모두 같으면★ 그 번호는 예측된다.
+    #   전체 차례가 주기적이지 않아도 걸린다. T12 P14 는 ① 이 2·6·10 으로 정확히 4 간격이었다.
+    for v in set(seq):
+        pos = [k for k, a in enumerate(seq) if a == v]
+        if len(pos) >= 3 and len({pos[k + 1] - pos[k] for k in range(len(pos) - 1)}) == 1:
+            issues.append(('[배치]', f"G3e 정답 {CIR[v]} 이 {[p+1 for p in pos]} 번으로 "
+                                     f"간격 {pos[1]-pos[0]} 씩 고르게 놓임 — 한 자리를 옮길 것",
+                           '', ''))
+
+    # ★G3f 경계 넘김 — G3d·G3e 는 '이번 배치 안'만 본다. T12 마감 14제가
+    #   10 제(P16) + 4 제(마감)로 나뉘어 만들어졌더니, 각 배치 안에서는 결백한데
+    #   이어 붙인 14 자리에서 ② 가 8·10·12·14 번으로 간격 2 씩 네 번 놓였다.
+    #   두 배치 다 통과하고 합친 자리에서만 새는 유형이라 여기서만 잡힌다.
+    #   앞 배치 꼬리를 끌어와 이어 붙인 뒤 '등차로 네 번 이상' 을 본다.
+    #   (배치 안 기준은 세 번이지만, 창을 넓히면 우연히 세 번 걸리는 일이 잦아
+    #    경계 검사는 네 번으로 올린다.)
+    #   ★이번 배치가 이미 은행에 들어 있으면 꼬리에서 뺀다★ — patch_batch.py 로 병합된
+    #   배치를 제자리에서 고칠 때, 꼬리가 곧 그 배치라 ★자기 자신과 맞대어 등차열을
+    #   만들어 낸다★(T16 P11 에서 ① 이 -7·-2·3·8 로 걸렸는데 -7·-2 가 곧 3·8 이었다).
+    try:
+        _self = {x['id'] for x in items}
+        _bank = json.load(open(BANK, encoding='utf-8'))
+        #  ★꼬리는 '은행의 끝' 이 아니라 ★이 배치 바로 앞★ 이다★ — patch_batch 로 은행 한가운데
+        #    배치를 고칠 때, 끝에서 여덟을 끌어오면 ★스무 배치 뒤의 자리 열과 맞대게 된다★.
+        #    T16 P7 을 검증 조치로 고치는 동안 P13 의 꼬리와 맞물려 있지도 않은 등차열이 울었다.
+        _pos = next((i for i, x in enumerate(_bank) if x['id'] in _self), None)
+        _pre = _bank[:_pos] if _pos is not None else [x for x in _bank if x['id'] not in _self]
+        tail = [x['answer'] for x in _pre if x['id'] not in _self][-8:]
+    except Exception:
+        tail = []
+    ext, off = tail + seq, len(tail)
+    for d in (1, 2, 3, 4, 5):
+        for i in range(len(ext)):
+            if i - d >= 0 and ext[i - d] == ext[i]:
+                continue                       # 앞에서 이미 이어진 줄
+            L = 1
+            while i + L * d < len(ext) and ext[i + L * d] == ext[i]:
+                L += 1
+            if L >= 4 and i + (L - 1) * d >= off:      # 새 문항이 한 자리라도 끼어야 함
+                spots = [i + k * d - off for k in range(L)]
+                issues.append(('[경계]', f"G3f 정답 {CIR[ext[i]]} 이 간격 {d} 로 {L} 번 "
+                                         f"이어짐 (이번 배치 기준 {[s+1 for s in spots]} 번, "
+                                         f"음수는 앞 배치) — 한 자리를 옮길 것", '', ''))
+
+    pp = Counter(it['answer'] for it in items)
+    print(f"위치: ①{pp[0]} ②{pp[1]} ③{pp[2]} ④{pp[3]}"
+          f" | 길이순위(동률 {len(items) - len(rl)}제 제외): "
+          + " ".join(f"{r}위{rr.get(r, 0)}" for r in (2, 3))
+          + f" | 산포 평균 {sum(spread(i['choices']) for i in items)/max(1,len(items)):.2f}")
+    for i in issues:
+        print(f"  ⚠ {i[0]}: {i[1]} {i[2] if i[2] else ''} {i[3] if i[3] != '' else ''}")
+    print(f"검증: {'무결 ✓' if not issues else str(len(issues)) + '건 조치 필요'}")
+    return issues
+
+
+# ─────────────────────────── 파이프라인 ───────────────────────────
+def safety_gate(new):
+    """★저장 직전 안전 게이트★ — 파일이 앞서 있으면 중단(설계본 폐기)."""
+    b = json.load(open(BANK, encoding='utf-8'))
+    ids = set(x['id'] for x in b)
+    col = [x['id'] for x in new if x['id'] in ids]
+    assert len(b) == EXPECT_LEN and not col, \
+        f"⛔ 비동기 감지: 파일 {len(b)}제(예상 {EXPECT_LEN}) 충돌={col} → 설계본 폐기·파일 존중"
+    return b
+
+
+def merge_and_house(new, note=None):
+    if note is None:
+        note = BATCH_NOTE
+    b = safety_gate(new)
+    b += new
+    json.dump(b, open(BANK, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+    ad = Counter(x['answer'] for x in b)
+    tn = sum(1 for x in b if x['textbook_theme'] == TT)
+    print(f"✅ 병합: {len(b)}제 · T{TT} {tn}/164 · "
+          f"①{ad[0]}②{ad[1]}③{ad[2]}④{ad[3]}(편차{max(ad.values())-min(ad.values())})")
+
+    # housekeeping
+    with open(os.path.join(BASE, 'rejection_log.md'), 'a', encoding='utf-8') as f:
+        f.write(f"- {note}\n")
+    idx = [{"id": it["id"], "skill": it["skill"], "scenario": it["scenario"],
+            "key": it["answer_proof"][:20], "linked": it["linked_concepts"]} for it in b]
+    json.dump(idx, open(os.path.join(BASE, 'scenario_index.json'), 'w', encoding='utf-8'),
+              ensure_ascii=False, indent=1)
+    pp = os.path.join(BASE, 'production_plan.json')
+    if os.path.exists(pp):
+        plan = json.load(open(pp, encoding='utf-8'))
+        done = Counter(it['textbook_theme'] for it in b)
+        for no, p in plan.get('theme_plan', {}).items():
+            p['done'] = done.get(int(no), 0)
+        json.dump(plan, open(pp, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+
+    # 검증 스크립트 자동 실행 (★factcheck = 감사 층5 기계 검사★)
+    lo, hi = new[0]['id'], new[-1]['id']
+    for cmd in (['python3', os.path.join(BASE, 'selfaudit.py'), lo, hi],
+                ['python3', os.path.join(BASE, 'factcheck.py'), lo, hi],
+                ['python3', os.path.join(BASE, 'master_gate.py')]):
+        r = subprocess.run(cmd, capture_output=True, text=True)
+        for l in r.stdout.split('\n'):
+            if any(k in l for k in ('강한 충돌', '판정', '전 항목', '🔴',
+                                    '기계 검사 통과', '독립 패스')):
+                print('  ' + l.strip())
+
+    # 사본 동기화(설정된 경우)
+    if MIRROR and os.path.isdir(MIRROR):
+        for f in ('master_bank.json', 'scenario_index.json', 'production_plan.json',
+                  'rejection_log.md', 'RESUME.md', 'selfaudit.py', 'master_gate.py',
+                  'expr_assert.py', 'precedents.json', 'theme_order_final.json',
+                  'batch_template.py'):
+            src = os.path.join(BASE, f)
+            if os.path.exists(src):
+                shutil.copy(src, os.path.join(MIRROR, f))
+        print(f"✅ 사본 동기화 → {MIRROR}")
+    print("※ RESUME.md 는 손으로 갱신하세요(다음 배치 지침·소진 목록·감사 계획).")
+
+
+# ─────────────────────────── 문항 작성 ───────────────────────────
+def build():
+    """★여기에 문항 10개를 채운다★ (아래는 형식을 보여 주는 예시 1개)
+
+    ※ 이 예시는 일부러 G3(정답 유일최단)·해설 300자 미만에 걸리도록 두었습니다.
+       그대로 실행하면 검사기가 두 건을 잡아내는 모습을 볼 수 있습니다.
+    """
+    new = []
+
+    it = mk("M01743", "짧은 기능명", "심화", 3, "중간", 0.32,
+            "문제 본문. 자료가 있으면 줄바꿈(\\n)으로 표에 준하는 형태로 넣는다.",
+            ["오답 선지 가 — 흔한 오개념", "정답 선지 — 핵심 지식", "오답 선지 나 — 개념 혼동", "오답 선지 다 — 표면 오해"], 1,
+            "정답 근거 한 줄(왜 이것이 답인가)",
+            [("오답 선지 가 — 흔한 오개념", "무엇을 어떻게 잘못 보았는가", "proc"),
+             ("오답 선지 나 — 개념 혼동", "다른 개념과 혼동", "sign"),
+             ("오답 선지 다 — 표면 오해", "표면적 오해", "surface")],
+            "핵심 장치", "검산 메모", "중복검색용 시나리오 키")
+    sol(it,
+        "도입 — 학생이 스스로 떠올리도록 실마리를 던지는 1문장.",
+        "정답 설명. 원리를 풀어 주고, 왜 나머지가 아닌지의 뼈대까지 담는다. "
+        "구어체로 길게 쓰되 사실은 정확하게. 전체 해설이 300자 이상이 되도록 한다.",
+        {"오답 선지 가 — 흔한 오개념": "어디서 어긋났는지 짚고 정답 방향을 가리킨다.",
+         "오답 선지 나 — 개념 혼동": "혼동한 개념을 분리해 준다.",
+         "오답 선지 다 — 표면 오해": "표면만 본 지점을 교정한다."},
+        "한 줄 압축 — 규칙과 적용을 함께.")
+    new.append(it)
+
+    # … 나머지 9개 …
+    return new
+
+
+if __name__ == '__main__':
+    items = build()
+    assert_no_placeholder(items)
+    ids = [f"M{int(START_ID[1:]) + i:05d}" for i in range(COUNT)]
+    if [x['id'] for x in items] != ids[:len(items)]:
+        print(f"⚠ ID 확인: 기대 {ids[:len(items)]}")
+    issues = verify(items)
+    json.dump(items, open('/tmp/batch_new.json', 'w', encoding='utf-8'),
+              ensure_ascii=False, indent=1)
+    print("설계본 저장 → /tmp/batch_new.json")
+    if '--merge' in sys.argv:
+        assert not issues, "⛔ 검증 미통과 — 조치 후 병합"
+        merge_and_house(items)
+    else:
+        print("※ 검증만 수행했습니다. 병합하려면 --merge 를 붙이세요.")
