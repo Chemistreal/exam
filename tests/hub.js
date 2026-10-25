@@ -90,6 +90,8 @@ vm.runInContext([
   cut('viewName'), cut('prMis'), cut('median'), cut('madOutliers'), cut('ndgKey'), cut('nudges'), cut('snzBar'), cut('conEntry'), cut('conPut'), cut('conHits'), cut('conTags'),
   cut('conFor'), cut('conClassOf'), cut('conByClass'), cut('conRounds'),
   ((SRC.match(/^const FEE_PER = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
+  ((SRC.match(/^const FEE_BY_HOURS = \{[^}]*\};$/m) || [''])[0]).replace(/^const /, 'var '),
+  cut('classHours'), cut('feeOf'),
   ((SRC.match(/^const DT_COURSE = \{[^}]*\};?$/m) || [''])[0]).replace(/^const /, 'var '),
   ((SRC.match(/^const NDG_SENT_DAYS = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
   ((SRC.match(/^const NDG_MAX = \d+;.*$/m) || [''])[0]).replace(/^const /, 'var '),
@@ -1066,6 +1068,18 @@ console.log('\n── 반별 인원 · 수입 ──');
   chk('반마다 인원이 나온다', d.rows.map(r => [r.label, r.n]), [['화학1 토',3],['화학2 일',2]]);
   chk('총액은 자리 × 수업료', d.monthly, 5 * ctx.FEE_PER);
   chk('수업료는 16만원', ctx.FEE_PER, 160000);
+  /* 수업료는 4시간 반 기준이다. 토6-9 처럼 3시간인 반은 12만원(선생님 2026-10-25). */
+  chk('반 이름에서 수업 시간을 읽는다',
+      ['화학1 토6-9','화학1 일6-10','화학1 심화 토1-5','화학1 일3-7','화학2 토10-2','화학1 토1:30','화학1 토'].map(ctx.classHours),
+      [3, 4, 4, 4, 4, 0, 0]);
+  chk('3시간 반은 12만원 · 4시간 반은 16만원 · 시간을 모르면 16만원',
+      ['화학1 토6-9','화학1 일6-10','화학1 토'].map(ctx.feeOf), [120000, 160000, 160000]);
+  chk('월 수입은 반마다 그 반 수업료로 센다', (function(){
+    ctx.DT_CACHE = { 'dt:names': { val: Object.assign([], { classes:[
+      { label:'화학1 토6-9', course:'ch1', students:[{name:'가'},{name:'나'}] },
+      { label:'화학1 일6-10', course:'ch1', students:[{name:'다'}] }] }) } };
+    const x = ctx.rosterCount();
+    return [x.monthly, x.rows.map(r => r.fee)]; })(), [2*120000 + 160000, [120000, 160000]]);
   chk('빈 이름은 사람으로 안 센다', (function(){
     ctx.DT_CACHE = { 'dt:names': { val: Object.assign([], { classes:[
       { label:'X', course:'ch1', students:[{name:''},{name:'  '},{name:'마'}] }] }) } };
@@ -2003,7 +2017,7 @@ console.log('\n── 인원·수입은 파이널 반까지 센다 ──');
   chk('자리 수에 파이널 반이 들어간다', d.seats, 5);
   /* 같은 학생이 두 반을 들으면 자리는 둘, 사람은 하나다. */
   chk('사람 수는 겹치는 학생을 한 번만 센다', d.heads, 4);
-  chk('월 수입도 파이널 반 자리까지 센다', d.monthly, 5 * ctx.FEE_PER);
+  chk('월 수입도 파이널 반 자리까지 센다(목7-10 은 3시간 반)', d.monthly, 2 * ctx.FEE_PER + 3 * 120000);
   chk('반별 줄이 다 나온다', d.rows.map(function(r){ return r.label; }),
       ['화학1 일6-10', '파이널 목7-10']);
   /* 파이널 반은 DT 과목이 없다. 과목 자리가 비면 '뭔가 빠졌나' 로 보인다. */

@@ -5564,7 +5564,20 @@ document.getElementById('qq').addEventListener('input', renderQuick);
    [이 숫자는 추정이다]
    명단에 이름이 있으면 한 자리로 센다. 실제 수납·미납·형제 할인 같은 것은
    모른다. 화면에 그렇게 적어 둔다 — 추정을 결산으로 읽으면 사고가 난다. */
-const FEE_PER = 160000;                 // 1인 1반 월 수업료(4주 기준) 가정
+const FEE_PER = 160000;                 // 1인 1반 월 수업료(4주 기준) 가정 — 4시간 반
+/* [반마다 시간이 다르다] 수업료는 4시간 반 기준이다. 토6-9 처럼 3시간인 반은
+   12만원이다(선생님 2026-10-25). 시간은 반 이름(«화학1 토6-9»)에서 읽는다 —
+   이름에 시간이 없거나 3·4시간이 아니면 기본 수업료로 센다. DT 시트의 달별
+   기록(feeFor_)도 같은 규칙이다. */
+const FEE_BY_HOURS = { 3: 120000, 4: 160000 };
+function classHours(label){
+  const m = String(label||'').match(/[월화수목금토일]\s*(\d{1,2})(?::(\d{2}))?\s*[-~]\s*(\d{1,2})(?::(\d{2}))?/);
+  if(!m) return 0;
+  let h = (+m[3] + (+m[4]||0)/60) - (+m[1] + (+m[2]||0)/60);
+  if(h <= 0) h += 12;                    // 10-2 는 오전 10시~오후 2시
+  return h > 0 && h <= 8 ? h : 0;
+}
+function feeOf(label){ return FEE_BY_HOURS[classHours(label)] || FEE_PER; }
 /* ── 수입 탭만 따로 잠근다 ──────────────────────────────────────────
    수입은 명단·점수와 종류가 다르다. 셸 전체 잠금(0000)은 채점하는 날 내내
    열려 있으므로, 화면을 켜 둔 채 자리를 비우거나 학생이 옆에 서 있을 때
@@ -5587,10 +5600,10 @@ function wonOf(n){ return (Math.round(n)||0).toLocaleString('ko-KR')+'원'; }
    줄어든 것은 눈에 안 띈다. 그래서 검사로 못박아 뒀다(tests/hub.js). */
 function rosterCount(){
   const list = dtClassList();
-  let seats = 0; const names = new Set(), rows = [];
+  let seats = 0, monthly = 0; const names = new Set(), rows = [];
   list.forEach(function(c){
-    const st = c.students||[], n = st.length;
-    seats += n;
+    const st = c.students||[], n = st.length, fee = feeOf(c.label);
+    seats += n; monthly += n*fee;
     /* 명단 줄은 {name:…} 이기도 하고 문자열이기도 하다. 예전에는 이름이 빈
        객체가 오면 객체 자체를 이름으로 읽어('[object Object]') 사람 수에
        세고 있었다 — 실인원이 조용히 부풀었다. */
@@ -5598,9 +5611,9 @@ function rosterCount(){
       const nm = normName((x && typeof x === 'object') ? (x.name || '') : x);
       if(nm) names.add(nm);
     });
-    rows.push({ label:c.label, course:c.course, kind:c.kind, n:n });
+    rows.push({ label:c.label, course:c.course, kind:c.kind, n:n, fee:fee });
   });
-  return { rows:rows, seats:seats, heads:names.size, monthly:seats*FEE_PER };
+  return { rows:rows, seats:seats, heads:names.size, monthly:monthly };
 }
 function renderRosterCount(){
   const el = document.getElementById('dashRoster'); if(!el) return;
@@ -5677,17 +5690,17 @@ function renderIncome(){
   cards.innerHTML =
     card(d.seats, '자리 <span class="dim">· 반 등록 수</span>') +
     card(d.heads, '사람 <span class="dim">· 실인원</span>') +
-    card(wonOf(FEE_PER), '1자리 월 수업료 <span class="dim">· 4주 기준</span>') +
+    card(wonOf(FEE_PER), '1자리 월 수업료 <span class="dim">· 4시간 반 · 4주 기준 · 3시간 반은 '+wonOf(FEE_BY_HOURS[3])+'</span>') +
     card(wonOf(d.monthly), '월 수입 예정 <span class="dim">· 자리 × 수업료</span>');
   const body = document.getElementById('incBody');
   body.innerHTML = !d.rows.length
     ? '<div class="spin" style="padding:16px">반 명단을 아직 못 불러왔습니다.</div>'
-    : '<table><thead><tr><th scope="col">반</th><th scope="col">과목</th><th scope="col">인원</th><th scope="col">월 금액</th></tr></thead><tbody>'+
+    : '<table><thead><tr><th scope="col">반</th><th scope="col">과목</th><th scope="col">인원</th><th scope="col">1인 수업료</th><th scope="col">월 금액</th></tr></thead><tbody>'+
       d.rows.map(function(r){
         return '<tr><td>'+esc(r.label)+'</td><td class="dim">'+esc(DT_COURSE[r.course]||r.course)+'</td>'+
-          '<td class="num">'+r.n+'</td><td class="num">'+wonOf(r.n*FEE_PER)+'</td></tr>';
+          '<td class="num">'+r.n+'</td><td class="num">'+wonOf(r.fee)+'</td><td class="num">'+wonOf(r.n*r.fee)+'</td></tr>';
       }).join('')+'</tbody><tfoot><tr><td colspan="2"><b>합계</b></td>'+
-      '<td class="num"><b>'+d.seats+'</b></td><td class="num"><b>'+wonOf(d.monthly)+'</b></td></tr></tfoot></table>';
+      '<td class="num"><b>'+d.seats+'</b></td><td></td><td class="num"><b>'+wonOf(d.monthly)+'</b></td></tr></tfoot></table>';
 
   const h = document.getElementById('incHist');
   if(!INC_HIST){
