@@ -1,0 +1,960 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>화학1 1-3단원 총괄평가 (심화반) · 해설지</title><style>:root{--ink:#1a1a1a;--ink2:#4a463f;--teal:#0E5A4C;--ms:#C0603A;--line:#e6e2da;--bg:#faf8f4;--gold:#B08D57}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);line-height:1.75;
+ font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif}
+header{padding:26px 20px 16px;border-bottom:1px solid var(--line);background:#fff}
+/* 놋쇠 원색(--gold #B08D57)은 흰 종이 위에서 3.09:1 이라 글자로는 못 쓴다.
+   해설지의 갈래 표식은 옥색이다(tools/theme.py 의 '갈래별 표식'). */
+.logo{font-size:11.5px;letter-spacing:.14em;color:var(--teal);font-weight:700}
+h1{margin:6px 0 4px;font-size:23px;font-family:'Iropke Batang',serif}
+.sub{color:var(--ink2);font-size:13.5px}
+/* 돌아가는 길. 강의 페이지와 같은 모양으로 둔다 — 학부모가 두 화면을
+   오가므로 같은 자리에 같은 것이 있어야 헷갈리지 않는다. */
+.back{display:inline-block;margin-top:12px;color:var(--teal);text-decoration:none;font-size:14px;font-weight:600;padding:6px 0}
+.warn{margin:12px 20px 0;padding:10px 13px;border:1px solid #E0C9A6;background:#FFF8EC;
+ border-radius:8px;font-size:13px;color:#7a5a22}
+main{max-width:860px;margin:0 auto;padding:16px 20px 60px}
+table{border-collapse:collapse;width:100%;margin:14px 0 26px;font-size:13.5px;background:#fff}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:center}
+th{background:#f1eee7;font-weight:700}
+.q{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:12px 0}
+.qh{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:8px}
+.qno{font-weight:700;color:var(--teal)}
+.area{font-size:12.5px;color:var(--ink2);background:#f1eee7;border-radius:99px;padding:2px 9px}
+.ans{margin-left:auto;font-weight:700;color:var(--ms)}
+.sol{font-size:14.5px}
+/* 해설 본문이 실제로 입는 옷 — 답지(answers)의 explanationHtml 이
+   <h4>·.step·.k(정답 근거)·.x(오답 표시) 를 쓰는데 여기 옷이 없으면
+   해설지에서만 맨몸으로 나간다(final.html 은 제 옷이 따로 있다). */
+.sol h4{margin:12px 0 5px;color:var(--teal);font-size:13.5px;letter-spacing:.02em}
+/* 착화합물 사슬([Co(NH₃)₆]³⁺·…)처럼 끊을 자리가 없는 긴 수식이 360px
+   화면을 옆으로 밀었다 — 필요할 때만 토막 내게 허락한다. */
+.sol{overflow-wrap:anywhere}
+.sol p.step{margin:6px 0;white-space:pre-wrap}
+.sol .k{color:var(--teal);font-weight:700}
+.sol .x{color:var(--ms);font-weight:700}
+.tip{margin-top:9px;padding:9px 11px;border-left:3px solid var(--gold);background:#faf7f1;
+ font-size:13.5px;color:var(--ink2)}
+.rev{margin-top:9px;padding:9px 11px;border-left:3px solid var(--ms);background:#fdf3ef;
+ font-size:13px;color:#8a3a1d}
+/* 정답표 → 그 문항 해설로 건너뛰는 길. 표가 세로 2,000px 를 넘는 회차가
+   많아 표에서 해설까지 손가락으로 미는 거리가 너무 멀었다. */
+td a.jump{color:var(--teal);text-decoration:none;font-weight:700}
+td a.jump:hover{text-decoration:underline}
+.q{scroll-margin-top:14px}
+.q:target{border-color:var(--teal);box-shadow:0 0 0 2px rgba(14,90,76,.18)}
+@media print{body{background:#fff}.q{break-inside:avoid}.warn{display:none}}
+
+.source-assets{max-width:860px;margin:14px auto 0;padding:0 20px;display:flex;gap:8px;flex-wrap:wrap}
+.source-assets a{display:inline-flex;align-items:center;padding:8px 11px;border:1px solid var(--line);
+ border-radius:8px;background:#fff;color:var(--teal);font-size:13px;font-weight:700;text-decoration:none}
+.source-assets a:hover{border-color:var(--teal)}
+
+.sol-part{margin:13px 0}.sol-part h4{margin:0 0 5px;color:var(--teal);font-size:13.5px;letter-spacing:.02em}
+.sol-part p{margin:5px 0;white-space:pre-wrap}
+.answer-confirm{margin:14px 0 0;padding-top:9px;border-top:1px dashed var(--line);color:var(--teal)}
+</style><style id="ct-theme" data-v="4" data-fam="sol" data-seal="1">/* 이 조각은 tools/theme.py 가 넣습니다. 손으로 고치지 마세요 —
+   다음 실행에서 덮어써집니다. 색을 바꾸려면 그 파일을 고치세요. */
+:root{--ink:#23201b;--ink-2:#5a564d;--muted:#6f6a5e;--line:#E8E4DA;--line-2:#D8D2C4;--paper:#fff;--cream:#FBFAF6;--bg:#FBFAF6;--sunk:#F4F1E9;--teal:#0E5A4C;--teal-d:#3A7A6B;--wash:#EDF4F1;--brass:#B08D57;--gold:#B08D57;/* 놋쇠는 두 가지 일을 한다. 밑선·테두리(그림, 3:1)는 밝은 쪽이 예쁘고,      흰 글씨를 얹는 바탕이나 글자색으로 쓰면 3.09:1 로 못 읽는다.      그래서 **글자용 놋쇠**를 따로 둔다. 흰 종이만 보고 4.95:1 로 맞춰      두었더니 가라앉은 바탕(--sunk #F4F1E9) 위에서 4.38:1 이라 모자랐다.      가장 어두운 바탕에서도 넘도록 조금 더 어둡게 잡는다 —      흰 5.26 · 크림 5.03 · 가라앉은 4.66. */   --brass-ink:#856738;--ms:#B8562F;--ok:#2F7A4F;--ok-bg:#eef5f2;--serif:"Hahmlet","Nanum Myeongjo",serif;--mono:ui-monospace,Menlo,monospace}
+html{color-scheme:light;-webkit-text-size-adjust:100%}
+@media screen{
+  body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  ::selection{background:#0E5A4C26}
+  :focus-visible{outline:2px solid #3A7A6B;outline-offset:2px;border-radius:3px}
+  table{font-variant-numeric:tabular-nums}
+  hr{border:0;border-top:1px solid var(--line)}
+  @media (min-width:1080px){body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='520' height='560' viewBox='0 0 520 560'%3E%3Cg fill='none' stroke='%230E5A4C' stroke-width='9' stroke-linejoin='round' opacity='0.055'%3E%3Cpath d='M260 60 L433 160 L433 360 L260 460 L87 360 L87 160 Z'/%3E%3Cpath d='M260 120 L381 190 L381 330 L260 400 L139 330 L139 190 Z'/%3E%3Cpath d='M260 60 L260 0 M433 160 L485 130 M433 360 L485 390 M260 460 L260 520 M87 360 L35 390 M87 160 L35 130'/%3E%3C/g%3E%3Cg fill='%230E5A4C' opacity='0.05'%3E%3Ccircle cx='260' cy='60' r='17'/%3E%3Ccircle cx='433' cy='160' r='17'/%3E%3Ccircle cx='433' cy='360' r='17'/%3E%3Ccircle cx='260' cy='460' r='17'/%3E%3Ccircle cx='87' cy='360' r='17'/%3E%3Ccircle cx='87' cy='160' r='17'/%3E%3C/g%3E%3C/svg%3E");background-repeat:no-repeat;background-attachment:fixed;background-position:right -110px top 90px;background-size:520px 560px}}
+  header .logo{letter-spacing:.16em;font-weight:700}
+}</style>
+</head><body>
+<header><div class="logo">CHEMISTREAL · FINAL 해설지</div>
+<h1>화학1 1-3단원 총괄평가 (심화반)</h1>
+<div class="sub">문항별 정답 · 영역 · 개념 · 사고과정 해설 · 60문항</div>
+<div class="sub" style="margin-top:6px">문제 지문은 문제지(PDF)에 있습니다 — 성적표 화면에서 함께 내려받을 수 있습니다.</div><a class="back" href="final.html">‹ 파이널로</a></header>
+<nav class="source-assets" aria-label="시험 자료 직접 다운로드"><a href="kch1to3-s-problem.pdf" download>공식 문제 PDF ↓</a><a href="kch1to3-s-answer.pdf" download>공식 정답 PDF ↓</a></nav>
+<main><h3>정답 · 영역 · 개념</h3><table><thead><tr><th scope="col">문항</th><th scope="col">정답</th><th scope="col">영역</th><th scope="col">개념(유형)</th></tr></thead><tbody>
+<tr><td><a class="jump" href="#q1">1</a></td><td>③</td><td>원자의구조</td><td>원자의구성입자</td></tr>
+<tr><td><a class="jump" href="#q2">2</a></td><td>②</td><td>원자의크기</td><td>스케일바와단위변환</td></tr>
+<tr><td><a class="jump" href="#q3">3</a></td><td>④</td><td>원자량·동위원소</td><td>평균원자량</td></tr>
+<tr><td><a class="jump" href="#q4">4</a></td><td>②</td><td>원자량·동위원소</td><td>동위원소분자피크</td></tr>
+<tr><td><a class="jump" href="#q5">5</a></td><td>③</td><td>원자량·동위원소</td><td>평균분자량</td></tr>
+<tr><td><a class="jump" href="#q6">6</a></td><td>③</td><td>화학식량</td><td>실험식</td></tr>
+<tr><td><a class="jump" href="#q7">7</a></td><td>②</td><td>화학식량</td><td>분자량</td></tr>
+<tr><td><a class="jump" href="#q8">8</a></td><td>①</td><td>몰·아보가드로수</td><td>몰과입자수</td></tr>
+<tr><td><a class="jump" href="#q9">9</a></td><td>④</td><td>몰과질량</td><td>화학량론</td></tr>
+<tr><td><a class="jump" href="#q10">10</a></td><td>①</td><td>양적관계·실험식</td><td>질량백분율과실험식</td></tr>
+<tr><td><a class="jump" href="#q11">11</a></td><td>④</td><td>몰과부피</td><td>샤를법칙</td></tr>
+<tr><td><a class="jump" href="#q12">12</a></td><td>①</td><td>몰과부피</td><td>이상기체입자수</td></tr>
+<tr><td><a class="jump" href="#q13">13</a></td><td>④</td><td>몰과부피</td><td>기체법칙그래프</td></tr>
+<tr><td><a class="jump" href="#q14">14</a></td><td>②</td><td>몰과부피</td><td>이상기체입자수</td></tr>
+<tr><td><a class="jump" href="#q15">15</a></td><td>③</td><td>계수맞추기</td><td>계수맞추기</td></tr>
+<tr><td><a class="jump" href="#q16">16</a></td><td>②</td><td>계수맞추기</td><td>전체반응식</td></tr>
+<tr><td><a class="jump" href="#q17">17</a></td><td>①</td><td>양적관계</td><td>한계 반응물과 수득률</td></tr>
+<tr><td><a class="jump" href="#q18">18</a></td><td>③</td><td>양적관계</td><td>반응계수와양적관계</td></tr>
+<tr><td><a class="jump" href="#q19">19</a></td><td>③</td><td>양적관계</td><td>기체반응압력비</td></tr>
+<tr><td><a class="jump" href="#q20">20</a></td><td>④</td><td>양적관계</td><td>부분압</td></tr>
+<tr><td><a class="jump" href="#q21">21</a></td><td>③</td><td>방사성붕괴</td><td>반감기</td></tr>
+<tr><td><a class="jump" href="#q22">22</a></td><td>①</td><td>방사성붕괴</td><td>붕괴계열</td></tr>
+<tr><td><a class="jump" href="#q23">23</a></td><td>①</td><td>방사성붕괴</td><td>핵반응식</td></tr>
+<tr><td><a class="jump" href="#q24">24</a></td><td>④</td><td>원자모형</td><td>수소원자에너지준위</td></tr>
+<tr><td><a class="jump" href="#q25">25</a></td><td>④</td><td>원자모형</td><td>발머계열</td></tr>
+<tr><td><a class="jump" href="#q26">26</a></td><td>②</td><td>원자모형</td><td>광자에너지</td></tr>
+<tr><td><a class="jump" href="#q27">27</a></td><td>③</td><td>양자수</td><td>방사방향확률분포</td></tr>
+<tr><td><a class="jump" href="#q28">28</a></td><td>①</td><td>양자수</td><td>오비탈마디</td></tr>
+<tr><td><a class="jump" href="#q29">29</a></td><td>③</td><td>양자수</td><td>방사분포함수</td></tr>
+<tr><td><a class="jump" href="#q30">30</a></td><td>②</td><td>전자배치</td><td>쌓음원리</td></tr>
+<tr><td><a class="jump" href="#q31">31</a></td><td>②</td><td>전자배치</td><td>양자수</td></tr>
+<tr><td><a class="jump" href="#q32">32</a></td><td>④</td><td>전자배치</td><td>파울리배타원리</td></tr>
+<tr><td><a class="jump" href="#q33">33</a></td><td>①</td><td>전자배치</td><td>전이금속전자배치</td></tr>
+<tr><td><a class="jump" href="#q34">34</a></td><td>①</td><td>원자반지름</td><td>주기적성질</td></tr>
+<tr><td><a class="jump" href="#q35">35</a></td><td>③</td><td>원자반지름</td><td>이온반지름</td></tr>
+<tr><td><a class="jump" href="#q36">36</a></td><td>④</td><td>원자반지름</td><td>이온반지름해석</td></tr>
+<tr><td><a class="jump" href="#q37">37</a></td><td>④</td><td>이온화에너지</td><td>이온화에너지</td></tr>
+<tr><td><a class="jump" href="#q38">38</a></td><td>②</td><td>이온화에너지</td><td>주기적성질</td></tr>
+<tr><td><a class="jump" href="#q39">39</a></td><td>②</td><td>이온화에너지</td><td>순차적이온화에너지</td></tr>
+<tr><td><a class="jump" href="#q40">40</a></td><td>④</td><td>이온화에너지</td><td>이온화에너지</td></tr>
+<tr><td><a class="jump" href="#q41">41</a></td><td>③</td><td>화학결합</td><td>전기전도도</td></tr>
+<tr><td><a class="jump" href="#q42">42</a></td><td>②</td><td>화학결합</td><td>전기음성도와결합</td></tr>
+<tr><td><a class="jump" href="#q43">43</a></td><td>①</td><td>화학결합</td><td>격자에너지</td></tr>
+<tr><td><a class="jump" href="#q44">44</a></td><td>④</td><td>화학결합</td><td>원자와이온</td></tr>
+<tr><td><a class="jump" href="#q45">45</a></td><td>③</td><td>화학결합</td><td>원소추론</td></tr>
+<tr><td><a class="jump" href="#q46">46</a></td><td>②</td><td>분자의구조</td><td>공명구조</td></tr>
+<tr><td><a class="jump" href="#q47">47</a></td><td>①</td><td>분자의구조</td><td>탄화수소구조</td></tr>
+<tr><td><a class="jump" href="#q48">48</a></td><td>③</td><td>분자의구조</td><td>결합길이</td></tr>
+<tr><td><a class="jump" href="#q49">49</a></td><td>①</td><td>분자의구조</td><td>결합각</td></tr>
+<tr><td><a class="jump" href="#q50">50</a></td><td>②</td><td>분자의구조</td><td>분자의평면성</td></tr>
+<tr><td><a class="jump" href="#q51">51</a></td><td>①</td><td>옥텟규칙</td><td>루이스구조</td></tr>
+<tr><td><a class="jump" href="#q52">52</a></td><td>③</td><td>옥텟규칙</td><td>형식전하</td></tr>
+<tr><td><a class="jump" href="#q53">53</a></td><td>②</td><td>옥텟규칙</td><td>공명과형식전하</td></tr>
+<tr><td><a class="jump" href="#q54">54</a></td><td>①</td><td>혼성오비탈</td><td>시그마결합</td></tr>
+<tr><td><a class="jump" href="#q55">55</a></td><td>④</td><td>혼성오비탈</td><td>혼성오비탈</td></tr>
+<tr><td><a class="jump" href="#q56">56</a></td><td>④</td><td>혼성오비탈</td><td>혼성과구조</td></tr>
+<tr><td><a class="jump" href="#q57">57</a></td><td>②</td><td>분자극성</td><td>결합길이</td></tr>
+<tr><td><a class="jump" href="#q58">58</a></td><td>①</td><td>분자극성</td><td>분자의극성</td></tr>
+<tr><td><a class="jump" href="#q59">59</a></td><td>③</td><td>분자극성</td><td>쌍극자모멘트</td></tr>
+<tr><td><a class="jump" href="#q60">60</a></td><td>④</td><td>분자극성</td><td>혼성과구조</td></tr>
+</tbody></table>
+<h3>문항별 사고과정</h3>
+<div class="q" id="q1"><div class="qh"><span class="qno">문제 1</span><span class="area">원자의구성입자</span><span class="ans">정답 ③</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">이온이 되어도 원자핵(양성자, 중성자)은 그대로이고 전자 수만 달라진다는 사실을 세 개의 관계식으로 정리해 표의 빈칸을 채우는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 먼저 쓸 식 세 개를 적어 둔다. 양성자 수 = 원자 번호, 중성자 수 = 질량수 − 양성자 수, 전하량 = 양성자 수 − 전자 수.</p>
+<p class="step">2단계 각 행에서 이미 주어진 두 값으로 빈칸 하나를 구한다.</p>
+<p class="step">– 첫째 행: 양성자 20, 전하 +2 → 전자 수 C = 20 − 2 = 18</p>
+<p class="step">– 둘째 행: 양성자 23, 전자 21 → 전하량 E = 23 − 21 = +2</p>
+<p class="step">– <sup>53</sup>Fe<sup>2+</sup> 행: 질량수 53, 양성자 26 → 중성자 수 B = 53 − 26 = 27 (전자 24 = 26 − 2로 확인)</p>
+<p class="step">– 넷째 행: 양성자 15, 전하 −3 → 전자 수 D = 15 + 3 = 18</p>
+<p class="step">– 다섯째 행: 전자 56, 전하 −2 → 양성자 수 A = 56 − 2 = 54</p>
+<p class="step">3단계 부호까지 넣어 더한다. A + B + C + D + E = 54 + 27 + 18 + 18 + (+2) = 119</p>
+<h4>선지 분석</h4>
+<p class="step opt">① 117: E를 빼먹고 A + B + C + D만 더한 값이다.</p>
+<p class="step opt">② 118: 빈칸 하나를 1만큼 잘못 센 경우(예: B를 양성자 수 26으로 둠)에 나온다.</p>
+<p class="step opt">③ 119: 정답.</p>
+<p class="step opt">④ 120: 둘째 행 전자 수를 20으로 보고 E = +3을 넣은 값이다. 교재에서 본 숫자를 기억으로 옮기면 이 선지에 걸린다.</p>
+<p class="step">→ <b>③</b></p></div>
+</div>
+<div class="q" id="q2"><div class="qh"><span class="qno">문제 2</span><span class="area">스케일바와단위변환</span><span class="ans">정답 ②</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">스케일바의 길이를 기준으로 그림 속 길이를 어림하고, 그 값을 m 단위의 지수로 옮기는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 그림 왼쪽 위 스케일바의 표기를 먼저 읽는다. 흰 막대 하나의 길이가 1 μm이다.</p>
+<p class="step">2단계 노란 화살표 끝 사이의 거리를 스케일바와 견주면 막대보다 조금 긴 정도(약 1.2~1.3배)이다. → 약 1 μm</p>
+<p class="step">3단계 1 μm = 10<sup>−6</sup> m이므로 가장 가까운 값은 1×10<sup>−6</sup> m이다.</p>
+<h4>선지 분석</h4>
+<p class="step opt">① 1×10<sup>−7</sup> m = 0.1 μm: 스케일바의 10분의 1 길이이다.</p>
+<p class="step opt">② 1×10<sup>−6</sup> m = 1 μm: 정답.</p>
+<p class="step opt">③ 1×10<sup>−5</sup> m = 10 μm: 스케일바의 10배 길이이다.</p>
+<p class="step opt">④ 1×10<sup>−4</sup> m = 100 μm: 세포 여러 개가 들어갈 길이이다.</p>
+<p class="step">→ <b>②</b></p></div>
+</div>
+<div class="q" id="q3"><div class="qh"><span class="qno">문제 3</span><span class="area">평균원자량</span><span class="ans">정답 ④</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">평균 원자량 = Σ(동위원소의 원자량 × 존재비) 식을 세워 존재비를 구하고, 소수와 백분율을 정확히 바꾸는지 묻는다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 <sup>13</sup>C의 존재비를 x(소수)로 두면 <sup>12</sup>C의 존재비는 1 − x이다.</p>
+<p class="step">2단계 12(1 − x) + 13x = 12.011 → 12 + x = 12.011 → x = 0.011</p>
+<p class="step">3단계 백분율로 바꾸면 0.011 × 100 = 1.1 %이다.</p>
+<p class="step">4단계 빠른 어림: 평균이 12보다 0.011 큰 것은 질량 차이 1인 <sup>13</sup>C가 그만큼(0.011 = 1.1 %) 섞였기 때문이다.</p>
+<h4>선지 분석</h4>
+<p class="step opt">① 0.0011 %, ② 0.011 %, ③ 0.11 %: 존재비 0.011을 백분율로 바꾸지 않았거나 자릿수를 잘못 옮긴 값이다. 특히 ②는 0.011을 그대로 %로 붙인 경우이다.</p>
+<p class="step opt">④ 1.1 %: 정답.</p>
+<p class="step">→ <b>④</b></p></div>
+</div>
+<div class="q" id="q4"><div class="qh"><span class="qno">문제 4</span><span class="area">동위원소분자피크</span><span class="ans">정답 ②</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">Cl 원자 세 개가 각각 독립적으로 <sup>35</sup>Cl 또는 <sup>37</sup>Cl일 확률을 곱해 분자 피크의 상대 세기를 구하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 분자 피크 [M]<sup>+</sup>(m/e = 118)의 정체를 확인한다. <sup>12</sup>C(12) + <sup>1</sup>H(1) + <sup>35</sup>Cl<sub>3</sub>(105) = 118이므로 세 Cl이 모두 <sup>35</sup>Cl인 분자이다. [M+2]<sup>+</sup>는 <sup>37</sup>Cl 1개, [M+4]<sup>+</sup>는 <sup>37</sup>Cl 2개를 가진 분자이다.</p>
+<p class="step">2단계 Cl 하나가 <sup>35</sup>Cl일 확률은 3/4, <sup>37</sup>Cl일 확률은 1/4이다.</p>
+<p class="step">3단계 [M]: (3/4)<sup>3</sup> = 27/64</p>
+<p class="step">– [M+2]: <sup>37</sup>Cl이 들어갈 자리가 3가지 → 3 × (3/4)<sup>2</sup> × (1/4) = 27/64</p>
+<p class="step">– [M+4]: <sup>37</sup>Cl 두 개가 들어갈 자리가 3가지 → 3 × (3/4) × (1/4)<sup>2</sup> = 9/64</p>
+<p class="step">4단계 세 피크의 비는 27 : 27 : 9 = 3 : 3 : 1이다. (3 + 1)<sup>3</sup> = 27 + 27 + 9 + 1을 전개한 앞의 세 항과 같고, 마지막 1은 [M+6]<sup>+</sup>이다.</p>
+<h4>선지 분석</h4>
+<p class="step opt">① 9 : 6 : 1: Cl이 2개인 CH<sub>2</sub>Cl<sub>2</sub>의 비이다. 교재 원문항의 답을 기억으로 고르면 걸린다.</p>
+<p class="step opt">② 3 : 3 : 1: 정답.</p>
+<p class="step opt">③ 9 : 3 : 1: 경우의 수(계수 3)를 빼고 27 : 9 : 3으로 계산한 값이다.</p>
+<p class="step opt">④ 1 : 9 : 27: <sup>35</sup>Cl과 <sup>37</sup>Cl의 확률(3/4, 1/4)을 서로 바꿔 넣은 값이다.</p>
+<p class="step">→ <b>②</b></p></div>
+</div>
+<div class="q" id="q5"><div class="qh"><span class="qno">문제 5</span><span class="area">평균분자량</span><span class="ans">정답 ③</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">원소의 비(H : D)와 기체의 부분 압력(몰분율)이라는 서로 다른 두 가지 비를 구분해 혼합 기체의 평균 분자량을 구하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 부분 압력으로 몰분율을 정한다. 전체 0.1기압 중 He가 0.04기압이므로 He의 몰분율은 0.4, 수소 계열 기체(H<sub>2</sub>, HD, D<sub>2</sub>)의 몰분율은 0.6이다.</p>
+<p class="step">2단계 H : D = 2 : 1이므로 수소 원자 하나의 평균 원자량은 1 × 2/3 + 2 × 1/3 = 4/3이다.</p>
+<p class="step">3단계 H<sub>2</sub>, HD, D<sub>2</sub>는 모두 원자 두 개로 된 분자이므로 이들 전체의 평균 분자량은 2 × 4/3 = 8/3(약 2.67)이다. 분자 종류별 비율을 따로 구하지 않아도 된다.</p>
+<p class="step">4단계 평균 분자량 = 0.6 × 8/3 + 0.4 × 4 = 1.6 + 1.6 = 3.2</p>
+<p class="step">5단계 검산: 분자 비는 H<sub>2</sub> : HD : D<sub>2</sub> = (2/3)<sup>2</sup> : 2(2/3)(1/3) : (1/3)<sup>2</sup> = 4 : 4 : 1이고, (4 × 2 + 4 × 3 + 1 × 4) ÷ 9 = 24/9 = 8/3으로 같은 값이 나온다.</p>
+<h4>선지 분석</h4>
+<p class="step opt">① 2.7: He를 빼고 수소 계열 기체만의 평균 분자량(8/3)을 답한 값이다.</p>
+<p class="step opt">② 2.8: D를 무시하고 수소 기체를 모두 H<sub>2</sub>(분자량 2)로 본 값이다(0.6 × 2 + 0.4 × 4).</p>
+<p class="step opt">③ 3.2: 정답.</p>
+<p class="step opt">④ 3.4: H : D를 1 : 1로 잘못 잡은 값이다(0.6 × 3 + 0.4 × 4).</p>
+<p class="step">→ <b>③</b></p></div>
+</div>
+<div class="q" id="q6"><div class="qh"><span class="qno">문제 6</span><span class="area">실험식</span><span class="ans">정답 ③</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">분자 모형에서 분자식을 읽고, 원자 수 비가 이미 가장 간단하면 실험식과 분자식이 같다는 점을 확인해 식량을 구하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 그림의 공을 센다. 검은 공(탄소) 3개, 빨간 공(산소) 2개 → 분자식 C<sub>3</sub>O<sub>2</sub></p>
+<p class="step">2단계 실험식은 원자 수의 가장 간단한 정수비이다. 3과 2는 공약수가 1뿐이므로 실험식도 C<sub>3</sub>O<sub>2</sub>이다.</p>
+<p class="step">3단계 실험식의 식량 = 3 × 12 + 2 × 16 = 36 + 32 = 68</p>
+<h4>선지 분석</h4>
+<p class="step opt">① 28: CO의 식량이다.</p>
+<p class="step opt">② 40: C<sub>2</sub>O의 식량이다. 이산화 사탄소(C<sub>4</sub>O<sub>2</sub>)를 다룬 교재 원문항의 실험식이다.</p>
+<p class="step opt">③ 68: 정답.</p>
+<p class="step opt">④ 80: C<sub>4</sub>O<sub>2</sub>의 분자량이다. 공을 세지 않고 원문항의 분자식을 떠올린 경우이다.</p>
+<p class="step">→ <b>③</b></p></div>
+</div>
+<div class="q" id="q7"><div class="qh"><span class="qno">문제 7</span><span class="area">분자량</span><span class="ans">정답 ②</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">C−H 결합 하나가 수소 원자 하나에 대응한다는 점에서 출발해, 같은 수의 수소를 가장 적은 탄소로 붙이는 구조를 찾는 사고력 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 C−H 결합이 60개이면 탄소에 붙은 수소가 60개이다.</p>
+<p class="step">2단계 분자량을 가장 작게 하려면 수소 60개를 붙이는 데 탄소를 가장 적게 써야 한다.</p>
+<p class="step">3단계 탄소 n개로 붙일 수 있는 수소의 최대 개수는 사슬형 포화 탄화수소 CₙH<sub>2</sub>ₙ₊<sub>2</sub>의 2n + 2개이다. 고리나 다중 결합이 하나 생길 때마다 수소는 2개씩 줄어든다.</p>
+<p class="step">4단계 2n + 2 ≥ 60 → n ≥ 29. 가장 작은 n = 29이므로 분자는 C<sub>29</sub>H<sub>60</sub>이다.</p>
+<p class="step">5단계 분자량 = 29 × 12 + 60 × 1 = 348 + 60 = 408</p>
+<h4>선지 분석</h4>
+<p class="step opt">① 396 (C<sub>28</sub>H<sub>60</sub>): 탄소 28개로는 수소를 최대 58개까지만 붙일 수 있으므로 존재할 수 없다.</p>
+<p class="step opt">② 408 (C<sub>29</sub>H<sub>60</sub>): 정답.</p>
+<p class="step opt">③ 420 (C<sub>30</sub>H<sub>60</sub>): 고리 하나 또는 이중 결합 하나를 가진 탄화수소로 실제로 존재하지만 가장 가볍지는 않다.</p>
+<p class="step opt">④ 432 (C<sub>31</sub>H<sub>60</sub>): 마찬가지로 존재할 수 있지만 더 무겁다.</p>
+<p class="step">→ <b>②</b></p></div>
+</div>
+<div class="q" id="q8"><div class="qh"><span class="qno">문제 8</span><span class="area">몰과입자수</span><span class="ans">정답 ①</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">입자 수를 몰수로 바꾸고(÷ Nᴀ), 아주 작은 몰수를 접두어 f(펨토), a(아토)로 표현하는 단위 감각을 묻는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 주머니 하나의 몰수: 1.2 × 10<sup>6</sup> ÷ (6.0 × 10<sup>23</sup>) = 2.0 × 10<sup>−18</sup> mol = 2.0 amol</p>
+<p class="step">2단계 세포 하나에는 주머니가 6.0 × 10<sup>4</sup>개 있으므로 2.0 × 10<sup>−18</sup> × 6.0 × 10<sup>4</sup> = 1.2 × 10<sup>−13</sup> mol</p>
+<p class="step">3단계 1.2 × 10<sup>−13</sup> mol = 120 × 10<sup>−15</sup> mol = 120 fmol</p>
+<h4>선지 분석</h4>
+<p class="step opt">① 2.0 amol/vesicle과 120 fmol/cell: 정답.</p>
+<p class="step opt">② 세포 전체의 값을 amol로 붙였다. 1.2 × 10<sup>−13</sup> mol은 1.2 × 10<sup>5</sup> amol이지 120 amol이 아니다.</p>
+<p class="step opt">③, ④ 주머니 하나의 값을 fmol로 붙였다. fmol과 amol은 1000배 차이이다.</p>
+<p class="step">→ <b>①</b></p></div>
+</div>
+<div class="q" id="q9"><div class="qh"><span class="qno">문제 9</span><span class="area">화학량론</span><span class="ans">정답 ④</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">반응식의 계수비(금속 : 할로젠 = 2 : 1)로 금속의 몰수를 구하고, 질량 ÷ 몰수로 원자량을 얻어 원소를 판별하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 알칼리 금속 M은 +1가, 할로젠은 이원자 분자 X<sub>2</sub>이므로 반응식은 2M + X<sub>2</sub> → 2MX이다.</p>
+<p class="step">2단계 X<sub>2</sub>의 몰수 = 0.56 L ÷ 22.4 L/mol = 0.025 mol</p>
+<p class="step">3단계 계수비 M : X<sub>2</sub> = 2 : 1이므로 M의 몰수 = 2 × 0.025 = 0.050 mol</p>
+<p class="step">4단계 M의 몰 질량 = 4.27 g ÷ 0.050 mol = 85.4 g/mol → 주기율표에서 Rb(85.5)이다.</p>
+<h4>선지 분석</h4>
+<p class="step opt">①, ②, ③ Li(6.9), Na(23.0), K(39.1): 0.050 mol의 질량은 각각 0.35 g, 1.15 g, 1.96 g이어야 한다.</p>
+<p class="step opt">④ Rb: 정답.</p>
+<p class="step">→ <b>④</b></p></div>
+</div>
+<div class="q" id="q10"><div class="qh"><span class="qno">문제 10</span><span class="area">질량백분율과실험식</span><span class="ans">정답 ①</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">분자식을 아는 화합물의 질량 조성에서 원자량의 비를 먼저 구하고, 그 비를 다른 화합물에 적용해 실험식을 얻는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 화합물 ㉠(X<sub>2</sub>Z)에서 질량비 X : Z = 60 : 40이고, 이것은 2Mₓ : M_Z와 같다. → Mₓ/M_Z = 60/(2 × 40) = 3/4</p>
+<p class="step">2단계 계산을 쉽게 하려고 Mₓ = 3, M_Z = 4로 둔다(비만 맞으면 된다).</p>
+<p class="step">3단계 화합물 ㉡의 원자 수비 = (27.3 ÷ 3) : (72.7 ÷ 4) = 9.1 : 18.2 = 1 : 2</p>
+<p class="step">4단계 실험식은 XZ<sub>2</sub>이다.</p>
+<h4>선지 분석</h4>
+<p class="step opt">① XZ<sub>2</sub>: 정답. 검산하면 질량비 3 : (2 × 4) = 3 : 8 → X 27.3 %</p>
+<p class="step opt">② XZ<sub>3</sub>: X가 20.0 %일 때의 실험식이다. (3 : 12)</p>
+<p class="step opt">③ X<sub>2</sub>Z<sub>3</sub>: X가 33.3 %일 때의 실험식이다. 교재 문항의 답이다. (6 : 12)</p>
+<p class="step opt">④ X<sub>2</sub>Z<sub>5</sub>: X가 23.1 %일 때의 실험식이다. (6 : 20)</p>
+<p class="step">→ <b>①</b></p></div>
+</div>
+<div class="q" id="q11"><div class="qh"><span class="qno">문제 11</span><span class="area">샤를법칙</span><span class="ans">정답 ④</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">샤를 법칙(V ∝ T, 절대 온도)을 그래프에서 읽고, 아보가드로 법칙(V ∝ n)을 함께 적용하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 그래프는 0 °C(273 K)에서 30 L이고 −273 °C에서 부피가 0이 되는 직선이다. 즉 V는 절대 온도에 비례한다.</p>
+<p class="step">2단계 182 °C = 455 K이므로 원래 기체의 부피는 V = 30 × 455/273 = 50 L이다(그래프의 V).</p>
+<p class="step">3단계 같은 압력, 같은 온도에서 기체의 양을 2배로 늘리면 부피도 2배가 된다. → 2 × 50 = 100 L</p>
+<h4>선지 분석</h4>
+<p class="step opt">① 40: 섭씨온도로 비례식을 세워 30 × (182/273) × 2로 계산한 값이다.</p>
+<p class="step opt">② 50: 몰수 2배를 반영하지 않은 값으로, 교재 문항의 답이다.</p>
+<p class="step opt">③ 60: 0 °C의 30 L만 2배로 하고 온도 상승을 빠뜨린 값이다.</p>
+<p class="step opt">④ 100: 정답.</p>
+<p class="step">→ <b>④</b></p></div>
+</div>
+<div class="q" id="q12"><div class="qh"><span class="qno">문제 12</span><span class="area">이상기체입자수</span><span class="ans">정답 ①</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">세 가지 단위 변환(m<sup>3</sup> → L, mbar → atm, °C → K)을 정확히 한 뒤 PV = nRT로 몰수를, 다시 입자 수를 구하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 부피: V = 60 m<sup>2</sup> × 2.50 m = 150 m<sup>3</sup> = 1.50 × 10<sup>5</sup> L (1 m<sup>3</sup> = 1000 L)</p>
+<p class="step">2단계 압력: P = 1056 ÷ 1013 ≈ 1.04 atm, 온도: T = 25 + 273 = 298 K</p>
+<p class="step">3단계 n = PV/RT = 1.04 × 1.50 × 10<sup>5</sup> ÷ (0.082 × 298) ≈ 1.56 × 10<sup>5</sup> ÷ 24.4 ≈ 6.4 × 10<sup>3</sup> mol</p>
+<p class="step">4단계 입자 수 = 6.4 × 10<sup>3</sup> × 6.02 × 10<sup>23</sup> ≈ 3.9 × 10<sup>27</sup> → 가장 가까운 값은 4 × 10<sup>27</sup> 개</p>
+<p class="step">5단계 어림 검산: 약 1기압, 25 °C에서 기체 1 mol ≈ 24 L이므로 150000 ÷ 24 ≈ 6000 mol이고, 6000 × 6 × 10<sup>23</sup> ≈ 3.6 × 10<sup>27</sup>이다.</p>
+<h4>선지 분석</h4>
+<p class="step opt">① 4 × 10<sup>27</sup> 개: 정답.</p>
+<p class="step opt">② 4 × 10<sup>30</sup> 개: 부피를 mL 단위(1 m<sup>3</sup> = 10<sup>6</sup> mL)로 넣어 1000배 커진 값이다.</p>
+<p class="step opt">③ 4 × 10<sup>24</sup> 개: m<sup>3</sup>를 L로 바꾸지 않아 1000배 작아진 값이다.</p>
+<p class="step opt">④ 4 × 10<sup>21</sup> 개: 자릿수를 크게 잘못 잡은 값이다.</p>
+<p class="step">→ <b>①</b></p></div>
+</div>
+<div class="q" id="q13"><div class="qh"><span class="qno">문제 13</span><span class="area">기체법칙그래프</span><span class="ans">정답 ④</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">피스톤 위 추의 개수가 기체의 압력을 정하고, 같은 온도에서 부피와 압력을 곱하면 몰수 비가 나온다는 점을 그래프와 연결하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 피스톤 바깥이 진공이므로 기체의 압력은 추의 무게에만 비례한다. → P(수소) : P(질소) : P(산소) = 1 : 2 : 3</p>
+<p class="step">2단계 그래프의 세로 점선(같은 온도)에서 부피는 V<sub>1</sub> : 2V<sub>1</sub> : 3V<sub>1</sub> = 1 : 2 : 3이다.</p>
+<p class="step">3단계 n ∝ PV이므로 n(수소) : n(질소) : n(산소) = 1 × 1 : 2 × 2 : 3 × 3 = 1 : 4 : 9</p>
+<p class="step">4단계 V = nRT/P이므로 V는 (n/P) × T에 비례한다. n/P는 수소 1/1 = 1, 질소 4/2 = 2, 산소 9/3 = 3이다.</p>
+<p class="step">→ <b>④</b></p></div>
+</div>
+<div class="q" id="q14"><div class="qh"><span class="qno">문제 14</span><span class="area">이상기체입자수</span><span class="ans">정답 ②</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">극단적인 조건(초고진공)에서도 PV = nRT를 그대로 쓸 수 있는지, 그리고 Pa → atm, mL → L 변환을 정확히 하는지 묻는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 압력: 1 × 10<sup>−10</sup> Pa ÷ (1 × 10<sup>5</sup> Pa/atm) = 1 × 10<sup>−15</sup> atm</p>
+<p class="step">2단계 부피: 10 mL = 1.0 × 10<sup>−2</sup> L, 온도: 27 + 273 = 300 K</p>
+<p class="step">3단계 n = PV/RT = (10<sup>−15</sup> × 10<sup>−2</sup>) ÷ (0.082 × 300) = 10<sup>−17</sup> ÷ 24.6 ≈ 4.1 × 10<sup>−19</sup> mol</p>
+<p class="step">4단계 분자 수 = 4.1 × 10<sup>−19</sup> × 6.0 × 10<sup>23</sup> ≈ 2.4 × 10<sup>5</sup> → 가장 가까운 값은 3 × 10<sup>5</sup></p>
+<p class="step">5단계 어림 검산: 1기압 300 K에서 24.6 L 속 분자는 6 × 10<sup>23</sup>개이므로 10 mL에는 약 2.4 × 10<sup>20</sup>개이다. 압력이 10<sup>−15</sup>배이므로 2.4 × 10<sup>5</sup>개이다.</p>
+<h4>선지 분석</h4>
+<p class="step opt">① 3 × 10<sup>4</sup>: 부피를 1 mL로 계산한 값으로, 교재 문항의 답이다.</p>
+<p class="step opt">② 3 × 10<sup>5</sup>: 정답.</p>
+<p class="step opt">③ 3 × 10<sup>6</sup>, ④ 3 × 10<sup>7</sup>: Pa → atm 또는 mL → L 변환에서 자릿수를 잘못 옮긴 값이다.</p>
+<p class="step">→ <b>②</b></p></div>
+</div>
+<div class="q" id="q15"><div class="qh"><span class="qno">문제 15</span><span class="area">계수맞추기</span><span class="ans">정답 ③</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">원자 수 보존으로 계수를 정하되, 생성물 쪽에 HF가 하나 더 붙은 점까지 수소 수에 반영하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 반응식: Ca<sub>5</sub>(PO<sub>4</sub>)<sub>3</sub>F + a H<sub>3</sub>PO<sub>4</sub> + b H<sub>2</sub>O → 5Ca(H<sub>2</sub>PO<sub>4</sub>)<sub>2</sub>·H<sub>2</sub>O + HF</p>
+<p class="step">2단계 Ca: 왼쪽 5, 오른쪽 5로 이미 맞다.</p>
+<p class="step">3단계 P: 3 + a = 5 × 2 = 10 → a = 7</p>
+<p class="step">4단계 H: 3a + 2b = 5 × (4 + 2) + 1 = 31 → 21 + 2b = 31 → b = 5</p>
+<p class="step">5단계 검산 O: 왼쪽 12 + 4a + b = 12 + 28 + 5 = 45, 오른쪽 5 × (8 + 1) = 45로 맞다. F도 1 = 1이다.</p>
+<p class="step">6단계 a + b = 7 + 5 = 12</p>
+<h4>선지 분석</h4>
+<p class="step opt">① 7: 생성물의 결정수(·H<sub>2</sub>O)를 빼고 H를 세면 b = 0이 되어 나오는 값이다.</p>
+<p class="step opt">② 11: 하이드록시아파타이트 Ca<sub>5</sub>(PO<sub>4</sub>)<sub>3</sub>(OH)로 계산한 교재 원문항의 값이다.</p>
+<p class="step opt">③ 12: 정답.</p>
+<p class="step opt">④ 13: H를 세면서 HF와 결정수를 한꺼번에 잘못 더해 b를 6으로 잡은 값이다.</p>
+<p class="step">→ <b>③</b></p></div>
+</div>
+<div class="q" id="q16"><div class="qh"><span class="qno">문제 16</span><span class="area">전체반응식</span><span class="ans">정답 ②</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">요소 분해와 SCR 반응을 하나로 묶어 생각하고, O<sub>2</sub>와 요소의 양을 동시에 구하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 요소 분해: (NH<sub>2</sub>)<sub>2</sub>CO + H<sub>2</sub>O → CO<sub>2</sub> + 2NH<sub>3</sub></p>
+<p class="step">2단계 SCR 반응: 4NH<sub>3</sub> + 4NO + O<sub>2</sub> → 4N<sub>2</sub> + 6H<sub>2</sub>O</p>
+<p class="step">– 검산: N 4 + 4 = 8, H 12 = 12, O 4 + 2 = 6</p>
+<p class="step">3단계 NO 6몰을 처리하려면 NH<sub>3</sub> 6몰과 O<sub>2</sub> 6/4 = 1.5몰이 필요하다.</p>
+<p class="step">4단계 NH<sub>3</sub> 6몰은 요소 3몰에서 나온다. → 요소 3 × 60 = 180 g</p>
+<h4>선지 분석</h4>
+<p class="step opt">① O<sub>2</sub> 1.5몰, 요소 90 g: 요소 1몰이 NH<sub>3</sub> 2몰을 낸다는 점을 거꾸로 적용해 요소를 1.5몰로 잡은 값이다.</p>
+<p class="step opt">② O<sub>2</sub> 1.5몰, 요소 180 g: 정답.</p>
+<p class="step opt">③ O<sub>2</sub> 3몰, 요소 180 g: O<sub>2</sub>의 계수를 NO의 절반으로 잘못 잡은 값이다.</p>
+<p class="step opt">④ O<sub>2</sub> 6몰, 요소 360 g: NO, O<sub>2</sub>, 요소를 모두 1 : 1로 본 값이다.</p>
+<p class="step">→ <b>②</b></p></div>
+</div>
+<div class="q" id="q17"><div class="qh"><span class="qno">문제 17</span><span class="area">한계 반응물과 수득률</span><span class="ans">정답 ①</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">각 반응물의 몰수를 계수로 나누어 한계 반응물을 정하고, 한계 반응물 기준의 이론 수득량으로 수득률을 구하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 몰수: TiCl<sub>4</sub> = 9.485 ÷ 189.7 = 0.0500 mol, Mg = 4.86 ÷ 24.3 = 0.200 mol</p>
+<p class="step">2단계 계수로 나눈 값: TiCl<sub>4</sub> 0.0500 ÷ 1 = 0.0500, Mg 0.200 ÷ 2 = 0.100 → 작은 쪽인 TiCl<sub>4</sub>가 한계 반응물이다.</p>
+<p class="step">3단계 이론 수득량: Ti는 TiCl<sub>4</sub>와 같은 0.0500 mol → 0.0500 × 47.9 = 2.395 g</p>
+<p class="step">4단계 수득률 = 2.156 ÷ 2.395 × 100 ≈ 90 %</p>
+<h4>선지 분석</h4>
+<p class="step opt">① TiCl<sub>4</sub>, 90 %: 정답.</p>
+<p class="step opt">② Mg, 90 %: 교재 문항(TiCl<sub>4</sub> 18.97 g, Mg 2.43 g)의 답이다. 반응물의 양이 바뀌어 한계 반응물도 바뀌었다.</p>
+<p class="step opt">③ TiCl<sub>4</sub>, 45 %: 한계 반응물은 맞혔지만 이론 수득량을 2배로 잡은 값이다.</p>
+<p class="step opt">④ Mg, 45 %: Mg를 한계 반응물로 보고 Ti 이론량을 0.100 mol(4.79 g)로 잡은 값이다.</p>
+<p class="step">→ <b>①</b></p></div>
+</div>
+<div class="q" id="q18"><div class="qh"><span class="qno">문제 18</span><span class="area">반응계수와양적관계</span><span class="ans">정답 ③</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">생성물의 양을 보고 어느 반응물이 한계 반응물인지 역으로 판단해 계수를 구하고, 추가 반응까지 따져 보는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 B가 한계 반응물이라면 B 2.0 mol이 모두 반응해 C가 2.0 mol 생겨야 한다. 실제 C는 0.4 mol이므로 한계 반응물은 A이다.</p>
+<p class="step">2단계 A 2.0 mol이 모두 반응해 C 0.4 mol이 생겼으므로 a = 2.0 ÷ 0.4 = 5</p>
+<p class="step">3단계 반응한 B는 C와 같은 0.4 mol이므로 남은 B = 2.0 − 0.4 = 1.6 mol</p>
+<p class="step">4단계 A 8.0 mol을 더 넣으면 B 1.6 mol과 반응하는 데 A가 5 × 1.6 = 8.0 mol 필요하므로 정확히 모두 반응하고 C가 1.6 mol 더 생긴다.</p>
+<p class="step">→ <b>③</b></p></div>
+</div>
+<div class="q" id="q19"><div class="qh"><span class="qno">문제 19</span><span class="area">기체반응압력비</span><span class="ans">정답 ③</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">부피와 온도가 일정할 때 압력이 몰수에 비례함을 이용해, 한계 반응물과 남은 반응물까지 포함한 전체 몰수 변화를 따지는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 같은 부피, 같은 온도에서 P ∝ n이므로 압력비 = 전체 몰수비이다.</p>
+<p class="step">2단계 몰수 ÷ 계수: NH<sub>3</sub> 2 ÷ 2 = 1, Cl<sub>2</sub> 6 ÷ 3 = 2 → NH<sub>3</sub>가 한계 반응물이다.</p>
+<p class="step">3단계 반응 표(단위 mol)</p>
+<p class="step">– 처음: NH<sub>3</sub> 2, Cl<sub>2</sub> 6, N<sub>2</sub> 0, HCl 0 (합 8)</p>
+<p class="step">– 변화: −2, −3, +1, +6</p>
+<p class="step">– 나중: 0, 3, 1, 6 (합 10)</p>
+<p class="step">4단계 P최종/P초기 = 10/8 = 1.25</p>
+<h4>선지 분석</h4>
+<p class="step opt">① 0.88: 남은 Cl<sub>2</sub> 3 mol을 빠뜨리고 7/8로 계산한 값이다.</p>
+<p class="step opt">② 1.00: 반응 전후 몰수가 변하지 않는다고 착각한 값이다.</p>
+<p class="step opt">③ 1.25: 정답.</p>
+<p class="step opt">④ 1.33: 교재 문항(NH<sub>3</sub> 6 mol, Cl<sub>2</sub> 6 mol)의 답이다.</p>
+<p class="step">→ <b>③</b></p></div>
+</div>
+<div class="q" id="q20"><div class="qh"><span class="qno">문제 20</span><span class="area">부분압</span><span class="ans">정답 ④</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">같은 온도에서 n ∝ PV임을 이용해 그림 속 두 기체의 몰수를 비교하고, 꼭지를 연 뒤 전체 부피를 기준으로 부분 압력을 구하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 같은 온도에서 몰수는 PV에 비례한다. X: 1기압 × 1 L = 1, Y: 2기압 × 3 L = 6 (단위: 기압·L)</p>
+<p class="step">2단계 X + 2Y → 3Z에서 X 1을 모두 쓰는 데 Y 2가 필요하고 Y는 6 있으므로 X가 한계 반응물이다.</p>
+<p class="step">3단계 반응 표(기압·L)</p>
+<p class="step">– 처음: X 1, Y 6, Z 0</p>
+<p class="step">– 변화: −1, −2, +3</p>
+<p class="step">– 나중: 0, 4, 3</p>
+<p class="step">4단계 꼭지를 열면 전체 부피는 1 + 3 = 4 L이다. 부분 압력 = (PV 값) ÷ 4 → Y = 4/4 = 1기압, Z = 3/4 = 0.75기압</p>
+<p class="step">→ <b>④</b></p></div>
+</div>
+<div class="q" id="q21"><div class="qh"><span class="qno">문제 21</span><span class="area">반감기</span><span class="ans">정답 ③</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">남은 양의 비율로 반감기가 몇 번 지났는지 세고, β<sup>−</sup> 붕괴에서 원자 번호와 질량수가 어떻게 바뀌는지 적용하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 남은 비율 = 1.25 × 10<sup>−2</sup> mg ÷ 0.10 mg = 0.125 = 1/8 = (1/2)<sup>3</sup> → 반감기가 3번 지났다.</p>
+<p class="step">2단계 걸린 시간 = 3 × 29년 = 87년</p>
+<p class="step">3단계 β<sup>−</sup> 붕괴에서는 원자핵 속 중성자 하나가 양성자와 전자로 바뀌고 전자(β<sup>−</sup>)가 방출된다. 질량수는 90 그대로, 원자 번호는 38 + 1 = 39 → <sup>90</sup><sub>39</sub>Y</p>
+<h4>선지 분석</h4>
+<p class="step opt">①, ② 58년: 반감기를 2번(1/4)으로 센 값이다. <sup>89</sup>Sr은 중성자 방출, <sup>86</sup>Kr은 α 붕괴로 본 생성물이다.</p>
+<p class="step opt">③ 87년, <sup>90</sup>Y: 정답.</p>
+<p class="step opt">④ <sup>90</sup>Rb: 원자 번호가 1 줄어드는 β<sup>+</sup> 붕괴로 착각한 생성물이다.</p>
+<p class="step">→ <b>③</b></p></div>
+</div>
+<div class="q" id="q22"><div class="qh"><span class="qno">문제 22</span><span class="area">붕괴계열</span><span class="ans">정답 ①</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">α 붕괴와 β<sup>−</sup> 붕괴가 질량수와 원자 번호를 각각 얼마씩 바꾸는지 알고, 여러 번의 붕괴를 한꺼번에 계산하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 α 붕괴 1번: 질량수 −4, 원자 번호 −2 (<sup>4</sup><sub>2</sub>He 방출). β<sup>−</sup> 붕괴 1번: 질량수 변화 없음, 원자 번호 +1</p>
+<p class="step">2단계 질량수: 222 − 4 × 3 = 210 (β<sup>−</sup> 붕괴는 질량수에 영향이 없다)</p>
+<p class="step">3단계 원자 번호: 86 − 2 × 3 + 1 × 2 = 82 → 주기율표에서 Pb</p>
+<p class="step">4단계 생성 핵종은 <sup>210</sup><sub>82</sub>Pb이다. 실제로 <sup>222</sup>Rn → <sup>218</sup>Po → <sup>214</sup>Pb → <sup>214</sup>Bi → <sup>214</sup>Po → <sup>210</sup>Pb 순서로 붕괴한다.</p>
+<h4>선지 분석</h4>
+<p class="step opt">① <sup>210</sup>Pb: 정답.</p>
+<p class="step opt">② <sup>210</sup>Po: 질량수는 맞지만 원자 번호가 84이다. β<sup>−</sup> 붕괴를 4번으로 센 경우이다.</p>
+<p class="step opt">③ <sup>206</sup>Pb: α 4번, β<sup>−</sup> 4번을 모두 거친 최종 안정 핵종으로, 교재 문항의 답이다.</p>
+<p class="step opt">④ <sup>206</sup>Po: α 붕괴 횟수와 β<sup>−</sup> 붕괴 횟수를 모두 잘못 적용한 값이다.</p>
+<p class="step">→ <b>①</b></p></div>
+</div>
+<div class="q" id="q23"><div class="qh"><span class="qno">문제 23</span><span class="area">핵반응식</span><span class="ans">정답 ①</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">핵반응식에서 질량수의 합과 원자 번호의 합이 양변에서 각각 보존된다는 원리를 적용하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 β 붕괴(β<sup>−</sup>)에서 나오는 입자는 전자이므로 <sup>0</sup>₋<sub>1</sub>β이다. → x = 0, y = −1</p>
+<p class="step">2단계 질량수 보존: 137 = 0 + z → z = 137</p>
+<p class="step">3단계 원자 번호 확인: Cs(55) = −1 + 56이므로 Ba의 원자 번호 56과 맞다.</p>
+<p class="step">4단계 x + y + z = 0 + (−1) + 137 = 136</p>
+<h4>선지 분석</h4>
+<p class="step opt">① 136: 정답.</p>
+<p class="step opt">② 137: β 입자의 원자 번호 y를 0으로 둔 값이다.</p>
+<p class="step opt">③ 138: y를 +1(양전자)로 둔 값이다.</p>
+<p class="step opt">④ 139: 교재 문항(<sup>140</sup>Cs)의 답이다.</p>
+<p class="step">→ <b>①</b></p></div>
+</div>
+<div class="q" id="q24"><div class="qh"><span class="qno">문제 24</span><span class="area">수소원자에너지준위</span><span class="ans">정답 ④</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">수소 원자의 에너지 준위 Eₙ = −k/n<sup>2</sup>에 주어진 기준값(M 껍질 = −E)을 대입해 다른 준위와 전이 에너지를 구하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 M 껍질은 n = 3이다. E<sub>3</sub> = −k/9 = −E → k = 9E</p>
+<p class="step">2단계 K 껍질(n = 1): E<sub>1</sub> = −k = −9E, L 껍질(n = 2): E<sub>2</sub> = −k/4 = −2.25E</p>
+<p class="step">3단계 라이먼 계열은 n ≥ 2에서 n = 1로 떨어지는 전이이다. 파장이 가장 긴 빛은 에너지 차가 가장 작은 2 → 1 전이이다. ΔE = −2.25E − (−9E) = 6.75E</p>
+<p class="step">4단계 참고로 파장이 가장 짧은 빛은 ∞ → 1 전이로 9E이다.</p>
+<p class="step">→ <b>④</b></p></div>
+</div>
+<div class="q" id="q25"><div class="qh"><span class="qno">문제 25</span><span class="area">발머계열</span><span class="ans">정답 ④</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">발머 식으로 파장을 직접 계산해 전이와 파장의 관계를 판단하고, m = ∞의 의미를 해석하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 식: λ = hm<sup>2</sup>/(m<sup>2</sup> − n<sup>2</sup>), n = 2, h = 364.56 nm</p>
+<p class="step">2단계 m = 3: λ = 364.56 × 9/5 ≈ 656 nm</p>
+<p class="step">– m = 4: λ = 364.56 × 16/12 ≈ 486 nm</p>
+<p class="step">3단계 에너지 차가 작은 전이(m = 3 → 2)일수록 파장이 길다. 656 nm &gt; 486 nm</p>
+<p class="step">4단계 m = ∞이면 λ = h = 364.56 nm이다. 이는 n = 2인 전자를 떼어 내는(n = 2에서 이온화하는) 에너지에 해당하는 파장이다.</p>
+<h4>선지 분석</h4>
+<p class="step opt">① (○): 선스펙트럼은 에너지 준위가 불연속이라는 증거이다.</p>
+<p class="step opt">② (○): m = ∞, n = 2는 n = 2 준위의 전자를 무한히 멀리 떼어 내는 경우이므로 n = 2인 상태의 이온화에 해당한다.</p>
+<p class="step opt">③ (○): 발머 계열은 n = 2로 떨어지는 전이이며 가시광선 영역이다.</p>
+<p class="step opt">④ (×): m = 3 → 2의 파장(656 nm)이 m = 4 → 2의 파장(486 nm)보다 길다. 틀린 진술은 ④뿐이므로 정답은 ④이다.</p>
+<p class="step">→ <b>④</b></p></div>
+</div>
+<div class="q" id="q26"><div class="qh"><span class="qno">문제 26</span><span class="area">광자에너지</span><span class="ans">정답 ②</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">결합 에너지(kJ/mol)를 분자 하나당 에너지로 바꾸고 E = hc/λ로 빛의 최대 파장을 구해 전자기파 영역을 판단하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 결합 하나를 끊는 데 필요한 에너지: E = 243 × 10<sup>3</sup> J/mol ÷ 6.0 × 10<sup>23</sup> /mol = 4.05 × 10<sup>−19</sup> J</p>
+<p class="step">2단계 최대 파장은 광자 에너지가 결합 에너지와 꼭 같을 때이다. λ = hc/E = (6.6 × 10<sup>−34</sup> × 3.0 × 10<sup>8</sup>) ÷ (4.05 × 10<sup>−19</sup>) ≈ 4.9 × 10<sup>−7</sup> m = 490 nm</p>
+<p class="step">3단계 400~700 nm는 가시광선 영역이다. 염소 기체가 빛을 받아 쉽게 반응하는 까닭이 여기에 있다.</p>
+<p class="step">4단계 참고: 교재 문항의 N≡N(941 kJ/mol)은 약 127 nm로 자외선이었다. 결합 에너지가 작을수록 더 긴 파장의 빛으로도 끊을 수 있다(E ∝ 1/λ).</p>
+<h4>선지 분석</h4>
+<p class="step opt">① 적외선: 700 nm보다 파장이 길어 에너지가 부족하다. 분자의 진동에 해당한다.</p>
+<p class="step opt">② 가시광선: 정답.</p>
+<p class="step opt">③ 자외선: 결합을 끊을 수는 있지만 「최대 파장」이 속한 영역은 아니다.</p>
+<p class="step opt">④ X선: 에너지가 지나치게 크다.</p>
+<p class="step">→ <b>②</b></p></div>
+</div>
+<div class="q" id="q27"><div class="qh"><span class="qno">문제 27</span><span class="area">방사방향확률분포</span><span class="ans">정답 ③</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">s 오비탈의 방사 방향 확률 밀도 함수에서 봉우리 수와 방사 방향 마디 수의 관계를 적용하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 ns 오비탈의 방사 방향 마디 수 = n − l − 1 = n − 1</p>
+<p class="step">2단계 봉우리 수 = 방사 방향 마디 수 + 1 = n</p>
+<p class="step">3단계 2s: 마디 1개, 봉우리 2개</p>
+<p class="step">– 3s: 마디 2개, 봉우리 3개</p>
+<h4>선지 분석</h4>
+<p class="step opt">① (×): 3s의 봉우리는 3개이다.</p>
+<p class="step opt">② (×): s 오비탈은 구 대칭이므로 방향에 따라 달라지지 않는다.</p>
+<p class="step opt">③ (○): 2s의 방사상 마디는 2 − 0 − 1 = 1개이다. 정답.</p>
+<p class="step opt">④ (×): 가장 높은 봉우리는 핵에서 가장 먼 바깥 봉우리이다.</p>
+<p class="step">→ <b>③</b></p></div>
+</div>
+<div class="q" id="q28"><div class="qh"><span class="qno">문제 28</span><span class="area">오비탈마디</span><span class="ans">정답 ①</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">그림의 오비탈 모양과 전체 마디 수로 n과 l을 정하고, 방사 방향 마디와 각 방향 마디를 나누어 비교하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 (가)는 x축 방향 아령 모양 → p_x 오비탈. 전체 마디 1 = n − 1 → n = 2 → 2p_x</p>
+<p class="step">2단계 (나)는 x축과 z축 사이에 놓인 네 잎 모양 → d_xz 오비탈. 전체 마디 2 → n = 3 → 3d_xz</p>
+<p class="step">3단계 각 방향 마디 = l: (가) 1, (나) 2</p>
+<p class="step">– 방사 방향 마디 = n − l − 1: (가) 0, (나) 0</p>
+<p class="step">4단계 yz 평면은 p_x의 마디 평면이고, d_xz의 마디 평면(yz, xy) 가운데 하나이다. → 두 오비탈 모두 yz 평면에서 전자를 발견할 확률이 0이다.</p>
+<h4>선지 분석</h4>
+<p class="step opt">① (×): 방사 방향 마디는 둘 다 0개로 같다.</p>
+<p class="step opt">② (○): 두 오비탈 모두 yz 평면이 마디 평면이므로 확률이 0으로 같다.</p>
+<p class="step opt">③ (○): 각 방향 마디는 (가) 1개, (나) 2개이다.</p>
+<p class="step opt">④ (○): 주양자수는 (가) 2, (나) 3이다. 틀린 진술은 ①뿐이므로 정답은 ①이다.</p>
+<p class="step">→ <b>①</b></p></div>
+</div>
+<div class="q" id="q29"><div class="qh"><span class="qno">문제 29</span><span class="area">방사분포함수</span><span class="ans">정답 ③</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">방사 방향 분포 함수의 모양(안쪽의 작은 봉우리와 마디)으로 2s와 2p를 구별하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 n = 2인 오비탈은 2s(l = 0)와 2p(l = 1)이다.</p>
+<p class="step">2단계 Y는 핵 가까이 작은 봉우리가 있고 그 뒤에 f(r) = 0인 마디가 있다. → 방사 방향 마디 1개 → 2s</p>
+<p class="step">3단계 X는 봉우리 하나뿐이고 마디가 없다. → 2p</p>
+<p class="step">4단계 전체 마디 수는 n − 1 = 1로 둘이 같다. 수소 원자에서는 에너지가 n에만 의존하므로 2s와 2p의 에너지가 같다.</p>
+<h4>선지 분석</h4>
+<p class="step opt">① (×): l은 X(2p)가 1, Y(2s)가 0이므로 X &gt; Y이다.</p>
+<p class="step opt">② (×): 전체 마디는 둘 다 1개로 같다.</p>
+<p class="step opt">③ (○): Y는 2s 오비탈이다. 정답.</p>
+<p class="step opt">④ (×): 수소 원자에서 2s와 2p의 에너지는 같다.</p>
+<p class="step">→ <b>③</b></p></div>
+</div>
+<div class="q" id="q30"><div class="qh"><span class="qno">문제 30</span><span class="area">쌓음원리</span><span class="ans">정답 ②</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">다전자 원자에서는 l에 따라 에너지가 갈라지고, 쌓음 원리(n + l 규칙)에 따라 4s가 3d보다 먼저 채워진다는 것을 적용하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 다전자 원자는 전자 사이의 반발과 가려막기 때문에 같은 n이라도 l이 클수록 에너지가 높다(s &lt; p &lt; d &lt; f).</p>
+<p class="step">2단계 쌓음 원리: n + l이 작은 오비탈부터 채우고, n + l이 같으면 n이 작은 쪽부터 채운다.</p>
+<p class="step">3단계 4s(4 + 0 = 4) &lt; 3d(3 + 2 = 5), 3d와 4p(4 + 1 = 5)는 n이 작은 3d가 먼저, 5s(5) &lt; 4d(6)</p>
+<p class="step">4단계 순서: 1s &lt; 2s &lt; 2p &lt; 3s &lt; 3p &lt; 4s &lt; 3d &lt; 4p &lt; 5s &lt; 4d</p>
+<h4>선지 분석</h4>
+<p class="step opt">① (×): n이 같으면 에너지가 같은 순서로, 전자가 하나뿐인 수소꼴 이온(He<sup>+</sup> 등)에 해당한다. 교재 원문항(He<sup>+</sup>)의 정답이다.</p>
+<p class="step opt">② (○): 쌓음 원리의 순서이다. 정답.</p>
+<p class="step opt">③ (×): l에 따른 갈라짐은 반영했지만 4s와 3d의 순서 역전을 빠뜨렸다.</p>
+<p class="step opt">④ (×): 3d와 4s, 4p와 4d처럼 n이 다른 오비탈을 같다고 둔 잘못된 순서이다.</p>
+<p class="step">→ <b>②</b></p></div>
+</div>
+<div class="q" id="q31"><div class="qh"><span class="qno">문제 31</span><span class="area">양자수</span><span class="ans">정답 ②</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">크로뮴의 예외적 전자 배치를 정확히 쓰고, 양자수 조건(n, l, mₗ)에 맞는 전자 수를 세는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 Cr의 바닥상태 전자 배치: 1s<sup>2</sup> 2s<sup>2</sup> 2p<sup>6</sup> 3s<sup>2</sup> 3p<sup>6</sup> 3d<sup>5</sup> 4s<sup>1</sup> (= [Ar]3d<sup>5</sup>4s<sup>1</sup>). 반쯤 채워진 3d<sup>5</sup>가 안정하므로 4s 전자 하나가 3d로 옮겨 간다.</p>
+<p class="step">2단계 a (n = 3인 전자): 3s<sup>2</sup> + 3p<sup>6</sup> + 3d<sup>5</sup> = 13</p>
+<p class="step">3단계 b (l = 2, 곧 d 전자): 3d<sup>5</sup> = 5</p>
+<p class="step">4단계 c (mₗ = +1인 전자): mₗ = +1인 오비탈은 p와 d에만 있다. 2p<sup>6</sup>에서 2개, 3p<sup>6</sup>에서 2개, 3d<sup>5</sup>는 훈트 규칙에 따라 다섯 오비탈에 1개씩 들어가므로 mₗ = +1 오비탈에 1개 → c = 5</p>
+<p class="step">5단계 a + b + c = 13 + 5 + 5 = 23</p>
+<h4>선지 분석</h4>
+<p class="step opt">① 21: Cr을 [Ar]3d<sup>4</sup>4s<sup>2</sup>로 써서 a = 12, b = 4로 각각 1씩 작게 센 값이다.</p>
+<p class="step opt">② 23: 정답.</p>
+<p class="step opt">③ 25, ④ 27: c를 셀 때 s 전자(mₗ = 0)나 다른 mₗ 값의 전자까지 섞어 센 값이다.</p>
+<p class="step">→ <b>②</b></p></div>
+</div>
+<div class="q" id="q32"><div class="qh"><span class="qno">문제 32</span><span class="area">파울리배타원리</span><span class="ans">정답 ④</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">파울리 배타 원리(한 오비탈에 스핀이 반대인 전자 최대 2개)를 훈트 규칙과 구별해 적용하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 파울리 배타 원리: 한 원자 안에서 네 양자수가 모두 같은 전자는 없다. → 한 칸(오비탈)에 같은 방향 화살표 두 개는 불가능하다.</p>
+<p class="step">2단계 훈트 규칙: 에너지가 같은 오비탈에는 홀전자 수가 최대가 되도록 같은 방향 스핀으로 하나씩 먼저 채운다.</p>
+<p class="step">3단계 ①: 모든 칸이 ↑↓ 또는 ↑ → 두 규칙을 모두 만족한다(F의 바닥상태).</p>
+<p class="step">– ②: 2p에 ↑, ↓, ↑↓ → 한 칸에 같은 스핀 두 개가 없으므로 파울리 원리는 만족하고, 훈트 규칙만 어긋난다.</p>
+<p class="step">– ③: 2p에 ↑, ↓, ↑ → 파울리 원리는 만족하고, 홀전자의 스핀이 섞여 훈트 규칙만 어긋난다.</p>
+<p class="step">– ④: 2p 첫 칸에 ↓↓ → 파울리 배타 원리 위반</p>
+<h4>선지 분석</h4>
+<p class="step opt">①, ②, ③: 한 칸에 같은 방향 화살표 두 개가 없으므로 파울리 배타 원리는 만족한다(②, ③은 훈트 규칙만 어긋난다).</p>
+<p class="step opt">④ : 한 오비탈에 같은 스핀 전자 2개가 있다. 정답.</p>
+<p class="step">→ <b>④</b></p></div>
+</div>
+<div class="q" id="q33"><div class="qh"><span class="qno">문제 33</span><span class="area">전이금속전자배치</span><span class="ans">정답 ①</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">전이 금속의 예외 배치(Cr, Cu)와, 양이온이 될 때 4s 전자를 먼저 잃는다는 규칙을 함께 적용하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 Cr(24): 3d를 반쯤 채운 배치가 안정하므로 [Ar]4s<sup>1</sup>3d<sup>5</sup>(예외)</p>
+<p class="step">2단계 Fe(26): [Ar]4s<sup>2</sup>3d<sup>6</sup> → Fe<sup>3+</sup>: 4s 전자 2개를 먼저, 3d 전자 1개를 잃어 [Ar]3d<sup>5</sup></p>
+<p class="step">3단계 Cu(29): [Ar]4s<sup>1</sup>3d<sup>10</sup>(예외) → Cu<sup>+</sup>: [Ar]3d<sup>10</sup></p>
+<p class="step">4단계 Zn(30): [Ar]4s<sup>2</sup>3d<sup>10</sup> → Zn<sup>2+</sup>: 4s 전자 2개를 잃어 [Ar]3d<sup>10</sup></p>
+<h4>선지 분석</h4>
+<p class="step opt">① (○): Cr은 [Ar]4s<sup>1</sup>3d<sup>5</sup>이다. 정답.</p>
+<p class="step opt">② (×): Fe<sup>3+</sup>은 [Ar]3d<sup>5</sup>이다. 3d에서 먼저 전자를 뺀 잘못이다.</p>
+<p class="step opt">③ (×): Cu<sup>+</sup>은 [Ar]3d<sup>10</sup>이다.</p>
+<p class="step opt">④ (×): Zn<sup>2+</sup>은 [Ar]3d<sup>10</sup>이다. 4s가 아니라 3d에서 전자를 뺀 잘못이다.</p>
+<p class="step">→ <b>①</b></p></div>
+</div>
+<div class="q" id="q34"><div class="qh"><span class="qno">문제 34</span><span class="area">주기적성질</span><span class="ans">정답 ①</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">N, O, F, Na, Mg, Al의 원자가 전자 수 변화(증가, 증가, 감소, 증가, 증가)와 정반대로 움직이는 성질을 찾는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 원자가 전자 수: N 5, O 6, F 7, Na 1, Mg 2, Al 3 → 증가, 증가, 감소, 증가, 증가</p>
+<p class="step">2단계 원자 반지름: 같은 주기에서 오른쪽으로 갈수록 작아지고, 다음 주기의 Na에서 크게 커진다. → 감소, 감소, 증가, 감소, 감소(정반대)</p>
+<p class="step">3단계 전기음성도: 증가, 증가, 감소, 증가, 증가 → 같은 방향</p>
+<p class="step">4단계 제1 이온화 에너지: N 1402 → O 1314(감소) → F 1681(증가) → Na 496(감소) → Mg 738(증가) → Al 578(감소) → 어느 쪽과도 맞지 않는다.</p>
+<p class="step">5단계 Ne 전자 배치 이온의 반지름: N<sup>3−</sup> &gt; O<sup>2−</sup> &gt; F<sup>−</sup> &gt; Na<sup>+</sup> &gt; Mg<sup>2+</sup> &gt; Al<sup>3+</sup> → 계속 감소</p>
+<h4>선지 분석</h4>
+<p class="step opt">① 원자 반지름: 다섯 구간 모두 원자가 전자 수와 반대로 움직인다. 정답.</p>
+<p class="step opt">② 제1 이온화 에너지: N → O, Mg → Al에서 예외적으로 감소해 규칙적인 대응이 깨진다.</p>
+<p class="step opt">③ 전기음성도: 원자가 전자 수와 같은 방향으로 움직인다. 교재 원문항(가장 비슷한 경향)의 정답이다.</p>
+<p class="step opt">④ 등전자 이온의 반지름: 계속 감소하므로 F → Na 구간에서 반대 관계가 깨진다.</p>
+<p class="step">→ <b>①</b></p></div>
+</div>
+<div class="q" id="q35"><div class="qh"><span class="qno">문제 35</span><span class="area">이온반지름</span><span class="ans">정답 ③</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">등전자 이온의 크기는 핵전하로, 전자 수가 다른 이온은 전자 껍질 수와 핵전하로 비교하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 전자 수: Cl<sup>−</sup> 17 + 1 = 18, K<sup>+</sup> 19 − 1 = 18, Ca<sup>2+</sup> 20 − 2 = 18 → 세 이온은 Ar과 같은 배치의 등전자 이온이다.</p>
+<p class="step">2단계 등전자 이온은 양성자 수가 많을수록 전자를 세게 당겨 작다. → Cl<sup>−</sup>(17) &gt; K<sup>+</sup>(19) &gt; Ca<sup>2+</sup>(20)</p>
+<p class="step">3단계 Ga<sup>3+</sup>: 전자 31 − 3 = 28개, [Ar]3d<sup>10</sup>이다. 가장 바깥 껍질이 n = 3이고 핵전하가 +31로 매우 크므로 Ca<sup>2+</sup>보다도 작다(실측 약 62 pm, Ca<sup>2+</sup> 약 100 pm).</p>
+<p class="step">4단계 큰 순서: Cl<sup>−</sup> &gt; K<sup>+</sup> &gt; Ca<sup>2+</sup> &gt; Ga<sup>3+</sup></p>
+<h4>선지 분석</h4>
+<p class="step opt">①, ②: 원자 번호가 큰 Ga<sup>3+</sup>를 가장 크게 둔 오류이다.</p>
+<p class="step opt">③ : 정답.</p>
+<p class="step opt">④ : Ga<sup>3+</sup>를 두 번째로 크게 둔 오류이다.</p>
+<p class="step">→ <b>③</b></p></div>
+</div>
+<div class="q" id="q36"><div class="qh"><span class="qno">문제 36</span><span class="area">이온반지름해석</span><span class="ans">정답 ④</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">원자 반지름과 이온 반지름 자료를 핵전하, 전자 껍질 수, 전자 사이 반발로 해석하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 Na(186 pm) → Na<sup>+</sup>(102 pm): 3s 전자를 잃어 전자 껍질이 하나 줄어든다. 핵전하(+11)는 그대로이다.</p>
+<p class="step">2단계 Cl(99 pm) → Cl<sup>−</sup>(181 pm): 전자가 하나 늘어 전자 사이 반발이 커지고, 같은 핵전하(+17)가 더 많은 전자를 붙잡으므로 반지름이 커진다.</p>
+<p class="step">3단계 중성 원자 Na &gt; Cl: 같은 3주기에서 Na의 유효 핵전하가 작아 바깥 전자를 약하게 당긴다.</p>
+<h4>선지 분석</h4>
+<p class="step opt">① (×): Na<sup>+</sup>(전자 10개)는 Cl<sup>−</sup>(전자 18개)보다 전자 수가 적다. 크기 차이의 주된 까닭은 전자 껍질 수(2 대 3)이다.</p>
+<p class="step opt">② (×): Na의 유효 핵전하가 Cl보다 작기 때문이다.</p>
+<p class="step opt">③ (×): 이온이 되어도 핵전하(양성자 수)는 변하지 않는다. 반지름이 크게 줄어드는 까닭은 바깥 전자 껍질이 없어지기 때문이다.</p>
+<p class="step opt">④ (○): Cl<sup>−</sup>는 전자가 늘어 전자 사이 반발이 커지므로 반지름이 커진다. 정답.</p>
+<p class="step">→ <b>④</b></p></div>
+</div>
+<div class="q" id="q37"><div class="qh"><span class="qno">문제 37</span><span class="area">이온화에너지</span><span class="ans">정답 ④</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">이온화 에너지의 주기적 경향과 그 근거(핵과의 거리, 전자쌍 반발)를 정확히 판단하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 같은 족(Be, Mg): 아래로 갈수록 원자가 전자가 핵에서 멀어지므로 이온화 에너지가 작아진다. → Be &gt; Mg</p>
+<p class="step">2단계 N과 O: O는 2p 오비탈 하나에 전자쌍이 생겨 반발이 커지므로 전자를 떼기 쉽다. → O &lt; N</p>
+<p class="step">3단계 Ne과 Ar: Ar의 3p 전자가 Ne의 2p 전자보다 핵에서 멀다. → Ar &lt; Ne</p>
+<p class="step">→ <b>④</b></p></div>
+</div>
+<div class="q" id="q38"><div class="qh"><span class="qno">문제 38</span><span class="area">주기적성질</span><span class="ans">정답 ②</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">원자 번호가 커질 때 커지는 성질과 작아지는 성질을 주기와 족으로 나누어 구별하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 같은 주기: 원자 번호가 커지면 유효 핵전하가 커져 원자 반지름이 작아지고, 이온화 에너지는 대체로 커진다.</p>
+<p class="step">2단계 같은 족: 아래로 갈수록 전자 껍질이 늘어 원자 반지름이 커진다.</p>
+<p class="step">3단계 등전자 이온(N<sup>3−</sup> ~ Al<sup>3+</sup>): 전자 수는 같고 양성자 수만 늘어나므로 유효 핵전하가 커진다.</p>
+<h4>선지 분석</h4>
+<p class="step opt">① (×): 등전자 이온의 유효 핵전하는 원자 번호가 커질수록 커진다.</p>
+<p class="step opt">② (○): 2주기 원소의 원자 반지름은 원자 번호가 커질수록 작아진다. 정답.</p>
+<p class="step opt">③ (×): 1족 원소의 원자 반지름은 아래로 갈수록 커진다.</p>
+<p class="step opt">④ (×): 2주기 원소의 일차 이온화 에너지는 예외가 있지만 대체로 커진다.</p>
+<p class="step">→ <b>②</b></p></div>
+</div>
+<div class="q" id="q39"><div class="qh"><span class="qno">문제 39</span><span class="area">순차적이온화에너지</span><span class="ans">정답 ②</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">순차적 이온화 에너지가 갑자기 커지는 위치로 원자가 전자 수를 판단하고, 2주기와 3주기 원소를 구별하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 급증하는 자리 바로 앞까지 뗀 전자 수가 원자가 전자 수이다.</p>
+<p class="step">– A: E<sub>2</sub> 1757 → E<sub>3</sub> 14849로 급증 → 2개(2족)</p>
+<p class="step">– B: E<sub>1</sub> 496 → E<sub>2</sub> 4562 → 1개(1족)</p>
+<p class="step">– C: E<sub>2</sub> 1451 → E<sub>3</sub> 7733 → 2개(2족)</p>
+<p class="step">– D: E<sub>3</sub> 2745 → E<sub>4</sub> 11577 → 3개(13족)</p>
+<p class="step">2단계 같은 2족인 A와 C 중 E<sub>1</sub>이 더 큰 A(899)가 위쪽(2주기)의 Be, C(738)가 3주기의 Mg이다. B는 Na, D는 Al이다.</p>
+<p class="step">3단계 C(Mg)의 가장 안정한 이온은 Mg<sup>2+</sup>이므로 필요한 에너지는 E<sub>1</sub> + E<sub>2</sub> = 738 + 1451 = 2189 kJ/mol이다.</p>
+<p class="step">→ <b>②</b></p></div>
+</div>
+<div class="q" id="q40"><div class="qh"><span class="qno">문제 40</span><span class="area">이온화에너지</span><span class="ans">정답 ④</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">이온화 에너지의 부호, 이온화 에너지와 전자 친화도의 관계, 에너지와 파장의 관계를 종합하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 가: 중성 원자에서 전자를 떼어 내려면 언제나 에너지를 흡수해야 하므로 일차 이온화 에너지는 항상 양수이다.</p>
+<p class="step">2단계 나: H<sup>−</sup>(g) → H(g) + e<sup>−</sup>(H<sup>−</sup>의 일차 이온화)는 H(g) + e<sup>−</sup> → H<sup>−</sup>(g)(H의 전자 친화 과정)의 역과정이다. 두 에너지는 크기가 같고 부호만 반대이다.</p>
+<p class="step">3단계 다: 이차 이온화 에너지는 일차보다 크다(양이온에서 전자를 떼기가 더 어렵다). E = hc/λ이므로 에너지가 클수록 파장은 짧다.</p>
+<p class="step">→ <b>④</b></p></div>
+</div>
+<div class="q" id="q41"><div class="qh"><span class="qno">문제 41</span><span class="area">전기전도도</span><span class="ans">정답 ③</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">금속과 전해질, 반도체에서 전하 운반체가 온도에 따라 어떻게 달라지는지로 전기 전도도의 변화를 판단하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 금속(수은 포함): 온도가 오르면 금속 양이온의 진동이 커져 자유 전자의 이동을 방해한다. → 전도도 감소</p>
+<p class="step">2단계 반도체: 온도가 오르면 전도에 참여하는 전자(와 양공)의 수가 늘어난다. → 전도도 증가</p>
+<p class="step">3단계 전해질 용액: 온도가 오르면 이온의 이동이 빨라진다. → 전도도 증가</p>
+<h4>선지 분석</h4>
+<p class="step opt">① 전해질 용액, 반도체: 둘 다 전도도가 증가한다. 교재 원문항(증가하는 조합)의 정답이다.</p>
+<p class="step opt">② 반도체, 수은: 증가와 감소가 섞여 있다.</p>
+<p class="step opt">③ 수은, 금속 도체: 둘 다 금속이므로 전도도가 감소한다. 정답.</p>
+<p class="step opt">④ 전해질 용액, 금속 도체: 증가와 감소가 섞여 있다.</p>
+<p class="step">→ <b>③</b></p></div>
+</div>
+<div class="q" id="q42"><div class="qh"><span class="qno">문제 42</span><span class="area">전기음성도와결합</span><span class="ans">정답 ②</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">전자 배치로 원소를 추정하고 전기음성도 차이로 결합의 종류를 판단하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 A: Li(1.0), B: B(2.0), C: O(3.5), D: Mg(1.2), E: Cl(3.0)</p>
+<p class="step">2단계 전기음성도 차이가 크면(대략 1.7 이상) 이온 결합, 작으면 공유 결합이다.</p>
+<p class="step">3단계 A<sub>2</sub>C(Li<sub>2</sub>O) 2.5, CD(MgO) 2.3, DE<sub>2</sub>(MgCl<sub>2</sub>) 1.8 → 이온성 화합물</p>
+<p class="step">4단계 CE<sub>2</sub>(Cl<sub>2</sub>O) 0.5 → 비금속끼리의 공유 결합 화합물</p>
+<h4>선지 분석</h4>
+<p class="step opt">① A<sub>2</sub>C(Li<sub>2</sub>O): 차이 2.5로 이온성 화합물이다.</p>
+<p class="step opt">② CE<sub>2</sub>(Cl<sub>2</sub>O): 차이 0.5인 비금속끼리의 공유 결합 화합물이다. 정답.</p>
+<p class="step opt">③ CD(MgO): 차이 2.3으로 이온성 화합물이다.</p>
+<p class="step opt">④ DE<sub>2</sub>(MgCl<sub>2</sub>): 차이 1.8로 이온성 화합물이다.</p>
+<p class="step">→ <b>②</b></p></div>
+</div>
+<div class="q" id="q43"><div class="qh"><span class="qno">문제 43</span><span class="area">격자에너지</span><span class="ans">정답 ①</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">격자 에너지가 이온의 전하 곱에 비례하고 이온 사이 거리에 반비례한다는 관계를, 전하를 먼저 보고 크기를 나중에 보는 순서로 적용하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 격자 에너지 ∝ (양이온 전하 × 음이온 전하) ÷ (이온 사이 거리)</p>
+<p class="step">2단계 전하 곱: MgCl<sub>2</sub>만 (+2) × (−1)로 크기가 2이고 나머지는 모두 1이다. → MgCl<sub>2</sub>가 가장 크다.</p>
+<p class="step">3단계 나머지 셋은 전하가 같으므로 이온 크기로 비교한다. 양이온은 Li<sup>+</sup> &lt; K<sup>+</sup>, 음이온은 Cl<sup>−</sup> &lt; I<sup>−</sup>이다. 거리는 LiCl &lt; KCl &lt; KI이므로 격자 에너지는 LiCl &gt; KCl &gt; KI이다.</p>
+<p class="step">4단계 작은 것부터: KI &lt; KCl &lt; LiCl &lt; MgCl<sub>2</sub></p>
+<h4>선지 분석</h4>
+<p class="step opt">① 정답.</p>
+<p class="step opt">② KCl과 KI의 순서가 반대이다. I<sup>−</sup>가 Cl<sup>−</sup>보다 크므로 KI가 더 작다.</p>
+<p class="step opt">③ 이온 크기의 효과를 거꾸로 적용했다.</p>
+<p class="step opt">④ 순서 전체가 거꾸로이다.</p>
+<p class="step">→ <b>①</b></p></div>
+</div>
+<div class="q" id="q44"><div class="qh"><span class="qno">문제 44</span><span class="area">원자와이온</span><span class="ans">정답 ④</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">양성자 수로 원소를, 전자 수로 전하를 정한 뒤 동위원소, 이온 결합, 전자 배치를 판단하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 A: 양성자 5, 전자 5, 중성자 5 → <sup>10</sup>B</p>
+<p class="step">– B: 양성자 7, 전자 10 → N<sup>3−</sup></p>
+<p class="step">– C: 양성자 19, 전자 18 → K<sup>+</sup></p>
+<p class="step">– D: 양성자 30, 전자 28 → Zn<sup>2+</sup></p>
+<p class="step">– E: 양성자 35, 전자 36 → Br<sup>−</sup></p>
+<p class="step">– F: 양성자 5, 전자 5, 중성자 6 → <sup>11</sup>B</p>
+<p class="step">2단계 Zn은 [Ar]4s<sup>2</sup>3d<sup>10</sup>이므로 Zn<sup>2+</sup>는 4s 전자 2개를 잃어 [Ar]3d<sup>10</sup>이다.</p>
+<h4>선지 분석</h4>
+<p class="step opt">① (○): B(N<sup>3−</sup>)와 E(Br<sup>−</sup>)는 음이온이다.</p>
+<p class="step opt">② (○): C(K<sup>+</sup>)와 E(Br<sup>−</sup>)는 1 : 1의 KBr을 만든다.</p>
+<p class="step opt">③ (○): A와 F는 양성자 수가 같고 중성자 수만 다른 동위원소로, 화학적 성질이 거의 같다.</p>
+<p class="step opt">④ (×): D(Zn<sup>2+</sup>)는 [Ar]3d<sup>10</sup>이다. [Ar]4s<sup>2</sup>3d<sup>8</sup>은 3d에서 전자를 뺀 잘못된 배치이다. 옳지 않은 진술은 ④뿐이므로 정답은 ④이다.</p>
+<p class="step">→ <b>④</b></p></div>
+</div>
+<div class="q" id="q45"><div class="qh"><span class="qno">문제 45</span><span class="area">원소추론</span><span class="ans">정답 ③</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">불꽃 반응색, 산화물의 종류, 홑원소 물질의 상태와 색, 원자 반지름 정보를 차례로 써서 두 원소를 추론하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 가: 불꽃 반응색이 보라색인 원소는 K이다(Na는 노란색).</p>
+<p class="step">2단계 나: K는 산소와 반응해 초과산화 칼륨 KO<sub>2</sub>를 만들 수 있다. 가와 일치한다.</p>
+<p class="step">3단계 다: 상온에서 황록색 기체인 이원자 분자는 Cl<sub>2</sub>이다(I<sub>2</sub>는 상온에서 고체이다).</p>
+<p class="step">4단계 라: Cl은 같은 3주기에서 S보다 오른쪽에 있어 S보다 작고, F보다는 전자 껍질이 하나 많아 크다. 다와 일치한다.</p>
+<p class="step">5단계 따라서 AB = KCl이다.</p>
+<h4>선지 분석</h4>
+<p class="step opt">①, ②: A가 Na이면 불꽃 반응색이 노란색이므로 맞지 않는다.</p>
+<p class="step opt">③ KCl: 정답.</p>
+<p class="step opt">④ KI: B가 I이면 상온에서 고체이고 원자 반지름이 S보다 크므로 다, 라와 맞지 않는다(교재 문항의 답).</p>
+<p class="step">→ <b>③</b></p></div>
+</div>
+<div class="q" id="q46"><div class="qh"><span class="qno">문제 46</span><span class="area">공명구조</span><span class="ans">정답 ②</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">동등한 공명 구조가 생기려면 이중 결합이 옮겨 갈 자리가 서로 동등해야 한다는 점을 산과 짝염기에 적용하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 벤젠: 이중 결합 위치만 다른 동등한 케쿨레 구조 2개</p>
+<p class="step">2단계 O<sub>3</sub>: O=O−O와 O−O=O의 동등한 구조 2개</p>
+<p class="step">3단계 NO<sub>2</sub><sup>−</sup>: N=O 이중 결합이 두 O 가운데 어느 쪽에도 올 수 있어 동등한 구조 2개</p>
+<p class="step">4단계 HCOOH: 한쪽 O에 H가 붙어 있어(C−OH) 두 C−O 결합이 서로 다르다. 동등한 공명 구조 2개가 없다.</p>
+<h4>선지 분석</h4>
+<p class="step opt">① 벤젠: 동등한 공명 구조 2개를 갖는다.</p>
+<p class="step opt">② HCOOH(폼산): H가 붙은 O와 붙지 않은 O가 달라 동등한 공명 구조를 갖지 않는다. 정답.</p>
+<p class="step opt">③ O<sub>3</sub>: 동등한 공명 구조 2개를 갖는다.</p>
+<p class="step opt">④ NO<sub>2</sub><sup>−</sup>: 동등한 공명 구조 2개를 갖는다.</p>
+<p class="step">→ <b>②</b></p></div>
+</div>
+<div class="q" id="q47"><div class="qh"><span class="qno">문제 47</span><span class="area">탄화수소구조</span><span class="ans">정답 ①</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">벤젠(가)과 사이클로헥세인(나)의 혼성, 결합각, 입체 구조를 비교하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 (가) 벤젠: 탄소가 모두 sp<sup>2</sup> → 결합각 120°, 평면 구조, 공명 구조를 갖는다.</p>
+<p class="step">2단계 (나) 사이클로헥세인: 탄소가 모두 sp<sup>3</sup> → 결합각 약 109.5°, 의자 모양으로 주름진 비평면 구조, 포화 탄화수소</p>
+<h4>선지 분석</h4>
+<p class="step opt">① (×): (나)는 sp<sup>3</sup> 탄소로 이루어져 평면이 아니다(의자 모양).</p>
+<p class="step opt">② (○): 결합각은 (가) 120°가 (나) 약 109.5°보다 크다.</p>
+<p class="step opt">③ (○): (나)는 단일 결합만 있는 포화 탄화수소이다.</p>
+<p class="step opt">④ (○): (가)는 공명 구조를 갖는다. 옳지 않은 진술은 ①뿐이므로 정답은 ①이다.</p>
+<p class="step">→ <b>①</b></p></div>
+</div>
+<div class="q" id="q48"><div class="qh"><span class="qno">문제 48</span><span class="area">결합길이</span><span class="ans">정답 ③</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">루이스 구조와 공명으로 N−O 평균 결합 차수를 구해 결합 길이를 비교하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 NO<sub>2</sub><sup>+</sup>: O=N=O → N−O 결합 차수 2</p>
+<p class="step">2단계 NO<sub>2</sub><sup>−</sup>: 공명 구조 2개(N=O 1개 + N−O 1개) → 결합 차수 (2 + 1)/2 = 1.5</p>
+<p class="step">3단계 NO<sub>3</sub><sup>−</sup>: 공명 구조 3개(N=O 1개 + N−O 2개) → 결합 차수 (2 + 1 + 1)/3 ≈ 1.33</p>
+<p class="step">4단계 결합 차수가 클수록 결합 길이가 짧다. → NO<sub>2</sub><sup>+</sup> &lt; NO<sub>2</sub><sup>−</sup> &lt; NO<sub>3</sub><sup>−</sup></p>
+<h4>선지 분석</h4>
+<p class="step opt">① NO<sub>2</sub><sup>+</sup> &lt; NO<sub>3</sub><sup>−</sup> &lt; NO<sub>2</sub><sup>−</sup>: NO<sub>2</sub><sup>−</sup>(1.5)와 NO<sub>3</sub><sup>−</sup>(1.33)의 결합 차수를 거꾸로 비교했다.</p>
+<p class="step opt">② NO<sub>3</sub><sup>−</sup> &lt; NO<sub>2</sub><sup>+</sup> &lt; NO<sub>2</sub><sup>−</sup>: 결합 차수가 작을수록 짧다고 거꾸로 생각한 순서에 가깝다.</p>
+<p class="step opt">③ NO<sub>2</sub><sup>+</sup> &lt; NO<sub>2</sub><sup>−</sup> &lt; NO<sub>3</sub><sup>−</sup>: 정답.</p>
+<p class="step opt">④ NO<sub>2</sub><sup>−</sup> &lt; NO<sub>2</sub><sup>+</sup> &lt; NO<sub>3</sub><sup>−</sup>: 음이온이 전자가 많아 결합이 짧다고 착각한 경우이다.</p>
+<p class="step">→ <b>③</b></p></div>
+</div>
+<div class="q" id="q49"><div class="qh"><span class="qno">문제 49</span><span class="area">결합각</span><span class="ans">정답 ①</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">중심 원자의 입체수와 비공유 전자쌍 수로 결합각을 비교하고, 확장 옥텟 화학종의 비공유 전자쌍 위치까지 판단하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 가 N<sub>2</sub>H<sub>2</sub>(H−N=N−H): 각 N은 결합한 원자 2개(H, N)와 비공유 전자쌍 1개 → 입체수 3. 비공유 전자쌍의 반발로 ∠H−N−N은 120°보다 작다(약 106°).</p>
+<p class="step">2단계 나 BF<sub>3</sub>: B는 결합 3개, 비공유 전자쌍 0개 → 입체수 3, 평면 삼각형 → 120°</p>
+<p class="step">3단계 다 ICl<sub>2</sub><sup>−</sup>: I의 원자가 전자 7 + 음전하 1 = 8개 중 2개가 결합에 쓰이고 6개(비공유 전자쌍 3개)가 남는다 → 입체수 5. 비공유 전자쌍 3개가 적도 자리를 차지하고 Cl 두 개는 축 자리 → 직선형, 180°</p>
+<p class="step">4단계 작은 것부터: 가 &lt; 나 &lt; 다</p>
+<h4>선지 분석</h4>
+<p class="step opt">① 가 &lt; 나 &lt; 다: 정답.</p>
+<p class="step opt">②, ③, ④: 비공유 전자쌍의 효과(가)나 확장 옥텟의 직선형(다)을 잘못 판단한 순서이다.</p>
+<p class="step">→ <b>①</b></p></div>
+</div>
+<div class="q" id="q50"><div class="qh"><span class="qno">문제 50</span><span class="area">분자의평면성</span><span class="ans">정답 ②</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">VSEPR로 각 화학종의 모양을 정하고, 모든 원자가 한 평면에 놓이는지 판단하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 ClF<sub>3</sub>: 중심 Cl의 전자쌍 5개(결합 3, 비공유 2) → T자형 → 평면</p>
+<p class="step">2단계 SF<sub>4</sub>: 중심 S의 전자쌍 5개(결합 4, 비공유 1) → 시소형 → 비평면</p>
+<p class="step">3단계 XeF<sub>4</sub>: 전자쌍 6개(결합 4, 비공유 2) → 평면 사각형</p>
+<p class="step">4단계 BF<sub>3</sub>: 전자쌍 3개 → 평면 삼각형</p>
+<h4>선지 분석</h4>
+<p class="step opt">① ClF<sub>3</sub>: T자형으로 네 원자가 한 평면에 있다.</p>
+<p class="step opt">② SF<sub>4</sub>: 시소형으로 다섯 원자가 한 평면에 있을 수 없다. 정답.</p>
+<p class="step opt">③ XeF<sub>4</sub>: 평면 사각형이다.</p>
+<p class="step opt">④ BF<sub>3</sub>: 평면 삼각형이다.</p>
+<p class="step">→ <b>②</b></p></div>
+</div>
+<div class="q" id="q51"><div class="qh"><span class="qno">문제 51</span><span class="area">루이스구조</span><span class="ans">정답 ①</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">NCO<sup>−</sup>의 루이스 구조와 공명으로 모양, 결합 길이, 공명 구조의 동등성을 판단하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 원자가 전자 수: N 5 + C 4 + O 6 + 1 = 16</p>
+<p class="step">2단계 중심 C에 비공유 전자쌍이 없고 결합 영역이 2개 → 직선형, 결합각 180°</p>
+<p class="step">3단계 공명 구조: [N≡C−O]<sup>−</sup>, [N=C=O]<sup>−</sup>, (기여 작음) [N−C≡O]<sup>−</sup> → 서로 동등하지 않다.</p>
+<p class="step">4단계 C−N 결합 차수는 2와 3 사이로 CN<sup>−</sup>(삼중 결합)보다 작다. → 결합 길이는 CN<sup>−</sup>보다 길다.</p>
+<h4>선지 분석</h4>
+<p class="step opt">① (○): 직선형이므로 결합각은 180°이다. 정답.</p>
+<p class="step opt">② (×): NCO<sup>−</sup>의 C−N 결합은 CN<sup>−</sup>의 삼중 결합보다 차수가 작아 더 길다.</p>
+<p class="step opt">③ (×): 공명 구조는 있지만 서로 동등하지 않다.</p>
+<p class="step opt">④ (×): NO<sub>2</sub>는 굽은형이고 NCO<sup>−</sup>는 직선형이다.</p>
+<p class="step">→ <b>①</b></p></div>
+</div>
+<div class="q" id="q52"><div class="qh"><span class="qno">문제 52</span><span class="area">형식전하</span><span class="ans">정답 ③</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">네 루이스 구조의 형식 전하를 계산해, 형식 전하가 가장 크게 생기는 가장 부적절한 구조를 고르는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 형식 전하 = 원자가 전자 수 − 비공유 전자 수 − 결합 수(공유 전자쌍 수)</p>
+<p class="step">2단계 ① (S=S 1개, S−O 3개): 중심 S = 6 − 0 − 5 = +1, O 세 개 −1, 말단 S 0</p>
+<p class="step">3단계 ② (S=S 1개, S=O 1개, S−O 2개): 중심 S = 0, O 두 개 −1 → 형식 전하가 가장 작고 음전하가 O에 있어 가장 적절하다.</p>
+<p class="step">4단계 ③ (모두 단일 결합): 중심 S = 6 − 0 − 4 = +2, 말단 S −1, O 세 개 −1 → 형식 전하의 크기와 개수가 가장 크다.</p>
+<p class="step">5단계 ④ (S=S 1개, S=O 2개, S−O 1개): 중심 S = 6 − 0 − 7 = −1, O 하나 −1</p>
+<h4>선지 분석</h4>
+<p class="step opt">① 중심 S +1, O 세 개 −1: 형식 전하가 다소 크다.</p>
+<p class="step opt">② 중심 S 0: 가장 적절한 구조이다(교재 원문항의 정답).</p>
+<p class="step opt">③ 중심 S +2, 말단 S −1, O 세 개 −1: 형식 전하가 가장 크고 많아 가장 적절하지 않다. 정답.</p>
+<p class="step opt">④ 중심 S −1: 전기음성도가 작은 중심 S에 음의 형식 전하가 있어 적절하지 않지만, 형식 전하의 크기는 ③보다 작다.</p>
+<p class="step">→ <b>③</b></p></div>
+</div>
+<div class="q" id="q53"><div class="qh"><span class="qno">문제 53</span><span class="area">공명과형식전하</span><span class="ans">정답 ②</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">세 공명 구조의 형식 전하를 계산해 기여도, 결합 길이, 분자 모양을 판단하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 A (N≡N−O): 말단 N 0, 중심 N +1, O −1</p>
+<p class="step">2단계 B (N−N≡O): 말단 N −2, 중심 N +1, O +1</p>
+<p class="step">3단계 C (N=N=O): 말단 N −1, 중심 N +1, O 0</p>
+<p class="step">4단계 형식 전하가 작고 음의 형식 전하가 전기음성도가 큰 O에 있는 A의 기여가 가장 크다.</p>
+<p class="step">5단계 중심 N에 비공유 전자쌍이 없고 결합 영역이 2개 → 직선형</p>
+<h4>선지 분석</h4>
+<p class="step opt">① (×): 말단 N의 형식 전하는 A 0, B −2, C −1로 서로 다르다(중심 N은 모두 +1로 같다).</p>
+<p class="step opt">② (○): A의 기여도가 가장 높다. 정답.</p>
+<p class="step opt">③ (×): 결합 영역이 2개인 직선형 분자이다.</p>
+<p class="step opt">④ (×): 실제 N−N(약 113 pm)이 N−O(약 119 pm)보다 짧다. A와 C 모두 N−N 결합 차수가 N−O보다 크다.</p>
+<p class="step">→ <b>②</b></p></div>
+</div>
+<div class="q" id="q54"><div class="qh"><span class="qno">문제 54</span><span class="area">시그마결합</span><span class="ans">정답 ①</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">폼산의 각 원자에서 결합 영역 수로 혼성을 정하고, 단일·이중 결합 속 시그마 결합을 세는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 폼산 구조: H−C(=O)−O−H</p>
+<p class="step">2단계 C: 결합 영역 3개(H, =O, −OH) → sp<sup>2</sup></p>
+<p class="step">3단계 카보닐 O(=O): 결합 1 + 비공유 전자쌍 2 → sp<sup>2</sup></p>
+<p class="step">4단계 하이드록시 O(−OH): 결합 2 + 비공유 전자쌍 2 → sp<sup>3</sup> → sp<sup>3</sup> 원자는 1개</p>
+<p class="step">5단계 시그마 결합: C−H, C=O(σ 1개), C−O, O−H → 4개 (π 결합 1개는 C=O에 있다)</p>
+<h4>선지 분석</h4>
+<p class="step opt">① sp<sup>3</sup> 원자 1개, 시그마 결합 4개: 정답.</p>
+<p class="step opt">② sp<sup>3</sup> 원자 2개: 카보닐 O까지 sp<sup>3</sup>로 본 경우이다.</p>
+<p class="step opt">③ 시그마 결합 5개: C=O 이중 결합을 시그마 2개로 센 경우이다.</p>
+<p class="step opt">④ sp<sup>3</sup> 원자 2개, 시그마 결합 7개: CH<sub>3</sub>가 있는 아세트산의 값으로, 교재 원문항의 정답이다.</p>
+<p class="step">→ <b>①</b></p></div>
+</div>
+<div class="q" id="q55"><div class="qh"><span class="qno">문제 55</span><span class="area">혼성오비탈</span><span class="ans">정답 ④</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">각 탄소에 결합한 원자 수(다중 결합은 1개로 셈)로 입체수를 구해 혼성 오비탈을 정하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 탄소는 비공유 전자쌍이 없으므로 입체수 = 결합한 원자 수이다.</p>
+<p class="step">2단계 C<sub>1</sub>(CH<sub>2</sub>): 왼쪽 CH<sub>3</sub>의 탄소 1개, H 2개, C<sub>2</sub>와 결합 → 4 → sp<sup>3</sup></p>
+<p class="step">3단계 C<sub>2</sub>, C<sub>3</sub>: 삼중 결합의 양 끝으로 각각 원자 2개와 결합 → 2 → sp</p>
+<p class="step">4단계 C<sub>4</sub>(CH<sub>2</sub>): C<sub>3</sub>, H 2개, N(−NH<sub>2</sub>)과 결합 → 4 → sp<sup>3</sup></p>
+<h4>선지 분석</h4>
+<p class="step opt">① : 삼중 결합 탄소(C<sub>2</sub>, C<sub>3</sub>)를 sp<sup>3</sup>로 보았다.</p>
+<p class="step opt">② : C<sub>4</sub>를 이중 결합(C=N) 탄소로 본 교재 원문항의 정답이다. 이 그림에서 C<sub>4</sub>−N은 단일 결합이다.</p>
+<p class="step opt">③ : C<sub>1</sub>을 sp<sup>2</sup>로 보았다.</p>
+<p class="step opt">④ sp<sup>3</sup>, sp, sp, sp<sup>3</sup>: 정답.</p>
+<p class="step">→ <b>④</b></p></div>
+</div>
+<div class="q" id="q56"><div class="qh"><span class="qno">문제 56</span><span class="area">혼성과구조</span><span class="ans">정답 ④</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">분자 모양과 혼성 오비탈을 각각 입체수와 비공유 전자쌍 수로 정하고, 두 조건이 모두 같은 화학종을 찾는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 OF<sub>2</sub>: O(6)가 결합 2개, 비공유 전자쌍 2개 → 입체수 4 → sp<sup>3</sup>, 굽은형</p>
+<p class="step">2단계 KrF<sub>2</sub>: Kr(8)이 결합 2개, 비공유 전자쌍 3개 → 입체수 5 → sp<sup>3</sup>d, 직선형</p>
+<p class="step">3단계 O<sub>3</sub>: 중심 O가 결합 원자 2개, 비공유 전자쌍 1개 → 입체수 3 → sp<sup>2</sup>, 굽은형</p>
+<p class="step">4단계 N<sub>2</sub>O: 중심 N에 비공유 전자쌍이 없고 원자 2개와 결합 → 입체수 2 → sp, 직선형</p>
+<p class="step">5단계 NH<sub>2</sub><sup>−</sup>: N(5 + 1 = 6)이 결합 2개, 비공유 전자쌍 2개 → 입체수 4 → sp<sup>3</sup>, 굽은형</p>
+<h4>선지 분석</h4>
+<p class="step opt">①, ③: 직선형이다.</p>
+<p class="step opt">② O<sub>3</sub>: 모양(굽은형)은 같지만 혼성이 sp<sup>2</sup>로 다르다.</p>
+<p class="step opt">④ NH<sub>2</sub><sup>−</sup>: 모양과 혼성이 모두 같으므로 정답.</p>
+<p class="step">→ <b>④</b></p></div>
+</div>
+<div class="q" id="q57"><div class="qh"><span class="qno">문제 57</span><span class="area">결합길이</span><span class="ans">정답 ②</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">결합 차수와 원자의 크기를 함께 고려해 이원자 분자의 결합 길이를 비교하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 결합 차수: N<sub>2</sub> 3, CO 3, O<sub>2</sub> 2, H<sub>2</sub> 1</p>
+<p class="step">2단계 2주기 원자끼리는 결합 차수가 클수록 짧다. → N<sub>2</sub>(약 110 pm) ≈ CO(약 113 pm) &lt; O<sub>2</sub>(약 121 pm)</p>
+<p class="step">3단계 H<sub>2</sub>는 결합 차수가 1이지만 H 원자가 매우 작아 결합 길이가 약 74 pm로 가장 짧다.</p>
+<p class="step">4단계 따라서 가장 긴 것은 O<sub>2</sub>이다.</p>
+<h4>선지 분석</h4>
+<p class="step opt">① N<sub>2</sub>: 삼중 결합으로 짧다.</p>
+<p class="step opt">② O<sub>2</sub>: 이중 결합으로 네 분자 중 가장 길다. 정답.</p>
+<p class="step opt">③ CO: 삼중 결합으로 짧다. 교재 원문항(결합 에너지가 가장 큰 분자)의 정답이다.</p>
+<p class="step opt">④ H<sub>2</sub>: 단일 결합이지만 원자가 매우 작아 결합 길이는 가장 짧다.</p>
+<p class="step">→ <b>②</b></p></div>
+</div>
+<div class="q" id="q58"><div class="qh"><span class="qno">문제 58</span><span class="area">분자의극성</span><span class="ans">정답 ①</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">결합이 극성이어도 분자 모양이 대칭이면 결합 쌍극자가 상쇄되어 무극성이 된다는 원리로 두 분자를 모두 판정하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 XeF<sub>4</sub>: 평면 사각형 → 무극성 / CCl<sub>4</sub>: 정사면체 → 무극성</p>
+<p class="step">2단계 CO<sub>2</sub>: 직선형 → 무극성 / SO<sub>2</sub>: S에 비공유 전자쌍 1개, 굽은형 → 극성</p>
+<p class="step">3단계 PCl<sub>3</sub>: 삼각뿔 → 극성 / PCl<sub>5</sub>: 삼각쌍뿔 → 무극성</p>
+<p class="step">4단계 SF<sub>4</sub>: 비공유 전자쌍 1개, 시소형 → 극성 / CF<sub>4</sub>: 정사면체 → 무극성</p>
+<h4>선지 분석</h4>
+<p class="step opt">① XeF<sub>4</sub>, CCl<sub>4</sub>: 정답.</p>
+<p class="step opt">②, ③, ④: 짝 가운데 하나(SO<sub>2</sub>, PCl<sub>3</sub>, SF<sub>4</sub>)가 극성이다.</p>
+<p class="step">→ <b>①</b></p></div>
+</div>
+<div class="q" id="q59"><div class="qh"><span class="qno">문제 59</span><span class="area">쌍극자모멘트</span><span class="ans">정답 ③</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">다이브로모벤젠 세 이성질체에서 두 C−Br 결합 쌍극자의 벡터 합을 비교하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 두 C−Br 결합 쌍극자의 크기는 같고 사이 각도만 다르다. 사이 각도가 작을수록 합이 크다.</p>
+<p class="step">2단계 (가) para: 180° → 합이 0 → 무극성</p>
+<p class="step">3단계 (나) ortho: 60° → 합이 가장 크다.</p>
+<p class="step">4단계 (다) meta: 120° → 합이 결합 쌍극자 하나의 크기 정도이다.</p>
+<p class="step">5단계 크기: (가) &lt; (다) &lt; (나)</p>
+<h4>선지 분석</h4>
+<p class="step opt">① (가) &lt; (나) &lt; (다): ortho와 meta의 크기를 거꾸로 보았다.</p>
+<p class="step opt">② (다) &lt; (나) &lt; (가): 교재 원문항 그림(가 ortho, 나 meta, 다 para)의 정답이다. 이 문항은 그림 배열이 바뀌었다.</p>
+<p class="step opt">③ (가) &lt; (다) &lt; (나): 정답.</p>
+<p class="step opt">④ (다) &lt; (가) &lt; (나): para의 쌍극자 모멘트가 0이라는 점을 놓쳤다.</p>
+<p class="step">→ <b>③</b></p></div>
+</div>
+<div class="q" id="q60"><div class="qh"><span class="qno">문제 60</span><span class="area">혼성과구조</span><span class="ans">정답 ④</span></div><div class="sol"><h4>출제 의도</h4>
+<p class="step aim">NO<sub>2</sub><sup>+</sup>, NO<sub>2</sub>, NO<sub>2</sub><sup>−</sup>의 루이스 구조로 혼성, 모양, 극성, 홀전자 유무를 판단하는 문항이다.</p>
+<h4>사고 과정</h4>
+<p class="step">1단계 NO<sub>2</sub><sup>+</sup>: 원자가 전자 16 → O=N=O, 중심 N의 결합 영역 2 → sp, 직선형(180°), 무극성, 홀전자 없음</p>
+<p class="step">2단계 NO<sub>2</sub>: 원자가 전자 17 → 홀전자 1개, 결합 영역 3 → sp<sup>2</sup>, 굽은형(약 134°), 극성, 상자기성</p>
+<p class="step">3단계 NO<sub>2</sub><sup>−</sup>: 원자가 전자 18 → 비공유 전자쌍 1개, sp<sup>2</sup>, 굽은형(약 115°), 극성</p>
+<h4>선지 분석</h4>
+<p class="step opt">① (×): NO<sub>2</sub><sup>+</sup>의 N은 sp 혼성이다.</p>
+<p class="step opt">② (×): 쌍극자 모멘트가 없는 것은 직선형인 NO<sub>2</sub><sup>+</sup>이다.</p>
+<p class="step opt">③ (×): NO<sub>2</sub><sup>+</sup>의 결합각(180°)이 가장 크다.</p>
+<p class="step opt">④ (○): NO<sub>2</sub>는 홀전자가 있어 상자기성이다. 정답.</p>
+<p class="step">→ <b>④</b></p></div>
+</div>
+<script data-lec-back>
+(function(){function ok(raw){if(!raw)return null;try{var u=new URL(raw,location.href);
+if(u.origin!==location.origin)return null;if(!/(^|\/)final\.html$/.test(u.pathname))return null;
+if(!/[#&]r=/.test(u.hash))return null;return u.href;}catch(e){return null;}}
+try{var a=document.querySelector('a.back');if(!a)return;
+var to=ok(new URL(location.href).searchParams.get('from'));if(!to)return;
+a.href=to;a.textContent='\u2039 \uc131\uc801\ud45c\ub85c';}catch(e){}})();
+</script>
+</main></body></html>

@@ -686,6 +686,10 @@ def no_grey_labels(exam: dict[str, Any]) -> str:
         return "문제지 PDF 가 저장소에 없다"
     if exam.get("id") == "usnco-2026-natl-1":
         return "미국 원판 PDF 라 회색 문항 딱지가 없다 (2026-08-21)"
+    if (exam.get("source") or {}).get("tool") == "tools/ingest_unit_exam.py":
+        # 선생님이 한글(HWPX) 한 파일만 주신 반 시험 — 문제지 PDF 도 크롭도 그 HWPX 를
+        # 조판해 만든다(tools/ingest_unit_exam.py). 이 자가 자를 회색 딱지가 없다.
+        return "한글 원본을 조판한 문제지라 회색 문항 딱지가 없다 (2026-11-16)"
     return ""
 
 
