@@ -24,7 +24,11 @@ on:
 
 jobs:
   # 창구가 성한지부터 본다. 여기서 걸리면 배포는 아예 안 돈다.
-  검사:
+  # ⚠ 작업 ID 는 영문·숫자·_·- 만 된다. 2026-09-07 에 이 ID 를 「검사」 로 적어
+  #   워크플로 파일 전체가 무효가 됐고(실행마다 «작업 없음» 실패), 그날부터
+  #   2026-11-16 까지 .gs 가 한 번도 자동 배포되지 않았다. 한글은 name: 에만 쓴다.
+  check:
+    name: 검사
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -43,7 +47,7 @@ jobs:
           done
 
   deploy:
-    needs: 검사
+    needs: check
     runs-on: ubuntu-latest
     # 이 환경에 검토자를 넣기 전까지는 예전처럼 바로 나간다.
     environment: production
