@@ -152,7 +152,10 @@ assert seen == expected, f"자산이 빠진 문항이 있다: {seen} != {expecte
 #    3000 → 3240 : 남은 셋(chem2-1·kch2to3·kch2final)과 j0 에도 은행이 앉았다(각 60). DH_SETS 의
 #    빈 배열 여덟이 다 채워졌다. 이 검사는 final.html DH_SETS 표의 꼬리 쉼표 때문에 읽기에서
 #    죽어 있어 그 사이의 변화를 못 잡았다 — 2026-09-11 에 되살리며 세트별로 다시 세어 적는다.
-assert seen == 3240, f"문항 총합이 달라졌다: {seen} (기대 3240)"
+#    3240 → 3300 : 화학1 1-3단원 총괄평가 심화반(kch1to3-s, 60)을 들인 날 은행도 집필해
+#    앉혔다. 원문 해설지의 개념·사고 과정을 따라 새로 쓰고, 정답을 가린 채 따로 풀어 대조했다
+#    (2026-11-16).
+assert seen == 3300, f"문항 총합이 달라졌다: {seen} (기대 3300)"
 print(
     f"PASS wrongbook assets: exams={len(exams)} questions={seen} "
     f"손상(가드로 숨김)={broken}/{BROKEN_BUDGET}"
