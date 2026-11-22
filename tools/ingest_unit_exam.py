@@ -443,6 +443,10 @@ def entry(d):
         'pdf': '%s-problem.pdf' % EXAM['id'], 'answerPdf': '%s-answer.pdf' % EXAM['id'],
         'source': {'tool': 'tools/ingest_unit_exam.py', 'kind': '단원별'},
         'solFull': True,
+        # 석차·백분위의 모집단을 같은 범위 시험 응시자와 합친다(선생님 결정 2026-11-22).
+        # 새 회차라 응시자가 적다. 문항이 달라 또래 정답률은 합치지 않는다 —
+        # tools/gen_pool_cohort.py 가 기준 기록을, .gs 의 EXAM_COHORT.pool 이 시트 줄을 합친다.
+        'rankWith': ['kch1to3', 'kch1to3-b'],
     }
 
 

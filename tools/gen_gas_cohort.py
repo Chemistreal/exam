@@ -102,8 +102,14 @@ def build() -> dict[str, dict]:
             else:
                 for correct, count in sorted(rec["hist"].items(), key=lambda kv: int(kv[0])):
                     scores += [int(correct)] * int(count)
+        # 석차 모집단을 합친 회차(exams.json 의 rankWith)는 그 회차들의 **시트 줄**도
+        # 같이 센다. 기준 기록(엑셀)은 위 scores 에 이미 합쳐져 있다
+        # (tools/gen_pool_cohort.py). 옛 제목까지 다 적어야 옛 이름으로 쌓인 줄이 안 빠진다.
+        pool = [t for mid in exam.get("rankWith") or [] for t in titles.get(mid, [])]
         for title in titles.get(exam["id"], [exam["title"]]):
             out[title] = {"q": exam["nQ"], "base": scores}
+            if pool:
+                out[title]["pool"] = pool
     return out
 
 
@@ -111,7 +117,10 @@ def render(table: dict[str, dict]) -> str:
     lines = [BEGIN]
     for title, e in table.items():
         base = ",".join(str(v) for v in e["base"])
-        lines.append(f"  '{title}': {{ q: {e['q']}, base: [{base}] }},")
+        pool = ""
+        if e.get("pool"):
+            pool = ", pool: [" + ", ".join(f"'{t}'" for t in e["pool"]) + "]"
+        lines.append(f"  '{title}': {{ q: {e['q']}, base: [{base}]{pool} }},")
     lines.append(END)
     return "\n".join(lines)
 

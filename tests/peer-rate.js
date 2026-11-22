@@ -120,6 +120,15 @@ const LATER_ALLC = {
        붙은 회차다. hist 는 index.html 의 SEEDS(성적표 엑셀에서 뽑아 둔 학생별
        점수)에서 왔다. 선택 분포(q)는 여전히 엑셀에만 있어 없다 — 없는 것을
        지어내지 않았으니 «잃은 것» 이 아니다 (2026-08-29). */
+    /* from:'pool' — 같은 범위 시험 응시자와 **석차 모집단만** 합친 회차다
+       (tools/gen_pool_cohort.py · 선생님 결정 2026-11-22). 문항이 다른 시험을
+       합쳤으니 문항별 통계(q·qc)는 일부러 없다. 있으면 오히려 틀린 것이다. */
+    if (b.from === 'pool') {
+      if (b.q || b.qc) bad.push(id + ': from:pool 인데 문항별 통계가 있다 — 문항이 다른 시험을 합치면 뜻이 없다');
+      if (!b.hist || Object.values(b.hist).reduce((a, c) => a + c, 0) !== b.n)
+        bad.push(id + ': from:pool 의 hist 사람 수가 n 과 다르다');
+      return;
+    }
     if (b.from === 'rate' || b.from === 'rate+seeds') {
       const seeded = b.from === 'rate+seeds';
       if (!b.qc) { bad.push(id + ': ' + b.from + ' 인데 qc 가 없다'); return; }
@@ -194,7 +203,10 @@ const LATER_ALLC = {
      그 여덟은 공식 정답률과 응시 인원만 있는 반쪽 기록(from:'rate')이라
      또래 정답률은 서지만 석차 모집단은 아직 없다 (2026-08-23).
      2758 → 2763 : 기준 기록 자동 갱신(시트)이 5명을 들여왔다 (2026-08-23). */
-  chk('기준 기록 인원', Object.keys(BASE).reduce((a, k) => a + BASE[k].n, 0), 2763);
+  /* from:'pool' 은 다른 회차 기록을 **다시 센 것**이라 새 사람이 아니다 — 빼고 센다.
+     더하면 합친 회차가 하나 생길 때마다 이 수가 부풀어, 정말 사람이 빠져도 가려진다. */
+  chk('기준 기록 인원', Object.keys(BASE).filter(k => BASE[k].from !== 'pool')
+    .reduce((a, k) => a + BASE[k].n, 0), 2763);
 }
 
 console.log('\n── 나중에 전원정답이 된 문항의 또래 정답률 ──');

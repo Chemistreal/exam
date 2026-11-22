@@ -54,6 +54,8 @@ vm.runInContext([
   'var CUR_YEAR=' + YEAR + ';',
   cutFn(SRC, 'rankIn'), cutFn(SRC, 'rankPoolYear'),
   cutFn(SRC, 'rankPool'), cutFn(SRC, 'baselineTotals'),
+  /* 석차 모집단을 합친 회차면 rankPool 이 그 사실(pooled)을 같이 돌려준다. */
+  cutFn(SRC, 'poolTitles'), 'var FINAL_EXAMS=[];',
   /* 시트가 대답한 '지금 인원'. 링크에 실린 낡은 숫자를 갈아 끼우는 자리라
      여기서도 실물을 넣는다 — 흉내로 두면 갈아 끼우는 규칙을 못 잰다. */
   'var LIVE_POOL=null;', cutFn(SRC, '_spread'), cutFn(SRC, 'liveTotals'), cutFn(SRC, 'liveYearTotals'),

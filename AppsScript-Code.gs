@@ -336,7 +336,7 @@ function _recomputeConfigFor(title) {
   if (String(title) === '조준모의고사 0회') return { base: J0_BASE_TOTALS, qCount: 60 };
   var c = EXAM_COHORT[String(title)];
   if (!c) return null;
-  return { base: c.base || [], qCount: c.q || 60 };
+  return { base: c.base || [], qCount: c.q || 60, pool: c.pool || [] };
 }
 
 /**
@@ -513,7 +513,7 @@ function allRows_(cb) {
    낸 것이다(홍길동 60/60 · 예비본 57/60 …). 시트에서 지우기 전에도 여기
    숫자는 바로 맞는다. */
 function cohortOf_(examId, cb) {
-  var hist = {}, yhist = {}, n = 0, yn = 0, skipped = 0;
+  var hist = {}, yhist = {}, n = 0, yn = 0, skipped = 0, pooledN = 0;
   /* 시간대에 안 기댄다 — _seoulYear_ 주석 참고. */
   var year = _seoulYear_(new Date());
   try {
@@ -525,11 +525,25 @@ function cohortOf_(examId, cb) {
        틀린다. 빈 대답이면 성적표는 링크에 실린 값을 그대로 쓴다. */
     if (!want) return _jsonOut_(JSON.stringify(
       { ok: true, exam: examId, hist: {}, n: 0, unknown: true }), cb);
+    /* 석차 모집단을 합친 회차면 그 회차들의 시트 줄도 센다 — 재계산(_recalcRows)과
+       같은 규칙이라야 화면의 석차와 문자의 석차가 같은 말을 한다. */
+    var cfg0 = null;
+    for (var wi = 0; wi < want.length && !cfg0; wi++) cfg0 = _recomputeConfigFor(want[wi]);
+    var poolT = (cfg0 && cfg0.pool) || [], qMax = (cfg0 && cfg0.qCount) || 0;
+    var mine = {}, others = {};
     var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('성적기록');
     if (sh && sh.getLastRow() > 1) {
       var rows = sh.getRange(2, 1, sh.getLastRow() - 1, HEADER.length).getValues();
       for (var i = 0; i < rows.length; i++) {
         var r = rows[i];
+        if (poolT.length && want.indexOf(String(r[0])) < 0 && poolT.indexOf(String(r[0])) >= 0) {
+          if (/localhost/i.test(String(r[2] || ''))) { skipped++; continue; }
+          var oc = Number(r[14]), ow = _whoKey(r);
+          if (!_normName(r[1]) || !isFinite(oc) || oc < 0 || (qMax && oc > qMax)) continue;
+          var ot = (r[3] instanceof Date) ? r[3].getTime() : 0;
+          if (!others[ow] || ot >= others[ow].t) others[ow] = { t: ot, c: Math.round(oc), d: r[3] };
+          continue;
+        }
         if (want.indexOf(String(r[0])) < 0) continue;
         if (/localhost/i.test(String(r[2] || ''))) { skipped++; continue; }
         var c = Number(r[14]);                    // [14] 맞은개수
@@ -537,6 +551,7 @@ function cohortOf_(examId, cb) {
         c = Math.round(c);
         hist[c] = (hist[c] || 0) + 1;
         n++;
+        if (poolT.length) mine[_whoKey(r)] = 1;
         /* 올해 채점한 것만 따로 센다 — 반석차가 쓰는 모집단이다.
            가르는 잣대는 **채점해 넣은 시각**([3] 저장시각)이다. 응시일은
            비어 있는 줄이 많다. 시각을 모르는 줄은 올해로 치지 않는다 —
@@ -545,9 +560,19 @@ function cohortOf_(examId, cb) {
         if (t === year) { yhist[c] = (yhist[c] || 0) + 1; yn++; }
       }
     }
+    /* 합친 회차의 줄 — 이 회차를 본 학생은 이미 위에서 셌으니 뺀다. */
+    for (var ow2 in others) {
+      if (mine[ow2]) continue;
+      var o = others[ow2];
+      hist[o.c] = (hist[o.c] || 0) + 1; n++; pooledN++;
+      var oy = (o.d instanceof Date) ? _seoulYear_(o.d) : 0;
+      if (oy === year) { yhist[o.c] = (yhist[o.c] || 0) + 1; yn++; }
+    }
   } catch (err) {}
-  return _jsonOut_(JSON.stringify({ ok: true, exam: examId, hist: hist, n: n,
-                                    yhist: yhist, yn: yn, year: year, skipped: skipped }), cb);
+  var out = { ok: true, exam: examId, hist: hist, n: n,
+              yhist: yhist, yn: yn, year: year, skipped: skipped };
+  if (pooledN) out.pooled = pooledN;          // 그중 합친 회차에서 온 사람 수
+  return _jsonOut_(JSON.stringify(out), cb);
 }
 
 function doGet(e) {
@@ -910,7 +935,7 @@ var EXAM_COHORT = {
   '화학2 1-3단원 모의고사': { q: 60, base: [24,25,35,36,38,39,41,41,42,43,45,45,48,49,51,52,54] },
   '화학2 총괄평가': { q: 60, base: [22,24,26,27,28,29,29,33,34,34,35,35,35,36,36,36,37,37,38,39,39,39,39,39,40,40,40,41,42,42,42,43,44,45,45,45,46,46,46,46,46,47,48,48,48,49,49,49,49,50,51,51,51,51,52,52,53,53,54,55,56] },
   '조준모의고사 0회': { q: 60, base: [] },
-  '화학1 1-3단원 총괄평가 (심화반)': { q: 60, base: [] },
+  '화학1 1-3단원 총괄평가 (심화반)': { q: 60, base: [9,9,10,10,10,10,10,10,11,11,11,11,11,11,12,12,12,12,13,13,13,13,13,13,14,14,14,14,14,14,14,15,15,15,15,15,15,15,15,15,15,16,16,16,16,16,16,16,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,20,20,20,20,20,20,20,20,20,20,20,20,20,20,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,26,26,26,26,26,26,26,26,26,26,26,26,26,26,26,26,26,26,26,27,27,27,27,27,27,27,27,27,27,27,27,27,27,27,27,27,27,27,27,27,27,27,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,39,39,39,39,39,39,39,39,39,39,39,39,39,39,39,39,39,39,39,39,39,39,39,39,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,41,41,41,41,41,41,41,41,41,41,41,41,41,41,41,41,41,41,41,41,41,41,41,41,41,41,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,43,43,43,43,43,43,43,43,43,43,44,44,44,44,44,44,44,44,44,44,44,44,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,47,47,47,47,47,47,47,47,47,47,47,47,47,47,47,47,47,47,47,47,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,50,50,50,50,50,50,50,50,50,50,50,50,50,50,51,51,51,51,51,51,51,51,51,51,51,51,51,51,51,51,51,51,51,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,53,53,53,53,53,53,53,53,53,53,54,54,54,54,54,54,54,54,54,54,54,54,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,57,57,57,57,57,57,57,57,58,58,58,59], pool: ['화학1 1-3단원 모의고사', '화학1 1-3단원 모의고사 (동형)'] },
 };
 
 /* 학교명 오타·표기 교정(필요 시 여기에 추가). 이름 기준으로 학생을 묶으므로 석차엔 영향 없지만 표시를 바로잡는다. */
@@ -1057,7 +1082,7 @@ function _recomputeAllOnce_() {
     var cfg = _recomputeConfigFor(t);
     if (!cfg) { skip.push(t); return; }
     // 한 회차가 실패해도 나머지는 계속 맞춘다.
-    try { drop = drop.concat(_recalcRows(data, t, cfg.base, cfg.qCount)); done++; }
+    try { drop = drop.concat(_recalcRows(data, t, cfg.base, cfg.qCount, cfg.pool)); done++; }
     catch (e) { Logger.log('재계산 실패 · ' + t + ' : ' + e); }
   });
 
@@ -1188,7 +1213,7 @@ function recomputeExam(title, baseTotals, qCount) {
    먼저 본 학생과 나중에 본 학생의 인원이 제각각(40, 44, 48 …)이 된다.
    여기서 모든 행을 "하나의 최종 코호트"에 대해 다시 계산해 맞춘다.
    ------------------------------------------------------------------ */
-function _recalcRows(data, title, baseTotals, qCount) {
+function _recalcRows(data, title, baseTotals, qCount, poolTitles) {
   // 열: [0]시험 [1]이름 [2]링크 [3]저장시각 [4]수험번호 [5]응시일 [6]학교 [7]학년
   //     [8]원점수 [9]만점 [10]백점환산 [11]백분위 [12]석차 [13]전체누적인원 [14]맞은개수 [15]영역별 [16]답안 [17]성적표문자
   var idx = [];
@@ -1222,6 +1247,28 @@ function _recalcRows(data, title, baseTotals, qCount) {
   var cohort = (baseTotals || []).slice();
   for (var who in latest) cohort.push(latest[who].total);
 
+  /* 3-1) 석차 모집단을 합친 회차(EXAM_COHORT[제목].pool — exams.json 의 rankWith).
+     같은 범위를 같은 문항 수로 본 회차의 **시트 줄**도 이 회차 모집단에 넣는다
+     (선생님 결정 2026-11-22). 그 회차들의 엑셀 기록은 baseTotals 에 이미 들어 있다.
+     · 한 학생은 한 번만 — 이 회차를 본 학생은 이 회차 점수로 세고, 합친 회차 줄은
+       학생별 최신 1건만 쓴다.
+     · 그 줄들의 석차·문자는 여기서 안 고친다. 자기 회차의 재계산이 맡는다.
+     · 점수가 문항 수를 넘는 줄(원점수가 섞인 옛 줄)은 단위가 달라 안 센다. */
+  var pooled = {}, poolN = 0;
+  if (poolTitles && poolTitles.length) {
+    for (var pj = 0; pj < data.length; pj++) {
+      if (poolTitles.indexOf(String(data[pj][0])) < 0) continue;
+      if (!_normName(data[pj][1])) continue;
+      var pw = _whoKey(data[pj]);
+      if (latest[pw]) continue;
+      var ptot = Number(data[pj][8]);
+      if (!isFinite(ptot) || ptot < 0 || ptot > qCount) continue;
+      var pt = ts(pj);
+      if (!pooled[pw] || pt >= pooled[pw].ts) pooled[pw] = { ts: pt, total: ptot };
+    }
+    for (var pw2 in pooled) { cohort.push(pooled[pw2].total); poolN++; }
+  }
+
   /* 연도별 코호트. 누적 석차는 몇 해치가 섞여 있어서 "올해 우리 학생들
      안에서는 몇 등이냐" 를 답하지 못한다. 저장한 해로 갈라 따로 센다.
      기준분포(baseTotals)는 지난 회차의 응시 결과라 여기 넣지 않는다.
@@ -1231,6 +1278,10 @@ function _recalcRows(data, title, baseTotals, qCount) {
   for (var who2 in latest) {
     var y2 = _yearOf(latest[who2].ts); if (!y2) continue;
     (byYear[y2] = byYear[y2] || []).push(latest[who2].total);
+  }
+  for (var who3 in pooled) {
+    var y3 = _yearOf(pooled[who3].ts); if (!y3) continue;
+    (byYear[y3] = byYear[y3] || []).push(pooled[who3].total);
   }
 
   // 4)+5) 각 행 재계산 및 문자 재작성
@@ -1253,7 +1304,7 @@ function _recalcRows(data, title, baseTotals, qCount) {
 
   Logger.log(title + ' · 유지 ' + keep.length + '행 · 중복삭제 ' + dropRows.length
     + '행 · 코호트 ' + cohort.length + '명(기준 ' + (baseTotals || []).length
-    + ' + 학생 ' + Object.keys(latest).length + ')');
+    + ' + 학생 ' + Object.keys(latest).length + (poolN ? ' + 합산 회차 ' + poolN : '') + ')');
   return dropRows;
 }
 
@@ -2004,6 +2055,9 @@ function rebuildBaseline() {
 function _baselineKeepWhy_(old, n, byHandFlag) {
   if (!old) return '';                       // 처음 만드는 회차 — 잃을 것이 없다
   if (byHandFlag) return '손입력';            // 사람이 그렇게 적어 뒀다
+  /* 다른 회차 응시자와 합친 모집단이다(tools/gen_pool_cohort.py). 시트만으로 덮으면
+     합친 수백 명이 사라지고, 이 회차 시트 줄은 창구가 따로 더하므로 두 번 세어진다. */
+  if (old.from === 'pool') return '합산모집단';
   /* 여기서 만드는 것은 n·hist 뿐이다. 문항별 통계를 가진 회차를 덮으면
      또래 정답률이 사라진다 — 다시 만들려면 엑셀 원본이 있어야 한다. */
   if (old.q || old.qc) return '문항별통계';

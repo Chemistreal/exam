@@ -82,6 +82,10 @@ jobs:
         run: python3 tools/gen_sw_version.py --check
       - name: 모든 시험에 기준 기록(연도누적 인원)이 있다
         run: python3 tools/cohort_cover.py --check
+      # 2026-11-22, 선생님 — 새 회차(총괄평가 심화반)는 같은 범위 시험 응시자와 석차를 합산한다.
+      # 합친 기준 기록이 exams.json 의 rankWith 와 그 회차들의 기록에서 벗어나면 빨간불.
+      - name: 합산한 석차 모집단이 정본(rankWith)과 맞다
+        run: python3 tools/gen_pool_cohort.py --check
       # 2026-08-11, 선생님 결정 #46 — 해설 검수 상태가 넷으로 갈려 있는데
       # **아무도 안 세고 있었다.** 재어 보니 2,310문항 중 1,620·240·223·127 이고,
       # 덜 본 350은 흩어져 있지 않고 **여섯 회차 통째**다(동형 넷 · KMChC 둘).
@@ -297,6 +301,9 @@ jobs:
       - name: 시트 석차 재계산 (나중 학생이 앞사람 인원을 늘린다)
         timeout-minutes: 5
         run: node tests/rank-recompute.js
+      - name: 석차 모집단 합산 (같은 범위 시험 응시자와 합친다 · 한 학생은 한 번)
+        timeout-minutes: 5
+        run: node tests/rank-pool.js
       - name: 또래 정답률 모집단 (기준 기록을 합쳐 센다)
         timeout-minutes: 5
         run: node tests/peer-rate.js

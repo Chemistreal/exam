@@ -118,7 +118,10 @@ console.log('\n── 지금 저장소에 든 기준 기록 ──');
     .filter(id => (!BASE[id].q || !BASE[id].qc)
                   && BASE[id].from !== 'sheet'
                   && BASE[id].from !== 'rate'
-                  && BASE[id].from !== 'rate+seeds');
+                  && BASE[id].from !== 'rate+seeds'
+                  /* 'pool' 은 문항이 다른 시험끼리 **석차 모집단만** 합친 것이라 문항별
+                     통계를 일부러 안 갖는다(tools/gen_pool_cohort.py · 2026-11-22). */
+                  && BASE[id].from !== 'pool');
   chk('문항별 통계를 가졌던 회차가 잃지 않았다', lostQ, []);
   const sheetOnly = Object.keys(BASE).filter(id => !BASE[id].q || !BASE[id].qc);
   if (sheetOnly.length) console.log('  점수 분포만 있는 회차 ' + sheetOnly.length
